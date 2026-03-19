@@ -56,4 +56,4 @@ Spendia aims to become a smart financial companion that not only tracks expenses
 
 ## 👩‍💻 Author
 
-Developed with 💙 by María Victoria Torres
+Developed with 💙 by María Victoria Torres And Andres Mancilla O 
