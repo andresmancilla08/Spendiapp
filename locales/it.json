@@ -1,0 +1,219 @@
+{
+  "login": {
+    "title": "Spendiapp",
+    "subtitle": "Controlla le tue spese mensili",
+    "googleButton": "Continua con Google",
+    "emailButton": "Accedi con email e PIN",
+    "noAccount": "Non hai un account?",
+    "registerLink": "Registrati"
+  },
+  "register": {
+    "back": "← Indietro",
+    "title": "Crea account",
+    "subtitle": "Inserisci i tuoi dati per iniziare",
+    "nameLabel": "Nome completo",
+    "namePlaceholder": "Il tuo nome",
+    "emailLabel": "Email",
+    "emailPlaceholder": "tu@email.com",
+    "continueButton": "Continua",
+    "haveAccount": "Hai già un account? ",
+    "signInLink": "Accedi"
+  },
+  "loginEmail": {
+    "back": "← Indietro",
+    "title": "Inserisci la tua email",
+    "subtitle": "Useremo la tua email per identificarti",
+    "emailLabel": "Email",
+    "emailPlaceholder": "tu@email.com",
+    "continueButton": "Continua",
+    "forgotPin": "Hai dimenticato il PIN?"
+  },
+  "pinEntry": {
+    "createTitle": "Crea il tuo PIN di accesso",
+    "createSubtitle": "Scegli 4 cifre che ricorderai",
+    "enterTitle": "Inserisci il tuo PIN",
+    "enterSubtitle": "Ciao, {{email}}"
+  },
+  "dialogs": {
+    "googleAccount": {
+      "title": "Account Google",
+      "description": "Questa email è collegata a un account Google. Usa il pulsante Google per accedere.",
+      "primary": "Torna al login",
+      "secondary": "Annulla"
+    },
+    "emailNotFound": {
+      "title": "Email non trovata",
+      "description": "Non abbiamo trovato un account con questa email. Vuoi creare un nuovo account?",
+      "primary": "Registrati",
+      "secondary": "Annulla"
+    },
+    "emailTaken": {
+      "title": "Email già registrata",
+      "description": "Questa email ha già un account con PIN. Vuoi accedere?",
+      "primary": "Accedi",
+      "secondary": "Annulla"
+    }
+  },
+  "errors": {
+    "fillAllFields": "Compila tutti i campi",
+    "invalidEmail": "Email non valida",
+    "verifyEmailError": "Non siamo riusciti a verificare la tua email. Riprova.",
+    "resetEmailSent": "Ti abbiamo inviato un'email per reimpostare il PIN",
+    "resetEmailError": "Non siamo riusciti a inviare l'email. Controlla la tua email e riprova.",
+    "wrongPin": "Il PIN inserito non è valido. Riprova.",
+    "signOutError": "Impossibile disconnettersi",
+    "genericError": "Si è verificato un errore. Riprova."
+  },
+  "common": {
+    "cancel": "Annulla",
+    "save": "Salva",
+    "next": "Avanti",
+    "understood": "Capito",
+    "great": "Ottimo!",
+    "close": "Chiudi",
+    "comingSoon": "Prossimamente",
+    "comingSoonDesc": "Questa funzione sarà disponibile a breve.",
+    "error": "Errore"
+  },
+  "tabBar": {
+    "home": "HOME",
+    "budget": "BUDGET",
+    "history": "CRONOLOGIA"
+  },
+  "home": {
+    "welcome": "Ciao, {{name}}",
+    "monthBalance": "Saldo del mese",
+    "income": "Entrate",
+    "expenses": "Spese",
+    "recentTransactions": "Transazioni recenti",
+    "noTransactions": "Nessuna transazione questo mese",
+    "noTransactionsSub": "Tocca + per registrare la prima spesa",
+    "signOut": "Disconnetti",
+    "greeting": "Ciao, {{name}}",
+    "progressTitle": "I tuoi progressi di oggi",
+    "balanceLabel": "SALDO TOTALE",
+    "balanceBadge": "Questo mese",
+    "incomeLabel": "ENTRATE",
+    "expensesLabel": "SPESE",
+    "recentActivity": "Attività Recente",
+    "seeAll": "Vedi tutto",
+    "firestoreTitle": "Configura Firestore",
+    "firestoreSubtitle": "Aggiorna le regole di sicurezza nella Firebase Console.",
+    "insightBadge": "INSIGHT INTELLIGENTE",
+    "insightText": "Registra le tue spese quotidianamente per ottenere analisi personalizzate delle tue finanze."
+  },
+  "profile": {
+    "title": "Profilo",
+    "sections": {
+      "account": "ACCOUNT",
+      "preferences": "PREFERENZE",
+      "support": "SUPPORTO"
+    },
+    "editName": {
+      "label": "Modifica nome",
+      "title": "Modifica nome",
+      "placeholder": "Il tuo nome completo",
+      "success": {
+        "title": "Nome aggiornato",
+        "desc": "Il tuo nome è stato salvato correttamente."
+      },
+      "error": {
+        "empty": {
+          "title": "Nome non valido",
+          "desc": "Il nome non può essere vuoto."
+        },
+        "generic": {
+          "desc": "Impossibile aggiornare il nome. Riprova."
+        }
+      }
+    },
+    "changePin": {
+      "label": "Cambia PIN",
+      "current": "Inserisci il tuo PIN attuale",
+      "new": "Inserisci il tuo nuovo PIN",
+      "confirm": "Conferma il tuo nuovo PIN",
+      "minLength": "Il PIN deve avere almeno 4 cifre",
+      "mismatch": "I PIN non corrispondono",
+      "wrongCurrent": "PIN attuale errato",
+      "genericError": "Si è verificato un errore. Riprova.",
+      "success": {
+        "title": "PIN aggiornato",
+        "desc": "Il tuo PIN è stato modificato correttamente."
+      }
+    },
+    "email": {
+      "label": "Email",
+      "dialog": {
+        "title": "Indirizzo email",
+        "google": "L'email è collegata al tuo account Google e non può essere modificata qui.",
+        "pin": "Per cambiare la tua email contatta il supporto."
+      }
+    },
+    "theme": {
+      "label": "Tema dell'app",
+      "system": "Sistema",
+      "light": "Chiaro",
+      "dark": "Scuro"
+    },
+    "language": {
+      "label": "Lingua",
+      "title": "Lingua",
+      "subtitle": "Seleziona la lingua dell'app"
+    },
+    "notifications": {
+      "label": "Notifiche",
+      "soon": "Le impostazioni delle notifiche saranno disponibili a breve."
+    },
+    "faq": {
+      "label": "Aiuto & FAQ",
+      "soon": "La sezione di aiuto sarà disponibile a breve."
+    },
+    "privacy": {
+      "label": "Informativa sulla privacy",
+      "soon": "L'informativa sulla privacy sarà disponibile a breve."
+    },
+    "signOut": {
+      "button": "Disconnetti",
+      "title": "Disconnetti",
+      "description": "Sei sicuro di voler uscire dall'account?",
+      "confirm": "Disconnetti"
+    },
+    "providerGoogle": "Google",
+    "providerEmail": "Email & PIN",
+    "version": "Spendiapp v1.0.0"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "sections": {
+      "appearance": "ASPETTO",
+      "security": "SICUREZZA",
+      "notifications": "NOTIFICHE",
+      "data": "DATI",
+      "about": "INFORMAZIONI"
+    },
+    "security": {
+      "changePin": "Cambia PIN",
+      "faceId": "Face ID / Touch ID",
+      "faceIdValue": "Disattivato",
+      "inactivity": "Blocco per inattività",
+      "inactivityValue": "3 min"
+    },
+    "notifications": {
+      "push": "Notifiche push",
+      "pushValue": "Attivate",
+      "weekly": "Riepilogo settimanale via email"
+    },
+    "data": {
+      "export": "Esporta i miei dati",
+      "delete": "Elimina il mio account",
+      "deleteDialog": {
+        "title": "Elimina account",
+        "desc": "Sei sicuro? Questa azione non può essere annullata."
+      }
+    },
+    "about": {
+      "terms": "Termini e condizioni",
+      "version": "Versione"
+    }
+  }
+}

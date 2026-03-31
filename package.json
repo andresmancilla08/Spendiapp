@@ -1,18 +1,38 @@
 {
   "name": "spendiapp",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/montserrat": "^0.4.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "babel-preset-expo": "^55.0.13",
     "expo": "~55.0.8",
+    "expo-auth-session": "^55.0.10",
+    "expo-constants": "~55.0.9",
+    "expo-crypto": "~55.0.10",
+    "expo-font": "~55.0.4",
+    "expo-linear-gradient": "~55.0.9",
+    "expo-linking": "~55.0.8",
+    "expo-localization": "~55.0.9",
+    "expo-router": "~55.0.7",
     "expo-status-bar": "~55.0.4",
+    "expo-web-browser": "~55.0.10",
+    "firebase": "^12.11.0",
+    "i18next": "^26.0.2",
+    "lottie-react-native": "~7.3.4",
     "react": "19.2.0",
-    "react-native": "0.83.2"
+    "react-dom": "^19.2.0",
+    "react-i18next": "^17.0.1",
+    "react-native": "0.83.2",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-screens": "~4.23.0",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
