@@ -26,7 +26,12 @@
     "emailLabel": "Email",
     "emailPlaceholder": "tu@email.com",
     "continueButton": "Continuar",
-    "forgotPin": "¿Olvidaste tu PIN?"
+    "forgotPin": "¿Olvidaste tu PIN?",
+    "forgotDialog": {
+      "title": "Recuperar PIN",
+      "description": "Ingresa tu correo y te enviaremos un enlace para restablecer tu PIN.",
+      "send": "Enviar enlace"
+    }
   },
   "pinEntry": {
     "createTitle": "Crea tu PIN de acceso",
@@ -214,6 +219,107 @@
     "about": {
       "terms": "Términos y condiciones",
       "version": "Versión"
+    }
+  },
+  "addTransaction": {
+    "title": "Nueva transacción",
+    "typeExpense": "Gasto",
+    "typeIncome": "Ingreso",
+    "amountPrefix": "$",
+    "amountPlaceholder": "0",
+    "descriptionPlaceholder": "¿En qué lo usaste?",
+    "categoryLabel": "Categoría",
+    "dateLabel": "Fecha",
+    "today": "Hoy",
+    "saveButton": "Guardar",
+    "saving": "Guardando...",
+    "errors": {
+      "saveFailed": "No se pudo guardar. Intenta de nuevo."
+    }
+  },
+  "history": {
+    "title": "Historial",
+    "incomeLabel": "Ingresos",
+    "expensesLabel": "Gastos",
+    "noTransactions": "Sin transacciones",
+    "noTransactionsSub": "No hay registros para este mes",
+    "edit": {
+      "title": "Editar transacción",
+      "descriptionLabel": "Descripción",
+      "amountLabel": "Monto",
+      "categoryLabel": "Categoría",
+      "saveButton": "Guardar cambios",
+      "duplicateButton": "Duplicar",
+      "deleteButton": "Eliminar",
+      "confirmDelete": "¿Confirmar eliminación?",
+      "confirmDeleteYes": "Sí, eliminar",
+      "confirmDeleteCancel": "Cancelar",
+      "saving": "Guardando...",
+      "deleteError": "No se pudo eliminar. Intenta de nuevo.",
+      "saveError": "No se pudo guardar. Intenta de nuevo."
+    }
+  },
+  "categories": {
+    "title": "Mis categorías",
+    "defaultSection": "PREDETERMINADAS",
+    "customSection": "MIS CATEGORÍAS",
+    "emptyCustom": "Aún no tienes categorías personalizadas",
+    "emptyCustomSub": "Toca + para crear tu primera categoría",
+    "addButton": "Nueva categoría",
+    "editTitle": "Editar categoría",
+    "createTitle": "Nueva categoría",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Ej: Mascotas, Deudas...",
+    "typeLabel": "Aplica para",
+    "typeExpense": "Gasto",
+    "typeIncome": "Ingreso",
+    "typeBoth": "Ambos",
+    "iconLabel": "Ícono",
+    "iconAuto": "Sugerido automáticamente",
+    "iconSourceAuto": "Sugerido automáticamente",
+    "iconSourceManual": "Elegido manualmente",
+    "iconChange": "Cambiar ícono",
+    "changeIcon": "Cambiar ícono",
+    "iconPicker": "Elige un ícono",
+    "saving": "Guardando...",
+    "saveButton": "Guardar",
+    "deleteButton": "Eliminar categoría",
+    "deleteTitle": "¿Eliminar categoría?",
+    "deleteDesc": "Esta acción reasignará {{count}} transacción(es) a \"Otro\". No se puede deshacer.",
+    "deleteConfirm": "Sí, eliminar",
+    "deleteCancel": "Cancelar",
+    "deleteError": "No se pudo eliminar. Intenta de nuevo.",
+    "saveError": "No se pudo guardar. Intenta de nuevo.",
+    "nameError": "El nombre debe tener al menos 2 caracteres",
+    "manageCategoriesLabel": "Mis categorías",
+    "suggestingEmoji": "Sugiriendo ícono..."
+  },
+  "support": {
+    "title": "Buzón de sugerencias",
+    "subtitle": "¿Tienes alguna idea o sugerencia para mejorar Spendiapp? Cuéntanos, te leemos con gusto.",
+    "form": {
+      "nameLabel": "Tu nombre",
+      "namePlaceholder": "Escribe tu nombre",
+      "nameError": "El nombre debe tener al menos 2 caracteres",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@correo.com",
+      "emailError": "Ingresa un correo electrónico válido",
+      "messageLabel": "Tu sugerencia",
+      "messagePlaceholder": "Describe tu idea o sugerencia (mínimo 10 caracteres)...",
+      "messageError": "La sugerencia debe tener al menos 10 caracteres",
+      "submit": "Enviar por WhatsApp"
+    },
+    "whatsapp": {
+      "title": "💡 Nueva sugerencia — Spendiapp",
+      "divider": "━━━━━━━━━━━━━━━━━━━━",
+      "name": "👤 Nombre:",
+      "email": "📧 Correo:",
+      "message": "💬 Sugerencia:",
+      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Enviado desde Spendiapp v1.0.0"
+    },
+    "success": {
+      "title": "¡Sugerencia enviada!",
+      "description": "Gracias por tomarte el tiempo de compartir tu idea. La revisaremos con atención."
     }
   }
 }

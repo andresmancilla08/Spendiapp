@@ -26,7 +26,12 @@
     "emailLabel": "Email",
     "emailPlaceholder": "tu@email.com",
     "continueButton": "Continua",
-    "forgotPin": "Hai dimenticato il PIN?"
+    "forgotPin": "Hai dimenticato il PIN?",
+    "forgotDialog": {
+      "title": "Recupera PIN",
+      "description": "Inserisci la tua email e ti invieremo un link per reimpostare il tuo PIN.",
+      "send": "Invia link"
+    }
   },
   "pinEntry": {
     "createTitle": "Crea il tuo PIN di accesso",
@@ -214,6 +219,34 @@
     "about": {
       "terms": "Termini e condizioni",
       "version": "Versione"
+    }
+  },
+  "support": {
+    "title": "Casella dei suggerimenti",
+    "subtitle": "Hai un'idea o un suggerimento per migliorare Spendiapp? Raccontaci, ci fa piacere sentirti.",
+    "form": {
+      "nameLabel": "Il tuo nome",
+      "namePlaceholder": "Scrivi il tuo nome",
+      "nameError": "Il nome deve avere almeno 2 caratteri",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "emailError": "Inserisci un indirizzo email valido",
+      "messageLabel": "Il tuo suggerimento",
+      "messagePlaceholder": "Descrivi la tua idea o suggerimento (almeno 10 caratteri)...",
+      "messageError": "Il suggerimento deve avere almeno 10 caratteri",
+      "submit": "Invia via WhatsApp"
+    },
+    "whatsapp": {
+      "title": "💡 Nuovo suggerimento — Spendiapp",
+      "divider": "━━━━━━━━━━━━━━━━━━━━",
+      "name": "👤 Nome:",
+      "email": "📧 Email:",
+      "message": "💬 Suggerimento:",
+      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Inviato da Spendiapp v1.0.0"
+    },
+    "success": {
+      "title": "Suggerimento inviato!",
+      "description": "Grazie per aver condiviso la tua idea. La esamineremo con attenzione."
     }
   }
 }

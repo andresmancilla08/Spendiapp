@@ -1,5 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import {
+  Modal, View, Text, TouchableOpacity, StyleSheet,
+  Animated, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
@@ -7,6 +10,7 @@ import { Fonts } from '../config/fonts';
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 export type DialogType = 'error' | 'warning' | 'success' | 'info';
+export type InputType = 'text' | 'email' | 'pin' | 'name';
 
 const DIALOG_ICON: Record<DialogType, IoniconsName> = {
   error: 'close-circle',
@@ -15,15 +19,37 @@ const DIALOG_ICON: Record<DialogType, IoniconsName> = {
   info: 'information-circle',
 };
 
+const VALIDATORS: Record<InputType, (v: string) => boolean> = {
+  text:  (v) => v.trim().length > 0,
+  name:  (v) => v.trim().length >= 2,
+  email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+  pin:   (v) => /^\d{4,8}$/.test(v.trim()),
+};
+
+const KEYBOARD_TYPE: Record<InputType, 'default' | 'email-address' | 'numeric'> = {
+  text:  'default',
+  name:  'default',
+  email: 'email-address',
+  pin:   'numeric',
+};
+
 interface AppDialogProps {
   visible: boolean;
   type?: DialogType;
   title: string;
-  description: string;
+  description?: string;
   primaryLabel: string;
   secondaryLabel?: string;
   onPrimary: () => void;
   onSecondary?: () => void;
+  loading?: boolean;
+  // Input
+  inputValue?: string;
+  onInputChange?: (value: string) => void;
+  inputPlaceholder?: string;
+  inputSecure?: boolean;
+  inputError?: string;
+  inputType?: InputType;
 }
 
 export default function AppDialog({
@@ -35,10 +61,21 @@ export default function AppDialog({
   secondaryLabel,
   onPrimary,
   onSecondary,
+  loading = false,
+  inputValue,
+  onInputChange,
+  inputPlaceholder,
+  inputSecure = false,
+  inputError,
+  inputType = 'text',
 }: AppDialogProps) {
   const { colors } = useTheme();
   const scale = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(300)).current;
+
+  const hasInput = onInputChange !== undefined;
+  const isInputValid = hasInput ? VALIDATORS[inputType](inputValue ?? '') : true;
+  const isPrimaryDisabled = loading || !isInputValid;
 
   const iconName = DIALOG_ICON[type];
   const iconColor =
@@ -83,21 +120,62 @@ export default function AppDialog({
 
   return (
     <Modal transparent animationType="fade" visible={visible} statusBarTranslucent>
-      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+      <KeyboardAvoidingView
+        style={[styles.overlay, { backgroundColor: colors.overlay }]}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <Animated.View style={[styles.card, { backgroundColor: colors.surface, transform: [{ translateY }] }]}>
           <Animated.View style={[styles.iconWrapper, { transform: [{ scale }] }]}>
             <Ionicons name={iconName} size={56} color={iconColor} />
           </Animated.View>
 
           <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
-          <Text style={[styles.description, { color: colors.textSecondary }]}>{description}</Text>
+
+          {!!description && (
+            <Text style={[styles.description, { color: colors.textSecondary }]}>{description}</Text>
+          )}
+
+          {hasInput && (
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.textPrimary,
+                    borderColor: inputError ? colors.error : colors.border,
+                    backgroundColor: colors.backgroundSecondary,
+                  },
+                ]}
+                value={inputValue}
+                onChangeText={onInputChange}
+                placeholder={inputPlaceholder}
+                placeholderTextColor={colors.textTertiary}
+                secureTextEntry={inputSecure}
+                keyboardType={KEYBOARD_TYPE[inputType]}
+                autoCapitalize={inputType === 'email' ? 'none' : 'words'}
+                autoCorrect={false}
+                autoFocus
+              />
+              {!!inputError && (
+                <Text style={[styles.inputError, { color: colors.error }]}>{inputError}</Text>
+              )}
+            </View>
+          )}
 
           <TouchableOpacity
-            style={[styles.primaryButton, { backgroundColor: colors.primary }]}
+            style={[
+              styles.primaryButton,
+              { backgroundColor: colors.primary },
+              isPrimaryDisabled && styles.primaryButtonDisabled,
+            ]}
             onPress={onPrimary}
             activeOpacity={0.85}
+            disabled={isPrimaryDisabled}
           >
-            <Text style={[styles.primaryLabel, { color: colors.onPrimary }]}>{primaryLabel}</Text>
+            {loading
+              ? <ActivityIndicator color={colors.onPrimary} />
+              : <Text style={[styles.primaryLabel, { color: colors.onPrimary }]}>{primaryLabel}</Text>
+            }
           </TouchableOpacity>
 
           {secondaryLabel && onSecondary && (
@@ -110,7 +188,7 @@ export default function AppDialog({
             </TouchableOpacity>
           )}
         </Animated.View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -135,7 +213,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: Fonts.bold,
-    marginBottom: 10,
+    marginBottom: 20,
     textAlign: 'center',
   },
   description: {
@@ -145,6 +223,25 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: 'center',
   },
+  inputWrapper: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  input: {
+    borderWidth: 1.5,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    fontFamily: Fonts.regular,
+    width: '100%',
+  },
+  inputError: {
+    fontSize: 12,
+    fontFamily: Fonts.regular,
+    marginTop: 6,
+    marginLeft: 4,
+  },
   primaryButton: {
     height: 52,
     width: '100%',
@@ -152,6 +249,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.4,
   },
   primaryLabel: {
     fontSize: 16,

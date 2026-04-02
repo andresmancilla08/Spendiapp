@@ -9,4 +9,6 @@ export interface Transaction {
   description: string;
   date: Date;
   createdAt: Date;
+  isFixed?: boolean;
+  isVirtualFixed?: boolean; // true cuando es una copia virtual de un fijo en otro mes
 }
