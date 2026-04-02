@@ -10,9 +10,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import AppHeader from '../../components/AppHeader';
+import PinInput from '../../components/PinInput';
+import { registerWithEmailAndPin } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
@@ -20,19 +23,37 @@ import { Fonts } from '../../config/fonts';
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [pin, setPin] = useState('');
+  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const { colors } = useTheme();
 
-  const handleContinue = () => {
-    if (!name.trim() || !email.trim()) {
+  const isNameValid = name.trim().length >= 2;
+  const isEmailValid = email.trim().length > 0 && email.includes('@');
+  const isPinComplete = pin.length === 4;
+  const canSubmit = isNameValid && isEmailValid && isPinComplete;
+
+  const handleContinue = async () => {
+    if (!isNameValid) {
       Alert.alert('Error', t('errors.fillAllFields'));
       return;
     }
-    if (!email.includes('@')) {
+    if (!isEmailValid) {
       Alert.alert('Error', t('errors.invalidEmail'));
       return;
     }
-    router.push({ pathname: '/(auth)/pin-entry', params: { mode: 'register', name, email } });
+    setLoading(true);
+    try {
+      await registerWithEmailAndPin(name.trim(), email.trim().toLowerCase(), pin);
+    } catch (e: any) {
+      if (e?.code === 'auth/email-already-in-use') {
+        Alert.alert(t('dialogs.emailTaken.title'), t('dialogs.emailTaken.description'));
+      } else {
+        Alert.alert('Error', t('errors.genericError'));
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -81,24 +102,27 @@ export default function RegisterScreen() {
               />
             </View>
 
-            <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: colors.primary }]}
-              onPress={handleContinue}
-              activeOpacity={0.85}
-            >
-              <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('register.continueButton')}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.footer}>
-            <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
-              <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-                {t('register.haveAccount')}
-                <Text style={[styles.footerLink, { color: colors.primary }]}>{t('register.signInLink')}</Text>
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.inputGroup}>
+              <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.createTitle')}</Text>
+              <Text style={[styles.inputSub, { color: colors.textSecondary }]}>{t('pinEntry.createSubtitle')}</Text>
+              <PinInput value={pin} onChange={setPin} />
+            </View>
           </View>
         </ScrollView>
+
+        <View style={[styles.footer, { backgroundColor: colors.background }]}>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
+            onPress={handleContinue}
+            activeOpacity={0.85}
+            disabled={!canSubmit || loading}
+          >
+            {loading
+              ? <ActivityIndicator color={colors.onPrimary} />
+              : <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('register.continueButton')}</Text>
+            }
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -111,7 +135,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 8,
-    paddingBottom: 40,
+    paddingBottom: 16,
+  },
+  footer: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 8 : 24,
+    gap: 12,
   },
   header: {
     marginTop: 24,
@@ -129,15 +159,19 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    gap: 20,
+    gap: 32,
   },
   inputGroup: {
-    marginBottom: 4,
+    gap: 12,
   },
   inputLabel: {
     fontSize: 14,
     fontFamily: Fonts.semiBold,
-    marginBottom: 8,
+  },
+  inputSub: {
+    fontSize: 13,
+    fontFamily: Fonts.regular,
+    marginTop: -6,
   },
   input: {
     height: 52,
@@ -160,15 +194,5 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 17,
     fontFamily: Fonts.bold,
-  },
-  footer: {
-    marginTop: 40,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 15,
-  },
-  footerLink: {
-    fontFamily: Fonts.semiBold,
   },
 });

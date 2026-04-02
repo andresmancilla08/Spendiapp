@@ -22,6 +22,7 @@ import { ThemeMode } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, changeLanguage } from '../../config/i18n';
 import AppHeader from '../../components/AppHeader';
+import { router } from 'expo-router';
 import AppDialog, { DialogType } from '../../components/AppDialog';
 import { Fonts } from '../../config/fonts';
 
@@ -70,78 +71,6 @@ function SectionTitle({ label }: { label: string }) {
   );
 }
 
-// ── Modal genérico con un TextInput ────────────────────────────────────────
-interface InputModalProps {
-  visible: boolean;
-  title: string;
-  placeholder: string;
-  initialValue?: string;
-  secureTextEntry?: boolean;
-  keyboardType?: 'default' | 'numeric';
-  maxLength?: number;
-  onCancel: () => void;
-  onConfirm: (value: string) => void;
-  loading?: boolean;
-}
-
-function InputModal({
-  visible, title, placeholder, initialValue = '', secureTextEntry = false,
-  keyboardType = 'default', maxLength, onCancel, onConfirm, loading = false,
-}: InputModalProps) {
-  const { colors } = useTheme();
-  const { t } = useTranslation();
-  const [value, setValue] = useState(initialValue);
-
-  // reset when opens
-  const handleOpen = () => setValue(initialValue);
-
-  return (
-    <Modal visible={visible} transparent animationType="fade" onShow={handleOpen}>
-      <KeyboardAvoidingView
-        style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={[styles.modalCard, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>{title}</Text>
-
-          <TextInput
-            style={[styles.modalInput, { color: colors.textPrimary, borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]}
-            placeholder={placeholder}
-            placeholderTextColor={colors.textTertiary}
-            value={value}
-            onChangeText={setValue}
-            secureTextEntry={secureTextEntry}
-            keyboardType={keyboardType}
-            maxLength={maxLength}
-            autoFocus
-          />
-
-          <View style={styles.modalButtons}>
-            <TouchableOpacity
-              style={[styles.modalBtn, { backgroundColor: colors.surface, borderColor: colors.primary, borderWidth: 1.5 }]}
-              onPress={onCancel}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.modalBtnText, { color: colors.primary }]}>{t('common.cancel')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.modalBtn, { backgroundColor: colors.primary }]}
-              onPress={() => onConfirm(value)}
-              activeOpacity={0.8}
-              disabled={loading}
-            >
-              {loading
-                ? <ActivityIndicator size="small" color={colors.onPrimary} />
-                : <Text style={[styles.modalBtnText, { color: colors.onPrimary }]}>{t('common.save')}</Text>
-              }
-            </TouchableOpacity>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
-  );
-}
 
 // ── Modal cambiar PIN (3 pasos) ─────────────────────────────────────────────
 type PinStep = 'current' | 'new' | 'confirm';
@@ -395,6 +324,8 @@ export default function ProfileScreen() {
   const { colors, themeMode, setThemeMode, isDark } = useTheme();
   const { t, i18n } = useTranslation();
 
+  const [nameInput, setNameInput] = useState('');
+  const [nameInputError, setNameInputError] = useState('');
   const [editNameVisible, setEditNameVisible] = useState(false);
   const [editNameLoading, setEditNameLoading] = useState(false);
   const [changePinVisible, setChangePinVisible] = useState(false);
@@ -434,12 +365,13 @@ export default function ProfileScreen() {
 
   const handleLanguage = () => setLangVisible(true);
 
-  const handleSaveName = async (name: string) => {
-    const trimmed = name.trim();
+  const handleSaveName = async () => {
+    const trimmed = nameInput.trim();
     if (!trimmed) {
-      showError(t('profile.editName.error.empty.title'), t('profile.editName.error.empty.desc'));
+      setNameInputError(t('profile.editName.error.empty.title'));
       return;
     }
+    setNameInputError('');
     setEditNameLoading(true);
     try {
       await updateDisplayName(trimmed);
@@ -447,7 +379,7 @@ export default function ProfileScreen() {
       setEditNameVisible(false);
       showSuccess(t('profile.editName.success.title'), t('profile.editName.success.desc'));
     } catch {
-      showError(t('common.error'), t('profile.editName.error.generic.desc'));
+      setNameInputError(t('profile.editName.error.generic.desc'));
     } finally {
       setEditNameLoading(false);
     }
@@ -496,7 +428,12 @@ export default function ProfileScreen() {
             icon="person-outline"
             label={t('profile.editName.label')}
             value={user?.displayName ?? ''}
-            onPress={() => setEditNameVisible(true)}
+            onPress={() => { setNameInput(user?.displayName ?? ''); setNameInputError(''); setEditNameVisible(true); }}
+          />
+          <OptionItem
+            icon="grid-outline"
+            label={t('categories.manageCategoriesLabel')}
+            onPress={() => router.push('/categories')}
           />
           {!isGoogleUser && (
             <OptionItem
@@ -546,7 +483,7 @@ export default function ProfileScreen() {
           <OptionItem
             icon="help-circle-outline"
             label={t('profile.faq.label')}
-            onPress={() => showInfo(t('common.comingSoon'), t('profile.faq.soon'))}
+            onPress={() => router.push('/support')}
           />
           <OptionItem
             icon="shield-checkmark-outline"
@@ -567,15 +504,21 @@ export default function ProfileScreen() {
         <Text style={[styles.version, { color: colors.textTertiary }]}>{t('profile.version')}</Text>
       </ScrollView>
 
-      {/* Modal: Editar nombre */}
-      <InputModal
+      {/* Dialog: Editar nombre */}
+      <AppDialog
         visible={editNameVisible}
+        type="info"
         title={t('profile.editName.title')}
-        placeholder={t('profile.editName.placeholder')}
-        initialValue={user?.displayName ?? ''}
-        onCancel={() => setEditNameVisible(false)}
-        onConfirm={handleSaveName}
+        primaryLabel={t('common.save')}
+        secondaryLabel={t('common.cancel')}
+        onPrimary={handleSaveName}
+        onSecondary={() => setEditNameVisible(false)}
         loading={editNameLoading}
+        inputValue={nameInput}
+        onInputChange={setNameInput}
+        inputPlaceholder={t('profile.editName.placeholder')}
+        inputType="name"
+        inputError={nameInputError}
       />
 
       {/* Modal: Cambiar PIN */}
@@ -658,14 +601,6 @@ const styles = StyleSheet.create({
   langCancelBtn: { width: '100%', paddingVertical: 16, borderRadius: 50, borderWidth: 1.5, alignItems: 'center', marginTop: 4 },
   langCancelText: { fontSize: 15, fontFamily: Fonts.semiBold },
 
-  // Modal
-  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  modalCard: { width: '100%', borderRadius: 24, padding: 24, gap: 16 },
-  modalTitle: { fontSize: 18, fontFamily: Fonts.bold, textAlign: 'center' },
-  modalInput: { borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, fontFamily: Fonts.regular },
-  modalButtons: { flexDirection: 'row', gap: 12 },
-  modalBtn: { flex: 1, paddingVertical: 14, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
-  modalBtnText: { fontSize: 15, fontFamily: Fonts.bold },
 
   // PIN steps
   stepRow: { flexDirection: 'row', justifyContent: 'center', gap: 8 },

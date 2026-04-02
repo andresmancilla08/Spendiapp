@@ -13,52 +13,67 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
-import { sendPinResetEmail, getEmailProvider } from '../../hooks/useAuth';
+import { sendPinResetEmail, getEmailProvider, loginWithEmailAndPin } from '../../hooks/useAuth';
 import AppDialog from '../../components/AppDialog';
 import AppHeader from '../../components/AppHeader';
+import PinInput from '../../components/PinInput';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
 
 export default function LoginEmailScreen() {
   const [email, setEmail] = useState('');
+  const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pinError, setPinError] = useState(false);
   const [dialog, setDialog] = useState<'google' | 'not_found' | null>(null);
+  const [forgotVisible, setForgotVisible] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
   const { t } = useTranslation();
   const { colors } = useTheme();
 
+  const isEmailValid = email.trim().length > 0 && email.includes('@');
+  const isPinComplete = pin.length === 4;
+  const canSubmit = isEmailValid && isPinComplete;
+
   const handleContinue = async () => {
-    if (!email.trim() || !email.includes('@')) {
-      Alert.alert('Error', t('errors.invalidEmail'));
-      return;
-    }
+    setPinError(false);
     setLoading(true);
     try {
       const provider = await getEmailProvider(email.trim().toLowerCase());
       if (provider === 'google') {
         setDialog('google');
+        return;
       } else if (provider === 'none') {
         setDialog('not_found');
-      } else {
-        router.push({ pathname: '/(auth)/pin-entry', params: { mode: 'login', email } });
+        return;
       }
+      await loginWithEmailAndPin(email.trim().toLowerCase(), pin);
     } catch {
-      Alert.alert('Error', t('errors.verifyEmailError'));
+      setPinError(true);
+      Alert.alert('Error', t('errors.wrongPin'));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleForgotPin = async () => {
-    if (!email.trim() || !email.includes('@')) {
-      Alert.alert('Error', t('errors.invalidEmail'));
-      return;
-    }
+  const handleForgotPin = () => {
+    setForgotEmail(email);
+    setForgotVisible(true);
+  };
+
+  const handleSendReset = async () => {
+    setForgotLoading(true);
     try {
-      await sendPinResetEmail(email);
-      Alert.alert('Listo', t('errors.resetEmailSent'));
+      await sendPinResetEmail(forgotEmail.trim());
+      setForgotVisible(false);
+      setForgotEmail('');
+      Alert.alert('', t('errors.resetEmailSent'));
     } catch {
       Alert.alert('Error', t('errors.resetEmailError'));
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -84,6 +99,22 @@ export default function LoginEmailScreen() {
         onPrimary={() => { setDialog(null); router.replace({ pathname: '/(auth)/register', params: { email } }); }}
         onSecondary={() => setDialog(null)}
       />
+      <AppDialog
+        visible={forgotVisible}
+        type="info"
+        title={t('loginEmail.forgotDialog.title')}
+        description={t('loginEmail.forgotDialog.description')}
+        primaryLabel={t('loginEmail.forgotDialog.send')}
+        secondaryLabel={t('common.cancel')}
+        onPrimary={handleSendReset}
+        onSecondary={() => { setForgotVisible(false); setForgotEmail(''); }}
+        loading={forgotLoading}
+        inputValue={forgotEmail}
+        onInputChange={setForgotEmail}
+        inputPlaceholder={t('loginEmail.emailPlaceholder')}
+        inputType="email"
+      />
+
       <AppHeader />
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
@@ -111,31 +142,38 @@ export default function LoginEmailScreen() {
                 autoCorrect={false}
                 returnKeyType="done"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(v) => { setEmail(v); setPinError(false); }}
               />
             </View>
 
-            <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: colors.primary }]}
-              onPress={handleContinue}
-              activeOpacity={0.85}
-              disabled={loading}
-            >
-              {loading
-                ? <ActivityIndicator color={colors.onPrimary} />
-                : <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('loginEmail.continueButton')}</Text>
-              }
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.forgotPinButton}
-              onPress={handleForgotPin}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.forgotPinText, { color: colors.primary }]}>{t('loginEmail.forgotPin')}</Text>
-            </TouchableOpacity>
+            <View style={styles.inputGroup}>
+              <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.enterTitle')}</Text>
+              <PinInput value={pin} onChange={(v) => { setPin(v); setPinError(false); }} error={pinError} />
+            </View>
           </View>
         </ScrollView>
+
+        <View style={[styles.footer, { backgroundColor: colors.background }]}>
+          <TouchableOpacity
+            style={styles.forgotPinButton}
+            onPress={handleForgotPin}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.forgotPinText, { color: colors.primary }]}>{t('loginEmail.forgotPin')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
+            onPress={handleContinue}
+            activeOpacity={0.85}
+            disabled={!canSubmit || loading}
+          >
+            {loading
+              ? <ActivityIndicator color={colors.onPrimary} />
+              : <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('loginEmail.continueButton')}</Text>
+            }
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -148,7 +186,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 8,
-    paddingBottom: 40,
+    paddingBottom: 16,
+  },
+  footer: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 8 : 24,
+    gap: 4,
   },
   header: {
     marginTop: 24,
@@ -166,15 +210,14 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    gap: 20,
+    gap: 32,
   },
   inputGroup: {
-    marginBottom: 4,
+    gap: 12,
   },
   inputLabel: {
     fontSize: 14,
     fontFamily: Fonts.semiBold,
-    marginBottom: 8,
   },
   input: {
     height: 52,

@@ -45,6 +45,13 @@
     "plugins": [
       "expo-router",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6e07df40-6b55-4723-b95a-ffc3f85f0596"
+      }
+    },
+    "owner": "mancilla08"
   }
 }

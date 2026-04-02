@@ -7,6 +7,7 @@ import {
   Image,
   RefreshControl,
 } from 'react-native';
+import { AddTransactionModal } from '../../components/AddTransactionModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -14,19 +15,20 @@ import { useState, useCallback } from 'react';
 import { router } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
+import { useToast } from '../../context/ToastContext';
 import { useTransactions } from '../../hooks/useTransactions';
 import { Transaction } from '../../types/transaction';
 import { HomeScreenSkeleton } from '../../components/Skeleton';
 import { Fonts } from '../../config/fonts';
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
-  food:          { icon: '🛒', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
+  food:          { icon: '🍽️', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
   transport:     { icon: '🚗', color: '#F59E0B', bg: '#F3F4F6', darkBg: '#252830' },
   health:        { icon: '💊', color: '#10B981', bg: '#F3F4F6', darkBg: '#252830' },
-  entertainment: { icon: '🎮', color: '#8B5CF6', bg: '#F3F4F6', darkBg: '#252830' },
+  entertainment: { icon: '🎉', color: '#8B5CF6', bg: '#F3F4F6', darkBg: '#252830' },
   shopping:      { icon: '🛍️', color: '#EC4899', bg: '#F3F4F6', darkBg: '#252830' },
-  home:          { icon: '🏠', color: '#00897B', bg: '#F3F4F6', darkBg: '#252830' },
-  salary:        { icon: '💳', color: '#00ACC1', bg: '#F3F4F6', darkBg: '#252830' },
+  home:          { icon: '🏡', color: '#00897B', bg: '#F3F4F6', darkBg: '#252830' },
+  salary:        { icon: '💰', color: '#00ACC1', bg: '#F3F4F6', darkBg: '#252830' },
   other:         { icon: '📌', color: '#737879', bg: '#F3F4F6', darkBg: '#252830' },
 };
 
@@ -36,6 +38,15 @@ function formatCurrency(amount: number): string {
     currency: 'COP',
     minimumFractionDigits: 0,
   }).format(amount);
+}
+
+function formatCompact(amount: number): string {
+  const abs = Math.abs(amount);
+  const sign = amount < 0 ? '-' : '';
+  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1).replace('.0', '')}B`;
+  if (abs >= 1_000_000)     return `${sign}$${(abs / 1_000_000).toFixed(1).replace('.0', '')}M`;
+  if (abs >= 1_000)         return `${sign}$${(abs / 1_000).toFixed(0)}K`;
+  return formatCurrency(amount);
 }
 
 function timeAgo(date: Date): string {
@@ -76,9 +87,11 @@ export default function HomeScreen() {
   const { user } = useAuthStore();
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
+  const { showToast } = useToast();
   const now = new Date();
   const [refreshKey, setRefreshKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -155,21 +168,21 @@ export default function HomeScreen() {
         {/* Income / Expenses */}
         <View style={styles.summaryRow}>
           <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
-            <View style={[styles.summaryIconCircle, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name="arrow-down" size={18} color={colors.secondary} />
+            <View style={[styles.summaryIconCircle, { backgroundColor: colors.success }]}>
+              <Ionicons name="arrow-down" size={24} color={colors.onTertiary} />
             </View>
             <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.incomeLabel')}</Text>
-            <Text style={[styles.summaryCardValue, { color: colors.textPrimary }]}>
+            <Text style={[styles.summaryCardValue, { color: colors.success }]}>
               {formatCurrency(totalIncome)}
             </Text>
           </View>
 
           <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
             <View style={[styles.summaryIconCircle, { backgroundColor: colors.errorLight }]}>
-              <Ionicons name="arrow-up" size={18} color={colors.error} />
+              <Ionicons name="arrow-up" size={24} color={colors.error} />
             </View>
             <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.expensesLabel')}</Text>
-            <Text style={[styles.summaryCardValue, { color: colors.textPrimary }]}>
+            <Text style={[styles.summaryCardValue, { color: colors.error }]}>
               {formatCurrency(totalExpenses)}
             </Text>
           </View>
@@ -178,7 +191,7 @@ export default function HomeScreen() {
         {/* Recent activity */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('home.recentActivity')}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/history')} activeOpacity={0.7}>
             <Text style={[styles.sectionLink, { color: colors.primary }]}>{t('home.seeAll')}</Text>
           </TouchableOpacity>
         </View>
@@ -231,10 +244,16 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: colors.primary }]}
         activeOpacity={0.85}
-        onPress={() => {}}
+        onPress={() => setShowAddModal(true)}
       >
         <Ionicons name="add" size={30} color={colors.onPrimary} />
       </TouchableOpacity>
+
+      <AddTransactionModal
+        visible={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSaved={() => { setShowAddModal(false); setRefreshKey(k => k + 1); showToast('Transacción guardada', 'success'); }}
+      />
     </SafeAreaView>
   );
 }
@@ -292,21 +311,22 @@ const styles = StyleSheet.create({
   summaryRow: { flexDirection: 'row', gap: 12, marginBottom: 28 },
   summaryCard: {
     flex: 1,
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 24,
+    paddingVertical: 28,
+    paddingHorizontal: 16,
     alignItems: 'center',
-    gap: 6,
+    gap: 10,
   },
   summaryIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
+    marginBottom: 8,
   },
-  summaryCardLabel: { fontSize: 10, fontFamily: Fonts.bold },
-  summaryCardValue: { fontSize: 16, fontFamily: Fonts.bold },
+  summaryCardLabel: { fontSize: 11, fontFamily: Fonts.bold },
+  summaryCardValue: { fontSize: 22, fontFamily: Fonts.bold },
 
   // Section
   sectionHeader: {

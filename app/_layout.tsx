@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
 import { ThemeProvider } from '../context/ThemeContext';
+import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 
 export default function RootLayout() {
@@ -32,19 +33,22 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
+    if (!i18nReady || !fontsLoaded) return;
     if (isLoading) return;
     if (user) {
       router.replace('/(tabs)/');
     } else {
       router.replace('/(auth)/login');
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, i18nReady, fontsLoaded]);
 
   if (!i18nReady || !fontsLoaded) return null;
 
   return (
     <ThemeProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      <ToastProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </ToastProvider>
     </ThemeProvider>
   );
 }

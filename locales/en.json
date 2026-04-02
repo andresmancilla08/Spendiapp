@@ -26,7 +26,12 @@
     "emailLabel": "Email",
     "emailPlaceholder": "you@email.com",
     "continueButton": "Continue",
-    "forgotPin": "Forgot your PIN?"
+    "forgotPin": "Forgot your PIN?",
+    "forgotDialog": {
+      "title": "Recover PIN",
+      "description": "Enter your email and we will send you a link to reset your PIN.",
+      "send": "Send link"
+    }
   },
   "pinEntry": {
     "createTitle": "Create your access PIN",
@@ -214,6 +219,34 @@
     "about": {
       "terms": "Terms and conditions",
       "version": "Version"
+    }
+  },
+  "support": {
+    "title": "Suggestions box",
+    "subtitle": "Got an idea or suggestion to improve Spendiapp? Tell us, we'd love to hear from you.",
+    "form": {
+      "nameLabel": "Your name",
+      "namePlaceholder": "Write your name",
+      "nameError": "Name must be at least 2 characters",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@email.com",
+      "emailError": "Enter a valid email address",
+      "messageLabel": "Your suggestion",
+      "messagePlaceholder": "Describe your idea or suggestion (at least 10 characters)...",
+      "messageError": "Suggestion must be at least 10 characters",
+      "submit": "Send via WhatsApp"
+    },
+    "whatsapp": {
+      "title": "💡 New suggestion — Spendiapp",
+      "divider": "━━━━━━━━━━━━━━━━━━━━",
+      "name": "👤 Name:",
+      "email": "📧 Email:",
+      "message": "💬 Suggestion:",
+      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Sent from Spendiapp v1.0.0"
+    },
+    "success": {
+      "title": "Suggestion sent!",
+      "description": "Thanks for taking the time to share your idea. We'll review it carefully."
     }
   }
 }
