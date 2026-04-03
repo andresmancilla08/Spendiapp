@@ -17,6 +17,25 @@ import LanguageSelector from '../../components/LanguageSelector';
 import { useTheme } from '../../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../config/fonts';
+import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
+
+function GoogleIcon({ size = 18 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Defs>
+        <ClipPath id="clip">
+          <Rect width="24" height="24" />
+        </ClipPath>
+      </Defs>
+      <G clipPath="url(#clip)">
+        <Path d="M23.52 12.27c0-.85-.07-1.67-.2-2.45H12v4.63h6.46a5.52 5.52 0 01-2.4 3.62v3h3.88c2.27-2.09 3.58-5.17 3.58-8.8z" fill="#4285F4" />
+        <Path d="M12 24c3.24 0 5.95-1.07 7.94-2.9l-3.88-3.01c-1.07.72-2.45 1.14-4.06 1.14-3.12 0-5.76-2.11-6.7-4.95H1.28v3.1A11.99 11.99 0 0012 24z" fill="#34A853" />
+        <Path d="M5.3 14.28A7.19 7.19 0 014.93 12c0-.79.14-1.56.37-2.28V6.62H1.28A11.99 11.99 0 000 12c0 1.93.46 3.76 1.28 5.38l4.02-3.1z" fill="#FBBC05" />
+        <Path d="M12 4.77c1.76 0 3.34.6 4.58 1.79l3.44-3.44C17.95 1.19 15.24 0 12 0A11.99 11.99 0 001.28 6.62l4.02 3.1C6.24 6.88 8.88 4.77 12 4.77z" fill="#EA4335" />
+      </G>
+    </Svg>
+  );
+}
 
 export default function LoginScreen() {
   const { promptAsync, loading, error } = useGoogleSignIn();
@@ -87,7 +106,7 @@ export default function LoginScreen() {
                 <ActivityIndicator color={colors.textSecondary} />
               ) : (
                 <>
-                  <Ionicons name="logo-google" size={18} color={colors.textSecondary} />
+                  <GoogleIcon size={18} />
                   <Text style={[styles.googleButtonText, { color: colors.textSecondary }]}>
                     {t('login.googleButton')}
                   </Text>
