@@ -81,7 +81,7 @@ export default function LoginScreen() {
               }]}
               activeOpacity={0.8}
               disabled={loading}
-              onPress={() => promptAsync()}
+              onPress={promptAsync}
             >
               {loading ? (
                 <ActivityIndicator color={colors.textSecondary} />
@@ -138,7 +138,6 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
-    position: 'relative',
   },
   blobTopRight: {
     position: 'absolute',
