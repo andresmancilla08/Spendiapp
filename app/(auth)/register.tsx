@@ -5,13 +5,14 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import AppHeader from '../../components/AppHeader';
 import PinInput from '../../components/PinInput';
@@ -19,29 +20,30 @@ import { registerWithEmailAndPin } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
+  const [nameFocused, setNameFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   const isNameValid = name.trim().length >= 2;
   const isEmailValid = email.trim().length > 0 && email.includes('@');
   const isPinComplete = pin.length === 4;
   const canSubmit = isNameValid && isEmailValid && isPinComplete;
 
+  const gradientColors: [string, string, string] = isDark
+    ? ['#0D1A1C', '#062830', '#003840']
+    : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
+
   const handleContinue = async () => {
-    if (!isNameValid) {
-      Alert.alert('Error', t('errors.fillAllFields'));
-      return;
-    }
-    if (!isEmailValid) {
-      Alert.alert('Error', t('errors.invalidEmail'));
-      return;
-    }
+    if (!isNameValid) { Alert.alert('Error', t('errors.fillAllFields')); return; }
+    if (!isEmailValid) { Alert.alert('Error', t('errors.invalidEmail')); return; }
     setLoading(true);
     try {
       await registerWithEmailAndPin(name.trim(), email.trim().toLowerCase(), pin);
@@ -56,80 +58,132 @@ export default function RegisterScreen() {
     }
   };
 
+  const inputStyle = (focused: boolean) => ({
+    borderColor: focused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
+    backgroundColor: isDark ? 'rgba(0,172,193,0.07)' : colors.inputBackground,
+    color: colors.textPrimary,
+  });
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <AppHeader />
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: gradientColors[0] }]}>
+      <LinearGradient
+        colors={gradientColors}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={styles.gradient}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+        {/* Blob decorativo */}
+        <View style={[styles.blobTopRight, { backgroundColor: colors.primaryLight, opacity: isDark ? 0.2 : 0.55 }]} />
+
+        <AppHeader />
+
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoidingView}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.textPrimary }]}>{t('register.title')}</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('register.subtitle')}</Text>
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('register.nameLabel')}</Text>
-              <TextInput
-                style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBackground, color: colors.textPrimary }]}
-                placeholder={t('register.namePlaceholder')}
-                placeholderTextColor={colors.textTertiary}
-                autoCapitalize="words"
-                returnKeyType="next"
-                value={name}
-                onChangeText={setName}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('register.emailLabel')}</Text>
-              <TextInput
-                style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBackground, color: colors.textPrimary }]}
-                placeholder={t('register.emailPlaceholder')}
-                placeholderTextColor={colors.textTertiary}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="done"
-                value={email}
-                onChangeText={setEmail}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.createTitle')}</Text>
-              <Text style={[styles.inputSub, { color: colors.textSecondary }]}>{t('pinEntry.createSubtitle')}</Text>
-              <PinInput value={pin} onChange={setPin} />
-            </View>
-          </View>
-        </ScrollView>
-
-        <View style={[styles.footer, { backgroundColor: colors.background }]}>
-          <TouchableOpacity
-            style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
-            onPress={handleContinue}
-            activeOpacity={0.85}
-            disabled={!canSubmit || loading}
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            {loading
-              ? <ActivityIndicator color={colors.onPrimary} />
-              : <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('register.continueButton')}</Text>
-            }
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+            <View style={styles.header}>
+              <Text style={[styles.title, { color: colors.textPrimary }]}>{t('register.title')}</Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('register.subtitle')}</Text>
+            </View>
+
+            <View style={styles.form}>
+              {/* Nombre */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('register.nameLabel')}</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons
+                    name="person-outline"
+                    size={18}
+                    color={nameFocused ? colors.primary : colors.textTertiary}
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={[styles.input, styles.inputWithIcon, inputStyle(nameFocused)]}
+                    placeholder={t('register.namePlaceholder')}
+                    placeholderTextColor={colors.textTertiary}
+                    autoCapitalize="words"
+                    returnKeyType="next"
+                    value={name}
+                    onChangeText={setName}
+                    onFocus={() => setNameFocused(true)}
+                    onBlur={() => setNameFocused(false)}
+                  />
+                </View>
+              </View>
+
+              {/* Email */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('register.emailLabel')}</Text>
+                <View style={styles.inputWrapper}>
+                  <Ionicons
+                    name="mail-outline"
+                    size={18}
+                    color={emailFocused ? colors.primary : colors.textTertiary}
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={[styles.input, styles.inputWithIcon, inputStyle(emailFocused)]}
+                    placeholder={t('register.emailPlaceholder')}
+                    placeholderTextColor={colors.textTertiary}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="done"
+                    value={email}
+                    onChangeText={setEmail}
+                    onFocus={() => setEmailFocused(true)}
+                    onBlur={() => setEmailFocused(false)}
+                  />
+                </View>
+              </View>
+
+              {/* PIN */}
+              <View style={styles.inputGroup}>
+                <View style={styles.pinLabelRow}>
+                  <Ionicons name="lock-closed-outline" size={14} color={colors.textSecondary} />
+                  <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.createTitle')}</Text>
+                </View>
+                <Text style={[styles.inputSub, { color: colors.textSecondary }]}>{t('pinEntry.createSubtitle')}</Text>
+                <PinInput value={pin} onChange={setPin} />
+              </View>
+            </View>
+          </ScrollView>
+
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
+              onPress={handleContinue}
+              activeOpacity={0.85}
+              disabled={!canSubmit || loading}
+            >
+              {loading
+                ? <ActivityIndicator color={colors.onPrimary} />
+                : <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('register.continueButton')}</Text>
+              }
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
+  gradient: { flex: 1 },
+  blobTopRight: {
+    position: 'absolute',
+    top: -60,
+    right: -60,
+    width: 220,
+    height: 220,
+    borderRadius: 999,
+  },
   keyboardAvoidingView: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
@@ -143,56 +197,35 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 8 : 24,
     gap: 12,
   },
-  header: {
-    marginTop: 24,
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontFamily: Fonts.bold,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontFamily: Fonts.regular,
-    lineHeight: 24,
-  },
-  form: {
-    flex: 1,
-    gap: 32,
-  },
-  inputGroup: {
-    gap: 12,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontFamily: Fonts.semiBold,
-  },
-  inputSub: {
-    fontSize: 13,
-    fontFamily: Fonts.regular,
-    marginTop: -6,
-  },
+  header: { marginTop: 24, marginBottom: 40 },
+  title: { fontSize: 32, fontFamily: Fonts.bold, marginBottom: 8 },
+  subtitle: { fontSize: 16, fontFamily: Fonts.regular, lineHeight: 24 },
+  form: { flex: 1, gap: 32 },
+  inputGroup: { gap: 12 },
+  inputLabel: { fontSize: 14, fontFamily: Fonts.semiBold },
+  inputSub: { fontSize: 13, fontFamily: Fonts.regular, marginTop: -6 },
+  inputWrapper: { position: 'relative', justifyContent: 'center' },
+  inputIcon: { position: 'absolute', left: 14, zIndex: 1 },
   input: {
     height: 52,
     borderWidth: 1.5,
     borderRadius: 12,
     paddingHorizontal: 16,
     fontSize: 16,
+    fontFamily: Fonts.regular,
   },
+  inputWithIcon: { paddingLeft: 44 },
+  pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   primaryButton: {
     height: 56,
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 12,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
     elevation: 6,
   },
-  primaryButtonText: {
-    fontSize: 17,
-    fontFamily: Fonts.bold,
-  },
+  primaryButtonText: { fontSize: 17, fontFamily: Fonts.bold },
 });
