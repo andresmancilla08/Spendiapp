@@ -58,11 +58,16 @@ export default function RegisterScreen() {
     }
   };
 
-  const inputStyle = (focused: boolean) => ({
-    borderColor: focused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
+  const nameInputStyle = {
+    borderColor: nameFocused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
     backgroundColor: isDark ? 'rgba(0,172,193,0.07)' : colors.inputBackground,
     color: colors.textPrimary,
-  });
+  };
+  const emailInputStyle = {
+    borderColor: emailFocused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
+    backgroundColor: isDark ? 'rgba(0,172,193,0.07)' : colors.inputBackground,
+    color: colors.textPrimary,
+  };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: gradientColors[0] }]}>
@@ -103,7 +108,7 @@ export default function RegisterScreen() {
                     style={styles.inputIcon}
                   />
                   <TextInput
-                    style={[styles.input, styles.inputWithIcon, inputStyle(nameFocused)]}
+                    style={[styles.input, styles.inputWithIcon, nameInputStyle]}
                     placeholder={t('register.namePlaceholder')}
                     placeholderTextColor={colors.textTertiary}
                     autoCapitalize="words"
@@ -127,7 +132,7 @@ export default function RegisterScreen() {
                     style={styles.inputIcon}
                   />
                   <TextInput
-                    style={[styles.input, styles.inputWithIcon, inputStyle(emailFocused)]}
+                    style={[styles.input, styles.inputWithIcon, emailInputStyle]}
                     placeholder={t('register.emailPlaceholder')}
                     placeholderTextColor={colors.textTertiary}
                     keyboardType="email-address"
