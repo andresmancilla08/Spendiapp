@@ -77,7 +77,7 @@ export default function LoginEmailScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: gradientColors[0] }]}>
       <LinearGradient
         colors={gradientColors}
         start={{ x: 0.1, y: 0 }}
