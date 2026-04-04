@@ -25,6 +25,9 @@ import AppHeader from '../../components/AppHeader';
 import { router } from 'expo-router';
 import AppDialog, { DialogType } from '../../components/AppDialog';
 import { Fonts } from '../../config/fonts';
+import { useCards, deleteCard } from '../../hooks/useCards';
+import CardFormSheet from '../../components/CardFormSheet';
+import type { Card } from '../../types/card';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -331,6 +334,9 @@ export default function ProfileScreen() {
   const [changePinVisible, setChangePinVisible] = useState(false);
   const [langVisible, setLangVisible] = useState(false);
   const [dialog, setDialog] = useState<DialogState>(DIALOG_CLOSED);
+  const { cards } = useCards(user?.uid ?? '');
+  const [cardFormVisible, setCardFormVisible] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState<Card | null>(null);
 
   const closeDialog = () => setDialog((d) => ({ ...d, visible: false }));
 
@@ -385,10 +391,32 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleDeleteCard = (card: Card) => {
+    setCardToDelete(card);
+    setDialog({
+      visible: true,
+      type: 'warning',
+      title: 'Eliminar tarjeta',
+      description: `¿Eliminar ${card.bankName} •••• ${card.lastFour}? Esta acción no se puede deshacer.`,
+      primaryLabel: 'Eliminar',
+      secondaryLabel: t('common.cancel'),
+      onPrimary: async () => {
+        closeDialog();
+        try {
+          await deleteCard(card.id);
+          setCardToDelete(null);
+        } catch {
+          showError('Error', 'No se pudo eliminar la tarjeta.');
+        }
+      },
+      onSecondary: () => { closeDialog(); setCardToDelete(null); },
+    });
+  };
+
   const handleSignOut = () => {
     setDialog({
       visible: true,
-      type: 'error',
+      type: 'warning',
       title: t('profile.signOut.title'),
       description: t('profile.signOut.description'),
       primaryLabel: t('profile.signOut.confirm'),
@@ -477,6 +505,62 @@ export default function ProfileScreen() {
           />
         </View>
 
+        {/* MIS TARJETAS */}
+        <SectionTitle label="Mis tarjetas" />
+        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+          {cards.length === 0 ? (
+            <View style={{ paddingHorizontal: 16, paddingVertical: 18 }}>
+              <Text style={[styles.optionLabel, { color: colors.textTertiary, fontFamily: Fonts.regular }]}>
+                No tienes tarjetas registradas
+              </Text>
+            </View>
+          ) : (
+            cards.map((card, idx) => (
+              <View
+                key={card.id}
+                style={[
+                  styles.optionRow,
+                  idx < cards.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
+                ]}
+              >
+                <View style={[styles.optionIconWrap, { backgroundColor: colors.primaryLight }]}>
+                  <Ionicons name="card-outline" size={18} color={colors.primary} />
+                </View>
+                <View style={styles.optionMeta}>
+                  <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
+                    {`${card.bankName} •••• ${card.lastFour}`}
+                  </Text>
+                  <View style={{ flexDirection: 'row', gap: 6, marginTop: 2 }}>
+                    <View style={[styles.cardTypeBadge, { backgroundColor: card.type === 'credit' ? colors.errorLight : colors.primaryLight }]}>
+                      <Text style={[styles.cardTypeBadgeText, { color: card.type === 'credit' ? colors.error : colors.primary }]}>
+                        {card.type === 'credit' ? 'Crédito' : 'Débito'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleDeleteCard(card)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="trash-outline" size={18} color={colors.error} />
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+
+          {/* Botón agregar */}
+          <TouchableOpacity
+            style={[styles.optionRow, { borderTopWidth: cards.length > 0 ? 1 : 0, borderTopColor: colors.border }]}
+            onPress={() => setCardFormVisible(true)}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.optionIconWrap, { backgroundColor: colors.backgroundSecondary }]}>
+              <Ionicons name="add" size={18} color={colors.textSecondary} />
+            </View>
+            <Text style={[styles.optionLabel, { color: colors.primary }]}>Agregar tarjeta</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* SOPORTE */}
         <SectionTitle label={t('profile.sections.support')} />
         <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
@@ -535,6 +619,12 @@ export default function ProfileScreen() {
         colors={colors}
         i18n={i18n}
         t={t}
+      />
+
+      <CardFormSheet
+        visible={cardFormVisible}
+        onClose={() => setCardFormVisible(false)}
+        userId={user?.uid ?? ''}
       />
 
       {/* Dialog global */}
@@ -601,6 +691,9 @@ const styles = StyleSheet.create({
   langCancelBtn: { width: '100%', paddingVertical: 16, borderRadius: 50, borderWidth: 1.5, alignItems: 'center', marginTop: 4 },
   langCancelText: { fontSize: 15, fontFamily: Fonts.semiBold },
 
+
+  cardTypeBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
+  cardTypeBadgeText: { fontSize: 11, fontFamily: Fonts.semiBold },
 
   // PIN steps
   stepRow: { flexDirection: 'row', justifyContent: 'center', gap: 8 },
