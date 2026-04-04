@@ -27,13 +27,18 @@ export default function BiometricLockScreen() {
   const handleAuthenticate = async () => {
     setAuthenticating(true);
     setFailed(false);
-    const success = await authenticateWithBiometrics();
-    setAuthenticating(false);
-    if (success) {
-      setBiometricLocked(false);
-      router.replace('/(tabs)/');
-    } else {
+    try {
+      const success = await authenticateWithBiometrics();
+      if (success) {
+        setBiometricLocked(false);
+        router.replace('/(tabs)/');
+      } else {
+        setFailed(true);
+      }
+    } catch {
       setFailed(true);
+    } finally {
+      setAuthenticating(false);
     }
   };
 
@@ -41,8 +46,7 @@ export default function BiometricLockScreen() {
     setSignOutDialog(false);
     await setBiometricsAppEnrolled(false);
     await signOut();
-    setBiometricLocked(true);
-    router.replace('/(auth)/login');
+    // _layout.tsx maneja la redirección a login cuando user se vuelve null
   };
 
   // Auto-trigger al montar
@@ -91,7 +95,7 @@ export default function BiometricLockScreen() {
 
           <TouchableOpacity
             style={[styles.biometricBtn, { backgroundColor: colors.primary }]}
-            onPress={() => handleAuthenticate()}
+            onPress={handleAuthenticate}
             disabled={authenticating}
             activeOpacity={0.85}
           >
