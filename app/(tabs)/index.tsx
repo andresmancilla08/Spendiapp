@@ -116,14 +116,18 @@ export default function HomeScreen() {
 
   useEffect(() => {
     async function offerBiometrics() {
-      const available = await isBiometricsAvailable();
-      if (!available) return;
-      const alreadyEnrolled = await isBiometricsAppEnrolled();
-      if (alreadyEnrolled) return;
-      const offered = await wasBiometricsOffered();
-      if (offered) return;
-      await markBiometricsOffered();
-      setBiometricOfferVisible(true);
+      try {
+        const available = await isBiometricsAvailable();
+        if (!available) return;
+        const alreadyEnrolled = await isBiometricsAppEnrolled();
+        if (alreadyEnrolled) return;
+        const offered = await wasBiometricsOffered();
+        if (offered) return;
+        await markBiometricsOffered();
+        setBiometricOfferVisible(true);
+      } catch {
+        // SecureStore failure — silently skip the offer
+      }
     }
     offerBiometrics();
   }, []);
@@ -320,9 +324,8 @@ export default function HomeScreen() {
         description="Activa Face ID / Touch ID para abrir Spendiapp sin necesidad de escribir nada."
         primaryLabel="Activar"
         secondaryLabel="Ahora no"
-        onPrimary={async () => {
-          await setBiometricsAppEnrolled(true);
-          setBiometricOfferVisible(false);
+        onPrimary={() => {
+          setBiometricsAppEnrolled(true).catch(() => {}).finally(() => setBiometricOfferVisible(false));
         }}
         onSecondary={() => setBiometricOfferVisible(false)}
       />
