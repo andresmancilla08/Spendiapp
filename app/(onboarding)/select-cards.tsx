@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -32,23 +32,38 @@ export default function SelectCardsScreen() {
   const [formLastFour, setFormLastFour] = useState('');
   const [formSaving, setFormSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [focusedDigit, setFocusedDigit] = useState<number | null>(null);
+  const digitRefs = useRef<(TextInput | null)[]>([null, null, null, null]);
+
+  const handleDigitChange = (text: string, index: number) => {
+    const digit = text.replace(/\D/g, '').slice(-1);
+    const chars = formLastFour.padEnd(4, '').split('');
+    chars[index] = digit;
+    const next = chars.join('').trimEnd();
+    setFormError('');
+    setFormLastFour(next);
+    if (digit && index < 3) digitRefs.current[index + 1]?.focus();
+  };
+
+  const handleDigitKey = (key: string, index: number) => {
+    if (key === 'Backspace' && !formLastFour[index] && index > 0) {
+      const chars = formLastFour.padEnd(4, '').split('');
+      chars[index - 1] = '';
+      setFormLastFour(chars.join('').trimEnd());
+      digitRefs.current[index - 1]?.focus();
+    }
+  };
 
   const gradientColors: [string, string, string] = isDark
     ? ['#0D1A1C', '#062830', '#003840']
     : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
 
   const handleToggleBank = (bankId: string) => {
-    if (expandedBankId === bankId) {
-      setExpandedBankId(null);
-      setFormLastFour('');
-      setFormType('debit');
-      setFormError('');
-    } else {
-      setExpandedBankId(bankId);
-      setFormLastFour('');
-      setFormType('debit');
-      setFormError('');
-    }
+    setFormLastFour('');
+    setFormType('debit');
+    setFormError('');
+    setFocusedDigit(null);
+    setExpandedBankId(expandedBankId === bankId ? null : bankId);
   };
 
   const handleAddCard = async (bank: Bank) => {
@@ -172,19 +187,37 @@ export default function SelectCardsScreen() {
                               ))}
                             </View>
 
-                            {/* Últimos 4 dígitos */}
-                            <TextInput
-                              style={[styles.lastFourInput, { borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.surface }]}
-                              placeholder="Últimos 4 dígitos"
-                              placeholderTextColor={colors.textTertiary}
-                              keyboardType="numeric"
-                              maxLength={4}
-                              value={formLastFour}
-                              onChangeText={(t) => {
-                                setFormError('');
-                                setFormLastFour(t.replace(/\D/g, '').slice(0, 4));
-                              }}
-                            />
+                            {/* Últimos 4 dígitos — 4 cajas individuales */}
+                            <View style={styles.digitRow}>
+                              {[0, 1, 2, 3].map((i) => {
+                                const filled = !!formLastFour[i];
+                                const focused = focusedDigit === i;
+                                const borderColor = formError
+                                  ? colors.error
+                                  : focused
+                                  ? colors.borderFocus
+                                  : filled
+                                  ? colors.primary
+                                  : colors.border;
+                                const bg = focused || filled ? colors.primaryLight : colors.surface;
+                                return (
+                                  <TextInput
+                                    key={i}
+                                    ref={(r) => { digitRefs.current[i] = r; }}
+                                    style={[styles.digitBox, { borderColor, backgroundColor: bg, color: colors.primary }]}
+                                    value={formLastFour[i] ?? ''}
+                                    onChangeText={(t) => handleDigitChange(t, i)}
+                                    onKeyPress={(e) => handleDigitKey(e.nativeEvent.key, i)}
+                                    onFocus={() => setFocusedDigit(i)}
+                                    onBlur={() => setFocusedDigit(null)}
+                                    keyboardType="numeric"
+                                    maxLength={1}
+                                    textAlign="center"
+                                    caretHidden
+                                  />
+                                );
+                              })}
+                            </View>
 
                             {formError !== '' && (
                               <Text style={[styles.formError, { color: colors.error }]}>{formError}</Text>
@@ -261,10 +294,11 @@ const styles = StyleSheet.create({
   addedChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20 },
   addedChipText: { fontSize: 12, fontFamily: Fonts.semiBold },
   expandedForm: { marginHorizontal: 12, marginBottom: 12, padding: 16, borderRadius: 12, gap: 12 },
-  typeRow: { flexDirection: 'row', gap: 10 },
-  typeChip: { flex: 1, paddingVertical: 10, borderRadius: 10, borderWidth: 1.5, alignItems: 'center' },
-  typeChipText: { fontSize: 14, fontFamily: Fonts.semiBold },
-  lastFourInput: { height: 48, borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 14, fontSize: 18, fontFamily: Fonts.bold, letterSpacing: 4 },
+  typeRow: { flexDirection: 'row', gap: 8 },
+  typeChip: { paddingVertical: 6, paddingHorizontal: 18, borderRadius: 20, borderWidth: 1.5, alignItems: 'center' },
+  typeChipText: { fontSize: 13, fontFamily: Fonts.semiBold },
+  digitRow: { flexDirection: 'row', gap: 10 },
+  digitBox: { flex: 1, aspectRatio: 1, borderRadius: 12, borderWidth: 1.5, fontSize: 20, fontFamily: Fonts.bold },
   formError: { fontSize: 12, fontFamily: Fonts.regular },
   addBtn: { height: 46, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
   addBtnText: { fontSize: 15, fontFamily: Fonts.bold, color: '#FFFFFF' },
