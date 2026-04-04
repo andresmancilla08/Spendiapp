@@ -106,8 +106,8 @@
     "firestoreSubtitle": "Aggiorna le regole di sicurezza nella Firebase Console.",
     "insightBadge": "INSIGHT INTELLIGENTE",
     "insightText": "Registra le tue spese quotidianamente per ottenere analisi personalizzate delle tue finanze.",
-    "noCardsBannerTitle": "Collega le tue carte",
-    "noCardsBannerSub": "Tieni traccia delle spese con precisione per carta di credito o debito."
+    "noCardsBannerTitle": "Aggiungi le tue carte",
+    "noCardsBannerSub": "Scegli quali carte usi e tieni traccia precisa di ogni spesa."
   },
   "profile": {
     "title": "Profilo",
