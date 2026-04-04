@@ -17,6 +17,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 import { useTransactions } from '../../hooks/useTransactions';
+import { useCards } from '../../hooks/useCards';
 import { Transaction } from '../../types/transaction';
 import { HomeScreenSkeleton } from '../../components/Skeleton';
 import { Fonts } from '../../config/fonts';
@@ -57,10 +58,18 @@ function timeAgo(date: Date): string {
   return `Hace ${Math.floor(diff / 1440)} días`;
 }
 
-function TransactionRow({ item, isLast }: { item: Transaction; isLast: boolean }) {
+function TransactionRow({ item, isLast, cardsMap }: {
+  item: Transaction;
+  isLast: boolean;
+  cardsMap: Record<string, { bankName: string; lastFour: string; type: string }>;
+}) {
   const { colors, isDark } = useTheme();
   const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
   const isExpense = item.type === 'expense';
+  const card = item.cardId ? cardsMap[item.cardId] : null;
+  const descLabel = item.isInstallment
+    ? `${item.description} (Cuota ${item.installmentNumber}/${item.installmentTotal})`
+    : item.description;
 
   return (
     <View style={[
@@ -72,9 +81,18 @@ function TransactionRow({ item, isLast }: { item: Transaction; isLast: boolean }
       </View>
       <View style={styles.txMeta}>
         <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
-          {item.description}
+          {descLabel}
         </Text>
-        <Text style={[styles.txTime, { color: colors.textTertiary }]}>{timeAgo(item.date)}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <Text style={[styles.txTime, { color: colors.textTertiary }]}>{timeAgo(item.date)}</Text>
+          {card && (
+            <View style={[styles.txCardChip, { backgroundColor: colors.primaryLight }]}>
+              <Text style={[styles.txCardChipText, { color: colors.primary }]}>
+                {`${card.bankName} ••${card.lastFour}`}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
       <Text style={[styles.txAmount, { color: isExpense ? colors.error : colors.secondary }]}>
         {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
@@ -85,6 +103,8 @@ function TransactionRow({ item, isLast }: { item: Transaction; isLast: boolean }
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
+  const { cards } = useCards(user?.uid ?? '');
+  const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const { showToast } = useToast();
@@ -219,7 +239,7 @@ export default function HomeScreen() {
         ) : (
           <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
             {recent.map((tx, i) => (
-              <TransactionRow key={tx.id} item={tx} isLast={i === recent.length - 1} />
+              <TransactionRow key={tx.id} item={tx} isLast={i === recent.length - 1} cardsMap={cardsMap} />
             ))}
           </View>
         )}
@@ -353,6 +373,8 @@ const styles = StyleSheet.create({
   txTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
   txTime: { fontSize: 12, fontFamily: Fonts.regular },
   txAmount: { fontSize: 14, fontFamily: Fonts.bold },
+  txCardChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
+  txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold },
 
   // Empty
   emptyState: { alignItems: 'center', padding: 36 },
