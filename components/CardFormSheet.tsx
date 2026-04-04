@@ -79,10 +79,12 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
 
         {/* Header */}
         <View style={styles.headerRow}>
-          {step === 'details' && (
+          {step === 'details' ? (
             <TouchableOpacity onPress={() => setStep('bank')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
               <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
             </TouchableOpacity>
+          ) : (
+            <View style={{ width: 22 }} />
           )}
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
             {step === 'bank' ? 'Selecciona el banco' : selectedBank?.name ?? ''}
