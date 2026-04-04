@@ -12,7 +12,7 @@ import { AddTransactionModal } from '../../components/AddTransactionModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { router } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
@@ -22,6 +22,14 @@ import { useCards } from '../../hooks/useCards';
 import { Transaction } from '../../types/transaction';
 import { HomeScreenSkeleton } from '../../components/Skeleton';
 import { Fonts } from '../../config/fonts';
+import {
+  isBiometricsAvailable,
+  isBiometricsAppEnrolled,
+  setBiometricsAppEnrolled,
+  wasBiometricsOffered,
+  markBiometricsOffered,
+} from '../../hooks/useBiometrics';
+import AppDialog from '../../components/AppDialog';
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
   food:          { icon: '🍽️', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
@@ -104,6 +112,21 @@ export default function HomeScreen() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [biometricOfferVisible, setBiometricOfferVisible] = useState(false);
+
+  useEffect(() => {
+    async function offerBiometrics() {
+      const available = await isBiometricsAvailable();
+      if (!available) return;
+      const alreadyEnrolled = await isBiometricsAppEnrolled();
+      if (alreadyEnrolled) return;
+      const offered = await wasBiometricsOffered();
+      if (offered) return;
+      await markBiometricsOffered();
+      setBiometricOfferVisible(true);
+    }
+    offerBiometrics();
+  }, []);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -288,6 +311,20 @@ export default function HomeScreen() {
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
         onSaved={() => { setShowAddModal(false); setRefreshKey(k => k + 1); showToast('Transacción guardada', 'success'); }}
+      />
+
+      <AppDialog
+        visible={biometricOfferVisible}
+        type="info"
+        title="¿Entrar más rápido?"
+        description="Activa Face ID / Touch ID para abrir Spendiapp sin necesidad de escribir nada."
+        primaryLabel="Activar"
+        secondaryLabel="Ahora no"
+        onPrimary={async () => {
+          await setBiometricsAppEnrolled(true);
+          setBiometricOfferVisible(false);
+        }}
+        onSecondary={() => setBiometricOfferVisible(false)}
       />
     </SafeAreaView>
   );
