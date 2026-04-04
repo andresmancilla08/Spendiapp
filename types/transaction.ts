@@ -10,7 +10,7 @@ export interface Transaction {
   date: Date;
   createdAt: Date;
   isFixed?: boolean;
-  isVirtualFixed?: boolean;
+  isVirtualFixed?: boolean; // true cuando es una copia virtual de un fijo en otro mes
   // Tarjeta
   cardId?: string;
   // Cuotas
