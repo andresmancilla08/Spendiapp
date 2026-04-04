@@ -220,9 +220,6 @@ export default function SelectCardsScreen() {
 
         {/* Footer */}
         <View style={[styles.footer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
-          <TouchableOpacity style={styles.skipBtn} onPress={handleFinish} activeOpacity={0.7}>
-            <Text style={[styles.skipText, { color: colors.textSecondary }]}>Omitir por ahora</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             style={[styles.doneBtn, { backgroundColor: colors.primary }]}
             onPress={handleFinish}
@@ -231,6 +228,9 @@ export default function SelectCardsScreen() {
             <Text style={[styles.doneBtnText, { color: '#FFFFFF' }]}>
               {cards.length > 0 ? `Listo (${cards.length})` : 'Listo'}
             </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.skipBtn} onPress={handleFinish} activeOpacity={0.7}>
+            <Text style={[styles.skipText, { color: colors.textSecondary }]}>Omitir por ahora</Text>
           </TouchableOpacity>
         </View>
 
@@ -264,9 +264,9 @@ const styles = StyleSheet.create({
   formError: { fontSize: 12, fontFamily: Fonts.regular },
   addBtn: { height: 46, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
   addBtnText: { fontSize: 15, fontFamily: Fonts.bold, color: '#FFFFFF' },
-  footer: { flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 16, gap: 12, borderTopWidth: 1 },
-  skipBtn: { flex: 1, height: 52, alignItems: 'center', justifyContent: 'center' },
+  footer: { flexDirection: 'column', paddingHorizontal: 20, paddingVertical: 16, gap: 10, borderTopWidth: 1 },
+  skipBtn: { height: 52, alignItems: 'center', justifyContent: 'center' },
   skipText: { fontSize: 15, fontFamily: Fonts.medium },
-  doneBtn: { flex: 2, height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
+  doneBtn: { height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
   doneBtnText: { fontSize: 16, fontFamily: Fonts.bold },
 });
