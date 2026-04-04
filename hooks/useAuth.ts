@@ -36,12 +36,12 @@ export async function registerWithEmailAndPin(
   email: string,
   pin: string
 ): Promise<void> {
-  const { user } = await createUserWithEmailAndPassword(auth, email, pin);
+  const { user } = await createUserWithEmailAndPassword(auth, email, pin + '00');
   await updateProfile(user, { displayName: name });
 }
 
 export async function loginWithEmailAndPin(email: string, pin: string): Promise<void> {
-  await signInWithEmailAndPassword(auth, email, pin);
+  await signInWithEmailAndPassword(auth, email, pin + '00');
 }
 
 export async function signOut(): Promise<void> {
@@ -65,9 +65,9 @@ export async function updateDisplayName(name: string): Promise<void> {
 export async function changePin(currentPin: string, newPin: string): Promise<void> {
   const user = auth.currentUser;
   if (!user || !user.email) throw new Error('No hay sesión activa');
-  const credential = EmailAuthProvider.credential(user.email, currentPin);
+  const credential = EmailAuthProvider.credential(user.email, currentPin + '00');
   await reauthenticateWithCredential(user, credential);
-  await updatePassword(user, newPin);
+  await updatePassword(user, newPin + '00');
 }
 
 export async function sendPinResetEmail(email: string): Promise<void> {

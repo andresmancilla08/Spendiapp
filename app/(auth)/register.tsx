@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 24,
     paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 8 : 24,
+    paddingBottom: 16,
     gap: 12,
   },
   header: { marginTop: 24, marginBottom: 40 },
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
   },
   inputWithIcon: { paddingLeft: 44 },
-  pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
   primaryButton: {
     height: 56,
     borderRadius: 50,
