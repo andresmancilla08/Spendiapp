@@ -1,6 +1,26 @@
 import { useState } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, ImageSourcePropType, StyleSheet } from 'react-native';
 import { COLOMBIAN_BANKS } from '../config/banks';
+
+// Mapa estático requerido por Metro bundler — añadir aquí cuando se descargue un nuevo logo
+const LOCAL_LOGOS: Record<string, ImageSourcePropType> = {
+  bancolombia: require('../assets/banks/bancolombia.png'),
+  davivienda:  require('../assets/banks/davivienda.png'),
+  bbva:        require('../assets/banks/bbva.png'),
+  bogota:      require('../assets/banks/bogota.png'),
+  colpatria:   require('../assets/banks/colpatria.png'),
+  itau:        require('../assets/banks/itau.png'),
+  occidente:   require('../assets/banks/occidente.png'),
+  popular:     require('../assets/banks/popular.png'),
+  avvillas:    require('../assets/banks/avvillas.png'),
+  cajasocial:  require('../assets/banks/cajasocial.png'),
+  nequi:       require('../assets/banks/nequi.png'),
+  daviplata:   require('../assets/banks/daviplata.png'),
+  nubank:      require('../assets/banks/nubank.png'),
+  lulo:        require('../assets/banks/lulo.png'),
+  rappipay:    require('../assets/banks/rappipay.png'),
+  movii:       require('../assets/banks/movii.png'),
+};
 
 interface BankLogoProps {
   bankId: string;
@@ -10,9 +30,10 @@ interface BankLogoProps {
 
 export default function BankLogo({ bankId, size = 40, radius = 10 }: BankLogoProps) {
   const bank = COLOMBIAN_BANKS.find((b) => b.id === bankId);
+  const localSource = LOCAL_LOGOS[bankId];
   const [logoFailed, setLogoFailed] = useState(false);
 
-  const showLogo = !!bank?.logoUrl && !logoFailed;
+  const showLogo = !!localSource && !logoFailed;
 
   return (
     <View style={[
@@ -26,7 +47,7 @@ export default function BankLogo({ bankId, size = 40, radius = 10 }: BankLogoPro
     ]}>
       {showLogo ? (
         <Image
-          source={{ uri: bank!.logoUrl! }}
+          source={localSource}
           style={{ width: size * 0.75, height: size * 0.75 }}
           resizeMode="contain"
           onError={() => setLogoFailed(true)}
