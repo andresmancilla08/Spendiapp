@@ -350,11 +350,15 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     async function loadBiometricsState() {
-      const available = await isBiometricsAvailable();
-      setBiometricsAvailable(available);
-      if (available) {
-        const enrolled = await isBiometricsAppEnrolled();
-        setBiometricsEnabled(enrolled);
+      try {
+        const available = await isBiometricsAvailable();
+        setBiometricsAvailable(available);
+        if (available) {
+          const enrolled = await isBiometricsAppEnrolled();
+          setBiometricsEnabled(enrolled);
+        }
+      } catch {
+        // Si SecureStore falla, mantener biometría deshabilitada
       }
     }
     loadBiometricsState();
@@ -437,8 +441,12 @@ export default function ProfileScreen() {
 
   const handleBiometricToggle = async (value: boolean) => {
     if (value) {
-      await setBiometricsAppEnrolled(true);
-      setBiometricsEnabled(true);
+      try {
+        await setBiometricsAppEnrolled(true);
+        setBiometricsEnabled(true);
+      } catch {
+        showError('Error', 'No se pudo activar la biometría. Intenta de nuevo.');
+      }
     } else {
       setBiometricToggleDialog(true);
     }
@@ -446,8 +454,12 @@ export default function ProfileScreen() {
 
   const confirmDisableBiometrics = async () => {
     setBiometricToggleDialog(false);
-    await setBiometricsAppEnrolled(false);
-    setBiometricsEnabled(false);
+    try {
+      await setBiometricsAppEnrolled(false);
+      setBiometricsEnabled(false);
+    } catch {
+      showError('Error', 'No se pudo desactivar la biometría. Intenta de nuevo.');
+    }
   };
 
   const handleSignOut = () => {
