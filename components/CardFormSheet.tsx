@@ -16,6 +16,7 @@ import { Fonts } from '../config/fonts';
 import { COLOMBIAN_BANKS, Bank } from '../config/banks';
 import { addCard } from '../hooks/useCards';
 import type { CardType } from '../types/card';
+import BankLogo from './BankLogo';
 
 interface CardFormSheetProps {
   visible: boolean;
@@ -106,6 +107,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
                 onPress={() => handleSelectBank(item)}
                 activeOpacity={0.7}
               >
+                <BankLogo bankId={item.id} size={32} radius={8} />
                 <Text style={[styles.bankItemText, { color: colors.textPrimary }]}>{item.name}</Text>
                 <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
               </TouchableOpacity>
@@ -190,8 +192,8 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 },
   headerTitle: { fontSize: 17, fontFamily: Fonts.bold, flex: 1, textAlign: 'center' },
   bankList: { maxHeight: 380 },
-  bankItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1 },
-  bankItemText: { fontSize: 15, fontFamily: Fonts.medium },
+  bankItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1 },
+  bankItemText: { flex: 1, fontSize: 15, fontFamily: Fonts.medium },
   detailsForm: { paddingHorizontal: 20, paddingTop: 8, gap: 12 },
   fieldLabel: { fontSize: 13, fontFamily: Fonts.semiBold },
   typeRow: { flexDirection: 'row', gap: 12 },
