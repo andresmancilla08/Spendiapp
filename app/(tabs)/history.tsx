@@ -32,6 +32,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../context/ToastContext';
 import { useTransactions } from '../../hooks/useTransactions';
+import { useCards } from '../../hooks/useCards';
 import { Fonts } from '../../config/fonts';
 import type { Transaction } from '../../types/transaction';
 
@@ -497,12 +498,17 @@ interface TransactionRowProps {
   item: Transaction;
   isLast: boolean;
   onLongPress: (tx: Transaction) => void;
+  cardsMap: Record<string, { bankName: string; lastFour: string; type: string }>;
 }
 
-function TransactionRow({ item, isLast, onLongPress }: TransactionRowProps) {
+function TransactionRow({ item, isLast, onLongPress, cardsMap }: TransactionRowProps) {
   const { colors } = useTheme();
   const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
   const isExpense = item.type === 'expense';
+  const card = item.cardId ? cardsMap[item.cardId] : null;
+  const descLabel = item.isInstallment
+    ? `${item.description} (Cuota ${item.installmentNumber}/${item.installmentTotal})`
+    : item.description;
 
   return (
     <TouchableOpacity
@@ -518,9 +524,9 @@ function TransactionRow({ item, isLast, onLongPress }: TransactionRowProps) {
         <Text style={styles.txIconText}>{cat.icon}</Text>
       </View>
       <View style={styles.txMeta}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
           <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
-            {item.description}
+            {descLabel}
           </Text>
           {item.isFixed && (
             <View style={[styles.fixedBadge, { backgroundColor: colors.primaryLight ?? `${colors.primary}22` }]}>
@@ -528,9 +534,18 @@ function TransactionRow({ item, isLast, onLongPress }: TransactionRowProps) {
             </View>
           )}
         </View>
-        <Text style={[styles.txTime, { color: colors.textTertiary }]}>
-          {CATEGORY_LABELS[item.category] ?? item.category}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
+          <Text style={[styles.txTime, { color: colors.textTertiary }]}>
+            {CATEGORY_LABELS[item.category] ?? item.category}
+          </Text>
+          {card && (
+            <View style={[styles.txCardChip, { backgroundColor: colors.primaryLight }]}>
+              <Text style={[styles.txCardChipText, { color: colors.primary }]}>
+                {`${card.bankName} ••${card.lastFour}`}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
       <Text style={[styles.txAmount, { color: isExpense ? colors.error : colors.secondary }]}>
         {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
@@ -545,6 +560,8 @@ export default function HistoryScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { user } = useAuthStore();
+  const { cards } = useCards(user?.uid ?? '');
+  const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { showToast } = useToast();
 
   const now = new Date();
@@ -826,6 +843,7 @@ export default function HistoryScreen() {
                     item={tx}
                     isLast={i === group.items.length - 1}
                     onLongPress={handleLongPress}
+                    cardsMap={cardsMap}
                   />
                 ))}
               </View>
@@ -1039,6 +1057,8 @@ const styles = StyleSheet.create({
   txTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
   txTime: { fontSize: 12, fontFamily: Fonts.regular },
   txAmount: { fontSize: 14, fontFamily: Fonts.bold },
+  txCardChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
+  txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold },
   fixedBadge: {
     paddingHorizontal: 6,
     paddingVertical: 2,
