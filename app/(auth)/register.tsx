@@ -15,10 +15,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import AppHeader from '../../components/AppHeader';
+import AppDialog from '../../components/AppDialog';
 import PinInput from '../../components/PinInput';
 import { registerWithEmailAndPin } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -29,8 +31,10 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [nameFocused, setNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
+  const { setJustRegistered } = useAuthStore();
 
   const isNameValid = name.trim().length >= 2;
   const isEmailValid = email.trim().length > 0 && email.includes('@');
@@ -46,8 +50,11 @@ export default function RegisterScreen() {
     if (!isEmailValid) { Alert.alert('Error', t('errors.invalidEmail')); return; }
     setLoading(true);
     try {
+      setJustRegistered(true);
       await registerWithEmailAndPin(name.trim(), email.trim().toLowerCase(), pin);
+      setShowSuccess(true);
     } catch (e: any) {
+      setJustRegistered(false);
       if (e?.code === 'auth/email-already-in-use') {
         Alert.alert(t('dialogs.emailTaken.title'), t('dialogs.emailTaken.description'));
       } else {
@@ -56,6 +63,11 @@ export default function RegisterScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoHome = () => {
+    setJustRegistered(false);
+    router.replace('/(tabs)/');
   };
 
   const nameInputStyle = {
@@ -71,6 +83,14 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: gradientColors[0] }]}>
+      <AppDialog
+        visible={showSuccess}
+        type="success"
+        title={`¡Bienvenido, ${name.trim()}!`}
+        description="Tu cuenta fue creada exitosamente. Ya puedes empezar a controlar tus finanzas."
+        primaryLabel="Continuar"
+        onPrimary={handleGoHome}
+      />
       <LinearGradient
         colors={gradientColors}
         start={{ x: 0.1, y: 0 }}
