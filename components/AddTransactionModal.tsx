@@ -1004,7 +1004,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                             </Text>
                             <View style={[
                               styles.cardTypeDot,
-                              { backgroundColor: card.type === 'credit' ? (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.error) : (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.primary) },
+                              { backgroundColor: card.type === 'credit' ? (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.primary) : (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.tertiary) },
                             ]} />
                           </TouchableOpacity>
                         ))}
