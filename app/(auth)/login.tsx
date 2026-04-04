@@ -81,13 +81,7 @@ export default function LoginScreen() {
         {/* Contenido central */}
         <View style={styles.container}>
           <View style={styles.headerSection}>
-            <View style={[styles.logoContainer, {
-              backgroundColor: colors.primaryLight,
-              borderColor: isDark ? 'rgba(0,172,193,0.3)' : colors.border,
-              shadowColor: colors.primary,
-            }]}>
-              <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
-            </View>
+            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
             <Text style={[styles.appName, { color: colors.textPrimary }]}>Spendiapp</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('login.subtitle')}</Text>
           </View>
@@ -195,22 +189,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 56,
   },
-  logoContainer: {
-    width: 112,
-    height: 112,
-    borderRadius: 32,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 4,
-  },
   logo: {
-    width: 80,
-    height: 80,
+    width: 110,
+    height: 110,
+    marginBottom: 16,
   },
   appName: {
     fontSize: 30,
