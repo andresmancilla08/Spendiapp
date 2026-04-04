@@ -132,7 +132,7 @@ export default function CardsScreen() {
 
       <AppDialog
         visible={!!deleteTarget}
-        type="warning"
+        type="error"
         title="Eliminar tarjeta"
         description={
           `Si eliminas ${deleteTarget?.bankName} •••• ${deleteTarget?.lastFour}, se eliminarán también ` +
