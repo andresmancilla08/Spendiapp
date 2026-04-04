@@ -321,7 +321,13 @@ export default function HomeScreen() {
         visible={biometricOfferVisible}
         type="info"
         title="¿Entrar más rápido?"
-        description="Activa Face ID / Touch ID para abrir Spendiapp sin necesidad de escribir nada."
+        description={
+          <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
+            {'Activa '}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>Face ID / Touch ID</Text>
+            {' para abrir Spendiapp sin necesidad de escribir nada.'}
+          </Text>
+        }
         primaryLabel="Activar"
         secondaryLabel="Ahora no"
         onPrimary={() => {

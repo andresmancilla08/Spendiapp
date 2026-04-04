@@ -135,9 +135,20 @@ export default function CardsScreen() {
         type="error"
         title="Eliminar tarjeta"
         description={
-          `Si eliminas ${deleteTarget?.bankName} •••• ${deleteTarget?.lastFour}, se eliminarán también ` +
-          `todas las transacciones asociadas a esta tarjeta en todos los meses. ` +
-          `Esta acción es permanente y no se puede deshacer.`
+          <Text style={[dialogDescStyle, { color: colors.textSecondary }]}>
+            {'Si eliminas '}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>
+              {`${deleteTarget?.bankName} •••• ${deleteTarget?.lastFour}`}
+            </Text>
+            {', se eliminarán también '}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>
+              todas las transacciones
+            </Text>
+            {' asociadas a esta tarjeta en todos los meses. Esta acción es '}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.error }}>
+              permanente y no se puede deshacer.
+            </Text>
+          </Text>
         }
         primaryLabel="Eliminar todo"
         secondaryLabel="Cancelar"
@@ -148,6 +159,9 @@ export default function CardsScreen() {
     </SafeAreaView>
   );
 }
+
+// Shared style for ReactNode dialog descriptions
+const dialogDescStyle = { fontSize: 15, lineHeight: 22, textAlign: 'center' as const };
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
