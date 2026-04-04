@@ -7,6 +7,8 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  getDocs,
+  writeBatch,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -85,4 +87,15 @@ export async function addCard(
 
 export async function deleteCard(cardId: string): Promise<void> {
   await deleteDoc(doc(db, 'cards', cardId));
+}
+
+/** Elimina la tarjeta y TODAS sus transacciones asociadas en un solo batch. */
+export async function deleteCardAndTransactions(cardId: string): Promise<void> {
+  const txSnap = await getDocs(
+    query(collection(db, 'transactions'), where('cardId', '==', cardId)),
+  );
+  const batch = writeBatch(db);
+  txSnap.forEach((d) => batch.delete(d.ref));
+  batch.delete(doc(db, 'cards', cardId));
+  await batch.commit();
 }
