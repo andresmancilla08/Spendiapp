@@ -10,5 +10,12 @@ export interface Transaction {
   date: Date;
   createdAt: Date;
   isFixed?: boolean;
-  isVirtualFixed?: boolean; // true cuando es una copia virtual de un fijo en otro mes
+  isVirtualFixed?: boolean;
+  // Tarjeta
+  cardId?: string;
+  // Cuotas
+  installmentGroupId?: string;
+  installmentNumber?: number;
+  installmentTotal?: number;
+  isInstallment?: boolean;
 }
