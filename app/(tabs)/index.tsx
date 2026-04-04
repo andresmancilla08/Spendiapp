@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { AddTransactionModal } from '../../components/AddTransactionModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -39,15 +40,6 @@ function formatCurrency(amount: number): string {
     currency: 'COP',
     minimumFractionDigits: 0,
   }).format(amount);
-}
-
-function formatCompact(amount: number): string {
-  const abs = Math.abs(amount);
-  const sign = amount < 0 ? '-' : '';
-  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1).replace('.0', '')}B`;
-  if (abs >= 1_000_000)     return `${sign}$${(abs / 1_000_000).toFixed(1).replace('.0', '')}M`;
-  if (abs >= 1_000)         return `${sign}$${(abs / 1_000).toFixed(0)}K`;
-  return formatCurrency(amount);
 }
 
 function timeAgo(date: Date): string {
