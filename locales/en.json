@@ -105,7 +105,9 @@
     "firestoreTitle": "Set up Firestore",
     "firestoreSubtitle": "Update the security rules in Firebase Console.",
     "insightBadge": "SMART INSIGHT",
-    "insightText": "Record your expenses daily to get personalized analysis of your finances."
+    "insightText": "Record your expenses daily to get personalized analysis of your finances.",
+    "noCardsBannerTitle": "Connect your cards",
+    "noCardsBannerSub": "Track your spending precisely by credit or debit card."
   },
   "profile": {
     "title": "Profile",

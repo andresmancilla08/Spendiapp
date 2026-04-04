@@ -213,10 +213,10 @@ export default function HomeScreen() {
             <Ionicons name="card-outline" size={24} color={colors.primary} />
             <View style={{ flex: 1 }}>
               <Text style={[styles.noCardsBannerTitle, { color: colors.textPrimary }]}>
-                Conecta tus tarjetas
+                {t('home.noCardsBannerTitle')}
               </Text>
               <Text style={[styles.noCardsBannerSub, { color: colors.textSecondary }]}>
-                Lleva un control preciso de gastos por tarjeta de crédito o débito.
+                {t('home.noCardsBannerSub')}
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.primary} />
