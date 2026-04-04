@@ -229,8 +229,12 @@ export default function SelectCardsScreen() {
               {cards.length > 0 ? `Listo (${cards.length})` : 'Listo'}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.skipBtn} onPress={handleFinish} activeOpacity={0.7}>
-            <Text style={[styles.skipText, { color: colors.textSecondary }]}>Omitir por ahora</Text>
+          <TouchableOpacity
+            style={[styles.skipBtn, { borderColor: colors.primary }]}
+            onPress={handleFinish}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.skipText, { color: colors.primary }]}>Omitir por ahora</Text>
           </TouchableOpacity>
         </View>
 
@@ -265,8 +269,8 @@ const styles = StyleSheet.create({
   addBtn: { height: 46, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
   addBtnText: { fontSize: 15, fontFamily: Fonts.bold, color: '#FFFFFF' },
   footer: { flexDirection: 'column', paddingHorizontal: 20, paddingVertical: 16, gap: 10, borderTopWidth: 1 },
-  skipBtn: { height: 52, alignItems: 'center', justifyContent: 'center' },
-  skipText: { fontSize: 15, fontFamily: Fonts.medium },
+  skipBtn: { height: 52, borderRadius: 50, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  skipText: { fontSize: 16, fontFamily: Fonts.semiBold },
   doneBtn: { height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
   doneBtnText: { fontSize: 16, fontFamily: Fonts.bold },
 });
