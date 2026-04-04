@@ -7,9 +7,10 @@ import '../config/i18n';
 import { ThemeProvider } from '../context/ThemeContext';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
+import { isBiometricsAppEnrolled } from '../hooks/useBiometrics';
 
 export default function RootLayout() {
-  const { user, isLoading, justRegistered, setUser, setLoading } = useAuthStore();
+  const { user, isLoading, justRegistered, biometricLocked, setUser, setLoading, setBiometricLocked } = useAuthStore();
   const [i18nReady, setI18nReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
@@ -36,12 +37,25 @@ export default function RootLayout() {
     if (!i18nReady || !fontsLoaded) return;
     if (isLoading) return;
     if (justRegistered) return;
+
     if (user) {
-      router.replace('/(tabs)/');
+      if (biometricLocked) {
+        isBiometricsAppEnrolled().then((enrolled) => {
+          if (enrolled) {
+            router.replace('/(auth)/biometric-lock');
+          } else {
+            setBiometricLocked(false);
+            router.replace('/(tabs)/');
+          }
+        });
+      } else {
+        router.replace('/(tabs)/');
+      }
     } else {
+      setBiometricLocked(true); // Reset para la próxima sesión
       router.replace('/(auth)/login');
     }
-  }, [user, isLoading, i18nReady, fontsLoaded, justRegistered]);
+  }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, biometricLocked]);
 
   if (!i18nReady || !fontsLoaded) return null;
 
