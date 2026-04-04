@@ -11,7 +11,7 @@ export const COLOMBIAN_BANKS: Bank[] = [
   { id: 'bancolombia', name: 'Bancolombia',          category: 'traditional', logoUrl: 'https://logo.clearbit.com/bancolombia.com',             color: '#FFD100', initials: 'BC' },
   { id: 'davivienda',  name: 'Davivienda',           category: 'traditional', logoUrl: 'https://logo.clearbit.com/davivienda.com',              color: '#E01A24', initials: 'DV' },
   { id: 'bbva',        name: 'BBVA',                 category: 'traditional', logoUrl: 'https://logo.clearbit.com/bbva.com.co',                 color: '#004B8D', initials: 'BB' },
-  { id: 'bogota',      name: 'Banco de Bogotá',      category: 'traditional', logoUrl: 'https://logo.clearbit.com/bancodebogota.com',           color: '#0E3F7A', initials: 'BB' },
+  { id: 'bogota',      name: 'Banco de Bogotá',      category: 'traditional', logoUrl: 'https://logo.clearbit.com/bancodebogota.com',           color: '#0E3F7A', initials: 'BO' },
   { id: 'colpatria',   name: 'Scotiabank Colpatria', category: 'traditional', logoUrl: 'https://logo.clearbit.com/scotiabankcolpatria.com',     color: '#E31837', initials: 'SC' },
   { id: 'itau',        name: 'Itaú',                 category: 'traditional', logoUrl: 'https://logo.clearbit.com/itau.co',                    color: '#EC7000', initials: 'IT' },
   { id: 'occidente',   name: 'Banco de Occidente',   category: 'traditional', logoUrl: 'https://logo.clearbit.com/bancodeoccidente.com.co',    color: '#00518A', initials: 'OC' },
