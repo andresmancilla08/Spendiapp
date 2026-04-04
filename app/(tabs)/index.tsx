@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   emptySubtitle: { fontSize: 12, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 18 },
 
   // Insight
-  insightCard: { borderRadius: 20, padding: 18, marginBottom: 8 },
+  insightCard: { borderRadius: 20, padding: 18, marginTop: 24, marginBottom: 8 },
   insightTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
   insightIconWrap: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   insightBadge: { fontSize: 10, fontFamily: Fonts.extraBold },
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderRadius: 12,
     padding: 14,
-    marginBottom: 8,
+    marginBottom: 24,
   },
   noCardsBannerTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
   noCardsBannerSub: { fontSize: 12, fontFamily: Fonts.regular, lineHeight: 17 },
