@@ -95,7 +95,7 @@ function TransactionRow({ item, isLast, cardsMap }: {
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
-  const { cards } = useCards(user?.uid ?? '');
+  const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
@@ -199,6 +199,29 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Banner sin tarjetas */}
+        {cards.length === 0 && !cardsLoading && (
+          <TouchableOpacity
+            style={[
+              styles.noCardsBanner,
+              { backgroundColor: colors.primaryLight, borderLeftColor: colors.primary },
+            ]}
+            onPress={() => router.push('/(onboarding)/select-cards')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="card-outline" size={24} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.noCardsBannerTitle, { color: colors.textPrimary }]}>
+                Conecta tus tarjetas
+              </Text>
+              <Text style={[styles.noCardsBannerSub, { color: colors.textSecondary }]}>
+                Lleva un control preciso de gastos por tarjeta de crédito o débito.
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+          </TouchableOpacity>
+        )}
 
         {/* Recent activity */}
         <View style={styles.sectionHeader}>
@@ -396,4 +419,18 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 10,
   },
+
+  // No Cards Banner
+  noCardsBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderLeftWidth: 3,
+    borderRadius: 12,
+    padding: 14,
+    marginHorizontal: 0,
+    marginBottom: 16,
+  },
+  noCardsBannerTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
+  noCardsBannerSub: { fontSize: 12, fontFamily: Fonts.regular, lineHeight: 17 },
 });
