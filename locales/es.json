@@ -104,8 +104,6 @@
     "seeAll": "Ver todo",
     "firestoreTitle": "Configura Firestore",
     "firestoreSubtitle": "Actualiza las reglas de seguridad en Firebase Console.",
-    "insightBadge": "INSIGHT INTELIGENTE",
-    "insightText": "Registra tus gastos diariamente para obtener análisis personalizados de tus finanzas.",
     "noCardsBannerTitle": "Agrega tus tarjetas",
     "noCardsBannerSub": "Elige qué tarjetas usas y lleva un control exacto por cada una."
   },
@@ -172,7 +170,7 @@
       "soon": "Configuración de notificaciones disponible pronto."
     },
     "faq": {
-      "label": "Ayuda & FAQ",
+      "label": "Buzón de sugerencias",
       "soon": "Sección de ayuda disponible pronto."
     },
     "privacy": {

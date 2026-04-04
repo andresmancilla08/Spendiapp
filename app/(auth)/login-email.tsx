@@ -184,7 +184,7 @@ export default function LoginEmailScreen() {
               <Text style={[styles.forgotPinText, { color: colors.primary }]}>{t('loginEmail.forgotPin')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
+              style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
               onPress={handleContinue}
               activeOpacity={0.85}
               disabled={!canSubmit || loading}
@@ -249,10 +249,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 12,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
   },
   primaryButtonText: { fontSize: 17, fontFamily: Fonts.bold },
   forgotPinButton: { alignItems: 'center', paddingVertical: 8 },
