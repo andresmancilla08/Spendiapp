@@ -34,6 +34,7 @@ import { suggestEmojiLocal, suggestEmojiWithGemini } from '../utils/suggestEmoji
 import { EmojiPicker } from './EmojiPicker';
 import type { CategoryType } from '../types/category';
 import * as Crypto from 'expo-crypto';
+import { router } from 'expo-router';
 import { useCards } from '../hooks/useCards';
 import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
 import type { Card } from '../types/card';
@@ -97,7 +98,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
   const [error, setError] = useState('');
 
   // Tarjeta y cuotas
-  const { cards } = useCards(user?.uid ?? '');
+  const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [installmentCount, setInstallmentCount] = useState(1);
   const [withInterest, setWithInterest] = useState(false);
@@ -307,6 +308,14 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
   const handleTypeChange = (newType: TransactionType) => {
     setType(newType);
     setCategory('');
+  };
+
+  const handleNavigateToCards = () => {
+    animateOut(() => {
+      resetForm();
+      onClose();
+      router.push('/(onboarding)/select-cards');
+    });
   };
 
   const prevMonth = () => {
@@ -943,49 +952,65 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
               </View>
 
               {/* Método de pago */}
-              {cards.length > 0 && (
+              {!cardsLoading && (
                 <View style={[styles.fixedRow, { borderColor: colors.border, flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingVertical: 12, paddingHorizontal: 16 }]}>
                   <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>Método de pago</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                      {/* Opción "Sin tarjeta" */}
-                      <TouchableOpacity
-                        style={[
-                          styles.cardChip,
-                          { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                          selectedCardId === null && { backgroundColor: colors.primary, borderColor: colors.primary },
-                        ]}
-                        onPress={() => { setSelectedCardId(null); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={[styles.cardChipText, { color: selectedCardId === null ? '#FFFFFF' : colors.textSecondary }]}>
-                          Sin tarjeta
-                        </Text>
-                      </TouchableOpacity>
 
-                      {cards.map((card: Card) => (
+                  {cards.length === 0 ? (
+                    /* Sin tarjetas registradas → CTA */
+                    <TouchableOpacity
+                      style={[styles.noCardsPrompt, { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+                      onPress={handleNavigateToCards}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="card-outline" size={18} color={colors.primary} />
+                      <Text style={[styles.noCardsPromptText, { color: colors.primary }]}>
+                        Agrega tus tarjetas
+                      </Text>
+                      <Ionicons name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
+                    </TouchableOpacity>
+                  ) : (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                      <View style={{ flexDirection: 'row', gap: 8 }}>
+                        {/* Opción "Sin tarjeta" */}
                         <TouchableOpacity
-                          key={card.id}
                           style={[
                             styles.cardChip,
                             { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                            selectedCardId === card.id && { backgroundColor: colors.primary, borderColor: colors.primary },
+                            selectedCardId === null && { backgroundColor: colors.primary, borderColor: colors.primary },
                           ]}
-                          onPress={() => { setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
+                          onPress={() => { setSelectedCardId(null); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
                           activeOpacity={0.8}
                         >
-                          <BankLogo bankId={card.bankId} size={20} radius={5} />
-                          <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]} numberOfLines={1}>
-                            {`${card.bankName} ••${card.lastFour}`}
+                          <Text style={[styles.cardChipText, { color: selectedCardId === null ? '#FFFFFF' : colors.textSecondary }]}>
+                            Sin tarjeta
                           </Text>
-                          <View style={[
-                            styles.cardTypeDot,
-                            { backgroundColor: card.type === 'credit' ? (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.error) : (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.primary) },
-                          ]} />
                         </TouchableOpacity>
-                      ))}
-                    </View>
-                  </ScrollView>
+
+                        {cards.map((card: Card) => (
+                          <TouchableOpacity
+                            key={card.id}
+                            style={[
+                              styles.cardChip,
+                              { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
+                              selectedCardId === card.id && { backgroundColor: colors.primary, borderColor: colors.primary },
+                            ]}
+                            onPress={() => { setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
+                            activeOpacity={0.8}
+                          >
+                            <BankLogo bankId={card.bankId} size={20} radius={5} />
+                            <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]} numberOfLines={1}>
+                              {`${card.bankName} ••${card.lastFour}`}
+                            </Text>
+                            <View style={[
+                              styles.cardTypeDot,
+                              { backgroundColor: card.type === 'credit' ? (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.error) : (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.primary) },
+                            ]} />
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  )}
                 </View>
               )}
 
@@ -1383,6 +1408,8 @@ const styles = StyleSheet.create({
   cardChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5 },
   cardChipText: { fontSize: 13, fontFamily: Fonts.semiBold, maxWidth: 115 },
   cardTypeDot: { width: 6, height: 6, borderRadius: 3 },
+  noCardsPrompt: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1.5 },
+  noCardsPromptText: { fontSize: 13, fontFamily: Fonts.semiBold },
   qtyBtn: { width: 36, height: 36, borderRadius: 10, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   qtyValue: { fontSize: 18, fontFamily: Fonts.bold, minWidth: 32, textAlign: 'center' },
   teaInput: { height: 46, width: 100, borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 12, fontSize: 16, fontFamily: Fonts.semiBold },
