@@ -40,14 +40,25 @@ export default function RootLayout() {
 
     if (user) {
       if (biometricLocked) {
-        isBiometricsAppEnrolled().then((enrolled) => {
-          if (enrolled) {
-            router.replace('/(auth)/biometric-lock');
-          } else {
-            setBiometricLocked(false);
-            router.replace('/(tabs)/');
-          }
-        });
+        let cancelled = false;
+        isBiometricsAppEnrolled()
+          .then((enrolled) => {
+            if (cancelled) return;
+            if (enrolled) {
+              router.replace('/(auth)/biometric-lock');
+            } else {
+              setBiometricLocked(false);
+              router.replace('/(tabs)/');
+            }
+          })
+          .catch(() => {
+            if (!cancelled) {
+              // Si SecureStore falla, tratar como no enrollado
+              setBiometricLocked(false);
+              router.replace('/(tabs)/');
+            }
+          });
+        return () => { cancelled = true; };
       } else {
         router.replace('/(tabs)/');
       }
