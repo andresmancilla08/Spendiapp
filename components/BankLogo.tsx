@@ -23,9 +23,8 @@ const LOCAL_LOGOS: Record<string, ImageSourcePropType> = {
 };
 
 // Bancos con logo real descargado en assets/banks/ (PNG válido verificado)
-// bancolombia → usa iniciales (sitio devuelve HTML, pendiente logo manual)
 const BANKS_WITH_REAL_LOGO = new Set<string>([
-  'davivienda', 'bbva', 'bogota', 'colpatria', 'itau', 'occidente',
+  'bancolombia', 'davivienda', 'bbva', 'bogota', 'colpatria', 'itau', 'occidente',
   'popular', 'avvillas', 'cajasocial', 'nequi', 'daviplata',
   'nubank', 'lulo', 'rappipay', 'movii',
 ]);
