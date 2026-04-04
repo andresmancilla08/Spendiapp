@@ -18,8 +18,8 @@ export const LightColors = {
   errorLight: '#FEE2E2',
   success: '#00897B',
   successLight: '#E0F2F1',
-  warning: '#C0CA33',
-  warningLight: '#F9FBE7',
+  warning: '#F59E0B',
+  warningLight: '#FEF3C7',
   info: '#00ACC1',
   infoLight: '#E0F7FA',
 
@@ -68,8 +68,8 @@ export const DarkColors = {
   errorLight: '#3D1515',
   success: '#00A896',
   successLight: '#003330',
-  warning: '#D4E157',
-  warningLight: '#2D3300',
+  warning: '#FBBF24',
+  warningLight: '#2D1F00',
   info: '#00BCD4',
   infoLight: '#003840',
 
