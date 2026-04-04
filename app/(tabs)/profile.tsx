@@ -27,6 +27,7 @@ import AppDialog, { DialogType } from '../../components/AppDialog';
 import { Fonts } from '../../config/fonts';
 import { useCards, deleteCard } from '../../hooks/useCards';
 import CardFormSheet from '../../components/CardFormSheet';
+import BankLogo from '../../components/BankLogo';
 import type { Card } from '../../types/card';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -523,9 +524,7 @@ export default function ProfileScreen() {
                   idx < cards.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
                 ]}
               >
-                <View style={[styles.optionIconWrap, { backgroundColor: colors.primaryLight }]}>
-                  <Ionicons name="card-outline" size={18} color={colors.primary} />
-                </View>
+                <BankLogo bankId={card.bankId} size={40} radius={10} />
                 <View style={styles.optionMeta}>
                   <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
                     {`${card.bankName} •••• ${card.lastFour}`}
