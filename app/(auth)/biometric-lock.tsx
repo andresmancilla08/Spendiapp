@@ -1,0 +1,155 @@
+import { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../context/ThemeContext';
+import { useAuthStore } from '../../store/authStore';
+import { Fonts } from '../../config/fonts';
+import { authenticateWithBiometrics, setBiometricsAppEnrolled } from '../../hooks/useBiometrics';
+import { signOut } from '../../hooks/useAuth';
+import AppDialog from '../../components/AppDialog';
+
+export default function BiometricLockScreen() {
+  const { colors, isDark } = useTheme();
+  const { user, setBiometricLocked } = useAuthStore();
+  const [authenticating, setAuthenticating] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [signOutDialog, setSignOutDialog] = useState(false);
+
+  const firstName = user?.displayName?.split(' ')[0] ?? 'de vuelta';
+
+  const gradientColors: [string, string, string] = isDark
+    ? ['#0D1A1C', '#062830', '#003840']
+    : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
+
+  const handleAuthenticate = async () => {
+    setAuthenticating(true);
+    setFailed(false);
+    const success = await authenticateWithBiometrics();
+    setAuthenticating(false);
+    if (success) {
+      setBiometricLocked(false);
+      router.replace('/(tabs)/');
+    } else {
+      setFailed(true);
+    }
+  };
+
+  const handleSignOut = async () => {
+    setSignOutDialog(false);
+    await setBiometricsAppEnrolled(false);
+    await signOut();
+    setBiometricLocked(true);
+    router.replace('/(auth)/login');
+  };
+
+  // Auto-trigger al montar
+  useEffect(() => {
+    handleAuthenticate();
+  }, []);
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <AppDialog
+        visible={signOutDialog}
+        type="warning"
+        title="Cerrar sesión"
+        description="¿Seguro que quieres cerrar sesión? Tendrás que volver a iniciar sesión la próxima vez."
+        primaryLabel="Cerrar sesión"
+        secondaryLabel="Cancelar"
+        onPrimary={handleSignOut}
+        onSecondary={() => setSignOutDialog(false)}
+      />
+
+      <LinearGradient
+        colors={gradientColors}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={styles.gradient}
+      >
+        <View style={[styles.blobTopRight, { backgroundColor: colors.primaryLight, opacity: isDark ? 0.25 : 0.6 }]} />
+
+        <View style={styles.container}>
+          <View style={styles.iconWrap}>
+            <Ionicons name="shield-checkmark-outline" size={64} color={colors.primary} />
+          </View>
+
+          <Text style={[styles.title, { color: colors.textPrimary }]}>
+            {`Bienvenid@, ${firstName}`}
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            Verifica tu identidad para continuar
+          </Text>
+
+          {failed && (
+            <Text style={[styles.errorText, { color: colors.error }]}>
+              No se pudo verificar. Intenta de nuevo.
+            </Text>
+          )}
+
+          <TouchableOpacity
+            style={[styles.biometricBtn, { backgroundColor: colors.primary }]}
+            onPress={() => handleAuthenticate()}
+            disabled={authenticating}
+            activeOpacity={0.85}
+          >
+            {authenticating
+              ? <ActivityIndicator color="#FFFFFF" />
+              : (
+                <>
+                  <Ionicons name="finger-print" size={22} color="#FFFFFF" />
+                  <Text style={styles.biometricBtnText}>Usar biometría</Text>
+                </>
+              )
+            }
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.signOutBtn}
+            onPress={() => setSignOutDialog(true)}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.signOutText, { color: colors.textTertiary }]}>
+              Cerrar sesión
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
+  gradient: { flex: 1 },
+  blobTopRight: {
+    position: 'absolute', top: -80, right: -80,
+    width: 280, height: 280, borderRadius: 999,
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    gap: 16,
+  },
+  iconWrap: { marginBottom: 8 },
+  title: { fontSize: 26, fontFamily: Fonts.bold, textAlign: 'center' },
+  subtitle: { fontSize: 15, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 22, marginBottom: 8 },
+  errorText: { fontSize: 13, fontFamily: Fonts.regular, textAlign: 'center' },
+  biometricBtn: {
+    width: '100%',
+    height: 56,
+    borderRadius: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 8,
+  },
+  biometricBtnText: { fontSize: 17, fontFamily: Fonts.bold, color: '#FFFFFF' },
+  signOutBtn: { marginTop: 8, padding: 8 },
+  signOutText: { fontSize: 14, fontFamily: Fonts.regular },
+});
