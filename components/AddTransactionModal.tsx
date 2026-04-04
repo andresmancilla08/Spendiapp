@@ -1381,7 +1381,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   cardChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5 },
-  cardChipText: { fontSize: 13, fontFamily: Fonts.semiBold, maxWidth: 140 },
+  cardChipText: { fontSize: 13, fontFamily: Fonts.semiBold, maxWidth: 115 },
   cardTypeDot: { width: 6, height: 6, borderRadius: 3 },
   qtyBtn: { width: 36, height: 36, borderRadius: 10, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   qtyValue: { fontSize: 18, fontFamily: Fonts.bold, minWidth: 32, textAlign: 'center' },
