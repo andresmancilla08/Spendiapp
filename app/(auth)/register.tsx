@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   form: { flex: 1, gap: 32 },
   inputGroup: { gap: 12 },
   inputLabel: { fontSize: 14, fontFamily: Fonts.semiBold },
-  inputSub: { fontSize: 13, fontFamily: Fonts.regular, marginBottom: 8 },
+  inputSub: { fontSize: 13, fontFamily: Fonts.regular, marginBottom: 16 },
   inputWrapper: { position: 'relative', justifyContent: 'center' },
   inputIcon: { position: 'absolute', left: 14, zIndex: 1 },
   input: {
