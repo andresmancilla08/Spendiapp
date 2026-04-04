@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
   },
   inputWithIcon: { paddingLeft: 44 },
-  pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
+  pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
   primaryButton: {
     height: 56,
     borderRadius: 50,
