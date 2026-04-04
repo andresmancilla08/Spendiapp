@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderRadius: 12,
     padding: 14,
-    marginHorizontal: 0,
+    marginHorizontal: 20,
     marginBottom: 16,
   },
   noCardsBannerTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
