@@ -37,6 +37,7 @@ import * as Crypto from 'expo-crypto';
 import { useCards } from '../hooks/useCards';
 import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
 import type { Card } from '../types/card';
+import BankLogo from './BankLogo';
 
 const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 const AMOUNT_INPUT_ID = 'spendiapp-amount-input';
@@ -973,6 +974,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           onPress={() => { setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
                           activeOpacity={0.8}
                         >
+                          <BankLogo bankId={card.bankId} size={20} radius={5} />
                           <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]} numberOfLines={1}>
                             {`${card.bankName} ••${card.lastFour}`}
                           </Text>
