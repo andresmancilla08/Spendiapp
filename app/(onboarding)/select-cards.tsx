@@ -18,6 +18,7 @@ import { Fonts } from '../../config/fonts';
 import { COLOMBIAN_BANKS, BANK_CATEGORY_LABELS, Bank } from '../../config/banks';
 import { addCard, deleteCard, useCards } from '../../hooks/useCards';
 import type { CardType } from '../../types/card';
+import BankLogo from '../../components/BankLogo';
 
 const CATEGORIES: Bank['category'][] = ['traditional', 'digital', 'other'];
 
@@ -119,6 +120,7 @@ export default function SelectCardsScreen() {
                           onPress={() => handleToggleBank(bank.id)}
                           activeOpacity={0.7}
                         >
+                          <BankLogo bankId={bank.id} size={36} radius={10} />
                           <Text style={[styles.bankName, { color: colors.textPrimary }]}>{bank.name}</Text>
                           <Ionicons
                             name={isExpanded ? 'chevron-up' : 'add-circle-outline'}
@@ -249,8 +251,8 @@ const styles = StyleSheet.create({
   sectionLabel: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 0.8, marginBottom: 8, marginLeft: 4 },
   bankGroup: { borderRadius: 16, overflow: 'hidden' },
   bankRow: { paddingVertical: 4 },
-  bankNameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 14 },
-  bankName: { fontSize: 15, fontFamily: Fonts.medium },
+  bankNameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 10, gap: 12 },
+  bankName: { fontSize: 15, fontFamily: Fonts.medium, flex: 1 },
   addedCards: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, paddingBottom: 12 },
   addedChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20 },
   addedChipText: { fontSize: 12, fontFamily: Fonts.semiBold },
