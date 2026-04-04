@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
@@ -12,6 +12,7 @@ interface PinInputProps {
 export default function PinInput({ value, onChange, error = false }: PinInputProps) {
   const { colors } = useTheme();
   const inputs = useRef<(TextInput | null)[]>([null, null, null, null]);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
   const handleChange = (text: string, index: number) => {
     const digit = text.replace(/[^0-9]/g, '').slice(-1);
@@ -37,16 +38,33 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
     <View style={styles.row}>
       {[0, 1, 2, 3].map((i) => {
         const filled = !!value[i];
-        const borderColor = error ? colors.error : filled ? colors.primary : colors.border;
-        const bg = filled ? colors.primaryLight : colors.backgroundSecondary;
+        const focused = focusedIndex === i;
+        const borderColor = error
+          ? colors.error
+          : focused
+          ? colors.borderFocus
+          : filled
+          ? colors.primary
+          : colors.border;
+        const bg = focused
+          ? colors.primaryLight
+          : filled
+          ? colors.primaryLight
+          : colors.backgroundSecondary;
         return (
           <TextInput
             key={i}
             ref={(r) => { inputs.current[i] = r; }}
-            style={[styles.box, { borderColor, backgroundColor: bg, color: colors.primary }]}
+            style={[
+              styles.box,
+              { borderColor, backgroundColor: bg, color: colors.primary },
+              focused && styles.boxFocused,
+            ]}
             value={value[i] ? '•' : ''}
             onChangeText={(t) => handleChange(t, i)}
             onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
+            onFocus={() => setFocusedIndex(i)}
+            onBlur={() => setFocusedIndex(null)}
             keyboardType="numeric"
             maxLength={1}
             textAlign="center"
@@ -71,5 +89,13 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     fontSize: 28,
     fontFamily: Fonts.bold,
+  },
+  boxFocused: {
+    borderWidth: 2,
+    shadowColor: '#00ACC1',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
 });

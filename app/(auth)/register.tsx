@@ -86,7 +86,7 @@ export default function RegisterScreen() {
       <AppDialog
         visible={showSuccess}
         type="success"
-        title={`¡Bienvenido, ${name.trim()}!`}
+        title={`¡Bienvenid@, ${name.trim()}!`}
         description="Tu cuenta fue creada exitosamente. Ya puedes empezar a controlar tus finanzas."
         primaryLabel="Continuar"
         onPrimary={handleGoHome}
