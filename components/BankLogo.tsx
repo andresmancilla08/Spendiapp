@@ -22,10 +22,12 @@ const LOCAL_LOGOS: Record<string, ImageSourcePropType> = {
   movii:       require('../assets/banks/movii.png'),
 };
 
-// Añadir el ID del banco aquí una vez que su logo REAL esté descargado en assets/banks/
-// Ejecutar: node scripts/download-bank-logos.js  y luego agregar los IDs exitosos
+// Bancos con logo real descargado en assets/banks/ (PNG válido verificado)
+// bancolombia → usa iniciales (sitio devuelve HTML, pendiente logo manual)
 const BANKS_WITH_REAL_LOGO = new Set<string>([
-  // 'bancolombia', 'davivienda', ...
+  'davivienda', 'bbva', 'bogota', 'colpatria', 'itau', 'occidente',
+  'popular', 'avvillas', 'cajasocial', 'nequi', 'daviplata',
+  'nubank', 'lulo', 'rappipay', 'movii',
 ]);
 
 interface BankLogoProps {
