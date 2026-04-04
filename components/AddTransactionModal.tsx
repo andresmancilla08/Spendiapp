@@ -20,7 +20,7 @@ import {
 import { useRef, useEffect, useState, useCallback, type ElementRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { addDoc, collection, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, Timestamp, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -33,6 +33,10 @@ import { filterCategories } from '../constants/categories';
 import { suggestEmojiLocal, suggestEmojiWithGemini } from '../utils/suggestEmoji';
 import { EmojiPicker } from './EmojiPicker';
 import type { CategoryType } from '../types/category';
+import * as Crypto from 'expo-crypto';
+import { useCards } from '../hooks/useCards';
+import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
+import type { Card } from '../types/card';
 
 const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 const AMOUNT_INPUT_ID = 'spendiapp-amount-input';
@@ -90,6 +94,13 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
   const [isFixed, setIsFixed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Tarjeta y cuotas
+  const { cards } = useCards(user?.uid ?? '');
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [installmentCount, setInstallmentCount] = useState(1);
+  const [withInterest, setWithInterest] = useState(false);
+  const [teaInput, setTeaInput] = useState('');
 
   // Inline new-category form state
   const [showNewCatForm, setShowNewCatForm] = useState(false);
@@ -246,6 +257,10 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
     setPickerMode('day');
     resetNewCatForm();
     slideAnim.setValue(0);
+    setSelectedCardId(null);
+    setInstallmentCount(1);
+    setWithInterest(false);
+    setTeaInput('');
   };
 
   const handleClose = useCallback(() => {
@@ -337,25 +352,66 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
   const amountInputWidth = Math.max(60, displayAmount.length * 28 + 10);
   const isSaveDisabled = !isAmountValid || category === '' || description.trim() === '' || loading;
 
+  const selectedCard = cards.find((c) => c.id === selectedCardId) ?? null;
+  const isCredit = selectedCard?.type === 'credit';
+  const showInstallments = isCredit && installmentCount > 1;
+  const teaValue = teaInput !== '' ? parseFloat(teaInput) : null;
+  const teaValid = !showInstallments || !withInterest || (teaValue !== null && teaValue > 0 && teaValue <= 200);
+  const isSaveDisabledFull = isSaveDisabled || !teaValid;
+
   const handleSave = async () => {
-    if (isSaveDisabled || !user) return;
+    if (isSaveDisabledFull || !user) return;
     setLoading(true);
     setError('');
+
     try {
-      await addDoc(collection(db, 'transactions'), {
+      const now = new Date();
+      const baseDoc = {
         userId: user.uid,
         type,
-        amount: parsedAmount,
         category,
         description: description.trim(),
-        date: Timestamp.fromDate(selectedDate),
-        createdAt: Timestamp.fromDate(new Date()),
+        createdAt: Timestamp.fromDate(now),
         isFixed,
-      });
+        ...(selectedCardId ? { cardId: selectedCardId } : {}),
+      };
+
+      if (isCredit && type === 'expense' && installmentCount > 1) {
+        // Compra a cuotas: crear n documentos atómicamente con writeBatch
+        const amounts = calculateInstallments(
+          parsedAmount,
+          installmentCount,
+          withInterest ? teaValue : null,
+        );
+        const dates = calculateInstallmentDates(selectedDate, installmentCount);
+        const groupId = Crypto.randomUUID();
+
+        const batch = writeBatch(db);
+        amounts.forEach((amt, i) => {
+          const ref = doc(collection(db, 'transactions'));
+          batch.set(ref, {
+            ...baseDoc,
+            amount: amt,
+            date: Timestamp.fromDate(dates[i]),
+            isFixed: false,
+            installmentGroupId: groupId,
+            installmentNumber: i + 1,
+            installmentTotal: installmentCount,
+            isInstallment: true,
+          });
+        });
+        await batch.commit();
+      } else {
+        // Transacción normal (1 cuota o débito)
+        await addDoc(collection(db, 'transactions'), {
+          ...baseDoc,
+          amount: parsedAmount,
+          date: Timestamp.fromDate(selectedDate),
+        });
+      }
+
       onSaved();
-      animateOut(() => {
-        resetForm();
-      });
+      animateOut(() => { resetForm(); });
     } catch (err: unknown) {
       setError(t('addTransaction.errors.saveFailed'));
       setLoading(false);
@@ -885,15 +941,139 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
               )}
               </View>
 
+              {/* Método de pago */}
+              {cards.length > 0 && (
+                <View style={[styles.fixedRow, { borderColor: colors.border, flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingVertical: 12, paddingHorizontal: 16 }]}>
+                  <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>Método de pago</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      {/* Opción "Sin tarjeta" */}
+                      <TouchableOpacity
+                        style={[
+                          styles.cardChip,
+                          { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
+                          selectedCardId === null && { backgroundColor: colors.primary, borderColor: colors.primary },
+                        ]}
+                        onPress={() => { setSelectedCardId(null); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={[styles.cardChipText, { color: selectedCardId === null ? '#FFFFFF' : colors.textSecondary }]}>
+                          Sin tarjeta
+                        </Text>
+                      </TouchableOpacity>
+
+                      {cards.map((card: Card) => (
+                        <TouchableOpacity
+                          key={card.id}
+                          style={[
+                            styles.cardChip,
+                            { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
+                            selectedCardId === card.id && { backgroundColor: colors.primary, borderColor: colors.primary },
+                          ]}
+                          onPress={() => { setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
+                          activeOpacity={0.8}
+                        >
+                          <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]} numberOfLines={1}>
+                            {`${card.bankName} ••${card.lastFour}`}
+                          </Text>
+                          <View style={[
+                            styles.cardTypeDot,
+                            { backgroundColor: card.type === 'credit' ? (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.error) : (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.primary) },
+                          ]} />
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </ScrollView>
+                </View>
+              )}
+
+              {/* Cuotas — solo si tarjeta crédito seleccionada */}
+              {isCredit && type === 'expense' && (
+                <View style={[styles.fixedRow, { borderColor: colors.border, flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingVertical: 12, paddingHorizontal: 16 }]}>
+                  <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>Cuotas</Text>
+
+                  {/* Picker numérico de cuotas */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                    <TouchableOpacity
+                      onPress={() => setInstallmentCount((v) => Math.max(1, v - 1))}
+                      style={[styles.qtyBtn, { borderColor: colors.border }]}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="remove" size={18} color={colors.textPrimary} />
+                    </TouchableOpacity>
+                    <Text style={[styles.qtyValue, { color: colors.textPrimary }]}>{installmentCount}</Text>
+                    <TouchableOpacity
+                      onPress={() => setInstallmentCount((v) => Math.min(36, v + 1))}
+                      style={[styles.qtyBtn, { borderColor: colors.border }]}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="add" size={18} color={colors.textPrimary} />
+                    </TouchableOpacity>
+                    <Text style={[styles.fixedHint, { color: colors.textTertiary, flex: 1 }]}>
+                      {installmentCount === 1 ? 'cuota (pago único)' : `cuotas`}
+                    </Text>
+                  </View>
+
+                  {/* Toggle con interés — solo si > 1 cuota */}
+                  {installmentCount > 1 && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: withInterest ? 12 : 0 }}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.fixedLabel, { color: colors.textPrimary }]}>¿Con interés?</Text>
+                        <Text style={[styles.fixedHint, { color: colors.textTertiary }]}>Activa si aplica TEA</Text>
+                      </View>
+                      <Switch
+                        value={withInterest}
+                        onValueChange={(v) => { setWithInterest(v); setTeaInput(''); }}
+                        trackColor={{ false: colors.border, true: colors.primary }}
+                        thumbColor="#fff"
+                      />
+                    </View>
+                  )}
+
+                  {/* Campo TEA — solo si toggle ON */}
+                  {installmentCount > 1 && withInterest && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <TextInput
+                        style={[styles.teaInput, { borderColor: teaValid ? colors.border : colors.error, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary }]}
+                        placeholder="Ej: 26.4"
+                        placeholderTextColor={colors.textTertiary}
+                        keyboardType="decimal-pad"
+                        value={teaInput}
+                        onChangeText={setTeaInput}
+                        returnKeyType="done"
+                      />
+                      <Text style={[styles.fixedLabel, { color: colors.textSecondary }]}>% TEA anual</Text>
+                    </View>
+                  )}
+
+                  {/* Preview de cuotas */}
+                  {installmentCount > 1 && isAmountValid && teaValid && (
+                    <View style={{ marginTop: 10, padding: 10, borderRadius: 10, backgroundColor: colors.primaryLight }}>
+                      <Text style={[styles.fixedHint, { color: colors.primary }]}>
+                        {(() => {
+                          const amounts = calculateInstallments(parsedAmount, installmentCount, withInterest ? teaValue : null);
+                          const first = amounts[0];
+                          const last = amounts[amounts.length - 1];
+                          const same = first === last;
+                          return same
+                            ? `${installmentCount} cuotas de $${first.toLocaleString('es-CO')}`
+                            : `${installmentCount - 1} cuotas de $${first.toLocaleString('es-CO')} + última de $${last.toLocaleString('es-CO')}`;
+                        })()}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
+
               {/* Save button */}
               <TouchableOpacity
                 style={[
                   styles.saveButton,
                   { backgroundColor: colors.primary },
-                  isSaveDisabled && styles.saveButtonDisabled,
+                  isSaveDisabledFull && styles.saveButtonDisabled,
                 ]}
                 onPress={handleSave}
-                disabled={isSaveDisabled}
+                disabled={isSaveDisabledFull}
                 activeOpacity={0.85}
               >
                 {loading ? (
@@ -1198,5 +1378,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
   },
+  cardChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5 },
+  cardChipText: { fontSize: 13, fontFamily: Fonts.semiBold, maxWidth: 140 },
+  cardTypeDot: { width: 6, height: 6, borderRadius: 3 },
+  qtyBtn: { width: 36, height: 36, borderRadius: 10, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  qtyValue: { fontSize: 18, fontFamily: Fonts.bold, minWidth: 32, textAlign: 'center' },
+  teaInput: { height: 46, width: 100, borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 12, fontSize: 16, fontFamily: Fonts.semiBold },
 
 });
