@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +19,11 @@ import { Animated } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { signOut, updateDisplayName, changePin } from '../../hooks/useAuth';
+import {
+  isBiometricsAvailable,
+  isBiometricsAppEnrolled,
+  setBiometricsAppEnrolled,
+} from '../../hooks/useBiometrics';
 import { ThemeMode } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, changeLanguage } from '../../config/i18n';
@@ -338,6 +344,21 @@ export default function ProfileScreen() {
   const { cards } = useCards(user?.uid ?? '');
   const [cardFormVisible, setCardFormVisible] = useState(false);
   const [cardToDelete, setCardToDelete] = useState<Card | null>(null);
+  const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+  const [biometricsEnabled, setBiometricsEnabled] = useState(false);
+  const [biometricToggleDialog, setBiometricToggleDialog] = useState(false);
+
+  useEffect(() => {
+    async function loadBiometricsState() {
+      const available = await isBiometricsAvailable();
+      setBiometricsAvailable(available);
+      if (available) {
+        const enrolled = await isBiometricsAppEnrolled();
+        setBiometricsEnabled(enrolled);
+      }
+    }
+    loadBiometricsState();
+  }, []);
 
   const closeDialog = () => setDialog((d) => ({ ...d, visible: false }));
 
@@ -412,6 +433,21 @@ export default function ProfileScreen() {
       },
       onSecondary: () => { closeDialog(); setCardToDelete(null); },
     });
+  };
+
+  const handleBiometricToggle = async (value: boolean) => {
+    if (value) {
+      await setBiometricsAppEnrolled(true);
+      setBiometricsEnabled(true);
+    } else {
+      setBiometricToggleDialog(true);
+    }
+  };
+
+  const confirmDisableBiometrics = async () => {
+    setBiometricToggleDialog(false);
+    await setBiometricsAppEnrolled(false);
+    setBiometricsEnabled(false);
   };
 
   const handleSignOut = () => {
@@ -560,6 +596,33 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* SEGURIDAD — Biometría */}
+        <SectionTitle label="Seguridad" />
+        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+          <View style={[styles.optionRow, { opacity: biometricsAvailable ? 1 : 0.4 }]}>
+            <View style={[styles.optionIconWrap, { backgroundColor: colors.primaryLight }]}>
+              <Ionicons name="finger-print" size={18} color={colors.primary} />
+            </View>
+            <View style={styles.optionMeta}>
+              <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
+                Face ID / Touch ID
+              </Text>
+              <Text style={[styles.optionSub, { color: colors.textSecondary }]}>
+                {biometricsAvailable
+                  ? 'Desbloquea la app con tu rostro o huella'
+                  : 'No disponible en este dispositivo'}
+              </Text>
+            </View>
+            <Switch
+              value={biometricsEnabled}
+              onValueChange={biometricsAvailable ? handleBiometricToggle : undefined}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor="#FFFFFF"
+              disabled={!biometricsAvailable}
+            />
+          </View>
+        </View>
+
         {/* SOPORTE */}
         <SectionTitle label={t('profile.sections.support')} />
         <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
@@ -626,6 +689,18 @@ export default function ProfileScreen() {
         userId={user?.uid ?? ''}
       />
 
+      {/* Dialog: Desactivar biometría */}
+      <AppDialog
+        visible={biometricToggleDialog}
+        type="warning"
+        title="Desactivar biometría"
+        description="La próxima vez que abras la app necesitarás hacer login completo."
+        primaryLabel="Desactivar"
+        secondaryLabel="Cancelar"
+        onPrimary={confirmDisableBiometrics}
+        onSecondary={() => setBiometricToggleDialog(false)}
+      />
+
       {/* Dialog global */}
       <AppDialog
         visible={dialog.visible}
@@ -671,6 +746,7 @@ const styles = StyleSheet.create({
   optionMeta: { flex: 1, gap: 2 },
   optionLabel: { fontSize: 14, fontFamily: Fonts.medium },
   optionValue: { fontSize: 12, fontFamily: Fonts.regular },
+  optionSub: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 1 },
 
   signOutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16, borderRadius: 50, marginBottom: 20 },
   signOutText: { fontSize: 15, fontFamily: Fonts.bold },
