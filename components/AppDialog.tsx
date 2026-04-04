@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import {
   Modal, View, Text, TouchableOpacity, StyleSheet,
   Animated, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator,
@@ -37,7 +37,7 @@ interface AppDialogProps {
   visible: boolean;
   type?: DialogType;
   title: string;
-  description?: string;
+  description?: string | ReactNode;
   primaryLabel: string;
   secondaryLabel?: string;
   onPrimary: () => void;
@@ -132,7 +132,9 @@ export default function AppDialog({
           <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
 
           {!!description && (
-            <Text style={[styles.description, { color: colors.textSecondary }]}>{description}</Text>
+            typeof description === 'string'
+              ? <Text style={[styles.description, { color: colors.textSecondary }]}>{description}</Text>
+              : <View style={styles.descriptionWrap}>{description}</View>
           )}
 
           {hasInput && (
@@ -222,6 +224,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 24,
     textAlign: 'center',
+  },
+  descriptionWrap: {
+    marginBottom: 24,
+    alignItems: 'center',
   },
   inputWrapper: {
     width: '100%',

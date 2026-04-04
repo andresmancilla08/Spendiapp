@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import {
   View,
   Text,
@@ -312,7 +313,7 @@ interface DialogState {
   visible: boolean;
   type: DialogType;
   title: string;
-  description: string;
+  description: string | ReactNode;
   primaryLabel: string;
   secondaryLabel?: string;
   onPrimary: () => void;
@@ -359,13 +360,13 @@ export default function ProfileScreen() {
 
   const closeDialog = () => setDialog((d) => ({ ...d, visible: false }));
 
-  const showInfo = (title: string, description: string) =>
+  const showInfo = (title: string, description: string | ReactNode) =>
     setDialog({ visible: true, type: 'info', title, description, primaryLabel: t('common.understood'), onPrimary: closeDialog });
 
-  const showError = (title: string, description: string) =>
+  const showError = (title: string, description: string | ReactNode) =>
     setDialog({ visible: true, type: 'error', title, description, primaryLabel: t('common.close'), onPrimary: closeDialog });
 
-  const showSuccess = (title: string, description: string) =>
+  const showSuccess = (title: string, description: string | ReactNode) =>
     setDialog({ visible: true, type: 'success', title, description, primaryLabel: t('common.great'), onPrimary: closeDialog });
 
   const nameParts = user?.displayName?.split(' ') ?? ['Usuario'];
@@ -439,7 +440,13 @@ export default function ProfileScreen() {
       visible: true,
       type: 'warning',
       title: t('profile.signOut.title'),
-      description: t('profile.signOut.description'),
+      description: (
+        <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
+          {'¿Seguro que quieres '}
+          <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>cerrar sesión</Text>
+          {'? Tendrás que volver a iniciar sesión la próxima vez.'}
+        </Text>
+      ),
       primaryLabel: t('profile.signOut.confirm'),
       secondaryLabel: t('common.cancel'),
       onPrimary: () => { closeDialog(); signOut(); },
@@ -628,7 +635,13 @@ export default function ProfileScreen() {
         visible={biometricToggleDialog}
         type="warning"
         title="Desactivar biometría"
-        description="La próxima vez que abras la app necesitarás hacer login completo."
+        description={
+          <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
+            {'La próxima vez que abras la app necesitarás hacer '}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>login completo</Text>
+            {'.'}
+          </Text>
+        }
         primaryLabel="Desactivar"
         secondaryLabel="Cancelar"
         onPrimary={confirmDisableBiometrics}

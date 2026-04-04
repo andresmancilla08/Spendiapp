@@ -60,7 +60,15 @@ export default function BiometricLockScreen() {
         visible={signOutDialog}
         type="warning"
         title="Cerrar sesión"
-        description="¿Seguro que quieres cerrar sesión? Tendrás que volver a iniciar sesión la próxima vez."
+        description={
+          <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
+            {'¿Seguro que quieres '}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>cerrar sesión</Text>
+            {'? Tendrás que volver a '}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>iniciar sesión</Text>
+            {' la próxima vez.'}
+          </Text>
+        }
         primaryLabel="Cerrar sesión"
         secondaryLabel="Cancelar"
         onPrimary={handleSignOut}
