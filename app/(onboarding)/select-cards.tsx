@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
+import { useToast } from '../../context/ToastContext';
 import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
 import { COLOMBIAN_BANKS, BANK_CATEGORY_LABELS, Bank } from '../../config/banks';
@@ -24,6 +25,7 @@ const CATEGORIES: Bank['category'][] = ['traditional', 'digital', 'other'];
 
 export default function SelectCardsScreen() {
   const { colors, isDark } = useTheme();
+  const { showToast } = useToast();
   const { user, setJustRegistered } = useAuthStore();
   const { cards } = useCards(user?.uid ?? '');
 
@@ -83,7 +85,19 @@ export default function SelectCardsScreen() {
     }
   };
 
-  const handleFinish = () => {
+  const handleDone = () => {
+    if (cards.length > 0) {
+      const n = cards.length;
+      showToast(
+        n === 1 ? '1 tarjeta agregada correctamente' : `${n} tarjetas agregadas correctamente`,
+        'success',
+      );
+    }
+    setJustRegistered(false);
+    router.replace('/(tabs)/');
+  };
+
+  const handleSkip = () => {
     setJustRegistered(false);
     router.replace('/(tabs)/');
   };
@@ -255,7 +269,7 @@ export default function SelectCardsScreen() {
         <View style={[styles.footer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
           <TouchableOpacity
             style={[styles.doneBtn, { backgroundColor: colors.primary }]}
-            onPress={handleFinish}
+            onPress={handleDone}
             activeOpacity={0.85}
           >
             <Text style={[styles.doneBtnText, { color: '#FFFFFF' }]}>
@@ -264,7 +278,7 @@ export default function SelectCardsScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.skipBtn, { borderColor: colors.primary }]}
-            onPress={handleFinish}
+            onPress={handleSkip}
             activeOpacity={0.7}
           >
             <Text style={[styles.skipText, { color: colors.primary }]}>Omitir por ahora</Text>
