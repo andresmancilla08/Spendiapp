@@ -70,51 +70,47 @@ export default function AppDialog({
   inputType = 'text',
 }: AppDialogProps) {
   const { colors } = useTheme();
-  const scale = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(300)).current;
+
+  // Card: fade + subtle scale-up
+  const cardOpacity = useRef(new Animated.Value(0)).current;
+  const cardScale  = useRef(new Animated.Value(0.92)).current;
+
+  // Icon: bounce on entry
+  const iconScale = useRef(new Animated.Value(0)).current;
 
   const hasInput = onInputChange !== undefined;
   const isInputValid = hasInput ? VALIDATORS[inputType](inputValue ?? '') : true;
   const isPrimaryDisabled = loading || !isInputValid;
 
-  const iconName = DIALOG_ICON[type];
+  const iconName  = DIALOG_ICON[type];
   const iconColor =
-    type === 'error' ? colors.error :
+    type === 'error'   ? colors.error   :
     type === 'warning' ? colors.warning :
     type === 'success' ? colors.success :
     colors.primary;
 
   useEffect(() => {
     if (visible) {
-      translateY.setValue(300);
-      Animated.spring(translateY, {
-        toValue: 0,
-        damping: 20,
-        stiffness: 200,
+      // Card fade + scale in
+      cardOpacity.setValue(0);
+      cardScale.setValue(0.92);
+      Animated.parallel([
+        Animated.timing(cardOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
+        Animated.spring(cardScale,   { toValue: 1, damping: 18, stiffness: 260, useNativeDriver: true }),
+      ]).start();
+
+      // Icon bounce
+      iconScale.setValue(0);
+      Animated.spring(iconScale, {
+        toValue: 1,
+        damping: 8,
+        stiffness: 180,
         useNativeDriver: true,
       }).start();
-
-      scale.setValue(0);
-      Animated.sequence([
-        Animated.spring(scale, {
-          toValue: 1,
-          damping: 8,
-          stiffness: 180,
-          useNativeDriver: true,
-        }),
-        Animated.loop(
-          Animated.spring(scale, {
-            toValue: 1,
-            damping: 8,
-            stiffness: 180,
-            velocity: 4,
-            useNativeDriver: true,
-          })
-        ),
-      ]).start();
     } else {
-      scale.setValue(0);
-      translateY.setValue(300);
+      cardOpacity.setValue(0);
+      cardScale.setValue(0.92);
+      iconScale.setValue(0);
     }
   }, [visible]);
 
@@ -124,8 +120,11 @@ export default function AppDialog({
         style={[styles.overlay, { backgroundColor: colors.overlay }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View style={[styles.card, { backgroundColor: colors.surface, transform: [{ translateY }] }]}>
-          <Animated.View style={[styles.iconWrapper, { transform: [{ scale }] }]}>
+        <Animated.View style={[
+          styles.card,
+          { backgroundColor: colors.surface, opacity: cardOpacity, transform: [{ scale: cardScale }] },
+        ]}>
+          <Animated.View style={[styles.iconWrapper, { transform: [{ scale: iconScale }] }]}>
             <Ionicons name={iconName} size={56} color={iconColor} />
           </Animated.View>
 
@@ -198,15 +197,14 @@ export default function AppDialog({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
   },
   card: {
-    width: '100%',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 24,
     paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 40,
+    paddingTop: 32,
+    paddingBottom: 28,
     alignItems: 'center',
   },
   iconWrapper: {
@@ -215,7 +213,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: Fonts.bold,
-    marginBottom: 20,
+    marginBottom: 12,
     textAlign: 'center',
   },
   description: {

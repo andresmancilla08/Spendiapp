@@ -286,19 +286,6 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Insight card */}
-        <View style={[styles.insightCard, { backgroundColor: colors.tertiaryLight }]}>
-          <View style={styles.insightTop}>
-            <View style={[styles.insightIconWrap, { backgroundColor: colors.tertiary }]}>
-              <Ionicons name="sparkles" size={14} color={colors.onTertiary} />
-            </View>
-            <Text style={[styles.insightBadge, { color: colors.tertiaryDark }]}>{t('home.insightBadge')}</Text>
-          </View>
-          <Text style={[styles.insightText, { color: colors.textPrimary }]}>
-            {t('home.insightText')}
-          </Text>
-        </View>
-
         </>}
       </ScrollView>
 
@@ -442,13 +429,6 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 36, marginBottom: 10 },
   emptyTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 4 },
   emptySubtitle: { fontSize: 12, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 18 },
-
-  // Insight
-  insightCard: { borderRadius: 20, padding: 18, marginTop: 24, marginBottom: 8 },
-  insightTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
-  insightIconWrap: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  insightBadge: { fontSize: 10, fontFamily: Fonts.extraBold },
-  insightText: { fontSize: 13, fontFamily: Fonts.regular, lineHeight: 20 },
 
   // FAB
   fab: {

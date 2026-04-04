@@ -94,7 +94,7 @@ export default function LoginScreen() {
               }]}
               activeOpacity={0.8}
               disabled={loading}
-              onPress={promptAsync}
+              onPress={() => promptAsync()}
             >
               {loading ? (
                 <ActivityIndicator color={colors.textSecondary} />
@@ -248,10 +248,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
   },
   emailButtonText: {
     fontSize: 16,
