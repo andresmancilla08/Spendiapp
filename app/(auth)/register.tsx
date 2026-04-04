@@ -18,6 +18,7 @@ import AppHeader from '../../components/AppHeader';
 import AppDialog from '../../components/AppDialog';
 import PinInput from '../../components/PinInput';
 import { registerWithEmailAndPin } from '../../hooks/useAuth';
+import { auth } from '../../config/firebase';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
@@ -34,7 +35,7 @@ export default function RegisterScreen() {
   const [showSuccess, setShowSuccess] = useState(false);
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
-  const { setJustRegistered } = useAuthStore();
+  const { setJustRegistered, setUser } = useAuthStore();
 
   const isNameValid = name.trim().length >= 2;
   const isEmailValid = email.trim().length > 0 && email.includes('@');
@@ -52,6 +53,10 @@ export default function RegisterScreen() {
     try {
       setJustRegistered(true);
       await registerWithEmailAndPin(name.trim(), email.trim().toLowerCase(), pin);
+      // onAuthStateChanged fires before updateProfile, so displayName is null in the store.
+      // Update it manually so the home screen shows the correct name immediately.
+      const cu = auth.currentUser;
+      if (cu) setUser({ uid: cu.uid, email: cu.email, displayName: name.trim(), photoURL: cu.photoURL });
       setShowSuccess(true);
     } catch (e: any) {
       setJustRegistered(false);
@@ -66,8 +71,10 @@ export default function RegisterScreen() {
   };
 
   const handleGoHome = () => {
-    setJustRegistered(false);
-    router.replace('/(tabs)/');
+    // NO llamar setJustRegistered(false) aquí.
+    // select-cards.tsx lo llamará al terminar, evitando
+    // que _layout.tsx redirija mientras dure el onboarding.
+    router.replace('/(onboarding)/select-cards');
   };
 
   const nameInputStyle = {
@@ -181,7 +188,7 @@ export default function RegisterScreen() {
 
           <View style={styles.footer}>
             <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: colors.primary, shadowColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
+              style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
               onPress={handleContinue}
               activeOpacity={0.85}
               disabled={!canSubmit || loading}
@@ -247,10 +254,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 12,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
   },
   primaryButtonText: { fontSize: 17, fontFamily: Fonts.bold },
 });
