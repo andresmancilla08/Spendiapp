@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { Stack, router } from 'expo-router';
+import { getRedirectResult } from 'firebase/auth';
+import { auth } from '../config/firebase';
 import { onAuthStateChanged } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
 import { initI18n } from '../config/i18n';
@@ -69,6 +71,11 @@ export default function RootLayout() {
       router.replace('/(auth)/login');
     }
   }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, biometricLocked]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    getRedirectResult(auth).catch(() => {});
+  }, []);
 
   if (!i18nReady || !fontsLoaded) return null;
 
