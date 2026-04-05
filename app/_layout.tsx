@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { onAuthStateChanged } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
@@ -39,7 +40,7 @@ export default function RootLayout() {
     if (justRegistered) return;
 
     if (user) {
-      if (biometricLocked) {
+      if (biometricLocked && Platform.OS !== 'web') {
         let cancelled = false;
         isBiometricsAppEnrolled()
           .then((enrolled) => {
