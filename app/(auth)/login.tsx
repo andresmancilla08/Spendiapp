@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
+    overflow: 'hidden',
   },
   blobTopRight: {
     position: 'absolute',
