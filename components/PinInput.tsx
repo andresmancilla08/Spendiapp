@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignSelf: 'stretch',
     gap: 16,
   },
   box: {
