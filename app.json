@@ -40,7 +40,15 @@
     "scheme": "spendiapp",
     "web": {
       "favicon": "./assets/favicon.png",
-      "bundler": "metro"
+      "bundler": "metro",
+      "name": "Spendiapp",
+      "shortName": "Spendiapp",
+      "description": "Controla tus gastos mensuales",
+      "themeColor": "#00ACC1",
+      "backgroundColor": "#FFFFFF",
+      "display": "standalone",
+      "orientation": "portrait",
+      "lang": "es"
     },
     "plugins": [
       "expo-router",

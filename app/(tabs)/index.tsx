@@ -7,6 +7,7 @@ import {
   Image,
   RefreshControl,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { AddTransactionModal } from '../../components/AddTransactionModal';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -304,24 +305,26 @@ export default function HomeScreen() {
         onSaved={() => { setShowAddModal(false); setRefreshKey(k => k + 1); showToast(t('home.transactionSaved'), 'success'); }}
       />
 
-      <AppDialog
-        visible={biometricOfferVisible}
-        type="info"
-        title={t('home.biometricOffer.title')}
-        description={
-          <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
-            {t('home.biometricOffer.descPart1')}
-            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('home.biometricOffer.descBold')}</Text>
-            {t('home.biometricOffer.descPart2')}
-          </Text>
-        }
-        primaryLabel={t('home.biometricOffer.activate')}
-        secondaryLabel={t('home.biometricOffer.notNow')}
-        onPrimary={() => {
-          setBiometricsAppEnrolled(true).catch(() => {}).finally(() => setBiometricOfferVisible(false));
-        }}
-        onSecondary={() => setBiometricOfferVisible(false)}
-      />
+      {Platform.OS !== 'web' && (
+        <AppDialog
+          visible={biometricOfferVisible}
+          type="info"
+          title={t('home.biometricOffer.title')}
+          description={
+            <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
+              {t('home.biometricOffer.descPart1')}
+              <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('home.biometricOffer.descBold')}</Text>
+              {t('home.biometricOffer.descPart2')}
+            </Text>
+          }
+          primaryLabel={t('home.biometricOffer.activate')}
+          secondaryLabel={t('home.biometricOffer.notNow')}
+          onPrimary={() => {
+            setBiometricsAppEnrolled(true).catch(() => {}).finally(() => setBiometricOfferVisible(false));
+          }}
+          onSecondary={() => setBiometricOfferVisible(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }

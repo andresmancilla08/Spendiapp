@@ -543,32 +543,36 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {/* SEGURIDAD — Biometría */}
-        <SectionTitle label={t('profile.security')} />
-        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
-          <View style={[styles.optionRow, { opacity: biometricsAvailable ? 1 : 0.4 }]}>
-            <View style={[styles.optionIconWrap, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name="finger-print" size={18} color={colors.primary} />
+        {/* SEGURIDAD — Biometría (solo nativo) */}
+        {Platform.OS !== 'web' && (
+          <>
+            <SectionTitle label={t('profile.security')} />
+            <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+              <View style={[styles.optionRow, { opacity: biometricsAvailable ? 1 : 0.4 }]}>
+                <View style={[styles.optionIconWrap, { backgroundColor: colors.primaryLight }]}>
+                  <Ionicons name="finger-print" size={18} color={colors.primary} />
+                </View>
+                <View style={styles.optionMeta}>
+                  <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
+                    {t('profile.biometric.label')}
+                  </Text>
+                  <Text style={[styles.optionSub, { color: colors.textSecondary }]}>
+                    {biometricsAvailable
+                      ? t('profile.biometric.subtitle')
+                      : t('profile.biometric.unavailable')}
+                  </Text>
+                </View>
+                <Switch
+                  value={biometricsEnabled}
+                  onValueChange={biometricsAvailable ? handleBiometricToggle : undefined}
+                  trackColor={{ false: colors.border, true: colors.primary }}
+                  thumbColor="#FFFFFF"
+                  disabled={!biometricsAvailable}
+                />
+              </View>
             </View>
-            <View style={styles.optionMeta}>
-              <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
-                {t('profile.biometric.label')}
-              </Text>
-              <Text style={[styles.optionSub, { color: colors.textSecondary }]}>
-                {biometricsAvailable
-                  ? t('profile.biometric.subtitle')
-                  : t('profile.biometric.unavailable')}
-              </Text>
-            </View>
-            <Switch
-              value={biometricsEnabled}
-              onValueChange={biometricsAvailable ? handleBiometricToggle : undefined}
-              trackColor={{ false: colors.border, true: colors.primary }}
-              thumbColor="#FFFFFF"
-              disabled={!biometricsAvailable}
-            />
-          </View>
-        </View>
+          </>
+        )}
 
         {/* SOPORTE */}
         <SectionTitle label={t('profile.sections.support')} />
@@ -630,23 +634,25 @@ export default function ProfileScreen() {
         t={t}
       />
 
-      {/* Dialog: Desactivar biometría */}
-      <AppDialog
-        visible={biometricToggleDialog}
-        type="warning"
-        title={t('profile.biometric.disableDialog.title')}
-        description={
-          <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
-            {t('profile.biometric.disableDialog.descPart1')}
-            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('profile.biometric.disableDialog.descBold')}</Text>
-            {t('profile.biometric.disableDialog.descPart2')}
-          </Text>
-        }
-        primaryLabel={t('profile.biometric.disableDialog.confirm')}
-        secondaryLabel={t('common.cancel')}
-        onPrimary={confirmDisableBiometrics}
-        onSecondary={() => setBiometricToggleDialog(false)}
-      />
+      {/* Dialog: Desactivar biometría (solo nativo) */}
+      {Platform.OS !== 'web' && (
+        <AppDialog
+          visible={biometricToggleDialog}
+          type="warning"
+          title={t('profile.biometric.disableDialog.title')}
+          description={
+            <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
+              {t('profile.biometric.disableDialog.descPart1')}
+              <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('profile.biometric.disableDialog.descBold')}</Text>
+              {t('profile.biometric.disableDialog.descPart2')}
+            </Text>
+          }
+          primaryLabel={t('profile.biometric.disableDialog.confirm')}
+          secondaryLabel={t('common.cancel')}
+          onPrimary={confirmDisableBiometrics}
+          onSecondary={() => setBiometricToggleDialog(false)}
+        />
+      )}
 
       {/* Dialog global */}
       <AppDialog
