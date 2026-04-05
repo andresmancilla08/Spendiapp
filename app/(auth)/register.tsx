@@ -207,7 +207,7 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  gradient: { flex: 1 },
+  gradient: { flex: 1, overflow: 'hidden' },
   blobTopRight: {
     position: 'absolute',
     top: -60,
