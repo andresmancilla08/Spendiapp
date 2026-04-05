@@ -280,6 +280,27 @@
     "installmentAmountPlaceholder": "Ej: 26.4",
     "installmentPreviewEqual": "{{count}} cuotas de ${{amount}}",
     "installmentPreviewUnequal": "{{count}} cuotas de ${{first}} + última de ${{last}}",
+    "withInterest": "¿Con interés?",
+    "withInterestHint": "Activa si aplica TEA",
+    "teaLabel": "% TEA anual",
+    "teaReference": "Tasa de Usura Superfinanciera · editable",
+    "installmentTotal": "Total con interés: ${{amount}}",
+    "installmentCost": "Costo del crédito: +${{amount}}",
+    "validation": {
+      "invalidAmount": "Ingresa un monto válido",
+      "noCategory": "Selecciona una categoría",
+      "noDescription": "Agrega una descripción",
+      "noTea": "Ingresa el % TEA para las cuotas con interés"
+    },
+    "quickDesc": {
+      "food":          ["Almuerzo", "Cena", "Desayuno", "Café", "Domicilio"],
+      "transport":     ["Uber", "Taxi", "Bus", "Gasolina", "Parqueadero"],
+      "health":        ["Farmacia", "Consulta médica", "Exámenes", "Dentista"],
+      "entertainment": ["Cine", "Streaming", "Bar", "Concierto", "Juegos"],
+      "shopping":      ["Ropa", "Supermercado", "Electrónica", "Accesorios"],
+      "home":          ["Arriendo", "Servicios", "Mercado", "Mantenimiento"],
+      "salary":        ["Quincena", "Salario mensual", "Comisión", "Freelance"]
+    },
     "errors": {
       "saveFailed": "No se pudo guardar. Intenta de nuevo."
     }
@@ -307,7 +328,31 @@
     },
     "months": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
     "weekdays": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
-    "searchPlaceholder": "Buscar transacción..."
+    "searchPlaceholder": "Buscar transacción...",
+    "balanceLabel": "Balance del mes",
+    "fixedBadge": "Fijo",
+    "installmentChip": "Cuota {{n}}/{{total}}",
+    "toasts": {
+      "saved": "Cambios guardados",
+      "deleted": "Transacción eliminada",
+      "duplicated": "Transacción duplicada"
+    },
+    "detail": {
+      "title": "Detalle",
+      "typeExpense": "Gasto",
+      "typeIncome": "Ingreso",
+      "dateLabel": "FECHA",
+      "timeLabel": "HORA",
+      "categoryLabel": "CATEGORÍA",
+      "cardLabel": "TARJETA",
+      "noCard": "Sin tarjeta",
+      "installmentLabel": "CUOTAS",
+      "installmentProgress": "Cuota {{current}} de {{total}}",
+      "fixedLabel": "Gasto fijo",
+      "editButton": "Editar",
+      "creditType": "Crédito",
+      "debitType": "Débito"
+    }
   },
   "categories": {
     "title": "Mis categorías",

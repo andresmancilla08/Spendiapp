@@ -34,6 +34,7 @@ export default function RootLayout() {
     return unsubscribe;
   }, []);
 
+
   useEffect(() => {
     if (!i18nReady || !fontsLoaded) return;
     if (isLoading) return;

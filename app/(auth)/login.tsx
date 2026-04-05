@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useGoogleSignIn } from '../../hooks/useAuth';
+import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';

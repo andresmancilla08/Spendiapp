@@ -71,9 +71,9 @@ export default function AppDialog({
 }: AppDialogProps) {
   const { colors } = useTheme();
 
-  // Card: fade + subtle scale-up
-  const cardOpacity = useRef(new Animated.Value(0)).current;
-  const cardScale  = useRef(new Animated.Value(0.92)).current;
+  // Card: slide up from bottom
+  const cardTranslateY = useRef(new Animated.Value(300)).current;
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
 
   // Icon: bounce on entry
   const iconScale = useRef(new Animated.Value(0)).current;
@@ -91,15 +91,13 @@ export default function AppDialog({
 
   useEffect(() => {
     if (visible) {
-      // Card fade + scale in
-      cardOpacity.setValue(0);
-      cardScale.setValue(0.92);
+      cardTranslateY.setValue(300);
+      overlayOpacity.setValue(0);
       Animated.parallel([
-        Animated.timing(cardOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
-        Animated.spring(cardScale,   { toValue: 1, damping: 18, stiffness: 260, useNativeDriver: true }),
+        Animated.timing(overlayOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+        Animated.spring(cardTranslateY, { toValue: 0, damping: 20, stiffness: 260, useNativeDriver: true }),
       ]).start();
 
-      // Icon bounce
       iconScale.setValue(0);
       Animated.spring(iconScale, {
         toValue: 1,
@@ -108,21 +106,22 @@ export default function AppDialog({
         useNativeDriver: true,
       }).start();
     } else {
-      cardOpacity.setValue(0);
-      cardScale.setValue(0.92);
+      cardTranslateY.setValue(300);
+      overlayOpacity.setValue(0);
       iconScale.setValue(0);
     }
   }, [visible]);
 
   return (
-    <Modal transparent animationType="fade" visible={visible} statusBarTranslucent>
+    <Modal transparent animationType="none" visible={visible} statusBarTranslucent>
       <KeyboardAvoidingView
-        style={[styles.overlay, { backgroundColor: colors.overlay }]}
+        style={styles.overlay}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        <Animated.View style={[styles.backdrop, { backgroundColor: colors.overlay, opacity: overlayOpacity }]} />
         <Animated.View style={[
           styles.card,
-          { backgroundColor: colors.surface, opacity: cardOpacity, transform: [{ scale: cardScale }] },
+          { backgroundColor: colors.surface, transform: [{ translateY: cardTranslateY }] },
         ]}>
           <Animated.View style={[styles.iconWrapper, { transform: [{ scale: iconScale }] }]}>
             <Ionicons name={iconName} size={56} color={iconColor} />
@@ -197,14 +196,17 @@ export default function AppDialog({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
   },
   card: {
-    borderRadius: 24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     paddingHorizontal: 24,
     paddingTop: 32,
-    paddingBottom: 28,
+    paddingBottom: 40,
     alignItems: 'center',
   },
   iconWrapper: {
