@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithCredential, signInWithRedirect } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
 if (Platform.OS !== 'web') {
@@ -38,7 +38,7 @@ export function useGoogleSignIn() {
     if (Platform.OS === 'web') {
       setLoading(true);
       try {
-        await signInWithPopup(auth, new GoogleAuthProvider());
+        await signInWithRedirect(auth, new GoogleAuthProvider());
       } catch {
         setError('Error al iniciar sesión con Google');
         setLoading(false);
