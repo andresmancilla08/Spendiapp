@@ -280,6 +280,27 @@
     "installmentAmountPlaceholder": "E.g.: 26.4",
     "installmentPreviewEqual": "{{count}} installments of ${{amount}}",
     "installmentPreviewUnequal": "{{count}} installments of ${{first}} + last of ${{last}}",
+    "withInterest": "With interest?",
+    "withInterestHint": "Enable if TEA applies",
+    "teaLabel": "% Annual TEA",
+    "teaReference": "Ref. Financial Superintendent · editable",
+    "installmentTotal": "Total with interest: ${{amount}}",
+    "installmentCost": "Credit cost: +${{amount}}",
+    "validation": {
+      "invalidAmount": "Enter a valid amount",
+      "noCategory": "Select a category",
+      "noDescription": "Add a description",
+      "noTea": "Enter the % TEA for installments with interest"
+    },
+    "quickDesc": {
+      "food":          ["Lunch", "Dinner", "Breakfast", "Coffee", "Delivery"],
+      "transport":     ["Uber", "Taxi", "Bus", "Gas", "Parking"],
+      "health":        ["Pharmacy", "Doctor visit", "Lab tests", "Dentist"],
+      "entertainment": ["Movies", "Streaming", "Bar", "Concert", "Games"],
+      "shopping":      ["Clothes", "Supermarket", "Electronics", "Accessories"],
+      "home":          ["Rent", "Utilities", "Groceries", "Maintenance"],
+      "salary":        ["Paycheck", "Monthly salary", "Commission", "Freelance"]
+    },
     "errors": {
       "saveFailed": "Could not save. Please try again."
     }
@@ -307,7 +328,31 @@
     },
     "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    "searchPlaceholder": "Search transaction..."
+    "searchPlaceholder": "Search transaction...",
+    "balanceLabel": "Monthly balance",
+    "fixedBadge": "Fixed",
+    "installmentChip": "Inst. {{n}}/{{total}}",
+    "toasts": {
+      "saved": "Changes saved",
+      "deleted": "Transaction deleted",
+      "duplicated": "Transaction duplicated"
+    },
+    "detail": {
+      "title": "Detail",
+      "typeExpense": "Expense",
+      "typeIncome": "Income",
+      "dateLabel": "DATE",
+      "timeLabel": "TIME",
+      "categoryLabel": "CATEGORY",
+      "cardLabel": "CARD",
+      "noCard": "No card",
+      "installmentLabel": "INSTALLMENTS",
+      "installmentProgress": "Installment {{current}} of {{total}}",
+      "fixedLabel": "Fixed expense",
+      "editButton": "Edit",
+      "creditType": "Credit",
+      "debitType": "Debit"
+    }
   },
   "categories": {
     "title": "My categories",

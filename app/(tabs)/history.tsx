@@ -487,16 +487,461 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
   );
 }
 
+// ── Transaction Detail Sheet ─────────────────────────────────────────────────
+
+interface DetailSheetProps {
+  visible: boolean;
+  transaction: Transaction | null;
+  onClose: () => void;
+  onEdit: (tx: Transaction) => void;
+  onActionDone: (action: EditAction) => void;
+  cardsMap: Record<string, { bankName: string; lastFour: string; type: string }>;
+}
+
+function TransactionDetailSheet({
+  visible,
+  transaction,
+  onClose,
+  onEdit,
+  onActionDone,
+  cardsMap,
+}: DetailSheetProps) {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+  const { height: screenHeight } = useWindowDimensions();
+  const SHEET_HEIGHT = Math.round(screenHeight * 0.72);
+
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [duplicateLoading, setDuplicateLoading] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    food: t('categories.names.food'),
+    transport: t('categories.names.transport'),
+    health: t('categories.names.health'),
+    entertainment: t('categories.names.entertainment'),
+    shopping: t('categories.names.shopping'),
+    home: t('categories.names.home'),
+    salary: t('categories.names.salary'),
+    other: t('categories.names.other'),
+  };
+
+  const animateIn = useCallback(() => {
+    Animated.timing(slideAnim, {
+      toValue: 1,
+      duration: 350,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [slideAnim]);
+
+  const animateOut = useCallback((callback: () => void) => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 280,
+      easing: Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => callback());
+  }, [slideAnim]);
+
+  useEffect(() => {
+    if (visible) {
+      setConfirmingDelete(false);
+      animateIn();
+    }
+  }, [visible, animateIn]);
+
+  const handleClose = useCallback(() => {
+    animateOut(() => {
+      slideAnim.setValue(0);
+      onClose();
+    });
+  }, [animateOut, onClose, slideAnim]);
+
+  const handleEdit = () => {
+    if (!transaction) return;
+    animateOut(() => {
+      slideAnim.setValue(0);
+      onClose();
+      onEdit(transaction);
+    });
+  };
+
+  const handleDuplicate = async () => {
+    if (!transaction) return;
+    setDuplicateLoading(true);
+    try {
+      await addDoc(collection(db, 'transactions'), {
+        userId: transaction.userId,
+        type: transaction.type,
+        amount: transaction.amount,
+        category: transaction.category,
+        description: transaction.description,
+        date: Timestamp.fromDate(transaction.date),
+        createdAt: Timestamp.fromDate(new Date()),
+        ...(transaction.cardId ? { cardId: transaction.cardId } : {}),
+        ...(transaction.isFixed ? { isFixed: true } : {}),
+      });
+      handleClose();
+      onActionDone('duplicated');
+    } catch {
+      setDuplicateLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!transaction) return;
+    setDeleteLoading(true);
+    try {
+      await deleteDoc(doc(db, 'transactions', transaction.id));
+      handleClose();
+      onActionDone('deleted');
+    } catch {
+      setDeleteLoading(false);
+    }
+  };
+
+  const translateY = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [SHEET_HEIGHT, 0],
+  });
+
+  if (!transaction) return null;
+
+  const isExpense = transaction.type === 'expense';
+  const cat = CATEGORY_META[transaction.category] ?? CATEGORY_META.other;
+  const card = transaction.cardId ? cardsMap[transaction.cardId] : null;
+  const isLoading = deleteLoading || duplicateLoading;
+
+  const formattedDate = transaction.date.toLocaleDateString('es-CO', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const formattedTime = formatTime(transaction.date);
+
+  const installmentPct = transaction.isInstallment && transaction.installmentTotal
+    ? (transaction.installmentNumber ?? 0) / transaction.installmentTotal
+    : 0;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      statusBarTranslucent
+      onRequestClose={handleClose}
+    >
+      <TouchableWithoutFeedback onPress={handleClose}>
+        <Animated.View
+          style={[
+            styles.backdrop,
+            {
+              opacity: slideAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 0.55],
+              }),
+            },
+          ]}
+        />
+      </TouchableWithoutFeedback>
+
+      <Animated.View
+        style={[
+          styles.sheetWrapper,
+          { height: SHEET_HEIGHT, transform: [{ translateY }] },
+        ]}
+        pointerEvents="box-none"
+      >
+        <View style={[styles.sheet, { backgroundColor: colors.surface, height: SHEET_HEIGHT }]}>
+          {/* Drag handle */}
+          <View style={styles.dragHandleRow}>
+            <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
+          </View>
+
+          {/* Header: close button */}
+          <View style={styles.titleRow}>
+            <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>
+              {t('history.detail.title')}
+            </Text>
+            <TouchableOpacity
+              onPress={handleClose}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="close" size={22} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.sheetScrollContent}
+          >
+            {/* Amount hero */}
+            <View style={[styles.detailHero, { backgroundColor: colors.backgroundSecondary, borderRadius: 20 }]}>
+              <View style={styles.detailHeroTop}>
+                <View style={[styles.detailCatIcon, { backgroundColor: colors.surface }]}>
+                  <Text style={{ fontSize: 26 }}>{cat.icon}</Text>
+                </View>
+                <View style={[
+                  styles.detailTypeBadge,
+                  { backgroundColor: isExpense ? `${colors.error}18` : `${colors.secondary}18` },
+                ]}>
+                  <Text style={[
+                    styles.detailTypeBadgeText,
+                    { color: isExpense ? colors.error : colors.secondary },
+                  ]}>
+                    {isExpense ? t('history.detail.typeExpense') : t('history.detail.typeIncome')}
+                  </Text>
+                </View>
+              </View>
+              <Text style={[
+                styles.detailAmount,
+                { color: isExpense ? colors.error : colors.secondary },
+              ]}>
+                {isExpense ? `−${formatCurrency(transaction.amount)}` : `+${formatCurrency(transaction.amount)}`}
+              </Text>
+              <Text style={[styles.detailDescription, { color: colors.textPrimary }]}>
+                {transaction.description}
+              </Text>
+            </View>
+
+            {/* Info rows */}
+            <View style={[styles.detailCard, { backgroundColor: colors.backgroundSecondary, borderRadius: 16 }]}>
+              {/* Date */}
+              <View style={styles.detailRow}>
+                <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
+                  {t('history.detail.dateLabel')}
+                </Text>
+                <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
+                  {formattedDate}
+                </Text>
+              </View>
+              <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
+
+              {/* Time */}
+              <View style={styles.detailRow}>
+                <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
+                  {t('history.detail.timeLabel')}
+                </Text>
+                <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
+                  {formattedTime}
+                </Text>
+              </View>
+              <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
+
+              {/* Category */}
+              <View style={styles.detailRow}>
+                <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
+                  {t('history.detail.categoryLabel')}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 14 }}>{cat.icon}</Text>
+                  <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
+                    {CATEGORY_LABELS[transaction.category] ?? transaction.category}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Card */}
+              {card && (
+                <>
+                  <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
+                  <View style={styles.detailRow}>
+                    <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
+                      {t('history.detail.cardLabel')}
+                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
+                        {`${card.bankName} ••${card.lastFour}`}
+                      </Text>
+                      <View style={[
+                        styles.detailCardTypeBadge,
+                        {
+                          backgroundColor: card.type === 'credit'
+                            ? `${colors.primary}18`
+                            : `${colors.tertiary ?? colors.secondary}18`,
+                        },
+                      ]}>
+                        <Text style={[
+                          styles.detailCardTypeBadgeText,
+                          {
+                            color: card.type === 'credit'
+                              ? colors.primary
+                              : (colors.tertiary ?? colors.secondary),
+                          },
+                        ]}>
+                          {card.type === 'credit'
+                            ? t('history.detail.creditType')
+                            : t('history.detail.debitType')}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </>
+              )}
+
+              {/* Installments */}
+              {transaction.isInstallment && transaction.installmentTotal && (
+                <>
+                  <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
+                  <View style={[styles.detailRow, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
+                        {t('history.detail.installmentLabel')}
+                      </Text>
+                      <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
+                        {t('history.detail.installmentProgress', {
+                          current: transaction.installmentNumber,
+                          total: transaction.installmentTotal,
+                        })}
+                      </Text>
+                    </View>
+                    {/* Progress bar */}
+                    <View style={[styles.installmentTrack, { backgroundColor: colors.border }]}>
+                      <View
+                        style={[
+                          styles.installmentFill,
+                          {
+                            backgroundColor: colors.primary,
+                            width: `${Math.round(installmentPct * 100)}%`,
+                          },
+                        ]}
+                      />
+                    </View>
+                    <Text style={[styles.installmentHint, { color: colors.textTertiary }]}>
+                      {`${transaction.installmentNumber} / ${transaction.installmentTotal}`}
+                    </Text>
+                  </View>
+                </>
+              )}
+
+              {/* Fixed */}
+              {transaction.isFixed && (
+                <>
+                  <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
+                  <View style={styles.detailRow}>
+                    <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
+                      {t('history.detail.fixedLabel').toUpperCase()}
+                    </Text>
+                    <View style={[styles.detailFixedBadge, { backgroundColor: `${colors.primary}18` }]}>
+                      <Ionicons name="repeat" size={11} color={colors.primary} />
+                      <Text style={[styles.detailFixedBadgeText, { color: colors.primary }]}>
+                        {t('history.detail.fixedLabel')}
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
+            </View>
+
+            {/* Actions */}
+            <TouchableOpacity
+              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              onPress={handleEdit}
+              activeOpacity={0.85}
+              disabled={isLoading}
+            >
+              <Ionicons name="create-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Text style={styles.saveButtonText}>{t('history.detail.editButton')}</Text>
+            </TouchableOpacity>
+
+            <View style={styles.secondaryRow}>
+              {/* Duplicate */}
+              <TouchableOpacity
+                style={[
+                  styles.secondaryButton,
+                  { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.primary, flex: 1 },
+                  isLoading && styles.buttonDisabled,
+                ]}
+                onPress={handleDuplicate}
+                disabled={isLoading}
+                activeOpacity={0.8}
+              >
+                {duplicateLoading ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <>
+                    <Ionicons name="copy-outline" size={15} color={colors.primary} style={{ marginRight: 6 }} />
+                    <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>
+                      {t('history.edit.duplicateButton')}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Delete */}
+              {confirmingDelete ? (
+                <View style={[styles.confirmDeleteWrap, { flex: 1.4 }]}>
+                  <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
+                    {t('history.edit.confirmDelete')}
+                  </Text>
+                  <View style={styles.confirmDeleteBtns}>
+                    <TouchableOpacity
+                      style={[styles.confirmBtn, { backgroundColor: colors.error }]}
+                      onPress={handleDelete}
+                      disabled={isLoading}
+                      activeOpacity={0.8}
+                    >
+                      {deleteLoading ? (
+                        <ActivityIndicator size="small" color="#FFFFFF" />
+                      ) : (
+                        <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
+                          {t('history.edit.confirmDeleteYes')}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.confirmBtn,
+                        { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border },
+                      ]}
+                      onPress={() => setConfirmingDelete(false)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
+                        {t('history.edit.confirmDeleteCancel')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={[
+                    styles.secondaryButton,
+                    { backgroundColor: colors.errorLight, flex: 1 },
+                    isLoading && styles.buttonDisabled,
+                  ]}
+                  onPress={() => setConfirmingDelete(true)}
+                  disabled={isLoading}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="trash-outline" size={15} color={colors.error} style={{ marginRight: 6 }} />
+                  <Text style={[styles.secondaryButtonText, { color: colors.error }]}>
+                    {t('history.edit.deleteButton')}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </ScrollView>
+        </View>
+      </Animated.View>
+    </Modal>
+  );
+}
+
 // ── Transaction Row ──────────────────────────────────────────────────────────
 
 interface TransactionRowProps {
   item: Transaction;
   isLast: boolean;
+  onPress: (tx: Transaction) => void;
   onLongPress: (tx: Transaction) => void;
   cardsMap: Record<string, { bankName: string; lastFour: string; type: string }>;
 }
 
-function TransactionRow({ item, isLast, onLongPress, cardsMap }: TransactionRowProps) {
+function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap }: TransactionRowProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
@@ -513,11 +958,12 @@ function TransactionRow({ item, isLast, onLongPress, cardsMap }: TransactionRowP
   const isExpense = item.type === 'expense';
   const card = item.cardId ? cardsMap[item.cardId] : null;
   const descLabel = item.isInstallment
-    ? `${item.description} (Cuota ${item.installmentNumber}/${item.installmentTotal})`
+    ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`
     : item.description;
 
   return (
     <TouchableOpacity
+      onPress={() => onPress(item)}
       onLongPress={() => onLongPress(item)}
       delayLongPress={350}
       activeOpacity={0.7}
@@ -536,7 +982,7 @@ function TransactionRow({ item, isLast, onLongPress, cardsMap }: TransactionRowP
           </Text>
           {item.isFixed && (
             <View style={[styles.fixedBadge, { backgroundColor: colors.primaryLight ?? `${colors.primary}22` }]}>
-              <Text style={[styles.fixedBadgeText, { color: colors.primary }]}>Fijo</Text>
+              <Text style={[styles.fixedBadgeText, { color: colors.primary }]}>{t('history.fixedBadge')}</Text>
             </View>
           )}
         </View>
@@ -545,8 +991,16 @@ function TransactionRow({ item, isLast, onLongPress, cardsMap }: TransactionRowP
             {CATEGORY_LABELS[item.category] ?? item.category}
           </Text>
           {card && (
-            <View style={[styles.txCardChip, { backgroundColor: colors.primaryLight }]}>
-              <Text style={[styles.txCardChipText, { color: colors.primary }]}>
+            <View style={[styles.txCardChip, {
+              backgroundColor: card.type === 'credit'
+                ? `${colors.primary}18`
+                : `${colors.tertiary}18`,
+            }]}>
+              <Text style={[styles.txCardChipText, {
+                color: card.type === 'credit'
+                  ? colors.primary
+                  : colors.tertiary,
+              }]}>
                 {`${card.bankName} ••${card.lastFour}`}
               </Text>
             </View>
@@ -584,6 +1038,8 @@ export default function HistoryScreen() {
 
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [detailTx, setDetailTx] = useState<Transaction | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
 
   // Siempre volver al mes actual al entrar
   useFocusEffect(useCallback(() => {
@@ -632,7 +1088,24 @@ export default function HistoryScreen() {
 
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
 
+  const handleTapTx = useCallback((tx: Transaction) => {
+    setDetailTx(tx);
+    setDetailVisible(true);
+  }, []);
+
   const handleLongPress = useCallback((tx: Transaction) => {
+    setEditingTx(tx);
+    setSheetVisible(true);
+  }, []);
+
+  const handleDetailClose = useCallback(() => {
+    setDetailVisible(false);
+    setDetailTx(null);
+  }, []);
+
+  const handleDetailEdit = useCallback((tx: Transaction) => {
+    setDetailTx(null);
+    setDetailVisible(false);
     setEditingTx(tx);
     setSheetVisible(true);
   }, []);
@@ -644,10 +1117,10 @@ export default function HistoryScreen() {
 
   const handleActionDone = useCallback((action: EditAction) => {
     setRefreshKey((k) => k + 1);
-    if (action === 'saved')      showToast('Cambios guardados', 'success');
-    if (action === 'deleted')    showToast('Transacción eliminada', 'success');
-    if (action === 'duplicated') showToast('Transacción duplicada', 'info');
-  }, [showToast]);
+    if (action === 'saved')      showToast(t('history.toasts.saved'), 'success');
+    if (action === 'deleted')    showToast(t('history.toasts.deleted'), 'success');
+    if (action === 'duplicated') showToast(t('history.toasts.duplicated'), 'info');
+  }, [showToast, t]);
 
   const filteredTransactions = transactions
     .filter(t => activeFilter === 'all' || t.type === activeFilter)
@@ -751,7 +1224,7 @@ export default function HistoryScreen() {
         <View style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           {/* Balance row */}
           <View style={styles.balanceRow}>
-            <Text style={[styles.balanceLabel, { color: colors.textSecondary }]}>Balance del mes</Text>
+            <Text style={[styles.balanceLabel, { color: colors.textSecondary }]}>{t('history.balanceLabel').toUpperCase()}</Text>
             <Text style={[styles.balanceValue, {
               color: balance > 0 ? colors.secondary : balance < 0 ? colors.error : colors.textTertiary,
             }]}>
@@ -851,6 +1324,7 @@ export default function HistoryScreen() {
                     key={tx.id}
                     item={tx}
                     isLast={i === group.items.length - 1}
+                    onPress={handleTapTx}
                     onLongPress={handleLongPress}
                     cardsMap={cardsMap}
                   />
@@ -860,6 +1334,16 @@ export default function HistoryScreen() {
           ))}
         </ScrollView>
       )}
+
+      {/* Detail Sheet */}
+      <TransactionDetailSheet
+        visible={detailVisible}
+        transaction={detailTx}
+        onClose={handleDetailClose}
+        onEdit={handleDetailEdit}
+        onActionDone={handleActionDone}
+        cardsMap={cardsMap}
+      />
 
       {/* Edit Sheet */}
       <EditTransactionSheet
@@ -1219,6 +1703,108 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     fontSize: 13,
     fontFamily: Fonts.semiBold,
+  },
+
+  // Detail sheet
+  detailHero: {
+    padding: 20,
+    marginBottom: 12,
+    gap: 6,
+  },
+  detailHeroTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
+  },
+  detailCatIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  detailTypeBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  detailTypeBadgeText: {
+    fontSize: 12,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.3,
+  },
+  detailAmount: {
+    fontSize: 32,
+    fontFamily: Fonts.bold,
+    letterSpacing: -0.5,
+    marginBottom: 2,
+  },
+  detailDescription: {
+    fontSize: 15,
+    fontFamily: Fonts.medium,
+  },
+  detailCard: {
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+  },
+  detailRowLabel: {
+    fontSize: 11,
+    fontFamily: Fonts.semiBold,
+    letterSpacing: 0.5,
+  },
+  detailRowValue: {
+    fontSize: 13,
+    fontFamily: Fonts.medium,
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: 16,
+  },
+  detailDivider: {
+    height: 1,
+    marginHorizontal: 16,
+  },
+  detailCardTypeBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  detailCardTypeBadgeText: {
+    fontSize: 10,
+    fontFamily: Fonts.bold,
+  },
+  detailFixedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  detailFixedBadgeText: {
+    fontSize: 11,
+    fontFamily: Fonts.semiBold,
+  },
+  installmentTrack: {
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  installmentFill: {
+    height: 6,
+    borderRadius: 3,
+  },
+  installmentHint: {
+    fontSize: 11,
+    fontFamily: Fonts.medium,
+    textAlign: 'right',
   },
 
   // Confirm delete

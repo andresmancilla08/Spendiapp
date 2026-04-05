@@ -176,7 +176,7 @@ function ChangePinModal({ visible, onClose, onSuccess }: ChangePinModalProps) {
   const setActiveValue = step === 'current' ? setCurrentPin : step === 'new' ? setNewPin : setConfirmPin;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onShow={handleReset}>
+    <Modal visible={visible} transparent animationType="slide" onShow={handleReset}>
       <KeyboardAvoidingView
         style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -671,7 +671,16 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 },
+  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: Platform.OS === 'web' ? 120 : 40 },
+
+  // ChangePinModal
+  modalOverlay: { flex: 1, justifyContent: 'flex-end' },
+  modalCard: { borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 24, paddingTop: 28, paddingBottom: 40, gap: 16 },
+  modalTitle: { fontSize: 18, fontFamily: Fonts.bold, textAlign: 'center' },
+  modalInput: { borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14, fontSize: 20, letterSpacing: 8, textAlign: 'center', fontFamily: Fonts.regular },
+  modalButtons: { flexDirection: 'row', gap: 12 },
+  modalBtn: { flex: 1, height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
+  modalBtnText: { fontSize: 15, fontFamily: Fonts.semiBold },
 
   profileCard: { borderRadius: 24, padding: 24, alignItems: 'center', marginBottom: 28, gap: 6 },
   avatar: { width: 80, height: 80, borderRadius: 40, marginBottom: 8 },

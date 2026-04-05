@@ -30,12 +30,15 @@ import type { TransactionType } from '../types/transaction';
 import { categorizeLocal, categorizeWithGemini } from '../utils/categorize';
 import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
+
+const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
 import { suggestEmojiLocal, suggestEmojiWithGemini } from '../utils/suggestEmoji';
 import { EmojiPicker } from './EmojiPicker';
 import type { CategoryType } from '../types/category';
 import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
 import { useCards } from '../hooks/useCards';
+import { useTEARate } from '../hooks/useTEARate';
 import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
 import type { Card } from '../types/card';
 import BankLogo from './BankLogo';
@@ -103,6 +106,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
   const [installmentCount, setInstallmentCount] = useState(1);
   const [withInterest, setWithInterest] = useState(false);
   const [teaInput, setTeaInput] = useState('');
+  const { tea: referenceTEA } = useTEARate();
 
   // Inline new-category form state
   const [showNewCatForm, setShowNewCatForm] = useState(false);
@@ -574,6 +578,24 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                 />
               </View>
 
+              {/* Sugerencias rápidas según categoría */}
+              {category !== '' && QUICK_DESC_CATEGORY_IDS.includes(category) && description.trim() === '' && (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 4 }}>
+                  <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 2 }}>
+                    {(t(`addTransaction.quickDesc.${category}`, { returnObjects: true }) as string[]).map((s) => (
+                      <TouchableOpacity
+                        key={s}
+                        onPress={() => setDescription(s)}
+                        style={[styles.quickDescChip, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={[styles.quickDescText, { color: colors.textSecondary }]}>{s}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              )}
+
               {/* Toggle gasto fijo */}
               <View style={[styles.fixedRow, { borderColor: colors.border }]}>
                 <View style={{ flex: 1 }}>
@@ -987,27 +1009,44 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           </Text>
                         </TouchableOpacity>
 
-                        {cards.map((card: Card) => (
+                        {cards.map((card: Card) => {
+                          const isLocked = installmentCount > 1 && selectedCardId !== null && selectedCardId !== card.id;
+                          return (
                           <TouchableOpacity
                             key={card.id}
                             style={[
                               styles.cardChip,
                               { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
                               selectedCardId === card.id && { backgroundColor: colors.primary, borderColor: colors.primary },
+                              isLocked && { opacity: 0.35 },
                             ]}
-                            onPress={() => { setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
-                            activeOpacity={0.8}
+                            onPress={() => { if (isLocked) return; setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
+                            activeOpacity={isLocked ? 1 : 0.8}
                           >
                             <BankLogo bankId={card.bankId} size={20} radius={5} />
-                            <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]} numberOfLines={1}>
-                              {`${card.bankName} ••${card.lastFour}`}
+                            <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]}>
+                              {`••${card.lastFour}${selectedCardId === card.id && installmentCount > 1 ? ` · ${installmentCount}×` : ''}`}
                             </Text>
                             <View style={[
-                              styles.cardTypeDot,
-                              { backgroundColor: card.type === 'credit' ? (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.primary) : (selectedCardId === card.id ? 'rgba(255,255,255,0.6)' : colors.tertiary) },
-                            ]} />
+                              styles.cardTypeBadge,
+                              {
+                                backgroundColor: selectedCardId === card.id
+                                  ? 'rgba(255,255,255,0.22)'
+                                  : card.type === 'credit'
+                                    ? `${colors.primary}28`
+                                    : `${colors.tertiary}28`,
+                              },
+                            ]}>
+                              <Text style={[styles.cardTypeBadgeText, {
+                                color: selectedCardId === card.id
+                                  ? '#FFFFFF'
+                                  : card.type === 'credit' ? colors.primary : colors.tertiary,
+                              }]}>
+                                {card.type === 'credit' ? 'C' : 'D'}
+                              </Text>
+                            </View>
                           </TouchableOpacity>
-                        ))}
+                        );})}
                       </View>
                     </ScrollView>
                   )}
@@ -1045,12 +1084,15 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                   {installmentCount > 1 && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: withInterest ? 12 : 0 }}>
                       <View style={{ flex: 1 }}>
-                        <Text style={[styles.fixedLabel, { color: colors.textPrimary }]}>¿Con interés?</Text>
-                        <Text style={[styles.fixedHint, { color: colors.textTertiary }]}>Activa si aplica TEA</Text>
+                        <Text style={[styles.fixedLabel, { color: colors.textPrimary }]}>{t('addTransaction.withInterest')}</Text>
+                        <Text style={[styles.fixedHint, { color: colors.textTertiary }]}>{t('addTransaction.withInterestHint')}</Text>
                       </View>
                       <Switch
                         value={withInterest}
-                        onValueChange={(v) => { setWithInterest(v); setTeaInput(''); }}
+                        onValueChange={(v) => {
+                          setWithInterest(v);
+                          setTeaInput(v ? String(referenceTEA) : '');
+                        }}
                         trackColor={{ false: colors.border, true: colors.primary }}
                         thumbColor="#fff"
                       />
@@ -1059,37 +1101,73 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
 
                   {/* Campo TEA — solo si toggle ON */}
                   {installmentCount > 1 && withInterest && (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                      <TextInput
-                        style={[styles.teaInput, { borderColor: teaValid ? colors.border : colors.error, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary }]}
-                        placeholder={t('addTransaction.installmentAmountPlaceholder')}
-                        placeholderTextColor={colors.textTertiary}
-                        keyboardType="decimal-pad"
-                        value={teaInput}
-                        onChangeText={setTeaInput}
-                        returnKeyType="done"
-                      />
-                      <Text style={[styles.fixedLabel, { color: colors.textSecondary }]}>% TEA anual</Text>
+                    <View style={{ gap: 4 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <TextInput
+                          style={[styles.teaInput, { borderColor: teaValid ? colors.border : colors.error, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary }]}
+                          placeholder="0.0"
+                          placeholderTextColor={colors.textTertiary}
+                          keyboardType="decimal-pad"
+                          value={teaInput}
+                          onChangeText={setTeaInput}
+                          returnKeyType="done"
+                        />
+                        <Text style={[styles.fixedLabel, { color: colors.textSecondary }]}>{t('addTransaction.teaLabel')}</Text>
+                      </View>
+                      <Text style={[styles.fixedHint, { color: colors.textTertiary }]}>
+                        {t('addTransaction.teaReference')}
+                      </Text>
                     </View>
                   )}
 
                   {/* Preview de cuotas */}
                   {installmentCount > 1 && isAmountValid && teaValid && (
-                    <View style={{ marginTop: 10, padding: 10, borderRadius: 10, backgroundColor: colors.primaryLight }}>
-                      <Text style={[styles.fixedHint, { color: colors.primary }]}>
-                        {(() => {
-                          const amounts = calculateInstallments(parsedAmount, installmentCount, withInterest ? teaValue : null);
-                          const first = amounts[0];
-                          const last = amounts[amounts.length - 1];
-                          const same = first === last;
-                          return same
-                            ? t('addTransaction.installmentPreviewEqual', { count: installmentCount, amount: first.toLocaleString('es-CO') })
-                            : t('addTransaction.installmentPreviewUnequal', { count: installmentCount - 1, first: first.toLocaleString('es-CO'), last: last.toLocaleString('es-CO') });
-                        })()}
-                      </Text>
+                    <View style={{ marginTop: 10, padding: 12, borderRadius: 12, backgroundColor: colors.primaryLight, gap: 4 }}>
+                      {(() => {
+                        const amounts = calculateInstallments(parsedAmount, installmentCount, withInterest ? teaValue : null);
+                        const first = amounts[0];
+                        const last = amounts[amounts.length - 1];
+                        const total = amounts.reduce((a, b) => a + b, 0);
+                        const interest = total - parsedAmount;
+                        const same = first === last;
+                        return (
+                          <>
+                            <Text style={[styles.fixedHint, { color: colors.primary }]}>
+                              {same
+                                ? t('addTransaction.installmentPreviewEqual', { count: installmentCount, amount: first.toLocaleString('es-CO') })
+                                : t('addTransaction.installmentPreviewUnequal', { count: installmentCount - 1, first: first.toLocaleString('es-CO'), last: last.toLocaleString('es-CO') })}
+                            </Text>
+                            {withInterest && interest > 0 && (
+                              <>
+                                <Text style={[styles.fixedHint, { color: colors.primary }]}>
+                                  {t('addTransaction.installmentTotal', { amount: Math.round(total).toLocaleString('es-CO') })}
+                                </Text>
+                                <Text style={[styles.fixedHint, { color: colors.error ?? '#EF4444' }]}>
+                                  {t('addTransaction.installmentCost', { amount: Math.round(interest).toLocaleString('es-CO') })}
+                                </Text>
+                              </>
+                            )}
+                          </>
+                        );
+                      })()}
                     </View>
                   )}
                 </View>
+              )}
+
+              {/* Validación hint */}
+              {isSaveDisabledFull && !loading && (
+                <Text style={[styles.fixedHint, { color: colors.textTertiary, textAlign: 'center', marginBottom: 6 }]}>
+                  {!isAmountValid
+                    ? t('addTransaction.validation.invalidAmount')
+                    : category === ''
+                    ? t('addTransaction.validation.noCategory')
+                    : description.trim() === ''
+                    ? t('addTransaction.validation.noDescription')
+                    : !teaValid
+                    ? t('addTransaction.validation.noTea')
+                    : ''}
+                </Text>
               )}
 
               {/* Save button */}
@@ -1406,8 +1484,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   cardChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5 },
-  cardChipText: { fontSize: 13, fontFamily: Fonts.semiBold, maxWidth: 115 },
-  cardTypeDot: { width: 6, height: 6, borderRadius: 3 },
+  cardChipText: { fontSize: 13, fontFamily: Fonts.semiBold },
+  cardTypeBadge: { paddingHorizontal: 5, paddingVertical: 2, borderRadius: 6 },
+  cardTypeBadgeText: { fontSize: 10, fontFamily: Fonts.bold },
+  quickDescChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
+  quickDescText: { fontSize: 12, fontFamily: Fonts.medium },
   noCardsPrompt: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1.5 },
   noCardsPromptText: { fontSize: 13, fontFamily: Fonts.semiBold },
   qtyBtn: { width: 36, height: 36, borderRadius: 10, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -8,17 +7,11 @@ import {
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
-  GoogleAuthProvider,
-  signInWithCredential,
   fetchSignInMethodsForEmail,
   onAuthStateChanged as firebaseOnAuthStateChanged,
   User,
 } from 'firebase/auth';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
 import { auth } from '../config/firebase';
-
-WebBrowser.maybeCompleteAuthSession();
 
 export interface AuthUser {
   uid: string;
@@ -80,30 +73,3 @@ export function onAuthStateChanged(callback: (user: AuthUser | null) => void) {
   });
 }
 
-export function useGoogleSignIn() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    iosClientId: '859030212165-v702d1qr3aat8qr6ug2m0o0f338rla7b.apps.googleusercontent.com',
-    androidClientId: '859030212165-oaco2j799adi2r2fpbdo3u1q5qdj3s3n.apps.googleusercontent.com',
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      setLoading(true);
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential)
-        .catch(() => setError('Error al iniciar sesión con Google'))
-        .finally(() => setLoading(false));
-    }
-  }, [response]);
-
-  return {
-    promptAsync,
-    request,
-    loading: loading || !request,
-    error,
-  };
-}
