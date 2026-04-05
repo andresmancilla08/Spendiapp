@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -26,6 +27,7 @@ interface CardFormSheetProps {
 
 export default function CardFormSheet({ visible, onClose, userId }: CardFormSheetProps) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   const [step, setStep] = useState<'bank' | 'details'>('bank');
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
@@ -52,14 +54,14 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
 
   const handleSave = async () => {
     if (!selectedBank) return;
-    if (lastFour.length !== 4) { setError('Ingresa exactamente 4 dígitos'); return; }
+    if (lastFour.length !== 4) { setError(t('cardForm.digitError')); return; }
     setError('');
     setSaving(true);
     try {
       await addCard(userId, selectedBank.id, selectedBank.name, cardType, lastFour);
       handleClose();
     } catch {
-      setError('No se pudo guardar la tarjeta. Intenta de nuevo.');
+      setError(t('cardForm.saveError'));
       setSaving(false);
     }
   };
@@ -88,7 +90,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
             <View style={{ width: 22 }} />
           )}
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-            {step === 'bank' ? 'Selecciona el banco' : selectedBank?.name ?? ''}
+            {step === 'bank' ? t('cardForm.selectBank') : selectedBank?.name ?? ''}
           </Text>
           <TouchableOpacity onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Ionicons name="close" size={22} color={colors.textSecondary} />
@@ -119,32 +121,32 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
         {step === 'details' && (
           <View style={styles.detailsForm}>
             {/* Chips tipo */}
-            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Tipo de tarjeta</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('cardForm.typeLabel')}</Text>
             <View style={styles.typeRow}>
-              {(['debit', 'credit'] as CardType[]).map((t) => (
+              {(['debit', 'credit'] as CardType[]).map((cardTypeOpt) => (
                 <TouchableOpacity
-                  key={t}
+                  key={cardTypeOpt}
                   style={[
                     styles.typeChip,
                     { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                    cardType === t && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    cardType === cardTypeOpt && { backgroundColor: colors.primary, borderColor: colors.primary },
                   ]}
-                  onPress={() => setCardType(t)}
+                  onPress={() => setCardType(cardTypeOpt)}
                   activeOpacity={0.8}
                 >
                   <Text style={[
                     styles.typeChipText,
                     { color: colors.textSecondary },
-                    cardType === t && { color: '#FFFFFF' },
+                    cardType === cardTypeOpt && { color: '#FFFFFF' },
                   ]}>
-                    {t === 'debit' ? 'Débito' : 'Crédito'}
+                    {cardTypeOpt === 'debit' ? t('cardForm.debit') : t('cardForm.credit')}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Últimos 4 dígitos */}
-            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Últimos 4 dígitos</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('cardForm.lastFourLabel')}</Text>
             <TextInput
               style={[styles.lastFourInput, { borderColor: error ? colors.error : colors.border, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary }]}
               placeholder="0000"
@@ -165,7 +167,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
             >
               {saving
                 ? <ActivityIndicator color="#FFFFFF" />
-                : <Text style={styles.saveBtnText}>Agregar tarjeta</Text>
+                : <Text style={styles.saveBtnText}>{t('cardForm.addButton')}</Text>
               }
             </TouchableOpacity>
           </View>

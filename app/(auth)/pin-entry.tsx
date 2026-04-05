@@ -36,7 +36,7 @@ export default function PinEntryScreen() {
       if (err.code === 'auth/email-already-in-use') {
         setShowEmailTakenDialog(true);
       } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        Alert.alert('PIN incorrecto', t('errors.wrongPin'));
+        Alert.alert(t('errors.wrongPinTitle'), t('errors.wrongPin'));
       } else if (err.code === 'auth/user-not-found') {
         Alert.alert('Error', t('errors.genericError'));
       } else {

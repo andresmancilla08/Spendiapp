@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -23,6 +24,7 @@ import type { Card } from '../types/card';
 export default function CardsScreen() {
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const { cards, loading } = useCards(user?.uid ?? '');
 
@@ -35,10 +37,10 @@ export default function CardsScreen() {
     setDeleting(true);
     try {
       await deleteCardAndTransactions(deleteTarget.id);
-      showToast('Tarjeta eliminada correctamente', 'success');
+      showToast(t('cardsScreen.deletedSuccess'), 'success');
       setDeleteTarget(null);
     } catch {
-      showToast('No se pudo eliminar la tarjeta', 'error');
+      showToast(t('cardsScreen.deleteError'), 'error');
     } finally {
       setDeleting(false);
     }
@@ -57,7 +59,7 @@ export default function CardsScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Mis tarjetas</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('cardsScreen.title')}</Text>
         <TouchableOpacity
           onPress={() => setCardFormVisible(true)}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -80,10 +82,10 @@ export default function CardsScreen() {
             <View style={styles.emptyWrap}>
               <Ionicons name="card-outline" size={32} color={colors.textTertiary} style={{ marginBottom: 8 }} />
               <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
-                No tienes tarjetas registradas
+                {t('cardsScreen.empty')}
               </Text>
               <Text style={[styles.emptyHint, { color: colors.textTertiary }]}>
-                Toca + para agregar tu primera tarjeta
+                {t('cardsScreen.emptyHint')}
               </Text>
             </View>
           ) : (
@@ -108,7 +110,7 @@ export default function CardsScreen() {
                       styles.badgeText,
                       { color: card.type === 'credit' ? colors.primary : colors.tertiaryDark },
                     ]}>
-                      {card.type === 'credit' ? 'Crédito' : 'Débito'}
+                      {card.type === 'credit' ? t('cardsScreen.credit') : t('cardsScreen.debit')}
                     </Text>
                   </View>
                 </View>
@@ -133,25 +135,25 @@ export default function CardsScreen() {
       <AppDialog
         visible={!!deleteTarget}
         type="error"
-        title="Eliminar tarjeta"
+        title={t('cardsScreen.deleteDialog.title')}
         description={
           <Text style={[dialogDescStyle, { color: colors.textSecondary }]}>
-            {'Si eliminas '}
+            {t('cardsScreen.deleteDialog.descPart1')}
             <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>
               {`${deleteTarget?.bankName} •••• ${deleteTarget?.lastFour}`}
             </Text>
-            {', se eliminarán también '}
+            {t('cardsScreen.deleteDialog.descPart2')}
             <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>
-              todas las transacciones
+              {t('cardsScreen.deleteDialog.descBold2')}
             </Text>
-            {' asociadas a esta tarjeta en todos los meses. Esta acción es '}
+            {t('cardsScreen.deleteDialog.descPart3')}
             <Text style={{ fontFamily: Fonts.bold, color: colors.error }}>
-              permanente y no se puede deshacer.
+              {t('cardsScreen.deleteDialog.descBoldDanger')}
             </Text>
           </Text>
         }
-        primaryLabel="Eliminar todo"
-        secondaryLabel="Cancelar"
+        primaryLabel={t('cardsScreen.deleteDialog.primaryLabel')}
+        secondaryLabel={t('common.cancel')}
         onPrimary={confirmDelete}
         onSecondary={() => { if (!deleting) setDeleteTarget(null); }}
         loading={deleting}
