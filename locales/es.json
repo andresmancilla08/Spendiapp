@@ -17,7 +17,12 @@
     "emailPlaceholder": "tu@email.com",
     "continueButton": "Continuar",
     "haveAccount": "¿Ya tienes cuenta? ",
-    "signInLink": "Inicia sesión"
+    "signInLink": "Inicia sesión",
+    "successDialog": {
+      "title": "¡Bienvenid@, {{name}}!",
+      "description": "Tu cuenta fue creada exitosamente. Ya puedes empezar a controlar tus finanzas.",
+      "primaryLabel": "Continuar"
+    }
   },
   "loginEmail": {
     "back": "← Volver",
@@ -66,6 +71,7 @@
     "resetEmailSent": "Te enviamos un correo para restablecer tu PIN",
     "resetEmailError": "No pudimos enviar el correo. Verifica tu email e intenta de nuevo.",
     "wrongPin": "El PIN ingresado no es válido. Intenta de nuevo.",
+    "wrongPinTitle": "PIN incorrecto",
     "signOutError": "No se pudo cerrar sesión",
     "genericError": "Ocurrió un error. Intenta de nuevo."
   },
@@ -105,7 +111,16 @@
     "firestoreTitle": "Configura Firestore",
     "firestoreSubtitle": "Actualiza las reglas de seguridad en Firebase Console.",
     "noCardsBannerTitle": "Agrega tus tarjetas",
-    "noCardsBannerSub": "Elige qué tarjetas usas y lleva un control exacto por cada una."
+    "noCardsBannerSub": "Elige qué tarjetas usas y lleva un control exacto por cada una.",
+    "transactionSaved": "Transacción guardada",
+    "biometricOffer": {
+      "title": "¿Entrar más rápido?",
+      "descPart1": "Activa ",
+      "descBold": "Face ID / Touch ID",
+      "descPart2": " para abrir Spendiapp sin necesidad de escribir nada.",
+      "activate": "Activar",
+      "notNow": "Ahora no"
+    }
   },
   "profile": {
     "title": "Perfil",
@@ -177,10 +192,32 @@
       "label": "Política de privacidad",
       "soon": "Política de privacidad disponible pronto."
     },
+    "cards": {
+      "section": "Mis tarjetas",
+      "label": "Mis tarjetas"
+    },
+    "security": "SEGURIDAD",
+    "biometric": {
+      "label": "Face ID / Touch ID",
+      "subtitle": "Desbloquea la app con tu rostro o huella",
+      "unavailable": "No disponible en este dispositivo",
+      "enableError": "No se pudo activar la biometría. Intenta de nuevo.",
+      "disableError": "No se pudo desactivar la biometría. Intenta de nuevo.",
+      "disableDialog": {
+        "title": "Desactivar biometría",
+        "descPart1": "La próxima vez que abras la app necesitarás hacer ",
+        "descBold": "login completo",
+        "descPart2": ".",
+        "confirm": "Desactivar"
+      }
+    },
     "signOut": {
       "button": "Cerrar sesión",
       "title": "Cerrar sesión",
       "description": "¿Estás seguro que deseas cerrar sesión?",
+      "descPart1": "¿Seguro que quieres ",
+      "descBold": "cerrar sesión",
+      "descPart2": "? Tendrás que volver a iniciar sesión la próxima vez.",
       "confirm": "Cerrar sesión"
     },
     "providerGoogle": "Google",
@@ -233,6 +270,16 @@
     "today": "Hoy",
     "saveButton": "Guardar",
     "saving": "Guardando...",
+    "categoryNamePlaceholder": "Nombre...",
+    "paymentMethod": "Método de pago",
+    "noCards": "Agrega tus tarjetas",
+    "noCard": "Sin tarjeta",
+    "installments": "Cuotas",
+    "installmentSingle": "cuota (pago único)",
+    "installmentsPlural": "cuotas",
+    "installmentAmountPlaceholder": "Ej: 26.4",
+    "installmentPreviewEqual": "{{count}} cuotas de ${{amount}}",
+    "installmentPreviewUnequal": "{{count}} cuotas de ${{first}} + última de ${{last}}",
     "errors": {
       "saveFailed": "No se pudo guardar. Intenta de nuevo."
     }
@@ -257,7 +304,10 @@
       "saving": "Guardando...",
       "deleteError": "No se pudo eliminar. Intenta de nuevo.",
       "saveError": "No se pudo guardar. Intenta de nuevo."
-    }
+    },
+    "months": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+    "weekdays": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+    "searchPlaceholder": "Buscar transacción..."
   },
   "categories": {
     "title": "Mis categorías",
@@ -292,7 +342,17 @@
     "saveError": "No se pudo guardar. Intenta de nuevo.",
     "nameError": "El nombre debe tener al menos 2 caracteres",
     "manageCategoriesLabel": "Mis categorías",
-    "suggestingEmoji": "Sugiriendo ícono..."
+    "suggestingEmoji": "Sugiriendo ícono...",
+    "names": {
+      "food": "Comida",
+      "transport": "Transporte",
+      "health": "Salud",
+      "entertainment": "Entretenimiento",
+      "shopping": "Compras",
+      "home": "Hogar",
+      "salary": "Salario",
+      "other": "Otro"
+    }
   },
   "support": {
     "title": "Buzón de sugerencias",
@@ -321,5 +381,61 @@
       "title": "¡Sugerencia enviada!",
       "description": "Gracias por tomarte el tiempo de compartir tu idea. La revisaremos con atención."
     }
+  },
+  "budget": {
+    "title": "Presupuesto"
+  },
+  "biometricLock": {
+    "greeting": "Bienvenid@, {{name}}",
+    "greetingFallback": "de vuelta",
+    "subtitle": "Verifica tu identidad para continuar",
+    "error": "No se pudo verificar. Intenta de nuevo.",
+    "button": "Usar biometría",
+    "signOut": "Cerrar sesión",
+    "signOutDialog": {
+      "descPart1": "¿Seguro que quieres ",
+      "descBold1": "cerrar sesión",
+      "descPart2": "? Tendrás que volver a ",
+      "descBold2": "iniciar sesión",
+      "descPart3": " la próxima vez."
+    }
+  },
+  "selectCards": {
+    "title": "¿Qué tarjetas tienes?",
+    "subtitle": "Selecciona tus tarjetas para llevar un mejor control de tus gastos.",
+    "credit": "Crédito",
+    "debit": "Débito",
+    "digitError": "Ingresa exactamente 4 dígitos",
+    "saveError": "No se pudo agregar la tarjeta",
+    "toastOne": "1 tarjeta agregada correctamente",
+    "toastMany": "{{n}} tarjetas agregadas correctamente"
+  },
+  "cardsScreen": {
+    "title": "Mis tarjetas",
+    "empty": "No tienes tarjetas registradas",
+    "emptyHint": "Toca + para agregar tu primera tarjeta",
+    "credit": "Crédito",
+    "debit": "Débito",
+    "deleteDialog": {
+      "title": "Eliminar tarjeta",
+      "descPart1": "Si eliminas ",
+      "descPart2": ", se eliminarán también ",
+      "descBold2": "todas las transacciones",
+      "descPart3": " asociadas a esta tarjeta en todos los meses. Esta acción es ",
+      "descBoldDanger": "permanente y no se puede deshacer.",
+      "primaryLabel": "Eliminar todo"
+    },
+    "deletedSuccess": "Tarjeta eliminada correctamente",
+    "deleteError": "No se pudo eliminar la tarjeta"
+  },
+  "cardForm": {
+    "selectBank": "Selecciona el banco",
+    "typeLabel": "Tipo de tarjeta",
+    "credit": "Crédito",
+    "debit": "Débito",
+    "lastFourLabel": "Últimos 4 dígitos",
+    "addButton": "Agregar tarjeta",
+    "digitError": "Ingresa exactamente 4 dígitos",
+    "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo."
   }
 }

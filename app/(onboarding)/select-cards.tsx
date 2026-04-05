@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -26,6 +27,7 @@ const CATEGORIES: Bank['category'][] = ['traditional', 'digital', 'other'];
 export default function SelectCardsScreen() {
   const { colors, isDark } = useTheme();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const { user, setJustRegistered } = useAuthStore();
   const { cards } = useCards(user?.uid ?? '');
 
@@ -70,7 +72,7 @@ export default function SelectCardsScreen() {
 
   const handleAddCard = async (bank: Bank) => {
     if (!user) return;
-    if (formLastFour.length !== 4) { setFormError('Ingresa exactamente 4 dígitos'); return; }
+    if (formLastFour.length !== 4) { setFormError(t('selectCards.digitError')); return; }
     setFormError('');
     setFormSaving(true);
     try {
@@ -79,7 +81,7 @@ export default function SelectCardsScreen() {
       setFormType('debit');
       setExpandedBankId(null);
     } catch {
-      setFormError('No se pudo agregar la tarjeta');
+      setFormError(t('selectCards.saveError'));
     } finally {
       setFormSaving(false);
     }
@@ -89,7 +91,7 @@ export default function SelectCardsScreen() {
     if (cards.length > 0) {
       const n = cards.length;
       showToast(
-        n === 1 ? '1 tarjeta agregada correctamente' : `${n} tarjetas agregadas correctamente`,
+        n === 1 ? t('selectCards.toastOne') : t('selectCards.toastMany', { n }),
         'success',
       );
     }
@@ -108,9 +110,9 @@ export default function SelectCardsScreen() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>¿Qué tarjetas tienes?</Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>{t('selectCards.title')}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Selecciona tus tarjetas para llevar un mejor control de tus gastos.
+            {t('selectCards.subtitle')}
           </Text>
         </View>
 
@@ -164,7 +166,7 @@ export default function SelectCardsScreen() {
                             {cardsForBank.map((card) => (
                               <View key={card.id} style={[styles.addedChip, { backgroundColor: colors.primaryLight }]}>
                                 <Text style={[styles.addedChipText, { color: colors.primary }]}>
-                                  {`•••• ${card.lastFour} · ${card.type === 'credit' ? 'Crédito' : 'Débito'}`}
+                                  {`•••• ${card.lastFour} · ${card.type === 'credit' ? t('selectCards.credit') : t('selectCards.debit')}`}
                                 </Text>
                                 <TouchableOpacity onPress={() => deleteCard(card.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                                   <Ionicons name="close-circle" size={16} color={colors.primary} />
@@ -179,23 +181,23 @@ export default function SelectCardsScreen() {
                           <View style={[styles.expandedForm, { backgroundColor: colors.backgroundSecondary }]}>
                             {/* Chips débito / crédito */}
                             <View style={styles.typeRow}>
-                              {(['debit', 'credit'] as CardType[]).map((t) => (
+                              {(['debit', 'credit'] as CardType[]).map((cardTypeOpt) => (
                                 <TouchableOpacity
-                                  key={t}
+                                  key={cardTypeOpt}
                                   style={[
                                     styles.typeChip,
                                     { borderColor: colors.border, backgroundColor: colors.surface },
-                                    formType === t && { backgroundColor: colors.primary, borderColor: colors.primary },
+                                    formType === cardTypeOpt && { backgroundColor: colors.primary, borderColor: colors.primary },
                                   ]}
-                                  onPress={() => setFormType(t)}
+                                  onPress={() => setFormType(cardTypeOpt)}
                                   activeOpacity={0.8}
                                 >
                                   <Text style={[
                                     styles.typeChipText,
                                     { color: colors.textSecondary },
-                                    formType === t && { color: '#FFFFFF' },
+                                    formType === cardTypeOpt && { color: '#FFFFFF' },
                                   ]}>
-                                    {t === 'debit' ? 'Débito' : 'Crédito'}
+                                    {cardTypeOpt === 'debit' ? t('selectCards.debit') : t('selectCards.credit')}
                                   </Text>
                                 </TouchableOpacity>
                               ))}

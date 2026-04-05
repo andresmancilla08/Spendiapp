@@ -418,7 +418,7 @@ export default function ProfileScreen() {
         await setBiometricsAppEnrolled(true);
         setBiometricsEnabled(true);
       } catch {
-        showError('Error', 'No se pudo activar la biometría. Intenta de nuevo.');
+        showError(t('common.error'), t('profile.biometric.enableError'));
       }
     } else {
       setBiometricToggleDialog(true);
@@ -431,7 +431,7 @@ export default function ProfileScreen() {
       await setBiometricsAppEnrolled(false);
       setBiometricsEnabled(false);
     } catch {
-      showError('Error', 'No se pudo desactivar la biometría. Intenta de nuevo.');
+      showError(t('common.error'), t('profile.biometric.disableError'));
     }
   };
 
@@ -442,9 +442,9 @@ export default function ProfileScreen() {
       title: t('profile.signOut.title'),
       description: (
         <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
-          {'¿Seguro que quieres '}
-          <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>cerrar sesión</Text>
-          {'? Tendrás que volver a iniciar sesión la próxima vez.'}
+          {t('profile.signOut.descPart1')}
+          <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('profile.signOut.descBold')}</Text>
+          {t('profile.signOut.descPart2')}
         </Text>
       ),
       primaryLabel: t('profile.signOut.confirm'),
@@ -534,17 +534,17 @@ export default function ProfileScreen() {
         </View>
 
         {/* MIS TARJETAS */}
-        <SectionTitle label="Mis tarjetas" />
+        <SectionTitle label={t('profile.cards.section')} />
         <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
           <OptionItem
             icon="card-outline"
-            label="Mis tarjetas"
+            label={t('profile.cards.label')}
             onPress={() => router.push('/cards')}
           />
         </View>
 
         {/* SEGURIDAD — Biometría */}
-        <SectionTitle label="Seguridad" />
+        <SectionTitle label={t('profile.security')} />
         <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
           <View style={[styles.optionRow, { opacity: biometricsAvailable ? 1 : 0.4 }]}>
             <View style={[styles.optionIconWrap, { backgroundColor: colors.primaryLight }]}>
@@ -552,12 +552,12 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.optionMeta}>
               <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
-                Face ID / Touch ID
+                {t('profile.biometric.label')}
               </Text>
               <Text style={[styles.optionSub, { color: colors.textSecondary }]}>
                 {biometricsAvailable
-                  ? 'Desbloquea la app con tu rostro o huella'
-                  : 'No disponible en este dispositivo'}
+                  ? t('profile.biometric.subtitle')
+                  : t('profile.biometric.unavailable')}
               </Text>
             </View>
             <Switch
@@ -634,16 +634,16 @@ export default function ProfileScreen() {
       <AppDialog
         visible={biometricToggleDialog}
         type="warning"
-        title="Desactivar biometría"
+        title={t('profile.biometric.disableDialog.title')}
         description={
           <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
-            {'La próxima vez que abras la app necesitarás hacer '}
-            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>login completo</Text>
-            {'.'}
+            {t('profile.biometric.disableDialog.descPart1')}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('profile.biometric.disableDialog.descBold')}</Text>
+            {t('profile.biometric.disableDialog.descPart2')}
           </Text>
         }
-        primaryLabel="Desactivar"
-        secondaryLabel="Cancelar"
+        primaryLabel={t('profile.biometric.disableDialog.confirm')}
+        secondaryLabel={t('common.cancel')}
         onPrimary={confirmDisableBiometrics}
         onSecondary={() => setBiometricToggleDialog(false)}
       />

@@ -49,24 +49,8 @@ const CATEGORY_META: Record<string, { icon: string; color: string }> = {
   other:         { icon: '📌', color: '#737879' },
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  food: 'Comida',
-  transport: 'Transporte',
-  health: 'Salud',
-  entertainment: 'Ocio',
-  shopping: 'Compras',
-  home: 'Hogar',
-  salary: 'Salario',
-  other: 'Otro',
-};
-
 const EXPENSE_CATEGORIES = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'other'];
 const INCOME_CATEGORIES = ['salary', 'other'];
-
-const MONTHS_ES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -96,7 +80,7 @@ function localDateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-function groupByDay(transactions: Transaction[]): DayGroup[] {
+function groupByDay(transactions: Transaction[], weekdays: string[]): DayGroup[] {
   const map = new Map<string, Transaction[]>();
   for (const tx of transactions) {
     const key = localDateKey(tx.date);
@@ -106,7 +90,7 @@ function groupByDay(transactions: Transaction[]): DayGroup[] {
   return Array.from(map.entries()).map(([key, items]) => {
     const [y, m, d] = key.split('-').map(Number);
     const date = new Date(y, m - 1, d);
-    const weekday = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'][date.getDay()];
+    const weekday = weekdays[date.getDay()];
     return { dateKey: key, label: `${weekday} ${d}`, items };
   });
 }
@@ -127,6 +111,17 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
   const { colors } = useTheme();
   const { height: screenHeight } = useWindowDimensions();
   const SHEET_HEIGHT = Math.round(screenHeight * 0.82);
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    food: t('categories.names.food'),
+    transport: t('categories.names.transport'),
+    health: t('categories.names.health'),
+    entertainment: t('categories.names.entertainment'),
+    shopping: t('categories.names.shopping'),
+    home: t('categories.names.home'),
+    salary: t('categories.names.salary'),
+    other: t('categories.names.other'),
+  };
 
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -502,8 +497,19 @@ interface TransactionRowProps {
 }
 
 function TransactionRow({ item, isLast, onLongPress, cardsMap }: TransactionRowProps) {
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
+  const CATEGORY_LABELS: Record<string, string> = {
+    food: t('categories.names.food'),
+    transport: t('categories.names.transport'),
+    health: t('categories.names.health'),
+    entertainment: t('categories.names.entertainment'),
+    shopping: t('categories.names.shopping'),
+    home: t('categories.names.home'),
+    salary: t('categories.names.salary'),
+    other: t('categories.names.other'),
+  };
   const isExpense = item.type === 'expense';
   const card = item.cardId ? cardsMap[item.cardId] : null;
   const descLabel = item.isInstallment
@@ -563,6 +569,9 @@ export default function HistoryScreen() {
   const { cards } = useCards(user?.uid ?? '');
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { showToast } = useToast();
+
+  const MONTHS = t('history.months', { returnObjects: true }) as string[];
+  const WEEKDAYS = t('history.weekdays', { returnObjects: true }) as string[];
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -644,7 +653,7 @@ export default function HistoryScreen() {
     .filter(t => activeFilter === 'all' || t.type === activeFilter)
     .filter(t => searchQuery.trim() === '' || t.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const groups = groupByDay(filteredTransactions);
+  const groups = groupByDay(filteredTransactions, WEEKDAYS);
 
   const toggleFilter = (f: 'income' | 'expense') => {
     setActiveFilter(prev => prev === f ? 'all' : f);
@@ -673,7 +682,7 @@ export default function HistoryScreen() {
           activeOpacity={0.7}
         >
           <Text style={[styles.monthNavLabel, { color: colors.primary }]}>
-            {MONTHS_ES[month].toUpperCase()} {year}
+            {MONTHS[month].toUpperCase()} {year}
           </Text>
           <Ionicons name={monthPickerOpen ? 'chevron-up' : 'chevron-down'} size={14} color={colors.primary} style={{ marginLeft: 4 }} />
         </TouchableOpacity>
@@ -712,7 +721,7 @@ export default function HistoryScreen() {
           </View>
           {/* Month grid 3×4 */}
           <View style={styles.monthPickerGrid}>
-            {MONTHS_ES.map((name, idx) => {
+            {MONTHS.map((name, idx) => {
               const isFuture = year === nowForPicker.getFullYear() && idx > nowForPicker.getMonth();
               const isSelected = idx === month && year === year;
               return (
@@ -800,7 +809,7 @@ export default function HistoryScreen() {
           style={[styles.searchInput, { color: colors.textPrimary }]}
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Buscar transacción..."
+          placeholder={t('history.searchPlaceholder')}
           placeholderTextColor={colors.textSecondary}
           returnKeyType="search"
           autoCorrect={false}

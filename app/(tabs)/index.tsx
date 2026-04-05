@@ -301,22 +301,22 @@ export default function HomeScreen() {
       <AddTransactionModal
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onSaved={() => { setShowAddModal(false); setRefreshKey(k => k + 1); showToast('Transacción guardada', 'success'); }}
+        onSaved={() => { setShowAddModal(false); setRefreshKey(k => k + 1); showToast(t('home.transactionSaved'), 'success'); }}
       />
 
       <AppDialog
         visible={biometricOfferVisible}
         type="info"
-        title="¿Entrar más rápido?"
+        title={t('home.biometricOffer.title')}
         description={
           <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
-            {'Activa '}
-            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>Face ID / Touch ID</Text>
-            {' para abrir Spendiapp sin necesidad de escribir nada.'}
+            {t('home.biometricOffer.descPart1')}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('home.biometricOffer.descBold')}</Text>
+            {t('home.biometricOffer.descPart2')}
           </Text>
         }
-        primaryLabel="Activar"
-        secondaryLabel="Ahora no"
+        primaryLabel={t('home.biometricOffer.activate')}
+        secondaryLabel={t('home.biometricOffer.notNow')}
         onPrimary={() => {
           setBiometricsAppEnrolled(true).catch(() => {}).finally(() => setBiometricOfferVisible(false));
         }}

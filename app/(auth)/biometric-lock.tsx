@@ -10,15 +10,17 @@ import { Fonts } from '../../config/fonts';
 import { authenticateWithBiometrics, setBiometricsAppEnrolled } from '../../hooks/useBiometrics';
 import { signOut } from '../../hooks/useAuth';
 import AppDialog from '../../components/AppDialog';
+import { useTranslation } from 'react-i18next';
 
 export default function BiometricLockScreen() {
   const { colors, isDark } = useTheme();
+  const { t } = useTranslation();
   const { user, setBiometricLocked } = useAuthStore();
   const [authenticating, setAuthenticating] = useState(false);
   const [failed, setFailed] = useState(false);
   const [signOutDialog, setSignOutDialog] = useState(false);
 
-  const firstName = user?.displayName?.split(' ')[0] ?? 'de vuelta';
+  const firstName = user?.displayName?.split(' ')[0] ?? t('biometricLock.greetingFallback');
 
   const gradientColors: [string, string, string] = isDark
     ? ['#0D1A1C', '#062830', '#003840']
@@ -59,18 +61,18 @@ export default function BiometricLockScreen() {
       <AppDialog
         visible={signOutDialog}
         type="warning"
-        title="Cerrar sesión"
+        title={t('profile.signOut.title')}
         description={
           <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
-            {'¿Seguro que quieres '}
-            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>cerrar sesión</Text>
-            {'? Tendrás que volver a '}
-            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>iniciar sesión</Text>
-            {' la próxima vez.'}
+            {t('biometricLock.signOutDialog.descPart1')}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('biometricLock.signOutDialog.descBold1')}</Text>
+            {t('biometricLock.signOutDialog.descPart2')}
+            <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('biometricLock.signOutDialog.descBold2')}</Text>
+            {t('biometricLock.signOutDialog.descPart3')}
           </Text>
         }
-        primaryLabel="Cerrar sesión"
-        secondaryLabel="Cancelar"
+        primaryLabel={t('profile.signOut.confirm')}
+        secondaryLabel={t('common.cancel')}
         onPrimary={handleSignOut}
         onSecondary={() => setSignOutDialog(false)}
       />
@@ -89,15 +91,15 @@ export default function BiometricLockScreen() {
           </View>
 
           <Text style={[styles.title, { color: colors.textPrimary }]}>
-            {`Bienvenid@, ${firstName}`}
+            {t('biometricLock.greeting', { name: firstName })}
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Verifica tu identidad para continuar
+            {t('biometricLock.subtitle')}
           </Text>
 
           {failed && (
             <Text style={[styles.errorText, { color: colors.error }]}>
-              No se pudo verificar. Intenta de nuevo.
+              {t('biometricLock.error')}
             </Text>
           )}
 
@@ -112,7 +114,7 @@ export default function BiometricLockScreen() {
               : (
                 <>
                   <Ionicons name="finger-print" size={22} color="#FFFFFF" />
-                  <Text style={styles.biometricBtnText}>Usar biometría</Text>
+                  <Text style={styles.biometricBtnText}>{t('biometricLock.button')}</Text>
                 </>
               )
             }
@@ -124,7 +126,7 @@ export default function BiometricLockScreen() {
             activeOpacity={0.7}
           >
             <Text style={[styles.signOutText, { color: colors.textTertiary }]}>
-              Cerrar sesión
+              {t('biometricLock.signOut')}
             </Text>
           </TouchableOpacity>
         </View>

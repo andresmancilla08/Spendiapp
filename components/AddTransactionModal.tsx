@@ -627,7 +627,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           style={[styles.newCatInlineInput, { color: colors.textPrimary }]}
                           value={newCatName}
                           onChangeText={setNewCatName}
-                          placeholder="Nombre..."
+                          placeholder={t('addTransaction.categoryNamePlaceholder')}
                           placeholderTextColor={colors.textSecondary}
                           autoCorrect={false}
                           autoCapitalize="words"
@@ -706,7 +706,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                             style={[styles.newCatInlineInput, { color: colors.textPrimary }]}
                             value={newCatName}
                             onChangeText={setNewCatName}
-                            placeholder="Nombre..."
+                            placeholder={t('addTransaction.categoryNamePlaceholder')}
                             placeholderTextColor={colors.textSecondary}
                             autoCorrect={false}
                             autoCapitalize="words"
@@ -954,7 +954,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
               {/* Método de pago */}
               {!cardsLoading && (
                 <View style={[styles.fixedRow, { borderColor: colors.border, flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingVertical: 12, paddingHorizontal: 16 }]}>
-                  <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>Método de pago</Text>
+                  <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>{t('addTransaction.paymentMethod')}</Text>
 
                   {cards.length === 0 ? (
                     /* Sin tarjetas registradas → CTA */
@@ -965,7 +965,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                     >
                       <Ionicons name="card-outline" size={18} color={colors.primary} />
                       <Text style={[styles.noCardsPromptText, { color: colors.primary }]}>
-                        Agrega tus tarjetas
+                        {t('addTransaction.noCards')}
                       </Text>
                       <Ionicons name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
                     </TouchableOpacity>
@@ -983,7 +983,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           activeOpacity={0.8}
                         >
                           <Text style={[styles.cardChipText, { color: selectedCardId === null ? '#FFFFFF' : colors.textSecondary }]}>
-                            Sin tarjeta
+                            {t('addTransaction.noCard')}
                           </Text>
                         </TouchableOpacity>
 
@@ -1017,7 +1017,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
               {/* Cuotas — solo si tarjeta crédito seleccionada */}
               {isCredit && type === 'expense' && (
                 <View style={[styles.fixedRow, { borderColor: colors.border, flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingVertical: 12, paddingHorizontal: 16 }]}>
-                  <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>Cuotas</Text>
+                  <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>{t('addTransaction.installments')}</Text>
 
                   {/* Picker numérico de cuotas */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
@@ -1037,7 +1037,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                       <Ionicons name="add" size={18} color={colors.textPrimary} />
                     </TouchableOpacity>
                     <Text style={[styles.fixedHint, { color: colors.textTertiary, flex: 1 }]}>
-                      {installmentCount === 1 ? 'cuota (pago único)' : `cuotas`}
+                      {installmentCount === 1 ? t('addTransaction.installmentSingle') : t('addTransaction.installmentsPlural')}
                     </Text>
                   </View>
 
@@ -1062,7 +1062,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                       <TextInput
                         style={[styles.teaInput, { borderColor: teaValid ? colors.border : colors.error, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary }]}
-                        placeholder="Ej: 26.4"
+                        placeholder={t('addTransaction.installmentAmountPlaceholder')}
                         placeholderTextColor={colors.textTertiary}
                         keyboardType="decimal-pad"
                         value={teaInput}
@@ -1083,8 +1083,8 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           const last = amounts[amounts.length - 1];
                           const same = first === last;
                           return same
-                            ? `${installmentCount} cuotas de $${first.toLocaleString('es-CO')}`
-                            : `${installmentCount - 1} cuotas de $${first.toLocaleString('es-CO')} + última de $${last.toLocaleString('es-CO')}`;
+                            ? t('addTransaction.installmentPreviewEqual', { count: installmentCount, amount: first.toLocaleString('es-CO') })
+                            : t('addTransaction.installmentPreviewUnequal', { count: installmentCount - 1, first: first.toLocaleString('es-CO'), last: last.toLocaleString('es-CO') });
                         })()}
                       </Text>
                     </View>

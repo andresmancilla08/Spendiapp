@@ -17,7 +17,12 @@
     "emailPlaceholder": "you@email.com",
     "continueButton": "Continue",
     "haveAccount": "Already have an account? ",
-    "signInLink": "Sign in"
+    "signInLink": "Sign in",
+    "successDialog": {
+      "title": "Welcome, {{name}}!",
+      "description": "Your account was created successfully. You can now start tracking your finances.",
+      "primaryLabel": "Continue"
+    }
   },
   "loginEmail": {
     "back": "← Back",
@@ -66,6 +71,7 @@
     "resetEmailSent": "We sent you an email to reset your PIN",
     "resetEmailError": "We couldn't send the email. Check your email and try again.",
     "wrongPin": "The entered PIN is not valid. Please try again.",
+    "wrongPinTitle": "Incorrect PIN",
     "signOutError": "Could not sign out",
     "genericError": "An error occurred. Please try again."
   },
@@ -105,7 +111,16 @@
     "firestoreTitle": "Set up Firestore",
     "firestoreSubtitle": "Update the security rules in Firebase Console.",
     "noCardsBannerTitle": "Add your cards",
-    "noCardsBannerSub": "Choose which cards you use and track every expense precisely."
+    "noCardsBannerSub": "Choose which cards you use and track every expense precisely.",
+    "transactionSaved": "Transaction saved",
+    "biometricOffer": {
+      "title": "Sign in faster?",
+      "descPart1": "Enable ",
+      "descBold": "Face ID / Touch ID",
+      "descPart2": " to open Spendiapp without typing anything.",
+      "activate": "Enable",
+      "notNow": "Not now"
+    }
   },
   "profile": {
     "title": "Profile",
@@ -177,10 +192,32 @@
       "label": "Privacy policy",
       "soon": "Privacy policy will be available soon."
     },
+    "cards": {
+      "section": "My cards",
+      "label": "My cards"
+    },
+    "security": "SECURITY",
+    "biometric": {
+      "label": "Face ID / Touch ID",
+      "subtitle": "Unlock the app with your face or fingerprint",
+      "unavailable": "Not available on this device",
+      "enableError": "Could not enable biometrics. Please try again.",
+      "disableError": "Could not disable biometrics. Please try again.",
+      "disableDialog": {
+        "title": "Disable biometrics",
+        "descPart1": "Next time you open the app you'll need to do a ",
+        "descBold": "full login",
+        "descPart2": ".",
+        "confirm": "Disable"
+      }
+    },
     "signOut": {
       "button": "Sign out",
       "title": "Sign out",
       "description": "Are you sure you want to sign out?",
+      "descPart1": "Are you sure you want to ",
+      "descBold": "sign out",
+      "descPart2": "? You'll need to sign in again next time.",
       "confirm": "Sign out"
     },
     "providerGoogle": "Google",
@@ -220,6 +257,158 @@
       "terms": "Terms and conditions",
       "version": "Version"
     }
+  },
+  "addTransaction": {
+    "title": "New transaction",
+    "typeExpense": "Expense",
+    "typeIncome": "Income",
+    "amountPrefix": "$",
+    "amountPlaceholder": "0",
+    "descriptionPlaceholder": "What did you spend it on?",
+    "categoryLabel": "Category",
+    "dateLabel": "Date",
+    "today": "Today",
+    "saveButton": "Save",
+    "saving": "Saving...",
+    "categoryNamePlaceholder": "Name...",
+    "paymentMethod": "Payment method",
+    "noCards": "Add your cards",
+    "noCard": "No card",
+    "installments": "Installments",
+    "installmentSingle": "installment (one-time payment)",
+    "installmentsPlural": "installments",
+    "installmentAmountPlaceholder": "E.g.: 26.4",
+    "installmentPreviewEqual": "{{count}} installments of ${{amount}}",
+    "installmentPreviewUnequal": "{{count}} installments of ${{first}} + last of ${{last}}",
+    "errors": {
+      "saveFailed": "Could not save. Please try again."
+    }
+  },
+  "history": {
+    "title": "History",
+    "incomeLabel": "Income",
+    "expensesLabel": "Expenses",
+    "noTransactions": "No transactions",
+    "noTransactionsSub": "No records for this month",
+    "edit": {
+      "title": "Edit transaction",
+      "descriptionLabel": "Description",
+      "amountLabel": "Amount",
+      "categoryLabel": "Category",
+      "saveButton": "Save changes",
+      "duplicateButton": "Duplicate",
+      "deleteButton": "Delete",
+      "confirmDelete": "Confirm deletion?",
+      "confirmDeleteYes": "Yes, delete",
+      "confirmDeleteCancel": "Cancel",
+      "saving": "Saving...",
+      "deleteError": "Could not delete. Please try again.",
+      "saveError": "Could not save. Please try again."
+    },
+    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "searchPlaceholder": "Search transaction..."
+  },
+  "categories": {
+    "title": "My categories",
+    "defaultSection": "DEFAULT",
+    "customSection": "MY CATEGORIES",
+    "emptyCustom": "You don't have custom categories yet",
+    "emptyCustomSub": "Tap + to create your first category",
+    "addButton": "New category",
+    "editTitle": "Edit category",
+    "createTitle": "New category",
+    "nameLabel": "Name",
+    "namePlaceholder": "E.g.: Pets, Debts...",
+    "typeLabel": "Applies to",
+    "typeExpense": "Expense",
+    "typeIncome": "Income",
+    "typeBoth": "Both",
+    "iconLabel": "Icon",
+    "iconAuto": "Automatically suggested",
+    "iconSourceAuto": "Automatically suggested",
+    "iconSourceManual": "Manually chosen",
+    "iconChange": "Change icon",
+    "changeIcon": "Change icon",
+    "iconPicker": "Choose an icon",
+    "saving": "Saving...",
+    "saveButton": "Save",
+    "deleteButton": "Delete category",
+    "deleteTitle": "Delete category?",
+    "deleteDesc": "This action will reassign {{count}} transaction(s) to \"Other\". Cannot be undone.",
+    "deleteConfirm": "Yes, delete",
+    "deleteCancel": "Cancel",
+    "deleteError": "Could not delete. Please try again.",
+    "saveError": "Could not save. Please try again.",
+    "nameError": "Name must be at least 2 characters",
+    "manageCategoriesLabel": "My categories",
+    "suggestingEmoji": "Suggesting icon...",
+    "names": {
+      "food": "Food",
+      "transport": "Transport",
+      "health": "Health",
+      "entertainment": "Entertainment",
+      "shopping": "Shopping",
+      "home": "Home",
+      "salary": "Salary",
+      "other": "Other"
+    }
+  },
+  "budget": {
+    "title": "Budget"
+  },
+  "biometricLock": {
+    "greeting": "Welcome back, {{name}}",
+    "greetingFallback": "back",
+    "subtitle": "Verify your identity to continue",
+    "error": "Could not verify. Please try again.",
+    "button": "Use biometrics",
+    "signOut": "Sign out",
+    "signOutDialog": {
+      "descPart1": "Are you sure you want to ",
+      "descBold1": "sign out",
+      "descPart2": "? You'll need to ",
+      "descBold2": "sign in again",
+      "descPart3": " next time."
+    }
+  },
+  "selectCards": {
+    "title": "Which cards do you have?",
+    "subtitle": "Select your cards to better track your expenses.",
+    "credit": "Credit",
+    "debit": "Debit",
+    "digitError": "Enter exactly 4 digits",
+    "saveError": "Could not add the card",
+    "toastOne": "1 card added successfully",
+    "toastMany": "{{n}} cards added successfully"
+  },
+  "cardsScreen": {
+    "title": "My cards",
+    "empty": "You have no registered cards",
+    "emptyHint": "Tap + to add your first card",
+    "credit": "Credit",
+    "debit": "Debit",
+    "deleteDialog": {
+      "title": "Delete card",
+      "descPart1": "If you delete ",
+      "descPart2": ", all ",
+      "descBold2": "transactions",
+      "descPart3": " linked to this card across all months will also be deleted. This action is ",
+      "descBoldDanger": "permanent and cannot be undone.",
+      "primaryLabel": "Delete all"
+    },
+    "deletedSuccess": "Card deleted successfully",
+    "deleteError": "Could not delete the card"
+  },
+  "cardForm": {
+    "selectBank": "Select bank",
+    "typeLabel": "Card type",
+    "credit": "Credit",
+    "debit": "Debit",
+    "lastFourLabel": "Last 4 digits",
+    "addButton": "Add card",
+    "digitError": "Enter exactly 4 digits",
+    "saveError": "Could not save the card. Please try again."
   },
   "support": {
     "title": "Suggestions box",

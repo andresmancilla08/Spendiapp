@@ -93,9 +93,9 @@ export default function RegisterScreen() {
       <AppDialog
         visible={showSuccess}
         type="success"
-        title={`¡Bienvenid@, ${name.trim()}!`}
-        description="Tu cuenta fue creada exitosamente. Ya puedes empezar a controlar tus finanzas."
-        primaryLabel="Continuar"
+        title={t('register.successDialog.title', { name: name.trim() })}
+        description={t('register.successDialog.description')}
+        primaryLabel={t('register.successDialog.primaryLabel')}
         onPrimary={handleGoHome}
       />
       <LinearGradient

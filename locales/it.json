@@ -17,7 +17,12 @@
     "emailPlaceholder": "tu@email.com",
     "continueButton": "Continua",
     "haveAccount": "Hai già un account? ",
-    "signInLink": "Accedi"
+    "signInLink": "Accedi",
+    "successDialog": {
+      "title": "Benvenuto/a, {{name}}!",
+      "description": "Il tuo account è stato creato con successo. Ora puoi iniziare a tenere traccia delle tue finanze.",
+      "primaryLabel": "Continua"
+    }
   },
   "loginEmail": {
     "back": "← Indietro",
@@ -66,6 +71,7 @@
     "resetEmailSent": "Ti abbiamo inviato un'email per reimpostare il PIN",
     "resetEmailError": "Non siamo riusciti a inviare l'email. Controlla la tua email e riprova.",
     "wrongPin": "Il PIN inserito non è valido. Riprova.",
+    "wrongPinTitle": "PIN errato",
     "signOutError": "Impossibile disconnettersi",
     "genericError": "Si è verificato un errore. Riprova."
   },
@@ -105,7 +111,16 @@
     "firestoreTitle": "Configura Firestore",
     "firestoreSubtitle": "Aggiorna le regole di sicurezza nella Firebase Console.",
     "noCardsBannerTitle": "Aggiungi le tue carte",
-    "noCardsBannerSub": "Scegli quali carte usi e tieni traccia precisa di ogni spesa."
+    "noCardsBannerSub": "Scegli quali carte usi e tieni traccia precisa di ogni spesa.",
+    "transactionSaved": "Transazione salvata",
+    "biometricOffer": {
+      "title": "Accedi più velocemente?",
+      "descPart1": "Attiva ",
+      "descBold": "Face ID / Touch ID",
+      "descPart2": " per aprire Spendiapp senza digitare nulla.",
+      "activate": "Attiva",
+      "notNow": "Non ora"
+    }
   },
   "profile": {
     "title": "Profilo",
@@ -177,10 +192,32 @@
       "label": "Informativa sulla privacy",
       "soon": "L'informativa sulla privacy sarà disponibile a breve."
     },
+    "cards": {
+      "section": "Le mie carte",
+      "label": "Le mie carte"
+    },
+    "security": "SICUREZZA",
+    "biometric": {
+      "label": "Face ID / Touch ID",
+      "subtitle": "Sblocca l'app con il tuo volto o impronta",
+      "unavailable": "Non disponibile su questo dispositivo",
+      "enableError": "Impossibile attivare la biometria. Riprova.",
+      "disableError": "Impossibile disattivare la biometria. Riprova.",
+      "disableDialog": {
+        "title": "Disattiva biometria",
+        "descPart1": "La prossima volta che apri l'app dovrai fare un ",
+        "descBold": "accesso completo",
+        "descPart2": ".",
+        "confirm": "Disattiva"
+      }
+    },
     "signOut": {
       "button": "Disconnetti",
       "title": "Disconnetti",
       "description": "Sei sicuro di voler uscire dall'account?",
+      "descPart1": "Sei sicuro di voler ",
+      "descBold": "disconnetterti",
+      "descPart2": "? Dovrai accedere di nuovo la prossima volta.",
       "confirm": "Disconnetti"
     },
     "providerGoogle": "Google",
@@ -220,6 +257,158 @@
       "terms": "Termini e condizioni",
       "version": "Versione"
     }
+  },
+  "addTransaction": {
+    "title": "Nuova transazione",
+    "typeExpense": "Spesa",
+    "typeIncome": "Entrata",
+    "amountPrefix": "$",
+    "amountPlaceholder": "0",
+    "descriptionPlaceholder": "A cosa l'hai usato?",
+    "categoryLabel": "Categoria",
+    "dateLabel": "Data",
+    "today": "Oggi",
+    "saveButton": "Salva",
+    "saving": "Salvataggio...",
+    "categoryNamePlaceholder": "Nome...",
+    "paymentMethod": "Metodo di pagamento",
+    "noCards": "Aggiungi le tue carte",
+    "noCard": "Senza carta",
+    "installments": "Rate",
+    "installmentSingle": "rata (pagamento unico)",
+    "installmentsPlural": "rate",
+    "installmentAmountPlaceholder": "Es: 26.4",
+    "installmentPreviewEqual": "{{count}} rate da ${{amount}}",
+    "installmentPreviewUnequal": "{{count}} rate da ${{first}} + ultima da ${{last}}",
+    "errors": {
+      "saveFailed": "Impossibile salvare. Riprova."
+    }
+  },
+  "history": {
+    "title": "Cronologia",
+    "incomeLabel": "Entrate",
+    "expensesLabel": "Spese",
+    "noTransactions": "Nessuna transazione",
+    "noTransactionsSub": "Nessun record per questo mese",
+    "edit": {
+      "title": "Modifica transazione",
+      "descriptionLabel": "Descrizione",
+      "amountLabel": "Importo",
+      "categoryLabel": "Categoria",
+      "saveButton": "Salva modifiche",
+      "duplicateButton": "Duplica",
+      "deleteButton": "Elimina",
+      "confirmDelete": "Confermare l'eliminazione?",
+      "confirmDeleteYes": "Sì, elimina",
+      "confirmDeleteCancel": "Annulla",
+      "saving": "Salvataggio...",
+      "deleteError": "Impossibile eliminare. Riprova.",
+      "saveError": "Impossibile salvare. Riprova."
+    },
+    "months": ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"],
+    "weekdays": ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"],
+    "searchPlaceholder": "Cerca transazione..."
+  },
+  "categories": {
+    "title": "Le mie categorie",
+    "defaultSection": "PREDEFINITE",
+    "customSection": "LE MIE CATEGORIE",
+    "emptyCustom": "Non hai ancora categorie personalizzate",
+    "emptyCustomSub": "Tocca + per creare la tua prima categoria",
+    "addButton": "Nuova categoria",
+    "editTitle": "Modifica categoria",
+    "createTitle": "Nuova categoria",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Es: Animali, Debiti...",
+    "typeLabel": "Si applica a",
+    "typeExpense": "Spesa",
+    "typeIncome": "Entrata",
+    "typeBoth": "Entrambi",
+    "iconLabel": "Icona",
+    "iconAuto": "Suggerito automaticamente",
+    "iconSourceAuto": "Suggerito automaticamente",
+    "iconSourceManual": "Scelto manualmente",
+    "iconChange": "Cambia icona",
+    "changeIcon": "Cambia icona",
+    "iconPicker": "Scegli un'icona",
+    "saving": "Salvataggio...",
+    "saveButton": "Salva",
+    "deleteButton": "Elimina categoria",
+    "deleteTitle": "Eliminare la categoria?",
+    "deleteDesc": "Questa azione riassegnerà {{count}} transazione/i a \"Altro\". Non può essere annullata.",
+    "deleteConfirm": "Sì, elimina",
+    "deleteCancel": "Annulla",
+    "deleteError": "Impossibile eliminare. Riprova.",
+    "saveError": "Impossibile salvare. Riprova.",
+    "nameError": "Il nome deve avere almeno 2 caratteri",
+    "manageCategoriesLabel": "Le mie categorie",
+    "suggestingEmoji": "Suggerendo icona...",
+    "names": {
+      "food": "Cibo",
+      "transport": "Trasporti",
+      "health": "Salute",
+      "entertainment": "Intrattenimento",
+      "shopping": "Shopping",
+      "home": "Casa",
+      "salary": "Stipendio",
+      "other": "Altro"
+    }
+  },
+  "budget": {
+    "title": "Budget"
+  },
+  "biometricLock": {
+    "greeting": "Bentornato/a, {{name}}",
+    "greetingFallback": "di nuovo",
+    "subtitle": "Verifica la tua identità per continuare",
+    "error": "Impossibile verificare. Riprova.",
+    "button": "Usa biometria",
+    "signOut": "Disconnetti",
+    "signOutDialog": {
+      "descPart1": "Sei sicuro di voler ",
+      "descBold1": "disconnetterti",
+      "descPart2": "? Dovrai ",
+      "descBold2": "accedere di nuovo",
+      "descPart3": " la prossima volta."
+    }
+  },
+  "selectCards": {
+    "title": "Quali carte hai?",
+    "subtitle": "Seleziona le tue carte per tenere meglio traccia delle spese.",
+    "credit": "Credito",
+    "debit": "Debito",
+    "digitError": "Inserisci esattamente 4 cifre",
+    "saveError": "Impossibile aggiungere la carta",
+    "toastOne": "1 carta aggiunta con successo",
+    "toastMany": "{{n}} carte aggiunte con successo"
+  },
+  "cardsScreen": {
+    "title": "Le mie carte",
+    "empty": "Non hai carte registrate",
+    "emptyHint": "Tocca + per aggiungere la tua prima carta",
+    "credit": "Credito",
+    "debit": "Debito",
+    "deleteDialog": {
+      "title": "Elimina carta",
+      "descPart1": "Se elimini ",
+      "descPart2": ", verranno eliminate anche tutte le ",
+      "descBold2": "transazioni",
+      "descPart3": " associate a questa carta in tutti i mesi. Questa azione è ",
+      "descBoldDanger": "permanente e non può essere annullata.",
+      "primaryLabel": "Elimina tutto"
+    },
+    "deletedSuccess": "Carta eliminata con successo",
+    "deleteError": "Impossibile eliminare la carta"
+  },
+  "cardForm": {
+    "selectBank": "Seleziona la banca",
+    "typeLabel": "Tipo di carta",
+    "credit": "Credito",
+    "debit": "Debito",
+    "lastFourLabel": "Ultime 4 cifre",
+    "addButton": "Aggiungi carta",
+    "digitError": "Inserisci esattamente 4 cifre",
+    "saveError": "Impossibile salvare la carta. Riprova."
   },
   "support": {
     "title": "Casella dei suggerimenti",
