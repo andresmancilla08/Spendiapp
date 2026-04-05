@@ -74,7 +74,9 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    getRedirectResult(auth).catch(() => {});
+    getRedirectResult(auth).catch((err) => {
+      if (process.env.NODE_ENV !== 'production') console.error('[getRedirectResult]', err);
+    });
   }, []);
 
   if (!i18nReady || !fontsLoaded) return null;
