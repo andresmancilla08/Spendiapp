@@ -20,21 +20,25 @@ export function usePwaInstall() {
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
+    let mounted = true;
 
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      if (mounted) setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     const onAppInstalled = () => {
-      setIsStandalone(true);
-      setDeferredPrompt(null);
+      if (mounted) {
+        setIsStandalone(true);
+        setDeferredPrompt(null);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', onBeforeInstall);
     window.addEventListener('appinstalled', onAppInstalled);
 
     return () => {
+      mounted = false;
       window.removeEventListener('beforeinstallprompt', onBeforeInstall);
       window.removeEventListener('appinstalled', onAppInstalled);
     };
