@@ -987,9 +987,11 @@ interface TransactionRowProps {
   onPress: (tx: Transaction) => void;
   onLongPress: (tx: Transaction) => void;
   cardsMap: Record<string, { bankName: string; lastFour: string; type: string }>;
+  onTogglePaid?: (tx: Transaction) => void;
+  paidLoading?: boolean;
 }
 
-function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap }: TransactionRowProps) {
+function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onTogglePaid, paidLoading }: TransactionRowProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
@@ -1004,10 +1006,29 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap }: Transa
     other: t('categories.names.other'),
   };
   const isExpense = item.type === 'expense';
+  const isPaid = item.isPaid === true;
   const card = item.cardId ? cardsMap[item.cardId] : null;
   const descLabel = item.isInstallment
     ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`
     : item.description;
+
+  // Animación del checkmark (scale spring)
+  const checkScale = useRef(new Animated.Value(isPaid ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(checkScale, {
+      toValue: isPaid ? 1 : 0,
+      useNativeDriver: true,
+      bounciness: 12,
+      speed: 20,
+    }).start();
+  }, [isPaid, checkScale]);
+
+  const rowBg = isPaid ? colors.tertiaryLight : 'transparent';
+  const amountColor = isExpense
+    ? (isPaid ? colors.tertiaryDark : colors.error)
+    : colors.secondary;
+  const descOpacity = isPaid ? 0.65 : 1;
 
   return (
     <TouchableOpacity
@@ -1018,12 +1039,43 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap }: Transa
       style={[
         styles.txRow,
         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
+        { backgroundColor: rowBg },
       ]}
     >
-      <View style={[styles.txIconWrap, { backgroundColor: colors.backgroundSecondary }]}>
+      {/* Toggle pagado — solo gastos */}
+      {isExpense && (
+        <TouchableOpacity
+          onPress={() => onTogglePaid?.(item)}
+          disabled={paidLoading}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+          style={styles.paidToggle}
+        >
+          <View
+            style={[
+              styles.paidCircle,
+              isPaid
+                ? { backgroundColor: colors.tertiaryDark, borderColor: colors.tertiaryDark }
+                : { backgroundColor: 'transparent', borderColor: colors.border },
+            ]}
+          >
+            <Animated.View style={{ transform: [{ scale: checkScale }] }}>
+              <Ionicons name="checkmark" size={13} color="#FFFFFF" />
+            </Animated.View>
+          </View>
+        </TouchableOpacity>
+      )}
+
+      {/* Ícono categoría */}
+      <View style={[
+        styles.txIconWrap,
+        { backgroundColor: colors.backgroundSecondary, opacity: descOpacity },
+      ]}>
         <Text style={styles.txIconText}>{cat.icon}</Text>
       </View>
-      <View style={styles.txMeta}>
+
+      {/* Meta */}
+      <View style={[styles.txMeta, { opacity: descOpacity }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
           <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
             {descLabel}
@@ -1055,7 +1107,9 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap }: Transa
           )}
         </View>
       </View>
-      <Text style={[styles.txAmount, { color: isExpense ? colors.error : colors.secondary }]}>
+
+      {/* Monto */}
+      <Text style={[styles.txAmount, { color: amountColor, opacity: descOpacity }]}>
         {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
       </Text>
     </TouchableOpacity>
@@ -1585,6 +1639,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     gap: 12,
+  },
+  paidToggle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+    width: 28,
+    height: 28,
+  },
+  paidCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1.5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   txIconWrap: {
     width: 42,
