@@ -6,15 +6,18 @@ import { GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRe
 import { auth } from '../config/firebase';
 
 /**
- * Devuelve true solo cuando estamos en iOS Safari en modo STANDALONE (PWA instalada).
- * En ese modo específico window.opener es null, por lo que signInWithPopup falla.
- * En Safari regular (simulador, browser normal) se usa signInWithPopup sin problema.
+ * Devuelve true cuando la app corre como PWA instalada (standalone).
+ * En ese modo window.opener es null tanto en iOS Safari como en Android Chrome,
+ * por lo que signInWithPopup falla — se usa signInWithRedirect en su lugar.
+ *
+ * iOS: navigator.standalone === true
+ * Android/Chrome: matchMedia('display-mode: standalone')
  */
-function isIOSStandalone(): boolean {
+function isStandaloneMode(): boolean {
   if (typeof window === 'undefined') return false;
-  const isIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent);
-  const isStandalone = (window.navigator as any).standalone === true;
-  return isIOS && isStandalone;
+  if ((window.navigator as any).standalone === true) return true;
+  if (window.matchMedia('(display-mode: standalone)').matches) return true;
+  return false;
 }
 
 if (Platform.OS !== 'web') {
@@ -50,11 +53,12 @@ export function useGoogleSignIn() {
     if (Platform.OS === 'web') {
       setLoading(true);
       try {
-        if (isIOSStandalone()) {
-          // iOS PWA instalada: redirect porque window.opener es null en standalone
+        if (isStandaloneMode()) {
+          // PWA instalada (iOS o Android): redirect — popup falla porque
+          // window.opener es null en standalone (Chrome Custom Tab / Safari window)
           await signInWithRedirect(auth, new GoogleAuthProvider());
         } else {
-          // Safari normal (simulador, browser), Android Chrome, Desktop: popup funciona
+          // Browser normal (simulador, Safari, Chrome desktop/mobile): popup funciona
           await signInWithPopup(auth, new GoogleAuthProvider());
         }
       } catch {
