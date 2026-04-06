@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opción A — Dark y Light</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #e2e8f0; padding: 20px 16px 48px; }
+h2 { text-align: center; font-size: 19px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+.subtitle { text-align: center; font-size: 12px; color: #94a3b8; margin-bottom: 24px; }
+
+.row-label { text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 12px; padding: 6px 16px; border-radius: 20px; display: inline-block; }
+.dark-label { background: rgba(0,188,212,0.1); color: #00BCD4; border: 1px solid rgba(0,188,212,0.25); }
+.light-label { background: rgba(0,172,193,0.08); color: #00ACC1; border: 1px solid rgba(0,172,193,0.2); }
+
+.section { margin-bottom: 32px; }
+.section-header { display: flex; justify-content: center; margin-bottom: 14px; }
+
+.screens { display: flex; gap: 14px; justify-content: center; align-items: flex-start; }
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.phone { width: 130px; flex-shrink: 0; border-radius: 22px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+.phone-label { font-size: 10px; color: #64748b; }
+
+/* ========== DARK MODE ========== */
+.d-login { height: 240px; background: linear-gradient(150deg,#0D1A1C 0%,#062830 45%,#003840 100%); position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:16px; overflow:hidden; }
+.d-blob1 { position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(0,172,193,0.2);filter:blur(35px); }
+.d-blob2 { position:absolute;bottom:-20px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(0,137,123,0.15);filter:blur(25px); }
+.d-blob3 { position:absolute;top:50%;left:-30px;width:80px;height:80px;border-radius:50%;background:rgba(0,172,193,0.08);filter:blur(15px); }
+.d-topbar { position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:2; }
+.d-toggle { width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(238,246,248,0.2);display:flex;align-items:center;justify-content:center; }
+
+.d-logo-box { width:64px;height:64px;background:rgba(0,172,193,0.12);border:1.5px solid rgba(0,172,193,0.3);border-radius:20px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1; }
+.d-logo-inner { width:36px;height:36px;background:linear-gradient(135deg,#00ACC1,#00897B);border-radius:11px; }
+.d-appname { color:#EEF6F8;font-size:17px;font-weight:800;letter-spacing:-0.4px;position:relative;z-index:1; }
+.d-sub { color:rgba(238,246,248,0.45);font-size:9px;position:relative;z-index:1; }
+.d-btns { width:100%;display:flex;flex-direction:column;gap:7px;position:relative;z-index:1;margin-top:2px; }
+.d-btn-ghost { height:34px;border-radius:50px;border:1.5px solid rgba(238,246,248,0.18);background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;gap:6px; }
+.d-btn-primary { height:34px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00838F);display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 14px rgba(0,172,193,0.3); }
+.d-divider { display:flex;align-items:center;gap:6px; }
+.d-divider-line { flex:1;height:1px;background:rgba(238,246,248,0.08); }
+.d-link { color:rgba(238,246,248,0.35);font-size:8px;position:relative;z-index:1; }
+.d-link b { color:#00BCD4; }
+
+.d-form { height:240px;background:linear-gradient(150deg,#0D1A1C 0%,#062830 55%,#003840 100%);position:relative;display:flex;flex-direction:column;padding:14px;overflow:hidden; }
+.d-form-title { color:#EEF6F8;font-size:14px;font-weight:800;margin-bottom:1px;position:relative;z-index:1; }
+.d-form-sub { color:rgba(238,246,248,0.4);font-size:8px;margin-bottom:12px;position:relative;z-index:1; }
+.d-lbl-row { display:flex;align-items:center;gap:4px;margin-bottom:4px;position:relative;z-index:1; }
+.d-lbl-icon { width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,172,193,0.5); }
+.d-lbl { color:rgba(238,246,248,0.65);font-size:8px;font-weight:600; }
+.d-inp { height:30px;border-radius:10px;border:1.5px solid rgba(0,172,193,0.22);background:rgba(0,172,193,0.07);padding:0 10px 0 28px;display:flex;align-items:center;margin-bottom:10px;position:relative;z-index:1; }
+.d-inp.focus { border-color:#00BCD4;background:rgba(0,188,212,0.1);box-shadow:0 0 0 3px rgba(0,188,212,0.1); }
+.d-inp-icon { position:absolute;left:8px;width:10px;height:10px;border-radius:50%;background:rgba(0,188,212,0.4); }
+.d-pin-row { display:flex;gap:6px;margin-bottom:10px;position:relative;z-index:1; }
+.d-pin-box { width:24px;height:28px;border-radius:8px;background:rgba(0,172,193,0.1);border:1.5px solid rgba(0,172,193,0.25);display:flex;align-items:center;justify-content:center; }
+.d-pin-box.filled { background:rgba(0,172,193,0.18);border-color:rgba(0,188,212,0.5); }
+.d-pin-dot { width:6px;height:6px;border-radius:50%;background:#00BCD4; }
+.d-cta { height:30px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00838F);display:flex;align-items:center;justify-content:center;margin-top:auto;position:relative;z-index:1;box-shadow:0 4px 12px rgba(0,172,193,0.28); }
+.d-cta.disabled { opacity:0.35; box-shadow:none; }
+
+/* ========== LIGHT MODE ========== */
+.l-login { height:240px;background:#FFFFFF;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;overflow:hidden; }
+.l-blob1 { position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:#E0F7FA;opacity:0.7; }
+.l-blob2 { position:absolute;bottom:-30px;left:-30px;width:140px;height:140px;border-radius:50%;background:#E0F2F1;opacity:0.5; }
+.l-blob3 { position:absolute;top:40%;left:-20px;width:80px;height:80px;border-radius:50%;background:#E0F7FA;opacity:0.4; }
+.l-topbar { position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:2; }
+.l-toggle { width:22px;height:22px;border-radius:50%;border:1.5px solid #DDE8EA;display:flex;align-items:center;justify-content:center;background:#F5F9FA; }
+
+.l-logo-box { width:64px;height:64px;background:#E0F7FA;border:1.5px solid rgba(0,172,193,0.25);border-radius:20px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1; }
+.l-logo-inner { width:36px;height:36px;background:linear-gradient(135deg,#00ACC1,#00897B);border-radius:11px; }
+.l-appname { color:#1A2428;font-size:17px;font-weight:800;letter-spacing:-0.4px;position:relative;z-index:1; }
+.l-sub { color:#737879;font-size:9px;position:relative;z-index:1; }
+.l-btns { width:100%;display:flex;flex-direction:column;gap:7px;position:relative;z-index:1;margin-top:2px; }
+.l-btn-ghost { height:34px;border-radius:50px;border:1.5px solid #DDE8EA;background:#FFFFFF;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.l-btn-primary { height:34px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00838F);display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 14px rgba(0,172,193,0.3); }
+.l-divider { display:flex;align-items:center;gap:6px; }
+.l-divider-line { flex:1;height:1px;background:#DDE8EA; }
+.l-link { color:#737879;font-size:8px;position:relative;z-index:1; }
+.l-link b { color:#00ACC1; }
+
+.l-form { height:240px;background:#FFFFFF;position:relative;display:flex;flex-direction:column;padding:14px;overflow:hidden; }
+.l-form-blob { position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:#E0F7FA;opacity:0.6; }
+.l-form-title { color:#1A2428;font-size:14px;font-weight:800;margin-bottom:1px;position:relative;z-index:1; }
+.l-form-sub { color:#737879;font-size:8px;margin-bottom:12px;position:relative;z-index:1; }
+.l-lbl-row { display:flex;align-items:center;gap:4px;margin-bottom:4px;position:relative;z-index:1; }
+.l-lbl-icon { width:10px;height:10px;border-radius:50%;border:1px solid #00ACC1; }
+.l-lbl { color:#1A2428;font-size:8px;font-weight:600; }
+.l-inp { height:30px;border-radius:10px;border:1.5px solid #D0DDE0;background:#F5F9FA;padding:0 10px 0 28px;display:flex;align-items:center;margin-bottom:10px;position:relative;z-index:1; }
+.l-inp.focus { border-color:#00ACC1;background:#fff;box-shadow:0 0 0 3px rgba(0,172,193,0.1); }
+.l-inp-icon { position:absolute;left:8px;width:10px;height:10px;border-radius:50%;background:rgba(0,172,193,0.35); }
+.l-pin-row { display:flex;gap:6px;margin-bottom:10px;position:relative;z-index:1; }
+.l-pin-box { width:24px;height:28px;border-radius:8px;background:#F5F9FA;border:1.5px solid #D0DDE0;display:flex;align-items:center;justify-content:center; }
+.l-pin-box.filled { background:#E0F7FA;border-color:#00ACC1; }
+.l-pin-dot { width:6px;height:6px;border-radius:50%;background:#00ACC1; }
+.l-cta { height:30px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00838F);display:flex;align-items:center;justify-content:center;margin-top:auto;position:relative;z-index:1;box-shadow:0 4px 12px rgba(0,172,193,0.25); }
+.l-cta.disabled { opacity:0.35;box-shadow:none; }
+
+/* Texto util */
+.txt-w { color:#fff;font-size:9px;font-weight:700; }
+.txt-g { color:rgba(238,246,248,0.75);font-size:9px; }
+.txt-d { color:#737879;font-size:9px; }
+.txt-di { color:rgba(238,246,248,0.3);font-size:8px; }
+.txt-li { color:#9EABAF;font-size:8px; }
+.txt-i { color:rgba(238,246,248,0.35);font-size:8px; }
+.txt-il { color:#9EABAF;font-size:8px; }
+</style>
+</head>
+<body>
+
+<h2>Opción A — Dark Mode y Light Mode</h2>
+<p class="subtitle">Ambos modos · Login · Login+PIN · Registro</p>
+
+<!-- DARK -->
+<div class="section">
+  <div class="section-header"><span class="row-label dark-label">🌙 DARK MODE</span></div>
+  <div class="screens">
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="d-login">
+          <div class="d-blob1"></div><div class="d-blob2"></div><div class="d-blob3"></div>
+          <div class="d-topbar"><div class="d-toggle"><span style="color:rgba(238,246,248,0.5);font-size:9px;">☀</span></div></div>
+          <div class="d-logo-box" style="z-index:1;"><div class="d-logo-inner"></div></div>
+          <div class="d-appname">Spendiapp</div>
+          <div class="d-sub">Controla tus finanzas</div>
+          <div class="d-btns">
+            <div class="d-btn-ghost">
+              <div style="width:11px;height:11px;border-radius:50%;background:rgba(238,246,248,0.15);"></div>
+              <span class="txt-g">Continuar con Google</span>
+            </div>
+            <div class="d-divider"><div class="d-divider-line"></div><span class="txt-di">o</span><div class="d-divider-line"></div></div>
+            <div class="d-btn-primary">
+              <div style="width:11px;height:11px;border-radius:2px;background:rgba(255,255,255,0.3);"></div>
+              <span class="txt-w">Continuar con Email</span>
+            </div>
+          </div>
+          <div class="d-link">¿Sin cuenta? <b>Regístrate</b></div>
+        </div>
+      </div>
+      <div class="phone-label">Login</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="d-form">
+          <div class="d-blob1" style="width:120px;height:120px;top:-30px;right:-30px;"></div>
+          <div class="d-form-title">Hola de nuevo</div>
+          <div class="d-form-sub">Ingresa tu email y PIN de acceso</div>
+          <div class="d-lbl-row"><div class="d-lbl-icon"></div><span class="d-lbl">Correo electrónico</span></div>
+          <div class="d-inp focus" style="position:relative;">
+            <div class="d-inp-icon"></div>
+            <span class="txt-i">andres@email.com</span>
+          </div>
+          <div class="d-lbl-row"><div class="d-lbl-icon"></div><span class="d-lbl">PIN de acceso</span></div>
+          <div class="d-pin-row">
+            <div class="d-pin-box filled"><div class="d-pin-dot"></div></div>
+            <div class="d-pin-box filled"><div class="d-pin-dot"></div></div>
+            <div class="d-pin-box"></div>
+            <div class="d-pin-box"></div>
+          </div>
+          <div class="d-cta"><span class="txt-w">Continuar →</span></div>
+        </div>
+      </div>
+      <div class="phone-label">Login + PIN</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="d-form">
+          <div class="d-blob1" style="width:120px;height:120px;top:-30px;right:-30px;"></div>
+          <div class="d-form-title">Crear cuenta</div>
+          <div class="d-form-sub">Únete a Spendiapp hoy</div>
+          <div class="d-lbl-row"><div class="d-lbl-icon"></div><span class="d-lbl">Nombre</span></div>
+          <div class="d-inp" style="position:relative;"><div class="d-inp-icon"></div><span class="txt-i">Tu nombre</span></div>
+          <div class="d-lbl-row"><div class="d-lbl-icon"></div><span class="d-lbl">Email</span></div>
+          <div class="d-inp" style="position:relative;"><div class="d-inp-icon"></div><span class="txt-i">tu@email.com</span></div>
+          <div class="d-lbl-row"><div class="d-lbl-icon"></div><span class="d-lbl">PIN de 4 dígitos</span></div>
+          <div class="d-pin-row">
+            <div class="d-pin-box"></div><div class="d-pin-box"></div>
+            <div class="d-pin-box"></div><div class="d-pin-box"></div>
+          </div>
+          <div class="d-cta disabled"><span class="txt-w">Continuar →</span></div>
+        </div>
+      </div>
+      <div class="phone-label">Registro</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- LIGHT -->
+<div class="section">
+  <div class="section-header"><span class="row-label light-label">☀️ LIGHT MODE</span></div>
+  <div class="screens">
+
+    <div class="phone-wrap">
+      <div class="phone" style="box-shadow:0 8px 32px rgba(0,0,0,0.2);border:1px solid #DDE8EA;">
+        <div class="l-login">
+          <div class="l-blob1"></div><div class="l-blob2"></div><div class="l-blob3"></div>
+          <div class="l-topbar"><div class="l-toggle"><span style="color:#9EABAF;font-size:9px;">🌙</span></div></div>
+          <div class="l-logo-box" style="z-index:1;"><div class="l-logo-inner"></div></div>
+          <div class="l-appname">Spendiapp</div>
+          <div class="l-sub">Controla tus finanzas</div>
+          <div class="l-btns">
+            <div class="l-btn-ghost">
+              <div style="width:11px;height:11px;border-radius:50%;background:#F5F9FA;border:1px solid #DDE8EA;"></div>
+              <span class="txt-d">Continuar con Google</span>
+            </div>
+            <div class="l-divider"><div class="l-divider-line"></div><span style="color:#9EABAF;font-size:8px;">o</span><div class="l-divider-line"></div></div>
+            <div class="l-btn-primary">
+              <div style="width:11px;height:11px;border-radius:2px;background:rgba(255,255,255,0.35);"></div>
+              <span class="txt-w">Continuar con Email</span>
+            </div>
+          </div>
+          <div class="l-link">¿Sin cuenta? <b>Regístrate</b></div>
+        </div>
+      </div>
+      <div class="phone-label">Login</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone" style="box-shadow:0 8px 32px rgba(0,0,0,0.2);border:1px solid #DDE8EA;">
+        <div class="l-form">
+          <div class="l-form-blob"></div>
+          <div class="l-form-title">Hola de nuevo</div>
+          <div class="l-form-sub">Ingresa tu email y PIN de acceso</div>
+          <div class="l-lbl-row"><div class="l-lbl-icon"></div><span class="l-lbl">Correo electrónico</span></div>
+          <div class="l-inp focus" style="position:relative;">
+            <div class="l-inp-icon"></div>
+            <span class="txt-il">andres@email.com</span>
+          </div>
+          <div class="l-lbl-row"><div class="l-lbl-icon"></div><span class="l-lbl">PIN de acceso</span></div>
+          <div class="l-pin-row">
+            <div class="l-pin-box filled"><div class="l-pin-dot"></div></div>
+            <div class="l-pin-box filled"><div class="l-pin-dot"></div></div>
+            <div class="l-pin-box"></div>
+            <div class="l-pin-box"></div>
+          </div>
+          <div class="l-cta"><span class="txt-w">Continuar →</span></div>
+        </div>
+      </div>
+      <div class="phone-label">Login + PIN</div>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone" style="box-shadow:0 8px 32px rgba(0,0,0,0.2);border:1px solid #DDE8EA;">
+        <div class="l-form">
+          <div class="l-form-blob"></div>
+          <div class="l-form-title">Crear cuenta</div>
+          <div class="l-form-sub">Únete a Spendiapp hoy</div>
+          <div class="l-lbl-row"><div class="l-lbl-icon"></div><span class="l-lbl">Nombre</span></div>
+          <div class="l-inp" style="position:relative;"><div class="l-inp-icon"></div><span class="txt-il">Tu nombre</span></div>
+          <div class="l-lbl-row"><div class="l-lbl-icon"></div><span class="l-lbl">Email</span></div>
+          <div class="l-inp" style="position:relative;"><div class="l-inp-icon"></div><span class="txt-il">tu@email.com</span></div>
+          <div class="l-lbl-row"><div class="l-lbl-icon"></div><span class="l-lbl">PIN de 4 dígitos</span></div>
+          <div class="l-pin-row">
+            <div class="l-pin-box"></div><div class="l-pin-box"></div>
+            <div class="l-pin-box"></div><div class="l-pin-box"></div>
+          </div>
+          <div class="l-cta disabled"><span class="txt-w">Continuar →</span></div>
+        </div>
+      </div>
+      <div class="phone-label">Registro</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

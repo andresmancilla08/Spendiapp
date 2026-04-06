@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A vs C — Flujo completo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #e2e8f0; padding: 24px 16px 48px; }
+  h2 { text-align: center; font-size: 20px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
+  .subtitle { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 28px; }
+
+  .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 900px; margin: 0 auto; }
+  .col-label { text-align: center; font-size: 14px; font-weight: 700; color: #94a3b8; margin-bottom: 14px; letter-spacing: 0.5px; }
+  .col-label span { color: #00BCD4; }
+
+  .screens { display: flex; gap: 12px; justify-content: center; align-items: flex-start; }
+  .phone { width: 120px; flex-shrink: 0; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); border: 1.5px solid rgba(255,255,255,0.08); }
+  .phone-label { text-align: center; font-size: 10px; color: #64748b; margin-top: 6px; }
+
+  /* ---- ESTILO A ---- */
+  .a-login { height: 220px; background: linear-gradient(150deg, #0D1A1C 0%, #062830 45%, #00374A 100%); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; overflow: hidden; }
+  .a-login .blob1 { position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(0,172,193,0.18);filter:blur(28px); }
+  .a-login .blob2 { position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;border-radius:50%;background:rgba(0,137,123,0.15);filter:blur(20px); }
+  .a-logo-box { width:56px;height:56px;background:rgba(0,172,193,0.15);border:1.5px solid rgba(0,172,193,0.35);border-radius:18px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1; }
+  .a-logo-inner { width:30px;height:30px;background:linear-gradient(135deg,#00ACC1,#00897B);border-radius:9px; }
+  .a-appname { color:#EEF6F8;font-size:16px;font-weight:800;letter-spacing:-0.3px;position:relative;z-index:1; }
+  .a-sub { color:rgba(238,246,248,0.5);font-size:9px;position:relative;z-index:1; }
+  .a-btns { width:100%;display:flex;flex-direction:column;gap:7px;position:relative;z-index:1; }
+  .a-btn-ghost { height:32px;border-radius:50px;border:1.5px solid rgba(238,246,248,0.2);background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;gap:5px; }
+  .a-btn-primary { height:32px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00838F);display:flex;align-items:center;justify-content:center;gap:5px; }
+  .a-btn-text { color:rgba(238,246,248,0.85);font-size:9px;font-weight:600; }
+  .a-btn-text-w { color:#fff;font-size:9px;font-weight:700; }
+  .a-link { color:rgba(238,246,248,0.4);font-size:8px;position:relative;z-index:1; }
+  .a-link span { color:#00BCD4; }
+
+  .a-form { height:220px;background:linear-gradient(150deg,#0D1A1C 0%,#062830 60%,#003840 100%);position:relative;display:flex;flex-direction:column;padding:12px;gap:0;overflow:hidden; }
+  .a-form .blob1 { position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(0,172,193,0.12);filter:blur(20px); }
+  .a-form-title { color:#EEF6F8;font-size:13px;font-weight:800;margin-bottom:2px;position:relative;z-index:1; }
+  .a-form-sub { color:rgba(238,246,248,0.45);font-size:8px;margin-bottom:12px;position:relative;z-index:1; }
+  .a-label { color:rgba(238,246,248,0.7);font-size:8px;font-weight:600;margin-bottom:4px;position:relative;z-index:1; }
+  .a-input { height:28px;border-radius:10px;border:1.5px solid rgba(0,172,193,0.25);background:rgba(0,172,193,0.08);padding:0 10px 0 28px;display:flex;align-items:center;margin-bottom:10px;position:relative;z-index:1; }
+  .a-input-active { border-color:rgba(0,188,212,0.7);background:rgba(0,188,212,0.1); }
+  .a-input-icon { position:absolute;left:8px;width:10px;height:10px;border-radius:50%;background:rgba(0,188,212,0.4); }
+  .a-input-text { color:rgba(238,246,248,0.35);font-size:8px; }
+  .a-pin-row { display:flex;gap:6px;justify-content:center;margin-bottom:10px;position:relative;z-index:1; }
+  .a-pin-box { width:22px;height:26px;border-radius:8px;background:rgba(0,172,193,0.12);border:1.5px solid rgba(0,172,193,0.25);display:flex;align-items:center;justify-content:center; }
+  .a-pin-dot { width:6px;height:6px;border-radius:50%;background:rgba(0,188,212,0.6); }
+  .a-cta { height:28px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00838F);display:flex;align-items:center;justify-content:center;margin-top:auto;position:relative;z-index:1; }
+  .a-cta-text { color:#fff;font-size:9px;font-weight:700; }
+
+  /* ---- ESTILO C ---- */
+  .c-login { height:220px;background:#0D1A1C;position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:14px 14px 14px;overflow:hidden; }
+  .c-ring1 { position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;border:1px solid rgba(0,172,193,0.15); }
+  .c-ring2 { position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;border:1px solid rgba(0,172,193,0.25); }
+  .c-dot { position:absolute;top:28px;right:28px;width:8px;height:8px;border-radius:50%;background:#00ACC1; }
+  .c-topbar { display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1; }
+  .c-logo-mini { width:28px;height:28px;background:rgba(0,172,193,0.2);border-radius:8px;border:1px solid rgba(0,172,193,0.3); }
+  .c-toggle { width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(238,246,248,0.2); }
+  .c-hero { position:relative;z-index:1; }
+  .c-eyebrow { color:#00BCD4;font-size:7px;font-weight:700;letter-spacing:2px;margin-bottom:4px; }
+  .c-headline { color:#EEF6F8;font-size:22px;font-weight:800;line-height:1.1;letter-spacing:-0.8px; }
+  .c-tagline { color:rgba(238,246,248,0.4);font-size:8px;margin-top:4px; }
+  .c-btns { display:flex;flex-direction:column;gap:7px;position:relative;z-index:1; }
+  .c-btn-primary { height:32px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00897B);display:flex;align-items:center;justify-content:center; }
+  .c-btn-ghost { height:32px;border-radius:50px;border:1.5px solid rgba(0,172,193,0.35);background:rgba(0,172,193,0.07);display:flex;align-items:center;justify-content:center; }
+  .c-btn-t { color:#fff;font-size:9px;font-weight:700; }
+  .c-btn-tg { color:rgba(238,246,248,0.7);font-size:9px; }
+
+  .c-form { height:220px;background:#0D1A1C;position:relative;display:flex;flex-direction:column;padding:12px;overflow:hidden; }
+  .c-form .c-ring1 { top:-40px;right:-40px;width:130px;height:130px; }
+  .c-form-eyebrow { color:#00BCD4;font-size:7px;font-weight:700;letter-spacing:2px;margin-bottom:3px;position:relative;z-index:1; }
+  .c-form-title { color:#EEF6F8;font-size:15px;font-weight:800;letter-spacing:-0.3px;margin-bottom:2px;position:relative;z-index:1; }
+  .c-form-sub { color:rgba(238,246,248,0.4);font-size:8px;margin-bottom:10px;position:relative;z-index:1; }
+  .c-label-row { display:flex;align-items:center;gap:4px;margin-bottom:4px;position:relative;z-index:1; }
+  .c-label-icon { width:8px;height:8px;border-radius:50%;border:1px solid rgba(0,172,193,0.5); }
+  .c-label { color:rgba(238,246,248,0.65);font-size:8px;font-weight:600; }
+  .c-input { height:28px;border-radius:10px;border:1.5px solid rgba(0,172,193,0.2);background:rgba(0,172,193,0.06);padding:0 10px 0 28px;display:flex;align-items:center;margin-bottom:8px;position:relative;z-index:1; }
+  .c-input-active { border-color:#00BCD4;box-shadow:0 0 0 2px rgba(0,188,212,0.15); }
+  .c-pin-row { display:flex;gap:6px;margin-bottom:8px;position:relative;z-index:1; }
+  .c-pin-box { width:22px;height:26px;border-radius:8px;background:rgba(0,172,193,0.08);border:1.5px solid rgba(0,172,193,0.2);display:flex;align-items:center;justify-content:center; }
+  .c-pin-dot { width:6px;height:6px;border-radius:50%;background:#00BCD4; }
+  .c-cta { height:28px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00838F);display:flex;align-items:center;justify-content:center;margin-top:auto;position:relative;z-index:1;box-shadow:0 4px 12px rgba(0,172,193,0.3); }
+
+  .divider { width:1px;background:rgba(255,255,255,0.08);margin:0 4px; }
+
+  .choose-section { max-width:900px;margin:28px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+  .choice-btn { border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center; }
+  .choice-btn:hover { border-color:rgba(0,172,193,0.5);background:rgba(0,172,193,0.08); }
+  .choice-btn.selected { border-color:#00BCD4;background:rgba(0,188,212,0.12); }
+  .choice-btn h3 { color:#f8fafc;font-size:14px;font-weight:700;margin-bottom:4px; }
+  .choice-btn p { color:#94a3b8;font-size:12px; }
+  .choice-letter { font-size:28px;font-weight:800;color:#00BCD4;margin-bottom:8px; }
+</style>
+<script>
+function select(id) {
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(id).classList.add('selected');
+  if(window.parent !== window) {
+    window.parent.postMessage({type:'click',choice:id.replace('btn-',''),text:document.querySelector('#'+id+' h3').textContent},'*');
+  }
+}
+</script>
+</head>
+<body>
+<h2>Estilo A vs Estilo C — Las 3 pantallas</h2>
+<p class="subtitle">Login principal · Login con email+PIN · Registro</p>
+
+<div class="columns">
+
+  <!-- COLUMNA A -->
+  <div>
+    <div class="col-label">Opción <span>A</span> — Gradient Profundo</div>
+    <div class="screens">
+      <!-- Login A -->
+      <div>
+        <div class="phone">
+          <div class="a-login">
+            <div class="blob1"></div><div class="blob2"></div>
+            <div class="a-logo-box"><div class="a-logo-inner"></div></div>
+            <div class="a-appname">Spendiapp</div>
+            <div class="a-sub">Controla tus finanzas</div>
+            <div class="a-btns" style="margin-top:4px;">
+              <div class="a-btn-ghost"><div style="width:10px;height:10px;border-radius:50%;background:rgba(238,246,248,0.2);margin-right:4px;"></div><span class="a-btn-text">Google</span></div>
+              <div style="display:flex;align-items:center;gap:4px;justify-content:center;"><div style="flex:1;height:1px;background:rgba(238,246,248,0.1);"></div><span style="color:rgba(238,246,248,0.3);font-size:8px;">o</span><div style="flex:1;height:1px;background:rgba(238,246,248,0.1);"></div></div>
+              <div class="a-btn-primary"><span class="a-btn-text-w">✉ Email</span></div>
+            </div>
+            <div class="a-link">¿Sin cuenta? <span>Regístrate</span></div>
+          </div>
+        </div>
+        <div class="phone-label">Login</div>
+      </div>
+      <!-- Login email A -->
+      <div>
+        <div class="phone">
+          <div class="a-form">
+            <div class="blob1"></div>
+            <div class="a-form-title">Hola de nuevo</div>
+            <div class="a-form-sub">Ingresa tu email y PIN</div>
+            <div class="a-label">✉ Correo electrónico</div>
+            <div class="a-input a-input-active"><div class="a-input-icon"></div><span class="a-input-text">tu@email.com</span></div>
+            <div class="a-label">🔒 PIN de acceso</div>
+            <div class="a-pin-row">
+              <div class="a-pin-box"><div class="a-pin-dot"></div></div>
+              <div class="a-pin-box"><div class="a-pin-dot"></div></div>
+              <div class="a-pin-box"></div>
+              <div class="a-pin-box"></div>
+            </div>
+            <div class="a-cta"><span class="a-cta-text">Continuar →</span></div>
+          </div>
+        </div>
+        <div class="phone-label">Login PIN</div>
+      </div>
+      <!-- Register A -->
+      <div>
+        <div class="phone">
+          <div class="a-form">
+            <div class="blob1"></div>
+            <div class="a-form-title">Crear cuenta</div>
+            <div class="a-form-sub">Únete a Spendiapp</div>
+            <div class="a-label">👤 Nombre</div>
+            <div class="a-input"><span class="a-input-text">Tu nombre</span></div>
+            <div class="a-label">✉ Email</div>
+            <div class="a-input"><span class="a-input-text">tu@email.com</span></div>
+            <div class="a-label">🔒 Crea tu PIN</div>
+            <div class="a-pin-row">
+              <div class="a-pin-box"></div><div class="a-pin-box"></div>
+              <div class="a-pin-box"></div><div class="a-pin-box"></div>
+            </div>
+            <div class="a-cta" style="opacity:0.4;"><span class="a-cta-text">Continuar →</span></div>
+          </div>
+        </div>
+        <div class="phone-label">Registro</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUMNA C -->
+  <div>
+    <div class="col-label">Opción <span>C</span> — Editorial Inmersivo</div>
+    <div class="screens">
+      <!-- Login C -->
+      <div>
+        <div class="phone">
+          <div class="c-login">
+            <div class="c-ring1"></div><div class="c-ring2"></div><div class="c-dot"></div>
+            <div class="c-topbar">
+              <div class="c-logo-mini"></div>
+              <div class="c-toggle"></div>
+            </div>
+            <div class="c-hero">
+              <div class="c-eyebrow">SPENDIAPP</div>
+              <div class="c-headline">Controla<br/>tu dinero.</div>
+              <div class="c-tagline">Finanzas para Colombia 🇨🇴</div>
+            </div>
+            <div class="c-btns">
+              <div class="c-btn-primary"><span class="c-btn-t">✉ Continuar con Email</span></div>
+              <div class="c-btn-ghost"><span class="c-btn-tg">G · Continuar con Google</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-label">Login</div>
+      </div>
+      <!-- Login email C -->
+      <div>
+        <div class="phone">
+          <div class="c-form">
+            <div class="c-ring1"></div>
+            <div class="c-form-eyebrow">ACCEDER</div>
+            <div class="c-form-title">Hola de nuevo</div>
+            <div class="c-form-sub">Email + PIN de 4 dígitos</div>
+            <div class="c-label-row"><div class="c-label-icon"></div><span class="c-label">Correo electrónico</span></div>
+            <div class="c-input c-input-active"><span style="color:rgba(238,246,248,0.4);font-size:8px;">tu@email.com</span></div>
+            <div class="c-label-row"><div class="c-label-icon" style="border-color:rgba(0,172,193,0.5);"></div><span class="c-label">PIN de acceso</span></div>
+            <div class="c-pin-row">
+              <div class="c-pin-box"><div class="c-pin-dot"></div></div>
+              <div class="c-pin-box"><div class="c-pin-dot"></div></div>
+              <div class="c-pin-box"></div>
+              <div class="c-pin-box"></div>
+            </div>
+            <div class="c-cta"><span style="color:#fff;font-size:9px;font-weight:700;">Continuar →</span></div>
+          </div>
+        </div>
+        <div class="phone-label">Login PIN</div>
+      </div>
+      <!-- Register C -->
+      <div>
+        <div class="phone">
+          <div class="c-form">
+            <div class="c-ring1"></div>
+            <div class="c-form-eyebrow">REGISTRO</div>
+            <div class="c-form-title">Únete</div>
+            <div class="c-form-sub">Crea tu cuenta</div>
+            <div class="c-label-row"><div class="c-label-icon"></div><span class="c-label">Nombre</span></div>
+            <div class="c-input"><span style="color:rgba(238,246,248,0.3);font-size:8px;">Tu nombre</span></div>
+            <div class="c-label-row"><div class="c-label-icon"></div><span class="c-label">Email</span></div>
+            <div class="c-input"><span style="color:rgba(238,246,248,0.3);font-size:8px;">tu@email.com</span></div>
+            <div class="c-label-row"><div class="c-label-icon"></div><span class="c-label">PIN</span></div>
+            <div class="c-pin-row">
+              <div class="c-pin-box"></div><div class="c-pin-box"></div>
+              <div class="c-pin-box"></div><div class="c-pin-box"></div>
+            </div>
+            <div class="c-cta" style="opacity:0.35;"><span style="color:#fff;font-size:9px;font-weight:700;">Continuar →</span></div>
+          </div>
+        </div>
+        <div class="phone-label">Registro</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="choose-section">
+  <div class="choice-btn" id="btn-a" onclick="select('btn-a')">
+    <div class="choice-letter">A</div>
+    <h3>Gradient Profundo</h3>
+    <p>Fondo oscuro con blobs de luz, logo con contenedor, botones con gradiente. Cálido y envolvente.</p>
+  </div>
+  <div class="choice-btn" id="btn-c" onclick="select('btn-c')">
+    <div class="choice-letter">C</div>
+    <h3>Editorial Inmersivo</h3>
+    <p>Tipografía grande, anillos geométricos, eyebrow text, layout bold. Minimalista y premium.</p>
+  </div>
+</div>
+</body>
+</html>

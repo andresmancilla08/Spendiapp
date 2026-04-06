@@ -1,0 +1,111 @@
+<h2>¿Cómo mostrar los bancos?</h2>
+<p class="subtitle">Elige el estilo de identificación visual para cada banco en la lista</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="A" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <!-- Bancolombia -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+        <div style="width:40px;height:40px;border-radius:12px;background:#FFD100;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#1a1a1a;flex-shrink:0">BC</div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Bancolombia</div>
+          <div style="font-size:11px;color:#888">•••• 4521 · Crédito</div>
+        </div>
+      </div>
+      <!-- Nequi -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+        <div style="width:40px;height:40px;border-radius:12px;background:#7B2FBE;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:white;flex-shrink:0">NQ</div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Nequi</div>
+          <div style="font-size:11px;color:#888">•••• 7890 · Débito</div>
+        </div>
+      </div>
+      <!-- Davivienda -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+        <div style="width:40px;height:40px;border-radius:12px;background:#E01A24;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:white;flex-shrink:0">DV</div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Davivienda</div>
+          <div style="font-size:11px;color:#888">•••• 1234 · Débito</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Iniciales con color de marca</h3>
+      <p>Círculo/cuadro redondeado con las 2 iniciales del banco y el color corporativo de cada uno. Sin dependencias externas, funciona offline, fácil de mantener.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="B" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <!-- Bancolombia SVG-like -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+        <div style="width:40px;height:40px;border-radius:12px;background:#FFD100;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+          <svg viewBox="0 0 40 40" width="40" height="40"><rect width="40" height="40" fill="#FFD100"/><text x="20" y="26" text-anchor="middle" font-size="18" font-weight="800" fill="#1a1a1a">B</text></svg>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Bancolombia</div>
+          <div style="font-size:11px;color:#888">•••• 4521 · Crédito</div>
+        </div>
+      </div>
+      <!-- Nubank -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+        <div style="width:40px;height:40px;border-radius:50%;background:#820AD1;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="20" r="20" fill="#820AD1"/><text x="20" y="26" text-anchor="middle" font-size="18" font-weight="800" fill="white">N</text></svg>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Nubank</div>
+          <div style="font-size:11px;color:#888">•••• 7890 · Crédito</div>
+        </div>
+      </div>
+      <!-- BBVA -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+        <div style="width:40px;height:40px;border-radius:12px;background:#004B8D;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg viewBox="0 0 40 40" width="40" height="40"><rect width="40" height="40" rx="10" fill="#004B8D"/><text x="20" y="27" text-anchor="middle" font-size="13" font-weight="800" fill="white">BBVA</text></svg>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:14px">BBVA</div>
+          <div style="font-size:11px;color:#888">•••• 5566 · Débito</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — SVG inline por banco</h3>
+      <p>SVGs construidos a mano con el color corporativo y forma exacta del logo (letra inicial estilizada, no logo oficial). Más fiel visualmente, igual de offline. Requiere crear 17 SVGs.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="C" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8f9fa;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <!-- Con imagen remota placeholder -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+        <div style="width:40px;height:40px;border-radius:12px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:1px solid #e0e0e0">
+          <img src="https://cdn.brandfetch.io/bancolombia.com/w/400/h/400" style="width:36px;height:36px;object-fit:contain" onerror="this.style.display='none';this.parentNode.innerHTML='<span style=font-size:10px;color:#888>img</span>'" />
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Bancolombia</div>
+          <div style="font-size:11px;color:#888">•••• 4521 · Crédito</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+        <div style="width:40px;height:40px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #e0e0e0">
+          <img src="https://cdn.brandfetch.io/nequi.com.co/w/400/h/400" style="width:36px;height:36px;object-fit:contain" onerror="this.style.display='none';this.parentNode.innerHTML='<span style=font-size:10px;color:#888>img</span>'" />
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Nequi</div>
+          <div style="font-size:11px;color:#888">•••• 7890 · Débito</div>
+        </div>
+      </div>
+      <div style="padding:10px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404">
+        ⚠️ Si no hay internet los logos no cargan y queda un espacio vacío
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Logos remotos (CDN)</h3>
+      <p>Imágenes oficiales desde un CDN de logos como Brandfetch. Logos perfectos sin trabajo manual, pero requieren internet — si falla la red los íconos desaparecen.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">Mira en <strong>http://localhost:55411</strong> · Haz click en tu opción preferida y cuéntame qué piensas</p>
