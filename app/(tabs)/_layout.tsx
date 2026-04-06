@@ -5,7 +5,10 @@ export default function TabsLayout() {
   return (
     <Tabs
       tabBar={(props) => <AppTabBar {...props} />}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{
+        headerShown: false,
+        animation: 'shift',
+      }}
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="budget" />

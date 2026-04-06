@@ -83,7 +83,13 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationDuration: 280,
+          }}
+        />
       </ToastProvider>
     </ThemeProvider>
   );
