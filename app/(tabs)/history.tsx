@@ -1058,15 +1058,15 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
     setTimeout(() => onTogglePaid?.(item), 180);
   }, [snapClose, onTogglePaid, item]);
 
-  const rowBg = isPaid ? colors.tertiaryLight : colors.surface;
-  const amountColor = isExpense ? (isPaid ? colors.tertiaryDark : colors.error) : colors.secondary;
+  const rowBg = isPaid ? colors.primaryLight : colors.surface;
+  const amountColor = isExpense ? (isPaid ? colors.primaryDark : colors.error) : colors.secondary;
 
   return (
     <View
       style={[
         styles.txSwipeContainer,
         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
-        isExpense && !isPaid && { borderRightWidth: 4, borderRightColor: colors.tertiary },
+        isExpense && !isPaid && { borderRightWidth: 4, borderRightColor: colors.primaryDark },
       ]}
     >
       {/* Action button — revealed on swipe left */}
@@ -1077,19 +1077,13 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
           activeOpacity={0.85}
           style={[
             styles.txActionBtn,
-            { width: ACTION_WIDTH, backgroundColor: colors.tertiaryDark },
+            { width: ACTION_WIDTH, backgroundColor: colors.primary },
           ]}
         >
-          {paidLoading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <>
-              <Ionicons name={isPaid ? 'close-circle-outline' : 'checkmark-circle-outline'} size={22} color="#FFFFFF" />
-              <Text style={[styles.txActionLabel, { fontFamily: Fonts.semiBold }]}>
-                {isPaid ? t('history.swipe.unmark') : t('history.swipe.mark')}
-              </Text>
-            </>
-          )}
+          <Ionicons name={isPaid ? 'close-circle-outline' : 'checkmark-circle-outline'} size={22} color="#FFFFFF" />
+          <Text style={[styles.txActionLabel, { fontFamily: Fonts.semiBold }]}>
+            {isPaid ? t('history.swipe.unmark') : t('history.swipe.mark')}
+          </Text>
         </TouchableOpacity>
       )}
 
@@ -1138,9 +1132,14 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
               )}
             </View>
           </View>
-          <Text style={[styles.txAmount, { color: amountColor }]}>
-            {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
-          </Text>
+          {/* Monto o spinner de loading */}
+          {paidLoading ? (
+            <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
+          ) : (
+            <Text style={[styles.txAmount, { color: amountColor }]}>
+              {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
+            </Text>
+          )}
         </TouchableOpacity>
       </Animated.View>
     </View>

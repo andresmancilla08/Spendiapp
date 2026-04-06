@@ -61,6 +61,12 @@ export function useTransactions(userId: string, year: number, month: number, ref
           date: (d.date as Timestamp).toDate(),
           createdAt: (d.createdAt as Timestamp).toDate(),
           isFixed: d.isFixed ?? false,
+          isPaid: d.isPaid ?? false,
+          cardId: d.cardId,
+          installmentGroupId: d.installmentGroupId,
+          installmentNumber: d.installmentNumber,
+          installmentTotal: d.installmentTotal,
+          isInstallment: d.isInstallment ?? false,
         };
       }));
       setError(null);
