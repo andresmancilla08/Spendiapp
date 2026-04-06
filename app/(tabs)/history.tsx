@@ -530,7 +530,7 @@ function TransactionDetailSheet({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { height: screenHeight } = useWindowDimensions();
-  const SHEET_HEIGHT = Math.round(screenHeight * 0.90);
+  const MAX_SHEET_HEIGHT = Math.round(screenHeight * 0.90);
 
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -627,9 +627,11 @@ function TransactionDetailSheet({
     }
   };
 
+  // Arranca desde screenHeight para que siempre empiece fuera de pantalla
+  // sin importar la altura real del contenido
   const translateY = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [SHEET_HEIGHT, 0],
+    outputRange: [screenHeight, 0],
   });
 
   if (!transaction) return null;
@@ -676,11 +678,11 @@ function TransactionDetailSheet({
       <Animated.View
         style={[
           styles.sheetWrapper,
-          { height: SHEET_HEIGHT, transform: [{ translateY }] },
+          { maxHeight: MAX_SHEET_HEIGHT, transform: [{ translateY }] },
         ]}
         pointerEvents="box-none"
       >
-        <View style={[styles.sheet, { backgroundColor: colors.surface, height: SHEET_HEIGHT }]}>
+        <View style={[styles.sheet, { backgroundColor: colors.surface }]}>
           {/* Drag handle */}
           <View style={styles.dragHandleRow}>
             <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
