@@ -3,6 +3,8 @@ import { Platform } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { onAuthStateChanged } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
+import { getRedirectResult } from 'firebase/auth';
+import { auth } from '../config/firebase';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
 import { ThemeProvider } from '../context/ThemeContext';
@@ -32,6 +34,12 @@ export default function RootLayout() {
       setLoading(false);
     });
     return unsubscribe;
+  }, []);
+
+  // Procesar resultado de signInWithRedirect (Android Chrome PWA)
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    getRedirectResult(auth).catch(() => {});
   }, []);
 
 

@@ -52,24 +52,30 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
           ? colors.primaryLight
           : colors.backgroundSecondary;
         return (
-          <TextInput
-            key={i}
-            ref={(r) => { inputs.current[i] = r; }}
-            style={[
-              styles.box,
-              { borderColor, backgroundColor: bg, color: colors.primary },
-              focused && styles.boxFocused,
-            ]}
-            value={value[i] ? '•' : ''}
-            onChangeText={(t) => handleChange(t, i)}
-            onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
-            onFocus={() => setFocusedIndex(i)}
-            onBlur={() => setFocusedIndex(null)}
-            keyboardType="numeric"
-            maxLength={1}
-            textAlign="center"
-            caretHidden
-          />
+          <View key={i} style={{ position: 'relative' }}>
+            <TextInput
+              ref={(r) => { inputs.current[i] = r; }}
+              style={[
+                styles.box,
+                { borderColor, backgroundColor: bg, color: 'transparent' },
+                focused && styles.boxFocused,
+              ]}
+              value={value[i] ? '•' : ''}
+              onChangeText={(t) => handleChange(t, i)}
+              onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
+              onFocus={() => setFocusedIndex(i)}
+              onBlur={() => setFocusedIndex(null)}
+              keyboardType="numeric"
+              maxLength={1}
+              textAlign="center"
+              caretHidden
+            />
+            {!!value[i] && (
+              <View style={styles.dotOverlay} pointerEvents="none">
+                <Text style={[styles.dotText, { color: colors.primary }]}>•</Text>
+              </View>
+            )}
+          </View>
         );
       })}
     </View>
@@ -90,6 +96,16 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     fontSize: 28,
     fontFamily: Fonts.bold,
+  },
+  dotOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotText: {
+    fontSize: 28,
+    fontFamily: Fonts.bold,
+    lineHeight: 32,
   },
   boxFocused: {
     borderWidth: 2,

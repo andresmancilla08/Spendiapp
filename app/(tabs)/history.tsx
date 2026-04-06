@@ -509,7 +509,7 @@ function TransactionDetailSheet({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { height: screenHeight } = useWindowDimensions();
-  const SHEET_HEIGHT = Math.round(screenHeight * 0.72);
+  const SHEET_HEIGHT = Math.round(screenHeight * 0.90);
 
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -1442,7 +1442,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: Fonts.regular,
     paddingVertical: 0,
   },
@@ -1635,7 +1635,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   textInput: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: Fonts.regular,
   },
 
