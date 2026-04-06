@@ -863,94 +863,93 @@ function TransactionDetailSheet({
               )}
             </View>
 
-            {/* Actions */}
-            <TouchableOpacity
-              style={[styles.saveButton, { backgroundColor: colors.primary }]}
-              onPress={handleEdit}
-              activeOpacity={0.85}
-              disabled={isLoading}
-            >
-              <Ionicons name="create-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-              <Text style={styles.saveButtonText}>{t('history.detail.editButton')}</Text>
-            </TouchableOpacity>
+            {/* Action tiles */}
+            <View style={[styles.actionGrid, { marginTop: 24 }]}>
+              {/* Edit */}
+              <TouchableOpacity
+                style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
+                onPress={handleEdit}
+                activeOpacity={0.75}
+                disabled={isLoading}
+              >
+                <Ionicons name="create-outline" size={22} color={colors.primary} />
+                <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
+                  {t('history.detail.editButton')}
+                </Text>
+              </TouchableOpacity>
 
-            <View style={styles.secondaryRow}>
               {/* Duplicate */}
               <TouchableOpacity
                 style={[
-                  styles.secondaryButton,
-                  { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.primary, flex: 1 },
-                  isLoading && styles.buttonDisabled,
+                  styles.actionTile,
+                  { backgroundColor: colors.backgroundSecondary },
+                  duplicateLoading && styles.buttonDisabled,
                 ]}
                 onPress={handleDuplicate}
+                activeOpacity={0.75}
                 disabled={isLoading}
-                activeOpacity={0.8}
               >
-                {duplicateLoading ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
-                ) : (
-                  <>
-                    <Ionicons name="copy-outline" size={15} color={colors.primary} style={{ marginRight: 6 }} />
-                    <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>
-                      {t('history.edit.duplicateButton')}
-                    </Text>
-                  </>
-                )}
+                {duplicateLoading
+                  ? <ActivityIndicator size="small" color={colors.textSecondary} />
+                  : <Ionicons name="copy-outline" size={22} color={colors.textSecondary} />
+                }
+                <Text style={[styles.actionTileLabel, { color: colors.textSecondary }]}>
+                  {t('history.edit.duplicateButton')}
+                </Text>
               </TouchableOpacity>
 
               {/* Delete */}
-              {confirmingDelete ? (
-                <View style={[styles.confirmDeleteWrap, { flex: 1.4 }]}>
-                  <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
-                    {t('history.edit.confirmDelete')}
-                  </Text>
-                  <View style={styles.confirmDeleteBtns}>
-                    <TouchableOpacity
-                      style={[styles.confirmBtn, { backgroundColor: colors.error }]}
-                      onPress={handleDelete}
-                      disabled={isLoading}
-                      activeOpacity={0.8}
-                    >
-                      {deleteLoading ? (
-                        <ActivityIndicator size="small" color="#FFFFFF" />
-                      ) : (
-                        <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
-                          {t('history.edit.confirmDeleteYes')}
-                        </Text>
-                      )}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.confirmBtn,
-                        { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border },
-                      ]}
-                      onPress={() => setConfirmingDelete(false)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
-                        {t('history.edit.confirmDeleteCancel')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  style={[
-                    styles.secondaryButton,
-                    { backgroundColor: colors.errorLight, flex: 1 },
-                    isLoading && styles.buttonDisabled,
-                  ]}
-                  onPress={() => setConfirmingDelete(true)}
-                  disabled={isLoading}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="trash-outline" size={15} color={colors.error} style={{ marginRight: 6 }} />
-                  <Text style={[styles.secondaryButtonText, { color: colors.error }]}>
-                    {t('history.edit.deleteButton')}
-                  </Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity
+                style={[
+                  styles.actionTile,
+                  { backgroundColor: colors.errorLight },
+                  deleteLoading && styles.buttonDisabled,
+                ]}
+                onPress={() => setConfirmingDelete(true)}
+                activeOpacity={0.75}
+                disabled={isLoading}
+              >
+                {deleteLoading
+                  ? <ActivityIndicator size="small" color={colors.error} />
+                  : <Ionicons name="trash-outline" size={22} color={colors.error} />
+                }
+                <Text style={[styles.actionTileLabel, { color: colors.error }]}>
+                  {t('history.edit.deleteButton')}
+                </Text>
+              </TouchableOpacity>
             </View>
+
+            {/* Confirm delete inline */}
+            {confirmingDelete && (
+              <View style={[styles.confirmDeleteWrap, { marginTop: 12 }]}>
+                <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
+                  {t('history.edit.confirmDelete')}
+                </Text>
+                <View style={styles.confirmDeleteBtns}>
+                  <TouchableOpacity
+                    style={[styles.confirmBtn, { backgroundColor: colors.error, flex: 1 }]}
+                    onPress={handleDelete}
+                    disabled={isLoading}
+                    activeOpacity={0.8}
+                  >
+                    {deleteLoading
+                      ? <ActivityIndicator size="small" color="#FFFFFF" />
+                      : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>{t('history.edit.confirmDeleteYes')}</Text>
+                    }
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.confirmBtn, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border, flex: 1 }]}
+                    onPress={() => setConfirmingDelete(false)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
+                      {t('history.edit.confirmDeleteCancel')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
           </ScrollView>
         </View>
       </Animated.View>
@@ -1729,6 +1728,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+  },
+
+  // Action tiles (detail sheet)
+  actionGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 4,
+  },
+  actionTile: {
+    flex: 1,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    gap: 8,
+  },
+  actionTileLabel: {
+    fontSize: 12,
+    fontFamily: Fonts.semiBold,
   },
 
   // Secondary actions
