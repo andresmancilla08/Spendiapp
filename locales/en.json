@@ -293,13 +293,51 @@
       "noTea": "Enter the % TEA for installments with interest"
     },
     "quickDesc": {
-      "food":          ["Lunch", "Dinner", "Breakfast", "Coffee", "Delivery"],
-      "transport":     ["Uber", "Taxi", "Bus", "Gas", "Parking"],
-      "health":        ["Pharmacy", "Doctor visit", "Lab tests", "Dentist"],
-      "entertainment": ["Movies", "Streaming", "Bar", "Concert", "Games"],
-      "shopping":      ["Clothes", "Supermarket", "Electronics", "Accessories"],
-      "home":          ["Rent", "Utilities", "Groceries", "Maintenance"],
-      "salary":        ["Paycheck", "Monthly salary", "Commission", "Freelance"]
+      "food": [
+        "Lunch",
+        "Dinner",
+        "Breakfast",
+        "Coffee",
+        "Delivery"
+      ],
+      "transport": [
+        "Uber",
+        "Taxi",
+        "Bus",
+        "Gas",
+        "Parking"
+      ],
+      "health": [
+        "Pharmacy",
+        "Doctor visit",
+        "Lab tests",
+        "Dentist"
+      ],
+      "entertainment": [
+        "Movies",
+        "Streaming",
+        "Bar",
+        "Concert",
+        "Games"
+      ],
+      "shopping": [
+        "Clothes",
+        "Supermarket",
+        "Electronics",
+        "Accessories"
+      ],
+      "home": [
+        "Rent",
+        "Utilities",
+        "Groceries",
+        "Maintenance"
+      ],
+      "salary": [
+        "Paycheck",
+        "Monthly salary",
+        "Commission",
+        "Freelance"
+      ]
     },
     "errors": {
       "saveFailed": "Could not save. Please try again."
@@ -324,10 +362,33 @@
       "confirmDeleteCancel": "Cancel",
       "saving": "Saving...",
       "deleteError": "Could not delete. Please try again.",
-      "saveError": "Could not save. Please try again."
+      "saveError": "Could not save. Please try again.",
+      "fixedNote": "Fixed expense — changes affect all months",
+      "fixedDeleteNote": "Delete fixed expense? It will disappear from all months."
     },
-    "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "weekdays": [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ],
     "searchPlaceholder": "Search transaction...",
     "balanceLabel": "Monthly balance",
     "fixedBadge": "Fixed",
