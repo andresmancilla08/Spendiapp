@@ -396,7 +396,9 @@
     "toasts": {
       "saved": "Cambios guardados",
       "deleted": "Transacción eliminada",
-      "duplicated": "Transacción duplicada"
+      "duplicated": "Transacción duplicada",
+      "markedPaid": "Marcado como pagado",
+      "markedUnpaid": "Desmarcado como pagado"
     },
     "detail": {
       "title": "Detalle",
