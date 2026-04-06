@@ -396,7 +396,9 @@
     "toasts": {
       "saved": "Modifiche salvate",
       "deleted": "Transazione eliminata",
-      "duplicated": "Transazione duplicata"
+      "duplicated": "Transazione duplicata",
+      "markedPaid": "Contrassegnato come pagato",
+      "markedUnpaid": "Deselezionato come pagato"
     },
     "detail": {
       "title": "Dettaglio",

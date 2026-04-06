@@ -18,4 +18,5 @@ export interface Transaction {
   installmentNumber?: number;
   installmentTotal?: number;
   isInstallment?: boolean;
+  isPaid?: boolean;
 }
