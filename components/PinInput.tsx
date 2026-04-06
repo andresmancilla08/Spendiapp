@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { View, TextInput, StyleSheet, Text } from 'react-native';
+import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
@@ -13,6 +14,7 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
   const { colors } = useTheme();
   const inputs = useRef<(TextInput | null)[]>([null, null, null, null]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [showPin, setShowPin] = useState(false);
 
   const handleChange = (text: string, index: number) => {
     const digit = text.replace(/[^0-9]/g, '').slice(-1);
@@ -35,58 +37,84 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
   };
 
   return (
-    <View style={styles.row}>
-      {[0, 1, 2, 3].map((i) => {
-        const filled = !!value[i];
-        const focused = focusedIndex === i;
-        const borderColor = error
-          ? colors.error
-          : focused
-          ? colors.borderFocus
-          : filled
-          ? colors.primary
-          : colors.border;
-        const bg = focused
-          ? colors.primaryLight
-          : filled
-          ? colors.primaryLight
-          : colors.backgroundSecondary;
-        return (
-          <View key={i} style={{ position: 'relative' }}>
-            <TextInput
-              ref={(r) => { inputs.current[i] = r; }}
-              style={[
-                styles.box,
-                { borderColor, backgroundColor: bg, color: 'transparent' },
-                focused && styles.boxFocused,
-              ]}
-              value={value[i] ? '•' : ''}
-              onChangeText={(t) => handleChange(t, i)}
-              onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
-              onFocus={() => setFocusedIndex(i)}
-              onBlur={() => setFocusedIndex(null)}
-              keyboardType="numeric"
-              maxLength={1}
-              textAlign="center"
-              caretHidden
-            />
-            {!!value[i] && (
-              <View style={styles.dotOverlay} pointerEvents="none">
-                <Text style={[styles.dotText, { color: colors.primary }]}>•</Text>
-              </View>
-            )}
-          </View>
-        );
-      })}
+    <View style={styles.wrapper}>
+      <View style={styles.row}>
+        {[0, 1, 2, 3].map((i) => {
+          const filled = !!value[i];
+          const focused = focusedIndex === i;
+          const borderColor = error
+            ? colors.error
+            : focused
+            ? colors.borderFocus
+            : filled
+            ? colors.primary
+            : colors.border;
+          const bg = focused
+            ? colors.primaryLight
+            : filled
+            ? colors.primaryLight
+            : colors.backgroundSecondary;
+          return (
+            <View key={i} style={{ position: 'relative' }}>
+              <TextInput
+                ref={(r) => { inputs.current[i] = r; }}
+                style={[
+                  styles.box,
+                  { borderColor, backgroundColor: bg, color: 'transparent' },
+                  focused && styles.boxFocused,
+                ]}
+                value={value[i] ? '•' : ''}
+                onChangeText={(t) => handleChange(t, i)}
+                onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
+                onFocus={() => setFocusedIndex(i)}
+                onBlur={() => setFocusedIndex(null)}
+                keyboardType="numeric"
+                maxLength={1}
+                textAlign="center"
+                caretHidden
+              />
+              {!!value[i] && (
+                <View style={styles.dotOverlay} pointerEvents="none">
+                  <Text style={[
+                    styles.dotText,
+                    showPin
+                      ? { color: colors.textPrimary, fontSize: 22 }
+                      : { color: colors.primary },
+                  ]}>
+                    {showPin ? value[i] : '•'}
+                  </Text>
+                </View>
+              )}
+            </View>
+          );
+        })}
+      </View>
+
+      <TouchableOpacity
+        style={styles.eyeButton}
+        onPress={() => setShowPin((p) => !p)}
+        activeOpacity={0.7}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        <Ionicons
+          name={showPin ? 'eye-outline' : 'eye-off-outline'}
+          size={22}
+          color={colors.textTertiary}
+        />
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    position: 'relative',
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignSelf: 'stretch',
     gap: 16,
   },
   box: {
@@ -114,5 +142,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 3,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    paddingHorizontal: 4,
   },
 });

@@ -6,17 +6,19 @@ import { GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRe
 import { auth } from '../config/firebase';
 
 /**
- * Devuelve true cuando la app corre como PWA instalada (standalone).
- * En ese modo window.opener es null tanto en iOS Safari como en Android Chrome,
- * por lo que signInWithPopup falla — se usa signInWithRedirect en su lugar.
+ * Devuelve true cuando se debe usar signInWithRedirect en lugar de signInWithPopup.
  *
- * iOS: navigator.standalone === true
- * Android/Chrome: matchMedia('display-mode: standalone')
+ * - Cualquier mobile (iOS o Android), browser o PWA: redirect.
+ *   Android Chrome bloquea popups en mobile; iOS Safari tampoco los soporta bien.
+ * - Desktop (Chrome, Firefox, Safari): popup (mejor UX, no abandona la página).
  */
-function isStandaloneMode(): boolean {
+function shouldUseRedirect(): boolean {
   if (typeof window === 'undefined') return false;
+  // PWA standalone (iOS o Android)
   if ((window.navigator as any).standalone === true) return true;
   if (window.matchMedia('(display-mode: standalone)').matches) return true;
+  // Cualquier mobile browser
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return true;
   return false;
 }
 
@@ -53,12 +55,12 @@ export function useGoogleSignIn() {
     if (Platform.OS === 'web') {
       setLoading(true);
       try {
-        if (isStandaloneMode()) {
-          // PWA instalada (iOS o Android): redirect — popup falla porque
-          // window.opener es null en standalone (Chrome Custom Tab / Safari window)
+        if (shouldUseRedirect()) {
+          // Mobile (cualquier browser o PWA): redirect — popup falla en Chrome mobile
+          // y en iOS standalone por window.opener=null
           await signInWithRedirect(auth, new GoogleAuthProvider());
         } else {
-          // Browser normal (simulador, Safari, Chrome desktop/mobile): popup funciona
+          // Desktop browser: popup (mejor UX)
           await signInWithPopup(auth, new GoogleAuthProvider());
         }
       } catch {
