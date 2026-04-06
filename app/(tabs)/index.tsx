@@ -197,7 +197,7 @@ export default function HomeScreen() {
         </View>
 
         {/* PWA Install Banner */}
-        <PwaInstallBanner />
+        {Platform.OS === 'web' && <PwaInstallBanner />}
 
         {/* Balance card */}
         <View style={[styles.balanceCard, { backgroundColor: colors.primaryDark }]}>

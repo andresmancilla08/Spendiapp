@@ -29,7 +29,13 @@ export default function PwaInstallBanner() {
         visible={dialogVisible}
         type="info"
         title={t('pwaInstall.dialogTitle')}
-        description={t('pwaInstall.dialogSteps')}
+        description={
+          <Text style={{ fontSize: 14, lineHeight: 22, color: colors.textSecondary }}>
+            {'1. Toca el ícono de '}<Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{'compartir ↑'}</Text>{'\n'}
+            {'2. Selecciona '}<Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{'"Añadir a pantalla de inicio"'}</Text>{'\n'}
+            {'3. Toca '}<Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{'"Añadir"'}</Text>{' para confirmar'}
+          </Text>
+        }
         primaryLabel={t('pwaInstall.dialogButton')}
         onPrimary={() => setDialogVisible(false)}
       />
