@@ -48,7 +48,10 @@ export function useTransactions(userId: string, year: number, month: number, ref
       orderBy('date', 'desc')
     );
 
-    const unsub = onSnapshot(q, (snap) => {
+    const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snap) => {
+      // Esperar confirmación del servidor antes de actualizar la UI
+      // Esto evita que re-ordenamientos optimistas ocurran antes del toast de confirmación
+      if (snap.metadata.hasPendingWrites) return;
       setRegular(snap.docs.map((doc) => {
         const d = doc.data();
         return {
