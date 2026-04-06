@@ -705,31 +705,48 @@ function TransactionDetailSheet({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.sheetScrollContent}
           >
-            {/* Amount hero */}
-            <View style={[styles.detailHero, { backgroundColor: colors.backgroundSecondary, borderRadius: 20 }]}>
-              <View style={styles.detailHeroTop}>
-                <View style={[styles.detailCatIcon, { backgroundColor: colors.surface }]}>
-                  <Text style={{ fontSize: 26 }}>{cat.icon}</Text>
-                </View>
-                <View style={[
-                  styles.detailTypeBadge,
-                  { backgroundColor: isExpense ? `${colors.error}18` : `${colors.secondary}18` },
-                ]}>
-                  <Text style={[
-                    styles.detailTypeBadgeText,
-                    { color: isExpense ? colors.error : colors.secondary },
-                  ]}>
-                    {isExpense ? t('history.detail.typeExpense') : t('history.detail.typeIncome')}
-                  </Text>
-                </View>
+            {/* Hero — icono, tipo, monto, descripción */}
+            <View style={[
+              styles.detailHero,
+              { backgroundColor: isExpense ? `${colors.error}0C` : `${colors.secondary}0C` },
+            ]}>
+              {/* Icono grande centrado */}
+              <View style={[
+                styles.detailHeroIcon,
+                { backgroundColor: isExpense ? `${colors.error}20` : `${colors.secondary}20` },
+              ]}>
+                <Text style={{ fontSize: 34 }}>{cat.icon}</Text>
               </View>
+
+              {/* Badge tipo con dot */}
+              <View style={[
+                styles.detailTypeBadge,
+                { backgroundColor: isExpense ? `${colors.error}18` : `${colors.secondary}18` },
+              ]}>
+                <View style={[
+                  styles.detailTypeDot,
+                  { backgroundColor: isExpense ? colors.error : colors.secondary },
+                ]} />
+                <Text style={[
+                  styles.detailTypeBadgeText,
+                  { color: isExpense ? colors.error : colors.secondary },
+                ]}>
+                  {isExpense ? t('history.detail.typeExpense') : t('history.detail.typeIncome')}
+                </Text>
+              </View>
+
+              {/* Monto — protagonista */}
               <Text style={[
                 styles.detailAmount,
                 { color: isExpense ? colors.error : colors.secondary },
               ]}>
-                {isExpense ? `−${formatCurrency(transaction.amount)}` : `+${formatCurrency(transaction.amount)}`}
+                {isExpense
+                  ? `−${formatCurrency(transaction.amount)}`
+                  : `+${formatCurrency(transaction.amount)}`}
               </Text>
-              <Text style={[styles.detailDescription, { color: colors.textPrimary }]}>
+
+              {/* Descripción */}
+              <Text style={[styles.detailDescription, { color: colors.textSecondary }]}>
                 {transaction.description}
               </Text>
             </View>
@@ -882,7 +899,7 @@ function TransactionDetailSheet({
               <TouchableOpacity
                 style={[
                   styles.actionTile,
-                  { backgroundColor: colors.backgroundSecondary },
+                  { backgroundColor: `${colors.tertiary}18` },
                   duplicateLoading && styles.buttonDisabled,
                 ]}
                 onPress={handleDuplicate}
@@ -890,10 +907,10 @@ function TransactionDetailSheet({
                 disabled={isLoading}
               >
                 {duplicateLoading
-                  ? <ActivityIndicator size="small" color={colors.textSecondary} />
-                  : <Ionicons name="copy-outline" size={22} color={colors.textSecondary} />
+                  ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
+                  : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
                 }
-                <Text style={[styles.actionTileLabel, { color: colors.textSecondary }]}>
+                <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
                   {t('history.edit.duplicateButton')}
                 </Text>
               </TouchableOpacity>
@@ -1769,42 +1786,52 @@ const styles = StyleSheet.create({
 
   // Detail sheet
   detailHero: {
-    padding: 20,
+    borderRadius: 24,
+    paddingTop: 32,
+    paddingBottom: 28,
+    paddingHorizontal: 20,
     marginBottom: 12,
-    gap: 6,
-  },
-  detailHeroTop: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 8,
   },
-  detailCatIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+  detailHeroIcon: {
+    width: 76,
+    height: 76,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 2,
+  },
+  // legacy — ya no se usa pero evita errores si algún ref quedó
+  detailHeroTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  detailCatIcon: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  detailTypeDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
   },
   detailTypeBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 20,
   },
   detailTypeBadgeText: {
     fontSize: 12,
     fontFamily: Fonts.bold,
-    letterSpacing: 0.3,
+    letterSpacing: 0.4,
   },
   detailAmount: {
-    fontSize: 32,
-    fontFamily: Fonts.bold,
-    letterSpacing: -0.5,
-    marginBottom: 2,
+    fontSize: 40,
+    fontFamily: Fonts.extraBold,
+    letterSpacing: -1,
   },
   detailDescription: {
     fontSize: 15,
-    fontFamily: Fonts.medium,
+    fontFamily: Fonts.regular,
+    textAlign: 'center',
   },
   detailCard: {
     marginBottom: 16,
