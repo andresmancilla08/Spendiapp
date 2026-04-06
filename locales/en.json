@@ -398,7 +398,7 @@
       "deleted": "Transaction deleted",
       "duplicated": "Transaction duplicated",
       "markedPaid": "Marked as paid",
-      "markedUnpaid": "Unmarked as paid"
+      "markedUnpaid": "Marked as unpaid"
     },
     "detail": {
       "title": "Detail",
