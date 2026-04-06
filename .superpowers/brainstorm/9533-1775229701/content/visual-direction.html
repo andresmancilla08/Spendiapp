@@ -1,0 +1,108 @@
+<h2>¿Qué dirección visual te gusta más?</h2>
+<p class="subtitle">Las 3 mantienen tu paleta cyan/teal. Elige la que mejor represente a Spendiapp.</p>
+
+<div class="cards">
+
+  <!-- Opción A: Gradient Mesh -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:8px 8px 0 0;">
+      <div style="width:100%;height:320px;background:linear-gradient(145deg,#0D1A1C 0%,#003840 50%,#00ACC1 120%);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;overflow:hidden;">
+        <!-- Blobs decorativos -->
+        <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(0,172,193,0.25);filter:blur(40px);"></div>
+        <div style="position:absolute;bottom:-20px;left:-30px;width:150px;height:150px;border-radius:50%;background:rgba(0,137,123,0.2);filter:blur(30px);"></div>
+        <!-- Logo container -->
+        <div style="width:72px;height:72px;background:rgba(0,172,193,0.2);border:1.5px solid rgba(0,172,193,0.4);border-radius:22px;display:flex;align-items:center;justify-content:center;">
+          <div style="width:40px;height:40px;background:rgba(0,172,193,0.6);border-radius:12px;"></div>
+        </div>
+        <div style="text-align:center;">
+          <div style="color:#EEF6F8;font-size:22px;font-weight:800;letter-spacing:-0.5px;">Spendiapp</div>
+          <div style="color:rgba(238,246,248,0.6);font-size:12px;margin-top:4px;">Controla tus finanzas</div>
+        </div>
+        <!-- Botones -->
+        <div style="width:80%;margin-top:8px;display:flex;flex-direction:column;gap:10px;">
+          <div style="height:42px;border-radius:50px;border:1.5px solid rgba(238,246,248,0.3);background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;">
+            <span style="color:#EEF6F8;font-size:13px;font-weight:600;">Continuar con Google</span>
+          </div>
+          <div style="height:42px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00897B);display:flex;align-items:center;justify-content:center;">
+            <span style="color:#fff;font-size:13px;font-weight:700;">Continuar con Email</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Gradient Oscuro + Blobs</h3>
+      <p>Fondo degradado profundo con esferas de luz difusa. Moderno, fintech premium. Funciona perfecto en modo oscuro.</p>
+    </div>
+  </div>
+
+  <!-- Opción B: Card flotante sobre fondo con pattern -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:8px 8px 0 0;">
+      <div style="width:100%;height:320px;background:#F5F9FA;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;overflow:hidden;">
+        <!-- Fondo superior con forma -->
+        <div style="position:absolute;top:0;left:0;right:0;height:55%;background:linear-gradient(160deg,#00ACC1,#00838F);border-radius:0 0 40px 40px;"></div>
+        <!-- Círculos decorativos en el hero -->
+        <div style="position:absolute;top:15px;right:20px;width:80px;height:80px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);"></div>
+        <div style="position:absolute;top:35px;right:40px;width:45px;height:45px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);"></div>
+        <!-- Logo en el hero -->
+        <div style="position:absolute;top:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:2;">
+          <div style="width:64px;height:64px;background:rgba(255,255,255,0.25);border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);"></div>
+          <div style="color:#fff;font-size:18px;font-weight:800;">Spendiapp</div>
+        </div>
+        <!-- Card flotante -->
+        <div style="position:relative;z-index:3;width:88%;background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 -4px 30px rgba(0,0,0,0.1);margin-bottom:16px;display:flex;flex-direction:column;gap:10px;">
+          <div style="color:#1A2428;font-size:15px;font-weight:700;text-align:center;">Bienvenido de vuelta</div>
+          <div style="height:38px;border-radius:50px;border:1.5px solid #DDE8EA;background:#F5F9FA;display:flex;align-items:center;justify-content:center;">
+            <span style="color:#737879;font-size:12px;">Continuar con Google</span>
+          </div>
+          <div style="height:38px;border-radius:50px;background:#00ACC1;display:flex;align-items:center;justify-content:center;">
+            <span style="color:#fff;font-size:12px;font-weight:700;">Continuar con Email</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Hero + Card Flotante</h3>
+      <p>Header vibrante con el logo, card blanca flotante para los botones. Split visual claro. Funciona muy bien en modo claro.</p>
+    </div>
+  </div>
+
+  <!-- Opción C: Full screen inmersivo -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;overflow:hidden;border-radius:8px 8px 0 0;">
+      <div style="width:100%;height:320px;background:#0D1A1C;position:relative;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;padding:24px 20px;">
+        <!-- Formas geométricas de fondo -->
+        <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(0,172,193,0.12);"></div>
+        <div style="position:absolute;top:20px;right:20px;width:100px;height:100px;border-radius:50%;border:1px solid rgba(0,172,193,0.2);"></div>
+        <div style="position:absolute;bottom:40px;left:-40px;width:160px;height:160px;border-radius:50%;background:rgba(0,137,123,0.1);"></div>
+        <!-- Top: Logo pequeño + toggle -->
+        <div style="display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2;">
+          <div style="width:36px;height:36px;background:rgba(0,172,193,0.2);border-radius:10px;border:1px solid rgba(0,172,193,0.3);"></div>
+          <div style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(238,246,248,0.3);display:flex;align-items:center;justify-content:center;">
+            <div style="width:12px;height:12px;border-radius:50%;background:rgba(238,246,248,0.5);"></div>
+          </div>
+        </div>
+        <!-- Texto grande central -->
+        <div style="position:relative;z-index:2;">
+          <div style="color:#00BCD4;font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:6px;">BIENVENIDO</div>
+          <div style="color:#EEF6F8;font-size:28px;font-weight:800;line-height:1.1;letter-spacing:-1px;">Controla<br/>tu dinero.</div>
+          <div style="color:rgba(238,246,248,0.5);font-size:12px;margin-top:6px;">Finanzas personales para Colombia</div>
+        </div>
+        <!-- Botones abajo -->
+        <div style="position:relative;z-index:2;display:flex;flex-direction:column;gap:8px;">
+          <div style="height:40px;border-radius:50px;background:linear-gradient(90deg,#00ACC1,#00897B);display:flex;align-items:center;justify-content:center;">
+            <span style="color:#fff;font-size:12px;font-weight:700;">Continuar con Email</span>
+          </div>
+          <div style="height:40px;border-radius:50px;border:1.5px solid rgba(0,172,193,0.4);background:rgba(0,172,193,0.08);display:flex;align-items:center;justify-content:center;">
+            <span style="color:rgba(238,246,248,0.8);font-size:12px;">Continuar con Google</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Full-Screen Inmersivo</h3>
+      <p>Tipografía grande y bold al centro, formas geométricas de fondo, botones al fondo. Layout editorial. App se siente premium.</p>
+    </div>
+  </div>
+
+</div>
