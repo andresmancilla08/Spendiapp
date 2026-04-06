@@ -159,7 +159,7 @@ export default function HomeScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: colors.primary }]}>Spendiapp</Text>
+        <Text style={[styles.headerTitle, { color: colors.primary }]}>Spendia</Text>
         <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
           {photoUrl ? (
             <Image source={{ uri: photoUrl }} style={styles.avatar} />

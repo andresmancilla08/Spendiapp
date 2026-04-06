@@ -37,7 +37,7 @@ export async function markBiometricsOffered(): Promise<void> {
 /** Lanzar prompt de autenticación biométrica del SO */
 export async function authenticateWithBiometrics(): Promise<boolean> {
   const result = await LocalAuthentication.authenticateAsync({
-    promptMessage: 'Desbloquea Spendiapp',
+    promptMessage: 'Desbloquea Spendia',
     fallbackLabel: 'Usar PIN del dispositivo',
     cancelLabel: 'Cancelar',
     disableDeviceFallback: false,

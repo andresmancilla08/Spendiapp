@@ -82,7 +82,7 @@ export default function LoginScreen() {
         <View style={styles.container}>
           <View style={styles.headerSection}>
             <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
-            <Text style={[styles.appName, { color: colors.textPrimary }]}>Spendiapp</Text>
+            <Text style={[styles.appName, { color: colors.textPrimary }]}>Spendia</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('login.subtitle')}</Text>
           </View>
 

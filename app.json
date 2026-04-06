@@ -41,8 +41,8 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
-      "name": "Spendiapp",
-      "shortName": "Spendiapp",
+      "name": "Spendia",
+      "shortName": "Spendia",
       "description": "Controla tus gastos mensuales",
       "themeColor": "#00ACC1",
       "backgroundColor": "#FFFFFF",
