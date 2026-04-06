@@ -198,13 +198,14 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 30,
     fontFamily: Fonts.extraBold,
-    marginBottom: 6,
+    marginBottom: 14,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: Fonts.regular,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
+    letterSpacing: 0.2,
   },
   buttonsSection: {
     width: '100%',
