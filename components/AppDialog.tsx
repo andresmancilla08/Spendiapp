@@ -228,6 +228,7 @@ const styles = StyleSheet.create({
   descriptionWrap: {
     marginBottom: 24,
     alignItems: 'center',
+    alignSelf: 'stretch',
   },
   inputWrapper: {
     width: '100%',
