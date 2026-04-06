@@ -5,9 +5,16 @@ import * as WebBrowser from 'expo-web-browser';
 import { GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
-function isIOSBrowser(): boolean {
+/**
+ * Devuelve true solo cuando estamos en iOS Safari en modo STANDALONE (PWA instalada).
+ * En ese modo específico window.opener es null, por lo que signInWithPopup falla.
+ * En Safari regular (simulador, browser normal) se usa signInWithPopup sin problema.
+ */
+function isIOSStandalone(): boolean {
   if (typeof window === 'undefined') return false;
-  return /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+  const isIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+  const isStandalone = (window.navigator as any).standalone === true;
+  return isIOS && isStandalone;
 }
 
 if (Platform.OS !== 'web') {
@@ -43,12 +50,11 @@ export function useGoogleSignIn() {
     if (Platform.OS === 'web') {
       setLoading(true);
       try {
-        if (isIOSBrowser()) {
-          // iOS Safari PWA: usar redirect (popup falla porque window.opener es null en standalone)
-          // El auth state se comparte entre Safari y PWA vía IndexedDB mismo origen
+        if (isIOSStandalone()) {
+          // iOS PWA instalada: redirect porque window.opener es null en standalone
           await signInWithRedirect(auth, new GoogleAuthProvider());
         } else {
-          // Android Chrome / Desktop: popup funciona correctamente en standalone
+          // Safari normal (simulador, browser), Android Chrome, Desktop: popup funciona
           await signInWithPopup(auth, new GoogleAuthProvider());
         }
       } catch {
