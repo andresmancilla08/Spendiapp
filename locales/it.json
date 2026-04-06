@@ -482,5 +482,12 @@
       "title": "Suggerimento inviato!",
       "description": "Grazie per aver condiviso la tua idea. La esamineremo con attenzione."
     }
+  },
+  "pwaInstall": {
+    "title": "Installa Spendiapp",
+    "subtitle": "Aggiungila alla schermata principale",
+    "dialogTitle": "Come installare su iOS",
+    "dialogSteps": "1. Tocca l'icona di condivisione (quadrato con freccia ↑)\n2. Seleziona \"Aggiungi alla schermata Home\"\n3. Tocca \"Aggiungi\" per confermare",
+    "dialogButton": "Capito"
   }
 }

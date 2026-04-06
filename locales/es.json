@@ -482,5 +482,12 @@
     "addButton": "Agregar tarjeta",
     "digitError": "Ingresa exactamente 4 dígitos",
     "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo."
+  },
+  "pwaInstall": {
+    "title": "Instala Spendiapp",
+    "subtitle": "Agrégala a tu pantalla de inicio",
+    "dialogTitle": "Cómo instalar en iOS",
+    "dialogSteps": "1. Toca el ícono de compartir (cuadrado con flecha ↑)\n2. Selecciona \"Añadir a pantalla de inicio\"\n3. Toca \"Añadir\" para confirmar",
+    "dialogButton": "Entendido"
   }
 }

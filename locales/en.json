@@ -482,5 +482,12 @@
       "title": "Suggestion sent!",
       "description": "Thanks for taking the time to share your idea. We'll review it carefully."
     }
+  },
+  "pwaInstall": {
+    "title": "Install Spendiapp",
+    "subtitle": "Add it to your home screen",
+    "dialogTitle": "How to install on iOS",
+    "dialogSteps": "1. Tap the share icon (square with arrow ↑)\n2. Select \"Add to Home Screen\"\n3. Tap \"Add\" to confirm",
+    "dialogButton": "Got it"
   }
 }
