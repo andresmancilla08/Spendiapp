@@ -122,6 +122,7 @@ export default function AppDialog({
         <Animated.View style={[
           styles.card,
           { backgroundColor: colors.surface, transform: [{ translateY: cardTranslateY }] },
+          !secondaryLabel && styles.cardNoSecondary,
         ]}>
           <Animated.View style={[styles.iconWrapper, { transform: [{ scale: iconScale }] }]}>
             <Ionicons name={iconName} size={56} color={iconColor} />
@@ -167,6 +168,7 @@ export default function AppDialog({
               styles.primaryButton,
               { backgroundColor: colors.primary },
               isPrimaryDisabled && styles.primaryButtonDisabled,
+              !secondaryLabel && styles.primaryButtonLast,
             ]}
             onPress={onPrimary}
             activeOpacity={0.85}
@@ -259,6 +261,12 @@ const styles = StyleSheet.create({
   },
   primaryButtonDisabled: {
     opacity: 0.4,
+  },
+  primaryButtonLast: {
+    marginBottom: 0,
+  },
+  cardNoSecondary: {
+    paddingBottom: 32,
   },
   primaryLabel: {
     fontSize: 16,
