@@ -13,6 +13,7 @@ import {
   Platform,
   ActivityIndicator,
   useWindowDimensions,
+  PanResponder,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
@@ -1012,107 +1013,137 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
     ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`
     : item.description;
 
-  // Animación del checkmark (scale spring)
-  const checkScale = useRef(new Animated.Value(isPaid ? 1 : 0)).current;
+  const ACTION_WIDTH = 70;
+  const SWIPE_THRESHOLD = 45;
+  const swipeX = useRef(new Animated.Value(0)).current;
+  const isOpen = useRef(false);
 
+  const snapClose = useCallback(() => {
+    Animated.spring(swipeX, { toValue: 0, useNativeDriver: true, bounciness: 6, speed: 18 }).start();
+    isOpen.current = false;
+  }, [swipeX]);
+
+  const snapOpen = useCallback(() => {
+    Animated.spring(swipeX, { toValue: -ACTION_WIDTH, useNativeDriver: true, bounciness: 6, speed: 18 }).start();
+    isOpen.current = true;
+  }, [swipeX]);
+
+  // Auto-close when paid state changes (after toggle)
   useEffect(() => {
-    Animated.spring(checkScale, {
-      toValue: isPaid ? 1 : 0,
-      useNativeDriver: true,
-      bounciness: 12,
-      speed: 20,
-    }).start();
-  }, [isPaid, checkScale]);
+    snapClose();
+  }, [isPaid, snapClose]);
 
-  const rowBg = isPaid ? colors.tertiaryLight : 'transparent';
-  const amountColor = isExpense
-    ? (isPaid ? colors.tertiaryDark : colors.error)
-    : colors.secondary;
-  const descOpacity = isPaid ? 0.65 : 1;
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gs) =>
+        Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 8,
+      onPanResponderMove: (_, gs) => {
+        const base = isOpen.current ? -ACTION_WIDTH : 0;
+        const next = Math.max(Math.min(base + gs.dx, 0), -ACTION_WIDTH);
+        swipeX.setValue(next);
+      },
+      onPanResponderRelease: (_, gs) => {
+        const base = isOpen.current ? -ACTION_WIDTH : 0;
+        if (base + gs.dx < -SWIPE_THRESHOLD) {
+          snapOpen();
+        } else {
+          snapClose();
+        }
+      },
+    })
+  ).current;
+
+  const handleActionPress = useCallback(() => {
+    snapClose();
+    setTimeout(() => onTogglePaid?.(item), 180);
+  }, [snapClose, onTogglePaid, item]);
+
+  const rowBg = isPaid ? colors.tertiaryLight : colors.surface;
+  const amountColor = isExpense ? (isPaid ? colors.tertiaryDark : colors.error) : colors.secondary;
 
   return (
-    <TouchableOpacity
-      onPress={() => onPress(item)}
-      onLongPress={() => onLongPress(item)}
-      delayLongPress={350}
-      activeOpacity={0.7}
+    <View
       style={[
-        styles.txRow,
+        styles.txSwipeContainer,
         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
-        { backgroundColor: rowBg },
+        isExpense && !isPaid && { borderRightWidth: 4, borderRightColor: colors.tertiaryDark },
       ]}
     >
-      {/* Toggle pagado — solo gastos */}
+      {/* Action button — revealed on swipe left */}
       {isExpense && (
         <TouchableOpacity
-          onPress={() => onTogglePaid?.(item)}
+          onPress={handleActionPress}
           disabled={paidLoading}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          activeOpacity={0.7}
-          style={styles.paidToggle}
+          activeOpacity={0.85}
+          style={[
+            styles.txActionBtn,
+            { width: ACTION_WIDTH, backgroundColor: colors.tertiaryDark },
+          ]}
         >
-          <View
-            style={[
-              styles.paidCircle,
-              isPaid
-                ? { backgroundColor: colors.tertiaryDark, borderColor: colors.tertiaryDark }
-                : { backgroundColor: 'transparent', borderColor: colors.border },
-            ]}
-          >
-            <Animated.View style={{ transform: [{ scale: checkScale }] }}>
-              <Ionicons name="checkmark" size={13} color="#FFFFFF" />
-            </Animated.View>
-          </View>
+          {paidLoading ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <>
+              <Ionicons name={isPaid ? 'close-circle-outline' : 'checkmark-circle-outline'} size={22} color="#FFFFFF" />
+              <Text style={[styles.txActionLabel, { fontFamily: Fonts.semiBold }]}>
+                {isPaid ? t('history.swipe.unmark') : t('history.swipe.mark')}
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
       )}
 
-      {/* Ícono categoría */}
-      <View style={[
-        styles.txIconWrap,
-        { backgroundColor: colors.backgroundSecondary, opacity: descOpacity },
-      ]}>
-        <Text style={styles.txIconText}>{cat.icon}</Text>
-      </View>
-
-      {/* Meta */}
-      <View style={[styles.txMeta, { opacity: descOpacity }]}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
-            {descLabel}
-          </Text>
-          {item.isFixed && (
-            <View style={[styles.fixedBadge, { backgroundColor: colors.primaryLight ?? `${colors.primary}22` }]}>
-              <Text style={[styles.fixedBadgeText, { color: colors.primary }]}>{t('history.fixedBadge')}</Text>
-            </View>
-          )}
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
-          <Text style={[styles.txTime, { color: colors.textTertiary }]}>
-            {CATEGORY_LABELS[item.category] ?? item.category}
-          </Text>
-          {card && (
-            <View style={[styles.txCardChip, {
-              backgroundColor: card.type === 'credit'
-                ? `${colors.primary}18`
-                : `${colors.tertiary}18`,
-            }]}>
-              <Text style={[styles.txCardChipText, {
-                color: card.type === 'credit'
-                  ? colors.primary
-                  : colors.tertiary,
-              }]}>
-                {`${card.bankName} ••${card.lastFour}`}
+      {/* Swipeable row content */}
+      <Animated.View
+        {...(isExpense ? panResponder.panHandlers : {})}
+        style={[{ transform: [{ translateX: isExpense ? swipeX : 0 }] }]}
+      >
+        <TouchableOpacity
+          onPress={() => onPress(item)}
+          onLongPress={() => onLongPress(item)}
+          delayLongPress={350}
+          activeOpacity={0.7}
+          style={[styles.txRow, { backgroundColor: rowBg }]}
+        >
+          <View style={[styles.txIconWrap, { backgroundColor: colors.backgroundSecondary }]}>
+            <Text style={styles.txIconText}>{cat.icon}</Text>
+          </View>
+          <View style={styles.txMeta}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
+                {descLabel}
               </Text>
+              {item.isFixed && (
+                <View style={[styles.fixedBadge, { backgroundColor: colors.primaryLight ?? `${colors.primary}22` }]}>
+                  <Text style={[styles.fixedBadgeText, { color: colors.primary }]}>{t('history.fixedBadge')}</Text>
+                </View>
+              )}
             </View>
-          )}
-        </View>
-      </View>
-
-      {/* Monto */}
-      <Text style={[styles.txAmount, { color: amountColor, opacity: descOpacity }]}>
-        {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
-      </Text>
-    </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
+              <Text style={[styles.txTime, { color: colors.textTertiary }]}>
+                {CATEGORY_LABELS[item.category] ?? item.category}
+              </Text>
+              {card && (
+                <View style={[styles.txCardChip, {
+                  backgroundColor: card.type === 'credit'
+                    ? `${colors.primary}18`
+                    : `${colors.tertiary}18`,
+                }]}>
+                  <Text style={[styles.txCardChipText, {
+                    color: card.type === 'credit' ? colors.primary : colors.tertiary,
+                  }]}>
+                    {`${card.bankName} ••${card.lastFour}`}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+          <Text style={[styles.txAmount, { color: amountColor }]}>
+            {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -1654,27 +1685,29 @@ const styles = StyleSheet.create({
   },
 
   // Transaction row
+  txSwipeContainer: {
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  txActionBtn: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 3,
+  },
+  txActionLabel: {
+    color: '#FFFFFF',
+    fontSize: 10,
+  },
   txRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 14,
     gap: 12,
-  },
-  paidToggle: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 8,
-    width: 28,
-    height: 28,
-  },
-  paidCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 1.5,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   txIconWrap: {
     width: 42,

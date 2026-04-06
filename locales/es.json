@@ -393,6 +393,10 @@
     "balanceLabel": "Balance del mes",
     "fixedBadge": "Fijo",
     "installmentChip": "Cuota {{n}}/{{total}}",
+    "swipe": {
+      "mark": "Pagar",
+      "unmark": "Pagado"
+    },
     "toasts": {
       "saved": "Cambios guardados",
       "deleted": "Transacción eliminada",
