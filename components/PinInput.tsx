@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, Text } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
