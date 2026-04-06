@@ -11,7 +11,7 @@ export default function Root({ children }: PropsWithChildren) {
         {/* PWA: iOS Safari */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Spendiapp" />
+        <meta name="apple-mobile-web-app-title" content="Spendia" />
 
         {/* Ícono para iOS al agregar a pantalla de inicio */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

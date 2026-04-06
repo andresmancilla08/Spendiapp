@@ -1,6 +1,6 @@
 {
   "login": {
-    "title": "Spendiapp",
+    "title": "Spendia",
     "subtitle": "Controla tus gastos mensuales",
     "googleButton": "Continuar con Google",
     "emailButton": "Entrar con email y PIN",
@@ -117,7 +117,7 @@
       "title": "¿Entrar más rápido?",
       "descPart1": "Activa ",
       "descBold": "Face ID / Touch ID",
-      "descPart2": " para abrir Spendiapp sin necesidad de escribir nada.",
+      "descPart2": " para abrir Spendia sin necesidad de escribir nada.",
       "activate": "Activar",
       "notNow": "Ahora no"
     }
@@ -222,7 +222,7 @@
     },
     "providerGoogle": "Google",
     "providerEmail": "Email & PIN",
-    "version": "Spendiapp v1.0.0"
+    "version": "Spendia v1.0.0"
   },
   "settings": {
     "title": "Configuración",
@@ -401,7 +401,7 @@
   },
   "support": {
     "title": "Buzón de sugerencias",
-    "subtitle": "¿Tienes alguna idea o sugerencia para mejorar Spendiapp? Cuéntanos, te leemos con gusto.",
+    "subtitle": "¿Tienes alguna idea o sugerencia para mejorar Spendia? Cuéntanos, te leemos con gusto.",
     "form": {
       "nameLabel": "Tu nombre",
       "namePlaceholder": "Escribe tu nombre",
@@ -415,12 +415,12 @@
       "submit": "Enviar por WhatsApp"
     },
     "whatsapp": {
-      "title": "💡 Nueva sugerencia — Spendiapp",
+      "title": "💡 Nueva sugerencia — Spendia",
       "divider": "━━━━━━━━━━━━━━━━━━━━",
       "name": "👤 Nombre:",
       "email": "📧 Correo:",
       "message": "💬 Sugerencia:",
-      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Enviado desde Spendiapp v1.0.0"
+      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Enviado desde Spendia v1.0.0"
     },
     "success": {
       "title": "¡Sugerencia enviada!",
@@ -484,7 +484,7 @@
     "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo."
   },
   "pwaInstall": {
-    "title": "Instala Spendiapp",
+    "title": "Instala Spendia",
     "subtitle": "Agrégala a tu pantalla de inicio",
     "dialogTitle": "Cómo instalar en iOS",
     "dialogSteps": "1. Toca el ícono de compartir (cuadrado con flecha ↑)\n2. Selecciona \"Añadir a pantalla de inicio\"\n3. Toca \"Añadir\" para confirmar",

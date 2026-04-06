@@ -1,6 +1,6 @@
 {
   "login": {
-    "title": "Spendiapp",
+    "title": "Spendia",
     "subtitle": "Track your monthly expenses",
     "googleButton": "Continue with Google",
     "emailButton": "Sign in with email and PIN",
@@ -117,7 +117,7 @@
       "title": "Sign in faster?",
       "descPart1": "Enable ",
       "descBold": "Face ID / Touch ID",
-      "descPart2": " to open Spendiapp without typing anything.",
+      "descPart2": " to open Spendia without typing anything.",
       "activate": "Enable",
       "notNow": "Not now"
     }
@@ -222,7 +222,7 @@
     },
     "providerGoogle": "Google",
     "providerEmail": "Email & PIN",
-    "version": "Spendiapp v1.0.0"
+    "version": "Spendia v1.0.0"
   },
   "settings": {
     "title": "Settings",
@@ -457,7 +457,7 @@
   },
   "support": {
     "title": "Suggestions box",
-    "subtitle": "Got an idea or suggestion to improve Spendiapp? Tell us, we'd love to hear from you.",
+    "subtitle": "Got an idea or suggestion to improve Spendia? Tell us, we'd love to hear from you.",
     "form": {
       "nameLabel": "Your name",
       "namePlaceholder": "Write your name",
@@ -471,12 +471,12 @@
       "submit": "Send via WhatsApp"
     },
     "whatsapp": {
-      "title": "💡 New suggestion — Spendiapp",
+      "title": "💡 New suggestion — Spendia",
       "divider": "━━━━━━━━━━━━━━━━━━━━",
       "name": "👤 Name:",
       "email": "📧 Email:",
       "message": "💬 Suggestion:",
-      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Sent from Spendiapp v1.0.0"
+      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Sent from Spendia v1.0.0"
     },
     "success": {
       "title": "Suggestion sent!",
@@ -484,7 +484,7 @@
     }
   },
   "pwaInstall": {
-    "title": "Install Spendiapp",
+    "title": "Install Spendia",
     "subtitle": "Add it to your home screen",
     "dialogTitle": "How to install on iOS",
     "dialogSteps": "1. Tap the share icon (square with arrow ↑)\n2. Select \"Add to Home Screen\"\n3. Tap \"Add\" to confirm",

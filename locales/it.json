@@ -1,6 +1,6 @@
 {
   "login": {
-    "title": "Spendiapp",
+    "title": "Spendia",
     "subtitle": "Controlla le tue spese mensili",
     "googleButton": "Continua con Google",
     "emailButton": "Accedi con email e PIN",
@@ -117,7 +117,7 @@
       "title": "Accedi più velocemente?",
       "descPart1": "Attiva ",
       "descBold": "Face ID / Touch ID",
-      "descPart2": " per aprire Spendiapp senza digitare nulla.",
+      "descPart2": " per aprire Spendia senza digitare nulla.",
       "activate": "Attiva",
       "notNow": "Non ora"
     }
@@ -222,7 +222,7 @@
     },
     "providerGoogle": "Google",
     "providerEmail": "Email & PIN",
-    "version": "Spendiapp v1.0.0"
+    "version": "Spendia v1.0.0"
   },
   "settings": {
     "title": "Impostazioni",
@@ -457,7 +457,7 @@
   },
   "support": {
     "title": "Casella dei suggerimenti",
-    "subtitle": "Hai un'idea o un suggerimento per migliorare Spendiapp? Raccontaci, ci fa piacere sentirti.",
+    "subtitle": "Hai un'idea o un suggerimento per migliorare Spendia? Raccontaci, ci fa piacere sentirti.",
     "form": {
       "nameLabel": "Il tuo nome",
       "namePlaceholder": "Scrivi il tuo nome",
@@ -471,12 +471,12 @@
       "submit": "Invia via WhatsApp"
     },
     "whatsapp": {
-      "title": "💡 Nuovo suggerimento — Spendiapp",
+      "title": "💡 Nuovo suggerimento — Spendia",
       "divider": "━━━━━━━━━━━━━━━━━━━━",
       "name": "👤 Nome:",
       "email": "📧 Email:",
       "message": "💬 Suggerimento:",
-      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Inviato da Spendiapp v1.0.0"
+      "footer": "━━━━━━━━━━━━━━━━━━━━\n📱 Inviato da Spendia v1.0.0"
     },
     "success": {
       "title": "Suggerimento inviato!",
@@ -484,7 +484,7 @@
     }
   },
   "pwaInstall": {
-    "title": "Installa Spendiapp",
+    "title": "Installa Spendia",
     "subtitle": "Aggiungila alla schermata principale",
     "dialogTitle": "Come installare su iOS",
     "dialogSteps": "1. Tocca l'icona di condivisione (quadrato con freccia ↑)\n2. Seleziona \"Aggiungi alla schermata Home\"\n3. Tocca \"Aggiungi\" per confermare",
