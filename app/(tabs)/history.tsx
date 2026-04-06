@@ -1066,7 +1066,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
       style={[
         styles.txSwipeContainer,
         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
-        isExpense && !isPaid && { borderRightWidth: 4, borderRightColor: colors.tertiaryDark },
+        isExpense && !isPaid && { borderRightWidth: 4, borderRightColor: colors.tertiary },
       ]}
     >
       {/* Action button — revealed on swipe left */}
@@ -1669,7 +1669,7 @@ const styles = StyleSheet.create({
 
   // Day group
   daySection: {
-    marginBottom: 16,
+    marginBottom: 24,
   },
   dayLabel: {
     fontSize: 12,
