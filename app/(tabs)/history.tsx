@@ -91,7 +91,12 @@ function groupByDay(transactions: Transaction[], weekdays: string[]): DayGroup[]
     const [y, m, d] = key.split('-').map(Number);
     const date = new Date(y, m - 1, d);
     const weekday = weekdays[date.getDay()];
-    return { dateKey: key, label: `${weekday} ${d}`, items };
+    // Unpaid (income + unpaid expenses) primero, paid expenses al final
+    const sorted = [
+      ...items.filter(tx => tx.type === 'income' || !tx.isPaid),
+      ...items.filter(tx => tx.type === 'expense' && tx.isPaid === true),
+    ];
+    return { dateKey: key, label: `${weekday} ${d}`, items: sorted };
   });
 }
 
