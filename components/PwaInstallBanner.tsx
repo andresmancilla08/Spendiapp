@@ -7,6 +7,11 @@ import { usePwaInstall } from '../hooks/usePwaInstall';
 import AppDialog from './AppDialog';
 import { Fonts } from '../config/fonts';
 
+function isIOSBrowser(): boolean {
+  if (typeof window === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+}
+
 export default function PwaInstallBanner() {
   const { isStandalone, canNativeInstall, install } = usePwaInstall();
   const { colors } = useTheme();
@@ -18,9 +23,10 @@ export default function PwaInstallBanner() {
   const handlePress = async () => {
     if (canNativeInstall) {
       await install();
-    } else {
+    } else if (isIOSBrowser()) {
       setDialogVisible(true);
     }
+    // Android sin prompt nativo: no hacer nada (el banner solo informa)
   };
 
   return (

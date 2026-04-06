@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth } from '../config/firebase';
+
+function isIOSBrowser(): boolean {
+  if (typeof window === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+}
 
 if (Platform.OS !== 'web') {
   WebBrowser.maybeCompleteAuthSession();
@@ -38,7 +43,14 @@ export function useGoogleSignIn() {
     if (Platform.OS === 'web') {
       setLoading(true);
       try {
-        await signInWithPopup(auth, new GoogleAuthProvider());
+        if (isIOSBrowser()) {
+          // iOS Safari PWA: popup funciona correctamente (redirect rompe el contexto standalone)
+          await signInWithPopup(auth, new GoogleAuthProvider());
+        } else {
+          // Android Chrome / Desktop: redirect es más confiable que popup en standalone
+          await signInWithRedirect(auth, new GoogleAuthProvider());
+          // El resultado lo procesa getRedirectResult en _layout.tsx
+        }
       } catch {
         setError('Error al iniciar sesión con Google');
         setLoading(false);
