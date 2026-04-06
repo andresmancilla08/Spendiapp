@@ -1142,6 +1142,7 @@ export default function HistoryScreen() {
   const [sheetVisible, setSheetVisible] = useState(false);
   const [detailTx, setDetailTx] = useState<Transaction | null>(null);
   const [detailVisible, setDetailVisible] = useState(false);
+  const [paidLoadingId, setPaidLoadingId] = useState<string | null>(null);
 
   // Siempre volver al mes actual al entrar
   useFocusEffect(useCallback(() => {
@@ -1222,6 +1223,24 @@ export default function HistoryScreen() {
     if (action === 'saved')      showToast(t('history.toasts.saved'), 'success');
     if (action === 'deleted')    showToast(t('history.toasts.deleted'), 'success');
     if (action === 'duplicated') showToast(t('history.toasts.duplicated'), 'info');
+  }, [showToast, t]);
+
+  const handleTogglePaid = useCallback(async (tx: Transaction) => {
+    const actualId = getActualId(tx);
+    setPaidLoadingId(actualId);
+    try {
+      const newValue = !tx.isPaid;
+      await updateDoc(doc(db, 'transactions', actualId), { isPaid: newValue });
+      setRefreshKey((k) => k + 1);
+      showToast(
+        newValue ? t('history.toasts.markedPaid') : t('history.toasts.markedUnpaid'),
+        newValue ? 'success' : 'info'
+      );
+    } catch {
+      showToast(t('errors.genericError'), 'error');
+    } finally {
+      setPaidLoadingId(null);
+    }
   }, [showToast, t]);
 
   const filteredTransactions = transactions
@@ -1429,6 +1448,8 @@ export default function HistoryScreen() {
                     onPress={handleTapTx}
                     onLongPress={handleLongPress}
                     cardsMap={cardsMap}
+                    onTogglePaid={handleTogglePaid}
+                    paidLoading={paidLoadingId === getActualId(tx)}
                   />
                 ))}
               </View>
