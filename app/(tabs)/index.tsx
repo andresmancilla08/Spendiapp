@@ -31,6 +31,7 @@ import {
   markBiometricsOffered,
 } from '../../hooks/useBiometrics';
 import AppDialog from '../../components/AppDialog';
+import PwaInstallBanner from '../../components/PwaInstallBanner';
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
   food:          { icon: '🍽️', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
@@ -194,6 +195,9 @@ export default function HomeScreen() {
             {t('home.progressTitle')}
           </Text>
         </View>
+
+        {/* PWA Install Banner */}
+        <PwaInstallBanner />
 
         {/* Balance card */}
         <View style={[styles.balanceCard, { backgroundColor: colors.primaryDark }]}>
