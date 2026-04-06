@@ -1241,7 +1241,7 @@ export default function HistoryScreen() {
     } finally {
       setPaidLoadingId(null);
     }
-  }, [showToast, t]);
+  }, [showToast, t, db]);
 
   const filteredTransactions = transactions
     .filter(t => activeFilter === 'all' || t.type === activeFilter)
