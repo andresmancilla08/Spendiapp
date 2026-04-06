@@ -30,7 +30,7 @@ export default function PwaInstallBanner() {
         type="info"
         title={t('pwaInstall.dialogTitle')}
         description={
-          <Text style={{ fontSize: 14, lineHeight: 22, color: colors.textSecondary }}>
+          <Text style={{ fontSize: 15, lineHeight: 22, color: colors.textSecondary, textAlign: 'center' }}>
             {'1. Toca el ícono de '}<Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{'compartir ↑'}</Text>{'\n'}
             {'2. Selecciona '}<Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{'"Añadir a pantalla de inicio"'}</Text>{'\n'}
             {'3. Toca '}<Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{'"Añadir"'}</Text>{' para confirmar'}
