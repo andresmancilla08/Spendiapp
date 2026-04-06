@@ -293,13 +293,51 @@
       "noTea": "Inserisci il % TEA per le rate con interessi"
     },
     "quickDesc": {
-      "food":          ["Pranzo", "Cena", "Colazione", "Caffè", "Consegna"],
-      "transport":     ["Uber", "Taxi", "Autobus", "Benzina", "Parcheggio"],
-      "health":        ["Farmacia", "Visita medica", "Esami", "Dentista"],
-      "entertainment": ["Cinema", "Streaming", "Bar", "Concerto", "Giochi"],
-      "shopping":      ["Vestiti", "Supermercato", "Elettronica", "Accessori"],
-      "home":          ["Affitto", "Utenze", "Spesa", "Manutenzione"],
-      "salary":        ["Stipendio", "Salario mensile", "Commissione", "Freelance"]
+      "food": [
+        "Pranzo",
+        "Cena",
+        "Colazione",
+        "Caffè",
+        "Consegna"
+      ],
+      "transport": [
+        "Uber",
+        "Taxi",
+        "Autobus",
+        "Benzina",
+        "Parcheggio"
+      ],
+      "health": [
+        "Farmacia",
+        "Visita medica",
+        "Esami",
+        "Dentista"
+      ],
+      "entertainment": [
+        "Cinema",
+        "Streaming",
+        "Bar",
+        "Concerto",
+        "Giochi"
+      ],
+      "shopping": [
+        "Vestiti",
+        "Supermercato",
+        "Elettronica",
+        "Accessori"
+      ],
+      "home": [
+        "Affitto",
+        "Utenze",
+        "Spesa",
+        "Manutenzione"
+      ],
+      "salary": [
+        "Stipendio",
+        "Salario mensile",
+        "Commissione",
+        "Freelance"
+      ]
     },
     "errors": {
       "saveFailed": "Impossibile salvare. Riprova."
@@ -324,10 +362,33 @@
       "confirmDeleteCancel": "Annulla",
       "saving": "Salvataggio...",
       "deleteError": "Impossibile eliminare. Riprova.",
-      "saveError": "Impossibile salvare. Riprova."
+      "saveError": "Impossibile salvare. Riprova.",
+      "fixedNote": "Spesa fissa — le modifiche riguardano tutti i mesi",
+      "fixedDeleteNote": "Elimina spesa fissa? Sparirà da tutti i mesi."
     },
-    "months": ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"],
-    "weekdays": ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"],
+    "months": [
+      "Gen",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mag",
+      "Giu",
+      "Lug",
+      "Ago",
+      "Set",
+      "Ott",
+      "Nov",
+      "Dic"
+    ],
+    "weekdays": [
+      "Dom",
+      "Lun",
+      "Mar",
+      "Mer",
+      "Gio",
+      "Ven",
+      "Sab"
+    ],
     "searchPlaceholder": "Cerca transazione...",
     "balanceLabel": "Saldo del mese",
     "fixedBadge": "Fisso",

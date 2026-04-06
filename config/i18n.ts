@@ -10,7 +10,7 @@ import it from '../locales/it.json';
 const LANGUAGE_KEY = '@spendiapp_language';
 
 export const LANGUAGES = [
-  { code: 'es', label: 'ES', flag: '🇨🇴' },
+  { code: 'es', label: 'ES', flag: '🇪🇸' },
   { code: 'en', label: 'EN', flag: '🇺🇸' },
   { code: 'it', label: 'IT', flag: '🇮🇹' },
 ];

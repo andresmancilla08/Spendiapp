@@ -293,13 +293,51 @@
       "noTea": "Ingresa el % TEA para las cuotas con interés"
     },
     "quickDesc": {
-      "food":          ["Almuerzo", "Cena", "Desayuno", "Café", "Domicilio"],
-      "transport":     ["Uber", "Taxi", "Bus", "Gasolina", "Parqueadero"],
-      "health":        ["Farmacia", "Consulta médica", "Exámenes", "Dentista"],
-      "entertainment": ["Cine", "Streaming", "Bar", "Concierto", "Juegos"],
-      "shopping":      ["Ropa", "Supermercado", "Electrónica", "Accesorios"],
-      "home":          ["Arriendo", "Servicios", "Mercado", "Mantenimiento"],
-      "salary":        ["Quincena", "Salario mensual", "Comisión", "Freelance"]
+      "food": [
+        "Almuerzo",
+        "Cena",
+        "Desayuno",
+        "Café",
+        "Domicilio"
+      ],
+      "transport": [
+        "Uber",
+        "Taxi",
+        "Bus",
+        "Gasolina",
+        "Parqueadero"
+      ],
+      "health": [
+        "Farmacia",
+        "Consulta médica",
+        "Exámenes",
+        "Dentista"
+      ],
+      "entertainment": [
+        "Cine",
+        "Streaming",
+        "Bar",
+        "Concierto",
+        "Juegos"
+      ],
+      "shopping": [
+        "Ropa",
+        "Supermercado",
+        "Electrónica",
+        "Accesorios"
+      ],
+      "home": [
+        "Arriendo",
+        "Servicios",
+        "Mercado",
+        "Mantenimiento"
+      ],
+      "salary": [
+        "Quincena",
+        "Salario mensual",
+        "Comisión",
+        "Freelance"
+      ]
     },
     "errors": {
       "saveFailed": "No se pudo guardar. Intenta de nuevo."
@@ -324,10 +362,33 @@
       "confirmDeleteCancel": "Cancelar",
       "saving": "Guardando...",
       "deleteError": "No se pudo eliminar. Intenta de nuevo.",
-      "saveError": "No se pudo guardar. Intenta de nuevo."
+      "saveError": "No se pudo guardar. Intenta de nuevo.",
+      "fixedNote": "Gasto fijo — los cambios afectan todos los meses",
+      "fixedDeleteNote": "¿Eliminar gasto fijo? Desaparecerá de todos los meses."
     },
-    "months": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-    "weekdays": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+    "months": [
+      "Ene",
+      "Feb",
+      "Mar",
+      "Abr",
+      "May",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dic"
+    ],
+    "weekdays": [
+      "Dom",
+      "Lun",
+      "Mar",
+      "Mié",
+      "Jue",
+      "Vie",
+      "Sáb"
+    ],
     "searchPlaceholder": "Buscar transacción...",
     "balanceLabel": "Balance del mes",
     "fixedBadge": "Fijo",

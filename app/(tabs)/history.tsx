@@ -95,6 +95,16 @@ function groupByDay(transactions: Transaction[], weekdays: string[]): DayGroup[]
   });
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Extrae el ID real de Firestore (las copias virtuales tienen id = "realId_virtual_year_month") */
+function getActualId(transaction: Transaction): string {
+  if (transaction.isVirtualFixed) {
+    return transaction.id.split('_virtual_')[0];
+  }
+  return transaction.id;
+}
+
 // ── Edit Bottom Sheet ─────────────────────────────────────────────────────────
 
 type EditAction = 'saved' | 'deleted' | 'duplicated';
@@ -182,7 +192,7 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
     setEditLoading(true);
     setEditError('');
     try {
-      await updateDoc(doc(db, 'transactions', transaction.id), {
+      await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
         description: editDesc,
         amount: parsed,
         category: editCategory,
@@ -211,6 +221,7 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
         description: editDesc.trim(),
         date: Timestamp.fromDate(transaction.date),
         createdAt: Timestamp.fromDate(new Date()),
+        // La copia nunca hereda isFixed (se crea como transacción normal)
       });
       handleClose();
       onActionDone('duplicated');
@@ -225,7 +236,7 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
     setEditLoading(true);
     setEditError('');
     try {
-      await deleteDoc(doc(db, 'transactions', transaction.id));
+      await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
       handleClose();
       onActionDone('deleted');
     } catch {
@@ -301,6 +312,16 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
               contentContainerStyle={styles.sheetScrollContent}
               keyboardShouldPersistTaps="handled"
             >
+              {/* Nota gasto fijo */}
+              {transaction?.isVirtualFixed && (
+                <View style={[styles.fixedNoteBar, { backgroundColor: `${colors.primary}18` }]}>
+                  <Ionicons name="repeat" size={14} color={colors.primary} />
+                  <Text style={[styles.fixedNoteText, { color: colors.primary }]}>
+                    {t('history.edit.fixedNote')}
+                  </Text>
+                </View>
+              )}
+
               {/* Description */}
               <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>
                 {t('history.edit.descriptionLabel').toUpperCase()}
@@ -561,10 +582,14 @@ function TransactionDetailSheet({
 
   const handleEdit = () => {
     if (!transaction) return;
+    // Para copias virtuales, pasar el ID real al sheet de edición
+    const txForEdit = transaction.isVirtualFixed
+      ? { ...transaction, id: getActualId(transaction) }
+      : transaction;
     animateOut(() => {
       slideAnim.setValue(0);
       onClose();
-      onEdit(transaction);
+      onEdit(txForEdit);
     });
   };
 
@@ -581,7 +606,7 @@ function TransactionDetailSheet({
         date: Timestamp.fromDate(transaction.date),
         createdAt: Timestamp.fromDate(new Date()),
         ...(transaction.cardId ? { cardId: transaction.cardId } : {}),
-        ...(transaction.isFixed ? { isFixed: true } : {}),
+        // Las copias duplicadas NUNCA heredan isFixed
       });
       handleClose();
       onActionDone('duplicated');
@@ -594,7 +619,7 @@ function TransactionDetailSheet({
     if (!transaction) return;
     setDeleteLoading(true);
     try {
-      await deleteDoc(doc(db, 'transactions', transaction.id));
+      await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
       handleClose();
       onActionDone('deleted');
     } catch {
@@ -1618,6 +1643,23 @@ const styles = StyleSheet.create({
   sheetScrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
+  },
+
+  // Fixed note bar
+  fixedNoteBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  fixedNoteText: {
+    fontSize: 13,
+    fontFamily: Fonts.semiBold,
+    flex: 1,
   },
 
   // Fields

@@ -74,11 +74,12 @@ export function useTransactions(userId: string, year: number, month: number, ref
     return unsub;
   }, [userId, year, month, refreshKey]);
 
-  // Query 2: transacciones fijas creadas ANTES de este mes (para generar copias virtuales)
+  // Query 2: TODAS las transacciones fijas del usuario (sin filtro de fecha para evitar
+  // índice compuesto de 3 campos). Filtramos client-side para solo incluir las de meses
+  // anteriores al que se está viendo, generando "copias virtuales" para ese mes.
   useEffect(() => {
     if (!userId) return;
 
-    const start = new Date(year, month, 1);
     // No mostrar copias virtuales en meses futuros
     const now = new Date();
     const isViewingFuture = year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth());
@@ -87,32 +88,43 @@ export function useTransactions(userId: string, year: number, month: number, ref
     const q = query(
       collection(db, 'transactions'),
       where('userId', '==', userId),
-      where('isFixed', '==', true),
-      where('date', '<', Timestamp.fromDate(start))
+      where('isFixed', '==', true)
     );
 
     const unsub = onSnapshot(q, (snap) => {
-      const copies: Transaction[] = snap.docs.map((doc) => {
-        const d = doc.data();
-        const originalDate: Date = (d.date as Timestamp).toDate();
-        // Ajustar fecha al mes visualizado, mismo día (clamped al último día del mes)
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const adjustedDay  = Math.min(originalDate.getDate(), daysInMonth);
-        return {
-          id: `${doc.id}_virtual_${year}_${month}`,
-          userId: d.userId,
-          type: d.type,
-          amount: d.amount,
-          category: d.category,
-          description: d.description,
-          date: new Date(year, month, adjustedDay),
-          createdAt: (d.createdAt as Timestamp).toDate(),
-          isFixed: true,
-          isVirtualFixed: true,
-        };
-      });
+      const start = new Date(year, month, 1);
+      const copies: Transaction[] = snap.docs
+        .filter((doc) => {
+          // Solo incluir si la transacción fija fue creada ANTES del mes que se visualiza
+          const d = doc.data();
+          const date: Date = (d.date as Timestamp).toDate();
+          return date < start;
+        })
+        .map((doc) => {
+          const d = doc.data();
+          const originalDate: Date = (d.date as Timestamp).toDate();
+          // Ajustar fecha al mes visualizado, mismo día (clamped al último día del mes)
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const adjustedDay = Math.min(originalDate.getDate(), daysInMonth);
+          return {
+            id: `${doc.id}_virtual_${year}_${month}`,
+            userId: d.userId,
+            type: d.type,
+            amount: d.amount,
+            category: d.category,
+            description: d.description,
+            date: new Date(year, month, adjustedDay),
+            createdAt: (d.createdAt as Timestamp).toDate(),
+            isFixed: true,
+            isVirtualFixed: true,
+            cardId: d.cardId,
+          };
+        });
       setFixed(copies);
-    }, () => setFixed([]));
+    }, (err) => {
+      console.warn('useTransactions fixed query error:', err.code);
+      setFixed([]);
+    });
 
     return unsub;
   }, [userId, year, month, refreshKey]);

@@ -44,12 +44,12 @@ export function useGoogleSignIn() {
       setLoading(true);
       try {
         if (isIOSBrowser()) {
-          // iOS Safari PWA: popup funciona correctamente (redirect rompe el contexto standalone)
-          await signInWithPopup(auth, new GoogleAuthProvider());
-        } else {
-          // Android Chrome / Desktop: redirect es más confiable que popup en standalone
+          // iOS Safari PWA: usar redirect (popup falla porque window.opener es null en standalone)
+          // El auth state se comparte entre Safari y PWA vía IndexedDB mismo origen
           await signInWithRedirect(auth, new GoogleAuthProvider());
-          // El resultado lo procesa getRedirectResult en _layout.tsx
+        } else {
+          // Android Chrome / Desktop: popup funciona correctamente en standalone
+          await signInWithPopup(auth, new GoogleAuthProvider());
         }
       } catch {
         setError('Error al iniciar sesión con Google');
