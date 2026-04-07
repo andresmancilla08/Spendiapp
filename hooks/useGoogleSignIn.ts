@@ -5,29 +5,19 @@ import * as WebBrowser from 'expo-web-browser';
 import { GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
-/**
- * Devuelve true cuando se debe usar signInWithRedirect en lugar de signInWithPopup.
- *
- * - Cualquier mobile (iOS o Android), browser o PWA: redirect.
- *   Android Chrome bloquea popups en mobile; iOS Safari tampoco los soporta bien.
- * - Desktop (Chrome, Firefox, Safari): popup (mejor UX, no abandona la página).
- */
-function shouldUseRedirect(): boolean {
-  if (typeof window === 'undefined') return false;
-  // PWA standalone (iOS o Android)
-  if ((window.navigator as any).standalone === true) return true;
-  if (window.matchMedia('(display-mode: standalone)').matches) return true;
-  // Cualquier mobile browser
-  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return true;
-  return false;
-}
-
 if (Platform.OS !== 'web') {
   WebBrowser.maybeCompleteAuthSession();
 }
 
 const IOS_CLIENT = '859030212165-v702d1qr3aat8qr6ug2m0o0f338rla7b.apps.googleusercontent.com';
 const ANDROID_CLIENT = '859030212165-oaco2j799adi2r2fpbdo3u1q5qdj3s3n.apps.googleusercontent.com';
+
+// Códigos que NO son errores reales (usuario canceló o cerró el popup)
+const USER_CANCELLED_CODES = new Set([
+  'auth/popup-closed-by-user',
+  'auth/cancelled-popup-request',
+  'auth/user-cancelled',
+]);
 
 export function useGoogleSignIn() {
   const [loading, setLoading] = useState(false);
@@ -39,6 +29,7 @@ export function useGoogleSignIn() {
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
   });
 
+  // Plataforma nativa (Expo iOS/Android): recibe id_token via expo-auth-session
   useEffect(() => {
     if (Platform.OS === 'web') return;
     if (response?.type === 'success') {
@@ -48,28 +39,52 @@ export function useGoogleSignIn() {
       signInWithCredential(auth, credential)
         .catch(() => setError('Error al iniciar sesión con Google'))
         .finally(() => setLoading(false));
+    } else if (response?.type === 'error') {
+      setError('Error al iniciar sesión con Google');
     }
   }, [response]);
 
   const promptAsync = async () => {
-    if (Platform.OS === 'web') {
-      setLoading(true);
-      try {
-        if (shouldUseRedirect()) {
-          // Mobile (cualquier browser o PWA): redirect — popup falla en Chrome mobile
-          // y en iOS standalone por window.opener=null
-          await signInWithRedirect(auth, new GoogleAuthProvider());
-        } else {
-          // Desktop browser: popup (mejor UX)
-          await signInWithPopup(auth, new GoogleAuthProvider());
-        }
-      } catch {
-        setError('Error al iniciar sesión con Google');
-        setLoading(false);
-      }
+    if (Platform.OS !== 'web') {
+      nativePromptAsync();
       return;
     }
-    nativePromptAsync();
+
+    setLoading(true);
+    setError(null);
+    const provider = new GoogleAuthProvider();
+
+    try {
+      // signInWithPopup funciona en todos los contextos web cuando es disparado
+      // directamente por un gesto del usuario (click). Es la estrategia más
+      // confiable para PWA iOS/Android/Desktop.
+      await signInWithPopup(auth, provider);
+      // onAuthStateChanged en _layout.tsx detecta el usuario y enruta a /(tabs)/
+    } catch (err: any) {
+      const code: string = err?.code ?? '';
+
+      if (USER_CANCELLED_CODES.has(code)) {
+        // El usuario cerró el popup — no es un error
+        setLoading(false);
+        return;
+      }
+
+      if (code === 'auth/popup-blocked') {
+        // Browser bloqueó el popup (ej. Chrome en Android sin gesto previo)
+        // Fallback: redirigir — el resultado se procesa en _layout.tsx
+        try {
+          await signInWithRedirect(auth, provider);
+          // signInWithRedirect navega fuera de la página, no retorna aquí
+        } catch {
+          setError('Error al iniciar sesión con Google');
+          setLoading(false);
+        }
+        return;
+      }
+
+      setError('Error al iniciar sesión con Google');
+      setLoading(false);
+    }
   };
 
   return {

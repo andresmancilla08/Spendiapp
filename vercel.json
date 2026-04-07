@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm run export",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/((?!_expo/|assets/|favicon\\.ico|manifest\\.json|apple-touch-icon\\.png).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

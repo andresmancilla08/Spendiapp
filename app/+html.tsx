@@ -14,10 +14,39 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Spendia" />
 
+        {/* Web App Manifest (PWA installability) */}
+        <link rel="manifest" href="/manifest.json" />
+
         {/* Ícono para iOS al agregar a pantalla de inicio */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
+        {/* Capture beforeinstallprompt early before React mounts */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          window.__pwaPrompt = null;
+          window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            window.__pwaPrompt = e;
+          });
+        `}} />
+
         <ScrollViewStyleReset />
+
+        {/* Remove browser focus outline on all inputs */}
+        <style>{`
+          * {
+            -webkit-tap-highlight-color: transparent;
+          }
+          input, textarea, select, [contenteditable] {
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-appearance: none;
+          }
+          input:focus, textarea:focus, select:focus, [contenteditable]:focus,
+          input:focus-visible, textarea:focus-visible, select:focus-visible, [contenteditable]:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+          }
+        `}</style>
       </head>
       <body>{children}</body>
     </html>
