@@ -495,7 +495,9 @@
     }
   },
   "budget": {
-    "title": "Presupuesto"
+    "title": "Presupuesto",
+    "comingSoon": "Próximamente",
+    "comingSoonDesc": "Estamos trabajando en esta función. Pronto podrás controlar tus presupuestos desde aquí."
   },
   "biometricLock": {
     "greeting": "Bienvenid@, {{name}}",
@@ -517,10 +519,13 @@
     "subtitle": "Selecciona tus tarjetas para llevar un mejor control de tus gastos.",
     "credit": "Crédito",
     "debit": "Débito",
-    "digitError": "Ingresa exactamente 4 dígitos",
+    "nicknameLabel": "Nombre de la tarjeta",
+    "nicknamePlaceholder": "Ej: Principal, Nómina, Viajes...",
+    "nicknameError": "Escribe un nombre para la tarjeta",
     "saveError": "No se pudo agregar la tarjeta",
     "toastOne": "1 tarjeta agregada correctamente",
-    "toastMany": "{{n}} tarjetas agregadas correctamente"
+    "toastMany": "{{n}} tarjetas agregadas correctamente",
+    "deleteError": "No se pudo eliminar la tarjeta"
   },
   "cardsScreen": {
     "title": "Mis tarjetas",
@@ -545,9 +550,10 @@
     "typeLabel": "Tipo de tarjeta",
     "credit": "Crédito",
     "debit": "Débito",
-    "lastFourLabel": "Últimos 4 dígitos",
+    "nicknameLabel": "Nombre de la tarjeta",
+    "nicknamePlaceholder": "Ej: Principal, Nómina, Viajes...",
+    "nicknameError": "Escribe un nombre para la tarjeta",
     "addButton": "Agregar tarjeta",
-    "digitError": "Ingresa exactamente 4 dígitos",
     "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo."
   },
   "pwaInstall": {

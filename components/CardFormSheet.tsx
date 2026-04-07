@@ -19,6 +19,8 @@ import { addCard } from '../hooks/useCards';
 import type { CardType } from '../types/card';
 import BankLogo from './BankLogo';
 
+const MAX_NICKNAME = 15;
+
 interface CardFormSheetProps {
   visible: boolean;
   onClose: () => void;
@@ -32,7 +34,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
   const [step, setStep] = useState<'bank' | 'details'>('bank');
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
   const [cardType, setCardType] = useState<CardType>('debit');
-  const [lastFour, setLastFour] = useState('');
+  const [nickname, setNickname] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -40,7 +42,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
     setStep('bank');
     setSelectedBank(null);
     setCardType('debit');
-    setLastFour('');
+    setNickname('');
     setSaving(false);
     setError('');
   };
@@ -54,11 +56,12 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
 
   const handleSave = async () => {
     if (!selectedBank) return;
-    if (lastFour.length !== 4) { setError(t('cardForm.digitError')); return; }
+    const trimmed = nickname.trim();
+    if (!trimmed) { setError(t('cardForm.nicknameError')); return; }
     setError('');
     setSaving(true);
     try {
-      await addCard(userId, selectedBank.id, selectedBank.name, cardType, lastFour);
+      await addCard(userId, selectedBank.id, selectedBank.name, cardType, trimmed);
       handleClose();
     } catch {
       setError(t('cardForm.saveError'));
@@ -66,7 +69,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
     }
   };
 
-  const canSave = lastFour.length === 4 && !saving;
+  const canSave = nickname.trim().length > 0 && !saving;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
@@ -117,7 +120,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
           />
         )}
 
-        {/* Paso 2: Tipo + últimos 4 */}
+        {/* Paso 2: Tipo + apodo */}
         {step === 'details' && (
           <View style={styles.detailsForm}>
             {/* Chips tipo */}
@@ -145,18 +148,52 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
               ))}
             </View>
 
-            {/* Últimos 4 dígitos */}
-            <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('cardForm.lastFourLabel')}</Text>
+            {/* Nombre / apodo */}
+            <View style={styles.labelRow}>
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('cardForm.nicknameLabel')}</Text>
+              <Text style={[styles.charCount, { color: nickname.length >= MAX_NICKNAME ? colors.error : colors.textTertiary }]}>
+                {nickname.length}/{MAX_NICKNAME}
+              </Text>
+            </View>
             <TextInput
-              style={[styles.lastFourInput, { borderColor: error ? colors.error : colors.border, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary }]}
-              placeholder="0000"
+              style={[
+                styles.nicknameInput,
+                {
+                  borderColor: error ? colors.error : colors.border,
+                  color: colors.textPrimary,
+                  backgroundColor: colors.backgroundSecondary,
+                },
+              ]}
+              placeholder={t('cardForm.nicknamePlaceholder')}
               placeholderTextColor={colors.textTertiary}
-              keyboardType="numeric"
-              maxLength={4}
-              value={lastFour}
-              onChangeText={(v) => { setError(''); setLastFour(v.replace(/\D/g, '').slice(0, 4)); }}
+              maxLength={MAX_NICKNAME}
+              autoCapitalize="words"
+              value={nickname}
+              onChangeText={(v) => { setError(''); setNickname(v); }}
             />
             {error !== '' && <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>}
+
+            {/* Preview badge */}
+            {nickname.trim().length > 0 && (
+              <View style={styles.previewRow}>
+                <View style={[styles.previewBadge, { backgroundColor: colors.primaryLight }]}>
+                  <Text style={[styles.previewBadgeText, { color: colors.primary }]}>
+                    {nickname.trim()}
+                  </Text>
+                </View>
+                <View style={[
+                  styles.previewBadge,
+                  { backgroundColor: cardType === 'credit' ? colors.primaryLight : colors.tertiaryLight },
+                ]}>
+                  <Text style={[
+                    styles.previewBadgeText,
+                    { color: cardType === 'credit' ? colors.primary : colors.tertiaryDark },
+                  ]}>
+                    {cardType === 'debit' ? t('cardForm.debit') : t('cardForm.credit')}
+                  </Text>
+                </View>
+              </View>
+            )}
 
             {/* Botón guardar */}
             <TouchableOpacity
@@ -198,11 +235,23 @@ const styles = StyleSheet.create({
   bankItemText: { flex: 1, fontSize: 15, fontFamily: Fonts.medium },
   detailsForm: { paddingHorizontal: 20, paddingTop: 8, gap: 12 },
   fieldLabel: { fontSize: 13, fontFamily: Fonts.semiBold },
+  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  charCount: { fontSize: 11, fontFamily: Fonts.regular },
   typeRow: { flexDirection: 'row', gap: 12 },
   typeChip: { flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1.5, alignItems: 'center' },
   typeChipText: { fontSize: 14, fontFamily: Fonts.semiBold },
-  lastFourInput: { height: 56, borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 16, fontSize: 22, fontFamily: Fonts.bold, letterSpacing: 6, textAlign: 'center' },
+  nicknameInput: {
+    height: 52,
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontFamily: Fonts.semiBold,
+  },
   errorText: { fontSize: 12, fontFamily: Fonts.regular },
-  saveBtn: { height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  previewRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  previewBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  previewBadgeText: { fontSize: 12, fontFamily: Fonts.semiBold },
+  saveBtn: { height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   saveBtnText: { fontSize: 16, fontFamily: Fonts.bold, color: '#FFFFFF' },
 });

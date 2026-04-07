@@ -380,7 +380,7 @@ export default function CategoriesScreen() {
             <DefaultCategoryRow
               key={cat.id}
               emoji={cat.icon}
-              name={cat.name}
+              name={t(`categories.names.${cat.id}`)}
               type={cat.type}
               isLast={index === DEFAULT_CATEGORIES.length - 1}
             />

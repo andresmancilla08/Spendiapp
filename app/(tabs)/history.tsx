@@ -146,8 +146,6 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
   const [editCategory, setEditCategory] = useState('');
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState('');
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
-
   // Pre-fill when transaction changes
   useEffect(() => {
     if (transaction) {
@@ -155,7 +153,6 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
       setEditAmount(String(transaction.amount));
       setEditCategory(transaction.category);
       setEditError('');
-      setConfirmingDelete(false);
     }
   }, [transaction]);
 
@@ -207,46 +204,6 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
       onActionDone('saved');
     } catch {
       setEditError(t('history.edit.saveError'));
-      setEditLoading(false);
-    }
-  };
-
-  const handleDuplicate = async () => {
-    if (!transaction) return;
-    const parsed = parseFloat(editAmount.replace(',', '.'));
-    if (isNaN(parsed) || parsed <= 0) return;
-
-    setEditLoading(true);
-    setEditError('');
-    try {
-      await addDoc(collection(db, 'transactions'), {
-        userId: transaction.userId,
-        type: transaction.type,
-        amount: parsed,
-        category: editCategory,
-        description: editDesc.trim(),
-        date: Timestamp.fromDate(transaction.date),
-        createdAt: Timestamp.fromDate(new Date()),
-        // La copia nunca hereda isFixed (se crea como transacción normal)
-      });
-      handleClose();
-      onActionDone('duplicated');
-    } catch {
-      setEditError(t('history.edit.saveError'));
-      setEditLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!transaction) return;
-    setEditLoading(true);
-    setEditError('');
-    try {
-      await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
-      handleClose();
-      onActionDone('deleted');
-    } catch {
-      setEditError(t('history.edit.deleteError'));
       setEditLoading(false);
     }
   };
@@ -430,82 +387,6 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
                 )}
               </TouchableOpacity>
 
-              {/* Secondary actions row */}
-              <View style={styles.secondaryRow}>
-                {/* Duplicate */}
-                <TouchableOpacity
-                  style={[
-                    styles.secondaryButton,
-                    {
-                      backgroundColor: colors.surface,
-                      borderWidth: 1.5,
-                      borderColor: colors.primary,
-                      flex: 1,
-                    },
-                    isSaveDisabled && styles.buttonDisabled,
-                  ]}
-                  onPress={handleDuplicate}
-                  disabled={isSaveDisabled}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="copy-outline" size={15} color={colors.primary} style={{ marginRight: 6 }} />
-                  <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>
-                    {t('history.edit.duplicateButton')}
-                  </Text>
-                </TouchableOpacity>
-
-                {/* Delete / Confirm */}
-                {confirmingDelete ? (
-                  <View style={[styles.confirmDeleteWrap, { flex: 1.4 }]}>
-                    <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
-                      {t('history.edit.confirmDelete')}
-                    </Text>
-                    <View style={styles.confirmDeleteBtns}>
-                      <TouchableOpacity
-                        style={[styles.confirmBtn, { backgroundColor: colors.error }]}
-                        onPress={handleDelete}
-                        disabled={editLoading}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
-                          {t('history.edit.confirmDeleteYes')}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[
-                          styles.confirmBtn,
-                          {
-                            backgroundColor: colors.backgroundSecondary,
-                            borderWidth: 1,
-                            borderColor: colors.border,
-                          },
-                        ]}
-                        onPress={() => setConfirmingDelete(false)}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
-                          {t('history.edit.confirmDeleteCancel')}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ) : (
-                  <TouchableOpacity
-                    style={[
-                      styles.secondaryButton,
-                      { backgroundColor: colors.errorLight, flex: 1 },
-                    ]}
-                    onPress={() => setConfirmingDelete(true)}
-                    disabled={editLoading}
-                    activeOpacity={0.8}
-                  >
-                    <Ionicons name="trash-outline" size={15} color={colors.error} style={{ marginRight: 6 }} />
-                    <Text style={[styles.secondaryButtonText, { color: colors.error }]}>
-                      {t('history.edit.deleteButton')}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
             </ScrollView>
           </View>
         </KeyboardAvoidingView>
@@ -522,7 +403,7 @@ interface DetailSheetProps {
   onClose: () => void;
   onEdit: (tx: Transaction) => void;
   onActionDone: (action: EditAction) => void;
-  cardsMap: Record<string, { bankName: string; lastFour: string; type: string }>;
+  cardsMap: Record<string, { bankName: string; nickname: string; type: string }>;
 }
 
 function TransactionDetailSheet({
@@ -539,9 +420,16 @@ function TransactionDetailSheet({
   const MAX_SHEET_HEIGHT = Math.round(screenHeight * 0.90);
 
   const slideAnim = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [duplicateLoading, setDuplicateLoading] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  useEffect(() => {
+    if (confirmingDelete) {
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
+    }
+  }, [confirmingDelete]);
 
   const CATEGORY_LABELS: Record<string, string> = {
     food: t('categories.names.food'),
@@ -575,6 +463,8 @@ function TransactionDetailSheet({
   useEffect(() => {
     if (visible) {
       setConfirmingDelete(false);
+      setDeleteLoading(false);
+      setDuplicateLoading(false);
       animateIn();
     }
   }, [visible, animateIn]);
@@ -614,6 +504,7 @@ function TransactionDetailSheet({
         ...(transaction.cardId ? { cardId: transaction.cardId } : {}),
         // Las copias duplicadas NUNCA heredan isFixed
       });
+      setDuplicateLoading(false);
       handleClose();
       onActionDone('duplicated');
     } catch {
@@ -626,6 +517,7 @@ function TransactionDetailSheet({
     setDeleteLoading(true);
     try {
       await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
+      setDeleteLoading(false);
       handleClose();
       onActionDone('deleted');
     } catch {
@@ -708,6 +600,7 @@ function TransactionDetailSheet({
           </View>
 
           <ScrollView
+            ref={scrollViewRef}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.sheetScrollContent}
           >
@@ -804,7 +697,7 @@ function TransactionDetailSheet({
                     </Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
-                        {`${card.bankName} ••${card.lastFour}`}
+                        {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
                       </Text>
                       <View style={[
                         styles.detailCardTypeBadge,
@@ -886,92 +779,93 @@ function TransactionDetailSheet({
               )}
             </View>
 
-            {/* Action tiles */}
-            <View style={[styles.actionGrid, { marginTop: 24 }]}>
-              {/* Edit */}
-              <TouchableOpacity
-                style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
-                onPress={handleEdit}
-                activeOpacity={0.75}
-                disabled={isLoading}
-              >
-                <Ionicons name="create-outline" size={22} color={colors.primary} />
-                <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
-                  {t('history.detail.editButton')}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Duplicate */}
-              <TouchableOpacity
-                style={[
-                  styles.actionTile,
-                  { backgroundColor: `${colors.tertiary}18` },
-                  duplicateLoading && styles.buttonDisabled,
-                ]}
-                onPress={handleDuplicate}
-                activeOpacity={0.75}
-                disabled={isLoading}
-              >
-                {duplicateLoading
-                  ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
-                  : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
-                }
-                <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
-                  {t('history.edit.duplicateButton')}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Delete */}
-              <TouchableOpacity
-                style={[
-                  styles.actionTile,
-                  { backgroundColor: colors.errorLight },
-                  deleteLoading && styles.buttonDisabled,
-                ]}
-                onPress={() => setConfirmingDelete(true)}
-                activeOpacity={0.75}
-                disabled={isLoading}
-              >
-                {deleteLoading
-                  ? <ActivityIndicator size="small" color={colors.error} />
-                  : <Ionicons name="trash-outline" size={22} color={colors.error} />
-                }
-                <Text style={[styles.actionTileLabel, { color: colors.error }]}>
-                  {t('history.edit.deleteButton')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Confirm delete inline */}
-            {confirmingDelete && (
-              <View style={[styles.confirmDeleteWrap, { marginTop: 12 }]}>
-                <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
-                  {t('history.edit.confirmDelete')}
-                </Text>
-                <View style={styles.confirmDeleteBtns}>
+            {/* Action tiles / Confirm delete */}
+            <View style={{ marginTop: 24 }}>
+              {confirmingDelete ? (
+                <View style={[styles.confirmDeleteWrap, { backgroundColor: colors.errorLight, borderRadius: 16, padding: 16 }]}>
+                  <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
+                    {t('history.edit.confirmDelete')}
+                  </Text>
+                  <View style={styles.confirmDeleteBtns}>
+                    <TouchableOpacity
+                      style={[styles.confirmBtn, { backgroundColor: colors.error, flex: 1 }]}
+                      onPress={handleDelete}
+                      disabled={isLoading}
+                      activeOpacity={0.8}
+                    >
+                      {deleteLoading
+                        ? <ActivityIndicator size="small" color="#FFFFFF" />
+                        : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>{t('history.edit.confirmDeleteYes')}</Text>
+                      }
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.confirmBtn, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border, flex: 1 }]}
+                      onPress={() => setConfirmingDelete(false)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
+                        {t('history.edit.confirmDeleteCancel')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.actionGrid}>
+                  {/* Edit */}
                   <TouchableOpacity
-                    style={[styles.confirmBtn, { backgroundColor: colors.error, flex: 1 }]}
-                    onPress={handleDelete}
+                    style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
+                    onPress={handleEdit}
+                    activeOpacity={0.75}
                     disabled={isLoading}
-                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="create-outline" size={22} color={colors.primary} />
+                    <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
+                      {t('history.detail.editButton')}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Duplicate */}
+                  <TouchableOpacity
+                    style={[
+                      styles.actionTile,
+                      { backgroundColor: `${colors.tertiary}18` },
+                      duplicateLoading && styles.buttonDisabled,
+                    ]}
+                    onPress={handleDuplicate}
+                    activeOpacity={0.75}
+                    disabled={isLoading}
+                  >
+                    {duplicateLoading
+                      ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
+                      : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
+                    }
+                    <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
+                      {t('history.edit.duplicateButton')}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Delete */}
+                  <TouchableOpacity
+                    style={[
+                      styles.actionTile,
+                      { backgroundColor: colors.errorLight },
+                      deleteLoading && styles.buttonDisabled,
+                    ]}
+                    onPress={() => setConfirmingDelete(true)}
+                    activeOpacity={0.75}
+                    disabled={isLoading}
                   >
                     {deleteLoading
-                      ? <ActivityIndicator size="small" color="#FFFFFF" />
-                      : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>{t('history.edit.confirmDeleteYes')}</Text>
+                      ? <ActivityIndicator size="small" color={colors.error} />
+                      : <Ionicons name="trash-outline" size={22} color={colors.error} />
                     }
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.confirmBtn, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border, flex: 1 }]}
-                    onPress={() => setConfirmingDelete(false)}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
-                      {t('history.edit.confirmDeleteCancel')}
+                    <Text style={[styles.actionTileLabel, { color: colors.error }]}>
+                      {t('history.edit.deleteButton')}
                     </Text>
                   </TouchableOpacity>
                 </View>
-              </View>
-            )}
+              )}
+            </View>
 
           </ScrollView>
         </View>
@@ -987,7 +881,7 @@ interface TransactionRowProps {
   isLast: boolean;
   onPress: (tx: Transaction) => void;
   onLongPress: (tx: Transaction) => void;
-  cardsMap: Record<string, { bankName: string; lastFour: string; type: string }>;
+  cardsMap: Record<string, { bankName: string; nickname: string; type: string }>;
   onTogglePaid?: (tx: Transaction) => void;
   paidLoading?: boolean;
 }
@@ -1126,7 +1020,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                   <Text style={[styles.txCardChipText, {
                     color: card.type === 'credit' ? colors.primary : colors.tertiary,
                   }]}>
-                    {`${card.bankName} ••${card.lastFour}`}
+                    {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
                   </Text>
                 </View>
               )}

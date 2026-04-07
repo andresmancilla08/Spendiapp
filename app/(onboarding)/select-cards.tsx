@@ -1,9 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -20,6 +19,7 @@ import { Fonts } from '../../config/fonts';
 import { COLOMBIAN_BANKS, BANK_CATEGORY_LABELS, Bank } from '../../config/banks';
 import { addCard, deleteCard, useCards } from '../../hooks/useCards';
 import type { CardType } from '../../types/card';
+import { TextInput } from 'react-native';
 import BankLogo from '../../components/BankLogo';
 
 const CATEGORIES: Bank['category'][] = ['traditional', 'digital', 'other'];
@@ -33,51 +33,30 @@ export default function SelectCardsScreen() {
 
   const [expandedBankId, setExpandedBankId] = useState<string | null>(null);
   const [formType, setFormType] = useState<CardType>('debit');
-  const [formLastFour, setFormLastFour] = useState('');
+  const [formNickname, setFormNickname] = useState('');
   const [formSaving, setFormSaving] = useState(false);
   const [formError, setFormError] = useState('');
-  const [focusedDigit, setFocusedDigit] = useState<number | null>(null);
-  const digitRefs = useRef<(TextInput | null)[]>([null, null, null, null]);
-
-  const handleDigitChange = (text: string, index: number) => {
-    const digit = text.replace(/\D/g, '').slice(-1);
-    const chars = formLastFour.padEnd(4, '').split('');
-    chars[index] = digit;
-    const next = chars.join('').trimEnd();
-    setFormError('');
-    setFormLastFour(next);
-    if (digit && index < 3) digitRefs.current[index + 1]?.focus();
-  };
-
-  const handleDigitKey = (key: string, index: number) => {
-    if (key === 'Backspace' && !formLastFour[index] && index > 0) {
-      const chars = formLastFour.padEnd(4, '').split('');
-      chars[index - 1] = '';
-      setFormLastFour(chars.join('').trimEnd());
-      digitRefs.current[index - 1]?.focus();
-    }
-  };
 
   const gradientColors: [string, string, string] = isDark
     ? ['#0D1A1C', '#062830', '#003840']
     : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
 
   const handleToggleBank = (bankId: string) => {
-    setFormLastFour('');
+    setFormNickname('');
     setFormType('debit');
     setFormError('');
-    setFocusedDigit(null);
     setExpandedBankId(expandedBankId === bankId ? null : bankId);
   };
 
   const handleAddCard = async (bank: Bank) => {
     if (!user) return;
-    if (formLastFour.length !== 4) { setFormError(t('selectCards.digitError')); return; }
+    const trimmed = formNickname.trim();
+    if (!trimmed) { setFormError(t('selectCards.nicknameError')); return; }
     setFormError('');
     setFormSaving(true);
     try {
-      await addCard(user.uid, bank.id, bank.name, formType, formLastFour);
-      setFormLastFour('');
+      await addCard(user.uid, bank.id, bank.name, formType, trimmed);
+      setFormNickname('');
       setFormType('debit');
       setExpandedBankId(null);
     } catch {
@@ -166,9 +145,18 @@ export default function SelectCardsScreen() {
                             {cardsForBank.map((card) => (
                               <View key={card.id} style={[styles.addedChip, { backgroundColor: colors.primaryLight }]}>
                                 <Text style={[styles.addedChipText, { color: colors.primary }]}>
-                                  {`•••• ${card.lastFour} · ${card.type === 'credit' ? t('selectCards.credit') : t('selectCards.debit')}`}
+                                  {card.nickname ? `${card.nickname} · ${card.type === 'credit' ? t('selectCards.credit') : t('selectCards.debit')}` : (card.type === 'credit' ? t('selectCards.credit') : t('selectCards.debit'))}
                                 </Text>
-                                <TouchableOpacity onPress={() => deleteCard(card.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                                <TouchableOpacity
+                                  onPress={async () => {
+                                    try {
+                                      await deleteCard(card.id);
+                                    } catch {
+                                      showToast(t('selectCards.deleteError'), 'error');
+                                    }
+                                  }}
+                                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                >
                                   <Ionicons name="close-circle" size={16} color={colors.primary} />
                                 </TouchableOpacity>
                               </View>
@@ -203,37 +191,26 @@ export default function SelectCardsScreen() {
                               ))}
                             </View>
 
-                            {/* Últimos 4 dígitos — 4 cajas individuales */}
-                            <View style={styles.digitRow}>
-                              {[0, 1, 2, 3].map((i) => {
-                                const filled = !!formLastFour[i];
-                                const focused = focusedDigit === i;
-                                const borderColor = formError
-                                  ? colors.error
-                                  : focused
-                                  ? colors.borderFocus
-                                  : filled
-                                  ? colors.primary
-                                  : colors.border;
-                                const bg = focused || filled ? colors.primaryLight : colors.surface;
-                                return (
-                                  <TextInput
-                                    key={i}
-                                    ref={(r) => { digitRefs.current[i] = r; }}
-                                    style={[styles.digitBox, { borderColor, backgroundColor: bg, color: colors.primary }]}
-                                    value={formLastFour[i] ?? ''}
-                                    onChangeText={(t) => handleDigitChange(t, i)}
-                                    onKeyPress={(e) => handleDigitKey(e.nativeEvent.key, i)}
-                                    onFocus={() => setFocusedDigit(i)}
-                                    onBlur={() => setFocusedDigit(null)}
-                                    keyboardType="numeric"
-                                    maxLength={1}
-                                    textAlign="center"
-                                    caretHidden
-                                  />
-                                );
-                              })}
-                            </View>
+                            {/* Nombre / apodo */}
+                            <Text style={[styles.pinLabel, { color: colors.textSecondary }]}>
+                              {t('selectCards.nicknameLabel')}
+                            </Text>
+                            <TextInput
+                              style={[
+                                styles.nicknameInput,
+                                {
+                                  borderColor: formError ? colors.error : colors.border,
+                                  color: colors.textPrimary,
+                                  backgroundColor: colors.surface,
+                                },
+                              ]}
+                              placeholder={t('selectCards.nicknamePlaceholder')}
+                              placeholderTextColor={colors.textTertiary}
+                              maxLength={15}
+                              autoCapitalize="words"
+                              value={formNickname}
+                              onChangeText={(v) => { setFormError(''); setFormNickname(v); }}
+                            />
 
                             {formError !== '' && (
                               <Text style={[styles.formError, { color: colors.error }]}>{formError}</Text>
@@ -244,10 +221,10 @@ export default function SelectCardsScreen() {
                               style={[
                                 styles.addBtn,
                                 { backgroundColor: colors.primary },
-                                (formLastFour.length !== 4 || formSaving) && { opacity: 0.4 },
+                                (!formNickname.trim() || formSaving) && { opacity: 0.4 },
                               ]}
                               onPress={() => handleAddCard(bank)}
-                              disabled={formLastFour.length !== 4 || formSaving}
+                              disabled={!formNickname.trim() || formSaving}
                               activeOpacity={0.85}
                             >
                               {formSaving
@@ -313,8 +290,8 @@ const styles = StyleSheet.create({
   typeRow: { flexDirection: 'row', gap: 8 },
   typeChip: { flex: 1, paddingVertical: 7, borderRadius: 20, borderWidth: 1.5, alignItems: 'center' },
   typeChipText: { fontSize: 13, fontFamily: Fonts.semiBold },
-  digitRow: { flexDirection: 'row', gap: 8, justifyContent: 'center' },
-  digitBox: { width: 44, height: 44, borderRadius: 10, borderWidth: 1.5, fontSize: 18, fontFamily: Fonts.bold },
+  pinLabel: { fontSize: 12, fontFamily: Fonts.semiBold, alignSelf: 'flex-start' },
+  nicknameInput: { height: 44, borderWidth: 1.5, borderRadius: 10, paddingHorizontal: 12, fontSize: 14, fontFamily: Fonts.semiBold },
   formError: { fontSize: 12, fontFamily: Fonts.regular },
   addBtn: { height: 46, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
   addBtnText: { fontSize: 15, fontFamily: Fonts.bold, color: '#FFFFFF' },

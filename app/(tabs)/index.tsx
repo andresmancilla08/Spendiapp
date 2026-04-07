@@ -63,7 +63,7 @@ function timeAgo(date: Date): string {
 function TransactionRow({ item, isLast, cardsMap }: {
   item: Transaction;
   isLast: boolean;
-  cardsMap: Record<string, { bankName: string; lastFour: string; type: string }>;
+  cardsMap: Record<string, { bankName: string; nickname: string; type: string }>;
 }) {
   const { colors, isDark } = useTheme();
   const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
@@ -90,7 +90,7 @@ function TransactionRow({ item, isLast, cardsMap }: {
           {card && (
             <View style={[styles.txCardChip, { backgroundColor: colors.primaryLight }]}>
               <Text style={[styles.txCardChipText, { color: colors.primary }]}>
-                {`${card.bankName} ••${card.lastFour}`}
+                {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
               </Text>
             </View>
           )}
