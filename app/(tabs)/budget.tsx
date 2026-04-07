@@ -295,7 +295,7 @@ export default function BudgetScreen() {
             </View>
           )}
 
-          <View style={{ height: 40 }} />
+          <View style={{ height: 100 }} />
         </ScrollView>
       )}
 
@@ -360,11 +360,11 @@ export default function BudgetScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scroll: { padding: 16, paddingTop: 12 },
+  scroll: { padding: 16, paddingTop: 16, paddingBottom: 40 },
   monthRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 10,
-    marginHorizontal: 16, marginBottom: 4, borderRadius: 12,
+    paddingHorizontal: 20, paddingVertical: 12,
+    marginHorizontal: 16, marginTop: 8, marginBottom: 16, borderRadius: 12,
   },
   monthBtn: { padding: 4 },
   disabledBtn: { opacity: 0.3 },
@@ -398,8 +398,8 @@ const styles = StyleSheet.create({
   spentAmt: { fontSize: 14, fontFamily: Fonts.bold },
   limitAmt: { fontSize: 12, fontFamily: Fonts.regular },
   pctLabel: { fontSize: 11, fontFamily: Fonts.medium, marginTop: 4 },
-  unlimitedSection: { marginTop: 8 },
-  sectionHeader: { fontSize: 11, fontFamily: Fonts.semiBold, letterSpacing: 0.8, marginBottom: 8, marginLeft: 4 },
+  unlimitedSection: { marginTop: 20 },
+  sectionHeader: { fontSize: 11, fontFamily: Fonts.semiBold, letterSpacing: 0.8, marginBottom: 10, marginLeft: 4 },
   unlimitedRow: {
     flexDirection: 'row', alignItems: 'center',
     padding: 14, borderRadius: 12, marginBottom: 8, gap: 10,
