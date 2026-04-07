@@ -38,70 +38,73 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.row}>
-        {[0, 1, 2, 3].map((i) => {
-          const filled = !!value[i];
-          const focused = focusedIndex === i;
-          const borderColor = error
-            ? colors.error
-            : focused
-            ? colors.borderFocus
-            : filled
-            ? colors.primary
-            : colors.border;
-          const bg = focused
-            ? colors.primaryLight
-            : filled
-            ? colors.primaryLight
-            : colors.backgroundSecondary;
-          return (
-            <View key={i} style={{ position: 'relative' }}>
-              <TextInput
-                ref={(r) => { inputs.current[i] = r; }}
-                style={[
-                  styles.box,
-                  { borderColor, backgroundColor: bg, color: 'transparent' },
-                  focused && styles.boxFocused,
-                ]}
-                value={value[i] ? '•' : ''}
-                onChangeText={(t) => handleChange(t, i)}
-                onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
-                onFocus={() => setFocusedIndex(i)}
-                onBlur={() => setFocusedIndex(null)}
-                keyboardType="numeric"
-                maxLength={1}
-                textAlign="center"
-                caretHidden
-              />
-              {!!value[i] && (
-                <View style={styles.dotOverlay} pointerEvents="none">
-                  <Text style={[
-                    styles.dotText,
-                    showPin
-                      ? { color: colors.textPrimary, fontSize: 22 }
-                      : { color: colors.primary },
-                  ]}>
-                    {showPin ? value[i] : '•'}
-                  </Text>
-                </View>
-              )}
-            </View>
-          );
-        })}
-      </View>
+      {/* Grupo compacto: boxes + ícono ojo juntos, centrado en pantalla */}
+      <View style={styles.group}>
+        <View style={styles.dotsRow}>
+          {[0, 1, 2, 3].map((i) => {
+            const filled = !!value[i];
+            const focused = focusedIndex === i;
+            const borderColor = error
+              ? colors.error
+              : focused
+              ? colors.borderFocus
+              : filled
+              ? colors.primary
+              : colors.border;
+            const bg = focused
+              ? colors.primaryLight
+              : filled
+              ? colors.primaryLight
+              : colors.backgroundSecondary;
+            return (
+              <View key={i} style={{ position: 'relative' }}>
+                <TextInput
+                  ref={(r) => { inputs.current[i] = r; }}
+                  style={[
+                    styles.box,
+                    { borderColor, backgroundColor: bg, color: 'transparent' },
+                    focused && styles.boxFocused,
+                  ]}
+                  value={value[i] ? '•' : ''}
+                  onChangeText={(t) => handleChange(t, i)}
+                  onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
+                  onFocus={() => setFocusedIndex(i)}
+                  onBlur={() => setFocusedIndex(null)}
+                  keyboardType="numeric"
+                  maxLength={1}
+                  textAlign="center"
+                  caretHidden
+                />
+                {!!value[i] && (
+                  <View style={styles.dotOverlay} pointerEvents="none">
+                    <Text style={[
+                      styles.dotText,
+                      showPin
+                        ? { color: colors.textPrimary, fontSize: 22 }
+                        : { color: colors.primary },
+                    ]}>
+                      {showPin ? value[i] : '•'}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            );
+          })}
+        </View>
 
-      <TouchableOpacity
-        style={styles.eyeButton}
-        onPress={() => setShowPin((p) => !p)}
-        activeOpacity={0.7}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <Ionicons
-          name={showPin ? 'eye-outline' : 'eye-off-outline'}
-          size={22}
-          color={colors.textTertiary}
-        />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.eyeButton}
+          onPress={() => setShowPin((p) => !p)}
+          activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons
+            name={showPin ? 'eye-outline' : 'eye-off-outline'}
+            size={22}
+            color={colors.textTertiary}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -110,12 +113,16 @@ const styles = StyleSheet.create({
   wrapper: {
     alignSelf: 'stretch',
     alignItems: 'center',
-    position: 'relative',
   },
-  row: {
+  // Grupo compacto centrado: [⬜][⬜][⬜][⬜] [👁]
+  group: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    alignItems: 'center',
     gap: 16,
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    gap: 12,
   },
   box: {
     width: 60,
@@ -144,11 +151,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   eyeButton: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
+    width: 40,
+    height: 60,
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    alignItems: 'center',
   },
 });

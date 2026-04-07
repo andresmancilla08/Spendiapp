@@ -36,10 +36,17 @@ export default function RootLayout() {
     return unsubscribe;
   }, []);
 
-  // Procesar resultado de signInWithRedirect (Android Chrome PWA)
+  // Procesar resultado de signInWithRedirect si el popup fue bloqueado y
+  // se usó redirect como fallback. onAuthStateChanged se dispara automáticamente
+  // cuando getRedirectResult completa con éxito.
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    getRedirectResult(auth).catch(() => {});
+    getRedirectResult(auth).catch((err) => {
+      // Solo ignorar si no hay resultado pendiente (caso normal al cargar la app)
+      if (err?.code !== 'auth/no-auth-event') {
+        console.warn('[Auth] getRedirectResult error:', err?.code, err?.message);
+      }
+    });
   }, []);
 
 

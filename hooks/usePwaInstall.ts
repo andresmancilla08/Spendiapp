@@ -22,6 +22,12 @@ export function usePwaInstall() {
     if (Platform.OS !== 'web') return;
     let mounted = true;
 
+    // Pick up event captured before React mounted
+    if ((window as any).__pwaPrompt) {
+      setDeferredPrompt((window as any).__pwaPrompt);
+      (window as any).__pwaPrompt = null;
+    }
+
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
       if (mounted) setDeferredPrompt(e as BeforeInstallPromptEvent);

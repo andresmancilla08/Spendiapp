@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   textInput: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: Fonts.regular,
   },
   typeToggleRow: {

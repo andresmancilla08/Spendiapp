@@ -1,0 +1,19 @@
+{
+  "name": "Spendia",
+  "short_name": "Spendia",
+  "description": "Controla tus gastos mensuales",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#00ACC1",
+  "orientation": "portrait",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "192x192 512x512 1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

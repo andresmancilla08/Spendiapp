@@ -1289,7 +1289,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   descriptionInput: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: Fonts.regular,
   },
   sectionLabel: {
@@ -1452,7 +1452,7 @@ const styles = StyleSheet.create({
   },
   newCatInlineInput: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 16,
     fontFamily: Fonts.medium,
     minWidth: 80,
     maxWidth: 140,
