@@ -62,6 +62,14 @@
       "description": "This email already has a PIN account. Would you like to sign in?",
       "primary": "Sign in",
       "secondary": "Cancel"
+    },
+    "inactivity": {
+      "title": "Still there?",
+      "description": "For security, we'll log you out in {{seconds}} seconds due to inactivity.",
+      "stayButton": "Stay in app",
+      "logoutButton": "Log out",
+      "descBefore": "For security, we'll log you out in",
+      "descAfter": "seconds due to inactivity."
     }
   },
   "errors": {

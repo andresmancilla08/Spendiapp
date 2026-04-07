@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { Stack, router } from 'expo-router';
-import { onAuthStateChanged } from '../hooks/useAuth';
+import { onAuthStateChanged, signOut } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
 import { getRedirectResult } from 'firebase/auth';
 import { auth } from '../config/firebase';
@@ -11,10 +11,19 @@ import { ThemeProvider } from '../context/ThemeContext';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import { isBiometricsAppEnrolled } from '../hooks/useBiometrics';
+import { Text } from 'react-native';
+import { Fonts } from '../config/fonts';
+import { useInactivityTimer } from '../hooks/useInactivityTimer';
+import AppDialog from '../components/AppDialog';
+import { useTranslation } from 'react-i18next';
 
 export default function RootLayout() {
   const { user, isLoading, justRegistered, biometricLocked, setUser, setLoading, setBiometricLocked } = useAuthStore();
   const [i18nReady, setI18nReady] = useState(false);
+  const { t } = useTranslation();
+  const [inactivityDialogVisible, setInactivityDialogVisible] = useState(false);
+  const [countdown, setCountdown] = useState(30);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
@@ -85,6 +94,55 @@ export default function RootLayout() {
     }
   }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, biometricLocked]);
 
+  const { reset: resetInactivityTimer } = useInactivityTimer({
+    timeoutMs: 180_000,
+    onInactive: () => {
+      setCountdown(30);
+      setInactivityDialogVisible(true);
+    },
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (!inactivityDialogVisible) {
+      if (countdownRef.current !== null) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+      return;
+    }
+
+    countdownRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownRef.current!);
+          countdownRef.current = null;
+          signOut();
+          setInactivityDialogVisible(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (countdownRef.current !== null) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+    };
+  }, [inactivityDialogVisible]);
+
+  const handleStay = () => {
+    setInactivityDialogVisible(false);
+    resetInactivityTimer();
+  };
+
+  const handleLogout = () => {
+    setInactivityDialogVisible(false);
+    signOut();
+  };
+
   if (!i18nReady || !fontsLoaded) return null;
 
   return (
@@ -96,6 +154,23 @@ export default function RootLayout() {
             animation: 'slide_from_right',
             animationDuration: 280,
           }}
+        />
+        <AppDialog
+          visible={inactivityDialogVisible}
+          type="warning"
+          title={t('dialogs.inactivity.title')}
+          description={
+            <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20 }}>
+              {t('dialogs.inactivity.descBefore')}{' '}
+              <Text style={{ fontFamily: Fonts.bold }}>{countdown}</Text>{' '}
+              {t('dialogs.inactivity.descAfter')}
+            </Text>
+          }
+          primaryLabel={t('dialogs.inactivity.stayButton')}
+          secondaryLabel={t('dialogs.inactivity.logoutButton')}
+          onPrimary={handleStay}
+          onSecondary={handleLogout}
+          loading={false}
         />
       </ToastProvider>
     </ThemeProvider>

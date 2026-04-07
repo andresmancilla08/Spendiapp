@@ -62,6 +62,14 @@
       "description": "Este correo ya tiene una cuenta con PIN. ¿Quieres iniciar sesión?",
       "primary": "Iniciar sesión",
       "secondary": "Cancelar"
+    },
+    "inactivity": {
+      "title": "¿Sigues ahí?",
+      "description": "Por seguridad, cerraremos tu sesión en {{seconds}} segundos por inactividad.",
+      "stayButton": "Seguir en la app",
+      "logoutButton": "Cerrar sesión",
+      "descBefore": "Por seguridad, cerraremos tu sesión en",
+      "descAfter": "segundos por inactividad."
     }
   },
   "errors": {
