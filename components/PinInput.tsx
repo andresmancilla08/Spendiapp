@@ -4,17 +4,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
+const SIZE_CONFIG = {
+  md: { box: 60, radius: 16, fontSize: 28, gap: 12 },
+  sm: { box: 44, radius: 12, fontSize: 18, gap: 8 },
+};
+
 interface PinInputProps {
   value: string;
   onChange: (v: string) => void;
   error?: boolean;
+  defaultVisible?: boolean;
+  size?: 'sm' | 'md';
 }
 
-export default function PinInput({ value, onChange, error = false }: PinInputProps) {
+export default function PinInput({ value, onChange, error = false, defaultVisible = false, size = 'md' }: PinInputProps) {
+  const cfg = SIZE_CONFIG[size];
   const { colors } = useTheme();
   const inputs = useRef<(TextInput | null)[]>([null, null, null, null]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const [showPin, setShowPin] = useState(false);
+  const [showPin, setShowPin] = useState(defaultVisible);
 
   const handleChange = (text: string, index: number) => {
     const digit = text.replace(/[^0-9]/g, '').slice(-1);
@@ -39,8 +47,8 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
   return (
     <View style={styles.wrapper}>
       {/* Grupo compacto: boxes + ícono ojo juntos, centrado en pantalla */}
-      <View style={styles.group}>
-        <View style={styles.dotsRow}>
+      <View style={[styles.group, { gap: cfg.gap + 4 }]}>
+        <View style={[styles.dotsRow, { gap: cfg.gap }]}>
           {[0, 1, 2, 3].map((i) => {
             const filled = !!value[i];
             const focused = focusedIndex === i;
@@ -62,7 +70,15 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
                   ref={(r) => { inputs.current[i] = r; }}
                   style={[
                     styles.box,
-                    { borderColor, backgroundColor: bg, color: 'transparent' },
+                    {
+                      width: cfg.box,
+                      height: cfg.box,
+                      borderRadius: cfg.radius,
+                      fontSize: cfg.fontSize,
+                      borderColor,
+                      backgroundColor: bg,
+                      color: 'transparent',
+                    },
                     focused && styles.boxFocused,
                   ]}
                   value={value[i] ? '•' : ''}
@@ -79,8 +95,9 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
                   <View style={styles.dotOverlay} pointerEvents="none">
                     <Text style={[
                       styles.dotText,
+                      { fontSize: showPin ? cfg.fontSize - 6 : cfg.fontSize },
                       showPin
-                        ? { color: colors.textPrimary, fontSize: 22 }
+                        ? { color: colors.textPrimary }
                         : { color: colors.primary },
                     ]}>
                       {showPin ? value[i] : '•'}
@@ -93,7 +110,7 @@ export default function PinInput({ value, onChange, error = false }: PinInputPro
         </View>
 
         <TouchableOpacity
-          style={styles.eyeButton}
+          style={[styles.eyeButton, { height: cfg.box }]}
           onPress={() => setShowPin((p) => !p)}
           activeOpacity={0.7}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}

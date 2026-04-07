@@ -467,7 +467,9 @@
     }
   },
   "budget": {
-    "title": "Budget"
+    "title": "Budget",
+    "comingSoon": "Prossimamente",
+    "comingSoonDesc": "Stiamo lavorando a questa funzione. Presto potrai gestire i tuoi budget da qui."
   },
   "biometricLock": {
     "greeting": "Bentornato/a, {{name}}",
@@ -489,7 +491,9 @@
     "subtitle": "Seleziona le tue carte per tenere meglio traccia delle spese.",
     "credit": "Credito",
     "debit": "Debito",
-    "digitError": "Inserisci esattamente 4 cifre",
+    "nicknameLabel": "Nome della carta",
+    "nicknamePlaceholder": "Es.: Principale, Stipendio, Viaggi...",
+    "nicknameError": "Inserisci un nome per la carta",
     "saveError": "Impossibile aggiungere la carta",
     "toastOne": "1 carta aggiunta con successo",
     "toastMany": "{{n}} carte aggiunte con successo"
@@ -517,9 +521,10 @@
     "typeLabel": "Tipo di carta",
     "credit": "Credito",
     "debit": "Debito",
-    "lastFourLabel": "Ultime 4 cifre",
+    "nicknameLabel": "Nome della carta",
+    "nicknamePlaceholder": "Es.: Principale, Stipendio, Viaggi...",
+    "nicknameError": "Inserisci un nome per la carta",
     "addButton": "Aggiungi carta",
-    "digitError": "Inserisci esattamente 4 cifre",
     "saveError": "Impossibile salvare la carta. Riprova."
   },
   "support": {

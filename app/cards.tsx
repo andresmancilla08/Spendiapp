@@ -36,7 +36,7 @@ export default function CardsScreen() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await deleteCardAndTransactions(deleteTarget.id);
+      await deleteCardAndTransactions(deleteTarget.id, user!.uid);
       showToast(t('cardsScreen.deletedSuccess'), 'success');
       setDeleteTarget(null);
     } catch {
@@ -100,18 +100,27 @@ export default function CardsScreen() {
                 <BankLogo bankId={card.bankId} size={40} radius={10} />
                 <View style={styles.meta}>
                   <Text style={[styles.cardName, { color: colors.textPrimary }]}>
-                    {`${card.bankName} •••• ${card.lastFour}`}
+                    {card.bankName}
                   </Text>
-                  <View style={[
-                    styles.badge,
-                    { backgroundColor: card.type === 'credit' ? colors.primaryLight : colors.tertiaryLight },
-                  ]}>
-                    <Text style={[
-                      styles.badgeText,
-                      { color: card.type === 'credit' ? colors.primary : colors.tertiaryDark },
+                  <View style={styles.badgeRow}>
+                    {card.nickname ? (
+                      <View style={[styles.badge, { backgroundColor: colors.primaryLight }]}>
+                        <Text style={[styles.badgeText, { color: colors.primary }]}>
+                          {card.nickname}
+                        </Text>
+                      </View>
+                    ) : null}
+                    <View style={[
+                      styles.badge,
+                      { backgroundColor: card.type === 'credit' ? colors.primaryLight : colors.tertiaryLight },
                     ]}>
-                      {card.type === 'credit' ? t('cardsScreen.credit') : t('cardsScreen.debit')}
-                    </Text>
+                      <Text style={[
+                        styles.badgeText,
+                        { color: card.type === 'credit' ? colors.primary : colors.tertiaryDark },
+                      ]}>
+                        {card.type === 'credit' ? t('cardsScreen.credit') : t('cardsScreen.debit')}
+                      </Text>
+                    </View>
                   </View>
                 </View>
                 <TouchableOpacity
@@ -140,7 +149,7 @@ export default function CardsScreen() {
           <Text style={[dialogDescStyle, { color: colors.textSecondary }]}>
             {t('cardsScreen.deleteDialog.descPart1')}
             <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>
-              {`${deleteTarget?.bankName} •••• ${deleteTarget?.lastFour}`}
+              {deleteTarget?.nickname ? `${deleteTarget.bankName} · ${deleteTarget.nickname}` : deleteTarget?.bankName ?? ''}
             </Text>
             {t('cardsScreen.deleteDialog.descPart2')}
             <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>
@@ -181,7 +190,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14 },
   meta: { flex: 1 },
   cardName: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 4 },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  badgeRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  badge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
   badgeText: { fontSize: 11, fontFamily: Fonts.semiBold },
   emptyWrap: { alignItems: 'center', paddingVertical: 32, gap: 4 },
   emptyText: { fontSize: 14, fontFamily: Fonts.semiBold },

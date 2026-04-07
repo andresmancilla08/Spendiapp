@@ -1025,7 +1025,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           >
                             <BankLogo bankId={card.bankId} size={20} radius={5} />
                             <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]}>
-                              {`••${card.lastFour}${selectedCardId === card.id && installmentCount > 1 ? ` · ${installmentCount}×` : ''}`}
+                              {`${card.nickname || card.bankName}${selectedCardId === card.id && installmentCount > 1 ? ` · ${installmentCount}×` : ''}`}
                             </Text>
                             <View style={[
                               styles.cardTypeBadge,

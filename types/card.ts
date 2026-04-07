@@ -6,6 +6,6 @@ export interface Card {
   bankId: string;
   bankName: string;
   type: CardType;
-  lastFour: string; // exactamente 4 dígitos
+  nickname: string;
   createdAt: Date;
 }

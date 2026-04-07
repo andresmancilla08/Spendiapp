@@ -44,7 +44,7 @@ export function useCards(userId: string): UseCardsResult {
             bankId: v.bankId,
             bankName: v.bankName,
             type: v.type as CardType,
-            lastFour: v.lastFour,
+            nickname: v.nickname ?? v.lastFour ?? '',
             createdAt: (v.createdAt as Timestamp).toDate(),
           };
         });
@@ -72,14 +72,14 @@ export async function addCard(
   bankId: string,
   bankName: string,
   type: CardType,
-  lastFour: string,
+  nickname: string,
 ): Promise<string> {
   const ref = await addDoc(collection(db, 'cards'), {
     userId,
     bankId,
     bankName,
     type,
-    lastFour,
+    nickname,
     createdAt: Timestamp.fromDate(new Date()),
   });
   return ref.id;
@@ -90,9 +90,13 @@ export async function deleteCard(cardId: string): Promise<void> {
 }
 
 /** Elimina la tarjeta y TODAS sus transacciones asociadas en un solo batch. */
-export async function deleteCardAndTransactions(cardId: string): Promise<void> {
+export async function deleteCardAndTransactions(cardId: string, userId: string): Promise<void> {
   const txSnap = await getDocs(
-    query(collection(db, 'transactions'), where('cardId', '==', cardId)),
+    query(
+      collection(db, 'transactions'),
+      where('userId', '==', userId),
+      where('cardId', '==', cardId),
+    ),
   );
   const batch = writeBatch(db);
   txSnap.forEach((d) => batch.delete(d.ref));
