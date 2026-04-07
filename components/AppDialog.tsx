@@ -225,11 +225,12 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     lineHeight: 22,
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: 'left',
+    alignSelf: 'stretch',
   },
   descriptionWrap: {
     marginBottom: 24,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     alignSelf: 'stretch',
   },
   inputWrapper: {
