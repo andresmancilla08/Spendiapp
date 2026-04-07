@@ -62,6 +62,14 @@
       "description": "Questa email ha già un account con PIN. Vuoi accedere?",
       "primary": "Accedi",
       "secondary": "Annulla"
+    },
+    "inactivity": {
+      "title": "Sei ancora lì?",
+      "description": "Per sicurezza, ti disconnetteremo tra {{seconds}} secondi per inattività.",
+      "stayButton": "Rimani nell'app",
+      "logoutButton": "Esci",
+      "descBefore": "Per sicurezza, ti disconnetteremo tra",
+      "descAfter": "secondi per inattività."
     }
   },
   "errors": {
