@@ -476,8 +476,30 @@
   },
   "budget": {
     "title": "Budget",
-    "comingSoon": "Coming Soon",
-    "comingSoonDesc": "We're working on this feature. Soon you'll be able to manage your budgets right here."
+    "monthlyBudget": "Monthly budget",
+    "totalSpent": "Spent",
+    "totalLimit": "Total limit",
+    "available": "Available",
+    "spentLabel": "spent",
+    "limitExceeded": "Limit exceeded!",
+    "nobudgets": {
+      "title": "No budgets yet",
+      "sub": "Define how much you want to spend per category"
+    },
+    "addLimit": "Set limit",
+    "editLimit": "Edit limit",
+    "unlimitedSection": "NO LIMIT SET",
+    "dialog": {
+      "addTitle": "New budget",
+      "editTitle": "Edit budget",
+      "deleteTitle": "Delete budget",
+      "deleteDesc": "Delete the budget for {{category}}?",
+      "limitLabel": "Monthly limit (COP)",
+      "limitPlaceholder": "e.g. 500000",
+      "save": "Save",
+      "delete": "Delete",
+      "cancel": "Cancel"
+    }
   },
   "biometricLock": {
     "greeting": "Welcome back, {{name}}",

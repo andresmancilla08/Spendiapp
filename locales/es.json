@@ -504,8 +504,30 @@
   },
   "budget": {
     "title": "Presupuesto",
-    "comingSoon": "Próximamente",
-    "comingSoonDesc": "Estamos trabajando en esta función. Pronto podrás controlar tus presupuestos desde aquí."
+    "monthlyBudget": "Presupuesto del mes",
+    "totalSpent": "Gastado",
+    "totalLimit": "Límite total",
+    "available": "Disponible",
+    "spentLabel": "gastado",
+    "limitExceeded": "¡Límite superado!",
+    "nobudgets": {
+      "title": "Sin presupuestos",
+      "sub": "Define cuánto quieres gastar por categoría"
+    },
+    "addLimit": "Definir límite",
+    "editLimit": "Editar límite",
+    "unlimitedSection": "SIN LÍMITE DEFINIDO",
+    "dialog": {
+      "addTitle": "Nuevo presupuesto",
+      "editTitle": "Editar presupuesto",
+      "deleteTitle": "Eliminar presupuesto",
+      "deleteDesc": "¿Eliminar el presupuesto de {{category}}?",
+      "limitLabel": "Límite mensual (COP)",
+      "limitPlaceholder": "Ej: 500000",
+      "save": "Guardar",
+      "delete": "Eliminar",
+      "cancel": "Cancelar"
+    }
   },
   "biometricLock": {
     "greeting": "Bienvenid@, {{name}}",
