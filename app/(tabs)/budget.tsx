@@ -305,7 +305,7 @@ export default function BudgetScreen() {
           type="info"
           title={dialogMode === 'add' ? t('budget.dialog.addTitle') : t('budget.dialog.editTitle')}
           description={
-            <View>
+            <View style={{ alignSelf: 'stretch' }}>
               <Text style={{ fontFamily: Fonts.regular, fontSize: 14, marginBottom: 8, color: colors.textSecondary }}>
                 {t('budget.dialog.limitLabel')}
               </Text>
