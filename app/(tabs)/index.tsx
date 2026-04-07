@@ -154,6 +154,48 @@ export default function HomeScreen() {
   const photoUrl = user?.photoURL;
   const recent = transactions.slice(0, 5);
 
+  // Greeting contextual por hora
+  const hour = new Date().getHours();
+  const greetingKey =
+    hour >= 6 && hour < 12 ? 'home.greetingMorning'
+    : hour >= 12 && hour < 18 ? 'home.greetingAfternoon'
+    : hour >= 18 && hour < 22 ? 'home.greetingEvening'
+    : 'home.greetingNight';
+
+  // Gasto de hoy
+  const today = new Date();
+  const todaySpent = transactions
+    .filter((tx) => {
+      if (tx.type !== 'expense') return false;
+      const d = tx.date instanceof Date ? tx.date : new Date(tx.date);
+      return (
+        d.getDate() === today.getDate() &&
+        d.getMonth() === today.getMonth() &&
+        d.getFullYear() === today.getFullYear()
+      );
+    })
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  const expenseRatio = totalIncome > 0 ? totalExpenses / totalIncome : 0;
+
+  const subtitleKey: string | null =
+    todaySpent > 0 ? null
+    : transactions.length === 0 ? 'home.subtitleStart'
+    : expenseRatio >= 0.8 ? 'home.subtitleWarning'
+    : expenseRatio < 0.4 && totalIncome > 0 ? 'home.subtitleGood'
+    : 'home.subtitleDefault';
+
+  const pillVisible = totalIncome > 0 && totalExpenses > 0;
+  const pillPercent = Math.round(expenseRatio * 100);
+  const pillColor =
+    pillPercent >= 85 ? colors.error
+    : pillPercent >= 60 ? '#F59E0B'
+    : colors.success;
+  const pillIcon =
+    pillPercent >= 85 ? 'warning' as const
+    : pillPercent >= 60 ? 'alert-circle' as const
+    : 'trending-down' as const;
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.backgroundSecondary }]}>
 
@@ -188,12 +230,24 @@ export default function HomeScreen() {
 
         {/* Greeting */}
         <View style={styles.greeting}>
-          <Text style={[styles.greetingHi, { color: colors.textSecondary }]}>
-            {t('home.greeting', { name: displayName })}
+          <Text style={[styles.greetingHi, { color: colors.textPrimary }]}>
+            {t(greetingKey, { name: firstName })}
           </Text>
-          <Text style={[styles.greetingTitle, { color: colors.textPrimary }]}>
-            {t('home.progressTitle')}
-          </Text>
+          <View style={styles.greetingSubRow}>
+            <Text style={[styles.greetingSubtitle, { color: colors.textSecondary }]}>
+              {subtitleKey
+                ? t(subtitleKey)
+                : t('home.subtitleSpentToday', { amount: formatCurrency(todaySpent) })}
+            </Text>
+            {pillVisible && (
+              <View style={[styles.pill, { backgroundColor: pillColor + '20' }]}>
+                <Ionicons name={pillIcon} size={11} color={pillColor} />
+                <Text style={[styles.pillText, { color: pillColor }]}>
+                  {t('home.pillSpent', { percent: pillPercent })}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
 
         {/* PWA Install Banner */}
@@ -350,8 +404,23 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingBottom: 130 },
 
   greeting: { marginBottom: 20 },
-  greetingHi: { fontSize: 14, fontFamily: Fonts.regular, marginBottom: 2 },
-  greetingTitle: { fontSize: 24, fontFamily: Fonts.bold },
+  greetingHi: { fontSize: 22, fontFamily: Fonts.bold, marginBottom: 4 },
+  greetingSubRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  greetingSubtitle: { fontSize: 13, fontFamily: Fonts.regular },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 20,
+  },
+  pillText: { fontSize: 11, fontFamily: Fonts.semiBold },
 
   // Balance card
   balanceCard: {
