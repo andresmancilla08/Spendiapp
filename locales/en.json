@@ -494,6 +494,8 @@
       "editTitle": "Edit budget",
       "deleteTitle": "Delete budget",
       "deleteDesc": "Delete the budget for {{category}}?",
+      "deleteDescBefore": "Delete the budget for",
+      "deleteDescAfter": "?",
       "limitLabel": "Monthly limit (COP)",
       "limitPlaceholder": "e.g. 500000",
       "save": "Save",

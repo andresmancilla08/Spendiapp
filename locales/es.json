@@ -522,6 +522,8 @@
       "editTitle": "Editar presupuesto",
       "deleteTitle": "Eliminar presupuesto",
       "deleteDesc": "¿Eliminar el presupuesto de {{category}}?",
+      "deleteDescBefore": "¿Eliminar el presupuesto de",
+      "deleteDescAfter": "?",
       "limitLabel": "Límite mensual (COP)",
       "limitPlaceholder": "Ej: 500000",
       "save": "Guardar",

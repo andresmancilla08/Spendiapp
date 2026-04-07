@@ -18,19 +18,9 @@ import { useBudgets } from '../../hooks/useBudgets';
 import { useTransactions } from '../../hooks/useTransactions';
 import { Budget } from '../../types/budget';
 import AppDialog from '../../components/AppDialog';
-import { AppHeader } from '../../components/AppHeader';
+import AppHeader from '../../components/AppHeader';
 import { Fonts } from '../../config/fonts';
 
-const CATEGORY_META: Record<string, { icon: string; color: string }> = {
-  food:          { icon: '🍽️', color: '#EF4444' },
-  transport:     { icon: '🚗', color: '#F59E0B' },
-  health:        { icon: '💊', color: '#10B981' },
-  entertainment: { icon: '🎉', color: '#8B5CF6' },
-  shopping:      { icon: '🛍️', color: '#EC4899' },
-  home:          { icon: '🏡', color: '#00897B' },
-  salary:        { icon: '💰', color: '#00ACC1' },
-  other:         { icon: '📌', color: '#737879' },
-};
 
 const DEFAULT_EXPENSE_CATEGORIES = [
   { id: 'food', name: 'Comida', icon: '🍽️' },
@@ -351,9 +341,9 @@ export default function BudgetScreen() {
           title={t('budget.dialog.deleteTitle')}
           description={
             <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, color: colors.textSecondary }}>
-              {'¿Eliminar el presupuesto de '}
+              {t('budget.dialog.deleteDescBefore')}{' '}
               <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{selectedBudget.categoryName}</Text>
-              {'?'}
+              {t('budget.dialog.deleteDescAfter')}
             </Text>
           }
           primaryLabel={t('budget.dialog.delete')}
