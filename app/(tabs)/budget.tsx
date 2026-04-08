@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
@@ -194,21 +195,27 @@ export default function BudgetScreen() {
     }
   };
 
+  const isSaveDisabled = parseInt(limitInput.replace(/\D/g, ''), 10) <= 0 || limitInput.trim() === '';
+
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.backgroundSecondary }]}>
       <AppHeader showBack={false} />
 
-      <View style={[styles.monthRow, { backgroundColor: colors.surface }]}>
-        <TouchableOpacity onPress={goToPrevMonth} style={styles.monthBtn}>
+      {/* Month nav */}
+      <View style={[styles.monthRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <TouchableOpacity onPress={goToPrevMonth} style={styles.monthBtn} activeOpacity={0.7}>
           <Ionicons name="chevron-back" size={20} color={colors.primary} />
         </TouchableOpacity>
-        <Text style={[styles.monthLabel, { color: colors.textPrimary }]}>
-          {MONTH_NAMES[month]} {year}
-        </Text>
+        <TouchableOpacity activeOpacity={0.8} style={styles.monthLabelBtn}>
+          <Text style={[styles.monthLabel, { color: colors.textPrimary }]}>
+            {MONTH_NAMES[month]} {year}
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={goToNextMonth}
           style={[styles.monthBtn, isCurrentMonth && styles.disabledBtn]}
           disabled={isCurrentMonth}
+          activeOpacity={0.7}
         >
           <Ionicons name="chevron-forward" size={20} color={isCurrentMonth ? colors.textTertiary : colors.primary} />
         </TouchableOpacity>
@@ -216,23 +223,35 @@ export default function BudgetScreen() {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator color={colors.primary} />
+          <ActivityIndicator color={colors.primary} size="large" />
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
+          {/* Empty state */}
           {budgets.length === 0 && (
-            <View style={[styles.emptyCard, { backgroundColor: colors.surface }]}>
-              <Text style={styles.emptyEmoji}>💰</Text>
+            <LinearGradient
+              colors={[`${colors.primary}18`, `${colors.primary}06`]}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              style={[styles.emptyCard, { borderColor: `${colors.primary}25`, borderWidth: 1 }]}
+            >
+              <View style={[styles.emptyIconWrap, { backgroundColor: `${colors.primary}18` }]}>
+                <Ionicons name="wallet-outline" size={36} color={colors.primary} />
+              </View>
               <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('budget.nobudgets.title')}</Text>
               <Text style={[styles.emptySub, { color: colors.textSecondary }]}>{t('budget.nobudgets.sub')}</Text>
-            </View>
+            </LinearGradient>
           )}
 
+          {/* Summary card */}
           {budgets.length > 0 && (
-            <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
+            <LinearGradient
+              colors={[`${colors.primary}18`, `${colors.primary}06`]}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              style={[styles.summaryCard, { borderColor: `${colors.primary}28`, borderWidth: 1 }]}
+            >
               <View style={styles.donutWrapper}>
-                <DonutChart percent={overallPercent} color={donutColor} size={140} />
+                <DonutChart percent={overallPercent} color={donutColor} size={130} />
                 <View style={styles.donutCenter}>
                   <Text style={[styles.donutPercent, { color: donutColor }]}>{Math.round(overallPercent)}%</Text>
                   <Text style={[styles.donutLabel, { color: colors.textSecondary }]}>{t('budget.spentLabel')}</Text>
@@ -243,12 +262,12 @@ export default function BudgetScreen() {
                   <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('budget.totalSpent')}</Text>
                   <Text style={[styles.statValue, { color: donutColor }]}>{formatCurrency(totalSpent)}</Text>
                 </View>
-                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                <View style={[styles.divider, { backgroundColor: `${colors.primary}25` }]} />
                 <View style={styles.statRow}>
                   <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('budget.totalLimit')}</Text>
                   <Text style={[styles.statValue, { color: colors.textPrimary }]}>{formatCurrency(totalLimit)}</Text>
                 </View>
-                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                <View style={[styles.divider, { backgroundColor: `${colors.primary}25` }]} />
                 <View style={styles.statRow}>
                   <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('budget.available')}</Text>
                   <Text style={[styles.statValue, { color: totalLimit - totalSpent >= 0 ? colors.success : colors.error }]}>
@@ -256,9 +275,15 @@ export default function BudgetScreen() {
                   </Text>
                 </View>
               </View>
-            </View>
+            </LinearGradient>
           )}
 
+          {/* Budget rows */}
+          {budgets.length > 0 && (
+            <Text style={[styles.sectionHeader, { color: colors.textTertiary }]}>
+              {t('budget.monthlyBudget').toUpperCase()}
+            </Text>
+          )}
           {budgets.map((b) => {
             const spent = spentByCategory[b.categoryId] ?? 0;
             const pct = b.limitAmount > 0 ? (spent / b.limitAmount) * 100 : 0;
@@ -266,43 +291,54 @@ export default function BudgetScreen() {
             return (
               <TouchableOpacity
                 key={b.id}
-                style={[styles.budgetRow, { backgroundColor: colors.surface }]}
+                style={[styles.budgetRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
                 onPress={() => openEdit(b)}
                 onLongPress={() => openDelete(b)}
-                activeOpacity={0.7}
+                activeOpacity={0.75}
               >
-                <View style={styles.budgetRowTop}>
-                  <View style={styles.catInfo}>
-                    <Text style={styles.catIcon}>{b.categoryIcon}</Text>
-                    <Text style={[styles.catName, { color: colors.textPrimary }]}>{b.categoryName}</Text>
+                {/* Left accent */}
+                <View style={[styles.budgetAccent, { backgroundColor: color }]} />
+                <View style={styles.budgetRowInner}>
+                  <View style={styles.budgetRowTop}>
+                    <View style={styles.catInfo}>
+                      <View style={[styles.catIconWrap, { backgroundColor: `${color}18` }]}>
+                        <Text style={styles.catIcon}>{b.categoryIcon}</Text>
+                      </View>
+                      <View>
+                        <Text style={[styles.catName, { color: colors.textPrimary }]}>{b.categoryName}</Text>
+                        <Text style={[styles.pctLabel, { color: color }]}>
+                          {pct >= 100 ? t('budget.limitExceeded') : `${Math.round(pct)}% ${t('budget.spentLabel')}`}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.amountInfo}>
+                      <Text style={[styles.spentAmt, { color: color }]}>{formatCurrency(spent)}</Text>
+                      <Text style={[styles.limitAmt, { color: colors.textTertiary }]}>{' / '}{formatCurrency(b.limitAmount)}</Text>
+                    </View>
                   </View>
-                  <View style={styles.amountInfo}>
-                    <Text style={[styles.spentAmt, { color: color }]}>{formatCurrency(spent)}</Text>
-                    <Text style={[styles.limitAmt, { color: colors.textTertiary }]}>{' / '}{formatCurrency(b.limitAmount)}</Text>
-                  </View>
+                  <ProgressBar percent={pct} color={color} />
                 </View>
-                <ProgressBar percent={pct} color={color} />
-                <Text style={[styles.pctLabel, { color: color }]}>
-                  {pct >= 100 ? t('budget.limitExceeded') : `${Math.round(pct)}% ${t('budget.spentLabel')}`}
-                </Text>
               </TouchableOpacity>
             );
           })}
 
+          {/* Sin límite */}
           {unlimitedCategories.length > 0 && (
             <View style={styles.unlimitedSection}>
               <Text style={[styles.sectionHeader, { color: colors.textTertiary }]}>{t('budget.unlimitedSection')}</Text>
               {unlimitedCategories.map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
-                  style={[styles.unlimitedRow, { backgroundColor: colors.surface }]}
+                  style={[styles.unlimitedRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
                   onPress={() => openAdd(cat)}
-                  activeOpacity={0.7}
+                  activeOpacity={0.75}
                 >
-                  <Text style={styles.catIcon}>{cat.icon}</Text>
+                  <View style={[styles.catIconWrap, { backgroundColor: colors.backgroundSecondary }]}>
+                    <Text style={styles.catIcon}>{cat.icon}</Text>
+                  </View>
                   <Text style={[styles.catName, { color: colors.textSecondary }]}>{cat.name}</Text>
                   <View style={[styles.addChip, { backgroundColor: colors.primaryLight }]}>
-                    <Ionicons name="add" size={14} color={colors.primary} />
+                    <Ionicons name="add" size={13} color={colors.primary} />
                     <Text style={[styles.addChipText, { color: colors.primary }]}>{t('budget.addLimit')}</Text>
                   </View>
                 </TouchableOpacity>
@@ -314,6 +350,7 @@ export default function BudgetScreen() {
         </ScrollView>
       )}
 
+      {/* Dialog add/edit */}
       {(dialogMode === 'add' || dialogMode === 'edit') && (
         <AppDialog
           visible
@@ -321,7 +358,6 @@ export default function BudgetScreen() {
           title={dialogMode === 'add' ? t('budget.dialog.addTitle') : t('budget.dialog.editTitle')}
           description={
             <View style={{ alignSelf: 'stretch' }}>
-              {/* Badge de categoría */}
               {(dialogMode === 'add' ? selectedCategory : selectedBudget) && (
                 <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 16 }}>
                   <View style={{
@@ -338,7 +374,7 @@ export default function BudgetScreen() {
                   </View>
                 </View>
               )}
-              <Text style={{ fontFamily: Fonts.regular, fontSize: 14, marginBottom: 8, color: colors.textSecondary }}>
+              <Text style={{ fontFamily: Fonts.regular, fontSize: 13, marginBottom: 8, color: colors.textSecondary }}>
                 {t('budget.dialog.limitLabel')}
               </Text>
               <TextInput
@@ -346,15 +382,18 @@ export default function BudgetScreen() {
                 onChangeText={(v) => setLimitInput(formatCurrencyInput(v))}
                 placeholder={t('budget.dialog.limitPlaceholder')}
                 keyboardType="numeric"
+                autoFocus
                 style={{
                   width: '100%',
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  borderRadius: 8,
-                  padding: 10,
-                  fontFamily: Fonts.regular,
-                  fontSize: 16,
+                  borderWidth: 1.5,
+                  borderColor: limitInput ? colors.primary : colors.border,
+                  borderRadius: 12,
+                  paddingHorizontal: 14,
+                  paddingVertical: 12,
+                  fontFamily: Fonts.semiBold,
+                  fontSize: 18,
                   color: colors.textPrimary,
+                  backgroundColor: colors.backgroundSecondary,
                 }}
               />
             </View>
@@ -364,16 +403,18 @@ export default function BudgetScreen() {
           onPrimary={handleSave}
           onSecondary={closeDialog}
           loading={saving}
+          primaryDisabled={isSaveDisabled}
         />
       )}
 
+      {/* Dialog delete */}
       {dialogMode === 'delete' && selectedBudget && (
         <AppDialog
           visible
           type="warning"
           title={t('budget.dialog.deleteTitle')}
           description={
-            <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, color: colors.textSecondary }}>
+            <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, color: colors.textSecondary, textAlign: 'center', alignSelf: 'stretch' }}>
               {t('budget.dialog.deleteDescBefore')}{' '}
               <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{selectedBudget.categoryName}</Text>
               {t('budget.dialog.deleteDescAfter')}
@@ -393,53 +434,56 @@ export default function BudgetScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scroll: { padding: 16, paddingTop: 16, paddingBottom: 40 },
+  scroll: { padding: 16, paddingTop: 12, paddingBottom: 40 },
   monthRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 12,
-    marginHorizontal: 16, marginTop: 8, marginBottom: 16, borderRadius: 12,
+    paddingHorizontal: 8, paddingVertical: 10,
+    marginHorizontal: 16, marginTop: 8, marginBottom: 16,
+    borderRadius: 14, borderWidth: 1,
   },
-  monthBtn: { padding: 4 },
+  monthBtn: { padding: 8 },
+  monthLabelBtn: { flex: 1, alignItems: 'center' },
   disabledBtn: { opacity: 0.3 },
   monthLabel: { fontSize: 15, fontFamily: Fonts.semiBold },
-  emptyCard: { borderRadius: 16, padding: 32, alignItems: 'center', marginBottom: 16 },
-  emptyEmoji: { fontSize: 48, marginBottom: 12 },
-  emptyTitle: { fontSize: 18, fontFamily: Fonts.bold, marginBottom: 6, textAlign: 'center' },
-  emptySub: { fontSize: 14, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 20 },
-  summaryCard: {
-    borderRadius: 16, padding: 20, marginBottom: 16,
-    flexDirection: 'row', alignItems: 'center', gap: 20,
-  },
-  donutWrapper: { position: 'relative', width: 140, height: 140 },
-  donutCenter: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-    justifyContent: 'center', alignItems: 'center',
-  },
-  donutPercent: { fontSize: 26, fontFamily: Fonts.bold },
-  donutLabel: { fontSize: 11, fontFamily: Fonts.regular, marginTop: 2 },
+  // Empty
+  emptyCard: { borderRadius: 20, padding: 36, alignItems: 'center', marginBottom: 16 },
+  emptyIconWrap: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  emptyTitle: { fontSize: 18, fontFamily: Fonts.bold, marginBottom: 8, textAlign: 'center' },
+  emptySub: { fontSize: 14, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 21 },
+  // Summary
+  summaryCard: { borderRadius: 20, padding: 20, marginBottom: 20, flexDirection: 'row', alignItems: 'center', gap: 16 },
+  donutWrapper: { position: 'relative', width: 130, height: 130 },
+  donutCenter: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
+  donutPercent: { fontSize: 24, fontFamily: Fonts.extraBold },
+  donutLabel: { fontSize: 10, fontFamily: Fonts.regular, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
   summaryStats: { flex: 1 },
-  statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
-  statLabel: { fontSize: 12, fontFamily: Fonts.regular },
-  statValue: { fontSize: 13, fontFamily: Fonts.semiBold },
-  divider: { height: 1, marginVertical: 2 },
-  budgetRow: { borderRadius: 14, padding: 16, marginBottom: 10 },
-  budgetRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  catInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  catIcon: { fontSize: 22 },
-  catName: { fontSize: 14, fontFamily: Fonts.medium },
+  statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 7 },
+  statLabel: { fontSize: 11, fontFamily: Fonts.regular },
+  statValue: { fontSize: 12, fontFamily: Fonts.bold },
+  divider: { height: 1, marginVertical: 1 },
+  // Budget rows
+  sectionHeader: { fontSize: 11, fontFamily: Fonts.semiBold, letterSpacing: 1, marginBottom: 10, marginLeft: 2 },
+  budgetRow: { borderRadius: 14, marginBottom: 10, borderWidth: 1, flexDirection: 'row', overflow: 'hidden' },
+  budgetAccent: { width: 4 },
+  budgetRowInner: { flex: 1, padding: 14 },
+  budgetRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  catInfo: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
+  catIconWrap: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  catIcon: { fontSize: 20 },
+  catName: { fontSize: 14, fontFamily: Fonts.semiBold },
   amountInfo: { flexDirection: 'row', alignItems: 'baseline' },
-  spentAmt: { fontSize: 14, fontFamily: Fonts.bold },
-  limitAmt: { fontSize: 12, fontFamily: Fonts.regular },
-  pctLabel: { fontSize: 11, fontFamily: Fonts.medium, marginTop: 4 },
-  unlimitedSection: { marginTop: 20 },
-  sectionHeader: { fontSize: 11, fontFamily: Fonts.semiBold, letterSpacing: 0.8, marginBottom: 10, marginLeft: 4 },
+  spentAmt: { fontSize: 13, fontFamily: Fonts.bold },
+  limitAmt: { fontSize: 11, fontFamily: Fonts.regular },
+  pctLabel: { fontSize: 11, fontFamily: Fonts.medium, marginTop: 2 },
+  // Unlimited
+  unlimitedSection: { marginTop: 8 },
   unlimitedRow: {
     flexDirection: 'row', alignItems: 'center',
-    padding: 14, borderRadius: 12, marginBottom: 8, gap: 10,
+    padding: 12, borderRadius: 12, marginBottom: 8, gap: 10, borderWidth: 1,
   },
   addChip: {
     marginLeft: 'auto', flexDirection: 'row', alignItems: 'center',
-    gap: 4, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20,
+    gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20,
   },
   addChipText: { fontSize: 12, fontFamily: Fonts.medium },
 });
