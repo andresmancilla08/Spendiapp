@@ -4,12 +4,10 @@ import {
   query,
   where,
   onSnapshot,
-  addDoc,
-  updateDoc,
   deleteDoc,
   doc,
+  setDoc,
   Timestamp,
-  getDocs,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Budget } from '../types/budget';
@@ -94,32 +92,13 @@ export function useBudgets(
     categoryIcon: string,
     limitAmount: number
   ) => {
-    const q = query(
-      collection(db, 'budgets'),
-      where('userId', '==', userId),
-      where('categoryId', '==', categoryId),
-      where('year', '==', year),
-      where('month', '==', month)
+    // ID determinístico: evita query compuesto y maneja create/update en una sola operación
+    const docId = `${userId}_${categoryId}_${year}_${month}`;
+    await setDoc(
+      doc(db, 'budgets', docId),
+      { userId, categoryId, categoryName, categoryIcon, limitAmount, month, year, createdAt: Timestamp.now() },
+      { merge: true }
     );
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      await updateDoc(doc(db, 'budgets', snap.docs[0].id), {
-        limitAmount,
-        categoryName,
-        categoryIcon,
-      });
-    } else {
-      await addDoc(collection(db, 'budgets'), {
-        userId,
-        categoryId,
-        categoryName,
-        categoryIcon,
-        limitAmount,
-        month,
-        year,
-        createdAt: Timestamp.now(),
-      });
-    }
   };
 
   const deleteBudget = async (budgetId: string) => {
