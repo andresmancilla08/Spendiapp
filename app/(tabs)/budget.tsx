@@ -315,6 +315,7 @@ export default function BudgetScreen() {
                 placeholder={t('budget.dialog.limitPlaceholder')}
                 keyboardType="numeric"
                 style={{
+                  width: '100%',
                   borderWidth: 1,
                   borderColor: colors.border,
                   borderRadius: 8,

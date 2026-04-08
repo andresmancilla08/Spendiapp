@@ -379,8 +379,12 @@
       "saving": "Saving...",
       "deleteError": "Could not delete. Please try again.",
       "saveError": "Could not save. Please try again.",
-      "fixedNote": "Fixed expense — changes affect all months",
-      "fixedDeleteNote": "Delete fixed expense? It will disappear from all months."
+      "fixedNote": "Fixed expense — changes affect following months",
+      "fixedDeleteNote": "Delete fixed expense? It will disappear from all months.",
+      "cancelFixedButton": "Cancel recurring",
+      "confirmCancelFixed": "This will cancel the recurring transaction from this month onwards. Previous months will not be affected.",
+      "confirmCancelFixedYes": "Yes, cancel",
+      "fixedLocked": "This transaction already occurred and cannot be modified."
     },
     "months": [
       "Jan",

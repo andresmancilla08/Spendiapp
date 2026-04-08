@@ -379,8 +379,12 @@
       "saving": "Guardando...",
       "deleteError": "No se pudo eliminar. Intenta de nuevo.",
       "saveError": "No se pudo guardar. Intenta de nuevo.",
-      "fixedNote": "Gasto fijo — los cambios afectan todos los meses",
-      "fixedDeleteNote": "¿Eliminar gasto fijo? Desaparecerá de todos los meses."
+      "fixedNote": "Gasto fijo — los cambios afectan los meses siguientes",
+      "fixedDeleteNote": "¿Eliminar gasto fijo? Desaparecerá de todos los meses.",
+      "cancelFixedButton": "Cancelar fijo",
+      "confirmCancelFixed": "Esto cancelará el movimiento fijo a partir de este mes. Los meses anteriores no se verán afectados.",
+      "confirmCancelFixedYes": "Sí, cancelar",
+      "fixedLocked": "Este movimiento ya ocurrió y no puede modificarse."
     },
     "months": [
       "Ene",

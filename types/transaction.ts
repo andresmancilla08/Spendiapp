@@ -11,6 +11,7 @@ export interface Transaction {
   createdAt: Date;
   isFixed?: boolean;
   isVirtualFixed?: boolean; // true cuando es una copia virtual de un fijo en otro mes
+  fixedCancelledFrom?: Date; // si está seteado, el fijo no aparece desde este mes en adelante
   // Tarjeta
   cardId?: string;
   // Cuotas
