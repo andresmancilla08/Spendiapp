@@ -18,6 +18,7 @@ import { useCards, deleteCardAndTransactions } from '../hooks/useCards';
 import CardFormSheet from '../components/CardFormSheet';
 import BankLogo from '../components/BankLogo';
 import AppDialog from '../components/AppDialog';
+import ScreenBackground from '../components/ScreenBackground';
 import { Skeleton } from '../components/Skeleton';
 import type { Card } from '../types/card';
 
@@ -47,10 +48,11 @@ export default function CardsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
 
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.backgroundSecondary }]}>
+      <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -167,6 +169,7 @@ export default function CardsScreen() {
         onSecondary={() => { if (!deleting) setDeleteTarget(null); }}
         loading={deleting}
       />
+      </ScreenBackground>
     </SafeAreaView>
   );
 }

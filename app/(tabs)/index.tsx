@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { AddTransactionModal } from '../../components/AddTransactionModal';
+import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -197,7 +198,8 @@ export default function HomeScreen() {
     : 'trending-down' as const;
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
 
       {/* Header */}
       <View style={styles.header}>
@@ -383,6 +385,7 @@ export default function HomeScreen() {
           onSecondary={() => setBiometricOfferVisible(false)}
         />
       )}
+      </ScreenBackground>
     </SafeAreaView>
   );
 }

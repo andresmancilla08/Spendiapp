@@ -28,6 +28,7 @@ import { useAuthStore } from '../store/authStore';
 import { useCategories } from '../hooks/useCategories';
 import { DEFAULT_CATEGORIES } from '../constants/categories';
 import { CategoryFormModal } from '../components/CategoryFormModal';
+import ScreenBackground from '../components/ScreenBackground';
 import { Skeleton } from '../components/Skeleton';
 import type { Category, CategoryType } from '../types/category';
 
@@ -337,9 +338,10 @@ export default function CategoriesScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: colors.backgroundSecondary }]}>
+      <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -444,6 +446,7 @@ export default function CategoriesScreen() {
         onCancel={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
       />
+      </ScreenBackground>
     </SafeAreaView>
   );
 }

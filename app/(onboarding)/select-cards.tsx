@@ -9,8 +9,8 @@ import {
   ActivityIndicator,
   SafeAreaView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import ScreenBackground from '../../components/ScreenBackground';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
@@ -36,10 +36,6 @@ export default function SelectCardsScreen() {
   const [formNickname, setFormNickname] = useState('');
   const [formSaving, setFormSaving] = useState(false);
   const [formError, setFormError] = useState('');
-
-  const gradientColors: [string, string, string] = isDark
-    ? ['#0D1A1C', '#062830', '#003840']
-    : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
 
   const handleToggleBank = (bankId: string) => {
     setFormNickname('');
@@ -84,9 +80,8 @@ export default function SelectCardsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: gradientColors[0] }]}>
-      <LinearGradient colors={gradientColors} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={styles.gradient}>
-
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.textPrimary }]}>{t('selectCards.title')}</Text>
@@ -264,14 +259,13 @@ export default function SelectCardsScreen() {
           </TouchableOpacity>
         </View>
 
-      </LinearGradient>
+      </ScreenBackground>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  gradient: { flex: 1 },
   header: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 16 },
   title: { fontSize: 28, fontFamily: Fonts.bold, marginBottom: 8 },
   subtitle: { fontSize: 15, fontFamily: Fonts.regular, lineHeight: 22 },

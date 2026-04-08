@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import AppHeader from '../components/AppHeader';
+import ScreenBackground from '../components/ScreenBackground';
 import AppDialog from '../components/AppDialog';
 import { Fonts } from '../config/fonts';
 
@@ -116,7 +117,8 @@ export default function SupportScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
       <AppHeader showBack />
 
       <KeyboardAvoidingView
@@ -209,6 +211,7 @@ export default function SupportScreen() {
           setTouchedMessage(false);
         }}
       />
+      </ScreenBackground>
     </SafeAreaView>
   );
 }

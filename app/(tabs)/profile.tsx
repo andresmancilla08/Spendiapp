@@ -31,6 +31,7 @@ import { LANGUAGES, changeLanguage } from '../../config/i18n';
 import AppHeader from '../../components/AppHeader';
 import { router } from 'expo-router';
 import AppDialog, { DialogType } from '../../components/AppDialog';
+import ScreenBackground from '../../components/ScreenBackground';
 import { Fonts } from '../../config/fonts';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -455,7 +456,8 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
       <AppHeader showBack />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -665,6 +667,7 @@ export default function ProfileScreen() {
         onPrimary={dialog.onPrimary}
         onSecondary={dialog.onSecondary}
       />
+      </ScreenBackground>
     </SafeAreaView>
   );
 }

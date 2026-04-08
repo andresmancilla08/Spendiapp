@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import ScreenBackground from '../../components/ScreenBackground';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
@@ -21,10 +21,6 @@ export default function BiometricLockScreen() {
   const [signOutDialog, setSignOutDialog] = useState(false);
 
   const firstName = user?.displayName?.split(' ')[0] ?? t('biometricLock.greetingFallback');
-
-  const gradientColors: [string, string, string] = isDark
-    ? ['#0D1A1C', '#062830', '#003840']
-    : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
 
   const handleAuthenticate = async () => {
     setAuthenticating(true);
@@ -77,14 +73,7 @@ export default function BiometricLockScreen() {
         onSecondary={() => setSignOutDialog(false)}
       />
 
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.9, y: 1 }}
-        style={styles.gradient}
-      >
-        <View style={[styles.blobTopRight, { backgroundColor: colors.primaryLight, opacity: isDark ? 0.25 : 0.6 }]} />
-
+      <ScreenBackground>
         <View style={styles.container}>
           <View style={styles.iconWrap}>
             <Ionicons name="shield-checkmark-outline" size={64} color={colors.primary} />
@@ -130,18 +119,13 @@ export default function BiometricLockScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </ScreenBackground>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  gradient: { flex: 1 },
-  blobTopRight: {
-    position: 'absolute', top: -80, right: -80,
-    width: 280, height: 280, borderRadius: 999,
-  },
   container: {
     flex: 1,
     alignItems: 'center',

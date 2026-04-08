@@ -8,9 +8,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
+import ScreenBackground from '../../components/ScreenBackground';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
@@ -46,22 +46,9 @@ export default function LoginScreen() {
     if (error) Alert.alert('Error', error);
   }, [error]);
 
-  const gradientColors: [string, string, string] = isDark
-    ? ['#0D1A1C', '#062830', '#003840']
-    : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.9, y: 1 }}
-        style={styles.gradient}
-      >
-        {/* Blobs decorativos */}
-        <View style={[styles.blobTopRight, { backgroundColor: colors.primaryLight, opacity: isDark ? 0.25 : 0.6 }]} />
-        <View style={[styles.blobBottomLeft, { backgroundColor: colors.secondaryLight, opacity: isDark ? 0.2 : 0.45 }]} />
-
+      <ScreenBackground>
         {/* Top bar */}
         <View style={styles.topBar}>
           <TouchableOpacity
@@ -140,7 +127,7 @@ export default function LoginScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </ScreenBackground>
     </SafeAreaView>
   );
 }
@@ -148,26 +135,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-  },
-  gradient: {
-    flex: 1,
-    overflow: 'hidden',
-  },
-  blobTopRight: {
-    position: 'absolute',
-    top: -80,
-    right: -80,
-    width: 280,
-    height: 280,
-    borderRadius: 999,
-  },
-  blobBottomLeft: {
-    position: 'absolute',
-    bottom: -60,
-    left: -60,
-    width: 200,
-    height: 200,
-    borderRadius: 999,
   },
   topBar: {
     flexDirection: 'row',

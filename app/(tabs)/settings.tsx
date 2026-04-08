@@ -5,6 +5,7 @@ import { useTheme, ThemeMode } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, changeLanguage } from '../../config/i18n';
 import AppHeader from '../../components/AppHeader';
+import ScreenBackground from '../../components/ScreenBackground';
 import { Fonts } from '../../config/fonts';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -68,7 +69,8 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
       <AppHeader showBack />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -124,6 +126,7 @@ export default function SettingsScreen() {
         </View>
 
       </ScrollView>
+      </ScreenBackground>
     </SafeAreaView>
   );
 }
