@@ -12,8 +12,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import ScreenBackground from '../../components/ScreenBackground';
 import { sendPinResetEmail, getEmailProvider, loginWithEmailAndPin } from '../../hooks/useAuth';
 import AppDialog from '../../components/AppDialog';
 import AppHeader from '../../components/AppHeader';
@@ -39,10 +39,6 @@ export default function LoginEmailScreen() {
   const isEmailValid = email.trim().length > 0 && email.includes('@');
   const isPinComplete = pin.length === 4;
   const canSubmit = isEmailValid && isPinComplete;
-
-  const gradientColors: [string, string, string] = isDark
-    ? ['#0D1A1C', '#062830', '#003840']
-    : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
 
   const handleContinue = async () => {
     setPinError(false);
@@ -77,16 +73,8 @@ export default function LoginEmailScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: gradientColors[0] }]}>
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.9, y: 1 }}
-        style={styles.gradient}
-      >
-        {/* Blob decorativo */}
-        <View style={[styles.blobTopRight, { backgroundColor: colors.primaryLight, opacity: isDark ? 0.2 : 0.55 }]} />
-
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
         <AppDialog
           visible={dialog === 'google'}
           type="info"
@@ -196,22 +184,13 @@ export default function LoginEmailScreen() {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
-      </LinearGradient>
+      </ScreenBackground>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  gradient: { flex: 1, overflow: 'hidden' },
-  blobTopRight: {
-    position: 'absolute',
-    top: -60,
-    right: -60,
-    width: 220,
-    height: 220,
-    borderRadius: 999,
-  },
   keyboardAvoidingView: { flex: 1 },
   scrollContent: {
     flexGrow: 1,

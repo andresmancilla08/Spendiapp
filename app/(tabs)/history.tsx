@@ -36,6 +36,7 @@ import { useTransactions } from '../../hooks/useTransactions';
 import { useCards } from '../../hooks/useCards';
 import { Fonts } from '../../config/fonts';
 import type { Transaction } from '../../types/transaction';
+import ScreenBackground from '../../components/ScreenBackground';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -1201,7 +1202,8 @@ export default function HistoryScreen() {
   const nowForPicker = new Date();
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenBackground>
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
@@ -1419,6 +1421,7 @@ export default function HistoryScreen() {
         onClose={handleSheetClose}
         onActionDone={handleActionDone}
       />
+      </ScreenBackground>
     </SafeAreaView>
   );
 }

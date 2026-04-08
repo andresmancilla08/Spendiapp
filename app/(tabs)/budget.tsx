@@ -19,6 +19,7 @@ import { useBudgets } from '../../hooks/useBudgets';
 import { useTransactions } from '../../hooks/useTransactions';
 import { Budget } from '../../types/budget';
 import AppDialog from '../../components/AppDialog';
+import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
 import { Fonts } from '../../config/fonts';
 import { useToast } from '../../context/ToastContext';
@@ -198,7 +199,8 @@ export default function BudgetScreen() {
   const isSaveDisabled = parseInt(limitInput.replace(/\D/g, ''), 10) <= 0 || limitInput.trim() === '';
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.backgroundSecondary }]}>
+    <SafeAreaView style={styles.safe}>
+      <ScreenBackground>
       <AppHeader showBack={false} />
 
       {/* Month nav */}
@@ -427,6 +429,7 @@ export default function BudgetScreen() {
           loading={saving}
         />
       )}
+      </ScreenBackground>
     </SafeAreaView>
   );
 }
