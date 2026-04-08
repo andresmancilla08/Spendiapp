@@ -404,6 +404,9 @@ interface DetailSheetProps {
   onEdit: (tx: Transaction) => void;
   onActionDone: (action: EditAction) => void;
   cardsMap: Record<string, { bankName: string; nickname: string; type: string }>;
+  isPastMonth: boolean;
+  viewYear: number;
+  viewMonth: number;
 }
 
 function TransactionDetailSheet({
@@ -413,6 +416,9 @@ function TransactionDetailSheet({
   onEdit,
   onActionDone,
   cardsMap,
+  isPastMonth,
+  viewYear,
+  viewMonth,
 }: DetailSheetProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -516,7 +522,14 @@ function TransactionDetailSheet({
     if (!transaction) return;
     setDeleteLoading(true);
     try {
-      await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
+      if (transaction.isFixed) {
+        // Cancelar fijo desde este mes en adelante (no eliminar doc)
+        await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
+          fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
+        });
+      } else {
+        await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
+      }
       setDeleteLoading(false);
       handleClose();
       onActionDone('deleted');
@@ -781,10 +794,20 @@ function TransactionDetailSheet({
 
             {/* Action tiles / Confirm delete */}
             <View style={{ marginTop: 24 }}>
-              {confirmingDelete ? (
+              {isPastMonth && transaction.isFixed ? (
+                /* Fijo pasado: bloqueado */
+                <View style={[styles.confirmDeleteWrap, { backgroundColor: `${colors.primary}10`, borderRadius: 16, padding: 16 }]}>
+                  <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={{ alignSelf: 'center', marginBottom: 8 }} />
+                  <Text style={[styles.confirmDeleteText, { color: colors.primary, textAlign: 'center' }]}>
+                    {t('history.edit.fixedLocked')}
+                  </Text>
+                </View>
+              ) : confirmingDelete ? (
                 <View style={[styles.confirmDeleteWrap, { backgroundColor: colors.errorLight, borderRadius: 16, padding: 16 }]}>
                   <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
-                    {t('history.edit.confirmDelete')}
+                    {transaction.isFixed
+                      ? t('history.edit.confirmCancelFixed')
+                      : t('history.edit.confirmDelete')}
                   </Text>
                   <View style={styles.confirmDeleteBtns}>
                     <TouchableOpacity
@@ -795,7 +818,11 @@ function TransactionDetailSheet({
                     >
                       {deleteLoading
                         ? <ActivityIndicator size="small" color="#FFFFFF" />
-                        : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>{t('history.edit.confirmDeleteYes')}</Text>
+                        : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
+                            {transaction.isFixed
+                              ? t('history.edit.confirmCancelFixedYes')
+                              : t('history.edit.confirmDeleteYes')}
+                          </Text>
                       }
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -844,7 +871,7 @@ function TransactionDetailSheet({
                     </Text>
                   </TouchableOpacity>
 
-                  {/* Delete */}
+                  {/* Delete / Cancel fixed */}
                   <TouchableOpacity
                     style={[
                       styles.actionTile,
@@ -857,10 +884,12 @@ function TransactionDetailSheet({
                   >
                     {deleteLoading
                       ? <ActivityIndicator size="small" color={colors.error} />
-                      : <Ionicons name="trash-outline" size={22} color={colors.error} />
+                      : <Ionicons name={transaction.isFixed ? 'stop-circle-outline' : 'trash-outline'} size={22} color={colors.error} />
                     }
                     <Text style={[styles.actionTileLabel, { color: colors.error }]}>
-                      {t('history.edit.deleteButton')}
+                      {transaction.isFixed
+                        ? t('history.edit.cancelFixedButton')
+                        : t('history.edit.deleteButton')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -1101,11 +1130,12 @@ export default function HistoryScreen() {
     }
   };
 
+  const MAX_YEAR = now.getFullYear() + 2;
+
   const goToNextMonth = () => {
-    const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
-    if (isCurrentMonth) return;
     resetFilters();
     if (month === 11) {
+      if (year >= MAX_YEAR) return;
       setMonth(0);
       setYear((y) => y + 1);
     } else {
@@ -1114,6 +1144,7 @@ export default function HistoryScreen() {
   };
 
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+  const isPastMonth = year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth());
 
   const handleTapTx = useCallback((tx: Transaction) => {
     setDetailTx(tx);
@@ -1121,9 +1152,10 @@ export default function HistoryScreen() {
   }, []);
 
   const handleLongPress = useCallback((tx: Transaction) => {
+    if (tx.isFixed && isPastMonth) return; // fijos pasados: bloqueados
     setEditingTx(tx);
     setSheetVisible(true);
-  }, []);
+  }, [isPastMonth]);
 
   const handleDetailClose = useCallback(() => {
     setDetailVisible(false);
@@ -1208,10 +1240,9 @@ export default function HistoryScreen() {
         <TouchableOpacity
           onPress={goToNextMonth}
           style={styles.monthNavBtn}
-          activeOpacity={isCurrentMonth ? 1 : 0.7}
-          disabled={isCurrentMonth}
+          activeOpacity={0.7}
         >
-          <Ionicons name="chevron-forward" size={20} color={isCurrentMonth ? colors.border : colors.textPrimary} />
+          <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -1229,18 +1260,17 @@ export default function HistoryScreen() {
             </TouchableOpacity>
             <Text style={[styles.pickerYearLabel, { color: colors.textPrimary }]}>{year}</Text>
             <TouchableOpacity
-              onPress={() => setYear(y => Math.min(nowForPicker.getFullYear(), y + 1))}
+              onPress={() => setYear(y => Math.min(MAX_YEAR, y + 1))}
               style={styles.pickerNavBtn}
-              activeOpacity={year >= nowForPicker.getFullYear() ? 1 : 0.7}
-              disabled={year >= nowForPicker.getFullYear()}
+              activeOpacity={year >= MAX_YEAR ? 1 : 0.7}
+              disabled={year >= MAX_YEAR}
             >
-              <Ionicons name="chevron-forward" size={20} color={year >= nowForPicker.getFullYear() ? colors.border : colors.textPrimary} />
+              <Ionicons name="chevron-forward" size={20} color={year >= MAX_YEAR ? colors.border : colors.textPrimary} />
             </TouchableOpacity>
           </View>
           {/* Month grid 3×4 */}
           <View style={styles.monthPickerGrid}>
             {MONTHS.map((name, idx) => {
-              const isFuture = year === nowForPicker.getFullYear() && idx > nowForPicker.getMonth();
               const isSelected = idx === month && year === year;
               return (
                 <TouchableOpacity
@@ -1248,11 +1278,9 @@ export default function HistoryScreen() {
                   style={[
                     styles.monthPickerChip,
                     { backgroundColor: isSelected ? colors.primary : colors.backgroundSecondary },
-                    isFuture && { opacity: 0.3 },
                   ]}
-                  onPress={() => { if (!isFuture) { resetFilters(); setMonth(idx); setMonthPickerOpen(false); } }}
-                  disabled={isFuture}
-                  activeOpacity={isFuture ? 1 : 0.8}
+                  onPress={() => { resetFilters(); setMonth(idx); setMonthPickerOpen(false); }}
+                  activeOpacity={0.8}
                 >
                   <Text style={[styles.monthPickerChipText, { color: isSelected ? '#fff' : colors.textPrimary }]}>
                     {name.slice(0, 3)}
@@ -1388,6 +1416,9 @@ export default function HistoryScreen() {
         transaction={detailTx}
         onClose={handleDetailClose}
         onEdit={handleDetailEdit}
+        isPastMonth={isPastMonth}
+        viewYear={year}
+        viewMonth={month}
         onActionDone={handleActionDone}
         cardsMap={cardsMap}
       />

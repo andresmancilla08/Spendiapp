@@ -379,8 +379,12 @@
       "saving": "Salvataggio...",
       "deleteError": "Impossibile eliminare. Riprova.",
       "saveError": "Impossibile salvare. Riprova.",
-      "fixedNote": "Spesa fissa — le modifiche riguardano tutti i mesi",
-      "fixedDeleteNote": "Elimina spesa fissa? Sparirà da tutti i mesi."
+      "fixedNote": "Spesa fissa — le modifiche riguardano i mesi successivi",
+      "fixedDeleteNote": "Elimina spesa fissa? Sparirà da tutti i mesi.",
+      "cancelFixedButton": "Annulla ricorrente",
+      "confirmCancelFixed": "Questo cancellerà la transazione ricorrente da questo mese in poi. I mesi precedenti non saranno interessati.",
+      "confirmCancelFixedYes": "Sì, annulla",
+      "fixedLocked": "Questa transazione è già avvenuta e non può essere modificata."
     },
     "months": [
       "Gen",

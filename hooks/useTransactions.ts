@@ -52,6 +52,7 @@ export function useTransactions(userId: string, year: number, month: number, ref
       // Esperar confirmación del servidor antes de actualizar la UI
       // Esto evita que re-ordenamientos optimistas ocurran antes del toast de confirmación
       if (snap.metadata.hasPendingWrites) return;
+      const viewStart = new Date(year, month, 1);
       setRegular(snap.docs.map((doc) => {
         const d = doc.data();
         return {
@@ -70,7 +71,12 @@ export function useTransactions(userId: string, year: number, month: number, ref
           installmentNumber: d.installmentNumber,
           installmentTotal: d.installmentTotal,
           isInstallment: d.isInstallment ?? false,
+          fixedCancelledFrom: d.fixedCancelledFrom ? (d.fixedCancelledFrom as Timestamp).toDate() : undefined,
         };
+      }).filter((tx) => {
+        // Ocultar fijos cancelados a partir del mes visualizado
+        if (!tx.isFixed || !tx.fixedCancelledFrom) return true;
+        return viewStart < tx.fixedCancelledFrom;
       }));
       setError(null);
       setLoading(false);
@@ -89,11 +95,6 @@ export function useTransactions(userId: string, year: number, month: number, ref
   useEffect(() => {
     if (!userId) return;
 
-    // No mostrar copias virtuales en meses futuros
-    const now = new Date();
-    const isViewingFuture = year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth());
-    if (isViewingFuture) { setFixed([]); return; }
-
     const q = query(
       collection(db, 'transactions'),
       where('userId', '==', userId),
@@ -104,10 +105,16 @@ export function useTransactions(userId: string, year: number, month: number, ref
       const start = new Date(year, month, 1);
       const copies: Transaction[] = snap.docs
         .filter((doc) => {
-          // Solo incluir si la transacción fija fue creada ANTES del mes que se visualiza
           const d = doc.data();
+          // Solo incluir si la transacción fija fue creada ANTES del mes que se visualiza
           const date: Date = (d.date as Timestamp).toDate();
-          return date < start;
+          if (date >= start) return false;
+          // Excluir si fue cancelada a partir de este mes
+          if (d.fixedCancelledFrom) {
+            const cancelledFrom: Date = (d.fixedCancelledFrom as Timestamp).toDate();
+            if (start >= cancelledFrom) return false;
+          }
+          return true;
         })
         .map((doc) => {
           const d = doc.data();

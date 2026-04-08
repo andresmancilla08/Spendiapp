@@ -160,7 +160,7 @@ export default function RootLayout() {
           type="warning"
           title={t('dialogs.inactivity.title')}
           description={
-            <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20 }}>
+            <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, textAlign: 'center', alignSelf: 'stretch' }}>
               {t('dialogs.inactivity.descBefore')}{' '}
               <Text style={{ fontFamily: Fonts.bold }}>{countdown}</Text>{' '}
               {t('dialogs.inactivity.descAfter')}
