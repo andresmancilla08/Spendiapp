@@ -541,6 +541,12 @@
       "save": "Guardar",
       "delete": "Eliminar",
       "cancel": "Cancelar"
+    },
+    "toasts": {
+      "saved": "Presupuesto guardado",
+      "deleted": "Presupuesto eliminado",
+      "error": "No se pudo guardar el presupuesto. Intenta de nuevo.",
+      "deleteError": "No se pudo eliminar. Intenta de nuevo."
     }
   },
   "biometricLock": {
