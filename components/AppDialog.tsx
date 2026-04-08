@@ -43,6 +43,7 @@ interface AppDialogProps {
   onPrimary: () => void;
   onSecondary?: () => void;
   loading?: boolean;
+  primaryDisabled?: boolean;
   // Input
   inputValue?: string;
   onInputChange?: (value: string) => void;
@@ -62,6 +63,7 @@ export default function AppDialog({
   onPrimary,
   onSecondary,
   loading = false,
+  primaryDisabled,
   inputValue,
   onInputChange,
   inputPlaceholder,
@@ -80,7 +82,7 @@ export default function AppDialog({
 
   const hasInput = onInputChange !== undefined;
   const isInputValid = hasInput ? VALIDATORS[inputType](inputValue ?? '') : true;
-  const isPrimaryDisabled = loading || !isInputValid;
+  const isPrimaryDisabled = loading || !isInputValid || (primaryDisabled ?? false);
 
   const iconName  = DIALOG_ICON[type];
   const iconColor =
