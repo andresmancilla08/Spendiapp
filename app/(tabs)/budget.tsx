@@ -20,6 +20,7 @@ import { Budget } from '../../types/budget';
 import AppDialog from '../../components/AppDialog';
 import AppHeader from '../../components/AppHeader';
 import { Fonts } from '../../config/fonts';
+import { useToast } from '../../context/ToastContext';
 
 
 const DEFAULT_EXPENSE_CATEGORIES = [
@@ -95,6 +96,7 @@ export default function BudgetScreen() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
 
+  const { showToast } = useToast();
   const { budgets, loading, addOrUpdateBudget, deleteBudget } = useBudgets(user?.uid ?? '', year, month);
   const { transactions } = useTransactions(user?.uid ?? '', year, month);
 
@@ -168,9 +170,12 @@ export default function BudgetScreen() {
       } else if (dialogMode === 'edit' && selectedBudget) {
         await addOrUpdateBudget(selectedBudget.categoryId, selectedBudget.categoryName, selectedBudget.categoryIcon, amount);
       }
+      showToast(t('budget.toasts.saved'), 'success');
+      closeDialog();
+    } catch {
+      showToast(t('budget.toasts.error'), 'error');
     } finally {
       setSaving(false);
-      closeDialog();
     }
   };
 
@@ -179,9 +184,12 @@ export default function BudgetScreen() {
     setSaving(true);
     try {
       await deleteBudget(selectedBudget.id);
+      showToast(t('budget.toasts.deleted'), 'success');
+      closeDialog();
+    } catch {
+      showToast(t('budget.toasts.deleteError'), 'error');
     } finally {
       setSaving(false);
-      closeDialog();
     }
   };
 

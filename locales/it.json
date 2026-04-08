@@ -513,6 +513,12 @@
       "save": "Salva",
       "delete": "Elimina",
       "cancel": "Annulla"
+    },
+    "toasts": {
+      "saved": "Budget salvato",
+      "deleted": "Budget eliminato",
+      "error": "Impossibile salvare il budget. Riprova.",
+      "deleteError": "Impossibile eliminare. Riprova."
     }
   },
   "biometricLock": {
