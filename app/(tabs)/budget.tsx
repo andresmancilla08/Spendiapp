@@ -40,6 +40,12 @@ function formatCurrency(n: number) {
   }).format(n);
 }
 
+function formatCurrencyInput(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (!digits) return '';
+  return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(parseInt(digits, 10));
+}
+
 function DonutChart({ percent, color, size = 140 }: { percent: number; color: string; size?: number }) {
   const radius = (size - 24) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -138,7 +144,7 @@ export default function BudgetScreen() {
   };
   const openEdit = (b: Budget) => {
     setSelectedBudget(b);
-    setLimitInput(String(b.limitAmount));
+    setLimitInput(formatCurrencyInput(String(b.limitAmount)));
     setDialogMode('edit');
   };
   const openDelete = (b: Budget) => {
@@ -306,12 +312,29 @@ export default function BudgetScreen() {
           title={dialogMode === 'add' ? t('budget.dialog.addTitle') : t('budget.dialog.editTitle')}
           description={
             <View style={{ alignSelf: 'stretch' }}>
+              {/* Badge de categoría */}
+              {(dialogMode === 'add' ? selectedCategory : selectedBudget) && (
+                <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 16 }}>
+                  <View style={{
+                    flexDirection: 'row', alignItems: 'center', gap: 6,
+                    backgroundColor: `${colors.primary}15`,
+                    borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7,
+                  }}>
+                    <Text style={{ fontSize: 18 }}>
+                      {dialogMode === 'add' ? selectedCategory!.icon : selectedBudget!.categoryIcon}
+                    </Text>
+                    <Text style={{ fontFamily: Fonts.semiBold, fontSize: 14, color: colors.primary }}>
+                      {dialogMode === 'add' ? selectedCategory!.name : selectedBudget!.categoryName}
+                    </Text>
+                  </View>
+                </View>
+              )}
               <Text style={{ fontFamily: Fonts.regular, fontSize: 14, marginBottom: 8, color: colors.textSecondary }}>
                 {t('budget.dialog.limitLabel')}
               </Text>
               <TextInput
                 value={limitInput}
-                onChangeText={(v) => setLimitInput(v.replace(/\D/g, ''))}
+                onChangeText={(v) => setLimitInput(formatCurrencyInput(v))}
                 placeholder={t('budget.dialog.limitPlaceholder')}
                 keyboardType="numeric"
                 style={{
