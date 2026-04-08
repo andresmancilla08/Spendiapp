@@ -676,17 +676,6 @@ function TransactionDetailSheet({
               </View>
               <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
 
-              {/* Time */}
-              <View style={styles.detailRow}>
-                <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
-                  {t('history.detail.timeLabel')}
-                </Text>
-                <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
-                  {formattedTime}
-                </Text>
-              </View>
-              <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
-
               {/* Category */}
               <View style={styles.detailRow}>
                 <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
