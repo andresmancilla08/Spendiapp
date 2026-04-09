@@ -23,6 +23,32 @@ import { Fonts } from '../config/fonts';
 
 type Tab = 'friends' | 'requests';
 
+type Colors = ReturnType<typeof useTheme>['colors'];
+type TFunc = ReturnType<typeof useTranslation>['t'];
+
+interface FriendsTabProps {
+  friends: Friendship[];
+  uid: string;
+  profileCache: Record<string, UserProfile>;
+  actionLoading: string | null;
+  onRemove: (f: Friendship) => void;
+  colors: Colors;
+  t: TFunc;
+}
+
+interface RequestsTabProps {
+  incoming: Friendship[];
+  outgoing: Friendship[];
+  uid: string;
+  profileCache: Record<string, UserProfile>;
+  actionLoading: string | null;
+  onAccept: (f: Friendship) => Promise<void>;
+  onReject: (f: Friendship) => Promise<void>;
+  onCancel: (f: Friendship) => Promise<void>;
+  colors: Colors;
+  t: TFunc;
+}
+
 export default function FriendsScreen() {
   const { user } = useAuthStore();
   const { colors } = useTheme();
@@ -325,7 +351,7 @@ export default function FriendsScreen() {
 
 // ── Sub-componentes ─────────────────────────────────────────────────────────
 
-function FriendsTab({ friends, uid, profileCache, actionLoading, onRemove, colors, t }: any) {
+function FriendsTab({ friends, uid, profileCache, actionLoading, onRemove, colors, t }: FriendsTabProps) {
   if (friends.length === 0) {
     return (
       <View style={styles.emptyState}>
@@ -375,7 +401,7 @@ function FriendsTab({ friends, uid, profileCache, actionLoading, onRemove, color
   );
 }
 
-function RequestsTab({ incoming, outgoing, uid, profileCache, actionLoading, onAccept, onReject, onCancel, colors, t }: any) {
+function RequestsTab({ incoming, outgoing, uid, profileCache, actionLoading, onAccept, onReject, onCancel, colors, t }: RequestsTabProps) {
   return (
     <>
       {/* Entrantes */}

@@ -46,11 +46,14 @@ service cloud.firestore {
     }
 
     // Notificaciones: leer/actualizar solo el destinatario
-    // Cualquier usuario autenticado puede crear (necesario para notificar a otro usuario)
+    // Crear: cualquier auth, pero el fromUserId debe ser el propio usuario y el tipo debe ser válido
     match /notifications/{docId} {
       allow read, update: if request.auth != null &&
         request.auth.uid == resource.data.toUserId;
-      allow create: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.type in ['friend_request', 'friend_accepted']
+        && request.resource.data.toUserId is string
+        && request.resource.data.data.fromUserId == request.auth.uid;
     }
 
   }

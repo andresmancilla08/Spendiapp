@@ -38,11 +38,15 @@ export function useNotifications(uid: string) {
   const markAllAsRead = async (): Promise<void> => {
     const unread = notifications.filter((n) => !n.read);
     if (unread.length === 0) return;
-    const batch = writeBatch(db);
-    unread.forEach((n) => {
-      batch.update(doc(db, 'notifications', n.id), { read: true });
-    });
-    await batch.commit();
+    // Firestore batches max 500 ops — chunk if needed
+    const CHUNK = 500;
+    for (let i = 0; i < unread.length; i += CHUNK) {
+      const batch = writeBatch(db);
+      unread.slice(i, i + CHUNK).forEach((n) => {
+        batch.update(doc(db, 'notifications', n.id), { read: true });
+      });
+      await batch.commit();
+    }
   };
 
   return { notifications, loading, unreadCount, markAsRead, markAllAsRead };
