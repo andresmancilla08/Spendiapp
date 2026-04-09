@@ -238,6 +238,11 @@
     },
     "providerGoogle": "Google",
     "providerEmail": "Email & PIN",
+    "userName": "@{{userName}}",
+    "friends": {
+      "section": "SOCIAL",
+      "label": "Mis amigos"
+    },
     "version": "Spendia v1.0.0"
   },
   "settings": {
@@ -612,5 +617,67 @@
     "dialogTitle": "Cómo instalar en iOS",
     "dialogSteps": "1. Toca el ícono de compartir (cuadrado con flecha ↑)\n2. Selecciona \"Añadir a pantalla de inicio\"\n3. Toca \"Añadir\" para confirmar",
     "dialogButton": "Entendido"
+  },
+  "friends": {
+    "title": "Mis amigos",
+    "tabs": {
+      "friends": "Amigos",
+      "requests": "Solicitudes"
+    },
+    "search": {
+      "placeholder": "Buscar por @usuario",
+      "button": "Buscar",
+      "notFound": "No encontramos a @{{userName}}",
+      "notFoundSub": "Verifica el nombre de usuario",
+      "alreadyFriends": "Ya son amigos",
+      "requestPending": "Solicitud pendiente",
+      "youSent": "Enviaste una solicitud",
+      "sendRequest": "Enviar solicitud"
+    },
+    "list": {
+      "empty": "Aún no tienes amigos en Spendia",
+      "emptySub": "Busca por @usuario para agregar amigos",
+      "count_one": "{{count}} amigo",
+      "count_other": "{{count}} amigos"
+    },
+    "requests": {
+      "incoming": "ENTRANTES",
+      "outgoing": "ENVIADAS",
+      "noIncoming": "Sin solicitudes entrantes",
+      "noOutgoing": "No enviaste solicitudes",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "cancel": "Cancelar"
+    },
+    "remove": {
+      "button": "Eliminar amigo",
+      "dialogTitle": "¿Eliminar amigo?",
+      "dialogDescBefore": "¿Seguro que quieres eliminar a ",
+      "dialogDescAfter": " de tus amigos?",
+      "confirm": "Sí, eliminar",
+      "success": "Amigo eliminado"
+    },
+    "toasts": {
+      "requestSent": "Solicitud enviada a @{{userName}}",
+      "requestCancelled": "Solicitud cancelada",
+      "accepted": "¡Ahora son amigos!",
+      "rejected": "Solicitud rechazada",
+      "removed": "Amigo eliminado",
+      "error": "Ocurrió un error. Intenta de nuevo."
+    }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "Sin notificaciones",
+    "emptySub": "Aquí aparecerán tus notificaciones",
+    "markAllRead": "Marcar todo como leído",
+    "friend_request": "{{name}} te envió una solicitud de amistad",
+    "friend_accepted": "{{name}} aceptó tu solicitud de amistad",
+    "timeAgo": {
+      "justNow": "Ahora mismo",
+      "minutesAgo": "Hace {{n}} min",
+      "hoursAgo": "Hace {{n}} h",
+      "daysAgo": "Hace {{n}} d"
+    }
   }
 }

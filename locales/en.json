@@ -238,6 +238,11 @@
     },
     "providerGoogle": "Google",
     "providerEmail": "Email & PIN",
+    "userName": "@{{userName}}",
+    "friends": {
+      "section": "SOCIAL",
+      "label": "My friends"
+    },
     "version": "Spendia v1.0.0"
   },
   "settings": {
@@ -611,5 +616,67 @@
     "dialogTitle": "How to install on iOS",
     "dialogSteps": "1. Tap the share icon (square with arrow ↑)\n2. Select \"Add to Home Screen\"\n3. Tap \"Add\" to confirm",
     "dialogButton": "Got it"
+  },
+  "friends": {
+    "title": "My friends",
+    "tabs": {
+      "friends": "Friends",
+      "requests": "Requests"
+    },
+    "search": {
+      "placeholder": "Search by @username",
+      "button": "Search",
+      "notFound": "@{{userName}} not found",
+      "notFoundSub": "Check the username and try again",
+      "alreadyFriends": "Already friends",
+      "requestPending": "Request pending",
+      "youSent": "You sent a request",
+      "sendRequest": "Send request"
+    },
+    "list": {
+      "empty": "You don't have any friends on Spendia yet",
+      "emptySub": "Search by @username to add friends",
+      "count_one": "{{count}} friend",
+      "count_other": "{{count}} friends"
+    },
+    "requests": {
+      "incoming": "INCOMING",
+      "outgoing": "SENT",
+      "noIncoming": "No incoming requests",
+      "noOutgoing": "You haven't sent any requests",
+      "accept": "Accept",
+      "reject": "Decline",
+      "cancel": "Cancel"
+    },
+    "remove": {
+      "button": "Remove friend",
+      "dialogTitle": "Remove friend?",
+      "dialogDescBefore": "Are you sure you want to remove ",
+      "dialogDescAfter": " from your friends?",
+      "confirm": "Yes, remove",
+      "success": "Friend removed"
+    },
+    "toasts": {
+      "requestSent": "Request sent to @{{userName}}",
+      "requestCancelled": "Request cancelled",
+      "accepted": "You're now friends!",
+      "rejected": "Request declined",
+      "removed": "Friend removed",
+      "error": "Something went wrong. Try again."
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "emptySub": "Your notifications will appear here",
+    "markAllRead": "Mark all as read",
+    "friend_request": "{{name}} sent you a friend request",
+    "friend_accepted": "{{name}} accepted your friend request",
+    "timeAgo": {
+      "justNow": "Just now",
+      "minutesAgo": "{{n}} min ago",
+      "hoursAgo": "{{n}}h ago",
+      "daysAgo": "{{n}}d ago"
+    }
   }
 }
