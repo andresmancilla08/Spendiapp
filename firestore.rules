@@ -22,8 +22,35 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
 
+    // Perfil público: cualquier auth puede leer (búsqueda por userName),
+    // solo el propio usuario puede escribir
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Friendships: leer/eliminar si eres fromId o toId
+    // Crear solo si eres el remitente (fromId)
+    // Actualizar solo si eres el destinatario (toId) — aceptar/rechazar
+    match /friendships/{docId} {
+      allow read: if request.auth != null &&
+        (request.auth.uid == resource.data.fromId ||
+         request.auth.uid == resource.data.toId);
+      allow create: if request.auth != null &&
+        request.auth.uid == request.resource.data.fromId;
+      allow update: if request.auth != null &&
+        request.auth.uid == resource.data.toId;
+      allow delete: if request.auth != null &&
+        (request.auth.uid == resource.data.fromId ||
+         request.auth.uid == resource.data.toId);
+    }
+
+    // Notificaciones: leer/actualizar solo el destinatario
+    // Cualquier usuario autenticado puede crear (necesario para notificar a otro usuario)
+    match /notifications/{docId} {
+      allow read, update: if request.auth != null &&
+        request.auth.uid == resource.data.toUserId;
+      allow create: if request.auth != null;
     }
 
   }
