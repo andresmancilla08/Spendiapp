@@ -168,9 +168,6 @@ export default function LoginEmailScreen() {
           </ScrollView>
 
           <View style={styles.footer}>
-            <TouchableOpacity style={styles.forgotPinButton} onPress={handleForgotPin} activeOpacity={0.7}>
-              <Text style={[styles.forgotPinText, { color: colors.primary }]}>{t('loginEmail.forgotPin')}</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
               onPress={handleContinue}
@@ -181,6 +178,9 @@ export default function LoginEmailScreen() {
                 ? <ActivityIndicator color={colors.onPrimary} />
                 : <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('loginEmail.continueButton')}</Text>
               }
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.forgotPinButton} onPress={handleForgotPin} activeOpacity={0.7}>
+              <Text style={[styles.forgotPinText, { color: colors.primary }]}>{t('loginEmail.forgotPin')}</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -204,9 +204,9 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     gap: 4,
   },
-  header: { marginTop: 24, marginBottom: 40 },
-  title: { fontSize: 32, fontFamily: Fonts.bold, marginBottom: 8 },
-  subtitle: { fontSize: 16, fontFamily: Fonts.regular, lineHeight: 24 },
+  header: { marginTop: 24, marginBottom: 40, alignItems: 'center' },
+  title: { fontSize: 32, fontFamily: Fonts.bold, marginBottom: 8, textAlign: 'center' },
+  subtitle: { fontSize: 16, fontFamily: Fonts.regular, lineHeight: 24, textAlign: 'center' },
   form: { flex: 1, gap: 32 },
   inputGroup: { gap: 12 },
   inputLabel: { fontSize: 14, fontFamily: Fonts.semiBold },
