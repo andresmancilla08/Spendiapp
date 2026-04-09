@@ -686,7 +686,10 @@
       "daysAgo": "{{n}}d ago"
     },
     "pageDesc": "Stay up to date with the latest updates",
-    "delete": "Delete notification"
+    "delete": "Delete notification",
+    "shared_transaction_added": "{{fromDisplayName}} shared an expense with you: {{description}}",
+    "shared_transaction_updated": "{{fromDisplayName}} updated a shared expense: {{description}}",
+    "shared_transaction_deleted": "{{fromDisplayName}} deleted the shared expense: {{description}}"
   },
   "whatsNew": {
     "version": "What's new · v1.5.0",
@@ -716,6 +719,24 @@
       "item1": "Fingerprint / Face ID for quick unlock",
       "item2": "Redesigned email and PIN sign-in screen",
       "item3": "Unified visual design across the entire app"
+    }
+  },
+  "sharedExpense": {
+    "toggle": "Share this expense",
+    "withWho": "With who",
+    "noFriends": "You have no friends on Spendia yet",
+    "splitType": "Split",
+    "equalParts": "Equal parts",
+    "customParts": "Customize",
+    "you": "You",
+    "preview": "Summary",
+    "previewInstallment": "{{amount}}/mo × {{n}} installments",
+    "percentageError": "Percentages must add up to 100% (current: {{total}}%)",
+    "deleteConfirm": "This shared expense will be deleted for ALL participants. Continue?",
+    "chip": {
+      "sharedWith": "Shared with {{name}}",
+      "sharedWithMore": "Shared with {{name}} and {{count}} more",
+      "sharedBy": "Shared by {{name}}"
     }
   }
 }
