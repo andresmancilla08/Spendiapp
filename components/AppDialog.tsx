@@ -227,12 +227,12 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     lineHeight: 22,
     marginBottom: 24,
-    textAlign: 'left',
+    textAlign: 'center',
     alignSelf: 'stretch',
   },
   descriptionWrap: {
     marginBottom: 24,
-    alignItems: 'flex-start',
+    alignItems: 'center',
     alignSelf: 'stretch',
   },
   inputWrapper: {

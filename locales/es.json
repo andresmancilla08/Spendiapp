@@ -243,7 +243,8 @@
       "section": "SOCIAL",
       "label": "Mis amigos"
     },
-    "version": "Spendia v1.0.0"
+    "version": "Spendia v1.0.0",
+    "userNameCopied": "Usuario copiado"
   },
   "settings": {
     "title": "Configuración",
@@ -277,7 +278,8 @@
     "about": {
       "terms": "Términos y condiciones",
       "version": "Versión"
-    }
+    },
+    "pageDesc": "Personaliza tu experiencia en Spendia"
   },
   "addTransaction": {
     "title": "Nueva transacción",
@@ -444,7 +446,8 @@
       "editButton": "Editar",
       "creditType": "Crédito",
       "debitType": "Débito"
-    }
+    },
+    "pageDesc": "Un registro de todos tus movimientos"
   },
   "categories": {
     "title": "Mis categorías",
@@ -489,7 +492,8 @@
       "home": "Hogar",
       "salary": "Salario",
       "other": "Otro"
-    }
+    },
+    "pageDesc": "Organiza tus gastos por categorías"
   },
   "support": {
     "title": "Buzón de sugerencias",
@@ -598,7 +602,8 @@
       "primaryLabel": "Eliminar todo"
     },
     "deletedSuccess": "Tarjeta eliminada correctamente",
-    "deleteError": "No se pudo eliminar la tarjeta"
+    "deleteError": "No se pudo eliminar la tarjeta",
+    "pageDesc": "Gestiona tus tarjetas y métodos de pago"
   },
   "cardForm": {
     "selectBank": "Selecciona el banco",
@@ -664,7 +669,8 @@
       "rejected": "Solicitud rechazada",
       "removed": "Amigo eliminado",
       "error": "Ocurrió un error. Intenta de nuevo."
-    }
+    },
+    "pageDesc": "Conecta y comparte gastos con tus amigos"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -678,6 +684,7 @@
       "minutesAgo": "Hace {{n}} min",
       "hoursAgo": "Hace {{n}} h",
       "daysAgo": "Hace {{n}} d"
-    }
+    },
+    "pageDesc": "Mantente al día con las novedades"
   }
 }

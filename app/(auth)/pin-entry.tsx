@@ -10,6 +10,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import PinKeypad from '../../components/PinKeypad';
 import AppDialog from '../../components/AppDialog';
 import AppHeader from '../../components/AppHeader';
+import PageTitle from '../../components/PageTitle';
 import { registerWithEmailAndPin, loginWithEmailAndPin } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
@@ -71,11 +72,8 @@ export default function PinEntryScreen() {
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
-      <PinKeypad
-        title={title}
-        subtitle={subtitle}
-        onComplete={handlePinComplete}
-      />
+      <PageTitle title={title} description={subtitle} />
+      <PinKeypad onComplete={handlePinComplete} />
     </SafeAreaView>
   );
 }

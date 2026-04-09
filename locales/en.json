@@ -243,7 +243,8 @@
       "section": "SOCIAL",
       "label": "My friends"
     },
-    "version": "Spendia v1.0.0"
+    "version": "Spendia v1.0.0",
+    "userNameCopied": "Username copied"
   },
   "settings": {
     "title": "Settings",
@@ -277,7 +278,8 @@
     "about": {
       "terms": "Terms and conditions",
       "version": "Version"
-    }
+    },
+    "pageDesc": "Customize your Spendia experience"
   },
   "addTransaction": {
     "title": "New transaction",
@@ -444,7 +446,8 @@
       "editButton": "Edit",
       "creditType": "Credit",
       "debitType": "Debit"
-    }
+    },
+    "pageDesc": "A record of all your transactions"
   },
   "categories": {
     "title": "My categories",
@@ -489,7 +492,8 @@
       "home": "Home",
       "salary": "Salary",
       "other": "Other"
-    }
+    },
+    "pageDesc": "Organize your expenses by category"
   },
   "budget": {
     "title": "Budget",
@@ -569,7 +573,8 @@
       "primaryLabel": "Delete all"
     },
     "deletedSuccess": "Card deleted successfully",
-    "deleteError": "Could not delete the card"
+    "deleteError": "Could not delete the card",
+    "pageDesc": "Manage your cards and payment methods"
   },
   "cardForm": {
     "selectBank": "Select bank",
@@ -663,7 +668,8 @@
       "rejected": "Request declined",
       "removed": "Friend removed",
       "error": "Something went wrong. Try again."
-    }
+    },
+    "pageDesc": "Connect and share expenses with your friends"
   },
   "notifications": {
     "title": "Notifications",
@@ -677,6 +683,7 @@
       "minutesAgo": "{{n}} min ago",
       "hoursAgo": "{{n}}h ago",
       "daysAgo": "{{n}}d ago"
-    }
+    },
+    "pageDesc": "Stay up to date with the latest updates"
   }
 }

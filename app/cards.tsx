@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useAuthStore } from '../store/authStore';
@@ -18,6 +17,8 @@ import { useCards, deleteCardAndTransactions } from '../hooks/useCards';
 import CardFormSheet from '../components/CardFormSheet';
 import BankLogo from '../components/BankLogo';
 import AppDialog from '../components/AppDialog';
+import AppHeader from '../components/AppHeader';
+import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { Skeleton } from '../components/Skeleton';
 import type { Card } from '../types/card';
@@ -51,26 +52,20 @@ export default function CardsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.backButton}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('cardsScreen.title')}</Text>
-        <TouchableOpacity
-          onPress={() => setCardFormVisible(true)}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={[styles.addButton, { backgroundColor: colors.primary }]}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="add" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
+      <AppHeader
+        showBack
+        rightAction={
+          <TouchableOpacity
+            onPress={() => setCardFormVisible(true)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={[styles.addButton, { backgroundColor: colors.primary }]}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        }
+      />
+      <PageTitle title={t('cardsScreen.title')} description={t('cardsScreen.pageDesc')} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
@@ -179,14 +174,6 @@ const dialogDescStyle = { fontSize: 15, lineHeight: 22, textAlign: 'center' as c
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backButton: { padding: 4, marginRight: 4 },
-  headerTitle: { flex: 1, fontSize: 20, fontFamily: Fonts.bold, marginLeft: 4 },
   addButton: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   scroll: { padding: 20, paddingBottom: 40 },
   card: { borderRadius: 16, overflow: 'hidden' },

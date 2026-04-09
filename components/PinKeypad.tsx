@@ -19,7 +19,7 @@ const keys = [
 
 export default function PinKeypad({
   onComplete,
-  title = 'Ingresa tu PIN',
+  title,
   subtitle,
 }: PinKeypadProps) {
   const { colors } = useTheme();
@@ -46,8 +46,8 @@ export default function PinKeypad({
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
-      {subtitle ? <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text> : null}
+      {!!title && <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>}
+      {!!subtitle && <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
 
       <View style={styles.dotsRow}>
         {Array.from({ length: PIN_LENGTH }).map((_, index) => (

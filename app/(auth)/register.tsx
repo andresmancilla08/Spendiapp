@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
+import PageTitle from '../../components/PageTitle';
 import AppDialog from '../../components/AppDialog';
 import PinInput from '../../components/PinInput';
 import { registerWithEmailAndPin } from '../../hooks/useAuth';
@@ -96,6 +97,7 @@ export default function RegisterScreen() {
       />
       <ScreenBackground>
         <AppHeader />
+        <PageTitle title={t('register.title')} description={t('register.subtitle')} />
 
         <KeyboardAvoidingView
           style={styles.keyboardAvoidingView}
@@ -106,11 +108,6 @@ export default function RegisterScreen() {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <View style={styles.header}>
-              <Text style={[styles.title, { color: colors.textPrimary }]}>{t('register.title')}</Text>
-              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('register.subtitle')}</Text>
-            </View>
-
             <View style={styles.form}>
               {/* Nombre */}
               <View style={styles.inputGroup}>
@@ -208,9 +205,6 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     gap: 12,
   },
-  header: { marginTop: 24, marginBottom: 40 },
-  title: { fontSize: 32, fontFamily: Fonts.bold, marginBottom: 8 },
-  subtitle: { fontSize: 16, fontFamily: Fonts.regular, lineHeight: 24 },
   form: { flex: 1, gap: 32 },
   inputGroup: { gap: 12 },
   inputLabel: { fontSize: 14, fontFamily: Fonts.semiBold },

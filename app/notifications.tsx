@@ -9,6 +9,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationDoc, NotificationType } from '../types/friend';
 import AppHeader from '../components/AppHeader';
+import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { Fonts } from '../config/fonts';
 
@@ -100,20 +101,13 @@ export default function NotificationsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
         <AppHeader showBack />
+        <PageTitle title={t('notifications.title')} description={t('notifications.pageDesc')} />
 
-        {/* Title row */}
-        <View style={styles.titleRow}>
-          <View style={styles.titleLeft}>
-            <Text style={[styles.title, { color: colors.textPrimary }]}>
-              {t('notifications.title')}
-            </Text>
-            {unreadCount > 0 && (
-              <View style={[styles.countBadge, { backgroundColor: colors.primary }]}>
-                <Text style={styles.countBadgeText}>{unreadCount}</Text>
-              </View>
-            )}
-          </View>
-          {unreadCount > 0 && (
+        {unreadCount > 0 && (
+          <View style={styles.actionsRow}>
+            <View style={[styles.countBadge, { backgroundColor: colors.primary }]}>
+              <Text style={styles.countBadgeText}>{unreadCount}</Text>
+            </View>
             <TouchableOpacity
               onPress={markAllAsRead}
               activeOpacity={0.8}
@@ -124,8 +118,8 @@ export default function NotificationsScreen() {
                 {t('notifications.markAllRead')}
               </Text>
             </TouchableOpacity>
-          )}
-        </View>
+          </View>
+        )}
 
         <ScrollView
           contentContainerStyle={styles.scroll}
@@ -166,19 +160,13 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
 
-  titleRow: {
+  actionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingBottom: 14,
   },
-  titleLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  title: { fontSize: 20, fontFamily: Fonts.bold },
   countBadge: {
     paddingHorizontal: 7,
     paddingVertical: 2,

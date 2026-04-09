@@ -34,6 +34,8 @@ import AppDialog, { DialogType } from '../../components/AppDialog';
 import ScreenBackground from '../../components/ScreenBackground';
 import { Fonts } from '../../config/fonts';
 import { getUserProfile } from '../../hooks/useUserProfile';
+import * as Clipboard from 'expo-clipboard';
+import { useToast } from '../../context/ToastContext';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -49,24 +51,27 @@ function OptionItem({ icon, label, value, color, onPress }: OptionRow) {
   const { colors } = useTheme();
   const iconColor = color ?? colors.primary;
   return (
-    <TouchableOpacity
-      style={styles.optionRow}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <View style={[styles.optionIconWrap, { backgroundColor: iconColor + '18' }]}>
-        <Ionicons name={icon} size={18} color={iconColor} />
-      </View>
-      <View style={styles.optionMeta}>
-        <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>{label}</Text>
-        {value ? (
-          <Text style={[styles.optionValue, { color: colors.textTertiary }]} numberOfLines={1} ellipsizeMode="tail">
-            {value}
-          </Text>
-        ) : null}
-      </View>
-      <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity
+        style={styles.optionRow}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.optionIconWrap, { backgroundColor: iconColor + '18' }]}>
+          <Ionicons name={icon} size={18} color={iconColor} />
+        </View>
+        <View style={styles.optionMeta}>
+          <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>{label}</Text>
+          {value ? (
+            <Text style={[styles.optionValue, { color: colors.textTertiary }]} numberOfLines={1} ellipsizeMode="tail">
+              {value}
+            </Text>
+          ) : null}
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+      </TouchableOpacity>
+      <View style={[styles.optionDivider, { backgroundColor: colors.border }]} />
+    </>
   );
 }
 
@@ -74,8 +79,8 @@ function SectionTitle({ label }: { label: string }) {
   const { colors } = useTheme();
   return (
     <View style={styles.sectionTitleRow}>
-      <View style={[styles.sectionTitleDot, { backgroundColor: colors.tertiary }]} />
-      <Text style={[styles.sectionTitleText, { color: colors.textTertiary }]}>{label}</Text>
+      <View style={[styles.sectionTitleAccent, { backgroundColor: colors.primary }]} />
+      <Text style={[styles.sectionTitleText, { color: colors.textSecondary }]}>{label}</Text>
     </View>
   );
 }
@@ -332,6 +337,7 @@ export default function ProfileScreen() {
   const { user, setUser } = useAuthStore();
   const { colors, themeMode, setThemeMode, isDark } = useTheme();
   const { t, i18n } = useTranslation();
+  const { showToast } = useToast();
 
   const [nameInput, setNameInput] = useState('');
   const [nameInputError, setNameInputError] = useState('');
@@ -342,12 +348,18 @@ export default function ProfileScreen() {
   const [dialog, setDialog] = useState<DialogState>(DIALOG_CLOSED);
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
   const [userName, setUserName] = useState<string>('');
+  const [fullName, setFullName] = useState<string>('');
 
   useEffect(() => {
     if (!user?.uid) return;
     let cancelled = false;
     getUserProfile(user.uid)
-      .then((profile) => { if (!cancelled && profile) setUserName(profile.userName); })
+      .then((profile) => {
+        if (!cancelled && profile) {
+          setUserName(profile.userName);
+          setFullName(profile.fullName ?? '');
+        }
+      })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [user?.uid]);
@@ -381,10 +393,7 @@ export default function ProfileScreen() {
   const showSuccess = (title: string, description: string | ReactNode) =>
     setDialog({ visible: true, type: 'success', title, description, primaryLabel: t('common.great'), onPrimary: closeDialog });
 
-  const nameParts = user?.displayName?.split(' ') ?? ['Usuario'];
-  const firstName = nameParts[0];
-  const lastInitial = nameParts[1] ? ` ${nameParts[1].charAt(0)}.` : '';
-  const displayName = `${firstName}${lastInitial}`;
+  const profileDisplayName = fullName || user?.displayName || 'Usuario';
   const photoUrl = user?.photoURL;
   const isGoogleUser = !!photoUrl;
 
@@ -473,26 +482,48 @@ export default function ProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Avatar card */}
+        {/* Profile Hero Card */}
         <View style={[styles.profileCard, { backgroundColor: colors.surface }]}>
-          {photoUrl ? (
-            <Image source={{ uri: photoUrl }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name="person" size={36} color={colors.primary} />
-            </View>
-          )}
-          <Text style={[styles.profileName, { color: colors.textPrimary }]}>{displayName}</Text>
+          {/* Tinted band at top */}
+          <View style={[styles.profileBand, { backgroundColor: colors.primaryLight }]} />
+
+          {/* Avatar with surface ring */}
+          <View style={[styles.avatarRingOuter, { borderColor: colors.surface, backgroundColor: colors.surface }]}>
+            {photoUrl ? (
+              <Image source={{ uri: photoUrl }} style={styles.avatar} />
+            ) : (
+              <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="person" size={42} color={colors.primary} />
+              </View>
+            )}
+          </View>
+
+          {/* Name & email */}
+          <Text style={[styles.profileName, { color: colors.textPrimary }]}>{profileDisplayName}</Text>
           <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
-          {userName ? (
-            <View style={[styles.userNameChip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
-              <Text style={[styles.userNameChipAt, { color: colors.primary }]}>@</Text>
-              <Text style={[styles.userNameChipText, { color: colors.textSecondary }]}>{userName}</Text>
+
+          {/* Chips row */}
+          <View style={styles.profileChipsRow}>
+            {userName ? (
+              <TouchableOpacity
+                style={[styles.userNameChip, { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+                activeOpacity={0.7}
+                onPress={async () => {
+                  await Clipboard.setStringAsync(`@${userName}`);
+                  showToast(t('profile.userNameCopied'), 'success');
+                }}
+              >
+                <Text style={[styles.userNameChipAt, { color: colors.primary }]}>@</Text>
+                <Text style={[styles.userNameChipText, { color: colors.primary }]}>{userName}</Text>
+                <Ionicons name="copy-outline" size={12} color={colors.primary} style={{ marginLeft: 4 }} />
+              </TouchableOpacity>
+            ) : null}
+            <View style={[styles.providerBadge, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, borderWidth: 1 }]}>
+              <Ionicons name={isGoogleUser ? 'logo-google' : 'mail-outline'} size={12} color={colors.textSecondary} />
+              <Text style={[styles.providerText, { color: colors.textSecondary }]}>
+                {isGoogleUser ? t('profile.providerGoogle') : t('profile.providerEmail')}
+              </Text>
             </View>
-          ) : null}
-          <View style={[styles.providerBadge, { backgroundColor: colors.primaryLight }]}>
-            <Ionicons name={isGoogleUser ? 'logo-google' : 'mail-outline'} size={12} color={colors.primary} />
-            <Text style={[styles.providerText, { color: colors.primary }]}>{isGoogleUser ? t('profile.providerGoogle') : t('profile.providerEmail')}</Text>
           </View>
         </View>
 
@@ -619,7 +650,7 @@ export default function ProfileScreen() {
         </View>
 
         <TouchableOpacity
-          style={[styles.signOutButton, { backgroundColor: colors.errorLight }]}
+          style={[styles.signOutButton, { backgroundColor: colors.errorLight, borderColor: colors.error + '30', borderWidth: 1 }]}
           onPress={handleSignOut}
           activeOpacity={0.8}
         >
@@ -712,24 +743,61 @@ const styles = StyleSheet.create({
   modalBtn: { flex: 1, height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
   modalBtnText: { fontSize: 15, fontFamily: Fonts.semiBold },
 
-  profileCard: { borderRadius: 24, padding: 24, alignItems: 'center', marginBottom: 28, gap: 6 },
-  avatar: { width: 80, height: 80, borderRadius: 40, marginBottom: 8 },
-  avatarFallback: { width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-  profileName: { fontSize: 20, fontFamily: Fonts.bold },
-  profileEmail: { fontSize: 13, fontFamily: Fonts.regular },
+  // Profile hero card
+  profileCard: {
+    borderRadius: 24,
+    alignItems: 'center',
+    marginBottom: 28,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    paddingBottom: 24,
+  },
+  profileBand: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0,
+    height: 90,
+  },
+  avatarRingOuter: {
+    width: 104, height: 104, borderRadius: 52,
+    borderWidth: 4,
+    marginTop: 38,
+    marginBottom: 14,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  avatar: { width: 96, height: 96, borderRadius: 48 },
+  avatarFallback: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center' },
+  profileName: { fontSize: 22, fontFamily: Fonts.bold, textAlign: 'center', paddingHorizontal: 16 },
+  profileEmail: { fontSize: 13, fontFamily: Fonts.regular, marginTop: 2 },
+  profileChipsRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    marginTop: 12, flexWrap: 'wrap', justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
   userNameChip: {
     flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 10, paddingVertical: 4,
-    borderRadius: 20, borderWidth: 1, marginTop: 4,
+    paddingHorizontal: 12, paddingVertical: 5,
+    borderRadius: 20, borderWidth: 1,
   },
-  userNameChipAt: { fontSize: 12, fontFamily: Fonts.bold },
-  userNameChipText: { fontSize: 12, fontFamily: Fonts.medium },
-  providerBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, marginTop: 4 },
-  providerText: { fontSize: 11, fontFamily: Fonts.semiBold },
+  userNameChipAt: { fontSize: 13, fontFamily: Fonts.bold },
+  userNameChipText: { fontSize: 13, fontFamily: Fonts.semiBold },
+  providerBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
+  providerText: { fontSize: 12, fontFamily: Fonts.semiBold },
 
-  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, marginLeft: 2 },
-  sectionTitleDot: { width: 6, height: 6, borderRadius: 3 },
-  sectionTitleText: { fontSize: 11, fontFamily: Fonts.bold },
+  // Section titles
+  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, marginLeft: 2, marginTop: 4 },
+  sectionTitleAccent: { width: 3, height: 14, borderRadius: 2 },
+  sectionTitleText: { fontSize: 12, fontFamily: Fonts.bold, letterSpacing: 0.4 },
+
+  // Option cards & rows
   optionCard: {
     borderRadius: 20,
     marginBottom: 24,
@@ -740,12 +808,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  optionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 15, gap: 12 },
-  optionIconWrap: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  optionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 16, gap: 12 },
+  optionIconWrap: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   optionMeta: { flex: 1, gap: 2 },
   optionLabel: { fontSize: 14, fontFamily: Fonts.medium },
   optionValue: { fontSize: 12, fontFamily: Fonts.regular },
   optionSub: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 1 },
+  optionDivider: { height: StyleSheet.hairlineWidth, marginLeft: 68 },
 
   signOutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16, borderRadius: 50, marginBottom: 20 },
   signOutText: { fontSize: 15, fontFamily: Fonts.bold },

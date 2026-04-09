@@ -17,6 +17,7 @@ import {
 import { getUserProfile, searchUserByUserName } from '../hooks/useUserProfile';
 import { UserProfile, Friendship } from '../types/friend';
 import AppHeader from '../components/AppHeader';
+import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import AppDialog from '../components/AppDialog';
 import { Fonts } from '../config/fonts';
@@ -225,6 +226,7 @@ export default function FriendsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
         <AppHeader showBack showNotifications={false} />
+        <PageTitle title={t('friends.title')} description={t('friends.pageDesc')} />
 
         {/* Tabs */}
         <View style={[styles.tabRow, { borderBottomColor: colors.border }]}>
