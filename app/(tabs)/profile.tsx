@@ -344,11 +344,12 @@ export default function ProfileScreen() {
   const [userName, setUserName] = useState<string>('');
 
   useEffect(() => {
-    if (user?.uid) {
-      getUserProfile(user.uid).then((profile) => {
-        if (profile) setUserName(profile.userName);
-      });
-    }
+    if (!user?.uid) return;
+    let cancelled = false;
+    getUserProfile(user.uid)
+      .then((profile) => { if (!cancelled && profile) setUserName(profile.userName); })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [user?.uid]);
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [biometricToggleDialog, setBiometricToggleDialog] = useState(false);
