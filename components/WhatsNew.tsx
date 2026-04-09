@@ -1,0 +1,273 @@
+// components/WhatsNew.tsx
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  Modal, Platform,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
+import { Fonts } from '../config/fonts';
+import { useTranslation } from 'react-i18next';
+
+interface WhatsNewProps {
+  visible: boolean;
+  onDismiss: () => void;
+}
+
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
+interface Feature {
+  icon: IoniconName;
+  colorKey: 'primary' | 'success';
+  titleKey: string;
+  items: string[];
+}
+
+const FEATURES: Feature[] = [
+  {
+    icon: 'bar-chart-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.budget.title',
+    items: [
+      'whatsNew.budget.item1',
+      'whatsNew.budget.item2',
+      'whatsNew.budget.item3',
+    ],
+  },
+  {
+    icon: 'people-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.friends.title',
+    items: [
+      'whatsNew.friends.item1',
+      'whatsNew.friends.item2',
+      'whatsNew.friends.item3',
+    ],
+  },
+  {
+    icon: 'notifications-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.notifications.title',
+    items: [
+      'whatsNew.notifications.item1',
+      'whatsNew.notifications.item2',
+      'whatsNew.notifications.item3',
+    ],
+  },
+  {
+    icon: 'flash-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.improvements.title',
+    items: [
+      'whatsNew.improvements.item1',
+      'whatsNew.improvements.item2',
+      'whatsNew.improvements.item3',
+    ],
+  },
+];
+
+export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
+  const { colors, isDark } = useTheme();
+  const { t } = useTranslation();
+
+  return (
+    <Modal visible={visible} animationType="slide" statusBarTranslucent>
+      <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+
+        {/* Header fijo */}
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
+          <View style={[styles.versionBadge, { backgroundColor: colors.primaryLight }]}>
+            <View style={[styles.versionDot, { backgroundColor: colors.primary }]} />
+            <Text style={[styles.versionText, { color: colors.primary }]}>
+              {t('whatsNew.version')}
+            </Text>
+          </View>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+            {t('whatsNew.title')}
+          </Text>
+          <Text style={[styles.headerSub, { color: colors.textSecondary }]}>
+            {t('whatsNew.subtitle')}
+          </Text>
+        </View>
+
+        {/* Contenido con scroll */}
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+        >
+          {FEATURES.map((f) => {
+            const accentColor = colors[f.colorKey];
+            const accentBg = f.colorKey === 'success' ? colors.successLight : colors.primaryLight;
+            return (
+              <View
+                key={f.titleKey}
+                style={[styles.card, {
+                  backgroundColor: colors.surface,
+                  borderColor: isDark
+                    ? (f.colorKey === 'success' ? 'rgba(0,168,150,0.15)' : 'rgba(0,172,193,0.15)')
+                    : colors.border,
+                }]}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconWrap, { backgroundColor: accentBg }]}>
+                    <Ionicons name={f.icon} size={20} color={accentColor} />
+                  </View>
+                  <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                    {t(f.titleKey)}
+                  </Text>
+                </View>
+                <View style={styles.itemsList}>
+                  {f.items.map((itemKey) => (
+                    <View key={itemKey} style={styles.itemRow}>
+                      <View style={[styles.itemDot, { backgroundColor: accentColor }]} />
+                      <Text style={[styles.itemText, { color: colors.textSecondary }]}>
+                        {t(itemKey)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            );
+          })}
+        </ScrollView>
+
+        {/* Botón fijo inferior */}
+        <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
+          <TouchableOpacity
+            style={[styles.dismissBtn, { backgroundColor: colors.primary }]}
+            onPress={onDismiss}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="checkmark-circle-outline" size={20} color={colors.onPrimary} />
+            <Text style={[styles.dismissText, { color: colors.onPrimary }]}>
+              {t('whatsNew.dismiss')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+      </SafeAreaView>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 24,
+    alignItems: 'center',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+
+  versionBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 50,
+    marginBottom: 16,
+  },
+  versionDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  versionText: {
+    fontSize: 13,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.3,
+  },
+
+  headerTitle: {
+    fontSize: 30,
+    fontFamily: Fonts.bold,
+    textAlign: 'center',
+    letterSpacing: -0.5,
+    marginBottom: 10,
+  },
+  headerSub: {
+    fontSize: 15,
+    fontFamily: Fonts.regular,
+    textAlign: 'center',
+    lineHeight: 22,
+    maxWidth: 300,
+  },
+
+  scroll: {
+    padding: 20,
+    gap: 16,
+    paddingBottom: 8,
+  },
+
+  card: {
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16,
+  },
+  iconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontFamily: Fonts.bold,
+    flex: 1,
+  },
+
+  itemsList: { gap: 10 },
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  itemDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginTop: 7,
+    flexShrink: 0,
+  },
+  itemText: {
+    fontSize: 14,
+    fontFamily: Fonts.regular,
+    lineHeight: 20,
+    flex: 1,
+  },
+
+  footer: {
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: Platform.OS === 'ios' ? 8 : 20,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  dismissBtn: {
+    height: 56,
+    borderRadius: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  dismissText: {
+    fontSize: 17,
+    fontFamily: Fonts.bold,
+  },
+});

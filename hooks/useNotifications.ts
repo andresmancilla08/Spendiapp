@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   collection, query, where, onSnapshot, updateDoc, doc,
-  orderBy, writeBatch,
+  orderBy, writeBatch, deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { NotificationDoc } from '../types/friend';
@@ -49,5 +49,9 @@ export function useNotifications(uid: string) {
     }
   };
 
-  return { notifications, loading, unreadCount, markAsRead, markAllAsRead };
+  const deleteNotification = async (notifId: string): Promise<void> => {
+    await deleteDoc(doc(db, 'notifications', notifId));
+  };
+
+  return { notifications, loading, unreadCount, markAsRead, markAllAsRead, deleteNotification };
 }

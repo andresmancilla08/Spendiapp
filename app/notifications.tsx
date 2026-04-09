@@ -37,8 +37,8 @@ const NOTIF_COLORS: Record<NotificationType, 'primary' | 'success'> = {
 };
 
 function NotifItem({
-  notif, onPress, colors, t,
-}: { notif: NotificationDoc; onPress: () => void; colors: any; t: any }) {
+  notif, onPress, onDelete, colors, t,
+}: { notif: NotificationDoc; onPress: () => void; onDelete: () => void; colors: any; t: any }) {
   const icon = NOTIF_ICONS[notif.type] ?? 'notifications-outline';
   const colorKey = NOTIF_COLORS[notif.type] ?? 'primary';
   const accentColor = colors[colorKey];
@@ -79,9 +79,14 @@ function NotifItem({
         </View>
       </View>
 
-      {!notif.read && (
-        <View style={[styles.unreadDot, { backgroundColor: accentColor }]} />
-      )}
+      <TouchableOpacity
+        onPress={onDelete}
+        activeOpacity={0.7}
+        style={[styles.deleteBtn, { backgroundColor: colors.errorLight }]}
+        accessibilityLabel={t('notifications.delete')}
+      >
+        <Ionicons name="trash-outline" size={14} color={colors.error} />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 }
@@ -91,11 +96,7 @@ export default function NotificationsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const uid = user?.uid ?? '';
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(uid);
-
-  const handleNotifPress = (notif: NotificationDoc) => {
-    if (!notif.read) markAsRead(notif.id).catch(() => {});
-  };
+  const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications(uid);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -146,7 +147,13 @@ export default function NotificationsScreen() {
                     ? { borderBottomWidth: 1, borderBottomColor: colors.border }
                     : undefined}
                 >
-                  <NotifItem notif={n} onPress={() => handleNotifPress(n)} colors={colors} t={t} />
+                  <NotifItem
+                    notif={n}
+                    onPress={() => { if (!n.read) markAsRead(n.id).catch(() => {}); }}
+                    onDelete={() => deleteNotification(n.id).catch(() => {})}
+                    colors={colors}
+                    t={t}
+                  />
                 </View>
               ))}
             </View>
@@ -251,4 +258,13 @@ const styles = StyleSheet.create({
   notifMeta: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   notifTime: { fontSize: 11, fontFamily: Fonts.regular },
   unreadDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
+  deleteBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    marginLeft: 4,
+  },
 });
