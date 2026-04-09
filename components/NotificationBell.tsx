@@ -1,9 +1,10 @@
 // components/NotificationBell.tsx
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
+import { Fonts } from '../config/fonts';
 
 interface NotificationBellProps {
   uid: string;
@@ -33,24 +34,26 @@ export default function NotificationBell({ uid }: NotificationBellProps) {
 
 const styles = StyleSheet.create({
   button: {
-    padding: 4,
+    padding: 6,
     position: 'relative',
   },
   badge: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
+    top: 1,
+    right: 1,
+    minWidth: 17,
+    height: 17,
+    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 3,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   badgeText: {
     color: '#FFFFFF',
     fontSize: 9,
-    fontWeight: '700',
-    lineHeight: 16,
+    fontFamily: Fonts.bold,
+    lineHeight: Platform.OS === 'android' ? 13 : 15,
   },
 });
