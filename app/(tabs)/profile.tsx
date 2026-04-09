@@ -33,6 +33,7 @@ import { router } from 'expo-router';
 import AppDialog, { DialogType } from '../../components/AppDialog';
 import ScreenBackground from '../../components/ScreenBackground';
 import { Fonts } from '../../config/fonts';
+import { getUserProfile } from '../../hooks/useUserProfile';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -340,6 +341,15 @@ export default function ProfileScreen() {
   const [langVisible, setLangVisible] = useState(false);
   const [dialog, setDialog] = useState<DialogState>(DIALOG_CLOSED);
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+  const [userName, setUserName] = useState<string>('');
+
+  useEffect(() => {
+    if (user?.uid) {
+      getUserProfile(user.uid).then((profile) => {
+        if (profile) setUserName(profile.userName);
+      });
+    }
+  }, [user?.uid]);
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [biometricToggleDialog, setBiometricToggleDialog] = useState(false);
 
@@ -473,10 +483,25 @@ export default function ProfileScreen() {
           )}
           <Text style={[styles.profileName, { color: colors.textPrimary }]}>{displayName}</Text>
           <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
+          {userName ? (
+            <Text style={[styles.profileUserName, { color: colors.textTertiary }]}>
+              {t('profile.userName', { userName })}
+            </Text>
+          ) : null}
           <View style={[styles.providerBadge, { backgroundColor: colors.primaryLight }]}>
             <Ionicons name={isGoogleUser ? 'logo-google' : 'mail-outline'} size={12} color={colors.primary} />
             <Text style={[styles.providerText, { color: colors.primary }]}>{isGoogleUser ? t('profile.providerGoogle') : t('profile.providerEmail')}</Text>
           </View>
+        </View>
+
+        {/* SOCIAL */}
+        <SectionTitle label={t('profile.friends.section')} />
+        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+          <OptionItem
+            icon="people-outline"
+            label={t('profile.friends.label')}
+            onPress={() => router.push('/friends')}
+          />
         </View>
 
         {/* CUENTA */}
@@ -690,6 +715,7 @@ const styles = StyleSheet.create({
   avatarFallback: { width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
   profileName: { fontSize: 20, fontFamily: Fonts.bold },
   profileEmail: { fontSize: 13, fontFamily: Fonts.regular },
+  profileUserName: { fontSize: 12, fontFamily: Fonts.medium, marginTop: 2 },
   providerBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, marginTop: 4 },
   providerText: { fontSize: 11, fontFamily: Fonts.semiBold },
 
