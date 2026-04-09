@@ -629,9 +629,9 @@
       "requests": "Requests"
     },
     "search": {
-      "placeholder": "Search by @username",
+      "placeholder": "Search by username",
       "button": "Search",
-      "notFound": "@{{userName}} not found",
+      "notFound": "{{userName}} not found",
       "notFoundSub": "Check the username and try again",
       "alreadyFriends": "Already friends",
       "requestPending": "Request pending",
@@ -640,7 +640,7 @@
     },
     "list": {
       "empty": "You don't have any friends on Spendia yet",
-      "emptySub": "Search by @username to add friends",
+      "emptySub": "Search by username to add friends",
       "count_one": "{{count}} friend",
       "count_other": "{{count}} friends"
     },
@@ -684,6 +684,37 @@
       "hoursAgo": "{{n}}h ago",
       "daysAgo": "{{n}}d ago"
     },
-    "pageDesc": "Stay up to date with the latest updates"
+    "pageDesc": "Stay up to date with the latest updates",
+    "delete": "Delete notification"
+  },
+  "whatsNew": {
+    "version": "What's new · v1.5.0",
+    "title": "What's new?",
+    "subtitle": "Here are the improvements and features that arrived in this version.",
+    "dismiss": "Got it",
+    "budget": {
+      "title": "Monthly budget",
+      "item1": "Set spending limits by category",
+      "item2": "Visual progress chart in real time",
+      "item3": "Smart control of fixed transactions across months"
+    },
+    "friends": {
+      "title": "Friends system",
+      "item1": "Search users by username",
+      "item2": "Send, accept or reject friend requests",
+      "item3": "Manage your friends list from your profile"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "item1": "Numeric badge for unread notifications in real time",
+      "item2": "Tap to mark as read individually",
+      "item3": "Delete notifications or mark all as read in one tap"
+    },
+    "improvements": {
+      "title": "General improvements",
+      "item1": "Fingerprint / Face ID for quick unlock",
+      "item2": "Redesigned email and PIN sign-in screen",
+      "item3": "Unified visual design across the entire app"
+    }
   }
 }

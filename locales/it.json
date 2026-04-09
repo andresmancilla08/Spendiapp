@@ -629,9 +629,9 @@
       "requests": "Richieste"
     },
     "search": {
-      "placeholder": "Cerca per @utente",
+      "placeholder": "Cerca per nome utente",
       "button": "Cerca",
-      "notFound": "@{{userName}} non trovato",
+      "notFound": "{{userName}} non trovato",
       "notFoundSub": "Controlla il nome utente e riprova",
       "alreadyFriends": "Siete già amici",
       "requestPending": "Richiesta in attesa",
@@ -640,7 +640,7 @@
     },
     "list": {
       "empty": "Non hai ancora amici su Spendia",
-      "emptySub": "Cerca per @utente per aggiungere amici",
+      "emptySub": "Cerca per nome utente per aggiungere amici",
       "count_one": "{{count}} amico",
       "count_other": "{{count}} amici"
     },
@@ -684,6 +684,37 @@
       "hoursAgo": "{{n}}h fa",
       "daysAgo": "{{n}}g fa"
     },
-    "pageDesc": "Rimani aggiornato con le ultime novità"
+    "pageDesc": "Rimani aggiornato con le ultime novità",
+    "delete": "Elimina notifica"
+  },
+  "whatsNew": {
+    "version": "Novità · v1.5.0",
+    "title": "Cosa c'è di nuovo?",
+    "subtitle": "Ecco i miglioramenti e le funzionalità arrivate in questa versione.",
+    "dismiss": "Capito",
+    "budget": {
+      "title": "Budget mensile",
+      "item1": "Imposta limiti di spesa per categoria",
+      "item2": "Grafico visivo dell'avanzamento in tempo reale",
+      "item3": "Controllo intelligente delle transazioni fisse tra mesi"
+    },
+    "friends": {
+      "title": "Sistema di amici",
+      "item1": "Cerca utenti per nome utente",
+      "item2": "Invia, accetta o rifiuta richieste di amicizia",
+      "item3": "Gestisci la lista di amici dal tuo profilo"
+    },
+    "notifications": {
+      "title": "Notifiche",
+      "item1": "Badge numerico per le non lette in tempo reale",
+      "item2": "Tocca per segnare come letta individualmente",
+      "item3": "Elimina notifiche o segna tutte come lette in un tocco"
+    },
+    "improvements": {
+      "title": "Miglioramenti generali",
+      "item1": "Impronta / Face ID per sblocco rapido",
+      "item2": "Schermata di accesso con email e PIN ridisegnata",
+      "item3": "Design visivo unificato in tutta l'app"
+    }
   }
 }

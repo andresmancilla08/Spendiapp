@@ -129,7 +129,7 @@ export default function FriendsScreen() {
   }, [acceptedFriends, incomingRequests, outgoingRequests, uid, loadProfile]);
 
   const handleSearch = async () => {
-    const trimmed = searchText.trim();
+    const trimmed = searchText.trim().replace(/^@/, '');
     if (!trimmed) return;
     setSearching(true);
     setSearchResult(null);
@@ -264,7 +264,7 @@ export default function FriendsScreen() {
               placeholder={t('friends.search.placeholder')}
               placeholderTextColor={colors.textTertiary}
               value={searchText}
-              onChangeText={(v) => { setSearchText(v); if (!v.trim()) setSearchResult(null); }}
+              onChangeText={(v) => { const s = v.replace(/^@/, ''); setSearchText(s); if (!s.trim()) setSearchResult(null); }}
               onSubmitEditing={handleSearch}
               returnKeyType="search"
               autoCapitalize="none"

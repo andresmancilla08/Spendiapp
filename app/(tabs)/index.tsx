@@ -34,6 +34,11 @@ import {
 import AppDialog from '../../components/AppDialog';
 import PwaInstallBanner from '../../components/PwaInstallBanner';
 import NotificationBell from '../../components/NotificationBell';
+import WhatsNew from '../../components/WhatsNew';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+
+const WHATS_NEW_KEY = '@spendiapp_whats_new_version';
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
   food:          { icon: '🍽️', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
@@ -118,6 +123,25 @@ export default function HomeScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [biometricOfferVisible, setBiometricOfferVisible] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
+
+  useEffect(() => {
+    async function checkWhatsNew() {
+      try {
+        const currentVersion = Constants.expoConfig?.version ?? '';
+        const seenVersion = await AsyncStorage.getItem(WHATS_NEW_KEY);
+        if (seenVersion !== currentVersion) setShowWhatsNew(true);
+      } catch {}
+    }
+    checkWhatsNew();
+  }, []);
+
+  const handleDismissWhatsNew = async () => {
+    try {
+      await AsyncStorage.setItem(WHATS_NEW_KEY, Constants.expoConfig?.version ?? '');
+    } catch {}
+    setShowWhatsNew(false);
+  };
 
   useEffect(() => {
     async function offerBiometrics() {
@@ -201,6 +225,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <WhatsNew visible={showWhatsNew} onDismiss={handleDismissWhatsNew} />
       <ScreenBackground>
 
       {/* Header */}

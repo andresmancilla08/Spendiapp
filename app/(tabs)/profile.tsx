@@ -510,7 +510,7 @@ export default function ProfileScreen() {
                 style={[styles.userNameChip, { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
                 activeOpacity={0.7}
                 onPress={async () => {
-                  await Clipboard.setStringAsync(`@${userName}`);
+                  await Clipboard.setStringAsync(userName);
                   showToast(t('profile.userNameCopied'), 'success');
                 }}
               >
