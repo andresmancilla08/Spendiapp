@@ -485,9 +485,10 @@ export default function ProfileScreen() {
           <Text style={[styles.profileName, { color: colors.textPrimary }]}>{displayName}</Text>
           <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
           {userName ? (
-            <Text style={[styles.profileUserName, { color: colors.textTertiary }]}>
-              {t('profile.userName', { userName })}
-            </Text>
+            <View style={[styles.userNameChip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+              <Text style={[styles.userNameChipAt, { color: colors.primary }]}>@</Text>
+              <Text style={[styles.userNameChipText, { color: colors.textSecondary }]}>{userName}</Text>
+            </View>
           ) : null}
           <View style={[styles.providerBadge, { backgroundColor: colors.primaryLight }]}>
             <Ionicons name={isGoogleUser ? 'logo-google' : 'mail-outline'} size={12} color={colors.primary} />
@@ -716,7 +717,13 @@ const styles = StyleSheet.create({
   avatarFallback: { width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
   profileName: { fontSize: 20, fontFamily: Fonts.bold },
   profileEmail: { fontSize: 13, fontFamily: Fonts.regular },
-  profileUserName: { fontSize: 12, fontFamily: Fonts.medium, marginTop: 2 },
+  userNameChip: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 10, paddingVertical: 4,
+    borderRadius: 20, borderWidth: 1, marginTop: 4,
+  },
+  userNameChipAt: { fontSize: 12, fontFamily: Fonts.bold },
+  userNameChipText: { fontSize: 12, fontFamily: Fonts.medium },
   providerBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, marginTop: 4 },
   providerText: { fontSize: 11, fontFamily: Fonts.semiBold },
 
