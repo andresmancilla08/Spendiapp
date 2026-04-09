@@ -36,6 +36,7 @@ import { Fonts } from '../../config/fonts';
 import { getUserProfile } from '../../hooks/useUserProfile';
 import * as Clipboard from 'expo-clipboard';
 import { useToast } from '../../context/ToastContext';
+import Constants from 'expo-constants';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -658,7 +659,7 @@ export default function ProfileScreen() {
           <Text style={[styles.signOutText, { color: colors.error }]}>{t('profile.signOut.button')}</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.version, { color: colors.textTertiary }]}>{t('profile.version')}</Text>
+        <Text style={[styles.version, { color: colors.textTertiary }]}>{t('profile.version', { version: Constants.expoConfig?.version ?? '' })}</Text>
       </ScrollView>
 
       {/* Dialog: Editar nombre */}
