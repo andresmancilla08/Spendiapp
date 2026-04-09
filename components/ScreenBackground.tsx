@@ -22,35 +22,37 @@ export default function ScreenBackground({ children, style }: Props) {
       end={{ x: 0.9, y: 1 }}
       style={[styles.gradient, style]}
     >
-      {/* Blob top-right */}
+      {/* Blobs decorativos — z-index: 0 para que queden detrás del contenido */}
       <View
         style={[
           styles.blob1,
           { backgroundColor: colors.primaryLight, opacity: isDark ? 0.22 : 0.55 },
         ]}
       />
-      {/* Blob bottom-left */}
       <View
         style={[
           styles.blob2,
           { backgroundColor: colors.secondaryLight, opacity: isDark ? 0.18 : 0.4 },
         ]}
       />
-      {/* Blob center-right */}
       <View
         style={[
           styles.blob3,
           { backgroundColor: colors.primaryLight, opacity: isDark ? 0.1 : 0.25 },
         ]}
       />
-      {children}
+      {/* Contenido siempre encima de los blobs */}
+      <View style={styles.content}>
+        {children}
+      </View>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   gradient: { flex: 1, overflow: 'hidden' },
-  blob1: { position: 'absolute', top: -80, right: -80, width: 280, height: 280, borderRadius: 999 },
-  blob2: { position: 'absolute', bottom: -70, left: -70, width: 220, height: 220, borderRadius: 999 },
-  blob3: { position: 'absolute', top: '40%', right: -50, width: 140, height: 140, borderRadius: 999 },
+  content: { flex: 1, zIndex: 1 },
+  blob1: { position: 'absolute', top: -80, right: -80, width: 280, height: 280, borderRadius: 999, zIndex: 0 },
+  blob2: { position: 'absolute', bottom: -70, left: -70, width: 220, height: 220, borderRadius: 999, zIndex: 0 },
+  blob3: { position: 'absolute', top: '40%', right: -50, width: 140, height: 140, borderRadius: 999, zIndex: 0 },
 });

@@ -5,6 +5,7 @@ import { useTheme, ThemeMode } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, changeLanguage } from '../../config/i18n';
 import AppHeader from '../../components/AppHeader';
+import PageTitle from '../../components/PageTitle';
 import ScreenBackground from '../../components/ScreenBackground';
 import { Fonts } from '../../config/fonts';
 
@@ -72,6 +73,7 @@ export default function SettingsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
       <AppHeader showBack />
+      <PageTitle title={t('settings.title')} description={t('settings.pageDesc')} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 

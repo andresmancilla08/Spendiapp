@@ -21,11 +21,12 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { router } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useAuthStore } from '../store/authStore';
 import { useCategories } from '../hooks/useCategories';
+import AppHeader from '../components/AppHeader';
+import PageTitle from '../components/PageTitle';
 import { DEFAULT_CATEGORIES } from '../constants/categories';
 import { CategoryFormModal } from '../components/CategoryFormModal';
 import ScreenBackground from '../components/ScreenBackground';
@@ -340,28 +341,20 @@ export default function CategoriesScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.backButton}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-          {t('categories.title')}
-        </Text>
-        <TouchableOpacity
-          onPress={openCreateModal}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={[styles.addButton, { backgroundColor: colors.primary }]}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="add" size={22} color={colors.onPrimary} />
-        </TouchableOpacity>
-      </View>
+      <AppHeader
+        showBack
+        rightAction={
+          <TouchableOpacity
+            onPress={openCreateModal}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={[styles.addButton, { backgroundColor: colors.primary }]}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add" size={22} color={colors.onPrimary} />
+          </TouchableOpacity>
+        }
+      />
+      <PageTitle title={t('categories.title')} description={t('categories.pageDesc')} />
 
       <ScrollView
         contentContainerStyle={styles.scroll}
@@ -457,24 +450,6 @@ const styles = StyleSheet.create({
   },
 
   // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    gap: 12,
-  },
-  backButton: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontFamily: Fonts.bold,
-  },
   addButton: {
     width: 36,
     height: 36,

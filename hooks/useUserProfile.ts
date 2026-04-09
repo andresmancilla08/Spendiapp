@@ -6,12 +6,16 @@ import { db } from '../config/firebase';
 import { UserProfile } from '../types/friend';
 import { generateUserName } from '../utils/generateUserName';
 
-/** Detecta userNames que son solo iniciales mayúsculas (e.g. "AM", "A", "ADM")
- *  — señal de que se generaron a partir de un displayName abreviado. */
-const ABBREVIATED_PATTERN = /^[A-Z]{1,3}$/;
+/** Detecta userNames que son solo iniciales mayúsculas con sufijo numérico opcional
+ *  (e.g. "AM", "AM2", "ADM3") — señal de que se generaron de un displayName abreviado. */
+const ABBREVIATED_PATTERN = /^[A-Z]{1,3}\d*$/;
 
-/** Crea el perfil en Firestore si no existe.
- *  Si el perfil ya existe pero el userName fue generado de un nombre abreviado, lo repara. */
+/**
+ * Crea o actualiza el perfil en Firestore.
+ * - Nuevo perfil: guarda displayName como fullName y genera userName a partir de él.
+ * - Perfil existente sin fullName o con userName abreviado: actualiza fullName con el
+ *   displayName actual (nombre completo de Google/registro) y regenera el userName.
+ */
 export async function createUserProfile(
   uid: string,
   displayName: string,
@@ -22,10 +26,11 @@ export async function createUserProfile(
 
   if (existing.exists()) {
     const data = existing.data() as UserProfile;
-    if (ABBREVIATED_PATTERN.test(data.userName)) {
-      // userName es solo iniciales — regenerar con el displayName actual
+    const needsUpdate = !data.fullName || ABBREVIATED_PATTERN.test(data.userName);
+
+    if (needsUpdate) {
       const newUserName = await generateUniqueUserName(displayName);
-      await updateDoc(userRef, { displayName, userName: newUserName, photoURL });
+      await updateDoc(userRef, { displayName, fullName: displayName, userName: newUserName, photoURL });
     }
     return;
   }
@@ -34,14 +39,15 @@ export async function createUserProfile(
   await setDoc(userRef, {
     uid,
     displayName,
+    fullName: displayName,
     userName,
     photoURL,
     createdAt: serverTimestamp(),
   });
 }
 
-async function generateUniqueUserName(displayName: string): Promise<string> {
-  const base = generateUserName(displayName);
+async function generateUniqueUserName(name: string): Promise<string> {
+  const base = generateUserName(name);
   if (!(await userNameExists(base))) return base;
   for (let i = 2; i <= 99; i++) {
     const candidate = `${base}${i}`;

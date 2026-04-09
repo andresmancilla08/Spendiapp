@@ -17,6 +17,8 @@ import {
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
+import AppHeader from '../../components/AppHeader';
+import PageTitle from '../../components/PageTitle';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -1204,12 +1206,8 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-          {t('history.title')}
-        </Text>
-      </View>
+      <AppHeader showBack />
+      <PageTitle title={t('history.title')} description={t('history.pageDesc')} />
 
       {/* Month navigation */}
       <View style={[styles.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
