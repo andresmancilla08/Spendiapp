@@ -29,34 +29,57 @@ const NOTIF_ICONS: Record<NotificationType, React.ComponentProps<typeof Ionicons
   friend_accepted: 'people-outline',
 };
 
+// Each notification type gets a distinct color accent
+const NOTIF_COLORS: Record<NotificationType, 'primary' | 'success'> = {
+  friend_request: 'primary',
+  friend_accepted: 'success',
+};
+
 function NotifItem({
   notif, onPress, colors, t,
 }: { notif: NotificationDoc; onPress: () => void; colors: any; t: any }) {
   const icon = NOTIF_ICONS[notif.type] ?? 'notifications-outline';
+  const colorKey = NOTIF_COLORS[notif.type] ?? 'primary';
+  const accentColor = colors[colorKey];
+  const accentBg = colorKey === 'success' ? colors.successLight : colors.primaryLight;
   const text = t(`notifications.${notif.type}`, { name: notif.data.fromDisplayName });
 
   return (
     <TouchableOpacity
       style={[
         styles.notifRow,
-        !notif.read && { backgroundColor: colors.primaryLight + '40' },
+        !notif.read && { backgroundColor: colors.primaryLight + '30' },
       ]}
       onPress={onPress}
-      activeOpacity={0.8}
+      activeOpacity={0.75}
     >
-      <View style={[styles.notifIcon, { backgroundColor: colors.primaryLight }]}>
-        <Ionicons name={icon} size={18} color={colors.primary} />
+      {/* Unread left bar */}
+      <View style={[
+        styles.unreadBar,
+        { backgroundColor: !notif.read ? accentColor : 'transparent' },
+      ]} />
+
+      <View style={[styles.notifIconWrap, { backgroundColor: accentBg }]}>
+        <Ionicons name={icon} size={18} color={accentColor} />
       </View>
-      <View style={{ flex: 1, gap: 2 }}>
-        <Text style={[styles.notifText, { color: colors.textPrimary }]} numberOfLines={2}>
+
+      <View style={styles.notifContent}>
+        <Text
+          style={[styles.notifText, { color: colors.textPrimary }]}
+          numberOfLines={2}
+        >
           {text}
         </Text>
-        <Text style={[styles.notifTime, { color: colors.textTertiary }]}>
-          {timeAgoLabel(notif.createdAt, t)}
-        </Text>
+        <View style={styles.notifMeta}>
+          <Ionicons name="time-outline" size={11} color={colors.textTertiary} />
+          <Text style={[styles.notifTime, { color: colors.textTertiary }]}>
+            {timeAgoLabel(notif.createdAt, t)}
+          </Text>
+        </View>
       </View>
+
       {!notif.read && (
-        <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />
+        <View style={[styles.unreadDot, { backgroundColor: accentColor }]} />
       )}
     </TouchableOpacity>
   );
@@ -78,22 +101,47 @@ export default function NotificationsScreen() {
       <ScreenBackground>
         <AppHeader showBack />
 
-        {/* Header row */}
+        {/* Title row */}
         <View style={styles.titleRow}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>{t('notifications.title')}</Text>
+          <View style={styles.titleLeft}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>
+              {t('notifications.title')}
+            </Text>
+            {unreadCount > 0 && (
+              <View style={[styles.countBadge, { backgroundColor: colors.primary }]}>
+                <Text style={styles.countBadgeText}>{unreadCount}</Text>
+              </View>
+            )}
+          </View>
           {unreadCount > 0 && (
-            <TouchableOpacity onPress={markAllAsRead} activeOpacity={0.8}>
-              <Text style={[styles.markAllText, { color: colors.primary }]}>{t('notifications.markAllRead')}</Text>
+            <TouchableOpacity
+              onPress={markAllAsRead}
+              activeOpacity={0.8}
+              style={[styles.markAllBtn, { borderColor: colors.primary + '50' }]}
+            >
+              <Ionicons name="checkmark-done-outline" size={14} color={colors.primary} />
+              <Text style={[styles.markAllText, { color: colors.primary }]}>
+                {t('notifications.markAllRead')}
+              </Text>
             </TouchableOpacity>
           )}
         </View>
 
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+        >
           {notifications.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="notifications-off-outline" size={48} color={colors.textTertiary} />
-              <Text style={[styles.emptyText, { color: colors.textPrimary }]}>{t('notifications.empty')}</Text>
-              <Text style={[styles.emptySub, { color: colors.textTertiary }]}>{t('notifications.emptySub')}</Text>
+              <View style={[styles.emptyIconWrap, { backgroundColor: colors.surfaceSecondary }]}>
+                <Ionicons name="notifications-off-outline" size={36} color={colors.textTertiary} />
+              </View>
+              <Text style={[styles.emptyText, { color: colors.textPrimary }]}>
+                {t('notifications.empty')}
+              </Text>
+              <Text style={[styles.emptySub, { color: colors.textTertiary }]}>
+                {t('notifications.emptySub')}
+              </Text>
             </View>
           ) : (
             <View style={[styles.listCard, { backgroundColor: colors.surface }]}>
@@ -117,20 +165,102 @@ export default function NotificationsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
+
   titleRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 14,
+  },
+  titleLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   title: { fontSize: 20, fontFamily: Fonts.bold },
-  markAllText: { fontSize: 13, fontFamily: Fonts.medium },
-  scroll: { paddingHorizontal: 20, paddingBottom: Platform.OS === 'web' ? 120 : 40 },
-  emptyState: { alignItems: 'center', paddingTop: 60, gap: 8 },
-  emptyText: { fontSize: 15, fontFamily: Fonts.semiBold },
-  emptySub: { fontSize: 13, fontFamily: Fonts.regular },
-  listCard: { borderRadius: 20, overflow: 'hidden' },
-  notifRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14 },
-  notifIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  countBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 10,
+    minWidth: 22,
+    alignItems: 'center',
+  },
+  countBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontFamily: Fonts.bold,
+  },
+  markAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  markAllText: { fontSize: 12, fontFamily: Fonts.semiBold },
+
+  scroll: {
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'web' ? 120 : 40,
+  },
+
+  // Empty state
+  emptyState: {
+    alignItems: 'center',
+    paddingTop: 80,
+    gap: 12,
+  },
+  emptyIconWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  emptyText: { fontSize: 16, fontFamily: Fonts.semiBold, textAlign: 'center' },
+  emptySub: { fontSize: 13, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 19 },
+
+  // List
+  listCard: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+
+  // Notification row
+  notifRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    gap: 12,
+  },
+  unreadBar: {
+    width: 3,
+    height: 36,
+    borderRadius: 2,
+    marginLeft: -4,
+    marginRight: 4,
+  },
+  notifIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  notifContent: { flex: 1, gap: 4 },
   notifText: { fontSize: 13, fontFamily: Fonts.medium, lineHeight: 18 },
+  notifMeta: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   notifTime: { fontSize: 11, fontFamily: Fonts.regular },
-  unreadDot: { width: 8, height: 8, borderRadius: 4 },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
 });
