@@ -39,6 +39,9 @@ import { useCards } from '../../hooks/useCards';
 import { Fonts } from '../../config/fonts';
 import type { Transaction } from '../../types/transaction';
 import ScreenBackground from '../../components/ScreenBackground';
+import SharedExpenseChip from '../../components/SharedExpenseChip';
+import { useSharedTransactions } from '../../hooks/useSharedTransactions';
+import { getUserProfile } from '../../hooks/useUserProfile';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -410,6 +413,9 @@ interface DetailSheetProps {
   isPastMonth: boolean;
   viewYear: number;
   viewMonth: number;
+  currentUserUid: string;
+  currentUserName: string;
+  deleteSharedTransaction: (params: { sharedId: string; currentUserUid: string; currentUserName: string; description: string }) => Promise<void>;
 }
 
 function TransactionDetailSheet({
@@ -422,6 +428,9 @@ function TransactionDetailSheet({
   isPastMonth,
   viewYear,
   viewMonth,
+  currentUserUid,
+  currentUserName,
+  deleteSharedTransaction,
 }: DetailSheetProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -525,7 +534,14 @@ function TransactionDetailSheet({
     if (!transaction) return;
     setDeleteLoading(true);
     try {
-      if (transaction.isFixed) {
+      if (transaction.isShared && transaction.sharedId) {
+        await deleteSharedTransaction({
+          sharedId: transaction.sharedId,
+          currentUserUid,
+          currentUserName,
+          description: transaction.description,
+        });
+      } else if (transaction.isFixed) {
         // Cancelar fijo desde este mes en adelante (no eliminar doc)
         await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
           fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
@@ -664,6 +680,14 @@ function TransactionDetailSheet({
               <Text style={[styles.detailDescription, { color: colors.textSecondary }]}>
                 {transaction.description}
               </Text>
+              {transaction.isShared && (
+                <SharedExpenseChip
+                  isOwner={transaction.sharedOwnerUid === currentUserUid}
+                  ownerUserName={transaction.sharedOwnerUserName}
+                  participants={transaction.sharedParticipants}
+                  currentUid={currentUserUid}
+                />
+              )}
             </View>
 
             {/* Info rows */}
@@ -799,7 +823,9 @@ function TransactionDetailSheet({
                   <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
                     {transaction.isFixed
                       ? t('history.edit.confirmCancelFixed')
-                      : t('history.edit.confirmDelete')}
+                      : transaction.isShared
+                        ? t('sharedExpense.deleteConfirm')
+                        : t('history.edit.confirmDelete')}
                   </Text>
                   <View style={styles.confirmDeleteBtns}>
                     <TouchableOpacity
@@ -1052,7 +1078,9 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
             <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
           ) : (
             <Text style={[styles.txAmount, { color: amountColor }]}>
-              {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
+              {isExpense
+                ? `−${formatCurrency(item.isShared && item.sharedAmount != null ? item.sharedAmount : item.amount)}`
+                : `+${formatCurrency(item.amount)}`}
             </Text>
           )}
         </TouchableOpacity>
@@ -1070,6 +1098,14 @@ export default function HistoryScreen() {
   const { cards } = useCards(user?.uid ?? '');
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { showToast } = useToast();
+  const { deleteSharedTransaction } = useSharedTransactions();
+  const [currentUserName, setCurrentUserName] = useState('');
+
+  useEffect(() => {
+    if (user?.uid) {
+      getUserProfile(user.uid).then((p) => { if (p) setCurrentUserName(p.userName); });
+    }
+  }, [user?.uid]);
 
   const MONTHS = t('history.months', { returnObjects: true }) as string[];
   const WEEKDAYS = t('history.weekdays', { returnObjects: true }) as string[];
@@ -1410,6 +1446,9 @@ export default function HistoryScreen() {
         viewMonth={month}
         onActionDone={handleActionDone}
         cardsMap={cardsMap}
+        currentUserUid={user?.uid ?? ''}
+        currentUserName={currentUserName}
+        deleteSharedTransaction={deleteSharedTransaction}
       />
 
       {/* Edit Sheet */}
