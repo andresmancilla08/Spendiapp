@@ -1,8 +1,8 @@
 // app/friends.tsx
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, ActivityIndicator, Image, Platform,
+  TextInput, ActivityIndicator, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,9 +40,12 @@ export default function FriendsScreen() {
 
   // Estado para perfil propio (necesario para crear solicitudes)
   const [myProfile, setMyProfile] = useState<UserProfile | null>(null);
-  useState(() => {
-    if (uid) getUserProfile(uid).then(setMyProfile);
-  });
+  useEffect(() => {
+    if (!uid) return;
+    let cancelled = false;
+    getUserProfile(uid).then((p) => { if (!cancelled) setMyProfile(p); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [uid]);
 
   // Dialog eliminar amigo
   const [removeDialog, setRemoveDialog] = useState<{ visible: boolean; friendship: Friendship | null }>({
@@ -51,22 +54,24 @@ export default function FriendsScreen() {
 
   // Cache de perfiles para mostrar datos de amigos
   const [profileCache, setProfileCache] = useState<Record<string, UserProfile>>({});
+  const loadingUids = useRef<Set<string>>(new Set());
 
   const loadProfile = useCallback(async (targetUid: string) => {
-    if (profileCache[targetUid]) return;
+    if (loadingUids.current.has(targetUid)) return;
+    loadingUids.current.add(targetUid);
     const profile = await getUserProfile(targetUid);
     if (profile) {
       setProfileCache((prev) => ({ ...prev, [targetUid]: profile }));
     }
-  }, [profileCache]);
+  }, []);
 
-  // Cargar perfiles de amigos y solicitudes
-  useState(() => {
+  // Cargar perfiles de amigos y solicitudes cuando cambian las listas
+  useEffect(() => {
     [...acceptedFriends, ...incomingRequests, ...outgoingRequests].forEach((f) => {
       const otherUid = f.fromId === uid ? f.toId : f.fromId;
       loadProfile(otherUid);
     });
-  });
+  }, [acceptedFriends, incomingRequests, outgoingRequests, uid, loadProfile]);
 
   const handleSearch = async () => {
     const trimmed = searchText.trim();
