@@ -16,6 +16,7 @@ import { Fonts } from '../config/fonts';
 import { useInactivityTimer } from '../hooks/useInactivityTimer';
 import AppDialog from '../components/AppDialog';
 import { useTranslation } from 'react-i18next';
+import { createUserProfile } from '../hooks/useUserProfile';
 
 export default function RootLayout() {
   const { user, isLoading, justRegistered, biometricLocked, setUser, setLoading, setBiometricLocked } = useAuthStore();
@@ -39,6 +40,16 @@ export default function RootLayout() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((authUser) => {
+      if (authUser) {
+        // Crear perfil Firestore si no existe (idempotente)
+        createUserProfile(
+          authUser.uid,
+          authUser.displayName ?? authUser.email ?? 'Usuario',
+          authUser.photoURL,
+        ).catch(() => {
+          // Fallo silencioso — el perfil se creará en el siguiente login
+        });
+      }
       setUser(authUser);
       setLoading(false);
     });
