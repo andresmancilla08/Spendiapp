@@ -33,6 +33,7 @@ import {
 } from '../../hooks/useBiometrics';
 import AppDialog from '../../components/AppDialog';
 import PwaInstallBanner from '../../components/PwaInstallBanner';
+import NotificationBell from '../../components/NotificationBell';
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
   food:          { icon: '🍽️', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
@@ -116,6 +117,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [biometricOfferVisible, setBiometricOfferVisible] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
     async function offerBiometrics() {
@@ -204,15 +206,22 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: colors.primary }]}>Spendia</Text>
-        <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
-          {photoUrl ? (
-            <Image source={{ uri: photoUrl }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name="person" size={18} color={colors.primary} />
-            </View>
-          )}
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          {user?.uid && <NotificationBell uid={user.uid} />}
+          <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
+            {photoUrl && !avatarError ? (
+              <Image
+                source={{ uri: photoUrl }}
+                style={styles.avatar}
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight, borderWidth: 1.5, borderColor: colors.primary + '40' }]}>
+                <Ionicons name="person" size={18} color={colors.primary} />
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
