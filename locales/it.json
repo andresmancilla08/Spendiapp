@@ -686,7 +686,10 @@
       "daysAgo": "{{n}}g fa"
     },
     "pageDesc": "Rimani aggiornato con le ultime novità",
-    "delete": "Elimina notifica"
+    "delete": "Elimina notifica",
+    "shared_transaction_added": "{{fromDisplayName}} ha condiviso una spesa con te: {{description}}",
+    "shared_transaction_updated": "{{fromDisplayName}} ha aggiornato una spesa condivisa: {{description}}",
+    "shared_transaction_deleted": "{{fromDisplayName}} ha eliminato la spesa condivisa: {{description}}"
   },
   "whatsNew": {
     "version": "Novità · v1.5.0",
@@ -716,6 +719,24 @@
       "item1": "Impronta / Face ID per sblocco rapido",
       "item2": "Schermata di accesso con email e PIN ridisegnata",
       "item3": "Design visivo unificato in tutta l'app"
+    }
+  },
+  "sharedExpense": {
+    "toggle": "Condividi questa spesa",
+    "withWho": "Con chi",
+    "noFriends": "Non hai ancora amici su Spendia",
+    "splitType": "Divisione",
+    "equalParts": "Parti uguali",
+    "customParts": "Personalizza",
+    "you": "Tu",
+    "preview": "Riepilogo",
+    "previewInstallment": "{{amount}}/mese × {{n}} rate",
+    "percentageError": "Le percentuali devono sommare 100% (attuale: {{total}}%)",
+    "deleteConfirm": "Questa spesa condivisa sarà eliminata per TUTTI i partecipanti. Continuare?",
+    "chip": {
+      "sharedWith": "Condiviso con {{name}}",
+      "sharedWithMore": "Condiviso con {{name}} e altri {{count}}",
+      "sharedBy": "Condiviso da {{name}}"
     }
   }
 }
