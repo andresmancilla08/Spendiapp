@@ -20,13 +20,27 @@ export interface Friendship {
   updatedAt: Timestamp;
 }
 
-export type NotificationType = 'friend_request' | 'friend_accepted';
+export type NotificationType =
+  | 'friend_request'
+  | 'friend_accepted'
+  | 'shared_transaction_added'
+  | 'shared_transaction_updated'
+  | 'shared_transaction_deleted';
 
 export interface NotificationData {
   fromUserId: string;
   fromUserName: string;
   fromDisplayName: string;
   friendshipId: string;
+}
+
+export interface SharedTransactionNotificationData {
+  fromUserId: string;
+  fromUserName: string;
+  fromDisplayName: string;
+  sharedId: string;
+  description: string;
+  sharedAmount: number;
 }
 
 export interface NotificationDoc {
