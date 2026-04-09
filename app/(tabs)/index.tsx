@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import { AddTransactionModal } from '../../components/AddTransactionModal';
 import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -120,7 +119,6 @@ export default function HomeScreen() {
   const now = new Date();
   const [refreshKey, setRefreshKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [biometricOfferVisible, setBiometricOfferVisible] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
@@ -388,16 +386,10 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: colors.primary }]}
         activeOpacity={0.85}
-        onPress={() => setShowAddModal(true)}
+        onPress={() => router.push('/add-transaction')}
       >
         <Ionicons name="add" size={30} color={colors.onPrimary} />
       </TouchableOpacity>
-
-      <AddTransactionModal
-        visible={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSaved={() => { setShowAddModal(false); setRefreshKey(k => k + 1); showToast(t('home.transactionSaved'), 'success'); }}
-      />
 
       {Platform.OS !== 'web' && (
         <AppDialog
