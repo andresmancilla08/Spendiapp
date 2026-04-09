@@ -92,7 +92,8 @@
     "close": "Close",
     "comingSoon": "Coming Soon",
     "comingSoonDesc": "This feature will be available soon.",
-    "error": "Error"
+    "error": "Error",
+    "and": "and"
   },
   "tabBar": {
     "home": "HOME",
@@ -716,8 +717,5 @@
       "item2": "Redesigned email and PIN sign-in screen",
       "item3": "Unified visual design across the entire app"
     }
-  },
-  "common": {
-    "and": "and"
   }
 }
