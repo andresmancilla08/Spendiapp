@@ -201,7 +201,7 @@ export default function BudgetScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScreenBackground>
-      <AppHeader showBack={false} />
+      <AppHeader showBack={false} showNotifications />
 
       {/* Month nav */}
       <View style={[styles.monthRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
