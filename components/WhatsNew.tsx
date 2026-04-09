@@ -104,8 +104,8 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
                 style={[styles.card, {
                   backgroundColor: colors.surface,
                   borderColor: isDark
-                    ? (f.colorKey === 'success' ? 'rgba(0,168,150,0.15)' : 'rgba(0,172,193,0.15)')
-                    : colors.border,
+                    ? (f.colorKey === 'success' ? 'rgba(0,168,150,0.12)' : 'rgba(0,172,193,0.12)')
+                    : 'rgba(0,0,0,0.06)',
                 }]}
               >
                 <View style={styles.cardHeader}>
@@ -205,12 +205,12 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 20,
     padding: 20,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
 
   cardHeader: {
