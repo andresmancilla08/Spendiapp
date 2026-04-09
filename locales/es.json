@@ -717,5 +717,8 @@
       "item2": "Inicio de sesión con email y PIN rediseñado",
       "item3": "Diseño visual unificado en toda la app"
     }
+  },
+  "common": {
+    "and": "y"
   }
 }

@@ -716,5 +716,8 @@
       "item2": "Schermata di accesso con email e PIN ridisegnata",
       "item3": "Design visivo unificato in tutta l'app"
     }
+  },
+  "common": {
+    "and": "e"
   }
 }

@@ -716,5 +716,8 @@
       "item2": "Redesigned email and PIN sign-in screen",
       "item3": "Unified visual design across the entire app"
     }
+  },
+  "common": {
+    "and": "and"
   }
 }
