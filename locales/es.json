@@ -92,7 +92,8 @@
     "close": "Cerrar",
     "comingSoon": "Próximamente",
     "comingSoonDesc": "Esta función estará disponible pronto.",
-    "error": "Error"
+    "error": "Error",
+    "and": "y"
   },
   "tabBar": {
     "home": "Inicio",
@@ -717,8 +718,5 @@
       "item2": "Inicio de sesión con email y PIN rediseñado",
       "item3": "Diseño visual unificado en toda la app"
     }
-  },
-  "common": {
-    "and": "y"
   }
 }

@@ -92,7 +92,8 @@
     "close": "Chiudi",
     "comingSoon": "Prossimamente",
     "comingSoonDesc": "Questa funzione sarà disponibile a breve.",
-    "error": "Errore"
+    "error": "Errore",
+    "and": "e"
   },
   "tabBar": {
     "home": "HOME",
@@ -716,8 +717,5 @@
       "item2": "Schermata di accesso con email e PIN ridisegnata",
       "item3": "Design visivo unificato in tutta l'app"
     }
-  },
-  "common": {
-    "and": "e"
   }
 }
