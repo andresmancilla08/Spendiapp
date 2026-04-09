@@ -35,18 +35,15 @@ const pwaTags = `
     });
   </script>
 
-  <!-- Quitar outline en inputs / focus rings -->
+  <!-- Quitar outline y tap highlight en todos los elementos interactivos (PWA mobile) -->
   <style>
-    * { -webkit-tap-highlight-color: transparent; }
-    input, textarea, select, [contenteditable] {
+    *, *:focus, *:focus-visible, *:focus-within {
       outline: none !important;
       box-shadow: none !important;
-      -webkit-appearance: none;
+      -webkit-tap-highlight-color: transparent !important;
     }
-    input:focus, textarea:focus, select:focus, [contenteditable]:focus,
-    input:focus-visible, textarea:focus-visible, select:focus-visible, [contenteditable]:focus-visible {
-      outline: none !important;
-      box-shadow: none !important;
+    input, textarea, select, [contenteditable] {
+      -webkit-appearance: none;
     }
   </style>
 `;

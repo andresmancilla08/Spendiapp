@@ -94,6 +94,8 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
         <ScrollView
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
+          focusable={false}
+          style={Platform.OS === 'web' ? { outline: 'none' } as any : undefined}
         >
           {FEATURES.map((f) => {
             const accentColor = colors[f.colorKey];
