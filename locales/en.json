@@ -719,6 +719,30 @@
       "item1": "Shared expenses show a 👥 chip in the transaction list",
       "item2": "You see your exact share of the amount, not the total",
       "item3": "Instant notifications when someone shares an expense with you"
+    },
+    "budget": {
+      "title": "Monthly budget",
+      "item1": "Set spending limits by category",
+      "item2": "Visual progress chart in real time",
+      "item3": "Smart control of fixed transactions across months"
+    },
+    "friends": {
+      "title": "Friends system",
+      "item1": "Search users by username",
+      "item2": "Send, accept or reject friend requests",
+      "item3": "Manage your friends list from your profile"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "item1": "Numeric badge for unread notifications in real time",
+      "item2": "Tap to mark as read individually",
+      "item3": "Delete notifications or mark all as read in one tap"
+    },
+    "improvements": {
+      "title": "General improvements",
+      "item1": "Fingerprint / Face ID for quick unlock",
+      "item2": "Redesigned email and PIN sign-in screen",
+      "item3": "Unified visual design across the entire app"
     }
   },
   "sharedExpense": {

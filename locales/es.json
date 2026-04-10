@@ -720,6 +720,30 @@
       "item1": "Los gastos compartidos muestran un chip 👥 en el historial",
       "item2": "Ves tu parte exacta del monto, no el total del gasto",
       "item3": "Notificaciones instantáneas cuando alguien comparte contigo"
+    },
+    "budget": {
+      "title": "Presupuesto mensual",
+      "item1": "Define límites de gasto por categoría",
+      "item2": "Gráfica visual de avance en tiempo real",
+      "item3": "Control inteligente de movimientos fijos entre meses"
+    },
+    "friends": {
+      "title": "Sistema de amigos",
+      "item1": "Busca usuarios por nombre de usuario",
+      "item2": "Envía, acepta o rechaza solicitudes de amistad",
+      "item3": "Gestiona tu lista de amigos desde el perfil"
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "item1": "Badge numérico de no leídas en tiempo real",
+      "item2": "Toca para marcar como leída individualmente",
+      "item3": "Elimina notificaciones o márcalas todas de un toque"
+    },
+    "improvements": {
+      "title": "Mejoras generales",
+      "item1": "Huella / Face ID para desbloqueo rápido",
+      "item2": "Inicio de sesión con email y PIN rediseñado",
+      "item3": "Diseño visual unificado en toda la app"
     }
   },
   "sharedExpense": {
