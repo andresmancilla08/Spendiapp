@@ -35,7 +35,7 @@ import PwaInstallBanner from '../../components/PwaInstallBanner';
 import NotificationBell from '../../components/NotificationBell';
 import WhatsNew from '../../components/WhatsNew';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
+import appConfig from '../../app.json';
 
 const WHATS_NEW_KEY = '@spendiapp_whats_new_version';
 
@@ -126,7 +126,7 @@ export default function HomeScreen() {
   useEffect(() => {
     async function checkWhatsNew() {
       try {
-        const currentVersion = Constants.expoConfig?.version ?? '';
+        const currentVersion = appConfig.expo.version;
         const seenVersion = await AsyncStorage.getItem(WHATS_NEW_KEY);
         if (seenVersion !== currentVersion) setShowWhatsNew(true);
       } catch {}
@@ -136,7 +136,7 @@ export default function HomeScreen() {
 
   const handleDismissWhatsNew = async () => {
     try {
-      await AsyncStorage.setItem(WHATS_NEW_KEY, Constants.expoConfig?.version ?? '');
+      await AsyncStorage.setItem(WHATS_NEW_KEY, appConfig.expo.version);
     } catch {}
     setShowWhatsNew(false);
   };
