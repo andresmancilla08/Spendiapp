@@ -24,6 +24,7 @@ interface Feature {
 }
 
 const FEATURES: Feature[] = [
+  // v1.6.0
   {
     icon: 'people-circle-outline',
     colorKey: 'primary',
@@ -62,6 +63,47 @@ const FEATURES: Feature[] = [
       'whatsNew.syncHistory.item1',
       'whatsNew.syncHistory.item2',
       'whatsNew.syncHistory.item3',
+    ],
+  },
+  // v1.5.0
+  {
+    icon: 'bar-chart-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.budget.title',
+    items: [
+      'whatsNew.budget.item1',
+      'whatsNew.budget.item2',
+      'whatsNew.budget.item3',
+    ],
+  },
+  {
+    icon: 'people-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.friends.title',
+    items: [
+      'whatsNew.friends.item1',
+      'whatsNew.friends.item2',
+      'whatsNew.friends.item3',
+    ],
+  },
+  {
+    icon: 'notifications-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.notifications.title',
+    items: [
+      'whatsNew.notifications.item1',
+      'whatsNew.notifications.item2',
+      'whatsNew.notifications.item3',
+    ],
+  },
+  {
+    icon: 'flash-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.improvements.title',
+    items: [
+      'whatsNew.improvements.item1',
+      'whatsNew.improvements.item2',
+      'whatsNew.improvements.item3',
     ],
   },
 ];

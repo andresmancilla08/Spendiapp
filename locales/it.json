@@ -719,6 +719,30 @@
       "item1": "Le spese condivise mostrano un chip 👥 nella lista",
       "item2": "Vedi la tua parte esatta dell'importo, non il totale",
       "item3": "Notifiche istantanee quando qualcuno condivide una spesa con te"
+    },
+    "budget": {
+      "title": "Budget mensile",
+      "item1": "Imposta limiti di spesa per categoria",
+      "item2": "Grafico visivo dell'avanzamento in tempo reale",
+      "item3": "Controllo intelligente delle transazioni fisse tra mesi"
+    },
+    "friends": {
+      "title": "Sistema di amici",
+      "item1": "Cerca utenti per nome utente",
+      "item2": "Invia, accetta o rifiuta richieste di amicizia",
+      "item3": "Gestisci la lista di amici dal tuo profilo"
+    },
+    "notifications": {
+      "title": "Notifiche",
+      "item1": "Badge numerico per le non lette in tempo reale",
+      "item2": "Tocca per segnare come letta individualmente",
+      "item3": "Elimina notifiche o segna tutte come lette in un tocco"
+    },
+    "improvements": {
+      "title": "Miglioramenti generali",
+      "item1": "Impronta / Face ID per sblocco rapido",
+      "item2": "Schermata di accesso con email e PIN ridisegnata",
+      "item3": "Design visivo unificato in tutta l'app"
     }
   },
   "sharedExpense": {
