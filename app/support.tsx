@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import AppHeader from '../components/AppHeader';
+import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import AppDialog from '../components/AppDialog';
 import { Fonts } from '../config/fonts';
@@ -120,6 +121,7 @@ export default function SupportScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
       <AppHeader showBack />
+      <PageTitle title={t('support.title')} description={t('support.subtitle')} />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -130,19 +132,6 @@ export default function SupportScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header */}
-          <View style={[styles.heroCard, { backgroundColor: colors.surface }]}>
-            <View style={[styles.heroIconWrap, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name="chatbubble-ellipses" size={32} color={colors.primary} />
-            </View>
-            <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
-              {t('support.title')}
-            </Text>
-            <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-              {t('support.subtitle')}
-            </Text>
-          </View>
-
           {/* Form */}
           <View style={[styles.formCard, { backgroundColor: colors.surface }]}>
             <FormField
