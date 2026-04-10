@@ -16,10 +16,11 @@ import {
   PanResponder,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, router } from 'expo-router';
+import { useHistoryStore } from '../../store/historyStore';
 import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import {
@@ -39,7 +40,6 @@ import { useCards } from '../../hooks/useCards';
 import { Fonts } from '../../config/fonts';
 import type { Transaction } from '../../types/transaction';
 import ScreenBackground from '../../components/ScreenBackground';
-import SharedExpenseChip from '../../components/SharedExpenseChip';
 import { useSharedTransactions } from '../../hooks/useSharedTransactions';
 import { getUserProfile } from '../../hooks/useUserProfile';
 
@@ -401,526 +401,6 @@ function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: E
   );
 }
 
-// ── Transaction Detail Sheet ─────────────────────────────────────────────────
-
-interface DetailSheetProps {
-  visible: boolean;
-  transaction: Transaction | null;
-  onClose: () => void;
-  onEdit: (tx: Transaction) => void;
-  onActionDone: (action: EditAction) => void;
-  cardsMap: Record<string, { bankName: string; nickname: string; type: string }>;
-  isPastMonth: boolean;
-  viewYear: number;
-  viewMonth: number;
-  currentUserUid: string;
-  currentUserName: string;
-  deleteSharedTransaction: (params: { sharedId: string; currentUserUid: string; currentUserName: string; description: string }) => Promise<void>;
-}
-
-function TransactionDetailSheet({
-  visible,
-  transaction,
-  onClose,
-  onEdit,
-  onActionDone,
-  cardsMap,
-  isPastMonth,
-  viewYear,
-  viewMonth,
-  currentUserUid,
-  currentUserName,
-  deleteSharedTransaction,
-}: DetailSheetProps) {
-  const { t } = useTranslation();
-  const { colors } = useTheme();
-  const { height: screenHeight } = useWindowDimensions();
-  const MAX_SHEET_HEIGHT = Math.round(screenHeight * 0.90);
-
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const scrollViewRef = useRef<ScrollView>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [duplicateLoading, setDuplicateLoading] = useState(false);
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
-
-  useEffect(() => {
-    if (confirmingDelete) {
-      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 80);
-    }
-  }, [confirmingDelete]);
-
-  const CATEGORY_LABELS: Record<string, string> = {
-    food: t('categories.names.food'),
-    transport: t('categories.names.transport'),
-    health: t('categories.names.health'),
-    entertainment: t('categories.names.entertainment'),
-    shopping: t('categories.names.shopping'),
-    home: t('categories.names.home'),
-    salary: t('categories.names.salary'),
-    other: t('categories.names.other'),
-  };
-
-  const animateIn = useCallback(() => {
-    Animated.timing(slideAnim, {
-      toValue: 1,
-      duration: 350,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-  }, [slideAnim]);
-
-  const animateOut = useCallback((callback: () => void) => {
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 280,
-      easing: Easing.in(Easing.cubic),
-      useNativeDriver: true,
-    }).start(() => callback());
-  }, [slideAnim]);
-
-  useEffect(() => {
-    if (visible) {
-      setConfirmingDelete(false);
-      setDeleteLoading(false);
-      setDuplicateLoading(false);
-      animateIn();
-    }
-  }, [visible, animateIn]);
-
-  const handleClose = useCallback(() => {
-    animateOut(() => {
-      slideAnim.setValue(0);
-      onClose();
-    });
-  }, [animateOut, onClose, slideAnim]);
-
-  const handleEdit = () => {
-    if (!transaction) return;
-    // Para copias virtuales, pasar el ID real al sheet de edición
-    const txForEdit = transaction.isVirtualFixed
-      ? { ...transaction, id: getActualId(transaction) }
-      : transaction;
-    animateOut(() => {
-      slideAnim.setValue(0);
-      onClose();
-      onEdit(txForEdit);
-    });
-  };
-
-  const handleDuplicate = async () => {
-    if (!transaction) return;
-    setDuplicateLoading(true);
-    try {
-      await addDoc(collection(db, 'transactions'), {
-        userId: transaction.userId,
-        type: transaction.type,
-        amount: transaction.amount,
-        category: transaction.category,
-        description: transaction.description,
-        date: Timestamp.fromDate(transaction.date),
-        createdAt: Timestamp.fromDate(new Date()),
-        ...(transaction.cardId ? { cardId: transaction.cardId } : {}),
-        // Las copias duplicadas NUNCA heredan isFixed
-      });
-      setDuplicateLoading(false);
-      handleClose();
-      onActionDone('duplicated');
-    } catch {
-      setDuplicateLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!transaction) return;
-    setDeleteLoading(true);
-    try {
-      if (transaction.isShared && transaction.sharedId) {
-        await deleteSharedTransaction({
-          sharedId: transaction.sharedId,
-          currentUserUid,
-          currentUserName,
-          description: transaction.description,
-        });
-      } else if (transaction.isFixed) {
-        // Cancelar fijo desde este mes en adelante (no eliminar doc)
-        await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
-          fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
-        });
-      } else {
-        await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
-      }
-      setDeleteLoading(false);
-      handleClose();
-      onActionDone('deleted');
-    } catch {
-      setDeleteLoading(false);
-    }
-  };
-
-  // Arranca desde screenHeight para que siempre empiece fuera de pantalla
-  // sin importar la altura real del contenido
-  const translateY = slideAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [screenHeight, 0],
-  });
-
-  if (!transaction) return null;
-
-  const isExpense = transaction.type === 'expense';
-  const cat = CATEGORY_META[transaction.category] ?? CATEGORY_META.other;
-  const card = transaction.cardId ? cardsMap[transaction.cardId] : null;
-  const isLoading = deleteLoading || duplicateLoading;
-
-  const formattedDate = transaction.date.toLocaleDateString('es-CO', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-  const formattedTime = formatTime(transaction.date);
-
-  const installmentPct = transaction.isInstallment && transaction.installmentTotal
-    ? (transaction.installmentNumber ?? 0) / transaction.installmentTotal
-    : 0;
-
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={handleClose}
-    >
-      <TouchableWithoutFeedback onPress={handleClose}>
-        <Animated.View
-          style={[
-            styles.backdrop,
-            {
-              opacity: slideAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 0.55],
-              }),
-            },
-          ]}
-        />
-      </TouchableWithoutFeedback>
-
-      <Animated.View
-        style={[
-          styles.sheetWrapper,
-          { maxHeight: MAX_SHEET_HEIGHT, transform: [{ translateY }] },
-        ]}
-        pointerEvents="box-none"
-      >
-        <View style={[styles.sheet, { backgroundColor: colors.surface }]}>
-          {/* Drag handle */}
-          <View style={styles.dragHandleRow}>
-            <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
-          </View>
-
-          {/* Header: close button */}
-          <View style={styles.titleRow}>
-            <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>
-              {t('history.detail.title')}
-            </Text>
-            <TouchableOpacity
-              onPress={handleClose}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Ionicons name="close" size={22} color={colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView
-            ref={scrollViewRef}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.sheetScrollContent}
-          >
-            {/* Hero — icono, tipo, monto, descripción */}
-            <View style={[
-              styles.detailHero,
-              { backgroundColor: isExpense ? `${colors.error}0C` : `${colors.secondary}0C` },
-            ]}>
-              {/* Icono grande centrado */}
-              <View style={[
-                styles.detailHeroIcon,
-                { backgroundColor: isExpense ? `${colors.error}20` : `${colors.secondary}20` },
-              ]}>
-                <Text style={{ fontSize: 34 }}>{cat.icon}</Text>
-              </View>
-
-              {/* Badge tipo con dot */}
-              <View style={[
-                styles.detailTypeBadge,
-                { backgroundColor: isExpense ? `${colors.error}18` : `${colors.secondary}18` },
-              ]}>
-                <View style={[
-                  styles.detailTypeDot,
-                  { backgroundColor: isExpense ? colors.error : colors.secondary },
-                ]} />
-                <Text style={[
-                  styles.detailTypeBadgeText,
-                  { color: isExpense ? colors.error : colors.secondary },
-                ]}>
-                  {isExpense ? t('history.detail.typeExpense') : t('history.detail.typeIncome')}
-                </Text>
-              </View>
-
-              {/* Monto — protagonista */}
-              <Text style={[
-                styles.detailAmount,
-                { color: isExpense ? colors.error : colors.secondary },
-              ]}>
-                {isExpense
-                  ? `−${formatCurrency(transaction.amount)}`
-                  : `+${formatCurrency(transaction.amount)}`}
-              </Text>
-
-              {/* Descripción */}
-              <Text style={[styles.detailDescription, { color: colors.textSecondary }]}>
-                {transaction.description}
-              </Text>
-              {transaction.isShared && (
-                <SharedExpenseChip
-                  isOwner={transaction.sharedOwnerUid === currentUserUid}
-                  ownerUserName={transaction.sharedOwnerUserName}
-                  participants={transaction.sharedParticipants}
-                  currentUid={currentUserUid}
-                />
-              )}
-            </View>
-
-            {/* Info rows */}
-            <View style={[styles.detailCard, { backgroundColor: colors.backgroundSecondary, borderRadius: 16 }]}>
-              {/* Date */}
-              <View style={styles.detailRow}>
-                <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
-                  {t('history.detail.dateLabel')}
-                </Text>
-                <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
-                  {formattedDate}
-                </Text>
-              </View>
-              <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
-
-              {/* Category */}
-              <View style={styles.detailRow}>
-                <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
-                  {t('history.detail.categoryLabel')}
-                </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={{ fontSize: 14 }}>{cat.icon}</Text>
-                  <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
-                    {CATEGORY_LABELS[transaction.category] ?? transaction.category}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Card */}
-              {card && (
-                <>
-                  <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
-                  <View style={styles.detailRow}>
-                    <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
-                      {t('history.detail.cardLabel')}
-                    </Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
-                        {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
-                      </Text>
-                      <View style={[
-                        styles.detailCardTypeBadge,
-                        {
-                          backgroundColor: card.type === 'credit'
-                            ? `${colors.primary}18`
-                            : `${colors.tertiary ?? colors.secondary}18`,
-                        },
-                      ]}>
-                        <Text style={[
-                          styles.detailCardTypeBadgeText,
-                          {
-                            color: card.type === 'credit'
-                              ? colors.primary
-                              : (colors.tertiary ?? colors.secondary),
-                          },
-                        ]}>
-                          {card.type === 'credit'
-                            ? t('history.detail.creditType')
-                            : t('history.detail.debitType')}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </>
-              )}
-
-              {/* Installments */}
-              {transaction.isInstallment && transaction.installmentTotal && (
-                <>
-                  <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
-                  <View style={[styles.detailRow, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
-                        {t('history.detail.installmentLabel')}
-                      </Text>
-                      <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
-                        {t('history.detail.installmentProgress', {
-                          current: transaction.installmentNumber,
-                          total: transaction.installmentTotal,
-                        })}
-                      </Text>
-                    </View>
-                    {/* Progress bar */}
-                    <View style={[styles.installmentTrack, { backgroundColor: colors.border }]}>
-                      <View
-                        style={[
-                          styles.installmentFill,
-                          {
-                            backgroundColor: colors.primary,
-                            width: `${Math.round(installmentPct * 100)}%`,
-                          },
-                        ]}
-                      />
-                    </View>
-                    <Text style={[styles.installmentHint, { color: colors.textTertiary }]}>
-                      {`${transaction.installmentNumber} / ${transaction.installmentTotal}`}
-                    </Text>
-                  </View>
-                </>
-              )}
-
-              {/* Fixed */}
-              {transaction.isFixed && (
-                <>
-                  <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
-                  <View style={styles.detailRow}>
-                    <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
-                      {t('history.detail.fixedLabel').toUpperCase()}
-                    </Text>
-                    <View style={[styles.detailFixedBadge, { backgroundColor: `${colors.primary}18` }]}>
-                      <Ionicons name="repeat" size={11} color={colors.primary} />
-                      <Text style={[styles.detailFixedBadgeText, { color: colors.primary }]}>
-                        {t('history.detail.fixedLabel')}
-                      </Text>
-                    </View>
-                  </View>
-                </>
-              )}
-            </View>
-
-            {/* Action tiles / Confirm delete */}
-            <View style={{ marginTop: 24 }}>
-              {isPastMonth && transaction.isFixed ? (
-                /* Fijo pasado: bloqueado */
-                <View style={[styles.confirmDeleteWrap, { backgroundColor: `${colors.primary}10`, borderRadius: 16, padding: 16 }]}>
-                  <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={{ alignSelf: 'center', marginBottom: 8 }} />
-                  <Text style={[styles.confirmDeleteText, { color: colors.primary, textAlign: 'center' }]}>
-                    {t('history.edit.fixedLocked')}
-                  </Text>
-                </View>
-              ) : confirmingDelete ? (
-                <View style={[styles.confirmDeleteWrap, { backgroundColor: colors.errorLight, borderRadius: 16, padding: 16 }]}>
-                  <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
-                    {transaction.isFixed
-                      ? t('history.edit.confirmCancelFixed')
-                      : transaction.isShared
-                        ? t('sharedExpense.deleteConfirm')
-                        : t('history.edit.confirmDelete')}
-                  </Text>
-                  <View style={styles.confirmDeleteBtns}>
-                    <TouchableOpacity
-                      style={[styles.confirmBtn, { backgroundColor: colors.error, flex: 1 }]}
-                      onPress={handleDelete}
-                      disabled={isLoading}
-                      activeOpacity={0.8}
-                    >
-                      {deleteLoading
-                        ? <ActivityIndicator size="small" color="#FFFFFF" />
-                        : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
-                            {transaction.isFixed
-                              ? t('history.edit.confirmCancelFixedYes')
-                              : t('history.edit.confirmDeleteYes')}
-                          </Text>
-                      }
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.confirmBtn, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border, flex: 1 }]}
-                      onPress={() => setConfirmingDelete(false)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
-                        {t('history.edit.confirmDeleteCancel')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.actionGrid}>
-                  {/* Edit */}
-                  <TouchableOpacity
-                    style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
-                    onPress={handleEdit}
-                    activeOpacity={0.75}
-                    disabled={isLoading}
-                  >
-                    <Ionicons name="create-outline" size={22} color={colors.primary} />
-                    <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
-                      {t('history.detail.editButton')}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {/* Duplicate */}
-                  <TouchableOpacity
-                    style={[
-                      styles.actionTile,
-                      { backgroundColor: `${colors.tertiary}18` },
-                      duplicateLoading && styles.buttonDisabled,
-                    ]}
-                    onPress={handleDuplicate}
-                    activeOpacity={0.75}
-                    disabled={isLoading}
-                  >
-                    {duplicateLoading
-                      ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
-                      : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
-                    }
-                    <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
-                      {t('history.edit.duplicateButton')}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {/* Delete / Cancel fixed */}
-                  <TouchableOpacity
-                    style={[
-                      styles.actionTile,
-                      { backgroundColor: colors.errorLight },
-                      deleteLoading && styles.buttonDisabled,
-                    ]}
-                    onPress={() => setConfirmingDelete(true)}
-                    activeOpacity={0.75}
-                    disabled={isLoading}
-                  >
-                    {deleteLoading
-                      ? <ActivityIndicator size="small" color={colors.error} />
-                      : <Ionicons name={transaction.isFixed ? 'stop-circle-outline' : 'trash-outline'} size={22} color={colors.error} />
-                    }
-                    <Text style={[styles.actionTileLabel, { color: colors.error }]}>
-                      {transaction.isFixed
-                        ? t('history.edit.cancelFixedButton')
-                        : t('history.edit.deleteButton')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-
-          </ScrollView>
-        </View>
-      </Animated.View>
-    </Modal>
-  );
-}
-
 // ── Transaction Row ──────────────────────────────────────────────────────────
 
 interface TransactionRowProps {
@@ -1063,12 +543,28 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                   backgroundColor: card.type === 'credit'
                     ? `${colors.primary}18`
                     : `${colors.tertiary}18`,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4,
                 }]}>
                   <Text style={[styles.txCardChipText, {
                     color: card.type === 'credit' ? colors.primary : colors.tertiary,
                   }]}>
                     {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
                   </Text>
+                  <View style={[styles.txCardTypeBadge, {
+                    backgroundColor: card.type === 'credit'
+                      ? `${colors.primary}28`
+                      : `${colors.tertiary}28`,
+                  }]}>
+                    <Text style={[styles.txCardTypeBadgeText, {
+                      color: card.type === 'credit' ? colors.primary : colors.tertiary,
+                    }]}>
+                      {card.type === 'credit'
+                        ? t('history.detail.creditType')[0]
+                        : t('history.detail.debitType')[0]}
+                    </Text>
+                  </View>
                 </View>
               )}
             </View>
@@ -1119,10 +615,10 @@ export default function HistoryScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const MIN_YEAR = 2020;
 
+  const { setSelectedTransaction, pendingEditTx, setPendingEditTx, lastAction, setLastAction } = useHistoryStore();
+
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
-  const [detailTx, setDetailTx] = useState<Transaction | null>(null);
-  const [detailVisible, setDetailVisible] = useState(false);
   const [paidLoadingId, setPaidLoadingId] = useState<string | null>(null);
 
   // Siempre volver al mes actual al entrar
@@ -1134,6 +630,22 @@ export default function HistoryScreen() {
     setSearchQuery('');
     setMonthPickerOpen(false);
   }, []));
+
+  // Manejar acciones pendientes desde la pantalla de detalle
+  useFocusEffect(useCallback(() => {
+    if (pendingEditTx) {
+      setPendingEditTx(null);
+      setEditingTx(pendingEditTx);
+      setSheetVisible(true);
+    }
+    if (lastAction) {
+      setLastAction(null);
+      setRefreshKey((k) => k + 1);
+      if (lastAction === 'saved')      showToast(t('history.toasts.saved'), 'success');
+      if (lastAction === 'deleted')    showToast(t('history.toasts.deleted'), 'success');
+      if (lastAction === 'duplicated') showToast(t('history.toasts.duplicated'), 'info');
+    }
+  }, [pendingEditTx, setPendingEditTx, lastAction, setLastAction, showToast, t]));
 
   const { transactions, totalIncome, totalExpenses, balance, loading } = useTransactions(
     user?.uid ?? '',
@@ -1175,27 +687,21 @@ export default function HistoryScreen() {
   const isPastMonth = year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth());
 
   const handleTapTx = useCallback((tx: Transaction) => {
-    setDetailTx(tx);
-    setDetailVisible(true);
-  }, []);
+    setSelectedTransaction(tx, {
+      cardsMap,
+      viewYear: year,
+      viewMonth: month,
+      isPastMonth,
+      currentUserName,
+    });
+    router.push('/transaction-detail');
+  }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, currentUserName]);
 
   const handleLongPress = useCallback((tx: Transaction) => {
     if (tx.isFixed && isPastMonth) return; // fijos pasados: bloqueados
     setEditingTx(tx);
     setSheetVisible(true);
   }, [isPastMonth]);
-
-  const handleDetailClose = useCallback(() => {
-    setDetailVisible(false);
-    setDetailTx(null);
-  }, []);
-
-  const handleDetailEdit = useCallback((tx: Transaction) => {
-    setDetailTx(null);
-    setDetailVisible(false);
-    setEditingTx(tx);
-    setSheetVisible(true);
-  }, []);
 
   const handleSheetClose = useCallback(() => {
     setSheetVisible(false);
@@ -1435,22 +941,6 @@ export default function HistoryScreen() {
         </ScrollView>
       )}
 
-      {/* Detail Sheet */}
-      <TransactionDetailSheet
-        visible={detailVisible}
-        transaction={detailTx}
-        onClose={handleDetailClose}
-        onEdit={handleDetailEdit}
-        isPastMonth={isPastMonth}
-        viewYear={year}
-        viewMonth={month}
-        onActionDone={handleActionDone}
-        cardsMap={cardsMap}
-        currentUserUid={user?.uid ?? ''}
-        currentUserName={currentUserName}
-        deleteSharedTransaction={deleteSharedTransaction}
-      />
-
       {/* Edit Sheet */}
       <EditTransactionSheet
         visible={sheetVisible}
@@ -1676,6 +1166,8 @@ const styles = StyleSheet.create({
   txAmount: { fontSize: 14, fontFamily: Fonts.bold },
   txCardChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
   txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold },
+  txCardTypeBadge: { paddingHorizontal: 4, paddingVertical: 1, borderRadius: 5 },
+  txCardTypeBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
   fixedBadge: {
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -1828,11 +1320,17 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
+  // Fixed bottom actions bar (detail sheet)
+  detailFixedActions: {
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    borderTopWidth: 1,
+  },
+
   // Action tiles (detail sheet)
   actionGrid: {
     flexDirection: 'row',
     gap: 10,
-    marginBottom: 4,
   },
   actionTile: {
     flex: 1,
