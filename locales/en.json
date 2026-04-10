@@ -5,7 +5,10 @@
     "googleButton": "Continue with Google",
     "emailButton": "Sign in with email and PIN",
     "noAccount": "Don't have an account?",
-    "registerLink": "Sign up"
+    "registerLink": "Sign up",
+    "errors": {
+      "popupBlocked": "Your browser blocked the Google sign-in window. Use email and PIN instead."
+    }
   },
   "register": {
     "back": "← Back",
