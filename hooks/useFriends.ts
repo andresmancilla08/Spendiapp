@@ -32,13 +32,20 @@ export function useFriends(uid: string) {
       setLoading(false);
     });
 
-    const unsub2 = onSnapshot(q2, (snap) => {
-      toRef.current = {};
-      snap.docs.forEach((d) => {
-        toRef.current[d.id] = { id: d.id, ...d.data() } as Friendship;
-      });
-      merge();
-    });
+    const unsub2 = onSnapshot(q2,
+      (snap) => {
+        toRef.current = {};
+        snap.docs.forEach((d) => {
+          toRef.current[d.id] = { id: d.id, ...d.data() } as Friendship;
+        });
+        merge();
+        setLoading(false);
+      },
+      (error) => {
+        console.error('[useFriends] incoming query error:', error.code, error.message);
+        setLoading(false);
+      },
+    );
 
     return () => {
       unsub1();
