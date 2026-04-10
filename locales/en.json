@@ -692,7 +692,7 @@
     "shared_transaction_deleted": "{{fromDisplayName}} deleted the shared expense: {{description}}"
   },
   "whatsNew": {
-    "version": "What's new · v1.6.0",
+    "version": "What's new · v{{version}}",
     "title": "What's new?",
     "subtitle": "Here are the improvements and features that arrived in this version.",
     "dismiss": "Got it",

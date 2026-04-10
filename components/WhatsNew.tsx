@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
+import appConfig from '../app.json';
 
 interface WhatsNewProps {
   visible: boolean;
@@ -121,7 +122,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
           <View style={[styles.versionBadge, { backgroundColor: colors.primaryLight }]}>
             <View style={[styles.versionDot, { backgroundColor: colors.primary }]} />
             <Text style={[styles.versionText, { color: colors.primary }]}>
-              {t('whatsNew.version')}
+              {t('whatsNew.version', { version: appConfig.expo.version })}
             </Text>
           </View>
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>

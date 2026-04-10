@@ -693,7 +693,7 @@
     "shared_transaction_deleted": "{{fromDisplayName}} eliminó el gasto compartido: {{description}}"
   },
   "whatsNew": {
-    "version": "Novedades · v1.6.0",
+    "version": "Novedades · v{{version}}",
     "title": "¿Qué hay de nuevo?",
     "subtitle": "Estas son las mejoras y funcionalidades que llegaron en esta versión.",
     "dismiss": "Entendido",
