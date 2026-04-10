@@ -21,6 +21,7 @@ import { Budget } from '../../types/budget';
 import AppDialog from '../../components/AppDialog';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
+import PageTitle from '../../components/PageTitle';
 import { Fonts } from '../../config/fonts';
 import { useToast } from '../../context/ToastContext';
 
@@ -202,6 +203,7 @@ export default function BudgetScreen() {
     <SafeAreaView style={styles.safe}>
       <ScreenBackground>
       <AppHeader showBack={false} showNotifications />
+      <PageTitle title={t('budget.title')} description={t('budget.pageDesc')} />
 
       {/* Month nav */}
       <View style={[styles.monthRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
