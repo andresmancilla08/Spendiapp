@@ -33,9 +33,8 @@ import {
 import AppDialog from '../../components/AppDialog';
 import PwaInstallBanner from '../../components/PwaInstallBanner';
 import NotificationBell from '../../components/NotificationBell';
-import WhatsNew from '../../components/WhatsNew';
+import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import appConfig from '../../app.json';
 
 const WHATS_NEW_KEY = '@spendiapp_whats_new_version';
 
@@ -128,9 +127,8 @@ export default function HomeScreen() {
     async function checkWhatsNew() {
       if (!justLoggedIn) return;
       try {
-        const currentVersion = appConfig.expo.version;
         const seenVersion = await AsyncStorage.getItem(WHATS_NEW_KEY);
-        if (seenVersion !== currentVersion) setShowWhatsNew(true);
+        if (seenVersion !== WHATS_NEW_VERSION) setShowWhatsNew(true);
       } catch {}
       setJustLoggedIn(false);
     }
@@ -139,7 +137,7 @@ export default function HomeScreen() {
 
   const handleDismissWhatsNew = async () => {
     try {
-      await AsyncStorage.setItem(WHATS_NEW_KEY, appConfig.expo.version);
+      await AsyncStorage.setItem(WHATS_NEW_KEY, WHATS_NEW_VERSION);
     } catch {}
     setShowWhatsNew(false);
   };
