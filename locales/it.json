@@ -692,7 +692,7 @@
     "shared_transaction_deleted": "{{fromDisplayName}} ha eliminato la spesa condivisa: {{description}}"
   },
   "whatsNew": {
-    "version": "Novità · v1.6.0",
+    "version": "Novità · v{{version}}",
     "title": "Cosa c'è di nuovo?",
     "subtitle": "Ecco i miglioramenti e le funzionalità arrivate in questa versione.",
     "dismiss": "Capito",
