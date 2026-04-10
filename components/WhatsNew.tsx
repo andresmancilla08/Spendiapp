@@ -1,8 +1,9 @@
 // components/WhatsNew.tsx
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Modal, Platform,
+  Modal, Platform, ActivityIndicator,
 } from 'react-native';
+import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -17,7 +18,7 @@ export const WHATS_NEW_VERSION = '1.7.0';
 
 interface WhatsNewProps {
   visible: boolean;
-  onDismiss: () => void;
+  onDismiss: () => Promise<void>;
 }
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -152,6 +153,17 @@ const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
+  const [dismissing, setDismissing] = useState(false);
+
+  const handleDismiss = async () => {
+    if (dismissing) return;
+    setDismissing(true);
+    try {
+      await onDismiss();
+    } finally {
+      setDismissing(false);
+    }
+  };
 
   const currentFeatures = VERSION_HISTORY.find(v => v.version === WHATS_NEW_VERSION)?.features ?? [];
 
@@ -221,14 +233,20 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
         {/* Botón fijo inferior */}
         <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
           <TouchableOpacity
-            style={[styles.dismissBtn, { backgroundColor: colors.primary }]}
-            onPress={onDismiss}
+            style={[styles.dismissBtn, { backgroundColor: dismissing ? colors.primaryLight : colors.primary }]}
+            onPress={handleDismiss}
             activeOpacity={0.85}
+            disabled={dismissing}
           >
-            <Ionicons name="checkmark-circle-outline" size={20} color={colors.onPrimary} />
-            <Text style={[styles.dismissText, { color: colors.onPrimary }]}>
-              {t('whatsNew.dismiss')}
-            </Text>
+            {dismissing
+              ? <ActivityIndicator size="small" color={colors.primary} />
+              : <>
+                  <Ionicons name="checkmark-circle-outline" size={20} color={colors.onPrimary} />
+                  <Text style={[styles.dismissText, { color: colors.onPrimary }]}>
+                    {t('whatsNew.dismiss')}
+                  </Text>
+                </>
+            }
           </TouchableOpacity>
         </View>
 
