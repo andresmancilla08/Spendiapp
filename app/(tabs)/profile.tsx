@@ -34,6 +34,7 @@ import AppDialog, { DialogType } from '../../components/AppDialog';
 import ScreenBackground from '../../components/ScreenBackground';
 import { Fonts } from '../../config/fonts';
 import { getUserProfile } from '../../hooks/useUserProfile';
+import { useFriends } from '../../hooks/useFriends';
 import * as Clipboard from 'expo-clipboard';
 import { useToast } from '../../context/ToastContext';
 import appConfig from '../../app.json';
@@ -45,10 +46,11 @@ interface OptionRow {
   label: string;
   value?: string;
   color?: string;
+  badge?: number;
   onPress: () => void;
 }
 
-function OptionItem({ icon, label, value, color, onPress }: OptionRow) {
+function OptionItem({ icon, label, value, color, badge, onPress }: OptionRow) {
   const { colors } = useTheme();
   const iconColor = color ?? colors.primary;
   return (
@@ -69,6 +71,11 @@ function OptionItem({ icon, label, value, color, onPress }: OptionRow) {
             </Text>
           ) : null}
         </View>
+        {badge ? (
+          <View style={[styles.optionBadge, { backgroundColor: colors.error }]}>
+            <Text style={styles.optionBadgeText}>{badge}</Text>
+          </View>
+        ) : null}
         <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
       </TouchableOpacity>
       <View style={[styles.optionDivider, { backgroundColor: colors.border }]} />
@@ -336,6 +343,7 @@ const DIALOG_CLOSED: DialogState = {
 // ── Pantalla principal ──────────────────────────────────────────────────────
 export default function ProfileScreen() {
   const { user, setUser } = useAuthStore();
+  const { incomingRequests } = useFriends(user?.uid ?? '');
   const { colors, themeMode, setThemeMode, isDark } = useTheme();
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
@@ -534,6 +542,7 @@ export default function ProfileScreen() {
           <OptionItem
             icon="people-outline"
             label={t('profile.friends.label')}
+            badge={incomingRequests.length || undefined}
             onPress={() => router.push('/friends')}
           />
         </View>
@@ -586,11 +595,6 @@ export default function ProfileScreen() {
             label={t('profile.language.label')}
             value={`${currentLang.flag} ${currentLang.label}`}
             onPress={handleLanguage}
-          />
-          <OptionItem
-            icon="notifications-outline"
-            label={t('profile.notifications.label')}
-            onPress={() => showInfo(t('common.comingSoon'), t('profile.notifications.soon'))}
           />
         </View>
 
@@ -814,6 +818,8 @@ const styles = StyleSheet.create({
   optionMeta: { flex: 1, gap: 2 },
   optionLabel: { fontSize: 14, fontFamily: Fonts.medium },
   optionValue: { fontSize: 12, fontFamily: Fonts.regular },
+  optionBadge: { minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' },
+  optionBadgeText: { color: '#fff', fontSize: 11, fontFamily: Fonts.bold },
   optionSub: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 1 },
   optionDivider: { height: StyleSheet.hairlineWidth, marginLeft: 68 },
 
