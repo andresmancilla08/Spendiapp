@@ -115,6 +115,7 @@ export default function HomeScreen() {
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
+  const { justLoggedIn, setJustLoggedIn } = useAuthStore();
   const { showToast } = useToast();
   const now = new Date();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -125,14 +126,16 @@ export default function HomeScreen() {
 
   useEffect(() => {
     async function checkWhatsNew() {
+      if (!justLoggedIn) return;
       try {
         const currentVersion = appConfig.expo.version;
         const seenVersion = await AsyncStorage.getItem(WHATS_NEW_KEY);
         if (seenVersion !== currentVersion) setShowWhatsNew(true);
       } catch {}
+      setJustLoggedIn(false);
     }
     checkWhatsNew();
-  }, []);
+  }, [justLoggedIn]);
 
   const handleDismissWhatsNew = async () => {
     try {
