@@ -27,6 +27,8 @@ import { categorizeLocal, categorizeWithGemini } from '../utils/categorize';
 import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
 import { router } from 'expo-router';
+import AppHeader from '../components/AppHeader';
+import PageTitle from '../components/PageTitle';
 import { useCards } from '../hooks/useCards';
 import { useTEARate } from '../hooks/useTEARate';
 import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
@@ -442,15 +444,8 @@ export default function AddTransactionScreen() {
         <InputAccessoryView nativeID={AMOUNT_INPUT_ID}><View /></InputAccessoryView>
       )}
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
-        {/* Fixed header */}
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-            {t('addTransaction.title')}
-          </Text>
-          <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()} activeOpacity={0.7}>
-            <Ionicons name="close" size={22} color={colors.textPrimary} />
-          </TouchableOpacity>
-        </View>
+        <AppHeader showBack />
+        <PageTitle title={t('addTransaction.title')} description={t('addTransaction.pageDesc')} />
 
         <KeyboardAvoidingView
           style={styles.flex}
@@ -1127,41 +1122,42 @@ export default function AddTransactionScreen() {
               />
             )}
 
-            {/* Validación hint */}
-            {isSaveDisabledFull && !loading && (
-              <Text style={[styles.fixedHint, { color: colors.textTertiary, textAlign: 'center', marginBottom: 6 }]}>
-                {!isAmountValid
-                  ? t('addTransaction.validation.invalidAmount')
-                  : category === ''
-                  ? t('addTransaction.validation.noCategory')
-                  : description.trim() === ''
-                  ? t('addTransaction.validation.noDescription')
-                  : !teaValid
-                  ? t('addTransaction.validation.noTea')
-                  : ''}
-              </Text>
-            )}
-
-            {error !== '' && (
-              <Text style={[styles.errorText, { color: colors.error ?? '#EF4444' }]}>{error}</Text>
-            )}
-
-            <TouchableOpacity
-              style={[
-                styles.saveBtn,
-                { backgroundColor: isSaveDisabledFull ? colors.border : colors.primary },
-              ]}
-              onPress={handleSave}
-              disabled={isSaveDisabledFull}
-              activeOpacity={0.85}
-            >
-              {loading
-                ? <ActivityIndicator color="#FFFFFF" />
-                : <Text style={[styles.saveBtnText, { color: '#FFFFFF' }]}>{t('addTransaction.saveButton')}</Text>
-              }
-            </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
+
+        {/* Footer fijo */}
+        <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
+          {isSaveDisabledFull && !loading && (
+            <Text style={[styles.fixedHint, { color: colors.textTertiary, textAlign: 'center', marginBottom: 6 }]}>
+              {!isAmountValid
+                ? t('addTransaction.validation.invalidAmount')
+                : category === ''
+                ? t('addTransaction.validation.noCategory')
+                : description.trim() === ''
+                ? t('addTransaction.validation.noDescription')
+                : !teaValid
+                ? t('addTransaction.validation.noTea')
+                : ''}
+            </Text>
+          )}
+          {error !== '' && (
+            <Text style={[styles.errorText, { color: colors.error ?? '#EF4444', textAlign: 'center', marginBottom: 6 }]}>{error}</Text>
+          )}
+          <TouchableOpacity
+            style={[
+              styles.saveBtn,
+              { backgroundColor: isSaveDisabledFull ? colors.border : colors.primary },
+            ]}
+            onPress={handleSave}
+            disabled={isSaveDisabledFull}
+            activeOpacity={0.85}
+          >
+            {loading
+              ? <ActivityIndicator color="#FFFFFF" />
+              : <Text style={[styles.saveBtnText, { color: '#FFFFFF' }]}>{t('addTransaction.saveButton')}</Text>
+            }
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </>
   );
@@ -1170,27 +1166,13 @@ export default function AddTransactionScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+  scroll: { padding: 20, paddingBottom: 16, gap: 16 },
+  footer: {
+    borderTopWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    position: 'relative',
+    paddingTop: 12,
+    paddingBottom: 8,
   },
-  headerTitle: { fontSize: 17, fontFamily: Fonts.bold },
-  closeBtn: {
-    position: 'absolute',
-    right: 20,
-    top: 16,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scroll: { padding: 20, paddingBottom: 48, gap: 16 },
   errorText: {
     fontSize: 13,
     fontFamily: Fonts.regular,

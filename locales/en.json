@@ -284,6 +284,7 @@
   },
   "addTransaction": {
     "title": "New transaction",
+    "pageDesc": "Record an expense or income",
     "typeExpense": "Expense",
     "typeIncome": "Income",
     "amountPrefix": "$",
@@ -498,6 +499,7 @@
   },
   "budget": {
     "title": "Budget",
+    "pageDesc": "Control your spending limits by category",
     "monthlyBudget": "Monthly budget",
     "totalSpent": "Spent",
     "totalLimit": "Total limit",

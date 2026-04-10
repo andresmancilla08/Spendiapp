@@ -284,6 +284,7 @@
   },
   "addTransaction": {
     "title": "Nueva transacción",
+    "pageDesc": "Registra un gasto o ingreso",
     "typeExpense": "Gasto",
     "typeIncome": "Ingreso",
     "amountPrefix": "$",
@@ -526,6 +527,7 @@
   },
   "budget": {
     "title": "Presupuesto",
+    "pageDesc": "Controla tus límites de gasto por categoría",
     "monthlyBudget": "Presupuesto del mes",
     "totalSpent": "Gastado",
     "totalLimit": "Límite total",
