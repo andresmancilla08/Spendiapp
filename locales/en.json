@@ -692,33 +692,33 @@
     "shared_transaction_deleted": "{{fromDisplayName}} deleted the shared expense: {{description}}"
   },
   "whatsNew": {
-    "version": "What's new · v1.5.0",
+    "version": "What's new · v1.6.0",
     "title": "What's new?",
     "subtitle": "Here are the improvements and features that arrived in this version.",
     "dismiss": "Got it",
-    "budget": {
-      "title": "Monthly budget",
-      "item1": "Set spending limits by category",
-      "item2": "Visual progress chart in real time",
-      "item3": "Smart control of fixed transactions across months"
+    "sharedExpenses": {
+      "title": "Shared expenses",
+      "item1": "Share any expense with one or more Spendia friends",
+      "item2": "Each participant sees it automatically in their history",
+      "item3": "Anyone can delete the expense for all with one tap"
     },
-    "friends": {
-      "title": "Friends system",
-      "item1": "Search users by username",
-      "item2": "Send, accept or reject friend requests",
-      "item3": "Manage your friends list from your profile"
+    "splitCalc": {
+      "title": "Proportional split",
+      "item1": "Split equally or set custom percentages per person",
+      "item2": "Real-time preview of the exact amount per person",
+      "item3": "Works with installments and interest rates automatically"
     },
-    "notifications": {
-      "title": "Notifications",
-      "item1": "Numeric badge for unread notifications in real time",
-      "item2": "Tap to mark as read individually",
-      "item3": "Delete notifications or mark all as read in one tap"
+    "newForm": {
+      "title": "Full-screen form",
+      "item1": "The + button now opens a dedicated screen with more space",
+      "item2": "Same flow as always: amount, category, card, date",
+      "item3": "The sharing section appears at the bottom, out of the way"
     },
-    "improvements": {
-      "title": "General improvements",
-      "item1": "Fingerprint / Face ID for quick unlock",
-      "item2": "Redesigned email and PIN sign-in screen",
-      "item3": "Unified visual design across the entire app"
+    "syncHistory": {
+      "title": "Synced history",
+      "item1": "Shared expenses show a 👥 chip in the transaction list",
+      "item2": "You see your exact share of the amount, not the total",
+      "item3": "Instant notifications when someone shares an expense with you"
     }
   },
   "sharedExpense": {

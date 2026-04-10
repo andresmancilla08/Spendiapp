@@ -25,43 +25,43 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    icon: 'bar-chart-outline',
+    icon: 'people-circle-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.budget.title',
+    titleKey: 'whatsNew.sharedExpenses.title',
     items: [
-      'whatsNew.budget.item1',
-      'whatsNew.budget.item2',
-      'whatsNew.budget.item3',
+      'whatsNew.sharedExpenses.item1',
+      'whatsNew.sharedExpenses.item2',
+      'whatsNew.sharedExpenses.item3',
     ],
   },
   {
-    icon: 'people-outline',
+    icon: 'calculator-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.friends.title',
+    titleKey: 'whatsNew.splitCalc.title',
     items: [
-      'whatsNew.friends.item1',
-      'whatsNew.friends.item2',
-      'whatsNew.friends.item3',
+      'whatsNew.splitCalc.item1',
+      'whatsNew.splitCalc.item2',
+      'whatsNew.splitCalc.item3',
     ],
   },
   {
-    icon: 'notifications-outline',
+    icon: 'expand-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.notifications.title',
+    titleKey: 'whatsNew.newForm.title',
     items: [
-      'whatsNew.notifications.item1',
-      'whatsNew.notifications.item2',
-      'whatsNew.notifications.item3',
+      'whatsNew.newForm.item1',
+      'whatsNew.newForm.item2',
+      'whatsNew.newForm.item3',
     ],
   },
   {
-    icon: 'flash-outline',
+    icon: 'sync-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.improvements.title',
+    titleKey: 'whatsNew.syncHistory.title',
     items: [
-      'whatsNew.improvements.item1',
-      'whatsNew.improvements.item2',
-      'whatsNew.improvements.item3',
+      'whatsNew.syncHistory.item1',
+      'whatsNew.syncHistory.item2',
+      'whatsNew.syncHistory.item3',
     ],
   },
 ];
