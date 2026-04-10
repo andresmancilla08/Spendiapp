@@ -93,10 +93,21 @@ function TransactionRow({ item, isLast, cardsMap }: {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
           <Text style={[styles.txTime, { color: colors.textTertiary }]}>{timeAgo(item.date)}</Text>
           {card && (
-            <View style={[styles.txCardChip, { backgroundColor: colors.primaryLight }]}>
-              <Text style={[styles.txCardChipText, { color: colors.primary }]}>
+            <View style={[
+              styles.txCardChip,
+              { backgroundColor: card.type === 'credit' ? colors.primaryLight : `${colors.tertiary}18` },
+            ]}>
+              <Text style={[styles.txCardChipText, { color: card.type === 'credit' ? colors.primary : colors.tertiary }]}>
                 {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
               </Text>
+              <View style={[
+                styles.txCardTypeBadge,
+                { backgroundColor: card.type === 'credit' ? `${colors.primary}28` : `${colors.tertiary}28` },
+              ]}>
+                <Text style={[styles.txCardTypeBadgeText, { color: card.type === 'credit' ? colors.primary : colors.tertiary }]}>
+                  {card.type === 'credit' ? 'C' : 'D'}
+                </Text>
+              </View>
             </View>
           )}
         </View>
@@ -527,8 +538,10 @@ const styles = StyleSheet.create({
   txTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
   txTime: { fontSize: 12, fontFamily: Fonts.regular },
   txAmount: { fontSize: 14, fontFamily: Fonts.bold },
-  txCardChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
+  txCardChip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
   txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold },
+  txCardTypeBadge: { paddingHorizontal: 4, paddingVertical: 1, borderRadius: 5 },
+  txCardTypeBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
 
   // Empty
   emptyState: { alignItems: 'center', padding: 36 },

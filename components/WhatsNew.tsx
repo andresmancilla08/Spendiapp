@@ -12,7 +12,7 @@ import appConfig from '../app.json';
 
 // Actualizar SOLO cuando se agreguen features nuevas a FEATURES.
 // No cambiar en patches ni bugfixes — así el modal no reaparece innecesariamente.
-export const WHATS_NEW_VERSION = '1.6.0';
+export const WHATS_NEW_VERSION = '1.6.5';
 
 interface WhatsNewProps {
   visible: boolean;
