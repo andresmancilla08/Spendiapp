@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import Constants from 'expo-constants';
 import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
 import ScreenBackground from '../../components/ScreenBackground';
 import { useEffect } from 'react';
@@ -127,6 +128,10 @@ export default function LoginScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+
+        <Text style={[styles.version, { color: colors.textTertiary }]}>
+          {t('profile.version', { version: Constants.expoConfig?.version ?? '' })}
+        </Text>
       </ScreenBackground>
     </SafeAreaView>
   );
@@ -231,5 +236,11 @@ const styles = StyleSheet.create({
   },
   registerLinkHighlight: {
     fontFamily: Fonts.semiBold,
+  },
+  version: {
+    textAlign: 'center',
+    fontSize: 12,
+    fontFamily: Fonts.regular,
+    paddingBottom: 16,
   },
 });
