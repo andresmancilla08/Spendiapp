@@ -48,3 +48,6 @@ google-services.json
 .env
 .env.local
 .vercel
+
+# Firebase service account (nunca commitear)
+scripts/serviceAccount.json
