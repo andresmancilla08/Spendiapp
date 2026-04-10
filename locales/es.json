@@ -693,33 +693,33 @@
     "shared_transaction_deleted": "{{fromDisplayName}} eliminó el gasto compartido: {{description}}"
   },
   "whatsNew": {
-    "version": "Novedades · v1.5.0",
+    "version": "Novedades · v1.6.0",
     "title": "¿Qué hay de nuevo?",
     "subtitle": "Estas son las mejoras y funcionalidades que llegaron en esta versión.",
     "dismiss": "Entendido",
-    "budget": {
-      "title": "Presupuesto mensual",
-      "item1": "Define límites de gasto por categoría",
-      "item2": "Gráfica visual de avance en tiempo real",
-      "item3": "Control inteligente de movimientos fijos entre meses"
+    "sharedExpenses": {
+      "title": "Gastos compartidos",
+      "item1": "Comparte cualquier gasto con uno o más amigos de Spendia",
+      "item2": "Cada participante lo ve automáticamente en su historial",
+      "item3": "Cualquiera puede eliminar el gasto para todos con un toque"
     },
-    "friends": {
-      "title": "Sistema de amigos",
-      "item1": "Busca usuarios por nombre de usuario",
-      "item2": "Envía, acepta o rechaza solicitudes de amistad",
-      "item3": "Gestiona tu lista de amigos desde el perfil"
+    "splitCalc": {
+      "title": "División proporcional",
+      "item1": "Reparte en partes iguales o define porcentajes personalizados",
+      "item2": "Preview en tiempo real del monto exacto por persona",
+      "item3": "Compatible con cuotas e intereses: calcula automáticamente"
     },
-    "notifications": {
-      "title": "Notificaciones",
-      "item1": "Badge numérico de no leídas en tiempo real",
-      "item2": "Toca para marcar como leída individualmente",
-      "item3": "Elimina notificaciones o márcalas todas de un toque"
+    "newForm": {
+      "title": "Formulario en pantalla completa",
+      "item1": "El botón + ahora abre una pantalla dedicada con más espacio",
+      "item2": "Mismo flujo de siempre: monto, categoría, tarjeta, fecha",
+      "item3": "La sección de compartir aparece al final para no interrumpir"
     },
-    "improvements": {
-      "title": "Mejoras generales",
-      "item1": "Huella / Face ID para desbloqueo rápido",
-      "item2": "Inicio de sesión con email y PIN rediseñado",
-      "item3": "Diseño visual unificado en toda la app"
+    "syncHistory": {
+      "title": "Historial sincronizado",
+      "item1": "Los gastos compartidos muestran un chip 👥 en el historial",
+      "item2": "Ves tu parte exacta del monto, no el total del gasto",
+      "item3": "Notificaciones instantáneas cuando alguien comparte contigo"
     }
   },
   "sharedExpense": {

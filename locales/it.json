@@ -692,33 +692,33 @@
     "shared_transaction_deleted": "{{fromDisplayName}} ha eliminato la spesa condivisa: {{description}}"
   },
   "whatsNew": {
-    "version": "Novità · v1.5.0",
+    "version": "Novità · v1.6.0",
     "title": "Cosa c'è di nuovo?",
     "subtitle": "Ecco i miglioramenti e le funzionalità arrivate in questa versione.",
     "dismiss": "Capito",
-    "budget": {
-      "title": "Budget mensile",
-      "item1": "Imposta limiti di spesa per categoria",
-      "item2": "Grafico visivo dell'avanzamento in tempo reale",
-      "item3": "Controllo intelligente delle transazioni fisse tra mesi"
+    "sharedExpenses": {
+      "title": "Spese condivise",
+      "item1": "Condividi qualsiasi spesa con uno o più amici di Spendia",
+      "item2": "Ogni partecipante la vede automaticamente nella cronologia",
+      "item3": "Chiunque può eliminare la spesa per tutti con un tocco"
     },
-    "friends": {
-      "title": "Sistema di amici",
-      "item1": "Cerca utenti per nome utente",
-      "item2": "Invia, accetta o rifiuta richieste di amicizia",
-      "item3": "Gestisci la lista di amici dal tuo profilo"
+    "splitCalc": {
+      "title": "Divisione proporzionale",
+      "item1": "Dividi in parti uguali o imposta percentuali personalizzate",
+      "item2": "Anteprima in tempo reale dell'importo esatto per persona",
+      "item3": "Compatibile con rate e interessi: calcola automaticamente"
     },
-    "notifications": {
-      "title": "Notifiche",
-      "item1": "Badge numerico per le non lette in tempo reale",
-      "item2": "Tocca per segnare come letta individualmente",
-      "item3": "Elimina notifiche o segna tutte come lette in un tocco"
+    "newForm": {
+      "title": "Modulo a schermo intero",
+      "item1": "Il pulsante + apre ora una schermata dedicata con più spazio",
+      "item2": "Stesso flusso di sempre: importo, categoria, carta, data",
+      "item3": "La sezione di condivisione appare in fondo, senza interruzioni"
     },
-    "improvements": {
-      "title": "Miglioramenti generali",
-      "item1": "Impronta / Face ID per sblocco rapido",
-      "item2": "Schermata di accesso con email e PIN ridisegnata",
-      "item3": "Design visivo unificato in tutta l'app"
+    "syncHistory": {
+      "title": "Cronologia sincronizzata",
+      "item1": "Le spese condivise mostrano un chip 👥 nella lista",
+      "item2": "Vedi la tua parte esatta dell'importo, non il totale",
+      "item3": "Notifiche istantanee quando qualcuno condivide una spesa con te"
     }
   },
   "sharedExpense": {
