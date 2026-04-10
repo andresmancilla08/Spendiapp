@@ -450,7 +450,10 @@
       "fixedLabel": "Spesa fissa",
       "editButton": "Modifica",
       "creditType": "Credito",
-      "debitType": "Debito"
+      "debitType": "Debito",
+      "sharedWithLabel": "CONDIVISO CON",
+      "sharedByLabel": "CONDIVISO DA",
+      "pageDesc": "Dettagli del movimento"
     },
     "pageDesc": "Un registro di tutte le tue operazioni"
   },
@@ -748,6 +751,18 @@
       "item1": "Impronta / Face ID per sblocco rapido",
       "item2": "Schermata di accesso con email e PIN ridisegnata",
       "item3": "Design visivo unificato in tutta l'app"
+    },
+    "badges": {
+      "title": "Badge credito/debito",
+      "item1": "Le transazioni recenti nella home mostrano ora un badge 'C' per credito e 'D' per debito",
+      "item2": "Identifica a colpo d'occhio con quale carta hai effettuato ogni spesa",
+      "item3": "Il colore cambia per tipo: blu per credito, verde per debito"
+    },
+    "versionedNews": {
+      "title": "Novità per versione",
+      "item1": "Questa schermata mostra ora solo le modifiche della versione attuale",
+      "item2": "Niente più ripetizioni delle novità precedenti ad ogni aggiornamento",
+      "item3": "Ogni versione porta la propria lista di miglioramenti"
     }
   },
   "sharedExpense": {
