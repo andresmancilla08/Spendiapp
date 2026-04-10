@@ -496,19 +496,14 @@ function RequestsTab({ incoming, outgoing, uid, profileCache, actionLoading, onA
                     <Ionicons name="close-outline" size={16} color={colors.error} />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.acceptBtn, { backgroundColor: colors.primary }]}
+                    style={[styles.acceptBtn, { borderColor: colors.primary + '60', backgroundColor: colors.primaryLight }]}
                     onPress={() => onAccept(f)}
                     activeOpacity={0.8}
                     disabled={!!actionLoading}
                   >
                     {actionLoading === f.id
-                      ? <ActivityIndicator size="small" color="#fff" />
-                      : (
-                        <View style={styles.addBtnInner}>
-                          <Ionicons name="checkmark-outline" size={14} color="#fff" />
-                          <Text style={styles.acceptBtnText}>{t('friends.requests.accept')}</Text>
-                        </View>
-                      )}
+                      ? <ActivityIndicator size="small" color={colors.primary} />
+                      : <Ionicons name="checkmark-outline" size={16} color={colors.primary} />}
                   </TouchableOpacity>
                 </View>
               </View>
@@ -665,8 +660,7 @@ const styles = StyleSheet.create({
     width: 34, height: 34, borderRadius: 10, borderWidth: 1,
     alignItems: 'center', justifyContent: 'center',
   },
-  acceptBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
-  acceptBtnText: { color: '#fff', fontSize: 12, fontFamily: Fonts.semiBold },
+  acceptBtn: { width: 34, height: 34, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   cancelBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16, borderWidth: 1 },
   cancelBtnText: { fontSize: 12, fontFamily: Fonts.semiBold },
 
