@@ -19,9 +19,11 @@ import { useTranslation } from 'react-i18next';
 import { createUserProfile } from '../hooks/useUserProfile';
 
 export default function RootLayout() {
-  const { user, isLoading, justRegistered, biometricLocked, setUser, setLoading, setBiometricLocked } = useAuthStore();
+  const { user, isLoading, justRegistered, biometricLocked, setUser, setLoading, setBiometricLocked, setJustLoggedIn } = useAuthStore();
   const [i18nReady, setI18nReady] = useState(false);
   const { t } = useTranslation();
+  const isFirstAuthCall = useRef(true);
+  const prevUserRef = useRef<boolean>(false);
   const [inactivityDialogVisible, setInactivityDialogVisible] = useState(false);
   const [countdown, setCountdown] = useState(30);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -49,7 +51,13 @@ export default function RootLayout() {
         ).catch(() => {
           // Fallo silencioso — el perfil se creará en el siguiente login
         });
+        // Login fresco: la sesión no venía persistida (primer callback fue sin usuario)
+        if (!isFirstAuthCall.current && !prevUserRef.current) {
+          setJustLoggedIn(true);
+        }
       }
+      isFirstAuthCall.current = false;
+      prevUserRef.current = !!authUser;
       setUser(authUser);
       setLoading(false);
     });
