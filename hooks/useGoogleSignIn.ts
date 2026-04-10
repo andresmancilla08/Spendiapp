@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
+import i18next from 'i18next';
 import { auth } from '../config/firebase';
 
 if (Platform.OS !== 'web') {
@@ -70,15 +71,10 @@ export function useGoogleSignIn() {
       }
 
       if (code === 'auth/popup-blocked') {
-        // Browser bloqueó el popup (ej. Chrome en Android sin gesto previo)
-        // Fallback: redirigir — el resultado se procesa en _layout.tsx
-        try {
-          await signInWithRedirect(auth, provider);
-          // signInWithRedirect navega fuera de la página, no retorna aquí
-        } catch {
-          setError('Error al iniciar sesión con Google');
-          setLoading(false);
-        }
+        // iOS Safari PWA bloquea popups y signInWithRedirect falla por sessionStorage
+        // particionado — no hay fallback confiable. Indicar al usuario que use email/PIN.
+        setError(i18next.t('login.errors.popupBlocked'));
+        setLoading(false);
         return;
       }
 

@@ -5,7 +5,10 @@
     "googleButton": "Continua con Google",
     "emailButton": "Accedi con email e PIN",
     "noAccount": "Non hai un account?",
-    "registerLink": "Registrati"
+    "registerLink": "Registrati",
+    "errors": {
+      "popupBlocked": "Il tuo browser ha bloccato la finestra di Google. Usa email e PIN."
+    }
   },
   "register": {
     "back": "← Indietro",
