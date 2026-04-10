@@ -50,7 +50,11 @@ function NotifItem({
   const colorKey = NOTIF_COLORS[notif.type] ?? 'primary';
   const accentColor = colors[colorKey];
   const accentBg = colorKey === 'success' ? colors.successLight : colors.primaryLight;
-  const text = t(`notifications.${notif.type}`, { name: notif.data.fromDisplayName });
+  const text = t(`notifications.${notif.type}`, {
+    name: notif.data.fromDisplayName,
+    fromDisplayName: notif.data.fromDisplayName,
+    description: notif.data.description,
+  });
 
   return (
     <TouchableOpacity
