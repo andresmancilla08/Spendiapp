@@ -450,7 +450,10 @@
       "fixedLabel": "Fixed expense",
       "editButton": "Edit",
       "creditType": "Credit",
-      "debitType": "Debit"
+      "debitType": "Debit",
+      "sharedWithLabel": "SHARED WITH",
+      "sharedByLabel": "SHARED BY",
+      "pageDesc": "Transaction details"
     },
     "pageDesc": "A record of all your transactions"
   },
@@ -748,6 +751,18 @@
       "item1": "Fingerprint / Face ID for quick unlock",
       "item2": "Redesigned email and PIN sign-in screen",
       "item3": "Unified visual design across the entire app"
+    },
+    "badges": {
+      "title": "Credit/debit badge",
+      "item1": "Recent transactions on the home screen now show a 'C' badge for credit and 'D' for debit",
+      "item2": "Identify at a glance which card you used for each expense",
+      "item3": "Color changes by type: blue for credit, green for debit"
+    },
+    "versionedNews": {
+      "title": "Versioned what's new",
+      "item1": "This screen now shows only the changes for the current version",
+      "item2": "No more repeated updates from previous versions",
+      "item3": "Each version brings its own list of improvements"
     }
   },
   "sharedExpense": {

@@ -10,9 +10,10 @@ import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
 import appConfig from '../app.json';
 
-// Actualizar SOLO cuando se agreguen features nuevas a FEATURES.
+// Actualizar WHATS_NEW_VERSION al agregar una nueva entrada en VERSION_HISTORY.
 // No cambiar en patches ni bugfixes — así el modal no reaparece innecesariamente.
-export const WHATS_NEW_VERSION = '1.6.5';
+// Solo se muestran las features de la versión actual (WHATS_NEW_VERSION).
+export const WHATS_NEW_VERSION = '1.7.0';
 
 interface WhatsNewProps {
   visible: boolean;
@@ -28,87 +29,122 @@ interface Feature {
   items: string[];
 }
 
-const FEATURES: Feature[] = [
-  // v1.6.0
+// Agregar nueva entrada en VERSION_HISTORY cuando salga una nueva versión.
+// Solo se muestra la versión que coincide con WHATS_NEW_VERSION.
+const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
-    icon: 'people-circle-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.sharedExpenses.title',
-    items: [
-      'whatsNew.sharedExpenses.item1',
-      'whatsNew.sharedExpenses.item2',
-      'whatsNew.sharedExpenses.item3',
+    version: '1.7.0',
+    features: [
+      {
+        icon: 'card-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.badges.title',
+        items: [
+          'whatsNew.badges.item1',
+          'whatsNew.badges.item2',
+          'whatsNew.badges.item3',
+        ],
+      },
+      {
+        icon: 'sparkles-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.versionedNews.title',
+        items: [
+          'whatsNew.versionedNews.item1',
+          'whatsNew.versionedNews.item2',
+          'whatsNew.versionedNews.item3',
+        ],
+      },
     ],
   },
   {
-    icon: 'calculator-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.splitCalc.title',
-    items: [
-      'whatsNew.splitCalc.item1',
-      'whatsNew.splitCalc.item2',
-      'whatsNew.splitCalc.item3',
+    version: '1.6.0',
+    features: [
+      {
+        icon: 'people-circle-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.sharedExpenses.title',
+        items: [
+          'whatsNew.sharedExpenses.item1',
+          'whatsNew.sharedExpenses.item2',
+          'whatsNew.sharedExpenses.item3',
+        ],
+      },
+      {
+        icon: 'calculator-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.splitCalc.title',
+        items: [
+          'whatsNew.splitCalc.item1',
+          'whatsNew.splitCalc.item2',
+          'whatsNew.splitCalc.item3',
+        ],
+      },
+      {
+        icon: 'expand-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.newForm.title',
+        items: [
+          'whatsNew.newForm.item1',
+          'whatsNew.newForm.item2',
+          'whatsNew.newForm.item3',
+        ],
+      },
+      {
+        icon: 'sync-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.syncHistory.title',
+        items: [
+          'whatsNew.syncHistory.item1',
+          'whatsNew.syncHistory.item2',
+          'whatsNew.syncHistory.item3',
+        ],
+      },
     ],
   },
   {
-    icon: 'expand-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.newForm.title',
-    items: [
-      'whatsNew.newForm.item1',
-      'whatsNew.newForm.item2',
-      'whatsNew.newForm.item3',
-    ],
-  },
-  {
-    icon: 'sync-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.syncHistory.title',
-    items: [
-      'whatsNew.syncHistory.item1',
-      'whatsNew.syncHistory.item2',
-      'whatsNew.syncHistory.item3',
-    ],
-  },
-  // v1.5.0
-  {
-    icon: 'bar-chart-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.budget.title',
-    items: [
-      'whatsNew.budget.item1',
-      'whatsNew.budget.item2',
-      'whatsNew.budget.item3',
-    ],
-  },
-  {
-    icon: 'people-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.friends.title',
-    items: [
-      'whatsNew.friends.item1',
-      'whatsNew.friends.item2',
-      'whatsNew.friends.item3',
-    ],
-  },
-  {
-    icon: 'notifications-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.notifications.title',
-    items: [
-      'whatsNew.notifications.item1',
-      'whatsNew.notifications.item2',
-      'whatsNew.notifications.item3',
-    ],
-  },
-  {
-    icon: 'flash-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.improvements.title',
-    items: [
-      'whatsNew.improvements.item1',
-      'whatsNew.improvements.item2',
-      'whatsNew.improvements.item3',
+    version: '1.5.0',
+    features: [
+      {
+        icon: 'bar-chart-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.budget.title',
+        items: [
+          'whatsNew.budget.item1',
+          'whatsNew.budget.item2',
+          'whatsNew.budget.item3',
+        ],
+      },
+      {
+        icon: 'people-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.friends.title',
+        items: [
+          'whatsNew.friends.item1',
+          'whatsNew.friends.item2',
+          'whatsNew.friends.item3',
+        ],
+      },
+      {
+        icon: 'notifications-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.notifications.title',
+        items: [
+          'whatsNew.notifications.item1',
+          'whatsNew.notifications.item2',
+          'whatsNew.notifications.item3',
+        ],
+      },
+      {
+        icon: 'flash-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.improvements.title',
+        items: [
+          'whatsNew.improvements.item1',
+          'whatsNew.improvements.item2',
+          'whatsNew.improvements.item3',
+        ],
+      },
     ],
   },
 ];
@@ -116,6 +152,8 @@ const FEATURES: Feature[] = [
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
+
+  const currentFeatures = VERSION_HISTORY.find(v => v.version === WHATS_NEW_VERSION)?.features ?? [];
 
   return (
     <Modal visible={visible} animationType="slide" statusBarTranslucent>
@@ -144,7 +182,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
           focusable={false}
           style={Platform.OS === 'web' ? { outline: 'none' } as any : undefined}
         >
-          {FEATURES.map((f) => {
+          {currentFeatures.map((f) => {
             const accentColor = colors[f.colorKey];
             const accentBg = f.colorKey === 'success' ? colors.successLight : colors.primaryLight;
             return (

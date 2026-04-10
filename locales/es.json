@@ -450,7 +450,10 @@
       "fixedLabel": "Gasto fijo",
       "editButton": "Editar",
       "creditType": "Crédito",
-      "debitType": "Débito"
+      "debitType": "Débito",
+      "sharedWithLabel": "COMPARTIDO CON",
+      "sharedByLabel": "COMPARTIDO POR",
+      "pageDesc": "Información del movimiento"
     },
     "pageDesc": "Un registro de todos tus movimientos"
   },
@@ -749,6 +752,18 @@
       "item1": "Huella / Face ID para desbloqueo rápido",
       "item2": "Inicio de sesión con email y PIN rediseñado",
       "item3": "Diseño visual unificado en toda la app"
+    },
+    "badges": {
+      "title": "Badge crédito/débito",
+      "item1": "Los movimientos recientes del inicio ahora muestran un badge 'C' para crédito y 'D' para débito",
+      "item2": "Identifica de un vistazo con qué tarjeta realizaste cada gasto",
+      "item3": "El color cambia según el tipo: azul para crédito, verde para débito"
+    },
+    "versionedNews": {
+      "title": "Novedades por versión",
+      "item1": "Esta pantalla ahora muestra solo los cambios de la versión actual",
+      "item2": "No más repetición de novedades anteriores en cada actualización",
+      "item3": "Cada versión trae su propia lista de mejoras"
     }
   },
   "sharedExpense": {
