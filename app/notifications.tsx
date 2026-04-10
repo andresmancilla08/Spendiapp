@@ -28,12 +28,18 @@ function timeAgoLabel(createdAt: Timestamp | undefined, t: any): string {
 const NOTIF_ICONS: Record<NotificationType, React.ComponentProps<typeof Ionicons>['name']> = {
   friend_request: 'person-add-outline',
   friend_accepted: 'people-outline',
+  shared_transaction_added: 'people-circle-outline',
+  shared_transaction_updated: 'create-outline',
+  shared_transaction_deleted: 'trash-outline',
 };
 
 // Each notification type gets a distinct color accent
 const NOTIF_COLORS: Record<NotificationType, 'primary' | 'success'> = {
   friend_request: 'primary',
   friend_accepted: 'success',
+  shared_transaction_added: 'primary',
+  shared_transaction_updated: 'primary',
+  shared_transaction_deleted: 'primary',
 };
 
 function NotifItem({
