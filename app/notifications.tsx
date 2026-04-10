@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Timestamp } from 'firebase/firestore';
+import { router } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
@@ -155,7 +156,10 @@ export default function NotificationsScreen() {
                 >
                   <NotifItem
                     notif={n}
-                    onPress={() => { if (!n.read) markAsRead(n.id).catch(() => {}); }}
+                    onPress={() => {
+                    if (!n.read) markAsRead(n.id).catch(() => {});
+                    if (n.type === 'friend_request') router.push('/friends?tab=requests');
+                  }}
                     onDelete={() => deleteNotification(n.id).catch(() => {})}
                     colors={colors}
                     t={t}

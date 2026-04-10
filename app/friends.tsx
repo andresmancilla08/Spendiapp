@@ -16,6 +16,7 @@ import {
 } from '../hooks/useFriends';
 import { getUserProfile, searchUserByUserName } from '../hooks/useUserProfile';
 import { UserProfile, Friendship } from '../types/friend';
+import { useLocalSearchParams } from 'expo-router';
 import AppHeader from '../components/AppHeader';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
@@ -88,10 +89,11 @@ export default function FriendsScreen() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const uid = user?.uid ?? '';
+  const { tab: tabParam } = useLocalSearchParams<{ tab?: string }>();
 
   const { acceptedFriends, incomingRequests, outgoingRequests, loading } = useFriends(uid);
 
-  const [tab, setTab] = useState<Tab>('friends');
+  const [tab, setTab] = useState<Tab>(tabParam === 'requests' ? 'requests' : 'friends');
   const [searchText, setSearchText] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<UserProfile | null | 'not_found'>(null);
