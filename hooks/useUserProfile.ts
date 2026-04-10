@@ -43,6 +43,7 @@ export async function createUserProfile(
     userName,
     photoURL,
     createdAt: serverTimestamp(),
+    whatsNewSeen: false,
   });
 }
 
@@ -60,6 +61,11 @@ async function userNameExists(userName: string): Promise<boolean> {
   const q = query(collection(db, 'users'), where('userName', '==', userName));
   const snap = await getDocs(q);
   return !snap.empty;
+}
+
+/** Marca si el usuario ya vio la pantalla de novedades. */
+export async function setWhatsNewSeen(uid: string, seen: boolean): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { whatsNewSeen: seen });
 }
 
 /** Obtiene el perfil de un usuario por UID. */

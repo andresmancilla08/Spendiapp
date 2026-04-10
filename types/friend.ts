@@ -7,6 +7,7 @@ export interface UserProfile {
   userName: string;
   photoURL: string | null;
   createdAt: Timestamp;
+  whatsNewSeen?: boolean;
 }
 
 export type FriendshipStatus = 'pending' | 'accepted' | 'rejected';
