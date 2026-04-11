@@ -1,0 +1,95 @@
+// app/(tabs)/tools.tsx
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import { router } from 'expo-router';
+import { useTheme } from '../../context/ThemeContext';
+import AppHeader from '../../components/AppHeader';
+import PageTitle from '../../components/PageTitle';
+import ScreenBackground from '../../components/ScreenBackground';
+import ScreenTransition from '../../components/ScreenTransition';
+import { Fonts } from '../../config/fonts';
+
+type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
+
+interface ToolCardData {
+  emoji: string;
+  icon: IoniconsName;
+  title: string;
+  description: string;
+  onPress: () => void;
+}
+
+function ToolCard({ emoji, icon, title, description, onPress, colors }: ToolCardData & { colors: any }) {
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.75} style={styles.cardWrapper}>
+      <LinearGradient
+        colors={[`${colors.primary}18`, `${colors.primary}06`]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.card, { borderColor: `${colors.primary}28`, borderWidth: 1 }]}
+      >
+        <View style={[styles.iconWrap, { backgroundColor: `${colors.primary}18` }]}>
+          <Text style={styles.emoji}>{emoji}</Text>
+        </View>
+        <View style={styles.cardContent}>
+          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{title}</Text>
+          <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{description}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
+
+export default function ToolsScreen() {
+  const { t } = useTranslation();
+  const { colors } = useTheme();
+
+  return (
+    <ScreenTransition>
+      <SafeAreaView style={styles.safe}>
+        <ScreenBackground>
+          <AppHeader />
+          <PageTitle title={t('tools.title')} description={t('tools.pageDesc')} />
+          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <ToolCard
+              emoji="🎯"
+              icon="flag"
+              title={t('tools.goalsCard.title')}
+              description={t('tools.goalsCard.description')}
+              onPress={() => router.push('/goals')}
+              colors={colors}
+            />
+          </ScrollView>
+        </ScreenBackground>
+      </SafeAreaView>
+    </ScreenTransition>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1 },
+  scroll: { padding: 16, paddingBottom: 40 },
+  cardWrapper: { marginBottom: 12 },
+  card: {
+    borderRadius: 20,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  iconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emoji: { fontSize: 26 },
+  cardContent: { flex: 1 },
+  cardTitle: { fontSize: 16, fontFamily: Fonts.bold, marginBottom: 3 },
+  cardDesc: { fontSize: 13, fontFamily: Fonts.regular, lineHeight: 19 },
+});
