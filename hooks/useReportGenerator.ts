@@ -38,18 +38,23 @@ export interface ReportData {
   transactions: ReportTransaction[];
 }
 
-/** Devuelve la lista de años disponibles (más reciente primero).
- *  Muestra desde el año de creación de la cuenta hasta el año actual.
- *  Usa rango fijo basado en el año actual para evitar índice compuesto adicional. */
+/** Devuelve los años que tienen al menos una transacción (más reciente primero).
+ *  Usa solo where('userId') — índice de campo único, sin composite index. */
 export async function getAvailableYears(userId: string): Promise<number[]> {
-  const currentYear = new Date().getFullYear();
-  // Mostrar hasta 5 años hacia atrás como rango práctico para declaraciones de renta
-  const earliestYear = currentYear - 4;
-  const years: number[] = [];
-  for (let y = currentYear; y >= earliestYear; y--) {
-    years.push(y);
-  }
-  return years;
+  const snap = await getDocs(
+    query(
+      collection(db, 'transactions'),
+      where('userId', '==', userId),
+    ),
+  );
+
+  const yearSet = new Set<number>();
+  snap.docs.forEach((doc) => {
+    const date = (doc.data().date as Timestamp).toDate();
+    yearSet.add(date.getFullYear());
+  });
+
+  return Array.from(yearSet).sort((a, b) => b - a); // más reciente primero
 }
 
 /** Genera los datos del reporte para el año indicado.
