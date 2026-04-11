@@ -567,11 +567,6 @@ export default function ProfileScreen() {
             value={user?.displayName ?? ''}
             onPress={() => { setNameInput(user?.displayName ?? ''); setNameInputError(''); setEditNameVisible(true); }}
           />
-          <OptionItem
-            icon="grid-outline"
-            label={t('categories.manageCategoriesLabel')}
-            onPress={() => router.push('/categories')}
-          />
           {!isGoogleUser && (
             <OptionItem
               icon="lock-closed-outline"
@@ -616,16 +611,6 @@ export default function ProfileScreen() {
             icon="card-outline"
             label={t('profile.cards.label')}
             onPress={() => router.push('/cards')}
-          />
-        </View>
-
-        {/* HERRAMIENTAS */}
-        <SectionTitle label={t('profile.sections.tools')} />
-        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
-          <OptionItem
-            icon="document-text-outline"
-            label={t('reports.menuLabel')}
-            onPress={() => router.push('/reports')}
           />
         </View>
 

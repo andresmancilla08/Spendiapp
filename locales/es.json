@@ -824,6 +824,14 @@
     "goalsCard": {
       "title": "Metas de ahorro",
       "description": "Ahorra para lo que más importa"
+    },
+    "categoriesCard": {
+      "title": "Mis categorías",
+      "description": "Organiza tus gastos a tu manera"
+    },
+    "reportsCard": {
+      "title": "Extracto anual",
+      "description": "Genera tu reporte fiscal en PDF"
     }
   },
   "goals": {
