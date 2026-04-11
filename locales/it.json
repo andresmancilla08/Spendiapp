@@ -101,7 +101,8 @@
   "tabBar": {
     "home": "HOME",
     "budget": "BUDGET",
-    "history": "CRONOLOGIA"
+    "history": "CRONOLOGIA",
+    "tools": "Strumenti"
   },
   "home": {
     "welcome": "Ciao, {{name}}",
@@ -698,7 +699,8 @@
     "delete": "Elimina notifica",
     "shared_transaction_added": "{{fromDisplayName}} ha condiviso una spesa con te: {{description}}",
     "shared_transaction_updated": "{{fromDisplayName}} ha aggiornato una spesa condivisa: {{description}}",
-    "shared_transaction_deleted": "{{fromDisplayName}} ha eliminato la spesa condivisa: {{description}}"
+    "shared_transaction_deleted": "{{fromDisplayName}} ha eliminato la spesa condivisa: {{description}}",
+    "goal_monthly_reminder": "Ricorda di aggiungere ai tuoi {{count}} obiettivi attivi questo mese 🎯"
   },
   "whatsNew": {
     "version": "Novità · v{{version}}",
@@ -814,5 +816,53 @@
     "pdfDescription": "Descrizione",
     "pdfFooter": "Generato da Spendiapp · Questo documento è informativo. Consulta il tuo commercialista per la dichiarazione ufficiale.",
     "fiscalYear": "Anno fiscale"
+  },
+  "tools": {
+    "title": "Strumenti",
+    "pageDesc": "Funzionalità per potenziare le tue finanze",
+    "goalsCard": {
+      "title": "Obiettivi di risparmio",
+      "description": "Risparmia per ciò che conta di più"
+    }
+  },
+  "goals": {
+    "title": "I miei obiettivi",
+    "pageDesc": "Risparmia passo dopo passo verso i tuoi sogni",
+    "activeTab": "Attivi",
+    "completedTab": "Completati",
+    "createTitle": "Nuovo obiettivo",
+    "nameLabel": "Nome obiettivo",
+    "namePlaceholder": "Es: Viaggio in Europa",
+    "emojiLabel": "Emoji",
+    "emojiPlaceholder": "✈️",
+    "targetLabel": "Importo obiettivo",
+    "targetPlaceholder": "$ 0",
+    "addContributionTitle": "Aggiungi risparmio",
+    "contributionLabel": "Quanto vuoi aggiungere?",
+    "deleteTitle": "Elimina obiettivo",
+    "deleteDescBefore": "Sei sicuro di voler eliminare",
+    "deleteDescAfter": "? Questa azione non può essere annullata.",
+    "completedTitle": "Obiettivo raggiunto! 🎉",
+    "completedDesc": "Congratulazioni, hai raggiunto il tuo obiettivo",
+    "completedDescAfter": "!",
+    "emptyActive": "Nessun obiettivo attivo",
+    "emptyActiveSub": "Crea il tuo primo obiettivo e inizia a risparmiare",
+    "emptyCompleted": "Nessun obiettivo completato",
+    "emptyCompletedSub": "Continua così, ce la farai!",
+    "saved": "risparmiato",
+    "of": "di",
+    "createButton": "Crea obiettivo",
+    "cancelButton": "Annulla",
+    "deleteButton": "Elimina",
+    "addButton": "Aggiungi",
+    "newGoalButton": "Nuovo obiettivo",
+    "gotIt": "Ottimo!",
+    "toasts": {
+      "created": "Obiettivo creato!",
+      "deleted": "Obiettivo eliminato",
+      "contributed": "Risparmio aggiunto!",
+      "completed": "Obiettivo raggiunto! 🎉",
+      "error": "Si è verificato un errore"
+    }
   }
 }
