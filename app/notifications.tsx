@@ -34,6 +34,7 @@ const NOTIF_ICONS: Record<NotificationType, React.ComponentProps<typeof Ionicons
   shared_transaction_added: 'people-circle-outline',
   shared_transaction_updated: 'create-outline',
   shared_transaction_deleted: 'trash-outline',
+  goal_monthly_reminder: 'target-outline',
 };
 
 // Each notification type gets a distinct color accent
@@ -43,6 +44,7 @@ const NOTIF_COLORS: Record<NotificationType, 'primary' | 'success'> = {
   shared_transaction_added: 'primary',
   shared_transaction_updated: 'primary',
   shared_transaction_deleted: 'primary',
+  goal_monthly_reminder: 'primary',
 };
 
 function NotifItem({
@@ -52,11 +54,20 @@ function NotifItem({
   const colorKey = NOTIF_COLORS[notif.type] ?? 'primary';
   const accentColor = colors[colorKey];
   const accentBg = colorKey === 'success' ? colors.successLight : colors.primaryLight;
-  const text = t(`notifications.${notif.type}`, {
-    name: notif.data.fromDisplayName,
-    fromDisplayName: notif.data.fromDisplayName,
-    description: notif.data.description,
-  });
+
+  // Build translation params based on notification type
+  let translationParams: any = {};
+  if (notif.type === 'goal_monthly_reminder') {
+    translationParams = { count: (notif.data as any).count };
+  } else {
+    translationParams = {
+      name: (notif.data as any).fromDisplayName,
+      fromDisplayName: (notif.data as any).fromDisplayName,
+      description: (notif.data as any).description,
+    };
+  }
+
+  const text = t(`notifications.${notif.type}`, translationParams);
 
   return (
     <TouchableOpacity
