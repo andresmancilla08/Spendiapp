@@ -147,7 +147,8 @@
     "sections": {
       "account": "CUENTA",
       "preferences": "PREFERENCIAS",
-      "support": "SOPORTE"
+      "support": "SOPORTE",
+      "tools": "Herramientas"
     },
     "editName": {
       "label": "Editar nombre",
@@ -783,5 +784,35 @@
       "sharedWithMore": "Compartido con {{name}} y {{count}} más",
       "sharedBy": "Compartido por {{name}}"
     }
+  },
+  "reports": {
+    "menuLabel": "Generar extracto anual",
+    "title": "Extracto anual",
+    "subtitle": "Para tu declaración de renta",
+    "selectYear": "Selecciona el año",
+    "generate": "Generar PDF",
+    "generating": "Generando...",
+    "share": "Compartir",
+    "save": "Guardar",
+    "close": "Cerrar",
+    "savedSuccess": "PDF guardado en Descargas",
+    "shareError": "No se pudo compartir el PDF",
+    "noTransactions": "Sin movimientos para este año",
+    "viewerTitle": "Extracto {{year}}",
+    "pdfTitle": "SPENDIAPP",
+    "pdfExtract": "Extracto Anual {{year}}",
+    "pdfGeneratedOn": "Generado el {{date}}",
+    "pdfSummary": "RESUMEN DEL AÑO",
+    "pdfIncome": "Ingresos",
+    "pdfExpenses": "Gastos",
+    "pdfBalance": "Balance",
+    "pdfByCategory": "DESGLOSE POR CATEGORÍA",
+    "pdfCategory": "Categoría",
+    "pdfTransactions": "Transacciones",
+    "pdfTotal": "Total",
+    "pdfMovements": "MOVIMIENTOS {{year}}",
+    "pdfDate": "Fecha",
+    "pdfDescription": "Descripción",
+    "pdfFooter": "Generado por Spendiapp · Este documento es informativo. Consulte a su contador para su declaración oficial."
   }
 }
