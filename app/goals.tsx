@@ -140,13 +140,17 @@ export default function GoalsScreen() {
   // Contribute form
   const [contributionInput, setContributionInput] = useState('');
 
-  const closeDialog = () => {
-    setDialogMode(null);
-    setSelectedGoal(null);
+  const resetForms = () => {
     setNameInput('');
     setEmojiInput('');
     setTargetInput('');
     setContributionInput('');
+  };
+
+  const closeDialog = () => {
+    setDialogMode(null);
+    setSelectedGoal(null);
+    resetForms();
   };
 
   const openCreate = () => setDialogMode('create');
@@ -189,12 +193,15 @@ export default function GoalsScreen() {
         selectedGoal.savedAmount,
         selectedGoal.targetAmount,
       );
-      closeDialog();
       if (completed) {
+        resetForms();
         showToast(t('goals.toasts.completed'), 'success');
-        setSelectedGoal({ ...selectedGoal, savedAmount: selectedGoal.savedAmount + amount, status: 'completed' });
+        setSelectedGoal((prev) =>
+          prev ? { ...prev, savedAmount: prev.savedAmount + amount, status: 'completed' } : null,
+        );
         setDialogMode('completed');
       } else {
+        closeDialog();
         showToast(t('goals.toasts.contributed'), 'success');
       }
     } catch {
@@ -218,11 +225,12 @@ export default function GoalsScreen() {
     }
   };
 
+  const targetValue = parseInt(targetInput.replace(/\D/g, ''), 10);
   const isCreateDisabled =
     !nameInput.trim() ||
     !emojiInput.trim() ||
-    parseInt(targetInput.replace(/\D/g, ''), 10) <= 0 ||
-    targetInput.trim() === '';
+    !Number.isFinite(targetValue) ||
+    targetValue <= 0;
 
   const isContributeDisabled =
     parseInt(contributionInput.replace(/\D/g, ''), 10) <= 0 ||
