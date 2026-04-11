@@ -823,6 +823,14 @@
     "goalsCard": {
       "title": "Obiettivi di risparmio",
       "description": "Risparmia per ciò che conta di più"
+    },
+    "categoriesCard": {
+      "title": "Le mie categorie",
+      "description": "Organizza le tue spese a modo tuo"
+    },
+    "reportsCard": {
+      "title": "Estratto annuale",
+      "description": "Genera il tuo report fiscale in PDF"
     }
   },
   "goals": {

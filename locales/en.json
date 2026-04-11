@@ -823,6 +823,14 @@
     "goalsCard": {
       "title": "Savings Goals",
       "description": "Save for what matters most"
+    },
+    "categoriesCard": {
+      "title": "My categories",
+      "description": "Organize your expenses your way"
+    },
+    "reportsCard": {
+      "title": "Annual report",
+      "description": "Generate your tax report as PDF"
     }
   },
   "goals": {
