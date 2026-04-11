@@ -26,7 +26,8 @@ export type NotificationType =
   | 'friend_accepted'
   | 'shared_transaction_added'
   | 'shared_transaction_updated'
-  | 'shared_transaction_deleted';
+  | 'shared_transaction_deleted'
+  | 'goal_monthly_reminder';
 
 export interface NotificationData {
   fromUserId: string;
@@ -44,11 +45,15 @@ export interface SharedTransactionNotificationData {
   sharedAmount: number;
 }
 
+export interface GoalReminderData {
+  count: number;
+}
+
 export interface NotificationDoc {
   id: string;
   toUserId: string;
   type: NotificationType;
-  data: NotificationData;
+  data: NotificationData | SharedTransactionNotificationData | GoalReminderData;
   read: boolean;
   createdAt: Timestamp;
 }
