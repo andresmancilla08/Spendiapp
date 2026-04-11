@@ -34,7 +34,7 @@ const NOTIF_ICONS: Record<NotificationType, React.ComponentProps<typeof Ionicons
   shared_transaction_added: 'people-circle-outline',
   shared_transaction_updated: 'create-outline',
   shared_transaction_deleted: 'trash-outline',
-  goal_monthly_reminder: 'target-outline',
+  goal_monthly_reminder: 'flag-outline',
 };
 
 // Each notification type gets a distinct color accent
