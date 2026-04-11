@@ -619,6 +619,16 @@ export default function ProfileScreen() {
           />
         </View>
 
+        {/* HERRAMIENTAS */}
+        <SectionTitle label={t('profile.sections.tools')} />
+        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+          <OptionItem
+            icon="document-text-outline"
+            label={t('reports.menuLabel')}
+            onPress={() => router.push('/reports')}
+          />
+        </View>
+
         {/* SEGURIDAD — Biometría (solo nativo) */}
         {Platform.OS !== 'web' && (
           <>
