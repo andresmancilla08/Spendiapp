@@ -18,6 +18,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useGoals } from '../hooks/useGoals';
 import { Goal } from '../types/goal';
 import AppDialog from '../components/AppDialog';
+import { EmojiPicker } from '../components/EmojiPicker';
 import AppHeader from '../components/AppHeader';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
@@ -134,17 +135,19 @@ export default function GoalsScreen() {
 
   // Create form
   const [nameInput, setNameInput] = useState('');
-  const [emojiInput, setEmojiInput] = useState('');
+  const [emojiInput, setEmojiInput] = useState('🎯');
   const [targetInput, setTargetInput] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Contribute form
   const [contributionInput, setContributionInput] = useState('');
 
   const resetForms = () => {
     setNameInput('');
-    setEmojiInput('');
+    setEmojiInput('🎯');
     setTargetInput('');
     setContributionInput('');
+    setShowEmojiPicker(false);
   };
 
   const closeDialog = () => {
@@ -168,7 +171,7 @@ export default function GoalsScreen() {
 
   const handleCreate = async () => {
     const target = parseInt(targetInput.replace(/\D/g, ''), 10);
-    if (!nameInput.trim() || !emojiInput.trim() || !target || target <= 0) return;
+    if (!nameInput.trim() || !target || target <= 0) return;
     setSaving(true);
     try {
       await addGoal(nameInput.trim(), emojiInput.trim(), target);
@@ -228,7 +231,6 @@ export default function GoalsScreen() {
   const targetValue = parseInt(targetInput.replace(/\D/g, ''), 10);
   const isCreateDisabled =
     !nameInput.trim() ||
-    !emojiInput.trim() ||
     !Number.isFinite(targetValue) ||
     targetValue <= 0;
 
@@ -337,24 +339,35 @@ export default function GoalsScreen() {
                     <Text style={{ fontFamily: Fonts.regular, fontSize: 13, marginBottom: 6, color: colors.textSecondary }}>
                       {t('goals.emojiLabel')}
                     </Text>
-                    <TextInput
-                      value={emojiInput}
-                      onChangeText={setEmojiInput}
-                      placeholder={t('goals.emojiPlaceholder')}
+                    <TouchableOpacity
+                      onPress={() => setShowEmojiPicker((v) => !v)}
+                      activeOpacity={0.8}
                       style={{
                         borderWidth: 1.5,
-                        borderColor: emojiInput ? colors.primary : colors.border,
+                        borderColor: colors.primary,
                         borderRadius: 12,
-                        paddingHorizontal: 14,
                         paddingVertical: 10,
-                        fontFamily: Fonts.regular,
-                        fontSize: 22,
-                        color: colors.textPrimary,
+                        alignItems: 'center',
                         backgroundColor: colors.backgroundSecondary,
-                        textAlign: 'center',
                       }}
-                      maxLength={4}
-                    />
+                    >
+                      <Text style={{ fontSize: 28 }}>{emojiInput}</Text>
+                    </TouchableOpacity>
+                    {showEmojiPicker && (
+                      <View style={{
+                        marginTop: 8,
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                        borderRadius: 12,
+                        padding: 4,
+                        backgroundColor: colors.backgroundSecondary,
+                      }}>
+                        <EmojiPicker
+                          selected={emojiInput}
+                          onSelect={(e) => { setEmojiInput(e); setShowEmojiPicker(false); }}
+                        />
+                      </View>
+                    )}
                   </View>
                   <View>
                     <Text style={{ fontFamily: Fonts.regular, fontSize: 13, marginBottom: 6, color: colors.textSecondary }}>
