@@ -101,7 +101,8 @@
   "tabBar": {
     "home": "Inicio",
     "budget": "Presupuesto",
-    "history": "Historial"
+    "history": "Historial",
+    "tools": "Herramientas"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -699,7 +700,8 @@
     "delete": "Eliminar notificación",
     "shared_transaction_added": "{{fromDisplayName}} compartió un gasto contigo: {{description}}",
     "shared_transaction_updated": "{{fromDisplayName}} actualizó un gasto compartido: {{description}}",
-    "shared_transaction_deleted": "{{fromDisplayName}} eliminó el gasto compartido: {{description}}"
+    "shared_transaction_deleted": "{{fromDisplayName}} eliminó el gasto compartido: {{description}}",
+    "goal_monthly_reminder": "Recuerda agregar a tus {{count}} metas activas este mes 🎯"
   },
   "whatsNew": {
     "version": "Novedades · v{{version}}",
@@ -815,5 +817,53 @@
     "pdfDescription": "Descripción",
     "pdfFooter": "Generado por Spendiapp · Este documento es informativo. Consulte a su contador para su declaración oficial.",
     "fiscalYear": "Año fiscal"
+  },
+  "tools": {
+    "title": "Herramientas",
+    "pageDesc": "Funcionalidades para potenciar tus finanzas",
+    "goalsCard": {
+      "title": "Metas de ahorro",
+      "description": "Ahorra para lo que más importa"
+    }
+  },
+  "goals": {
+    "title": "Mis Metas",
+    "pageDesc": "Ahorra paso a paso hacia tus sueños",
+    "activeTab": "Activas",
+    "completedTab": "Completadas",
+    "createTitle": "Nueva meta",
+    "nameLabel": "Nombre de la meta",
+    "namePlaceholder": "Ej: Viaje a Europa",
+    "emojiLabel": "Emoji",
+    "emojiPlaceholder": "✈️",
+    "targetLabel": "Monto objetivo",
+    "targetPlaceholder": "$ 0",
+    "addContributionTitle": "Agregar ahorro",
+    "contributionLabel": "¿Cuánto vas a agregar?",
+    "deleteTitle": "Eliminar meta",
+    "deleteDescBefore": "¿Seguro que quieres eliminar",
+    "deleteDescAfter": "? Esta acción no se puede deshacer.",
+    "completedTitle": "¡Meta cumplida! 🎉",
+    "completedDesc": "¡Felicitaciones, lograste tu meta",
+    "completedDescAfter": "!",
+    "emptyActive": "Aún no tienes metas activas",
+    "emptyActiveSub": "Crea tu primera meta y empieza a ahorrar",
+    "emptyCompleted": "Aún no has completado ninguna meta",
+    "emptyCompletedSub": "¡Sigue adelante, pronto lo lograrás!",
+    "saved": "guardado",
+    "of": "de",
+    "createButton": "Crear meta",
+    "cancelButton": "Cancelar",
+    "deleteButton": "Eliminar",
+    "addButton": "Agregar",
+    "newGoalButton": "Nueva meta",
+    "gotIt": "¡Genial!",
+    "toasts": {
+      "created": "¡Meta creada!",
+      "deleted": "Meta eliminada",
+      "contributed": "¡Ahorro registrado!",
+      "completed": "¡Meta cumplida! 🎉",
+      "error": "Ocurrió un error"
+    }
   }
 }
