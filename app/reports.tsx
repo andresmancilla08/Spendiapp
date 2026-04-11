@@ -21,13 +21,15 @@ import ScreenBackground from '../components/ScreenBackground';
 import ReportYearPicker from '../components/ReportYearPicker';
 import ReportViewer from '../components/ReportViewer';
 import { getAvailableYears, generateReportData, ReportData } from '../hooks/useReportGenerator';
-import { generateAnnualPDF } from '../utils/generateAnnualPDF';
+import { generateAnnualPDF, PdfLabels } from '../utils/generateAnnualPDF';
 import { useCategories } from '../hooks/useCategories';
+import { useToast } from '../context/ToastContext';
 
 export default function ReportsScreen() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { user } = useAuthStore();
+  const { showToast } = useToast();
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
   const [years, setYears] = useState<number[]>([]);
@@ -64,12 +66,29 @@ export default function ReportsScreen() {
         selectedYear,
         customCategories,
       );
-      const blob = generateAnnualPDF(data);
+      const pdfLabels: PdfLabels = {
+        extractTitle: t('reports.pdfExtract', { year: selectedYear }),
+        generatedOn: t('reports.pdfGeneratedOn', { date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }) }),
+        income: t('reports.pdfIncome'),
+        expenses: t('reports.pdfExpenses'),
+        balance: t('reports.pdfBalance'),
+        byCategory: t('reports.pdfByCategory'),
+        categoryCol: t('reports.pdfCategory'),
+        transactionsCol: t('reports.pdfTransactions'),
+        totalCol: t('reports.pdfTotal'),
+        movementsTitle: t('reports.pdfMovements', { year: selectedYear }),
+        dateCol: t('reports.pdfDate'),
+        descriptionCol: t('reports.pdfDescription'),
+        amountCol: 'Monto',
+        footer: t('reports.pdfFooter'),
+      };
+      const blob = generateAnnualPDF(data, pdfLabels);
       setReportData(data);
       setPdfBlob(blob);
       setViewerVisible(true);
     } catch (e) {
       console.error('[Reports] Error generando PDF:', e);
+      showToast(t('reports.shareError'), 'error');
     } finally {
       setLoading(false);
     }

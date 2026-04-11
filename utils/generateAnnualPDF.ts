@@ -3,6 +3,23 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ReportData } from '../hooks/useReportGenerator';
 
+export interface PdfLabels {
+  extractTitle: string;       // e.g. "Extracto Anual 2025"
+  generatedOn: string;        // e.g. "Generado el 10 de abril de 2026"
+  income: string;             // "Ingresos"
+  expenses: string;           // "Gastos"
+  balance: string;            // "Balance"
+  byCategory: string;         // "DESGLOSE POR CATEGORÍA"
+  categoryCol: string;        // "Categoría"
+  transactionsCol: string;    // "Transacciones"
+  totalCol: string;           // "Total"
+  movementsTitle: string;     // "MOVIMIENTOS 2025"
+  dateCol: string;            // "Fecha"
+  descriptionCol: string;     // "Descripción"
+  amountCol: string;          // "Monto"
+  footer: string;             // footer text
+}
+
 // Paleta (siempre modo claro en PDF)
 const C = {
   primary:   [0, 172, 193] as [number, number, number],
@@ -38,7 +55,7 @@ function formatShortDate(date: Date): string {
   });
 }
 
-export function generateAnnualPDF(data: ReportData): Blob {
+export function generateAnnualPDF(data: ReportData, labels: PdfLabels): Blob {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
@@ -56,11 +73,11 @@ export function generateAnnualPDF(data: ReportData): Blob {
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
-  doc.text(`Extracto Anual ${data.year}`, margin, 27);
+  doc.text(labels.extractTitle, margin, 27);
 
   doc.setFontSize(8.5);
   doc.text(data.userName, margin, 35);
-  doc.text(`Generado el ${formatDate(data.generatedAt)}`, pageW - margin, 35, {
+  doc.text(labels.generatedOn, pageW - margin, 35, {
     align: 'right',
   });
 
@@ -70,10 +87,10 @@ export function generateAnnualPDF(data: ReportData): Blob {
   const cardW = (contentW - gap * 2) / 3;
 
   const cards = [
-    { label: 'Ingresos',    value: formatCOP(data.totalIncome),    color: C.income },
-    { label: 'Gastos',      value: formatCOP(data.totalExpenses),  color: C.expense },
+    { label: labels.income,    value: formatCOP(data.totalIncome),    color: C.income },
+    { label: labels.expenses,  value: formatCOP(data.totalExpenses),  color: C.expense },
     {
-      label: 'Balance',
+      label: labels.balance,
       value: formatCOP(data.balance),
       color: data.balance >= 0 ? C.income : C.expense,
     },
@@ -103,7 +120,7 @@ export function generateAnnualPDF(data: ReportData): Blob {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(C.primary[0], C.primary[1], C.primary[2]);
-  doc.text('DESGLOSE POR CATEGORÍA', margin, y);
+  doc.text(labels.byCategory, margin, y);
   doc.setDrawColor(C.primary[0], C.primary[1], C.primary[2]);
   doc.setLineWidth(0.4);
   doc.line(margin, y + 1.5, pageW - margin, y + 1.5);
@@ -111,7 +128,7 @@ export function generateAnnualPDF(data: ReportData): Blob {
 
   autoTable(doc, {
     startY: y,
-    head: [['Categoría', 'Transacciones', 'Total']],
+    head: [[labels.categoryCol, labels.transactionsCol, labels.totalCol]],
     body: data.byCategory.map((c) => [
       c.name,
       String(c.count),
@@ -150,7 +167,7 @@ export function generateAnnualPDF(data: ReportData): Blob {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(C.primary[0], C.primary[1], C.primary[2]);
-  doc.text(`MOVIMIENTOS ${data.year}`, margin, y);
+  doc.text(labels.movementsTitle, margin, y);
   doc.setDrawColor(C.primary[0], C.primary[1], C.primary[2]);
   doc.setLineWidth(0.4);
   doc.line(margin, y + 1.5, pageW - margin, y + 1.5);
@@ -158,7 +175,7 @@ export function generateAnnualPDF(data: ReportData): Blob {
 
   autoTable(doc, {
     startY: y,
-    head: [['Fecha', 'Descripción', 'Categoría', 'Monto']],
+    head: [[labels.dateCol, labels.descriptionCol, labels.categoryCol, labels.amountCol]],
     body: data.transactions.map((t) => [
       formatShortDate(t.date),
       t.description,
@@ -192,7 +209,7 @@ export function generateAnnualPDF(data: ReportData): Blob {
       doc.setFontSize(6.5);
       doc.setTextColor(C.textGray[0], C.textGray[1], C.textGray[2]);
       doc.text(
-        'Generado por Spendiapp · Documento informativo. Consulte a su contador para su declaración oficial.',
+        labels.footer,
         pageW / 2,
         pageH - 7,
         { align: 'center', maxWidth: contentW },

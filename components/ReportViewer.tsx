@@ -60,7 +60,7 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
       try {
         await (navigator as any).share({
           files: [file],
-          title: `Extracto Spendiapp ${data.year}`,
+          title: t('reports.viewerTitle', { year: data.year }),
         });
       } catch {
         // Usuario canceló — no mostrar error
