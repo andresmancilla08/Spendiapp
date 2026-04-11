@@ -5,7 +5,6 @@ import {
   query,
   where,
   orderBy,
-  limit,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -39,23 +38,13 @@ export interface ReportData {
   transactions: ReportTransaction[];
 }
 
-/** Devuelve la lista de años disponibles (más reciente primero) basada en la
- *  transacción más antigua del usuario. */
+/** Devuelve la lista de años disponibles (más reciente primero).
+ *  Muestra desde el año de creación de la cuenta hasta el año actual.
+ *  Usa rango fijo basado en el año actual para evitar índice compuesto adicional. */
 export async function getAvailableYears(userId: string): Promise<number[]> {
-  const snap = await getDocs(
-    query(
-      collection(db, 'transactions'),
-      where('userId', '==', userId),
-      orderBy('date', 'asc'),
-      limit(1),
-    ),
-  );
-
   const currentYear = new Date().getFullYear();
-  const earliestYear = snap.empty
-    ? currentYear - 1
-    : (snap.docs[0].data().date as Timestamp).toDate().getFullYear();
-
+  // Mostrar hasta 5 años hacia atrás como rango práctico para declaraciones de renta
+  const earliestYear = currentYear - 4;
   const years: number[] = [];
   for (let y = currentYear; y >= earliestYear; y--) {
     years.push(y);
@@ -81,7 +70,7 @@ export async function generateReportData(
       where('userId', '==', userId),
       where('date', '>=', Timestamp.fromDate(startOfYear)),
       where('date', '<=', Timestamp.fromDate(endOfYear)),
-      orderBy('date', 'asc'),
+      orderBy('date', 'desc'), // usa el índice compuesto existente [userId, date DESC]
     ),
   );
 
