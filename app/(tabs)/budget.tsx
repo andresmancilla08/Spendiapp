@@ -24,6 +24,7 @@ import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
 import { Fonts } from '../../config/fonts';
 import { useToast } from '../../context/ToastContext';
+import ScreenTransition from '../../components/ScreenTransition';
 
 
 const DEFAULT_EXPENSE_CATEGORIES = [
@@ -200,9 +201,10 @@ export default function BudgetScreen() {
   const isSaveDisabled = parseInt(limitInput.replace(/\D/g, ''), 10) <= 0 || limitInput.trim() === '';
 
   return (
+    <ScreenTransition>
     <SafeAreaView style={styles.safe}>
       <ScreenBackground>
-      <AppHeader showBack={false} showNotifications />
+      <AppHeader showBack />
       <PageTitle title={t('budget.title')} description={t('budget.pageDesc')} />
 
       {/* Month nav */}
@@ -433,6 +435,7 @@ export default function BudgetScreen() {
       )}
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

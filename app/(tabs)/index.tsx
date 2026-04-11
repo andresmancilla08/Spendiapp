@@ -35,6 +35,7 @@ import PwaInstallBanner from '../../components/PwaInstallBanner';
 import NotificationBell from '../../components/NotificationBell';
 import WhatsNew from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
+import ScreenTransition from '../../components/ScreenTransition';
 
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
@@ -233,6 +234,7 @@ export default function HomeScreen() {
     : 'trending-down' as const;
 
   return (
+    <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
       <WhatsNew visible={showWhatsNew} onDismiss={handleDismissWhatsNew} />
       <ScreenBackground>
@@ -424,6 +426,7 @@ export default function HomeScreen() {
       )}
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

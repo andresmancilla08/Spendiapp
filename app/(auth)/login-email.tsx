@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import { sendPinResetEmail, getEmailProvider, loginWithEmailAndPin } from '../../hooks/useAuth';
 import AppDialog from '../../components/AppDialog';
 import AppHeader from '../../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import PinInput from '../../components/PinInput';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
@@ -72,7 +73,17 @@ export default function LoginEmailScreen() {
     }
   };
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
         <AppDialog
@@ -186,6 +197,7 @@ export default function LoginEmailScreen() {
         </KeyboardAvoidingView>
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

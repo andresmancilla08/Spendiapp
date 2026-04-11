@@ -32,6 +32,7 @@ import AppHeader from '../../components/AppHeader';
 import { router } from 'expo-router';
 import AppDialog, { DialogType } from '../../components/AppDialog';
 import ScreenBackground from '../../components/ScreenBackground';
+import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import { Fonts } from '../../config/fonts';
 import { getUserProfile } from '../../hooks/useUserProfile';
 import { useFriends } from '../../hooks/useFriends';
@@ -484,10 +485,20 @@ export default function ProfileScreen() {
     });
   };
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-      <AppHeader showBack />
+      <AppHeader showBack onBack={handleBack} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
@@ -732,6 +743,7 @@ export default function ProfileScreen() {
       />
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

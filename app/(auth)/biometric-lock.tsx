@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import ScreenBackground from '../../components/ScreenBackground';
+import ScreenTransition from '../../components/ScreenTransition';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
@@ -53,6 +54,7 @@ export default function BiometricLockScreen() {
   }, []);
 
   return (
+    <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
       <AppDialog
         visible={signOutDialog}
@@ -121,6 +123,7 @@ export default function BiometricLockScreen() {
         </View>
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import PageTitle from '../../components/PageTitle';
 import AppDialog from '../../components/AppDialog';
 import PinInput from '../../components/PinInput';
@@ -85,7 +86,17 @@ export default function RegisterScreen() {
     color: colors.textPrimary,
   };
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <AppDialog
         visible={showSuccess}
@@ -187,6 +198,7 @@ export default function RegisterScreen() {
         </KeyboardAvoidingView>
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

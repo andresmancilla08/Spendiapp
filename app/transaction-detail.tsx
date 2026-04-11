@@ -9,6 +9,7 @@ import {
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -203,10 +204,20 @@ export default function TransactionDetailScreen() {
           .join(sharedOthers.length === 2 ? ` ${t('common.and')} ` : ', ')
     : ownerDisplayName;
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={{ flex: 1 }}>
       <ScreenBackground style={{ flex: 1 }}>
-        <AppHeader showBack onBack={() => router.back()} />
+        <AppHeader showBack onBack={handleBack} />
         <PageTitle title={t('history.detail.title')} description={t('history.detail.pageDesc')} />
 
         <ScrollView
@@ -508,6 +519,7 @@ export default function TransactionDetailScreen() {
 
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 
