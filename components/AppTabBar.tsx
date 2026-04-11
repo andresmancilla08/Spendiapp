@@ -11,6 +11,7 @@ const TAB_CONFIG: Record<string, { icon: IoniconsName; iconActive: IoniconsName 
   index:   { icon: 'home-outline',   iconActive: 'home' },
   budget:  { icon: 'wallet-outline', iconActive: 'wallet' },
   history: { icon: 'time-outline',   iconActive: 'time' },
+  tools:   { icon: 'hammer-outline', iconActive: 'hammer' },
 };
 
 export default function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -21,6 +22,7 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
     index: t('tabBar.home'),
     budget: t('tabBar.budget'),
     history: t('tabBar.history'),
+    tools: t('tabBar.tools'),
   };
 
   const visibleRoutes = state.routes.filter((r) => TAB_CONFIG[r.name]);
