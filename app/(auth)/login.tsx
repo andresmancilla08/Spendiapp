@@ -12,6 +12,7 @@ import { router } from 'expo-router';
 import appConfig from '../../app.json';
 import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
 import ScreenBackground from '../../components/ScreenBackground';
+import ScreenTransition from '../../components/ScreenTransition';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
@@ -48,6 +49,7 @@ export default function LoginScreen() {
   }, [error]);
 
   return (
+    <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
         {/* Top bar */}
@@ -134,6 +136,7 @@ export default function LoginScreen() {
         </Text>
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

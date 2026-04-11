@@ -42,6 +42,7 @@ import { useSharedTransactions } from '../hooks/useSharedTransactions';
 import { getUserProfile } from '../hooks/useUserProfile';
 import SharedExpenseSection from '../components/SharedExpenseSection';
 import type { SharedParticipant } from '../types/sharedTransaction';
+import ScreenTransition from '../components/ScreenTransition';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
 
@@ -443,6 +444,7 @@ export default function AddTransactionScreen() {
       {Platform.OS === 'ios' && (
         <InputAccessoryView nativeID={AMOUNT_INPUT_ID}><View /></InputAccessoryView>
       )}
+      <ScreenTransition>
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
         <AppHeader showBack />
         <PageTitle title={t('addTransaction.title')} description={t('addTransaction.pageDesc')} />
@@ -1159,6 +1161,7 @@ export default function AddTransactionScreen() {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+      </ScreenTransition>
     </>
   );
 }

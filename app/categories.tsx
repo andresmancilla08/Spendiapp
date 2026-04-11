@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -25,7 +25,9 @@ import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useAuthStore } from '../store/authStore';
 import { useCategories } from '../hooks/useCategories';
+import { router } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import { DEFAULT_CATEGORIES } from '../constants/categories';
 import { CategoryFormModal } from '../components/CategoryFormModal';
@@ -338,11 +340,22 @@ export default function CategoriesScreen() {
     }
   };
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
       <AppHeader
         showBack
+        onBack={handleBack}
         rightAction={
           <TouchableOpacity
             onPress={openCreateModal}
@@ -441,6 +454,7 @@ export default function CategoriesScreen() {
       />
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

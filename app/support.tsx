@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, Linking, KeyboardAvoidingView, Platform,
@@ -8,7 +8,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { router } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import AppDialog from '../components/AppDialog';
@@ -117,10 +119,20 @@ export default function SupportScreen() {
     setSuccessVisible(true);
   };
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-      <AppHeader showBack />
+      <AppHeader showBack onBack={handleBack} />
       <PageTitle title={t('support.title')} description={t('support.subtitle')} />
 
       <KeyboardAvoidingView
@@ -202,6 +214,7 @@ export default function SupportScreen() {
       />
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

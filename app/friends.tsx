@@ -16,8 +16,9 @@ import {
 } from '../hooks/useFriends';
 import { getUserProfile, searchUserByUserName } from '../hooks/useUserProfile';
 import { UserProfile, Friendship } from '../types/friend';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import AppDialog from '../components/AppDialog';
@@ -224,10 +225,20 @@ export default function FriendsScreen() {
 
   const requestBadge = incomingRequests.length;
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-        <AppHeader showBack showNotifications={false} />
+        <AppHeader showBack showNotifications={false} onBack={handleBack} />
         <PageTitle title={t('friends.title')} description={t('friends.pageDesc')} />
 
         {/* Tabs */}
@@ -400,6 +411,7 @@ export default function FriendsScreen() {
         />
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

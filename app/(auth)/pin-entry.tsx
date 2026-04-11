@@ -14,6 +14,7 @@ import PageTitle from '../../components/PageTitle';
 import { registerWithEmailAndPin, loginWithEmailAndPin } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
+import ScreenTransition from '../../components/ScreenTransition';
 
 export default function PinEntryScreen() {
   const { mode, name, email } = useLocalSearchParams<{ mode: string; name: string; email: string }>();
@@ -52,6 +53,7 @@ export default function PinEntryScreen() {
   const subtitle = mode === 'register' ? t('pinEntry.createSubtitle') : t('pinEntry.enterSubtitle', { email: email ?? '' });
 
   return (
+    <ScreenTransition>
     <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
       <AppHeader />
       <AppDialog
@@ -75,6 +77,7 @@ export default function PinEntryScreen() {
       <PageTitle title={title} description={subtitle} />
       <PinKeypad onComplete={handlePinComplete} />
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

@@ -42,6 +42,7 @@ import type { Transaction } from '../../types/transaction';
 import ScreenBackground from '../../components/ScreenBackground';
 import { useSharedTransactions } from '../../hooks/useSharedTransactions';
 import { getUserProfile } from '../../hooks/useUserProfile';
+import ScreenTransition from '../../components/ScreenTransition';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -746,6 +747,7 @@ export default function HistoryScreen() {
   const nowForPicker = new Date();
 
   return (
+    <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
       <AppHeader showBack />
@@ -950,6 +952,7 @@ export default function HistoryScreen() {
       />
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

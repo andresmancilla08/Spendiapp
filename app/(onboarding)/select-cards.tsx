@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import ScreenBackground from '../../components/ScreenBackground';
+import ScreenTransition from '../../components/ScreenTransition';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
@@ -80,6 +81,7 @@ export default function SelectCardsScreen() {
   };
 
   return (
+    <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
         {/* Header */}
@@ -261,6 +263,7 @@ export default function SelectCardsScreen() {
 
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

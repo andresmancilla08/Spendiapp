@@ -1,4 +1,5 @@
 // app/notifications.tsx
+import { useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +11,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationDoc, NotificationType } from '../types/friend';
 import AppHeader from '../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { Fonts } from '../config/fonts';
@@ -109,10 +111,20 @@ export default function NotificationsScreen() {
   const uid = user?.uid ?? '';
   const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications(uid);
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-        <AppHeader showBack />
+        <AppHeader showBack onBack={handleBack} />
         <PageTitle title={t('notifications.title')} description={t('notifications.pageDesc')} />
 
         {unreadCount > 0 && (
@@ -175,6 +187,7 @@ export default function NotificationsScreen() {
         </ScrollView>
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

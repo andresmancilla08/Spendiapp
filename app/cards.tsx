@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -17,7 +17,9 @@ import { useCards, deleteCardAndTransactions } from '../hooks/useCards';
 import CardFormSheet from '../components/CardFormSheet';
 import BankLogo from '../components/BankLogo';
 import AppDialog from '../components/AppDialog';
+import { router } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { Skeleton } from '../components/Skeleton';
@@ -48,12 +50,23 @@ export default function CardsScreen() {
     }
   };
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
 
       <AppHeader
         showBack
+        onBack={handleBack}
         rightAction={
           <TouchableOpacity
             onPress={() => setCardFormVisible(true)}
@@ -166,6 +179,7 @@ export default function CardsScreen() {
       />
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 

@@ -1,10 +1,13 @@
+import { useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, ThemeMode } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, changeLanguage } from '../../config/i18n';
+import { router } from 'expo-router';
 import AppHeader from '../../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import PageTitle from '../../components/PageTitle';
 import ScreenBackground from '../../components/ScreenBackground';
 import { Fonts } from '../../config/fonts';
@@ -69,10 +72,20 @@ export default function SettingsScreen() {
     );
   };
 
+  const transitionRef = useRef<ScreenTransitionRef>(null);
+  const handleBack = () => {
+    if (transitionRef.current) {
+      transitionRef.current.animateOut(() => router.back());
+    } else {
+      router.back();
+    }
+  };
+
   return (
+    <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-      <AppHeader showBack />
+      <AppHeader showBack onBack={handleBack} />
       <PageTitle title={t('settings.title')} description={t('settings.pageDesc')} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -130,6 +143,7 @@ export default function SettingsScreen() {
       </ScrollView>
       </ScreenBackground>
     </SafeAreaView>
+    </ScreenTransition>
   );
 }
 
