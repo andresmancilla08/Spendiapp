@@ -813,6 +813,7 @@
     "pdfMovements": "MOVIMIENTOS {{year}}",
     "pdfDate": "Fecha",
     "pdfDescription": "Descripción",
-    "pdfFooter": "Generado por Spendiapp · Este documento es informativo. Consulte a su contador para su declaración oficial."
+    "pdfFooter": "Generado por Spendiapp · Este documento es informativo. Consulte a su contador para su declaración oficial.",
+    "fiscalYear": "Año fiscal"
   }
 }

@@ -113,7 +113,7 @@ export default function ReportsScreen() {
               <Text style={[styles.title, { color: colors.textPrimary }]}>
                 {t('reports.title')}
               </Text>
-              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              <Text style={[styles.subtitle, { color: colors.textPrimary }]}>
                 {t('reports.subtitle')}
               </Text>
             </View>
