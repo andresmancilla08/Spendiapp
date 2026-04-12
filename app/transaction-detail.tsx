@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -169,10 +169,17 @@ export default function TransactionDetailScreen() {
     }
   }, [transaction, currentUserUid, currentUserName, viewYear, viewMonth, deleteSharedTransaction, setLastAction, router]);
 
-  if (!transaction) {
-    router.back();
-    return null;
-  }
+  useEffect(() => {
+    if (!transaction) {
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/(tabs)/');
+      }
+    }
+  }, [transaction]);
+
+  if (!transaction) return null;
 
   const isExpense = transaction.type === 'expense';
   const cat = CATEGORY_META[transaction.category] ?? CATEGORY_META.other;
