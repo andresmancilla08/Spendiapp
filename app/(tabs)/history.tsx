@@ -570,8 +570,24 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
               )}
             </View>
           </View>
-          {/* Monto o spinner de loading */}
-          {paidLoading ? (
+          {/* Chip ingreso enviado — solo para ingresos recibidos de un amigo */}
+          {item.isSentIncome && item.sentByName ? (
+            <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
+              {paidLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
+              ) : (
+                <Text style={[styles.txAmount, { color: amountColor }]}>
+                  {`+${formatCurrency(item.amount)}`}
+                </Text>
+              )}
+              <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.secondary}18`, borderColor: `${colors.secondary}28` }]}>
+                <Ionicons name="gift-outline" size={11} color={colors.secondary} />
+                <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]}>
+                  {t('sentIncome.chip.sentBy', { name: item.sentByName })}
+                </Text>
+              </View>
+            </View>
+          ) : paidLoading ? (
             <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
           ) : (
             <Text style={[styles.txAmount, { color: amountColor }]}>
@@ -1169,6 +1185,12 @@ const styles = StyleSheet.create({
   txAmount: { fontSize: 14, fontFamily: Fonts.bold },
   txCardChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
   txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold },
+  sentIncomeChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  sentIncomeChipText: { fontSize: 11, fontFamily: Fonts.semiBold },
   txCardTypeBadge: { paddingHorizontal: 4, paddingVertical: 1, borderRadius: 5 },
   txCardTypeBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
   fixedBadge: {

@@ -791,6 +791,12 @@
       "item1": "Genera il report delle transazioni dell'anno fiscale",
       "item2": "Ripartizione per categoria con totali e lista voci",
       "item3": "Ideale per il tuo commercialista o archivio personale"
+    },
+    "sentIncomeFeature": {
+      "title": "Invia entrate agli amici",
+      "item1": "Registra una spesa e inviala come entrata a un altro utente di Spendia",
+      "item2": "Il tuo amico la vede automaticamente nella cronologia come entrata ricevuta",
+      "item3": "Perfetto per rimborsi, trasferimenti o dividere conti informalmente"
     }
   },
   "sharedExpense": {
@@ -809,6 +815,16 @@
       "sharedWith": "Condiviso con {{name}}",
       "sharedWithMore": "Condiviso con {{name}} e altri {{count}}",
       "sharedBy": "Condiviso da {{name}}"
+    }
+  },
+  "sentIncome": {
+    "toggle": "Registra come entrata per un amico",
+    "forWho": "A chi",
+    "noFriends": "Non hai ancora amici su Spendia",
+    "sentByLabel": "Inviato da",
+    "chip": {
+      "sentBy": "Inviato da {{name}}",
+      "sentTo": "Entrata inviata a {{name}}"
     }
   },
   "reports": {

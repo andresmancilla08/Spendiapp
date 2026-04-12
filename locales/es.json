@@ -792,6 +792,12 @@
       "item1": "Genera tu reporte de movimientos del año fiscal",
       "item2": "Desglose por categoría con totales y lista de ítems",
       "item3": "Ideal para entregar a tu contador o archivar"
+    },
+    "sentIncomeFeature": {
+      "title": "Envía ingresos a amigos",
+      "item1": "Registra un gasto y envíalo como ingreso a otro usuario de Spendia",
+      "item2": "El amigo lo ve automáticamente en su historial como ingreso recibido",
+      "item3": "Perfecto para reembolsos, transferencias o dividir cuentas informalmente"
     }
   },
   "sharedExpense": {
@@ -810,6 +816,16 @@
       "sharedWith": "Compartido con {{name}}",
       "sharedWithMore": "Compartido con {{name}} y {{count}} más",
       "sharedBy": "Compartido por {{name}}"
+    }
+  },
+  "sentIncome": {
+    "toggle": "Registrar como ingreso para un amigo",
+    "forWho": "Para quién",
+    "noFriends": "Aún no tienes amigos en Spendia",
+    "sentByLabel": "Enviado por",
+    "chip": {
+      "sentBy": "Enviado por {{name}}",
+      "sentTo": "Ingreso enviado a {{name}}"
     }
   },
   "reports": {

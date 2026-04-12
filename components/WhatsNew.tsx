@@ -14,7 +14,7 @@ import appConfig from '../app.json';
 // Actualizar WHATS_NEW_VERSION al agregar una nueva entrada en VERSION_HISTORY.
 // No cambiar en patches ni bugfixes — así el modal no reaparece innecesariamente.
 // Solo se muestran las features de la versión actual (WHATS_NEW_VERSION).
-export const WHATS_NEW_VERSION = '2.1.0';
+export const WHATS_NEW_VERSION = '2.2.0';
 
 interface WhatsNewProps {
   visible: boolean;
@@ -33,6 +33,81 @@ interface Feature {
 // Agregar nueva entrada en VERSION_HISTORY cuando salga una nueva versión.
 // Solo se muestra la versión que coincide con WHATS_NEW_VERSION.
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
+  {
+    version: '2.2.0',
+    features: [
+      {
+        icon: 'send-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.sentIncomeFeature.title',
+        items: [
+          'whatsNew.sentIncomeFeature.item1',
+          'whatsNew.sentIncomeFeature.item2',
+          'whatsNew.sentIncomeFeature.item3',
+        ],
+      },
+      {
+        icon: 'apps-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.navbarRedesign.title',
+        items: [
+          'whatsNew.navbarRedesign.item1',
+          'whatsNew.navbarRedesign.item2',
+          'whatsNew.navbarRedesign.item3',
+        ],
+      },
+      {
+        icon: 'flag-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.savingsGoals.title',
+        items: [
+          'whatsNew.savingsGoals.item1',
+          'whatsNew.savingsGoals.item2',
+          'whatsNew.savingsGoals.item3',
+        ],
+      },
+      {
+        icon: 'construct-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.toolsHub.title',
+        items: [
+          'whatsNew.toolsHub.item1',
+          'whatsNew.toolsHub.item2',
+          'whatsNew.toolsHub.item3',
+        ],
+      },
+      {
+        icon: 'document-text-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.annualReport.title',
+        items: [
+          'whatsNew.annualReport.item1',
+          'whatsNew.annualReport.item2',
+          'whatsNew.annualReport.item3',
+        ],
+      },
+      {
+        icon: 'people-circle-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.sharedExpenses.title',
+        items: [
+          'whatsNew.sharedExpenses.item1',
+          'whatsNew.sharedExpenses.item2',
+          'whatsNew.sharedExpenses.item3',
+        ],
+      },
+      {
+        icon: 'bar-chart-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.budget.title',
+        items: [
+          'whatsNew.budget.item1',
+          'whatsNew.budget.item2',
+          'whatsNew.budget.item3',
+        ],
+      },
+    ],
+  },
   {
     version: '2.1.0',
     features: [

@@ -28,6 +28,7 @@ import { useAuthStore } from '../store/authStore';
 import { Fonts } from '../config/fonts';
 import ScreenBackground from '../components/ScreenBackground';
 import { useSharedTransactions } from '../hooks/useSharedTransactions';
+import { useSentIncome } from '../hooks/useSentIncome';
 import { useHistoryStore } from '../store/historyStore';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -91,6 +92,7 @@ export default function TransactionDetailScreen() {
   const { user } = useAuthStore();
   const currentUserUid = user?.uid ?? '';
   const { deleteSharedTransaction } = useSharedTransactions();
+  const { deleteSentIncome } = useSentIncome();
 
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [duplicateLoading, setDuplicateLoading] = useState(false);
@@ -149,6 +151,9 @@ export default function TransactionDetailScreen() {
           currentUserName,
           description: transaction.description,
         });
+      } else if (transaction.sentIncomeTransactionId) {
+        // Gasto con ingreso vinculado: eliminar ambos en batch
+        await deleteSentIncome(getActualId(transaction), transaction.sentIncomeTransactionId);
       } else if (transaction.isFixed) {
         await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
           fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
@@ -406,6 +411,24 @@ export default function TransactionDetailScreen() {
                       numberOfLines={2}
                     >
                       {sharedNames || '—'}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* Ingreso enviado — solo si es isSentIncome */}
+            {transaction.isSentIncome && transaction.sentByName && (
+              <>
+                <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
+                <View style={styles.detailRow}>
+                  <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
+                    {t('sentIncome.sentByLabel')}
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'flex-end', marginLeft: 16 }}>
+                    <Ionicons name="gift-outline" size={14} color={colors.secondary} />
+                    <Text style={{ fontSize: 13, fontFamily: Fonts.medium, color: colors.secondary, flexShrink: 1 }} numberOfLines={1}>
+                      {transaction.sentByName}
                     </Text>
                   </View>
                 </View>
