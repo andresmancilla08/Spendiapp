@@ -22,6 +22,7 @@ import { useTransactions } from '../../hooks/useTransactions';
 import { useCards } from '../../hooks/useCards';
 import { Transaction } from '../../types/transaction';
 import { HomeScreenSkeleton } from '../../components/Skeleton';
+import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
 import {
   isBiometricsAvailable,
@@ -65,10 +66,11 @@ function timeAgo(date: Date): string {
   return `Hace ${Math.floor(diff / 1440)} días`;
 }
 
-function TransactionRow({ item, isLast, cardsMap }: {
+function TransactionRow({ item, isLast, cardsMap, onPress }: {
   item: Transaction;
   isLast: boolean;
   cardsMap: Record<string, { bankName: string; nickname: string; type: string }>;
+  onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
   const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
@@ -79,10 +81,14 @@ function TransactionRow({ item, isLast, cardsMap }: {
     : item.description;
 
   return (
-    <View style={[
-      styles.txRow,
-      !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
-    ]}>
+    <TouchableOpacity
+      style={[
+        styles.txRow,
+        !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
+      ]}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <View style={[styles.txIconWrap, { backgroundColor: isDark ? cat.darkBg : cat.bg }]}>
         <Text style={styles.txIconText}>{cat.icon}</Text>
       </View>
@@ -115,7 +121,7 @@ function TransactionRow({ item, isLast, cardsMap }: {
       <Text style={[styles.txAmount, { color: isExpense ? colors.error : colors.secondary }]}>
         {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -126,6 +132,7 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const { justLoggedIn, setJustLoggedIn } = useAuthStore();
+  const { setSelectedTransaction } = useHistoryStore();
   const { showToast } = useToast();
   const now = new Date();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -189,6 +196,19 @@ export default function HomeScreen() {
   const displayName = `${firstName}${lastInitial}`;
   const photoUrl = user?.photoURL;
   const recent = transactions.slice(0, 5);
+
+  const handleTapTx = useCallback((tx: Transaction) => {
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    setSelectedTransaction(tx, {
+      cardsMap,
+      viewYear: currentYear,
+      viewMonth: currentMonth,
+      isPastMonth: false,
+      currentUserName: user?.displayName ?? '',
+    });
+    router.push('/transaction-detail');
+  }, [setSelectedTransaction, cardsMap, user?.displayName]);
 
   // Greeting contextual por hora
   const hour = new Date().getHours();
@@ -386,7 +406,7 @@ export default function HomeScreen() {
         ) : (
           <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
             {recent.map((tx, i) => (
-              <TransactionRow key={tx.id} item={tx} isLast={i === recent.length - 1} cardsMap={cardsMap} />
+              <TransactionRow key={tx.id} item={tx} isLast={i === recent.length - 1} cardsMap={cardsMap} onPress={() => handleTapTx(tx)} />
             ))}
           </View>
         )}
