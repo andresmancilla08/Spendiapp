@@ -78,6 +78,15 @@ export function useTransactions(userId: string, year: number, month: number, ref
           installmentTotal: d.installmentTotal,
           isInstallment: d.isInstallment ?? false,
           fixedCancelledFrom: d.fixedCancelledFrom ? (d.fixedCancelledFrom as Timestamp).toDate() : undefined,
+          // Ingreso enviado — remitente
+          sentIncomeToUid: d.sentIncomeToUid,
+          sentIncomeToName: d.sentIncomeToName,
+          sentIncomeTransactionId: d.sentIncomeTransactionId,
+          // Ingreso enviado — destinatario
+          isSentIncome: d.isSentIncome ?? false,
+          sentByUid: d.sentByUid,
+          sentByName: d.sentByName,
+          sentByTransactionId: d.sentByTransactionId,
         };
       }).filter((tx) => {
         // Ocultar fijos cancelados a partir del mes visualizado
