@@ -38,22 +38,24 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
     };
   }, [blobUrl]);
 
+  const fileName = `Extracto_${data.year}_${data.userName}.pdf`;
+
   const handleDownload = useCallback(() => {
     if (Platform.OS !== 'web') return;
     const a = document.createElement('a');
     a.href = blobUrl;
-    a.download = `extracto-spendiapp-${data.year}.pdf`;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     showToast(t('reports.savedSuccess'), 'success');
-  }, [blobUrl, data.year, showToast, t]);
+  }, [blobUrl, fileName, showToast, t]);
 
   const handleShare = useCallback(async () => {
     if (Platform.OS !== 'web') return;
     const file = new File(
       [blob],
-      `extracto-spendiapp-${data.year}.pdf`,
+      fileName,
       { type: 'application/pdf' },
     );
     if ((navigator as any).canShare?.({ files: [file] })) {
@@ -86,14 +88,13 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
         {/* PDF Viewer — solo web */}
         <View style={styles.pdfArea}>
           {Platform.OS === 'web' && blobUrl
-            ? React.createElement('iframe', {
+            ? React.createElement('embed', {
                 src: blobUrl,
+                type: 'application/pdf',
                 style: {
                   width: '100%',
                   height: '100%',
-                  border: 'none',
                 } as React.CSSProperties,
-                title: t('reports.viewerTitle', { year: data.year }),
               })
             : (
               <View style={styles.loadingBox}>

@@ -64,8 +64,8 @@ async function userNameExists(userName: string): Promise<boolean> {
 }
 
 /** Marca si el usuario ya vio la pantalla de novedades. */
-export async function setWhatsNewSeen(uid: string, seen: boolean): Promise<void> {
-  await updateDoc(doc(db, 'users', uid), { whatsNewSeen: seen });
+export async function setWhatsNewSeen(uid: string, version: string): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { whatsNewSeen: version });
 }
 
 /** Obtiene el perfil de un usuario por UID. */
