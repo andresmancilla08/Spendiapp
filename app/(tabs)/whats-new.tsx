@@ -1,8 +1,7 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
 import { setWhatsNewSeen } from '../../hooks/useUserProfile';
@@ -10,6 +9,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
 import PageTitle from '../../components/PageTitle';
 import { Fonts } from '../../config/fonts';
+import { router } from 'expo-router';
 import appJson from '../../app.json';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -37,11 +37,12 @@ export default function WhatsNewScreen() {
   const { colors } = useTheme();
   const { user } = useAuthStore();
 
-  useEffect(() => {
+  const handleDismiss = async () => {
     if (user?.uid) {
-      setWhatsNewSeen(user.uid, APP_VERSION).catch(() => {});
+      await setWhatsNewSeen(user.uid, APP_VERSION).catch(() => {});
     }
-  }, [user?.uid]);
+    router.replace('/(tabs)/');
+  };
 
   return (
     <ScreenTransition>
@@ -83,7 +84,17 @@ export default function WhatsNewScreen() {
               </View>
             ))}
 
-            <View style={{ height: 100 }} />
+            <TouchableOpacity
+              style={[styles.dismissBtn, { backgroundColor: colors.primary }]}
+              onPress={handleDismiss}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.dismissLabel, { color: colors.onPrimary }]}>
+                {t('whatsNew.dismiss')}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={{ height: 32 }} />
           </ScrollView>
         </ScreenBackground>
       </SafeAreaView>
@@ -136,5 +147,16 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     lineHeight: 19,
     flex: 1,
+  },
+  dismissBtn: {
+    height: 52,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  dismissLabel: {
+    fontSize: 16,
+    fontFamily: Fonts.bold,
   },
 });
