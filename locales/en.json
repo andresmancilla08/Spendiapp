@@ -766,6 +766,24 @@
       "item1": "This screen now shows only the changes for the current version",
       "item2": "No more repeated updates from previous versions",
       "item3": "Each version brings its own list of improvements"
+    },
+    "savingsGoals": {
+      "title": "Savings Goals",
+      "item1": "Create goals with name, emoji, and target amount",
+      "item2": "Log savings and track your progress with a visual bar",
+      "item3": "Reach your goal and celebrate with a special animation 🎉"
+    },
+    "toolsHub": {
+      "title": "Tools Hub",
+      "item1": "New Tools tab with centralized access to features",
+      "item2": "Manage Categories and Goals from one place",
+      "item3": "More tools coming soon to supercharge your finances"
+    },
+    "annualReport": {
+      "title": "Annual PDF Report",
+      "item1": "Generate your fiscal year transaction report",
+      "item2": "Category breakdown with totals and item list",
+      "item3": "Perfect for your accountant or personal archive"
     }
   },
   "sharedExpense": {

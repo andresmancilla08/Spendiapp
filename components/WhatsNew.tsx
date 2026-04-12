@@ -14,7 +14,7 @@ import appConfig from '../app.json';
 // Actualizar WHATS_NEW_VERSION al agregar una nueva entrada en VERSION_HISTORY.
 // No cambiar en patches ni bugfixes — así el modal no reaparece innecesariamente.
 // Solo se muestran las features de la versión actual (WHATS_NEW_VERSION).
-export const WHATS_NEW_VERSION = '1.7.0';
+export const WHATS_NEW_VERSION = '2.0.0';
 
 interface WhatsNewProps {
   visible: boolean;
@@ -33,6 +33,41 @@ interface Feature {
 // Agregar nueva entrada en VERSION_HISTORY cuando salga una nueva versión.
 // Solo se muestra la versión que coincide con WHATS_NEW_VERSION.
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
+  {
+    version: '2.0.0',
+    features: [
+      {
+        icon: 'flag-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.savingsGoals.title',
+        items: [
+          'whatsNew.savingsGoals.item1',
+          'whatsNew.savingsGoals.item2',
+          'whatsNew.savingsGoals.item3',
+        ],
+      },
+      {
+        icon: 'construct-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.toolsHub.title',
+        items: [
+          'whatsNew.toolsHub.item1',
+          'whatsNew.toolsHub.item2',
+          'whatsNew.toolsHub.item3',
+        ],
+      },
+      {
+        icon: 'document-text-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.annualReport.title',
+        items: [
+          'whatsNew.annualReport.item1',
+          'whatsNew.annualReport.item2',
+          'whatsNew.annualReport.item3',
+        ],
+      },
+    ],
+  },
   {
     version: '1.7.0',
     features: [

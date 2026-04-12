@@ -7,7 +7,7 @@ import { getRedirectResult } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
-import { ThemeProvider } from '../context/ThemeContext';
+import { ThemeProvider, useTheme } from '../context/ThemeContext';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import { isBiometricsAppEnrolled } from '../hooks/useBiometrics';
@@ -17,6 +17,19 @@ import { useInactivityTimer } from '../hooks/useInactivityTimer';
 import AppDialog from '../components/AppDialog';
 import { useTranslation } from 'react-i18next';
 import { createUserProfile } from '../hooks/useUserProfile';
+
+function ThemedStack() {
+  const { colors } = useTheme();
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'none',
+        contentStyle: { backgroundColor: colors.background },
+      }}
+    />
+  );
+}
 
 export default function RootLayout() {
   const { user, isLoading, justRegistered, biometricLocked, setUser, setLoading, setBiometricLocked, setJustLoggedIn } = useAuthStore();
@@ -167,12 +180,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            animation: 'none',
-          }}
-        />
+        <ThemedStack />
         <AppDialog
           visible={inactivityDialogVisible}
           type="warning"

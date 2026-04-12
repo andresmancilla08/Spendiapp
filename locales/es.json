@@ -767,6 +767,24 @@
       "item1": "Esta pantalla ahora muestra solo los cambios de la versión actual",
       "item2": "No más repetición de novedades anteriores en cada actualización",
       "item3": "Cada versión trae su propia lista de mejoras"
+    },
+    "savingsGoals": {
+      "title": "Metas de ahorro",
+      "item1": "Crea metas con nombre, emoji y monto objetivo",
+      "item2": "Registra ahorros y sigue tu progreso con una barra visual",
+      "item3": "Al completar la meta recibes una celebración especial 🎉"
+    },
+    "toolsHub": {
+      "title": "Hub de Herramientas",
+      "item1": "Nuevo tab Herramientas con acceso centralizado a funcionalidades",
+      "item2": "Gestiona Categorías y Metas desde un solo lugar",
+      "item3": "Próximamente más herramientas para potenciar tus finanzas"
+    },
+    "annualReport": {
+      "title": "Extracto anual en PDF",
+      "item1": "Genera tu reporte de movimientos del año fiscal",
+      "item2": "Desglose por categoría con totales y lista de ítems",
+      "item3": "Ideal para entregar a tu contador o archivar"
     }
   },
   "sharedExpense": {

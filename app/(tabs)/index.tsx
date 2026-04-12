@@ -33,7 +33,7 @@ import {
 import AppDialog from '../../components/AppDialog';
 import PwaInstallBanner from '../../components/PwaInstallBanner';
 import NotificationBell from '../../components/NotificationBell';
-import WhatsNew from '../../components/WhatsNew';
+import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 
@@ -139,7 +139,7 @@ export default function HomeScreen() {
       if (!justLoggedIn) return;
       try {
         const profile = await getUserProfile(user?.uid ?? '');
-        if (!profile?.whatsNewSeen) setShowWhatsNew(true);
+        if (profile?.whatsNewSeen !== WHATS_NEW_VERSION) setShowWhatsNew(true);
       } catch {}
       setJustLoggedIn(false);
     }

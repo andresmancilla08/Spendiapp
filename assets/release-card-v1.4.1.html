@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080" />
+  <title>Spendia v1.4.1 — Novedades</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a1214;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .card {
+      width: 1080px;
+      background: linear-gradient(145deg, #0D1A1C 0%, #111F22 60%, #0a1214 100%);
+      border-radius: 32px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(0, 172, 193, 0.18);
+      box-shadow:
+        0 0 0 1px rgba(0,172,193,0.08),
+        0 40px 100px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    /* Glow top */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(0,172,193,0.22) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Glow bottom right */
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      right: -100px;
+      width: 500px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(0,150,136,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 52px 64px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-wrap {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #00ACC1, #00838F);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,172,193,0.35);
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1px;
+    }
+
+    .brand-name {
+      font-size: 28px;
+      font-weight: 800;
+      color: #EEF6F8;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-tagline {
+      font-size: 13px;
+      color: #637579;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .version-pill {
+      background: linear-gradient(135deg, rgba(0,172,193,0.2), rgba(0,172,193,0.08));
+      border: 1px solid rgba(0,172,193,0.35);
+      border-radius: 50px;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .version-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ACC1;
+      box-shadow: 0 0 8px rgba(0,172,193,0.8);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .version-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #00ACC1;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 0 64px 52px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #00ACC1;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .hero-title {
+      font-size: 52px;
+      font-weight: 900;
+      color: #EEF6F8;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 18px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #00ACC1, #00E5FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 18px;
+      color: #9EABAF;
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 580px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      margin: 0 64px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,172,193,0.25), transparent);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Features grid ── */
+    .features {
+      padding: 48px 64px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card {
+      background: rgba(22, 36, 40, 0.8);
+      border: 1px solid rgba(0,172,193,0.12);
+      border-radius: 20px;
+      padding: 28px 28px 24px;
+      backdrop-filter: blur(10px);
+      transition: border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(0,172,193,0.3);
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .icon-cyan   { background: rgba(0,172,193,0.15); }
+    .icon-teal   { background: rgba(0,137,123,0.15); }
+    .icon-blue   { background: rgba(0,172,193,0.12); }
+    .icon-purple { background: rgba(139,92,246,0.15); }
+
+    .feature-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #EEF6F8;
+      letter-spacing: -0.3px;
+    }
+
+    .feature-subtitle {
+      font-size: 12px;
+      color: #637579;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .feature-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .item-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #00ACC1;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .item-dot.teal  { background: #00897B; }
+    .item-dot.blue  { background: #00BCD4; }
+    .item-dot.soft  { background: #637579; }
+
+    .item-text {
+      font-size: 14px;
+      color: #9EABAF;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 32px 64px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00ACC1, #00838F);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .footer-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .footer-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #EEF6F8;
+    }
+
+    .footer-date {
+      font-size: 12px;
+      color: #637579;
+      margin-top: 1px;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-web {
+      background: rgba(0,172,193,0.1);
+      border: 1px solid rgba(0,172,193,0.25);
+      color: #00ACC1;
+    }
+
+    .badge-pwa {
+      background: rgba(0,137,123,0.1);
+      border: 1px solid rgba(0,137,123,0.25);
+      color: #00897B;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="brand">
+        <div class="logo-wrap">S</div>
+        <div>
+          <div class="brand-name">Spendia</div>
+          <div class="brand-tagline">Controla tus gastos mensuales</div>
+        </div>
+      </div>
+      <div class="version-pill">
+        <div class="version-dot"></div>
+        <div class="version-text">Versión 1.4.1 · Abril 2026</div>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-label">✦ Nuevas funcionalidades</div>
+      <div class="hero-title">
+        Grandes novedades<br/>
+        en <span>Spendia</span>
+      </div>
+      <div class="hero-sub">
+        Presupuesto, amigos, notificaciones y más — todo rediseñado para que gestionar tus gastos sea más fácil que nunca.
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Features -->
+    <div class="features">
+
+      <!-- Presupuesto -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon icon-cyan">📊</div>
+          <div>
+            <div class="feature-title">Presupuesto mensual</div>
+            <div class="feature-subtitle">Control total de tus gastos</div>
+          </div>
+        </div>
+        <div class="feature-items">
+          <div class="feature-item">
+            <div class="item-dot"></div>
+            <div class="item-text">Define límites de gasto por categoría</div>
+          </div>
+          <div class="feature-item">
+            <div class="item-dot"></div>
+            <div class="item-text">Gráfica visual de avance en tiempo real</div>
+          </div>
+          <div class="feature-item">
+            <div class="item-dot"></div>
+            <div class="item-text">Control inteligente de movimientos fijos entre meses</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amigos -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon icon-teal">👥</div>
+          <div>
+            <div class="feature-title">Sistema de amigos</div>
+            <div class="feature-subtitle">Conecta con quien quieras</div>
+          </div>
+        </div>
+        <div class="feature-items">
+          <div class="feature-item">
+            <div class="item-dot teal"></div>
+            <div class="item-text">Busca usuarios por nombre de usuario</div>
+          </div>
+          <div class="feature-item">
+            <div class="item-dot teal"></div>
+            <div class="item-text">Envía, acepta o rechaza solicitudes de amistad</div>
+          </div>
+          <div class="feature-item">
+            <div class="item-dot teal"></div>
+            <div class="item-text">Gestiona tu lista de amigos desde el perfil</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notificaciones -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon icon-blue">🔔</div>
+          <div>
+            <div class="feature-title">Notificaciones</div>
+            <div class="feature-subtitle">Mantente al día</div>
+          </div>
+        </div>
+        <div class="feature-items">
+          <div class="feature-item">
+            <div class="item-dot blue"></div>
+            <div class="item-text">Badge numérico de no leídas en tiempo real</div>
+          </div>
+          <div class="feature-item">
+            <div class="item-dot blue"></div>
+            <div class="item-text">Toca para marcar como leída individualmente</div>
+          </div>
+          <div class="feature-item">
+            <div class="item-dot blue"></div>
+            <div class="item-text">Elimina notificaciones o márcalas todas de un toque</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mejoras -->
+      <div class="feature-card">
+        <div class="feature-header">
+          <div class="feature-icon icon-purple">⚡</div>
+          <div>
+            <div class="feature-title">Mejoras generales</div>
+            <div class="feature-subtitle">Detalles que se sienten</div>
+          </div>
+        </div>
+        <div class="feature-items">
+          <div class="feature-item">
+            <div class="item-dot soft"></div>
+            <div class="item-text">Huella / Face ID para desbloqueo rápido</div>
+          </div>
+          <div class="feature-item">
+            <div class="item-dot soft"></div>
+            <div class="item-text">Inicio de sesión con email y PIN rediseñado</div>
+          </div>
+          <div class="feature-item">
+            <div class="item-dot soft"></div>
+            <div class="item-text">Diseño visual unificado en toda la app</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-left">
+        <div class="footer-avatar">S</div>
+        <div class="footer-meta">
+          <div class="footer-name">Spendia App</div>
+          <div class="footer-date">Actualización · Abril 2026</div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <div class="badge badge-web">
+          <div class="badge-dot"></div>
+          Disponible en Web
+        </div>
+        <div class="badge badge-pwa">
+          <div class="badge-dot"></div>
+          PWA · iOS · Android
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

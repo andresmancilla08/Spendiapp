@@ -766,6 +766,24 @@
       "item1": "Questa schermata mostra ora solo le modifiche della versione attuale",
       "item2": "Niente più ripetizioni delle novità precedenti ad ogni aggiornamento",
       "item3": "Ogni versione porta la propria lista di miglioramenti"
+    },
+    "savingsGoals": {
+      "title": "Obiettivi di risparmio",
+      "item1": "Crea obiettivi con nome, emoji e importo target",
+      "item2": "Registra risparmi e segui i progressi con una barra visiva",
+      "item3": "Raggiungi l'obiettivo e festeggia con un'animazione speciale 🎉"
+    },
+    "toolsHub": {
+      "title": "Hub Strumenti",
+      "item1": "Nuova scheda Strumenti con accesso centralizzato",
+      "item2": "Gestisci Categorie e Obiettivi da un unico posto",
+      "item3": "Presto altri strumenti per potenziare le tue finanze"
+    },
+    "annualReport": {
+      "title": "Estratto annuale PDF",
+      "item1": "Genera il report delle transazioni dell'anno fiscale",
+      "item2": "Ripartizione per categoria con totali e lista voci",
+      "item3": "Ideale per il tuo commercialista o archivio personale"
     }
   },
   "sharedExpense": {
