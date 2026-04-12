@@ -134,7 +134,7 @@ export default function AppDialog({
 
           {!!description && (
             typeof description === 'string'
-              ? <Text style={[styles.description, { color: colors.textSecondary }]}>{description}</Text>
+              ? <Text style={[styles.description, { color: colors.textPrimary }]}>{description}</Text>
               : <View style={styles.descriptionWrap}>{description}</View>
           )}
 
