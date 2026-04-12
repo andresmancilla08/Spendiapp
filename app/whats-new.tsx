@@ -115,6 +115,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 12,
+    alignItems: 'center',
   },
   version: {
     fontSize: 12,
@@ -122,16 +123,19 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textTransform: 'uppercase',
     marginBottom: 6,
+    textAlign: 'center',
   },
   title: {
     fontSize: 26,
     fontFamily: Fonts.extraBold,
     marginBottom: 6,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
     fontFamily: Fonts.regular,
     lineHeight: 20,
+    textAlign: 'center',
   },
   scroll: {
     padding: 16,
