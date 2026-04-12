@@ -49,9 +49,11 @@ export default function WhatsNewScreen() {
         <ScreenBackground>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={[styles.version, { color: colors.primary }]}>
-              {t('whatsNew.version', { version: APP_VERSION })}
-            </Text>
+            <View style={[styles.versionBadge, { backgroundColor: `${colors.primary}20`, borderColor: `${colors.primary}40` }]}>
+              <Text style={[styles.versionText, { color: colors.primary }]}>
+                {t('whatsNew.version', { version: APP_VERSION })}
+              </Text>
+            </View>
             <Text style={[styles.title, { color: colors.textPrimary }]}>
               {t('whatsNew.title')}
             </Text>
@@ -117,13 +119,19 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     alignItems: 'center',
   },
-  version: {
+  versionBadge: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  versionText: {
     fontSize: 12,
     fontFamily: Fonts.semiBold,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    marginBottom: 6,
-    textAlign: 'center',
+    letterSpacing: 0.4,
   },
   title: {
     fontSize: 26,
