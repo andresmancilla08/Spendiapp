@@ -46,6 +46,56 @@ const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
           'whatsNew.navbarRedesign.item3',
         ],
       },
+      {
+        icon: 'flag-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.savingsGoals.title',
+        items: [
+          'whatsNew.savingsGoals.item1',
+          'whatsNew.savingsGoals.item2',
+          'whatsNew.savingsGoals.item3',
+        ],
+      },
+      {
+        icon: 'construct-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.toolsHub.title',
+        items: [
+          'whatsNew.toolsHub.item1',
+          'whatsNew.toolsHub.item2',
+          'whatsNew.toolsHub.item3',
+        ],
+      },
+      {
+        icon: 'document-text-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.annualReport.title',
+        items: [
+          'whatsNew.annualReport.item1',
+          'whatsNew.annualReport.item2',
+          'whatsNew.annualReport.item3',
+        ],
+      },
+      {
+        icon: 'people-circle-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.sharedExpenses.title',
+        items: [
+          'whatsNew.sharedExpenses.item1',
+          'whatsNew.sharedExpenses.item2',
+          'whatsNew.sharedExpenses.item3',
+        ],
+      },
+      {
+        icon: 'bar-chart-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.budget.title',
+        items: [
+          'whatsNew.budget.item1',
+          'whatsNew.budget.item2',
+          'whatsNew.budget.item3',
+        ],
+      },
     ],
   },
   {
