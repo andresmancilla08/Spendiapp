@@ -137,7 +137,7 @@ export default function RootLayout() {
       try {
         const profile = await getUserProfile(uid);
         if (!profile?.whatsNewSeen || profile.whatsNewSeen !== APP_VERSION) {
-          router.replace('/(tabs)/whats-new');
+          router.replace('/whats-new');
         } else {
           router.replace('/(tabs)/');
         }
