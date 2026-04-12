@@ -1,8 +1,9 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   Platform, Animated,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -25,24 +26,27 @@ const PILL_W     = 52;
 export default function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   const visibleRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
   const activeIndex = visibleRoutes.findIndex(r => r.name === state.routes[state.index].name);
+  // Cuando estamos en una sub-pantalla (profile, notifications, etc.), activeIndex=-1.
+  // Mostramos Home como activo por defecto.
+  const effectiveIndex = activeIndex === -1 ? 0 : activeIndex;
 
   // Per-tab animated values (pill opacity/scale + icon scale)
-  const pillOpacity = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === activeIndex ? 1 : 0))).current;
-  const pillScale   = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === activeIndex ? 1 : 0.75))).current;
-  const iconScale   = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === activeIndex ? 1 : 0.85))).current;
+  const pillOpacity = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === effectiveIndex ? 1 : 0))).current;
+  const pillScale   = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === effectiveIndex ? 1 : 0.75))).current;
+  const iconScale   = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === effectiveIndex ? 1 : 0.85))).current;
 
-  const prevActive = useRef(activeIndex);
+  const prevActive = useRef(effectiveIndex);
 
   useEffect(() => {
     const prev = prevActive.current;
-    if (prev === activeIndex) return;
-    if (activeIndex === -1) return; // tab activo no está en visibleRoutes (ej. profile)
-    prevActive.current = activeIndex;
+    if (prev === effectiveIndex) return;
+    prevActive.current = effectiveIndex;
 
-    const fadeOutPrev = prev !== -1 ? [
+    const fadeOutPrev = prev >= 0 ? [
       Animated.spring(pillOpacity[prev], { toValue: 0, damping: 18, stiffness: 300, useNativeDriver: true }),
       Animated.spring(pillScale[prev],   { toValue: 0.75, damping: 18, stiffness: 300, useNativeDriver: true }),
       Animated.spring(iconScale[prev],   { toValue: 0.85, damping: 18, stiffness: 300, useNativeDriver: true }),
@@ -50,12 +54,11 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
 
     Animated.parallel([
       ...fadeOutPrev,
-      // Fade in new pill
-      Animated.spring(pillOpacity[activeIndex], { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
-      Animated.spring(pillScale[activeIndex],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
-      Animated.spring(iconScale[activeIndex],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
+      Animated.spring(pillOpacity[effectiveIndex], { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
+      Animated.spring(pillScale[effectiveIndex],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
+      Animated.spring(iconScale[effectiveIndex],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
     ]).start();
-  }, [activeIndex]);
+  }, [effectiveIndex]);
 
   const tabLabels: Record<string, string> = {
     index:   t('tabBar.home'),
@@ -64,13 +67,15 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
     tools:   t('tabBar.tools'),
   };
 
+  const bottomPad = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'ios' ? 16 : 8);
+
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
       <View style={[styles.container, { backgroundColor: colors.surface, shadowColor: '#000' }]}>
         {visibleRoutes.map((route, index) => {
           const config = TAB_CONFIG[route.name];
           if (!config) return null;
-          const isFocused = activeIndex === index;
+          const isFocused = effectiveIndex === index;
 
           const onPress = () => {
             const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
@@ -133,7 +138,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
     paddingTop: 8,
   },
   container: {

@@ -582,7 +582,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
               )}
               <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.secondary}18`, borderColor: `${colors.secondary}28` }]}>
                 <Ionicons name="gift-outline" size={11} color={colors.secondary} />
-                <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]}>
+                <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]} numberOfLines={1}>
                   {t('sentIncome.chip.sentBy', { name: item.sentByName })}
                 </Text>
               </View>
@@ -1189,8 +1189,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20,
     borderWidth: StyleSheet.hairlineWidth,
+    maxWidth: 150, flexShrink: 1,
   },
-  sentIncomeChipText: { fontSize: 11, fontFamily: Fonts.semiBold },
+  sentIncomeChipText: { fontSize: 11, fontFamily: Fonts.semiBold, flexShrink: 1 },
   txCardTypeBadge: { paddingHorizontal: 4, paddingVertical: 1, borderRadius: 5 },
   txCardTypeBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
   fixedBadge: {
