@@ -16,10 +16,7 @@ import { Fonts } from '../config/fonts';
 import { useInactivityTimer } from '../hooks/useInactivityTimer';
 import AppDialog from '../components/AppDialog';
 import { useTranslation } from 'react-i18next';
-import { createUserProfile, getUserProfile } from '../hooks/useUserProfile';
-import appJson from '../app.json';
-
-const APP_VERSION = appJson.expo.version;
+import { createUserProfile } from '../hooks/useUserProfile';
 
 function ThemedStack() {
   const { colors } = useTheme();
@@ -133,19 +130,6 @@ export default function RootLayout() {
     if (isLoading) return;
     if (justRegistered) return;
 
-    const checkAndNavigate = async (uid: string) => {
-      try {
-        const profile = await getUserProfile(uid);
-        if (!profile?.whatsNewSeen || profile.whatsNewSeen !== APP_VERSION) {
-          router.replace('/whats-new');
-        } else {
-          router.replace('/(tabs)/');
-        }
-      } catch {
-        router.replace('/(tabs)/');
-      }
-    };
-
     if (user) {
       if (biometricLocked && Platform.OS !== 'web') {
         let cancelled = false;
@@ -156,18 +140,18 @@ export default function RootLayout() {
               router.replace('/(auth)/biometric-lock');
             } else {
               setBiometricLocked(false);
-              checkAndNavigate(user.uid);
+              router.replace('/(tabs)/');
             }
           })
           .catch(() => {
             if (!cancelled) {
               setBiometricLocked(false);
-              checkAndNavigate(user.uid);
+              router.replace('/(tabs)/');
             }
           });
         return () => { cancelled = true; };
       } else {
-        checkAndNavigate(user.uid);
+        router.replace('/(tabs)/');
       }
     } else {
       setBiometricLocked(true); // Reset para la próxima sesión
