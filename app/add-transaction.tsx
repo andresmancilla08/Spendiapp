@@ -39,9 +39,12 @@ import { EmojiPicker } from '../components/EmojiPicker';
 import type { CategoryType } from '../types/category';
 import * as Crypto from 'expo-crypto';
 import { useSharedTransactions } from '../hooks/useSharedTransactions';
+import { useSentIncome } from '../hooks/useSentIncome';
 import { getUserProfile } from '../hooks/useUserProfile';
 import SharedExpenseSection from '../components/SharedExpenseSection';
+import SentIncomeSection from '../components/SentIncomeSection';
 import type { SharedParticipant } from '../types/sharedTransaction';
+import type { UserProfile } from '../types/friend';
 import ScreenTransition from '../components/ScreenTransition';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
@@ -134,6 +137,10 @@ export default function AddTransactionScreen() {
   const [ownerPercentage, setOwnerPercentage] = useState(100);
   const [ownerUserName, setOwnerUserName] = useState('');
   const { createSharedTransaction } = useSharedTransactions();
+  // Sent income state
+  const [isSentIncome, setIsSentIncome] = useState(false);
+  const [sentIncomeRecipient, setSentIncomeRecipient] = useState<UserProfile | null>(null);
+  const { createSentIncome } = useSentIncome();
 
   // Load owner's userName from Firestore
   useEffect(() => {
@@ -349,7 +356,9 @@ export default function AddTransactionScreen() {
     || sharedParticipants.length === 0
     || Math.round(ownerPercentage + sharedParticipants.reduce((s, p) => s + p.percentage, 0)) === 100;
 
-  const isSaveDisabledFull = isSaveDisabled || !teaValid || !sharedPercentageValid;
+  const sentIncomeValid = !isSentIncome || sentIncomeRecipient !== null;
+
+  const isSaveDisabledFull = isSaveDisabled || !teaValid || !sharedPercentageValid || !sentIncomeValid;
 
   const handleSave = async () => {
     if (isSaveDisabledFull || !user) return;
@@ -359,7 +368,18 @@ export default function AddTransactionScreen() {
       const teaValueNum = teaInput !== '' ? parseFloat(teaInput) : null;
       const isInstallment = isCredit && type === 'expense' && installmentCount > 1;
 
-      if (isShared && sharedParticipants.length > 0) {
+      if (isSentIncome && sentIncomeRecipient) {
+        await createSentIncome({
+          senderUid: user.uid,
+          senderName: user.displayName ?? ownerUserName,
+          recipientUid: sentIncomeRecipient.uid,
+          amount: parsedAmount,
+          category,
+          description: description.trim(),
+          date: selectedDate,
+          cardId: selectedCardId ?? undefined,
+        });
+      } else if (isShared && sharedParticipants.length > 0) {
         const allParticipants: SharedParticipant[] = [
           { uid: user.uid, userName: ownerUserName, displayName: user.displayName ?? '', percentage: ownerPercentage },
           ...sharedParticipants,
@@ -1107,13 +1127,13 @@ export default function AddTransactionScreen() {
             )}
 
             {/* Shared expense section — only for expenses */}
-            {type === 'expense' && (
+            {type === 'expense' && !isSentIncome && (
               <SharedExpenseSection
                 userId={user?.uid ?? ''}
                 userName={ownerUserName}
                 displayName={user?.displayName ?? ''}
                 isShared={isShared}
-                onIsSharedChange={setIsShared}
+                onIsSharedChange={(v) => { setIsShared(v); if (v) { setIsSentIncome(false); setSentIncomeRecipient(null); } }}
                 participants={sharedParticipants}
                 onParticipantsChange={setSharedParticipants}
                 amount={parsedAmount}
@@ -1121,6 +1141,17 @@ export default function AddTransactionScreen() {
                 installmentCount={installmentCount}
                 ownerPercentage={ownerPercentage}
                 onOwnerPercentageChange={setOwnerPercentage}
+              />
+            )}
+
+            {/* Sent income section — only for expenses, mutually exclusive with isShared */}
+            {type === 'expense' && !isShared && (
+              <SentIncomeSection
+                userId={user?.uid ?? ''}
+                isSentIncome={isSentIncome}
+                onIsSentIncomeChange={(v) => { setIsSentIncome(v); if (!v) setSentIncomeRecipient(null); }}
+                recipient={sentIncomeRecipient}
+                onRecipientChange={setSentIncomeRecipient}
               />
             )}
 

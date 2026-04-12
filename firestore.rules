@@ -7,7 +7,9 @@ service cloud.firestore {
       allow create: if request.auth != null && (
         request.auth.uid == request.resource.data.userId ||
         (request.resource.data.isShared == true &&
-         request.auth.uid == request.resource.data.sharedOwnerUid)
+         request.auth.uid == request.resource.data.sharedOwnerUid) ||
+        (request.resource.data.isSentIncome == true &&
+         request.auth.uid == request.resource.data.sentByUid)
       );
     }
 
@@ -55,7 +57,7 @@ service cloud.firestore {
       allow read, update: if request.auth != null &&
         request.auth.uid == resource.data.toUserId;
       allow create: if request.auth != null
-        && request.resource.data.type in ['friend_request', 'friend_accepted', 'shared_transaction_added', 'shared_transaction_deleted']
+        && request.resource.data.type in ['friend_request', 'friend_accepted', 'shared_transaction_added', 'shared_transaction_deleted', 'sent_income']
         && request.resource.data.toUserId is string
         && request.resource.data.data.fromUserId == request.auth.uid;
     }

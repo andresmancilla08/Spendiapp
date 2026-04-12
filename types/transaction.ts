@@ -29,4 +29,13 @@ export interface Transaction {
   sharedOwnerUserName?: string;
   sharedParticipants?: SharedParticipant[];
   sharedAmount?: number; // monto calculado para ESTE usuario específico
+  // Ingreso enviado a un amigo
+  // En el gasto del remitente:
+  sentIncomeToUid?: string;
+  sentIncomeTransactionId?: string;
+  // En el ingreso del destinatario:
+  isSentIncome?: boolean;
+  sentByUid?: string;
+  sentByName?: string;          // displayName del remitente
+  sentByTransactionId?: string; // ID del gasto original del remitente
 }

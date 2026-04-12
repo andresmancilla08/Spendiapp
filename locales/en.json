@@ -791,6 +791,12 @@
       "item1": "Generate your fiscal year transaction report",
       "item2": "Category breakdown with totals and item list",
       "item3": "Perfect for your accountant or personal archive"
+    },
+    "sentIncomeFeature": {
+      "title": "Send income to friends",
+      "item1": "Log an expense and send it as income to another Spendia user",
+      "item2": "Your friend sees it automatically in their history as received income",
+      "item3": "Perfect for reimbursements, transfers, or splitting bills informally"
     }
   },
   "sharedExpense": {
@@ -809,6 +815,16 @@
       "sharedWith": "Shared with {{name}}",
       "sharedWithMore": "Shared with {{name}} and {{count}} more",
       "sharedBy": "Shared by {{name}}"
+    }
+  },
+  "sentIncome": {
+    "toggle": "Register as income for a friend",
+    "forWho": "Who to",
+    "noFriends": "You have no friends on Spendia yet",
+    "sentByLabel": "Sent by",
+    "chip": {
+      "sentBy": "Sent by {{name}}",
+      "sentTo": "Income sent to {{name}}"
     }
   },
   "reports": {
