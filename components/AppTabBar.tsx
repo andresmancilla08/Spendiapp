@@ -1,4 +1,8 @@
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { useRef, useEffect, useState } from 'react';
+import {
+  View, Text, TouchableOpacity, StyleSheet,
+  Platform, Animated, LayoutChangeEvent,
+} from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -14,36 +18,128 @@ const TAB_CONFIG: Record<string, { icon: IoniconsName; iconActive: IoniconsName 
   tools:   { icon: 'hammer-outline', iconActive: 'hammer' },
 };
 
+const BAR_HEIGHT    = 68;
+const BLOB_H        = 50;
+const BLOB_W        = 56;
+const BLOB_W_STRETCH = 82;
+const PAD_H         = 8;   // paddingHorizontal del container
+
 export default function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { t } = useTranslation();
 
-  const tabLabels: Record<string, string> = {
-    index: t('tabBar.home'),
-    budget: t('tabBar.budget'),
-    history: t('tabBar.history'),
-    tools: t('tabBar.tools'),
+  const visibleRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
+  const numTabs = visibleRoutes.length;
+  const activeIndex = visibleRoutes.findIndex(r => r.name === state.routes[state.index].name);
+
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  // Blob animations (width needs useNativeDriver:false)
+  const blobX = useRef(new Animated.Value(-200)).current;
+  const blobW = useRef(new Animated.Value(BLOB_W)).current;
+
+  // Icon scale per tab (useNativeDriver:true — only transforms)
+  const s0 = useRef(new Animated.Value(activeIndex === 0 ? 1 : 0.82)).current;
+  const s1 = useRef(new Animated.Value(activeIndex === 1 ? 1 : 0.82)).current;
+  const s2 = useRef(new Animated.Value(activeIndex === 2 ? 1 : 0.82)).current;
+  const s3 = useRef(new Animated.Value(activeIndex === 3 ? 1 : 0.82)).current;
+  const scales = [s0, s1, s2, s3];
+
+  const initialized = useRef(false);
+
+  const getTargetX = (idx: number, cw: number) => {
+    const innerW = cw - PAD_H * 2;
+    const tabW = innerW / numTabs;
+    return PAD_H + tabW * idx + (tabW - BLOB_W) / 2;
   };
 
-  const visibleRoutes = state.routes.filter((r) => TAB_CONFIG[r.name]);
+  useEffect(() => {
+    if (containerWidth === 0) return;
+    const targetX = getTargetX(activeIndex, containerWidth);
+
+    if (!initialized.current) {
+      blobX.setValue(targetX);
+      initialized.current = true;
+      return;
+    }
+
+    // Blob: deslizar + estirar → contraer (efecto gota)
+    Animated.parallel([
+      Animated.spring(blobX, {
+        toValue: targetX,
+        damping: 22,
+        stiffness: 200,
+        mass: 0.85,
+        useNativeDriver: false,
+      }),
+      Animated.sequence([
+        Animated.spring(blobW, {
+          toValue: BLOB_W_STRETCH,
+          damping: 8,
+          stiffness: 350,
+          useNativeDriver: false,
+        }),
+        Animated.spring(blobW, {
+          toValue: BLOB_W,
+          damping: 14,
+          stiffness: 260,
+          useNativeDriver: false,
+        }),
+      ]),
+    ]).start();
+
+    // Escala de íconos (native driver OK)
+    scales.forEach((s, i) => {
+      Animated.spring(s, {
+        toValue: i === activeIndex ? 1 : 0.82,
+        damping: 14,
+        stiffness: 280,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, [activeIndex, containerWidth]);
+
+  const tabLabels: Record<string, string> = {
+    index:   t('tabBar.home'),
+    budget:  t('tabBar.budget'),
+    history: t('tabBar.history'),
+    tools:   t('tabBar.tools'),
+  };
+
+  const handleLayout = (e: LayoutChangeEvent) =>
+    setContainerWidth(e.nativeEvent.layout.width);
 
   return (
     <View style={styles.wrapper}>
-      <View style={[
-        styles.container,
-        {
-          backgroundColor: colors.surface,
-          shadowColor: '#000',
-        }
-      ]}>
-        {visibleRoutes.map((route) => {
+      <View
+        style={[styles.container, { backgroundColor: colors.surface, shadowColor: '#000' }]}
+        onLayout={handleLayout}
+      >
+        {/* Gota animada */}
+        <Animated.View
+          style={[
+            styles.blob,
+            {
+              backgroundColor: colors.primary,
+              transform: [{ translateX: blobX }],
+              width: blobW,
+              opacity: containerWidth === 0 ? 0 : 1,
+            },
+          ]}
+        />
+
+        {/* Tabs */}
+        {visibleRoutes.map((route, index) => {
           const config = TAB_CONFIG[route.name];
           if (!config) return null;
-
-          const isFocused = state.routes[state.index].name === route.name;
+          const isFocused = activeIndex === index;
 
           const onPress = () => {
-            const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
             if (!isFocused && !event.defaultPrevented) {
               navigation.navigate(route.name);
             }
@@ -54,20 +150,23 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
               key={route.key}
               style={styles.tab}
               onPress={onPress}
-              activeOpacity={0.8}
+              activeOpacity={0.9}
               accessibilityRole="button"
             >
-              {isFocused ? (
-                <View style={[styles.activeWrap, { backgroundColor: colors.primary }]}>
-                  <Ionicons name={config.iconActive} size={20} color={colors.onPrimary} />
-                  <Text style={[styles.activeLabel, { color: colors.onPrimary }]}>{tabLabels[route.name]}</Text>
-                </View>
-              ) : (
-                <View style={styles.inactiveWrap}>
-                  <Ionicons name={config.icon} size={20} color={colors.textTertiary} />
-                  <Text style={[styles.inactiveLabel, { color: colors.textTertiary }]}>{tabLabels[route.name]}</Text>
-                </View>
-              )}
+              <Animated.View
+                style={[styles.tabContent, { transform: [{ scale: scales[index] }] }]}
+              >
+                <Ionicons
+                  name={isFocused ? config.iconActive : config.icon}
+                  size={22}
+                  color={isFocused ? colors.onPrimary : colors.textTertiary}
+                />
+                {isFocused && (
+                  <Text style={[styles.label, { color: colors.onPrimary }]}>
+                    {tabLabels[route.name]}
+                  </Text>
+                )}
+              </Animated.View>
             </TouchableOpacity>
           );
         })}
@@ -83,47 +182,44 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
     paddingTop: 8,
   },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 68,
+    height: BAR_HEIGHT,
     borderRadius: 40,
-    paddingHorizontal: 8,
+    paddingHorizontal: PAD_H,
     width: '92%',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
     elevation: 14,
+    overflow: 'hidden',
+  },
+  blob: {
+    position: 'absolute',
+    height: BLOB_H,
+    top: (BAR_HEIGHT - BLOB_H) / 2,
+    borderRadius: 30,
+    zIndex: 0,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 68,
+    height: BAR_HEIGHT,
+    zIndex: 1,
   },
-  activeWrap: {
+  tabContent: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 30,
+    gap: 2,
   },
-  activeLabel: {
+  label: {
     fontSize: 10,
     fontFamily: Fonts.bold,
-  },
-  inactiveWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    paddingVertical: 6,
-  },
-  inactiveLabel: {
-    fontSize: 10,
-    fontFamily: Fonts.medium,
+    letterSpacing: 0.2,
   },
 });
