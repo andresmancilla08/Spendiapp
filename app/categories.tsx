@@ -373,17 +373,34 @@ export default function CategoriesScreen() {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
+        {/* CUSTOM CATEGORIES section — solo si hay o está cargando */}
+        {(loading || categories.length > 0) && (
+          <>
+            <SectionHeader label={t('categories.customSection')} />
+            <View style={[styles.card, { backgroundColor: colors.surface, shadowColor: '#000' }]}>
+              {loading ? (
+                <>
+                  <CategoryRowSkeleton />
+                  <CategoryRowSkeleton />
+                </>
+              ) : (
+                categories.map((cat, index) => (
+                  <CustomCategoryRow
+                    key={cat.id}
+                    category={cat}
+                    isLast={index === categories.length - 1}
+                    onEdit={openEditModal}
+                    onDelete={handleDeletePress}
+                  />
+                ))
+              )}
+            </View>
+          </>
+        )}
+
         {/* DEFAULT CATEGORIES section */}
         <SectionHeader label={t('categories.defaultSection')} />
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: colors.surface,
-              shadowColor: '#000',
-            },
-          ]}
-        >
+        <View style={[styles.card, { backgroundColor: colors.surface, shadowColor: '#000' }]}>
           {DEFAULT_CATEGORIES.map((cat, index) => (
             <DefaultCategoryRow
               key={cat.id}
@@ -393,45 +410,6 @@ export default function CategoriesScreen() {
               isLast={index === DEFAULT_CATEGORIES.length - 1}
             />
           ))}
-        </View>
-
-        {/* CUSTOM CATEGORIES section */}
-        <SectionHeader label={t('categories.customSection')} />
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: colors.surface,
-              shadowColor: '#000',
-            },
-          ]}
-        >
-          {loading ? (
-            <>
-              <CategoryRowSkeleton />
-              <CategoryRowSkeleton />
-            </>
-          ) : categories.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyEmoji}>📂</Text>
-              <Text style={[styles.emptyTitle, { color: colors.textSecondary }]}>
-                {t('categories.emptyCustom')}
-              </Text>
-              <Text style={[styles.emptySubtitle, { color: colors.textTertiary }]}>
-                {t('categories.emptyCustomSub')}
-              </Text>
-            </View>
-          ) : (
-            categories.map((cat, index) => (
-              <CustomCategoryRow
-                key={cat.id}
-                category={cat}
-                isLast={index === categories.length - 1}
-                onEdit={openEditModal}
-                onDelete={handleDeletePress}
-              />
-            ))
-          )}
         </View>
       </ScrollView>
 
