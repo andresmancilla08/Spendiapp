@@ -18,10 +18,10 @@ const TAB_CONFIG: Record<string, { icon: IoniconsName; iconActive: IoniconsName 
   tools:   { icon: 'hammer-outline', iconActive: 'hammer' },
 };
 
-const BAR_HEIGHT    = 68;
-const BLOB_H        = 50;
-const BLOB_W        = 56;
-const BLOB_W_STRETCH = 82;
+const BAR_HEIGHT    = 64;
+const BLOB_H        = 42;
+const BLOB_W        = 68;   // ratio 1.62 → siempre pill, nunca círculo
+const BLOB_W_STRETCH = 84;
 const PAD_H         = 8;   // paddingHorizontal del container
 
 export default function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -189,13 +189,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: BAR_HEIGHT,
-    borderRadius: 40,
+    borderRadius: 32,
     paddingHorizontal: PAD_H,
     width: '92%',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    elevation: 14,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    elevation: 12,
     overflow: 'hidden',
   },
   blob: {
@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: BAR_HEIGHT,
     zIndex: 1,
+    paddingBottom: 2,
   },
   tabContent: {
     alignItems: 'center',
