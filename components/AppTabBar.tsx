@@ -39,13 +39,17 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
   useEffect(() => {
     const prev = prevActive.current;
     if (prev === activeIndex) return;
+    if (activeIndex === -1) return; // tab activo no está en visibleRoutes (ej. profile)
     prevActive.current = activeIndex;
 
-    Animated.parallel([
-      // Fade out old pill
+    const fadeOutPrev = prev !== -1 ? [
       Animated.spring(pillOpacity[prev], { toValue: 0, damping: 18, stiffness: 300, useNativeDriver: true }),
       Animated.spring(pillScale[prev],   { toValue: 0.75, damping: 18, stiffness: 300, useNativeDriver: true }),
       Animated.spring(iconScale[prev],   { toValue: 0.85, damping: 18, stiffness: 300, useNativeDriver: true }),
+    ] : [];
+
+    Animated.parallel([
+      ...fadeOutPrev,
       // Fade in new pill
       Animated.spring(pillOpacity[activeIndex], { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
       Animated.spring(pillScale[activeIndex],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
