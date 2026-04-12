@@ -148,7 +148,7 @@ export default function HomeScreen() {
 
   const handleDismissWhatsNew = async () => {
     try {
-      await setWhatsNewSeen(user?.uid ?? '', true);
+      await setWhatsNewSeen(user?.uid ?? '', WHATS_NEW_VERSION);
     } catch {}
     setShowWhatsNew(false);
   };
