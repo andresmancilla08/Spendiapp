@@ -751,6 +751,12 @@
       "item2": "Toca para marcar como leída individualmente",
       "item3": "Elimina notificaciones o márcalas todas de un toque"
     },
+    "navbarRedesign": {
+      "title": "Navbar rediseñada",
+      "item1": "Pill animada que se centra perfectamente sobre el ícono activo",
+      "item2": "Animación suave de entrada y salida al cambiar de pestaña",
+      "item3": "Diseño más limpio: pill dentro del ícono, sin cálculos manuales de posición"
+    },
     "improvements": {
       "title": "Mejoras generales",
       "item1": "Huella / Face ID para desbloqueo rápido",
