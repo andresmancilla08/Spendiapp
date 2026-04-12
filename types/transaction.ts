@@ -32,6 +32,7 @@ export interface Transaction {
   // Ingreso enviado a un amigo
   // En el gasto del remitente:
   sentIncomeToUid?: string;
+  sentIncomeToName?: string;         // displayName del destinatario
   sentIncomeTransactionId?: string;
   // En el ingreso del destinatario:
   isSentIncome?: boolean;

@@ -417,7 +417,7 @@ export default function TransactionDetailScreen() {
               </>
             )}
 
-            {/* Ingreso enviado — solo si es isSentIncome */}
+            {/* Ingreso recibido — quién lo envió */}
             {transaction.isSentIncome && transaction.sentByName && (
               <>
                 <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
@@ -429,6 +429,24 @@ export default function TransactionDetailScreen() {
                     <Ionicons name="gift-outline" size={14} color={colors.secondary} />
                     <Text style={{ fontSize: 13, fontFamily: Fonts.medium, color: colors.secondary, flexShrink: 1 }} numberOfLines={1}>
                       {transaction.sentByName}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* Gasto del remitente — a quién le envió el ingreso */}
+            {transaction.sentIncomeTransactionId && transaction.sentIncomeToName && (
+              <>
+                <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
+                <View style={styles.detailRow}>
+                  <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
+                    {t('sentIncome.sentToLabel')}
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'flex-end', marginLeft: 16 }}>
+                    <Ionicons name="send-outline" size={14} color={colors.primary} />
+                    <Text style={{ fontSize: 13, fontFamily: Fonts.medium, color: colors.primary, flexShrink: 1 }} numberOfLines={1}>
+                      {transaction.sentIncomeToName}
                     </Text>
                   </View>
                 </View>

@@ -11,6 +11,7 @@ interface CreateSentIncomeParams {
   senderUid: string;
   senderName: string;      // displayName del remitente
   recipientUid: string;
+  recipientName: string;   // displayName del destinatario
   amount: number;
   category: string;
   description: string;
@@ -20,7 +21,7 @@ interface CreateSentIncomeParams {
 
 export function useSentIncome() {
   async function createSentIncome(params: CreateSentIncomeParams): Promise<void> {
-    const { senderUid, senderName, recipientUid, amount, category, description, date, cardId } = params;
+    const { senderUid, senderName, recipientUid, recipientName, amount, category, description, date, cardId } = params;
 
     const batch = writeBatch(db);
     const now = new Date();
@@ -40,6 +41,7 @@ export function useSentIncome() {
       isFixed: false,
       ...(cardId ? { cardId } : {}),
       sentIncomeToUid: recipientUid,
+      sentIncomeToName: recipientName,
       sentIncomeTransactionId: incomeRef.id,
     });
 

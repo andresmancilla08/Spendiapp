@@ -373,6 +373,7 @@ export default function AddTransactionScreen() {
           senderUid: user.uid,
           senderName: user.displayName ?? ownerUserName,
           recipientUid: sentIncomeRecipient.uid,
+          recipientName: sentIncomeRecipient.displayName || sentIncomeRecipient.userName,
           amount: parsedAmount,
           category,
           description: description.trim(),

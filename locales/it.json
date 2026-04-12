@@ -822,6 +822,7 @@
     "forWho": "A chi",
     "noFriends": "Non hai ancora amici su Spendia",
     "sentByLabel": "Inviato da",
+    "sentToLabel": "Inviato a",
     "chip": {
       "sentBy": "Inviato da {{name}}",
       "sentTo": "Entrata inviata a {{name}}"
