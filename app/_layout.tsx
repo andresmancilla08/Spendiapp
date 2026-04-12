@@ -31,6 +31,40 @@ function ThemedStack() {
   );
 }
 
+function InactivityDialog({
+  visible,
+  countdown,
+  onStay,
+  onLogout,
+}: {
+  visible: boolean;
+  countdown: number;
+  onStay: () => void;
+  onLogout: () => void;
+}) {
+  const { colors } = useTheme();
+  const { t } = useTranslation();
+  return (
+    <AppDialog
+      visible={visible}
+      type="warning"
+      title={t('dialogs.inactivity.title')}
+      description={
+        <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, textAlign: 'center', alignSelf: 'stretch', color: colors.textPrimary }}>
+          {t('dialogs.inactivity.descBefore')}{' '}
+          <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{countdown}</Text>{' '}
+          {t('dialogs.inactivity.descAfter')}
+        </Text>
+      }
+      primaryLabel={t('dialogs.inactivity.stayButton')}
+      secondaryLabel={t('dialogs.inactivity.logoutButton')}
+      onPrimary={onStay}
+      onSecondary={onLogout}
+      loading={false}
+    />
+  );
+}
+
 export default function RootLayout() {
   const { user, isLoading, justRegistered, biometricLocked, setUser, setLoading, setBiometricLocked, setJustLoggedIn } = useAuthStore();
   const [i18nReady, setI18nReady] = useState(false);
@@ -181,22 +215,11 @@ export default function RootLayout() {
     <ThemeProvider>
       <ToastProvider>
         <ThemedStack />
-        <AppDialog
+        <InactivityDialog
           visible={inactivityDialogVisible}
-          type="warning"
-          title={t('dialogs.inactivity.title')}
-          description={
-            <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, textAlign: 'center', alignSelf: 'stretch' }}>
-              {t('dialogs.inactivity.descBefore')}{' '}
-              <Text style={{ fontFamily: Fonts.bold }}>{countdown}</Text>{' '}
-              {t('dialogs.inactivity.descAfter')}
-            </Text>
-          }
-          primaryLabel={t('dialogs.inactivity.stayButton')}
-          secondaryLabel={t('dialogs.inactivity.logoutButton')}
-          onPrimary={handleStay}
-          onSecondary={handleLogout}
-          loading={false}
+          countdown={countdown}
+          onStay={handleStay}
+          onLogout={handleLogout}
         />
       </ToastProvider>
     </ThemeProvider>
