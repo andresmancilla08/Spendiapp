@@ -27,7 +27,8 @@ export type NotificationType =
   | 'shared_transaction_added'
   | 'shared_transaction_updated'
   | 'shared_transaction_deleted'
-  | 'goal_monthly_reminder';
+  | 'goal_monthly_reminder'
+  | 'sent_income';
 
 export interface NotificationData {
   fromUserId: string;

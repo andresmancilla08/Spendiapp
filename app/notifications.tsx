@@ -35,6 +35,7 @@ const NOTIF_ICONS: Record<NotificationType, React.ComponentProps<typeof Ionicons
   shared_transaction_updated: 'create-outline',
   shared_transaction_deleted: 'trash-outline',
   goal_monthly_reminder: 'flag-outline',
+  sent_income: 'send-outline',
 };
 
 // Each notification type gets a distinct color accent
@@ -45,6 +46,7 @@ const NOTIF_COLORS: Record<NotificationType, 'primary' | 'success'> = {
   shared_transaction_updated: 'primary',
   shared_transaction_deleted: 'primary',
   goal_monthly_reminder: 'primary',
+  sent_income: 'success',
 };
 
 function NotifItem({
@@ -59,9 +61,15 @@ function NotifItem({
   let translationParams: any = {};
   if (notif.type === 'goal_monthly_reminder') {
     translationParams = { count: (notif.data as any).count };
+  } else if (notif.type === 'sent_income') {
+    translationParams = {
+      name: (notif.data as any).fromUserName ?? (notif.data as any).fromDisplayName,
+      description: (notif.data as any).description,
+      amount: (notif.data as any).amount,
+    };
   } else {
     translationParams = {
-      name: (notif.data as any).fromDisplayName,
+      name: (notif.data as any).fromDisplayName ?? (notif.data as any).fromUserName,
       fromDisplayName: (notif.data as any).fromDisplayName,
       description: (notif.data as any).description,
     };
