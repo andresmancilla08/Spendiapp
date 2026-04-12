@@ -821,8 +821,8 @@
     "toggle": "Register as income for a friend",
     "forWho": "Who to",
     "noFriends": "You have no friends on Spendia yet",
-    "sentByLabel": "Sent by",
-    "sentToLabel": "Sent to",
+    "sentByLabel": "SENT BY",
+    "sentToLabel": "SENT TO",
     "chip": {
       "sentBy": "Sent by {{name}}",
       "sentTo": "Income sent to {{name}}"

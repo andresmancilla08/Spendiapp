@@ -821,8 +821,8 @@
     "toggle": "Registra come entrata per un amico",
     "forWho": "A chi",
     "noFriends": "Non hai ancora amici su Spendia",
-    "sentByLabel": "Inviato da",
-    "sentToLabel": "Inviato a",
+    "sentByLabel": "INVIATO DA",
+    "sentToLabel": "INVIATO A",
     "chip": {
       "sentBy": "Inviato da {{name}}",
       "sentTo": "Entrata inviata a {{name}}"
