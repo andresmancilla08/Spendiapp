@@ -16,8 +16,8 @@ export default function TabsLayout() {
       <Tabs.Screen name="index" />
       <Tabs.Screen name="budget" />
       <Tabs.Screen name="history" />
-      <Tabs.Screen name="whats-new" />
-      <Tabs.Screen name="tools" />
+      <Tabs.Screen name="whats-new" options={{ href: null }} />
+<Tabs.Screen name="tools" />
       <Tabs.Screen name="profile" options={{ href: null }} />
       <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>

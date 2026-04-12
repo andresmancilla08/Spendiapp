@@ -750,6 +750,12 @@
       "item2": "Tap to mark as read individually",
       "item3": "Delete notifications or mark all as read in one tap"
     },
+    "navbarRedesign": {
+      "title": "Redesigned navbar",
+      "item1": "Animated pill perfectly centered on the active icon",
+      "item2": "Smooth fade-in and fade-out animation when switching tabs",
+      "item3": "Cleaner design: pill inside the icon container, no manual position math"
+    },
     "improvements": {
       "title": "General improvements",
       "item1": "Fingerprint / Face ID for quick unlock",

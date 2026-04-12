@@ -23,6 +23,7 @@ interface FeatureSection {
 }
 
 const FEATURE_SECTIONS: FeatureSection[] = [
+  { key: 'navbarRedesign',  icon: 'grid-outline',            color: '#00ACC1' },
   { key: 'savingsGoals',    icon: 'trophy-outline',          color: '#00897B' },
   { key: 'budget',          icon: 'wallet-outline',          color: '#00ACC1' },
   { key: 'friends',         icon: 'people-outline',          color: '#7C3AED' },

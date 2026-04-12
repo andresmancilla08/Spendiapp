@@ -750,6 +750,12 @@
       "item2": "Tocca per segnare come letta individualmente",
       "item3": "Elimina notifiche o segna tutte come lette in un tocco"
     },
+    "navbarRedesign": {
+      "title": "Navbar riprogettata",
+      "item1": "Pill animata perfettamente centrata sull'icona attiva",
+      "item2": "Animazione fluida di entrata e uscita al cambio di scheda",
+      "item3": "Design più pulito: pill dentro il contenitore dell'icona"
+    },
     "improvements": {
       "title": "Miglioramenti generali",
       "item1": "Impronta / Face ID per sblocco rapido",

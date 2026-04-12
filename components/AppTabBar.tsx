@@ -12,11 +12,10 @@ import { Fonts } from '../config/fonts';
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 const TAB_CONFIG: Record<string, { icon: IoniconsName; iconActive: IoniconsName }> = {
-  index:       { icon: 'home-outline',      iconActive: 'home' },
-  budget:      { icon: 'wallet-outline',    iconActive: 'wallet' },
-  history:     { icon: 'time-outline',      iconActive: 'time' },
-  'whats-new': { icon: 'sparkles-outline',  iconActive: 'sparkles' },
-  tools:       { icon: 'hammer-outline',    iconActive: 'hammer' },
+  index:   { icon: 'home-outline',   iconActive: 'home' },
+  budget:  { icon: 'wallet-outline', iconActive: 'wallet' },
+  history: { icon: 'time-outline',   iconActive: 'time' },
+  tools:   { icon: 'hammer-outline', iconActive: 'hammer' },
 };
 
 const BAR_HEIGHT = 64;
@@ -55,11 +54,10 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
   }, [activeIndex]);
 
   const tabLabels: Record<string, string> = {
-    index:       t('tabBar.home'),
-    budget:      t('tabBar.budget'),
-    history:     t('tabBar.history'),
-    'whats-new': t('tabBar.whatsNew'),
-    tools:       t('tabBar.tools'),
+    index:   t('tabBar.home'),
+    budget:  t('tabBar.budget'),
+    history: t('tabBar.history'),
+    tools:   t('tabBar.tools'),
   };
 
   return (
