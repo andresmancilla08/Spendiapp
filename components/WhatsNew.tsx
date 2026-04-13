@@ -34,6 +34,61 @@ interface Feature {
 // Solo se muestra la versión que coincide con WHATS_NEW_VERSION.
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
+    version: '2.3.0',
+    features: [
+      {
+        icon: 'image-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.friendReport.title',
+        items: [
+          'whatsNew.friendReport.item1',
+          'whatsNew.friendReport.item2',
+          'whatsNew.friendReport.item3',
+        ],
+      },
+      {
+        icon: 'send-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.sentIncomeFeature.title',
+        items: [
+          'whatsNew.sentIncomeFeature.item1',
+          'whatsNew.sentIncomeFeature.item2',
+          'whatsNew.sentIncomeFeature.item3',
+        ],
+      },
+      {
+        icon: 'people-circle-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.sharedExpenses.title',
+        items: [
+          'whatsNew.sharedExpenses.item1',
+          'whatsNew.sharedExpenses.item2',
+          'whatsNew.sharedExpenses.item3',
+        ],
+      },
+      {
+        icon: 'bar-chart-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.budget.title',
+        items: [
+          'whatsNew.budget.item1',
+          'whatsNew.budget.item2',
+          'whatsNew.budget.item3',
+        ],
+      },
+      {
+        icon: 'flag-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.savingsGoals.title',
+        items: [
+          'whatsNew.savingsGoals.item1',
+          'whatsNew.savingsGoals.item2',
+          'whatsNew.savingsGoals.item3',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.2.3',
     features: [
       {

@@ -33,12 +33,38 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.goalsMonthlyReminder = void 0;
+exports.goalsMonthlyReminder = exports.resetWhatsNew = void 0;
 // functions/src/index.ts
 const admin = __importStar(require("firebase-admin"));
 const scheduler_1 = require("firebase-functions/v2/scheduler");
+const https_1 = require("firebase-functions/v2/https");
 admin.initializeApp();
 const db = admin.firestore();
+// Resetea whatsNewSeen=false para todos los usuarios.
+// Llamar ANTES de cada deploy que actualice la pantalla de Novedades.
+// Uso: curl -X POST -H "x-reset-secret: <SECRET>" https://<region>-spendiapp-159e7.cloudfunctions.net/resetWhatsNew
+exports.resetWhatsNew = (0, https_1.onRequest)({ region: 'us-central1' }, async (req, res) => {
+    if (req.method !== 'POST') {
+        res.status(405).send('Method Not Allowed');
+        return;
+    }
+    const secret = req.headers['x-reset-secret'];
+    if (!secret || secret !== process.env.WHATS_NEW_RESET_SECRET) {
+        res.status(401).send('Unauthorized');
+        return;
+    }
+    const snapshot = await db.collection('users').get();
+    if (snapshot.empty) {
+        res.status(200).json({ reset: 0 });
+        return;
+    }
+    const batch = db.batch();
+    snapshot.forEach((docSnap) => {
+        batch.update(docSnap.ref, { whatsNewSeen: false });
+    });
+    await batch.commit();
+    res.status(200).json({ reset: snapshot.size });
+});
 // Día 3 de cada mes a las 9:00 AM hora Colombia
 exports.goalsMonthlyReminder = (0, scheduler_1.onSchedule)({ schedule: '0 9 3 * *', timeZone: 'America/Bogota' }, async () => {
     var _a;

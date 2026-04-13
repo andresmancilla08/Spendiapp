@@ -15,7 +15,7 @@ import {
   useWindowDimensions,
   PanResponder,
 } from 'react-native';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useFocusEffect, router } from 'expo-router';
 import { useHistoryStore } from '../../store/historyStore';
 import AppHeader from '../../components/AppHeader';
@@ -570,7 +570,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
               )}
             </View>
           </View>
-          {/* Chip ingreso enviado — solo para ingresos recibidos de un amigo */}
+          {/* Chip ingreso recibido de un amigo */}
           {item.isSentIncome && item.sentByName ? (
             <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
               {paidLoading ? (
@@ -584,6 +584,23 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                 <Ionicons name="gift-outline" size={11} color={colors.secondary} />
                 <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]} numberOfLines={1}>
                   {t('sentIncome.chip.sentBy', { name: item.sentByName })}
+                </Text>
+              </View>
+            </View>
+          ) : item.sentIncomeTransactionId && item.sentIncomeToName ? (
+            /* Chip gasto enviado como ingreso a un amigo */
+            <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
+              {paidLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
+              ) : (
+                <Text style={[styles.txAmount, { color: amountColor }]}>
+                  {`−${formatCurrency(item.amount)}`}
+                </Text>
+              )}
+              <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.primary}18`, borderColor: `${colors.primary}28` }]}>
+                <Ionicons name="send-outline" size={11} color={colors.primary} />
+                <Text style={[styles.sentIncomeChipText, { color: colors.primary }]} numberOfLines={1}>
+                  {t('sentIncome.chip.sentTo', { name: item.sentIncomeToName })}
                 </Text>
               </View>
             </View>
@@ -628,6 +645,9 @@ export default function HistoryScreen() {
   const [month, setMonth] = useState(now.getMonth());
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeFilter, setActiveFilter] = useState<'all' | 'income' | 'expense'>('all');
+  const [paidFilter, setPaidFilter] = useState<'all' | 'paid' | 'unpaid'>('all');
+  const [sharedFilter, setSharedFilter] = useState<'all' | 'shared' | 'notShared'>('all');
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const MIN_YEAR = 2020;
@@ -637,6 +657,7 @@ export default function HistoryScreen() {
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [paidLoadingId, setPaidLoadingId] = useState<string | null>(null);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
 
   // Siempre volver al mes actual al entrar
   useFocusEffect(useCallback(() => {
@@ -645,6 +666,9 @@ export default function HistoryScreen() {
     setMonth(n.getMonth());
     setActiveFilter('all');
     setSearchQuery('');
+    setPaidFilter('all');
+    setSharedFilter('all');
+    setFilterPanelOpen(false);
     setMonthPickerOpen(false);
   }, []));
 
@@ -675,6 +699,9 @@ export default function HistoryScreen() {
   const resetFilters = () => {
     setActiveFilter('all');
     setSearchQuery('');
+    setPaidFilter('all');
+    setSharedFilter('all');
+    setFilterPanelOpen(false);
   };
 
   const goToPrevMonth = () => {
@@ -750,11 +777,46 @@ export default function HistoryScreen() {
     }
   }, [showToast, t, db]);
 
-  const filteredTransactions = transactions
-    .filter(t => activeFilter === 'all' || t.type === activeFilter)
-    .filter(t => searchQuery.trim() === '' || t.description.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredTransactions = useMemo(() =>
+    transactions
+      .filter(t => activeFilter === 'all' || t.type === activeFilter)
+      .filter(t => searchQuery.trim() === '' || t.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      .filter(t => paidFilter === 'all' || (paidFilter === 'paid' ? t.isPaid === true : t.isPaid !== true))
+      .filter(t => sharedFilter === 'all' || (sharedFilter === 'shared' ? t.isShared === true : t.isShared !== true)),
+    [transactions, activeFilter, searchQuery, paidFilter, sharedFilter]
+  );
 
   const groups = groupByDay(filteredTransactions, WEEKDAYS);
+
+  // ── Animations ───────────────────────────────────────────────────────────────
+  const filterAnim = useRef(new Animated.Value(0)).current;
+  const [filterMounted, setFilterMounted] = useState(false);
+  const summaryAnim = useRef(new Animated.Value(0)).current;
+  const [summaryMounted, setSummaryMounted] = useState(false);
+
+  useEffect(() => {
+    if (filterPanelOpen) setFilterMounted(true);
+    Animated.timing(filterAnim, {
+      toValue: filterPanelOpen ? 1 : 0,
+      duration: filterPanelOpen ? 200 : 150,
+      easing: filterPanelOpen ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => { if (!filterPanelOpen) setFilterMounted(false); });
+  }, [filterPanelOpen]);
+
+  useEffect(() => {
+    if (summaryExpanded) setSummaryMounted(true);
+    Animated.timing(summaryAnim, {
+      toValue: summaryExpanded ? 1 : 0,
+      duration: summaryExpanded ? 220 : 170,
+      easing: summaryExpanded ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => { if (!summaryExpanded) setSummaryMounted(false); });
+  }, [summaryExpanded]);
+
+  const toggleSummary = () => setSummaryExpanded(prev => !prev);
+
+  const hasActiveFilters = paidFilter !== 'all' || sharedFilter !== 'all';
 
   const toggleFilter = (f: 'income' | 'expense') => {
     setActiveFilter(prev => prev === f ? 'all' : f);
@@ -841,81 +903,187 @@ export default function HistoryScreen() {
         </View>
       )}
 
-      {/* Summary card */}
+      {/* Summary card — colapsable */}
       {!loading && (
         <View style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          {/* Balance row */}
-          <View style={styles.balanceRow}>
-            <Text style={[styles.balanceLabel, { color: colors.textSecondary }]}>{t('history.balanceLabel').toUpperCase()}</Text>
-            <Text style={[styles.balanceValue, {
-              color: balance > 0 ? colors.secondary : balance < 0 ? colors.error : colors.textTertiary,
-            }]}>
-              {balance > 0 ? '+' : ''}{formatCurrency(balance)}
+          {/* Header tap area: toggle */}
+          <TouchableOpacity onPress={toggleSummary} activeOpacity={0.85} style={styles.balanceRow}>
+            <Text style={[styles.balanceLabel, { color: colors.textSecondary }]}>
+              {t('history.balanceLabel').toUpperCase()}
             </Text>
-          </View>
-
-          <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
-
-          {/* Income / Expense tabs */}
-          <View style={styles.summaryTabs}>
-            <TouchableOpacity
-              style={[
-                styles.summaryTab,
-                activeFilter === 'income' && { backgroundColor: colors.secondary + '22', borderRadius: 10 },
-              ]}
-              onPress={() => toggleFilter('income')}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="arrow-down" size={13} color={colors.secondary} />
-              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-                {t('history.incomeLabel')}:
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={[styles.balanceValue, {
+                color: balance > 0 ? colors.secondary : balance < 0 ? colors.error : colors.textTertiary,
+              }]}>
+                {balance > 0 ? '+' : ''}{formatCurrency(balance)}
               </Text>
-              <Text style={[styles.summaryValue, { color: colors.secondary }]}>
-                {formatCurrency(totalIncome)}
-              </Text>
-            </TouchableOpacity>
+              <Ionicons
+                name={summaryExpanded ? 'chevron-up' : 'chevron-down'}
+                size={16}
+                color={colors.textTertiary}
+              />
+            </View>
+          </TouchableOpacity>
 
-            <View style={[styles.summaryVerticalDivider, { backgroundColor: colors.border }]} />
+          {/* Expandable section */}
+          {summaryMounted && (
+            <Animated.View style={{
+              opacity: summaryAnim,
+              transform: [{ translateY: summaryAnim.interpolate({ inputRange: [0, 1], outputRange: [-6, 0] }) }],
+            }}>
+              <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
+              <View style={styles.summaryTabs}>
+                <TouchableOpacity
+                  style={[
+                    styles.summaryTab,
+                    activeFilter === 'income' && { backgroundColor: colors.secondary + '22', borderRadius: 10 },
+                  ]}
+                  onPress={() => toggleFilter('income')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="arrow-down" size={13} color={colors.secondary} />
+                  <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                    {t('history.incomeLabel')}:
+                  </Text>
+                  <Text style={[styles.summaryValue, { color: colors.secondary }]}>
+                    {formatCurrency(totalIncome)}
+                  </Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.summaryTab,
-                activeFilter === 'expense' && { backgroundColor: colors.error + '18', borderRadius: 10 },
-              ]}
-              onPress={() => toggleFilter('expense')}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="arrow-up" size={13} color={colors.error} />
-              <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-                {t('history.expensesLabel')}:
-              </Text>
-              <Text style={[styles.summaryValue, { color: colors.error }]}>
-                {formatCurrency(totalExpenses)}
-              </Text>
-            </TouchableOpacity>
-          </View>
+                <View style={[styles.summaryVerticalDivider, { backgroundColor: colors.border }]} />
+
+                <TouchableOpacity
+                  style={[
+                    styles.summaryTab,
+                    activeFilter === 'expense' && { backgroundColor: colors.error + '18', borderRadius: 10 },
+                  ]}
+                  onPress={() => toggleFilter('expense')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="arrow-up" size={13} color={colors.error} />
+                  <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                    {t('history.expensesLabel')}:
+                  </Text>
+                  <Text style={[styles.summaryValue, { color: colors.error }]}>
+                    {formatCurrency(totalExpenses)}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          )}
         </View>
       )}
 
-      {/* Search input */}
-      <View style={[styles.searchWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Ionicons name="search" size={16} color={colors.textTertiary} />
-        <TextInput
-          style={[styles.searchInput, { color: colors.textPrimary }]}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder={t('history.searchPlaceholder')}
-          placeholderTextColor={colors.textSecondary}
-          returnKeyType="search"
-          autoCorrect={false}
-          clearButtonMode="while-editing"
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="close-circle" size={16} color={colors.textTertiary} />
-          </TouchableOpacity>
-        )}
+      {/* Search + Filter button */}
+      <View style={styles.searchRow}>
+        <View style={[styles.searchWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Ionicons name="search" size={16} color={colors.textTertiary} />
+          <TextInput
+            style={[styles.searchInput, { color: colors.textPrimary }]}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={t('history.searchPlaceholder')}
+            placeholderTextColor={colors.textSecondary}
+            returnKeyType="search"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Ionicons name="close-circle" size={16} color={colors.textTertiary} />
+            </TouchableOpacity>
+          )}
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.filterBtn,
+            {
+              backgroundColor: colors.surface,
+              borderColor: hasActiveFilters ? colors.primary : colors.border,
+            },
+          ]}
+          onPress={() => setFilterPanelOpen(p => !p)}
+          activeOpacity={0.75}
+        >
+          <Ionicons
+            name="options-outline"
+            size={18}
+            color={hasActiveFilters ? colors.primary : colors.textTertiary}
+          />
+          {hasActiveFilters && (
+            <View style={[styles.filterDot, { backgroundColor: colors.primary }]} />
+          )}
+        </TouchableOpacity>
       </View>
+
+      {/* Filter panel */}
+      {filterMounted && (
+        <Animated.View
+          style={[
+            styles.filterPanel,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+            {
+              opacity: filterAnim,
+              transform: [{ translateY: filterAnim.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }],
+            },
+          ]}
+        >
+          {/* Pago */}
+          <View style={styles.filterSection}>
+            <Text style={[styles.filterSectionLabel, { color: colors.primary }]}>
+              {t('history.filters.payLabel').toUpperCase()}
+            </Text>
+            <View style={styles.filterSectionOptions}>
+              {(['all', 'paid', 'unpaid'] as const).map((val) => (
+                <TouchableOpacity
+                  key={val}
+                  onPress={() => setPaidFilter(p => p === val ? 'all' : val)}
+                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+                >
+                  <Text style={[
+                    styles.filterSectionOption,
+                    {
+                      color: paidFilter === val ? colors.textPrimary : colors.textTertiary,
+                      fontFamily: paidFilter === val ? Fonts.bold : Fonts.regular,
+                    },
+                  ]}>
+                    {t(`history.filters.${val === 'all' ? 'allLabel' : val}`)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View style={[styles.filterDivider, { backgroundColor: colors.border }]} />
+
+          {/* Compartido */}
+          <View style={styles.filterSection}>
+            <Text style={[styles.filterSectionLabel, { color: colors.primary }]}>
+              {t('history.filters.shareLabel').toUpperCase()}
+            </Text>
+            <View style={styles.filterSectionOptions}>
+              {(['all', 'shared', 'notShared'] as const).map((val) => (
+                <TouchableOpacity
+                  key={val}
+                  onPress={() => setSharedFilter(s => s === val ? 'all' : val)}
+                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+                >
+                  <Text style={[
+                    styles.filterSectionOption,
+                    {
+                      color: sharedFilter === val ? colors.textPrimary : colors.textTertiary,
+                      fontFamily: sharedFilter === val ? Fonts.bold : Fonts.regular,
+                    },
+                  ]}>
+                    {t(`history.filters.${val === 'all' ? 'allLabel' : val}`)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </Animated.View>
+      )}
+
 
       {/* Content */}
       {loading ? (
@@ -1045,16 +1213,66 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: Fonts.semiBold,
   },
-  searchWrap: {
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 20,
-    marginBottom: 10,
+    marginBottom: 8,
+    gap: 8,
+  },
+  searchWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     borderRadius: 14,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 10,
     gap: 8,
+  },
+  filterBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterDot: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  filterPanel: {
+    marginHorizontal: 20,
+    marginBottom: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    gap: 6,
+  },
+  filterSection: {
+    gap: 6,
+  },
+  filterSectionLabel: {
+    fontSize: 9,
+    fontFamily: Fonts.bold,
+    letterSpacing: 1,
+  },
+  filterSectionOptions: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  filterSectionOption: {
+    fontSize: 13,
+  },
+  filterDivider: {
+    height: 1,
+    marginVertical: 4,
   },
   searchInput: {
     flex: 1,
