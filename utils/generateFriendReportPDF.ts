@@ -91,9 +91,9 @@ export async function generateFriendReportPDF(
   doc.setTextColor(C.white[0], C.white[1], C.white[2]);
   if (logoBase64) {
     doc.addImage(logoBase64, 'PNG', margin, 6, 14, 14);
-    doc.text('SPENDIAPP', margin + 18, 17);
+    doc.text('SPENDIA', margin + 18, 17);
   } else {
-    doc.text('SPENDIAPP', margin, 17);
+    doc.text('SPENDIA', margin, 17);
   }
 
   doc.setFont('helvetica', 'normal');

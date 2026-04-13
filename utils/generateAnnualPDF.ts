@@ -69,7 +69,7 @@ export function generateAnnualPDF(data: ReportData, labels: PdfLabels): Blob {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);
   doc.setTextColor(C.white[0], C.white[1], C.white[2]);
-  doc.text('SPENDIAPP', margin, 17);
+  doc.text('SPENDIA', margin, 17);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);

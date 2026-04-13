@@ -179,7 +179,7 @@ export async function generateFriendReportImage(
   ctx.closePath();
   ctx.fill();
 
-  // Logo + SPENDIAPP wordmark
+  // Logo + SPENDIA wordmark
   const LOGO_SIZE = 34;
   const LOGO_Y    = 13;
   if (logoImg) {
@@ -193,13 +193,13 @@ export async function generateFriendReportImage(
     ctx.font = `bold 20px ${FONT}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText('SPENDIAPP', PAD + LOGO_SIZE + 10, 30);
+    ctx.fillText('SPENDIA', PAD + LOGO_SIZE + 10, 30);
   } else {
     ctx.fillStyle = '#FFFFFF';
     ctx.font = `bold 20px ${FONT}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText('SPENDIAPP', PAD, 30);
+    ctx.fillText('SPENDIA', PAD, 30);
   }
 
   // Pill label top-right
