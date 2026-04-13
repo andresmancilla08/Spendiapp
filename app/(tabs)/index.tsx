@@ -73,6 +73,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress }: {
   onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
+  const { t } = useTranslation();
   const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
   const isExpense = item.type === 'expense';
   const card = item.cardId ? cardsMap[item.cardId] : null;
@@ -118,9 +119,35 @@ function TransactionRow({ item, isLast, cardsMap, onPress }: {
           )}
         </View>
       </View>
-      <Text style={[styles.txAmount, { color: isExpense ? colors.error : colors.secondary }]}>
-        {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
-      </Text>
+      {item.isSentIncome && item.sentByName ? (
+        <View style={{ alignItems: 'flex-end', gap: 2 }}>
+          <Text style={[styles.txAmount, { color: colors.secondary }]}>
+            {`+${formatCurrency(item.amount)}`}
+          </Text>
+          <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.secondary}18`, borderColor: `${colors.secondary}28` }]}>
+            <Ionicons name="gift-outline" size={11} color={colors.secondary} />
+            <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]} numberOfLines={1}>
+              {t('sentIncome.chip.sentBy', { name: item.sentByName })}
+            </Text>
+          </View>
+        </View>
+      ) : item.sentIncomeTransactionId && item.sentIncomeToName ? (
+        <View style={{ alignItems: 'flex-end', gap: 2 }}>
+          <Text style={[styles.txAmount, { color: colors.error }]}>
+            {`−${formatCurrency(item.amount)}`}
+          </Text>
+          <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.primary}18`, borderColor: `${colors.primary}28` }]}>
+            <Ionicons name="send-outline" size={11} color={colors.primary} />
+            <Text style={[styles.sentIncomeChipText, { color: colors.primary }]} numberOfLines={1}>
+              {t('sentIncome.chip.sentTo', { name: item.sentIncomeToName })}
+            </Text>
+          </View>
+        </View>
+      ) : (
+        <Text style={[styles.txAmount, { color: isExpense ? colors.error : colors.secondary }]}>
+          {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }
@@ -563,6 +590,8 @@ const styles = StyleSheet.create({
   txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold },
   txCardTypeBadge: { paddingHorizontal: 4, paddingVertical: 1, borderRadius: 5 },
   txCardTypeBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
+  sentIncomeChip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20, borderWidth: 1 },
+  sentIncomeChipText: { fontSize: 10, fontFamily: Fonts.semiBold, maxWidth: 110 },
 
   // Empty
   emptyState: { alignItems: 'center', padding: 36 },

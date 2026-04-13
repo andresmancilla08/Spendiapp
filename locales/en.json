@@ -458,7 +458,16 @@
       "sharedByLabel": "SHARED BY",
       "pageDesc": "Transaction details"
     },
-    "pageDesc": "A record of all your transactions"
+    "pageDesc": "A record of all your transactions",
+    "filters": {
+      "allLabel": "All",
+      "payLabel": "Status",
+      "shareLabel": "Shared",
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "shared": "Shared",
+      "notShared": "Not shared"
+    }
   },
   "categories": {
     "title": "My categories",
@@ -798,6 +807,12 @@
       "item1": "Log an expense and send it as income to another Spendia user",
       "item2": "Your friend sees it automatically in their history as received income",
       "item3": "Perfect for reimbursements, transfers, or splitting bills informally"
+    },
+    "friendReport": {
+      "title": "Friend expense report",
+      "item1": "Select a friend and month to see all shared transactions between you",
+      "item2": "Instantly identify who owes who and how much with the net balance",
+      "item3": "Generate a downloadable and shareable image with every transaction detailed"
     }
   },
   "sharedExpense": {
@@ -826,7 +841,7 @@
     "sentToLabel": "SENT TO",
     "chip": {
       "sentBy": "Sent by {{name}}",
-      "sentTo": "Income sent to {{name}}"
+      "sentTo": "Sent to {{name}}"
     }
   },
   "reports": {
@@ -874,6 +889,10 @@
     "reportsCard": {
       "title": "Annual report",
       "description": "Generate your tax report as PDF"
+    },
+    "friendReportCard": {
+      "title": "Friend Report",
+      "description": "Generate a PDF with all your sends to a friend for that month"
     }
   },
   "goals": {
@@ -915,5 +934,37 @@
       "completed": "Goal achieved! 🎉",
       "error": "An error occurred"
     }
+  },
+  "friendReport": {
+    "title": "Friend Report",
+    "pageDesc": "Generate a PDF with your movements sent to a friend",
+    "selectFriend": "Select a friend",
+    "noFriends": "You have no friends on Spendia yet",
+    "noFriendsDesc": "Add friends to see shared reports",
+    "noTransactions": "No movements with this friend in this period",
+    "sentSection": "WHAT I SENT",
+    "receivedSection": "WHAT I RECEIVED",
+    "totalSent": "Total sent",
+    "totalReceived": "Total received",
+    "netBalance": "Net balance",
+    "generatePdf": "Generate PDF",
+    "generatingPdf": "Generating...",
+    "iOwe": "I owe you",
+    "theyOwe": "You owe me",
+    "pdfTitle": "Report with {{name}}",
+    "pdfGeneratedOn": "Generated on {{date}}",
+    "pdfPeriod": "Period: {{month}} {{year}}",
+    "pdfDateCol": "Date",
+    "pdfDescCol": "Description",
+    "pdfAmountCol": "Amount",
+    "pdfFooter": "Spendiapp · Personal movement report",
+    "previewBtn": "Preview",
+    "generatingPreview": "Generating...",
+    "previewTitle": "Preview",
+    "downloadBtn": "Download",
+    "shareBtn": "Share",
+    "theyOweYou": "{{name}} owes {{myName}}",
+    "youOwe": "{{myName}} owes {{name}}",
+    "settled": "All settled with {{name}}"
   }
 }

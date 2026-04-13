@@ -458,7 +458,16 @@
       "sharedByLabel": "CONDIVISO DA",
       "pageDesc": "Dettagli del movimento"
     },
-    "pageDesc": "Un registro di tutte le tue operazioni"
+    "pageDesc": "Un registro di tutte le tue operazioni",
+    "filters": {
+      "allLabel": "Tutti",
+      "payLabel": "Stato",
+      "shareLabel": "Condiviso",
+      "paid": "Pagato",
+      "unpaid": "Non pagato",
+      "shared": "Condiviso",
+      "notShared": "Non condiviso"
+    }
   },
   "categories": {
     "title": "Le mie categorie",
@@ -798,6 +807,12 @@
       "item1": "Registra una spesa e inviala come entrata a un altro utente di Spendia",
       "item2": "Il tuo amico la vede automaticamente nella cronologia come entrata ricevuta",
       "item3": "Perfetto per rimborsi, trasferimenti o dividere conti informalmente"
+    },
+    "friendReport": {
+      "title": "Report spese con amici",
+      "item1": "Seleziona un amico e un mese per vedere tutte le transazioni condivise tra voi",
+      "item2": "Identifica subito chi deve a chi e quanto con il saldo netto",
+      "item3": "Genera un'immagine scaricabile e condivisibile con ogni transazione nel dettaglio"
     }
   },
   "sharedExpense": {
@@ -826,7 +841,7 @@
     "sentToLabel": "INVIATO A",
     "chip": {
       "sentBy": "Inviato da {{name}}",
-      "sentTo": "Entrata inviata a {{name}}"
+      "sentTo": "Inviato a {{name}}"
     }
   },
   "reports": {
@@ -874,6 +889,10 @@
     "reportsCard": {
       "title": "Estratto annuale",
       "description": "Genera il tuo report fiscale in PDF"
+    },
+    "friendReportCard": {
+      "title": "Report con amico",
+      "description": "Genera un PDF con tutti i tuoi invii a un amico per quel mese"
     }
   },
   "goals": {
@@ -915,5 +934,37 @@
       "completed": "Obiettivo raggiunto! 🎉",
       "error": "Si è verificato un errore"
     }
+  },
+  "friendReport": {
+    "title": "Report con amico",
+    "pageDesc": "Genera un PDF con i tuoi movimenti inviati a un amico",
+    "selectFriend": "Seleziona un amico",
+    "noFriends": "Non hai ancora amici su Spendia",
+    "noFriendsDesc": "Aggiungi amici per vedere i report condivisi",
+    "noTransactions": "Nessun movimento con questo amico in questo periodo",
+    "sentSection": "CIÒ CHE HO INVIATO",
+    "receivedSection": "CIÒ CHE HO RICEVUTO",
+    "totalSent": "Totale inviato",
+    "totalReceived": "Totale ricevuto",
+    "netBalance": "Saldo netto",
+    "generatePdf": "Genera PDF",
+    "generatingPdf": "Generando...",
+    "iOwe": "Ti devo",
+    "theyOwe": "Mi devi",
+    "pdfTitle": "Report con {{name}}",
+    "pdfGeneratedOn": "Generato il {{date}}",
+    "pdfPeriod": "Periodo: {{month}} {{year}}",
+    "pdfDateCol": "Data",
+    "pdfDescCol": "Descrizione",
+    "pdfAmountCol": "Importo",
+    "pdfFooter": "Spendiapp · Report personale dei movimenti",
+    "previewBtn": "Anteprima",
+    "generatingPreview": "Generazione...",
+    "previewTitle": "Anteprima",
+    "downloadBtn": "Scarica",
+    "shareBtn": "Condividi",
+    "theyOweYou": "{{name}} deve a {{myName}}",
+    "youOwe": "{{myName}} deve a {{name}}",
+    "settled": "In pari con {{name}}"
   }
 }

@@ -79,6 +79,14 @@ export default function ToolsScreen() {
               onPress={() => router.push('/reports')}
               colors={colors}
             />
+            <ToolCard
+              emoji="👥"
+              icon="people-outline"
+              title={t('tools.friendReportCard.title')}
+              description={t('tools.friendReportCard.description')}
+              onPress={() => router.push('/friend-report')}
+              colors={colors}
+            />
           </ScrollView>
         </ScreenBackground>
       </SafeAreaView>
