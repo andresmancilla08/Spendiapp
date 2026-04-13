@@ -859,7 +859,7 @@
     "shareError": "No se pudo compartir el PDF",
     "noTransactions": "Sin movimientos para este año",
     "viewerTitle": "Extracto {{year}}",
-    "pdfTitle": "SPENDIAPP",
+    "pdfTitle": "SPENDIA",
     "pdfExtract": "Extracto Anual {{year}}",
     "pdfGeneratedOn": "Generado el {{date}}",
     "pdfSummary": "RESUMEN DEL AÑO",
@@ -873,7 +873,7 @@
     "pdfMovements": "MOVIMIENTOS {{year}}",
     "pdfDate": "Fecha",
     "pdfDescription": "Descripción",
-    "pdfFooter": "Generado por Spendiapp · Este documento es informativo. Consulte a su contador para su declaración oficial.",
+    "pdfFooter": "Generado por Spendia · Este documento es informativo. Consulte a su contador para su declaración oficial.",
     "fiscalYear": "Año fiscal"
   },
   "tools": {
@@ -958,7 +958,7 @@
     "pdfDateCol": "Fecha",
     "pdfDescCol": "Descripción",
     "pdfAmountCol": "Monto",
-    "pdfFooter": "Spendiapp · Reporte personal de movimientos",
+    "pdfFooter": "Spendia · Reporte personal de movimientos",
     "previewBtn": "Previsualizar",
     "generatingPreview": "Generando...",
     "previewTitle": "Vista previa",
