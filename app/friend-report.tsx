@@ -56,7 +56,7 @@ export default function FriendReportScreen() {
   const [friendOptions, setFriendOptions] = useState<FriendOption[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [previewResult, setPreviewResult] = useState<(FriendReportImageResult & { url: string }) | null>(null);
+  const [previewPages, setPreviewPages] = useState<(FriendReportImageResult & { url: string })[]>([]);
   const [previewVisible, setPreviewVisible] = useState(false);
 
   const { acceptedFriends, loading: friendshipsLoading } = useFriends(user?.uid ?? '');
@@ -96,8 +96,8 @@ export default function FriendReportScreen() {
   const resetSelection = () => {
     setSelectedFriendUid(null);
     setPreviewVisible(false);
-    if (previewResult?.url) URL.revokeObjectURL(previewResult.url);
-    setPreviewResult(null);
+    previewPages.forEach((p) => URL.revokeObjectURL(p.url));
+    setPreviewPages([]);
   };
 
   // Month navigation
@@ -175,10 +175,10 @@ export default function FriendReportScreen() {
             ? t('friendReport.theyOweYou', { name: selectedFriend.displayName, myName: user.displayName ?? user.email ?? 'Yo' })
             : t('friendReport.youOwe', { name: selectedFriend.displayName, myName: user.displayName ?? user.email ?? 'Yo' }),
       };
-      const result = await generateFriendReportImage(reportData, labels);
-      const url = URL.createObjectURL(result.blob);
-      if (previewResult?.url) URL.revokeObjectURL(previewResult.url);
-      setPreviewResult({ ...result, url });
+      const results = await generateFriendReportImage(reportData, labels);
+      previewPages.forEach((p) => URL.revokeObjectURL(p.url));
+      const pages = results.map((r) => ({ ...r, url: URL.createObjectURL(r.blob) }));
+      setPreviewPages(pages);
       setPreviewVisible(true);
     } catch (e) {
       console.error('[FriendReport] image error:', e);
@@ -192,28 +192,36 @@ export default function FriendReportScreen() {
   };
 
   const handleDownload = () => {
-    if (!previewResult || !selectedFriend) return;
-    const filename = `reporte-${selectedFriend.displayName}-${month + 1}-${year}.png`;
-    try {
-      const a = document.createElement('a');
-      a.href = previewResult.url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => document.body.removeChild(a), 100);
-    } catch {
-      window.open(previewResult.url, '_blank');
-    }
+    if (!previewPages.length || !selectedFriend) return;
+    previewPages.forEach((page, idx) => {
+      const suffix = previewPages.length > 1 ? `-p${idx + 1}` : '';
+      const filename = `reporte-${selectedFriend.displayName}-${month + 1}-${year}${suffix}.png`;
+      try {
+        const a = document.createElement('a');
+        a.href = page.url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => document.body.removeChild(a), 100);
+      } catch {
+        window.open(page.url, '_blank');
+      }
+    });
   };
 
   const handleShare = async () => {
-    if (!previewResult || !selectedFriend) return;
+    if (!previewPages.length || !selectedFriend) return;
     try {
-      const response = await fetch(previewResult.url);
-      const blob = await response.blob();
-      const file = new File([blob], `reporte-${selectedFriend.displayName}.png`, { type: 'image/png' });
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: t('friendReport.pdfTitle', { name: selectedFriend.displayName }) });
+      const files = await Promise.all(
+        previewPages.map(async (page, idx) => {
+          const res = await fetch(page.url);
+          const blob = await res.blob();
+          const suffix = previewPages.length > 1 ? `-p${idx + 1}` : '';
+          return new File([blob], `reporte-${selectedFriend.displayName}${suffix}.png`, { type: 'image/png' });
+        })
+      );
+      if (navigator.share && navigator.canShare({ files })) {
+        await navigator.share({ files, title: t('friendReport.pdfTitle', { name: selectedFriend.displayName }) });
         return;
       }
     } catch { /* fallback */ }
@@ -478,30 +486,46 @@ export default function FriendReportScreen() {
               <TouchableOpacity onPress={handleClosePreview} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Ionicons name="chevron-down" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
-              <Text style={[styles.previewTitle, { color: colors.textPrimary }]}>
-                {t('friendReport.previewTitle')}
-              </Text>
+              <View style={{ alignItems: 'center' }}>
+                <Text style={[styles.previewTitle, { color: colors.textPrimary }]}>
+                  {t('friendReport.previewTitle')}
+                </Text>
+                {previewPages.length > 1 && (
+                  <Text style={[styles.previewPageCount, { color: colors.textTertiary }]}>
+                    {previewPages.length} {t('friendReport.pages')}
+                  </Text>
+                )}
+              </View>
               <View style={{ width: 24 }} />
             </View>
 
-            {/* Image full-screen scroll */}
-            {previewResult && (
-              <ScrollView
-                style={styles.previewScroll}
-                contentContainerStyle={styles.previewScrollContent}
-                showsVerticalScrollIndicator={false}
-                bounces
-              >
-                <Image
-                  source={{ uri: previewResult.url }}
-                  style={{
-                    width: screenWidth,
-                    height: screenWidth * (previewResult.height / previewResult.width),
-                  }}
-                  resizeMode="contain"
-                />
-              </ScrollView>
-            )}
+            {/* All pages stacked in scroll */}
+            <ScrollView
+              style={styles.previewScroll}
+              contentContainerStyle={styles.previewScrollContent}
+              showsVerticalScrollIndicator={false}
+              bounces
+            >
+              {previewPages.map((page, idx) => (
+                <View key={idx} style={styles.previewPageWrapper}>
+                  {previewPages.length > 1 && (
+                    <View style={[styles.previewPageBadge, { backgroundColor: colors.primary }]}>
+                      <Text style={styles.previewPageBadgeText}>
+                        {idx + 1} / {previewPages.length}
+                      </Text>
+                    </View>
+                  )}
+                  <Image
+                    source={{ uri: page.url }}
+                    style={{
+                      width: screenWidth,
+                      height: screenWidth * (page.height / page.width),
+                    }}
+                    resizeMode="contain"
+                  />
+                </View>
+              ))}
+            </ScrollView>
 
             {/* Actions */}
             <View style={[styles.previewActions, { borderTopColor: colors.border }]}>
@@ -513,6 +537,7 @@ export default function FriendReportScreen() {
                 <Ionicons name="download-outline" size={18} color={colors.primary} />
                 <Text style={[styles.previewActionText, { color: colors.primary }]}>
                   {t('friendReport.downloadBtn')}
+                  {previewPages.length > 1 ? ` (${previewPages.length})` : ''}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -727,11 +752,36 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
     fontSize: 16,
   },
+  previewPageCount: {
+    fontFamily: Fonts.regular,
+    fontSize: 11,
+    marginTop: 2,
+  },
+  previewPageWrapper: {
+    width: '100%',
+    position: 'relative',
+    marginBottom: 12,
+  },
+  previewPageBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  previewPageBadgeText: {
+    fontFamily: Fonts.bold,
+    fontSize: 11,
+    color: '#FFFFFF',
+  },
   previewScroll: {
     flex: 1,
   },
   previewScrollContent: {
     alignItems: 'center',
+    paddingBottom: 8,
   },
   previewActions: {
     flexDirection: 'row',

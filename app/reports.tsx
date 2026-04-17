@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Modal,
+  Image,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,11 +22,15 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import AppHeader from '../components/AppHeader';
 import ScreenBackground from '../components/ScreenBackground';
 import ReportYearPicker from '../components/ReportYearPicker';
-import ReportViewer from '../components/ReportViewer';
-import { getAvailableYears, generateReportData, ReportData } from '../hooks/useReportGenerator';
-import { generateAnnualPDF, PdfLabels } from '../utils/generateAnnualPDF';
+import { getAvailableYears, generateReportData } from '../hooks/useReportGenerator';
+import { generateAnnualReportImage, AnnualReportImageLabels, AnnualReportImageResult } from '../utils/generateAnnualReportImage';
 import { useCategories } from '../hooks/useCategories';
 import { useToast } from '../context/ToastContext';
+
+const _logoMod = require('../assets/logo.png');
+const LOGO_URI: string | undefined =
+  typeof _logoMod === 'string' ? _logoMod :
+  (_logoMod as any)?.uri ?? (_logoMod as any)?.default ?? undefined;
 
 export default function ReportsScreen() {
   const { colors } = useTheme();
@@ -31,14 +38,14 @@ export default function ReportsScreen() {
   const { user } = useAuthStore();
   const { showToast } = useToast();
   const transitionRef = useRef<ScreenTransitionRef>(null);
+  const { width: screenWidth } = useWindowDimensions();
 
   const [years, setYears] = useState<number[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear() - 1);
   const [loading, setLoading] = useState(false);
   const [yearsLoading, setYearsLoading] = useState(true);
-  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
-  const [reportData, setReportData] = useState<ReportData | null>(null);
-  const [viewerVisible, setViewerVisible] = useState(false);
+  const [previewPages, setPreviewPages] = useState<(AnnualReportImageResult & { url: string })[]>([]);
+  const [previewVisible, setPreviewVisible] = useState(false);
 
   const { categories: customCategories } = useCategories(user?.uid ?? '');
 
@@ -66,9 +73,11 @@ export default function ReportsScreen() {
         selectedYear,
         customCategories,
       );
-      const pdfLabels: PdfLabels = {
+      const labels: AnnualReportImageLabels = {
         extractTitle: t('reports.pdfExtract', { year: selectedYear }),
-        generatedOn: t('reports.pdfGeneratedOn', { date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }) }),
+        generatedOn: t('reports.pdfGeneratedOn', {
+          date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }),
+        }),
         income: t('reports.pdfIncome'),
         expenses: t('reports.pdfExpenses'),
         balance: t('reports.pdfBalance'),
@@ -79,19 +88,60 @@ export default function ReportsScreen() {
         movementsTitle: t('reports.pdfMovements', { year: selectedYear }),
         dateCol: t('reports.pdfDate'),
         descriptionCol: t('reports.pdfDescription'),
+        categoryLabel: t('reports.pdfCategory'),
         amountCol: 'Monto',
         footer: t('reports.pdfFooter'),
       };
-      const blob = generateAnnualPDF(data, pdfLabels);
-      setReportData(data);
-      setPdfBlob(blob);
-      setViewerVisible(true);
+      const results = await generateAnnualReportImage(data, labels, LOGO_URI);
+      previewPages.forEach((p) => URL.revokeObjectURL(p.url));
+      const pages = results.map((r) => ({ ...r, url: URL.createObjectURL(r.blob) }));
+      setPreviewPages(pages);
+      setPreviewVisible(true);
     } catch (e) {
-      console.error('[Reports] Error generando PDF:', e);
+      console.error('[Reports] Error generando imágenes:', e);
       showToast(t('reports.shareError'), 'error');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClosePreview = () => setPreviewVisible(false);
+
+  const handleDownload = () => {
+    if (!previewPages.length) return;
+    previewPages.forEach((page, idx) => {
+      const suffix = previewPages.length > 1 ? `-p${idx + 1}` : '';
+      const filename = `Extracto-${selectedYear}${suffix}.png`;
+      try {
+        const a = document.createElement('a');
+        a.href = page.url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => document.body.removeChild(a), 100);
+      } catch {
+        window.open(page.url, '_blank');
+      }
+    });
+  };
+
+  const handleShare = async () => {
+    if (!previewPages.length) return;
+    try {
+      const files = await Promise.all(
+        previewPages.map(async (page, idx) => {
+          const res = await fetch(page.url);
+          const blob = await res.blob();
+          const suffix = previewPages.length > 1 ? `-p${idx + 1}` : '';
+          return new File([blob], `Extracto-${selectedYear}${suffix}.png`, { type: 'image/png' });
+        })
+      );
+      if (navigator.share && navigator.canShare({ files })) {
+        await navigator.share({ files, title: t('reports.viewerTitle', { year: selectedYear }) });
+        return;
+      }
+    } catch { /* fallback */ }
+    handleDownload();
   };
 
   const handleBack = () => {
@@ -108,7 +158,6 @@ export default function ReportsScreen() {
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
           >
-            {/* Título y subtítulo de la pantalla */}
             <View style={styles.titleBlock}>
               <Text style={[styles.title, { color: colors.textPrimary }]}>
                 {t('reports.title')}
@@ -118,12 +167,10 @@ export default function ReportsScreen() {
               </Text>
             </View>
 
-            {/* Ícono decorativo */}
             <View style={[styles.iconWrap, { backgroundColor: colors.primary + '18' }]}>
-              <Ionicons name="document-text-outline" size={48} color={colors.primary} />
+              <Ionicons name="image-outline" size={48} color={colors.primary} />
             </View>
 
-            {/* Selector de año */}
             <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
               {t('reports.selectYear')}
             </Text>
@@ -138,7 +185,6 @@ export default function ReportsScreen() {
               />
             )}
 
-            {/* Botón generar */}
             <TouchableOpacity
               style={[
                 styles.generateBtn,
@@ -168,16 +214,86 @@ export default function ReportsScreen() {
               </Text>
             )}
           </ScrollView>
-
-          {/* PDF Viewer modal */}
-          {viewerVisible && pdfBlob && reportData && (
-            <ReportViewer
-              blob={pdfBlob}
-              data={reportData}
-              onClose={() => setViewerVisible(false)}
-            />
-          )}
         </SafeAreaView>
+
+        {/* Image preview modal */}
+        <Modal
+          visible={previewVisible}
+          transparent={false}
+          animationType="slide"
+          onRequestClose={handleClosePreview}
+          statusBarTranslucent
+        >
+          <SafeAreaView style={[styles.previewSafe, { backgroundColor: colors.background ?? colors.surface }]}>
+            <View style={[styles.previewHeader, { borderBottomColor: colors.border }]}>
+              <TouchableOpacity onPress={handleClosePreview} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Ionicons name="chevron-down" size={24} color={colors.textSecondary} />
+              </TouchableOpacity>
+              <View style={{ alignItems: 'center' }}>
+                <Text style={[styles.previewTitle, { color: colors.textPrimary }]}>
+                  {t('reports.viewerTitle', { year: selectedYear })}
+                </Text>
+                {previewPages.length > 1 && (
+                  <Text style={[styles.previewPageCount, { color: colors.textTertiary }]}>
+                    {previewPages.length} {t('reports.pages')}
+                  </Text>
+                )}
+              </View>
+              <View style={{ width: 24 }} />
+            </View>
+
+            <ScrollView
+              style={styles.previewScroll}
+              contentContainerStyle={styles.previewScrollContent}
+              showsVerticalScrollIndicator={false}
+              bounces
+            >
+              {previewPages.map((page, idx) => (
+                <View key={idx} style={styles.previewPageWrapper}>
+                  {previewPages.length > 1 && (
+                    <View style={[styles.previewPageBadge, { backgroundColor: colors.primary }]}>
+                      <Text style={styles.previewPageBadgeText}>
+                        {idx + 1} / {previewPages.length}
+                      </Text>
+                    </View>
+                  )}
+                  <Image
+                    source={{ uri: page.url }}
+                    style={{
+                      width: screenWidth,
+                      height: screenWidth * (page.height / page.width),
+                    }}
+                    resizeMode="contain"
+                  />
+                </View>
+              ))}
+            </ScrollView>
+
+            <View style={[styles.previewActions, { borderTopColor: colors.border }]}>
+              <TouchableOpacity
+                style={[styles.previewActionBtn, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }]}
+                onPress={handleDownload}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="download-outline" size={18} color={colors.primary} />
+                <Text style={[styles.previewActionText, { color: colors.primary }]}>
+                  {t('reports.save')}
+                  {previewPages.length > 1 ? ` (${previewPages.length})` : ''}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.previewActionBtn, { backgroundColor: colors.primary }]}
+                onPress={handleShare}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="share-outline" size={18} color="#fff" />
+                <Text style={[styles.previewActionText, { color: '#fff' }]}>
+                  {t('reports.share')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </Modal>
       </ScreenBackground>
     </ScreenTransition>
   );
@@ -246,5 +362,70 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 40,
     marginTop: 8,
+  },
+  previewSafe: {
+    flex: 1,
+  },
+  previewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+  previewTitle: {
+    fontFamily: Fonts.bold,
+    fontSize: 16,
+  },
+  previewPageCount: {
+    fontFamily: Fonts.regular,
+    fontSize: 11,
+    marginTop: 2,
+  },
+  previewScroll: {
+    flex: 1,
+  },
+  previewScrollContent: {
+    alignItems: 'center',
+    paddingBottom: 8,
+  },
+  previewPageWrapper: {
+    width: '100%',
+    position: 'relative',
+    marginBottom: 12,
+  },
+  previewPageBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  previewPageBadgeText: {
+    fontFamily: Fonts.bold,
+    fontSize: 11,
+    color: '#FFFFFF',
+  },
+  previewActions: {
+    flexDirection: 'row',
+    gap: 10,
+    padding: 16,
+    borderTopWidth: 1,
+  },
+  previewActionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 13,
+    borderRadius: 12,
+  },
+  previewActionText: {
+    fontFamily: Fonts.semiBold,
+    fontSize: 14,
   },
 });
