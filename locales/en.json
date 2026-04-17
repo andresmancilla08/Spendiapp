@@ -813,6 +813,12 @@
       "item1": "Select a friend and month to see all shared transactions between you",
       "item2": "Instantly identify who owes who and how much with the net balance",
       "item3": "Generate a downloadable and shareable image with every transaction detailed"
+    },
+    "annualReportImage": {
+      "title": "Annual report as images",
+      "item1": "The annual report is now generated as high-quality images instead of PDF",
+      "item2": "Download each page or share it directly from the app",
+      "item3": "Improved visual design with summary, categories and yearly movements"
     }
   },
   "sharedExpense": {
