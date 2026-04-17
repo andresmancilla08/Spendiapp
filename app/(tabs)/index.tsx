@@ -13,7 +13,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { router } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
@@ -37,6 +37,8 @@ import NotificationBell from '../../components/NotificationBell';
 import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
+import { useCategories } from '../../hooks/useCategories';
+import type { Category } from '../../types/category';
 
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
@@ -66,15 +68,17 @@ function timeAgo(date: Date): string {
   return `Hace ${Math.floor(diff / 1440)} días`;
 }
 
-function TransactionRow({ item, isLast, cardsMap, onPress }: {
+function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
   item: Transaction;
   isLast: boolean;
   cardsMap: Record<string, { bankName: string; nickname: string; type: string }>;
   onPress: () => void;
+  customCatMap: Record<string, Category>;
 }) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
-  const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
+  const customCat = customCatMap[item.category];
+  const cat = CATEGORY_META[item.category] ?? (customCat ? { icon: customCat.icon, color: '#737879', bg: '#F3F4F6', darkBg: '#252830' } : CATEGORY_META.other);
   const isExpense = item.type === 'expense';
   const card = item.cardId ? cardsMap[item.cardId] : null;
   const descLabel = item.isInstallment
@@ -154,6 +158,8 @@ function TransactionRow({ item, isLast, cardsMap, onPress }: {
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
+  const { categories } = useCategories(user?.uid ?? '');
+  const customCatMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { t } = useTranslation();
@@ -433,7 +439,7 @@ export default function HomeScreen() {
         ) : (
           <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
             {recent.map((tx, i) => (
-              <TransactionRow key={tx.id} item={tx} isLast={i === recent.length - 1} cardsMap={cardsMap} onPress={() => handleTapTx(tx)} />
+              <TransactionRow key={tx.id} item={tx} isLast={i === recent.length - 1} cardsMap={cardsMap} onPress={() => handleTapTx(tx)} customCatMap={customCatMap} />
             ))}
           </View>
         )}

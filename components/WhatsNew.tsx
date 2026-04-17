@@ -34,6 +34,71 @@ interface Feature {
 // Solo se muestra la versión que coincide con WHATS_NEW_VERSION.
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
+    version: '2.5.0',
+    features: [
+      {
+        icon: 'pricetag-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.customCategories.title',
+        items: [
+          'whatsNew.customCategories.item1',
+          'whatsNew.customCategories.item2',
+          'whatsNew.customCategories.item3',
+        ],
+      },
+      {
+        icon: 'globe-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.spendiaDomain.title',
+        items: [
+          'whatsNew.spendiaDomain.item1',
+          'whatsNew.spendiaDomain.item2',
+          'whatsNew.spendiaDomain.item3',
+        ],
+      },
+      {
+        icon: 'image-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.annualReportImage.title',
+        items: [
+          'whatsNew.annualReportImage.item1',
+          'whatsNew.annualReportImage.item2',
+          'whatsNew.annualReportImage.item3',
+        ],
+      },
+      {
+        icon: 'people-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.friendReport.title',
+        items: [
+          'whatsNew.friendReport.item1',
+          'whatsNew.friendReport.item2',
+          'whatsNew.friendReport.item3',
+        ],
+      },
+      {
+        icon: 'people-circle-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.sharedExpenses.title',
+        items: [
+          'whatsNew.sharedExpenses.item1',
+          'whatsNew.sharedExpenses.item2',
+          'whatsNew.sharedExpenses.item3',
+        ],
+      },
+      {
+        icon: 'flag-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.savingsGoals.title',
+        items: [
+          'whatsNew.savingsGoals.item1',
+          'whatsNew.savingsGoals.item2',
+          'whatsNew.savingsGoals.item3',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.4.1',
     features: [
       {

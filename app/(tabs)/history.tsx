@@ -43,6 +43,8 @@ import ScreenBackground from '../../components/ScreenBackground';
 import { useSharedTransactions } from '../../hooks/useSharedTransactions';
 import { getUserProfile } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
+import { useCategories } from '../../hooks/useCategories';
+import type { Category } from '../../types/category';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -412,12 +414,14 @@ interface TransactionRowProps {
   cardsMap: Record<string, { bankName: string; nickname: string; type: string }>;
   onTogglePaid?: (tx: Transaction) => void;
   paidLoading?: boolean;
+  customCatMap: Record<string, Category>;
 }
 
-function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onTogglePaid, paidLoading }: TransactionRowProps) {
+function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onTogglePaid, paidLoading, customCatMap }: TransactionRowProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const cat = CATEGORY_META[item.category] ?? CATEGORY_META.other;
+  const customCat = customCatMap[item.category];
+  const cat = CATEGORY_META[item.category] ?? (customCat ? { icon: customCat.icon, color: '#737879' } : CATEGORY_META.other);
   const CATEGORY_LABELS: Record<string, string> = {
     food: t('categories.names.food'),
     transport: t('categories.names.transport'),
@@ -537,7 +541,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
               <Text style={[styles.txTime, { color: colors.textTertiary }]}>
-                {CATEGORY_LABELS[item.category] ?? item.category}
+                {CATEGORY_LABELS[item.category] ?? customCat?.name ?? item.category}
               </Text>
               {card && (
                 <View style={[styles.txCardChip, {
@@ -625,6 +629,8 @@ export default function HistoryScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { user } = useAuthStore();
+  const { categories } = useCategories(user?.uid ?? '');
+  const customCatMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const { cards } = useCards(user?.uid ?? '');
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { showToast } = useToast();
@@ -1119,6 +1125,7 @@ export default function HistoryScreen() {
                     cardsMap={cardsMap}
                     onTogglePaid={handleTogglePaid}
                     paidLoading={paidLoadingId === getActualId(tx)}
+                    customCatMap={customCatMap}
                   />
                 ))}
               </View>

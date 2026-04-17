@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -30,6 +30,7 @@ import ScreenBackground from '../components/ScreenBackground';
 import { useSharedTransactions } from '../hooks/useSharedTransactions';
 import { useSentIncome } from '../hooks/useSentIncome';
 import { useHistoryStore } from '../store/historyStore';
+import { useCategories } from '../hooks/useCategories';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -91,6 +92,8 @@ export default function TransactionDetailScreen() {
 
   const { user } = useAuthStore();
   const currentUserUid = user?.uid ?? '';
+  const { categories } = useCategories(currentUserUid);
+  const customCatMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const { deleteSharedTransaction } = useSharedTransactions();
   const { deleteSentIncome } = useSentIncome();
 
@@ -182,7 +185,8 @@ export default function TransactionDetailScreen() {
   if (!transaction) return null;
 
   const isExpense = transaction.type === 'expense';
-  const cat = CATEGORY_META[transaction.category] ?? CATEGORY_META.other;
+  const customCat = customCatMap[transaction.category];
+  const cat = CATEGORY_META[transaction.category] ?? (customCat ? { icon: customCat.icon, color: '#737879' } : CATEGORY_META.other);
   const card = transaction.cardId ? cardsMap[transaction.cardId] : null;
   const isLoading = deleteLoading || duplicateLoading;
 
@@ -305,7 +309,7 @@ export default function TransactionDetailScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={{ fontSize: 14 }}>{cat.icon}</Text>
                 <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
-                  {CATEGORY_LABELS[transaction.category] ?? transaction.category}
+                  {CATEGORY_LABELS[transaction.category] ?? customCat?.name ?? transaction.category}
                 </Text>
               </View>
             </View>
