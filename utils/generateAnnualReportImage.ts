@@ -375,13 +375,15 @@ function drawSummaryCards(
     noShadow(ctx);
     ctx.fillStyle = rgba(card.color, 0.06); rr(ctx, cx, cy, cardW, H_SCARD, 20); ctx.fill();
 
+    // Clip inner elements to card rounded boundary
+    ctx.save();
+    rr(ctx, cx, cy, cardW, H_SCARD, 20); ctx.clip();
+
     // Top colored bar
     ctx.fillStyle = hGrad(ctx, cx, cy, cardW, card.color, rgba(card.color, 0.70));
     rrTop(ctx, cx, cy, cardW, 5, 20); ctx.fill();
     ctx.fillStyle = hGrad(ctx, cx, cy, cardW, card.color, rgba(card.color, 0.70));
     ctx.fillRect(cx, cy + 2, cardW, 3);
-    ctx.strokeStyle = rgba(card.color, 0.20); ctx.lineWidth = 1;
-    rr(ctx, cx, cy, cardW, H_SCARD, 20); ctx.stroke();
 
     // Icon circle
     const icR = 22, icX = cx + cardW - icR - 14, icY = cy + H_SCARD / 2;
@@ -410,6 +412,10 @@ function drawSummaryCards(
     ctx.fillStyle = rgba(card.color, 0.14); rr(ctx, cx + 16, cy + H_SCARD - 34, sW, 22, 11); ctx.fill();
     ctx.fillStyle = card.color; ctx.textBaseline = 'middle';
     ctx.fillText(card.sub, cx + 25, cy + H_SCARD - 23);
+    // End clip — draw card stroke on top
+    ctx.restore();
+    ctx.strokeStyle = rgba(card.color, 0.20); ctx.lineWidth = 1;
+    rr(ctx, cx, cy, cardW, H_SCARD, 20); ctx.stroke();
   });
 }
 
@@ -429,8 +435,10 @@ function drawCategoriesSection(
   shadow(ctx, 20, 0.10, 7);
   ctx.fillStyle = WHITE; rr(ctx, cx, y, cw, cardH, 22); ctx.fill();
   noShadow(ctx);
-  ctx.strokeStyle = rgba(CYAN_MID, 0.15); ctx.lineWidth = 1;
-  rr(ctx, cx, y, cw, cardH, 22); ctx.stroke();
+
+  // Clip all inner elements to card rounded boundary
+  ctx.save();
+  rr(ctx, cx, y, cw, cardH, 22); ctx.clip();
 
   // Header gradient
   ctx.fillStyle = hGrad(ctx, cx, y, cw, CYAN_MID, rgba(CYAN_DARK, 0.78));
@@ -557,6 +565,11 @@ function drawCategoriesSection(
     ctx.fillText(`−${fmtCOP(totExp)}`, cx + cw - 20, fY);
   }
   ctx.textAlign = 'left';
+
+  // End clip — draw card stroke on top
+  ctx.restore();
+  ctx.strokeStyle = rgba(CYAN_MID, 0.15); ctx.lineWidth = 1;
+  rr(ctx, cx, y, cw, cardH, 22); ctx.stroke();
 }
 
 // ── Movements section card ──────────────────────────────────────────────────
@@ -575,8 +588,10 @@ function drawMovementsSection(
   shadow(ctx, 20, 0.10, 7);
   ctx.fillStyle = WHITE; rr(ctx, cx, y, cw, cardH, 22); ctx.fill();
   noShadow(ctx);
-  ctx.strokeStyle = rgba(CYAN_DARK, 0.15); ctx.lineWidth = 1;
-  rr(ctx, cx, y, cw, cardH, 22); ctx.stroke();
+
+  // Clip all inner elements to card rounded boundary
+  ctx.save();
+  rr(ctx, cx, y, cw, cardH, 22); ctx.clip();
 
   // Header (darker cyan)
   ctx.fillStyle = hGrad(ctx, cx, y, cw, CYAN_DARK, rgba('#005060', 0.90));
@@ -709,6 +724,11 @@ function drawMovementsSection(
     ctx.fillText(`−${fmtCOP(totExp)}`, cx + cw - 20, fY);
   }
   ctx.textAlign = 'left';
+
+  // End clip — draw card stroke on top
+  ctx.restore();
+  ctx.strokeStyle = rgba(CYAN_DARK, 0.15); ctx.lineWidth = 1;
+  rr(ctx, cx, y, cw, cardH, 22); ctx.stroke();
 }
 
 // ── Main export ────────────────────────────────────────────────────────────

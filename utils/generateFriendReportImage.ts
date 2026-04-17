@@ -217,8 +217,11 @@ function drawSectionCard(
   ctx.fillStyle = WHITE;
   rr(ctx, cx, y, cw, cardH, 22); ctx.fill();
   noShadow(ctx);
-  ctx.strokeStyle = rgba(accent, 0.15); ctx.lineWidth = 1;
-  rr(ctx, cx, y, cw, cardH, 22); ctx.stroke();
+
+  // Clip all inner elements to card rounded boundary
+  ctx.save();
+  rr(ctx, cx, y, cw, cardH, 22);
+  ctx.clip();
 
   // Header gradient (rounded top)
   ctx.fillStyle = hGrad(ctx, cx, y, cw, accent, rgba(accent, 0.78));
@@ -338,6 +341,11 @@ function drawSectionCard(
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   ctx.fillText(`${isExpense ? '−' : '+'}${fmtCOP(total)}`, cx + cw - 20, fY);
   ctx.textAlign = 'left';
+
+  // End clip — draw card stroke on top
+  ctx.restore();
+  ctx.strokeStyle = rgba(accent, 0.15); ctx.lineWidth = 1;
+  rr(ctx, cx, y, cw, cardH, 22); ctx.stroke();
 }
 
 // ── Mini branding header (continuation pages) ──────────────────────────────
@@ -584,12 +592,13 @@ export async function generateFriendReportImage(
         ctx.fillStyle = WHITE; rr(ctx, cx, cy, cW, H_SCARD, 20); ctx.fill();
         noShadow(ctx);
         ctx.fillStyle = rgba(card.color, 0.06); rr(ctx, cx, cy, cW, H_SCARD, 20); ctx.fill();
+        // Clip inner elements to card rounded boundary
+        ctx.save();
+        rr(ctx, cx, cy, cW, H_SCARD, 20); ctx.clip();
         ctx.fillStyle = hGrad(ctx, cx, cy, cW, card.color, rgba(card.color, 0.70));
         rrTop(ctx, cx, cy, cW, 5, 20); ctx.fill();
         ctx.fillStyle = hGrad(ctx, cx, cy, cW, card.color, rgba(card.color, 0.70));
         ctx.fillRect(cx, cy + 2, cW, 3);
-        ctx.strokeStyle = rgba(card.color, 0.20); ctx.lineWidth = 1;
-        rr(ctx, cx, cy, cW, H_SCARD, 20); ctx.stroke();
         // Icon circle — fully inside card: radius 22, right-aligned with 14px margin
         const icR = 22, icX = cx + cW - icR - 14, icY = cy + H_SCARD / 2;
         const icBg = ctx.createRadialGradient(icX, icY, 0, icX, icY, icR);
@@ -611,6 +620,10 @@ export async function generateFriendReportImage(
         ctx.fillStyle = rgba(card.color, 0.14); rr(ctx, cx + 16, cy + H_SCARD - 34, sW, 22, 11); ctx.fill();
         ctx.fillStyle = card.color; ctx.textBaseline = 'middle';
         ctx.fillText(card.sub, cx + 25, cy + H_SCARD - 23);
+        // End clip — draw card stroke on top
+        ctx.restore();
+        ctx.strokeStyle = rgba(card.color, 0.20); ctx.lineWidth = 1;
+        rr(ctx, cx, cy, cW, H_SCARD, 20); ctx.stroke();
       });
 
       y += H_SCARD + GAP;

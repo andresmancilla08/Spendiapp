@@ -420,9 +420,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 13,
-    borderRadius: 12,
+    gap: 10,
+    paddingVertical: 15,
+    borderRadius: 14,
   },
   previewActionText: {
     fontFamily: Fonts.semiBold,
