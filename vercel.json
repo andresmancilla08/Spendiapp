@@ -3,6 +3,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/__/auth/:path*",
+      "destination": "https://spendiapp-159e7.firebaseapp.com/__/auth/:path*"
+    },
+    {
       "source": "/((?!_expo/|assets/|favicon\\.ico|manifest\\.json|apple-touch-icon\\.png).*)",
       "destination": "/index.html"
     }

@@ -849,7 +849,7 @@
     "title": "Estratto annuale",
     "subtitle": "Per la tua dichiarazione dei redditi",
     "selectYear": "Seleziona l'anno",
-    "generate": "Genera PDF",
+    "generate": "Genera report",
     "generating": "Generazione...",
     "share": "Condividi",
     "save": "Salva",
@@ -873,7 +873,8 @@
     "pdfDate": "Data",
     "pdfDescription": "Descrizione",
     "pdfFooter": "Generato da Spendia · Questo documento è informativo. Consulta il tuo commercialista per la dichiarazione ufficiale.",
-    "fiscalYear": "Anno fiscale"
+    "fiscalYear": "Anno fiscale",
+    "pages": "pagine"
   },
   "tools": {
     "title": "Strumenti",
@@ -961,6 +962,7 @@
     "previewBtn": "Anteprima",
     "generatingPreview": "Generazione...",
     "previewTitle": "Anteprima",
+    "pages": "immagini",
     "downloadBtn": "Scarica",
     "shareBtn": "Condividi",
     "theyOweYou": "{{name}} deve a {{myName}}",
