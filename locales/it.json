@@ -813,6 +813,12 @@
       "item1": "Seleziona un amico e un mese per vedere tutte le transazioni condivise tra voi",
       "item2": "Identifica subito chi deve a chi e quanto con il saldo netto",
       "item3": "Genera un'immagine scaricabile e condivisibile con ogni transazione nel dettaglio"
+    },
+    "annualReportImage": {
+      "title": "Estratto annuale come immagini",
+      "item1": "L'estratto annuale ora viene generato come immagini di alta qualità invece di PDF",
+      "item2": "Scarica ogni pagina o condividila direttamente dall'app",
+      "item3": "Design visivo migliorato con riepilogo, categorie e movimenti dell'anno"
     }
   },
   "sharedExpense": {

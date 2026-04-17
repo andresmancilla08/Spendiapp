@@ -814,6 +814,12 @@
       "item1": "Selecciona un amigo y un mes para ver todos los movimientos compartidos entre ustedes",
       "item2": "Identifica quién le debe a quién y cuánto con el balance neto al instante",
       "item3": "Genera una imagen descargable y compartible con cada transacción detallada"
+    },
+    "annualReportImage": {
+      "title": "Extracto anual como imágenes",
+      "item1": "El extracto anual ahora se genera como imágenes de alta calidad en lugar de PDF",
+      "item2": "Descarga cada página o compártela directamente desde la app",
+      "item3": "Diseño visual mejorado con resumen, categorías y movimientos del año"
     }
   },
   "sharedExpense": {
