@@ -819,6 +819,18 @@
       "item1": "The annual report is now generated as high-quality images instead of PDF",
       "item2": "Download each page or share it directly from the app",
       "item3": "Improved visual design with summary, categories and yearly movements"
+    },
+    "customCategories": {
+      "title": "Custom categories",
+      "item1": "Create your own categories with a unique icon and name",
+      "item2": "Now displayed correctly in home, history and detail",
+      "item3": "Organize your expenses and income exactly as you need"
+    },
+    "spendiaDomain": {
+      "title": "Now at spendia.co",
+      "item1": "The app has its own domain: spendia.co",
+      "item2": "Google sign-in is now more stable and secure",
+      "item3": "Install Spendia as a PWA directly from spendia.co"
     }
   },
   "sharedExpense": {
@@ -900,6 +912,10 @@
     "friendReportCard": {
       "title": "Friend Report",
       "description": "Generate a PDF with all your sends to a friend for that month"
+    },
+    "expenseGroupsCard": {
+      "title": "Group Expenses",
+      "description": "Track and split expenses on outings or trips"
     }
   },
   "goals": {
@@ -939,6 +955,71 @@
       "deleted": "Goal deleted",
       "contributed": "Savings added!",
       "completed": "Goal achieved! 🎉",
+      "error": "An error occurred"
+    }
+  },
+  "expenseGroups": {
+    "title": "Group Expenses",
+    "pageDesc": "Track who paid what and calculate who owes whom",
+    "newGroup": "New group",
+    "emptyTitle": "No groups yet",
+    "emptySub": "Create a group for a trip or outing and split expenses easily",
+    "statusActive": "Active",
+    "statusSettled": "Settled",
+    "participants": "participant",
+    "participants_plural": "participants",
+    "total": "Total",
+    "deleteGroup": "Delete group",
+    "deleteGroupConfirm": "Delete this group and all its expenses? This action cannot be undone.",
+    "settle": "Mark as settled",
+    "settleConfirm": "Mark this group as settled? All balances will be cleared.",
+    "reopen": "Reopen group",
+    "settled": "This group has been settled",
+    "createGroup": {
+      "title": "New group",
+      "namePlaceholder": "E.g.: Cartagena trip",
+      "emojiLabel": "Icon",
+      "participantsLabel": "Participants",
+      "addParticipant": "Add participant",
+      "participantPlaceholder": "Participant name",
+      "youLabel": "You",
+      "create": "Create group",
+      "minParticipants": "You must add at least one participant besides yourself"
+    },
+    "detail": {
+      "expenses": "Expenses",
+      "addExpense": "Add expense",
+      "noExpenses": "No expenses yet",
+      "noExpensesSub": "Add the first expense to this group",
+      "paidBy": "Paid by",
+      "splitAmong": "Split among",
+      "deleteExpense": "Delete expense",
+      "deleteExpenseConfirm": "Delete this expense?",
+      "everyone": "everyone"
+    },
+    "addExpense": {
+      "title": "New expense",
+      "descriptionPlaceholder": "E.g.: Dinner, Hotel, Transport",
+      "amountPlaceholder": "Amount",
+      "paidByLabel": "Who paid?",
+      "splitLabel": "Split among?",
+      "add": "Add",
+      "validationDesc": "Enter a description",
+      "validationAmount": "Enter a valid amount",
+      "validationPaidBy": "Select who paid",
+      "validationSplit": "Select at least one person"
+    },
+    "settlement": {
+      "title": "Settlement",
+      "balanced": "All settled! No pending debts.",
+      "owes": "owes",
+      "totalPaid": "Total paid by you",
+      "yourShare": "Your share",
+      "balance": "Your balance"
+    },
+    "toasts": {
+      "created": "Group created",
+      "deleted": "Group deleted",
       "error": "An error occurred"
     }
   },

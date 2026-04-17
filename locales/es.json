@@ -820,6 +820,18 @@
       "item1": "El extracto anual ahora se genera como imágenes de alta calidad en lugar de PDF",
       "item2": "Descarga cada página o compártela directamente desde la app",
       "item3": "Diseño visual mejorado con resumen, categorías y movimientos del año"
+    },
+    "customCategories": {
+      "title": "Categorías personalizadas",
+      "item1": "Crea tus propias categorías con icono y nombre único",
+      "item2": "Ahora se muestran correctamente en home, historial y detalle",
+      "item3": "Organiza tus gastos e ingresos exactamente como necesitas"
+    },
+    "spendiaDomain": {
+      "title": "Ahora en spendia.co",
+      "item1": "La app tiene su propio dominio: spendia.co",
+      "item2": "Inicio de sesión con Google más estable y seguro",
+      "item3": "Instala Spendia como PWA directamente desde spendia.co"
     }
   },
   "sharedExpense": {
@@ -901,6 +913,10 @@
     "friendReportCard": {
       "title": "Reporte con amigo",
       "description": "Genera un PDF con todos tus envíos a un amigo para ese mes"
+    },
+    "expenseGroupsCard": {
+      "title": "Gastos de grupo",
+      "description": "Registra y divide gastos en salidas o viajes"
     }
   },
   "goals": {
@@ -940,6 +956,71 @@
       "deleted": "Meta eliminada",
       "contributed": "¡Ahorro registrado!",
       "completed": "¡Meta cumplida! 🎉",
+      "error": "Ocurrió un error"
+    }
+  },
+  "expenseGroups": {
+    "title": "Gastos de grupo",
+    "pageDesc": "Registra quién pagó qué y calcula quién debe a quién",
+    "newGroup": "Nuevo grupo",
+    "emptyTitle": "Sin grupos todavía",
+    "emptySub": "Crea un grupo para un viaje o salida y divide los gastos fácilmente",
+    "statusActive": "Activo",
+    "statusSettled": "Liquidado",
+    "participants": "participante",
+    "participants_plural": "participantes",
+    "total": "Total",
+    "deleteGroup": "Eliminar grupo",
+    "deleteGroupConfirm": "¿Eliminar este grupo y todos sus gastos? Esta acción no se puede deshacer.",
+    "settle": "Marcar como liquidado",
+    "settleConfirm": "¿Marcar este grupo como liquidado? Todos los saldos quedarán en cero.",
+    "reopen": "Reabrir grupo",
+    "settled": "Este grupo ya fue liquidado",
+    "createGroup": {
+      "title": "Nuevo grupo",
+      "namePlaceholder": "Ej: Viaje a Cartagena",
+      "emojiLabel": "Ícono",
+      "participantsLabel": "Participantes",
+      "addParticipant": "Agregar participante",
+      "participantPlaceholder": "Nombre del participante",
+      "youLabel": "Tú",
+      "create": "Crear grupo",
+      "minParticipants": "Debes agregar al menos un participante además de ti"
+    },
+    "detail": {
+      "expenses": "Gastos",
+      "addExpense": "Agregar gasto",
+      "noExpenses": "Sin gastos todavía",
+      "noExpensesSub": "Agrega el primer gasto del grupo",
+      "paidBy": "Pagó",
+      "splitAmong": "Dividido entre",
+      "deleteExpense": "Eliminar gasto",
+      "deleteExpenseConfirm": "¿Eliminar este gasto?",
+      "everyone": "todos"
+    },
+    "addExpense": {
+      "title": "Nuevo gasto",
+      "descriptionPlaceholder": "Ej: Cena, Hotel, Transporte",
+      "amountPlaceholder": "Monto",
+      "paidByLabel": "¿Quién pagó?",
+      "splitLabel": "¿Entre quiénes se divide?",
+      "add": "Agregar",
+      "validationDesc": "Ingresa una descripción",
+      "validationAmount": "Ingresa un monto válido",
+      "validationPaidBy": "Selecciona quién pagó",
+      "validationSplit": "Selecciona al menos una persona"
+    },
+    "settlement": {
+      "title": "Liquidación",
+      "balanced": "¡Todo está en orden! No hay deudas pendientes.",
+      "owes": "le debe a",
+      "totalPaid": "Total pagado por ti",
+      "yourShare": "Tu parte del gasto",
+      "balance": "Tu balance"
+    },
+    "toasts": {
+      "created": "Grupo creado",
+      "deleted": "Grupo eliminado",
       "error": "Ocurrió un error"
     }
   },
