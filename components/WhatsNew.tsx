@@ -741,51 +741,40 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
           focusable={false}
           style={Platform.OS === 'web' ? { outline: 'none' } as any : undefined}
         >
-          {VERSION_HISTORY.map((entry) => (
-            <View key={entry.version}>
-              <View style={styles.versionSection}>
-                <View style={[styles.versionSectionDot, { backgroundColor: colors.primary }]} />
-                <Text style={[styles.versionSectionLabel, { color: colors.textTertiary }]}>
-                  v{entry.version}
-                </Text>
-                <View style={[styles.versionSectionLine, { backgroundColor: colors.border }]} />
-              </View>
-              {entry.features.map((f) => {
-                const accentColor = colors[f.colorKey];
-                const accentBg = f.colorKey === 'success' ? colors.successLight : colors.primaryLight;
-                return (
-                  <View
-                    key={f.titleKey}
-                    style={[styles.card, {
-                      backgroundColor: colors.surface,
-                      borderColor: isDark
-                        ? (f.colorKey === 'success' ? 'rgba(0,168,150,0.12)' : 'rgba(0,172,193,0.12)')
-                        : 'rgba(0,0,0,0.06)',
-                    }]}
-                  >
-                    <View style={styles.cardHeader}>
-                      <View style={[styles.iconWrap, { backgroundColor: accentBg }]}>
-                        <Ionicons name={f.icon} size={20} color={accentColor} />
-                      </View>
-                      <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                        {t(f.titleKey)}
+          {Array.from(new Map(VERSION_HISTORY.flatMap((e) => e.features).map((f) => [f.titleKey, f])).values()).map((f) => {
+            const accentColor = colors[f.colorKey];
+            const accentBg = f.colorKey === 'success' ? colors.successLight : colors.primaryLight;
+            return (
+              <View
+                key={f.titleKey}
+                style={[styles.card, {
+                  backgroundColor: colors.surface,
+                  borderColor: isDark
+                    ? (f.colorKey === 'success' ? 'rgba(0,168,150,0.12)' : 'rgba(0,172,193,0.12)')
+                    : 'rgba(0,0,0,0.06)',
+                }]}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={[styles.iconWrap, { backgroundColor: accentBg }]}>
+                    <Ionicons name={f.icon} size={20} color={accentColor} />
+                  </View>
+                  <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                    {t(f.titleKey)}
+                  </Text>
+                </View>
+                <View style={styles.itemsList}>
+                  {f.items.map((itemKey) => (
+                    <View key={itemKey} style={styles.itemRow}>
+                      <View style={[styles.itemDot, { backgroundColor: accentColor }]} />
+                      <Text style={[styles.itemText, { color: colors.textSecondary }]}>
+                        {t(itemKey)}
                       </Text>
                     </View>
-                    <View style={styles.itemsList}>
-                      {f.items.map((itemKey) => (
-                        <View key={itemKey} style={styles.itemRow}>
-                          <View style={[styles.itemDot, { backgroundColor: accentColor }]} />
-                          <Text style={[styles.itemText, { color: colors.textSecondary }]}>
-                            {t(itemKey)}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          ))}
+                  ))}
+                </View>
+              </View>
+            );
+          })}
         </ScrollView>
 
         {/* Botón fijo inferior */}
@@ -865,27 +854,6 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
 
-  versionSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-    marginTop: 4,
-  },
-  versionSectionDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-  },
-  versionSectionLabel: {
-    fontSize: 12,
-    fontFamily: Fonts.bold,
-    letterSpacing: 0.5,
-  },
-  versionSectionLine: {
-    flex: 1,
-    height: StyleSheet.hairlineWidth,
-  },
 
   card: {
     borderRadius: 20,
