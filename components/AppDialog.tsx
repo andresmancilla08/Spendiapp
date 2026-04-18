@@ -44,6 +44,7 @@ interface AppDialogProps {
   onSecondary?: () => void;
   loading?: boolean;
   primaryDisabled?: boolean;
+  primaryDanger?: boolean;
   // Input
   inputValue?: string;
   onInputChange?: (value: string) => void;
@@ -64,6 +65,7 @@ export default function AppDialog({
   onSecondary,
   loading = false,
   primaryDisabled,
+  primaryDanger = false,
   inputValue,
   onInputChange,
   inputPlaceholder,
@@ -168,7 +170,7 @@ export default function AppDialog({
           <TouchableOpacity
             style={[
               styles.primaryButton,
-              { backgroundColor: colors.primary },
+              { backgroundColor: primaryDanger ? colors.error : colors.primary },
               isPrimaryDisabled && styles.primaryButtonDisabled,
               !secondaryLabel && styles.primaryButtonLast,
             ]}

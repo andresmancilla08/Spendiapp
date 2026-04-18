@@ -391,7 +391,7 @@ export default function FriendsScreen() {
 
         <AppDialog
           visible={removeDialog.visible}
-          type="warning"
+          type="error"
           title={t('friends.remove.dialogTitle')}
           description={
             removeDialog.friendship
@@ -408,6 +408,7 @@ export default function FriendsScreen() {
           secondaryLabel={t('common.cancel')}
           onPrimary={handleRemoveFriend}
           onSecondary={() => setRemoveDialog({ visible: false, friendship: null })}
+          primaryDanger
         />
       </ScreenBackground>
     </SafeAreaView>

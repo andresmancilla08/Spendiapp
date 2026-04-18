@@ -176,6 +176,7 @@ export default function CardsScreen() {
         onPrimary={confirmDelete}
         onSecondary={() => { if (!deleting) setDeleteTarget(null); }}
         loading={deleting}
+        primaryDanger
       />
       </ScreenBackground>
     </SafeAreaView>
