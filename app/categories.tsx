@@ -5,8 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Modal,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,6 +24,7 @@ import { Fonts } from '../config/fonts';
 import { useAuthStore } from '../store/authStore';
 import { useCategories } from '../hooks/useCategories';
 import { router } from 'expo-router';
+import AppDialog from '../components/AppDialog';
 import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
@@ -164,88 +163,6 @@ function CategoryRowSkeleton() {
       <Skeleton width={40} height={40} borderRadius={20} />
       <Skeleton width={120} height={14} borderRadius={6} />
     </View>
-  );
-}
-
-// ── Delete confirmation dialog ──────────────────────────────────────────────
-
-interface DeleteDialogProps {
-  visible: boolean;
-  transactionCount: number;
-  counting: boolean;
-  deleting: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
-}
-
-function DeleteDialog({
-  visible,
-  transactionCount,
-  counting,
-  deleting,
-  onCancel,
-  onConfirm,
-}: DeleteDialogProps) {
-  const { colors } = useTheme();
-  const { t } = useTranslation();
-
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={onCancel}
-    >
-      <View style={[styles.dialogOverlay, { backgroundColor: colors.overlay }]}>
-        <View style={[styles.dialogCard, { backgroundColor: colors.surface }]}>
-          <View style={[styles.dialogIconWrap, { backgroundColor: colors.errorLight }]}>
-            <Ionicons name="trash" size={28} color={colors.error} />
-          </View>
-          <Text style={[styles.dialogTitle, { color: colors.textPrimary }]}>
-            {t('categories.deleteTitle')}
-          </Text>
-          <Text style={[styles.dialogBody, { color: colors.textSecondary }]}>
-            {counting
-              ? t('categories.suggestingEmoji')
-              : t('categories.deleteDesc', { count: transactionCount })}
-          </Text>
-          <View style={styles.dialogActions}>
-            <TouchableOpacity
-              style={[
-                styles.dialogBtn,
-                { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1.5 },
-              ]}
-              onPress={onCancel}
-              activeOpacity={0.8}
-              disabled={deleting}
-            >
-              <Text style={[styles.dialogBtnText, { color: colors.textSecondary }]}>
-                {t('categories.deleteCancel')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.dialogBtn,
-                { backgroundColor: colors.error },
-                (deleting || counting) && styles.dialogBtnDisabled,
-              ]}
-              onPress={onConfirm}
-              activeOpacity={0.8}
-              disabled={deleting || counting}
-            >
-              {deleting ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <Text style={[styles.dialogBtnText, { color: '#FFFFFF' }]}>
-                  {t('categories.deleteConfirm')}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </Modal>
   );
 }
 
@@ -422,13 +339,18 @@ export default function CategoriesScreen() {
       />
 
       {/* Delete confirmation dialog */}
-      <DeleteDialog
+      <AppDialog
         visible={deleteTarget != null}
-        transactionCount={transactionCount}
-        counting={counting}
-        deleting={deleting}
-        onCancel={handleDeleteCancel}
-        onConfirm={handleDeleteConfirm}
+        type="error"
+        title={t('categories.deleteTitle')}
+        description={counting ? t('categories.suggestingEmoji') : t('categories.deleteDesc', { count: transactionCount })}
+        primaryLabel={t('categories.deleteConfirm')}
+        secondaryLabel={t('categories.deleteCancel')}
+        onPrimary={handleDeleteConfirm}
+        onSecondary={handleDeleteCancel}
+        loading={deleting}
+        primaryDisabled={counting}
+        primaryDanger
       />
       </ScreenBackground>
     </SafeAreaView>
@@ -551,63 +473,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Delete dialog
-  dialogOverlay: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-  },
-  dialogCard: {
-    width: '100%',
-    borderRadius: 24,
-    padding: 28,
-    alignItems: 'center',
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  dialogIconWrap: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
-  },
-  dialogTitle: {
-    fontSize: 17,
-    fontFamily: Fonts.bold,
-    textAlign: 'center',
-  },
-  dialogBody: {
-    fontSize: 14,
-    fontFamily: Fonts.regular,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 4,
-  },
-  dialogActions: {
-    flexDirection: 'row',
-    gap: 10,
-    width: '100%',
-    marginTop: 4,
-  },
-  dialogBtn: {
-    flex: 1,
-    height: 48,
-    borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dialogBtnDisabled: {
-    opacity: 0.5,
-  },
-  dialogBtnText: {
-    fontSize: 14,
-    fontFamily: Fonts.bold,
-  },
 });

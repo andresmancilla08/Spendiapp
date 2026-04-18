@@ -492,7 +492,7 @@ export default function GoalsScreen() {
           {dialogMode === 'delete' && selectedGoal && (
             <AppDialog
               visible
-              type="warning"
+              type="error"
               title={t('goals.deleteTitle')}
               description={
                 <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, color: colors.textSecondary, textAlign: 'center', alignSelf: 'stretch' }}>
@@ -506,6 +506,7 @@ export default function GoalsScreen() {
               onPrimary={handleDelete}
               onSecondary={closeDialog}
               loading={saving}
+              primaryDanger
             />
           )}
 

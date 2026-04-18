@@ -417,7 +417,7 @@ export default function BudgetScreen() {
       {dialogMode === 'delete' && selectedBudget && (
         <AppDialog
           visible
-          type="warning"
+          type="error"
           title={t('budget.dialog.deleteTitle')}
           description={
             <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, color: colors.textSecondary, textAlign: 'center', alignSelf: 'stretch' }}>
@@ -431,6 +431,7 @@ export default function BudgetScreen() {
           onPrimary={handleDelete}
           onSecondary={closeDialog}
           loading={saving}
+          primaryDanger
         />
       )}
       </ScreenBackground>
