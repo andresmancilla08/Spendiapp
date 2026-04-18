@@ -30,7 +30,7 @@ interface Feature {
   items: string[];
 }
 
-// Agregar nueva entrada en VERSION_HISTORY cuando salga una nueva versión.
+// Lista limpia y única de todas las funciones de la app (sin repetidos ni supersedidas).
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
     version: '2.5.1',
@@ -39,661 +39,67 @@ const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
         icon: 'people-circle-outline',
         colorKey: 'primary',
         titleKey: 'whatsNew.expenseGroups.title',
-        items: [
-          'whatsNew.expenseGroups.item1',
-          'whatsNew.expenseGroups.item2',
-          'whatsNew.expenseGroups.item3',
-        ],
+        items: ['whatsNew.expenseGroups.item1', 'whatsNew.expenseGroups.item2', 'whatsNew.expenseGroups.item3'],
       },
-    ],
-  },
-  {
-    version: '2.5.0',
-    features: [
       {
         icon: 'pricetag-outline',
         colorKey: 'primary',
         titleKey: 'whatsNew.customCategories.title',
-        items: [
-          'whatsNew.customCategories.item1',
-          'whatsNew.customCategories.item2',
-          'whatsNew.customCategories.item3',
-        ],
+        items: ['whatsNew.customCategories.item1', 'whatsNew.customCategories.item2', 'whatsNew.customCategories.item3'],
       },
       {
         icon: 'image-outline',
         colorKey: 'primary',
         titleKey: 'whatsNew.annualReportImage.title',
-        items: [
-          'whatsNew.annualReportImage.item1',
-          'whatsNew.annualReportImage.item2',
-          'whatsNew.annualReportImage.item3',
-        ],
+        items: ['whatsNew.annualReportImage.item1', 'whatsNew.annualReportImage.item2', 'whatsNew.annualReportImage.item3'],
       },
       {
         icon: 'people-outline',
         colorKey: 'success',
         titleKey: 'whatsNew.friendReport.title',
-        items: [
-          'whatsNew.friendReport.item1',
-          'whatsNew.friendReport.item2',
-          'whatsNew.friendReport.item3',
-        ],
-      },
-      {
-        icon: 'people-circle-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.sharedExpenses.title',
-        items: [
-          'whatsNew.sharedExpenses.item1',
-          'whatsNew.sharedExpenses.item2',
-          'whatsNew.sharedExpenses.item3',
-        ],
+        items: ['whatsNew.friendReport.item1', 'whatsNew.friendReport.item2', 'whatsNew.friendReport.item3'],
       },
       {
         icon: 'flag-outline',
         colorKey: 'success',
         titleKey: 'whatsNew.savingsGoals.title',
-        items: [
-          'whatsNew.savingsGoals.item1',
-          'whatsNew.savingsGoals.item2',
-          'whatsNew.savingsGoals.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '2.4.1',
-    features: [
-      {
-        icon: 'image-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.annualReportImage.title',
-        items: [
-          'whatsNew.annualReportImage.item1',
-          'whatsNew.annualReportImage.item2',
-          'whatsNew.annualReportImage.item3',
-        ],
-      },
-      {
-        icon: 'people-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.friendReport.title',
-        items: [
-          'whatsNew.friendReport.item1',
-          'whatsNew.friendReport.item2',
-          'whatsNew.friendReport.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '2.3.0',
-    features: [
-      {
-        icon: 'image-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.friendReport.title',
-        items: [
-          'whatsNew.friendReport.item1',
-          'whatsNew.friendReport.item2',
-          'whatsNew.friendReport.item3',
-        ],
+        items: ['whatsNew.savingsGoals.item1', 'whatsNew.savingsGoals.item2', 'whatsNew.savingsGoals.item3'],
       },
       {
         icon: 'send-outline',
         colorKey: 'success',
         titleKey: 'whatsNew.sentIncomeFeature.title',
-        items: [
-          'whatsNew.sentIncomeFeature.item1',
-          'whatsNew.sentIncomeFeature.item2',
-          'whatsNew.sentIncomeFeature.item3',
-        ],
-      },
-      {
-        icon: 'people-circle-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.sharedExpenses.title',
-        items: [
-          'whatsNew.sharedExpenses.item1',
-          'whatsNew.sharedExpenses.item2',
-          'whatsNew.sharedExpenses.item3',
-        ],
+        items: ['whatsNew.sentIncomeFeature.item1', 'whatsNew.sentIncomeFeature.item2', 'whatsNew.sentIncomeFeature.item3'],
       },
       {
         icon: 'bar-chart-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.budget.title',
-        items: [
-          'whatsNew.budget.item1',
-          'whatsNew.budget.item2',
-          'whatsNew.budget.item3',
-        ],
-      },
-      {
-        icon: 'flag-outline',
         colorKey: 'primary',
-        titleKey: 'whatsNew.savingsGoals.title',
-        items: [
-          'whatsNew.savingsGoals.item1',
-          'whatsNew.savingsGoals.item2',
-          'whatsNew.savingsGoals.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '2.2.3',
-    features: [
-      {
-        icon: 'send-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.sentIncomeFeature.title',
-        items: [
-          'whatsNew.sentIncomeFeature.item1',
-          'whatsNew.sentIncomeFeature.item2',
-          'whatsNew.sentIncomeFeature.item3',
-        ],
+        titleKey: 'whatsNew.budget.title',
+        items: ['whatsNew.budget.item1', 'whatsNew.budget.item2', 'whatsNew.budget.item3'],
       },
       {
         icon: 'apps-outline',
         colorKey: 'primary',
         titleKey: 'whatsNew.navbarRedesign.title',
-        items: [
-          'whatsNew.navbarRedesign.item1',
-          'whatsNew.navbarRedesign.item2',
-          'whatsNew.navbarRedesign.item3',
-        ],
-      },
-      {
-        icon: 'flag-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.savingsGoals.title',
-        items: [
-          'whatsNew.savingsGoals.item1',
-          'whatsNew.savingsGoals.item2',
-          'whatsNew.savingsGoals.item3',
-        ],
-      },
-      {
-        icon: 'construct-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.toolsHub.title',
-        items: [
-          'whatsNew.toolsHub.item1',
-          'whatsNew.toolsHub.item2',
-          'whatsNew.toolsHub.item3',
-        ],
-      },
-      {
-        icon: 'document-text-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.annualReport.title',
-        items: [
-          'whatsNew.annualReport.item1',
-          'whatsNew.annualReport.item2',
-          'whatsNew.annualReport.item3',
-        ],
-      },
-      {
-        icon: 'people-circle-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.sharedExpenses.title',
-        items: [
-          'whatsNew.sharedExpenses.item1',
-          'whatsNew.sharedExpenses.item2',
-          'whatsNew.sharedExpenses.item3',
-        ],
-      },
-      {
-        icon: 'bar-chart-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.budget.title',
-        items: [
-          'whatsNew.budget.item1',
-          'whatsNew.budget.item2',
-          'whatsNew.budget.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '2.2.2',
-    features: [
-      {
-        icon: 'send-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.sentIncomeFeature.title',
-        items: [
-          'whatsNew.sentIncomeFeature.item1',
-          'whatsNew.sentIncomeFeature.item2',
-          'whatsNew.sentIncomeFeature.item3',
-        ],
-      },
-      {
-        icon: 'apps-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.navbarRedesign.title',
-        items: [
-          'whatsNew.navbarRedesign.item1',
-          'whatsNew.navbarRedesign.item2',
-          'whatsNew.navbarRedesign.item3',
-        ],
-      },
-      {
-        icon: 'flag-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.savingsGoals.title',
-        items: [
-          'whatsNew.savingsGoals.item1',
-          'whatsNew.savingsGoals.item2',
-          'whatsNew.savingsGoals.item3',
-        ],
-      },
-      {
-        icon: 'construct-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.toolsHub.title',
-        items: [
-          'whatsNew.toolsHub.item1',
-          'whatsNew.toolsHub.item2',
-          'whatsNew.toolsHub.item3',
-        ],
-      },
-      {
-        icon: 'document-text-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.annualReport.title',
-        items: [
-          'whatsNew.annualReport.item1',
-          'whatsNew.annualReport.item2',
-          'whatsNew.annualReport.item3',
-        ],
-      },
-      {
-        icon: 'people-circle-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.sharedExpenses.title',
-        items: [
-          'whatsNew.sharedExpenses.item1',
-          'whatsNew.sharedExpenses.item2',
-          'whatsNew.sharedExpenses.item3',
-        ],
-      },
-      {
-        icon: 'bar-chart-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.budget.title',
-        items: [
-          'whatsNew.budget.item1',
-          'whatsNew.budget.item2',
-          'whatsNew.budget.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '2.2.1',
-    features: [
-      {
-        icon: 'send-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.sentIncomeFeature.title',
-        items: [
-          'whatsNew.sentIncomeFeature.item1',
-          'whatsNew.sentIncomeFeature.item2',
-          'whatsNew.sentIncomeFeature.item3',
-        ],
-      },
-      {
-        icon: 'apps-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.navbarRedesign.title',
-        items: [
-          'whatsNew.navbarRedesign.item1',
-          'whatsNew.navbarRedesign.item2',
-          'whatsNew.navbarRedesign.item3',
-        ],
-      },
-      {
-        icon: 'flag-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.savingsGoals.title',
-        items: [
-          'whatsNew.savingsGoals.item1',
-          'whatsNew.savingsGoals.item2',
-          'whatsNew.savingsGoals.item3',
-        ],
-      },
-      {
-        icon: 'construct-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.toolsHub.title',
-        items: [
-          'whatsNew.toolsHub.item1',
-          'whatsNew.toolsHub.item2',
-          'whatsNew.toolsHub.item3',
-        ],
-      },
-      {
-        icon: 'document-text-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.annualReport.title',
-        items: [
-          'whatsNew.annualReport.item1',
-          'whatsNew.annualReport.item2',
-          'whatsNew.annualReport.item3',
-        ],
-      },
-      {
-        icon: 'people-circle-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.sharedExpenses.title',
-        items: [
-          'whatsNew.sharedExpenses.item1',
-          'whatsNew.sharedExpenses.item2',
-          'whatsNew.sharedExpenses.item3',
-        ],
-      },
-      {
-        icon: 'bar-chart-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.budget.title',
-        items: [
-          'whatsNew.budget.item1',
-          'whatsNew.budget.item2',
-          'whatsNew.budget.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '2.2.0',
-    features: [
-      {
-        icon: 'send-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.sentIncomeFeature.title',
-        items: [
-          'whatsNew.sentIncomeFeature.item1',
-          'whatsNew.sentIncomeFeature.item2',
-          'whatsNew.sentIncomeFeature.item3',
-        ],
-      },
-      {
-        icon: 'apps-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.navbarRedesign.title',
-        items: [
-          'whatsNew.navbarRedesign.item1',
-          'whatsNew.navbarRedesign.item2',
-          'whatsNew.navbarRedesign.item3',
-        ],
-      },
-      {
-        icon: 'flag-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.savingsGoals.title',
-        items: [
-          'whatsNew.savingsGoals.item1',
-          'whatsNew.savingsGoals.item2',
-          'whatsNew.savingsGoals.item3',
-        ],
-      },
-      {
-        icon: 'construct-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.toolsHub.title',
-        items: [
-          'whatsNew.toolsHub.item1',
-          'whatsNew.toolsHub.item2',
-          'whatsNew.toolsHub.item3',
-        ],
-      },
-      {
-        icon: 'document-text-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.annualReport.title',
-        items: [
-          'whatsNew.annualReport.item1',
-          'whatsNew.annualReport.item2',
-          'whatsNew.annualReport.item3',
-        ],
-      },
-      {
-        icon: 'people-circle-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.sharedExpenses.title',
-        items: [
-          'whatsNew.sharedExpenses.item1',
-          'whatsNew.sharedExpenses.item2',
-          'whatsNew.sharedExpenses.item3',
-        ],
-      },
-      {
-        icon: 'bar-chart-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.budget.title',
-        items: [
-          'whatsNew.budget.item1',
-          'whatsNew.budget.item2',
-          'whatsNew.budget.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '2.1.0',
-    features: [
-      {
-        icon: 'apps-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.navbarRedesign.title',
-        items: [
-          'whatsNew.navbarRedesign.item1',
-          'whatsNew.navbarRedesign.item2',
-          'whatsNew.navbarRedesign.item3',
-        ],
-      },
-      {
-        icon: 'flag-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.savingsGoals.title',
-        items: [
-          'whatsNew.savingsGoals.item1',
-          'whatsNew.savingsGoals.item2',
-          'whatsNew.savingsGoals.item3',
-        ],
-      },
-      {
-        icon: 'construct-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.toolsHub.title',
-        items: [
-          'whatsNew.toolsHub.item1',
-          'whatsNew.toolsHub.item2',
-          'whatsNew.toolsHub.item3',
-        ],
-      },
-      {
-        icon: 'document-text-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.annualReport.title',
-        items: [
-          'whatsNew.annualReport.item1',
-          'whatsNew.annualReport.item2',
-          'whatsNew.annualReport.item3',
-        ],
-      },
-      {
-        icon: 'people-circle-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.sharedExpenses.title',
-        items: [
-          'whatsNew.sharedExpenses.item1',
-          'whatsNew.sharedExpenses.item2',
-          'whatsNew.sharedExpenses.item3',
-        ],
-      },
-      {
-        icon: 'bar-chart-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.budget.title',
-        items: [
-          'whatsNew.budget.item1',
-          'whatsNew.budget.item2',
-          'whatsNew.budget.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '2.0.0',
-    features: [
-      {
-        icon: 'flag-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.savingsGoals.title',
-        items: [
-          'whatsNew.savingsGoals.item1',
-          'whatsNew.savingsGoals.item2',
-          'whatsNew.savingsGoals.item3',
-        ],
+        items: ['whatsNew.navbarRedesign.item1', 'whatsNew.navbarRedesign.item2', 'whatsNew.navbarRedesign.item3'],
       },
       {
         icon: 'construct-outline',
         colorKey: 'success',
         titleKey: 'whatsNew.toolsHub.title',
-        items: [
-          'whatsNew.toolsHub.item1',
-          'whatsNew.toolsHub.item2',
-          'whatsNew.toolsHub.item3',
-        ],
-      },
-      {
-        icon: 'document-text-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.annualReport.title',
-        items: [
-          'whatsNew.annualReport.item1',
-          'whatsNew.annualReport.item2',
-          'whatsNew.annualReport.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '1.7.0',
-    features: [
-      {
-        icon: 'card-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.badges.title',
-        items: [
-          'whatsNew.badges.item1',
-          'whatsNew.badges.item2',
-          'whatsNew.badges.item3',
-        ],
-      },
-      {
-        icon: 'sparkles-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.versionedNews.title',
-        items: [
-          'whatsNew.versionedNews.item1',
-          'whatsNew.versionedNews.item2',
-          'whatsNew.versionedNews.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '1.6.0',
-    features: [
-      {
-        icon: 'people-circle-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.sharedExpenses.title',
-        items: [
-          'whatsNew.sharedExpenses.item1',
-          'whatsNew.sharedExpenses.item2',
-          'whatsNew.sharedExpenses.item3',
-        ],
+        items: ['whatsNew.toolsHub.item1', 'whatsNew.toolsHub.item2', 'whatsNew.toolsHub.item3'],
       },
       {
         icon: 'calculator-outline',
         colorKey: 'success',
         titleKey: 'whatsNew.splitCalc.title',
-        items: [
-          'whatsNew.splitCalc.item1',
-          'whatsNew.splitCalc.item2',
-          'whatsNew.splitCalc.item3',
-        ],
-      },
-      {
-        icon: 'expand-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.newForm.title',
-        items: [
-          'whatsNew.newForm.item1',
-          'whatsNew.newForm.item2',
-          'whatsNew.newForm.item3',
-        ],
-      },
-      {
-        icon: 'sync-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.syncHistory.title',
-        items: [
-          'whatsNew.syncHistory.item1',
-          'whatsNew.syncHistory.item2',
-          'whatsNew.syncHistory.item3',
-        ],
-      },
-    ],
-  },
-  {
-    version: '1.5.0',
-    features: [
-      {
-        icon: 'bar-chart-outline',
-        colorKey: 'primary',
-        titleKey: 'whatsNew.budget.title',
-        items: [
-          'whatsNew.budget.item1',
-          'whatsNew.budget.item2',
-          'whatsNew.budget.item3',
-        ],
-      },
-      {
-        icon: 'people-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.friends.title',
-        items: [
-          'whatsNew.friends.item1',
-          'whatsNew.friends.item2',
-          'whatsNew.friends.item3',
-        ],
+        items: ['whatsNew.splitCalc.item1', 'whatsNew.splitCalc.item2', 'whatsNew.splitCalc.item3'],
       },
       {
         icon: 'notifications-outline',
         colorKey: 'primary',
         titleKey: 'whatsNew.notifications.title',
-        items: [
-          'whatsNew.notifications.item1',
-          'whatsNew.notifications.item2',
-          'whatsNew.notifications.item3',
-        ],
-      },
-      {
-        icon: 'flash-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.improvements.title',
-        items: [
-          'whatsNew.improvements.item1',
-          'whatsNew.improvements.item2',
-          'whatsNew.improvements.item3',
-        ],
+        items: ['whatsNew.notifications.item1', 'whatsNew.notifications.item2', 'whatsNew.notifications.item3'],
       },
     ],
   },
@@ -741,7 +147,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
           focusable={false}
           style={Platform.OS === 'web' ? { outline: 'none' } as any : undefined}
         >
-          {Array.from(new Map(VERSION_HISTORY.flatMap((e) => e.features).map((f) => [f.titleKey, f])).values()).map((f) => {
+          {VERSION_HISTORY[0].features.map((f) => {
             const accentColor = colors[f.colorKey];
             const accentBg = f.colorKey === 'success' ? colors.successLight : colors.primaryLight;
             return (
