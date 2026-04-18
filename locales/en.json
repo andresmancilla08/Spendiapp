@@ -831,6 +831,12 @@
       "item1": "The app has its own domain: spendia.co",
       "item2": "Google sign-in is now more stable and secure",
       "item3": "Install Spendia as a PWA directly from spendia.co"
+    },
+    "expenseGroups": {
+      "title": "Group Expenses",
+      "item1": "Create groups for trips or outings and track who paid what",
+      "item2": "Automatically calculate who owes whom and how much",
+      "item3": "Settle or reopen groups with a single tap"
     }
   },
   "sharedExpense": {

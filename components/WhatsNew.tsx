@@ -31,8 +31,22 @@ interface Feature {
 }
 
 // Agregar nueva entrada en VERSION_HISTORY cuando salga una nueva versión.
-// Solo se muestra la versión que coincide con WHATS_NEW_VERSION.
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
+  {
+    version: '2.5.1',
+    features: [
+      {
+        icon: 'people-circle-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.expenseGroups.title',
+        items: [
+          'whatsNew.expenseGroups.item1',
+          'whatsNew.expenseGroups.item2',
+          'whatsNew.expenseGroups.item3',
+        ],
+      },
+    ],
+  },
   {
     version: '2.5.0',
     features: [
@@ -700,8 +714,6 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
     }
   };
 
-  const currentFeatures = VERSION_HISTORY.find(v => v.version === WHATS_NEW_VERSION)?.features ?? [];
-
   return (
     <Modal visible={visible} animationType="slide" statusBarTranslucent>
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
@@ -722,47 +734,58 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
           </Text>
         </View>
 
-        {/* Contenido con scroll */}
+        {/* Contenido con scroll — todas las versiones */}
         <ScrollView
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
           focusable={false}
           style={Platform.OS === 'web' ? { outline: 'none' } as any : undefined}
         >
-          {currentFeatures.map((f) => {
-            const accentColor = colors[f.colorKey];
-            const accentBg = f.colorKey === 'success' ? colors.successLight : colors.primaryLight;
-            return (
-              <View
-                key={f.titleKey}
-                style={[styles.card, {
-                  backgroundColor: colors.surface,
-                  borderColor: isDark
-                    ? (f.colorKey === 'success' ? 'rgba(0,168,150,0.12)' : 'rgba(0,172,193,0.12)')
-                    : 'rgba(0,0,0,0.06)',
-                }]}
-              >
-                <View style={styles.cardHeader}>
-                  <View style={[styles.iconWrap, { backgroundColor: accentBg }]}>
-                    <Ionicons name={f.icon} size={20} color={accentColor} />
-                  </View>
-                  <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
-                    {t(f.titleKey)}
-                  </Text>
-                </View>
-                <View style={styles.itemsList}>
-                  {f.items.map((itemKey) => (
-                    <View key={itemKey} style={styles.itemRow}>
-                      <View style={[styles.itemDot, { backgroundColor: accentColor }]} />
-                      <Text style={[styles.itemText, { color: colors.textSecondary }]}>
-                        {t(itemKey)}
+          {VERSION_HISTORY.map((entry) => (
+            <View key={entry.version}>
+              <View style={styles.versionSection}>
+                <View style={[styles.versionSectionDot, { backgroundColor: colors.primary }]} />
+                <Text style={[styles.versionSectionLabel, { color: colors.textTertiary }]}>
+                  v{entry.version}
+                </Text>
+                <View style={[styles.versionSectionLine, { backgroundColor: colors.border }]} />
+              </View>
+              {entry.features.map((f) => {
+                const accentColor = colors[f.colorKey];
+                const accentBg = f.colorKey === 'success' ? colors.successLight : colors.primaryLight;
+                return (
+                  <View
+                    key={f.titleKey}
+                    style={[styles.card, {
+                      backgroundColor: colors.surface,
+                      borderColor: isDark
+                        ? (f.colorKey === 'success' ? 'rgba(0,168,150,0.12)' : 'rgba(0,172,193,0.12)')
+                        : 'rgba(0,0,0,0.06)',
+                    }]}
+                  >
+                    <View style={styles.cardHeader}>
+                      <View style={[styles.iconWrap, { backgroundColor: accentBg }]}>
+                        <Ionicons name={f.icon} size={20} color={accentColor} />
+                      </View>
+                      <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
+                        {t(f.titleKey)}
                       </Text>
                     </View>
-                  ))}
-                </View>
-              </View>
-            );
-          })}
+                    <View style={styles.itemsList}>
+                      {f.items.map((itemKey) => (
+                        <View key={itemKey} style={styles.itemRow}>
+                          <View style={[styles.itemDot, { backgroundColor: accentColor }]} />
+                          <Text style={[styles.itemText, { color: colors.textSecondary }]}>
+                            {t(itemKey)}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ))}
         </ScrollView>
 
         {/* Botón fijo inferior */}
@@ -840,6 +863,28 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 16,
     paddingBottom: 8,
+  },
+
+  versionSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+    marginTop: 4,
+  },
+  versionSectionDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  versionSectionLabel: {
+    fontSize: 12,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.5,
+  },
+  versionSectionLine: {
+    flex: 1,
+    height: StyleSheet.hairlineWidth,
   },
 
   card: {
