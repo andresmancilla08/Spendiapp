@@ -87,6 +87,14 @@ export default function ToolsScreen() {
               onPress={() => router.push('/friend-report')}
               colors={colors}
             />
+            <ToolCard
+              emoji="🧳"
+              icon="people-outline"
+              title={t('tools.expenseGroupsCard.title')}
+              description={t('tools.expenseGroupsCard.description')}
+              onPress={() => router.push('/expense-groups')}
+              colors={colors}
+            />
           </ScrollView>
         </ScreenBackground>
       </SafeAreaView>
@@ -96,7 +104,7 @@ export default function ToolsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  scroll: { padding: 16, paddingBottom: 40 },
+  scroll: { padding: 16, paddingBottom: 100 },
   cardWrapper: { marginBottom: 12 },
   card: {
     borderRadius: 20,
