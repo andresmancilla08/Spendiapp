@@ -832,6 +832,12 @@
       "item1": "La app tiene su propio dominio: spendia.co",
       "item2": "Inicio de sesión con Google más estable y seguro",
       "item3": "Instala Spendia como PWA directamente desde spendia.co"
+    },
+    "expenseGroups": {
+      "title": "Gastos de grupo",
+      "item1": "Crea grupos para viajes o salidas y registra quién pagó qué",
+      "item2": "Calcula automáticamente quién le debe cuánto a quién",
+      "item3": "Liquida o reabre grupos con un toque"
     }
   },
   "sharedExpense": {
