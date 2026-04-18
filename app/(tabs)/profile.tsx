@@ -653,11 +653,6 @@ export default function ProfileScreen() {
             label={t('profile.faq.label')}
             onPress={() => router.push('/support')}
           />
-          <OptionItem
-            icon="shield-checkmark-outline"
-            label={t('profile.privacy.label')}
-            onPress={() => showInfo(t('common.comingSoon'), t('profile.privacy.soon'))}
-          />
         </View>
 
         <TouchableOpacity

@@ -47,16 +47,6 @@ const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
         ],
       },
       {
-        icon: 'globe-outline',
-        colorKey: 'success',
-        titleKey: 'whatsNew.spendiaDomain.title',
-        items: [
-          'whatsNew.spendiaDomain.item1',
-          'whatsNew.spendiaDomain.item2',
-          'whatsNew.spendiaDomain.item3',
-        ],
-      },
-      {
         icon: 'image-outline',
         colorKey: 'primary',
         titleKey: 'whatsNew.annualReportImage.title',
