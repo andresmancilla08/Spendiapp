@@ -166,10 +166,10 @@ export default function TransactionDetailScreen() {
       } else {
         await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
       }
-      showToast(t('history.edit.deleteSuccess'), 'success');
       setDeleteLoading(false);
       setLastAction('deleted');
       router.back();
+      setTimeout(() => showToast(t('history.edit.deleteSuccess'), 'success'), 350);
     } catch (e) {
       console.error('[handleDelete]', e);
       showToast(t('history.edit.deleteError'), 'error');
