@@ -293,7 +293,10 @@ export default function HomeScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: colors.primary }]}>Spendia</Text>
+        <View style={styles.headerBrand}>
+          <Image source={require('../../assets/logo-transparent.png')} style={styles.headerLogo} resizeMode="contain" />
+          <Text style={[styles.headerTitle, { color: colors.primary }]}>Spendia</Text>
+        </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           {user?.uid && <NotificationBell uid={user.uid} />}
           <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
@@ -492,7 +495,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
   },
-  headerTitle: { fontSize: 22, fontFamily: Fonts.extraBold },
+  headerBrand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  headerLogo: { width: 32, height: 32, alignSelf: 'center' },
+  headerTitle: { fontSize: 22, fontFamily: Fonts.extraBold, lineHeight: 28, includeFontPadding: false },
   avatar: { width: 42, height: 42, borderRadius: 21 },
   avatarFallback: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
 

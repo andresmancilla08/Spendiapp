@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -27,6 +28,7 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
   const { colors } = useTheme();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { isMobile, isDesktop } = useBreakpoint();
 
   const visibleRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
   const activeIndex = visibleRoutes.findIndex(r => r.name === state.routes[state.index].name);
@@ -71,7 +73,11 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
 
   return (
     <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
-      <View style={[styles.container, { backgroundColor: colors.surface, shadowColor: '#000' }]}>
+      <View style={[
+        styles.container,
+        { backgroundColor: colors.surface, shadowColor: '#000' },
+        !isMobile && { maxWidth: isDesktop ? 640 : 560 },
+      ]}>
         {visibleRoutes.map((route, index) => {
           const config = TAB_CONFIG[route.name];
           if (!config) return null;

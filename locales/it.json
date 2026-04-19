@@ -712,7 +712,8 @@
     "shared_transaction_updated": "{{fromDisplayName}} ha aggiornato una spesa condivisa: {{description}}",
     "shared_transaction_deleted": "{{fromDisplayName}} ha eliminato la spesa condivisa: {{description}}",
     "goal_monthly_reminder": "Ricorda di aggiungere ai tuoi {{count}} obiettivi attivi questo mese 🎯",
-    "sent_income": "{{name}} ti ha inviato un'entrata: {{description}}"
+    "sent_income": "{{name}} ti ha inviato un'entrata: {{description}}",
+    "sent_income_deleted": "{{name}} ha eliminato l'entrata inviata: {{description}}"
   },
   "whatsNew": {
     "version": "Novità · v{{version}}",

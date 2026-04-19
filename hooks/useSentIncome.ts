@@ -78,14 +78,33 @@ export function useSentIncome() {
     }).catch(() => {});
   }
 
-  async function deleteSentIncome(
-    senderTransactionId: string,
-    incomeTransactionId: string,
-  ): Promise<void> {
+  async function deleteSentIncome(params: {
+    senderTransactionId: string;
+    incomeTransactionId: string;
+    senderUid: string;
+    senderName: string;
+    recipientUid: string;
+    description: string;
+    amount: number;
+  }): Promise<void> {
+    const { senderTransactionId, incomeTransactionId, senderUid, senderName, recipientUid, description, amount } = params;
     const batch = writeBatch(db);
     batch.delete(doc(db, 'transactions', senderTransactionId));
     batch.delete(doc(db, 'transactions', incomeTransactionId));
     await batch.commit();
+
+    addDoc(collection(db, 'notifications'), {
+      toUserId: recipientUid,
+      type: 'sent_income_deleted',
+      data: {
+        fromUserId: senderUid,
+        fromUserName: senderName,
+        description,
+        amount,
+      },
+      read: false,
+      createdAt: Timestamp.fromDate(new Date()),
+    }).catch(() => {});
   }
 
   return { createSentIncome, deleteSentIncome };

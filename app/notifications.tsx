@@ -36,6 +36,7 @@ const NOTIF_ICONS: Record<NotificationType, React.ComponentProps<typeof Ionicons
   shared_transaction_deleted: 'trash-outline',
   goal_monthly_reminder: 'flag-outline',
   sent_income: 'send-outline',
+  sent_income_deleted: 'close-circle-outline',
 };
 
 // Each notification type gets a distinct color accent
@@ -47,6 +48,7 @@ const NOTIF_COLORS: Record<NotificationType, 'primary' | 'success'> = {
   shared_transaction_deleted: 'primary',
   goal_monthly_reminder: 'primary',
   sent_income: 'success',
+  sent_income_deleted: 'primary',
 };
 
 function NotifItem({

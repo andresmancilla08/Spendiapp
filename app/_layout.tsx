@@ -15,6 +15,7 @@ import { Text } from 'react-native';
 import { Fonts } from '../config/fonts';
 import { useInactivityTimer } from '../hooks/useInactivityTimer';
 import AppDialog from '../components/AppDialog';
+import WebAppShell from '../components/WebAppShell';
 import { useTranslation } from 'react-i18next';
 import { createUserProfile } from '../hooks/useUserProfile';
 
@@ -213,13 +214,15 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <ThemedStack />
-        <InactivityDialog
-          visible={inactivityDialogVisible}
-          countdown={countdown}
-          onStay={handleStay}
-          onLogout={handleLogout}
-        />
+        <WebAppShell>
+          <ThemedStack />
+          <InactivityDialog
+            visible={inactivityDialogVisible}
+            countdown={countdown}
+            onStay={handleStay}
+            onLogout={handleLogout}
+          />
+        </WebAppShell>
       </ToastProvider>
     </ThemeProvider>
   );

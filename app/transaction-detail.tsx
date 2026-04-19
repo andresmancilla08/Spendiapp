@@ -158,7 +158,15 @@ export default function TransactionDetailScreen() {
         });
       } else if (transaction.sentIncomeTransactionId) {
         // Gasto con ingreso vinculado: eliminar ambos en batch
-        await deleteSentIncome(getActualId(transaction), transaction.sentIncomeTransactionId);
+        await deleteSentIncome({
+          senderTransactionId: getActualId(transaction),
+          incomeTransactionId: transaction.sentIncomeTransactionId,
+          senderUid: currentUserUid,
+          senderName: currentUserName,
+          recipientUid: transaction.sentIncomeToUid ?? '',
+          description: transaction.description,
+          amount: transaction.amount,
+        });
       } else if (transaction.isFixed) {
         await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
           fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
@@ -171,7 +179,8 @@ export default function TransactionDetailScreen() {
       router.back();
       setTimeout(() => showToast(t('history.edit.deleteSuccess'), 'success'), 350);
     } catch (e) {
-      console.error('[handleDelete]', e);
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error('[handleDelete] ' + msg);
       showToast(t('history.edit.deleteError'), 'error');
       setDeleteLoading(false);
     }
