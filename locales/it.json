@@ -392,6 +392,7 @@
       "confirmDeleteYes": "Sì, elimina",
       "confirmDeleteCancel": "Annulla",
       "saving": "Salvataggio...",
+      "deleteSuccess": "Spesa eliminata correttamente",
       "deleteError": "Impossibile eliminare. Riprova.",
       "saveError": "Impossibile salvare. Riprova.",
       "fixedNote": "Spesa fissa — le modifiche riguardano i mesi successivi",
