@@ -392,6 +392,7 @@
       "confirmDeleteYes": "Sí, eliminar",
       "confirmDeleteCancel": "Cancelar",
       "saving": "Guardando...",
+      "deleteSuccess": "Gasto eliminado correctamente",
       "deleteError": "No se pudo eliminar. Intenta de nuevo.",
       "saveError": "No se pudo guardar. Intenta de nuevo.",
       "fixedNote": "Gasto fijo — los cambios afectan los meses siguientes",

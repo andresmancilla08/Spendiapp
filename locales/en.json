@@ -392,6 +392,7 @@
       "confirmDeleteYes": "Yes, delete",
       "confirmDeleteCancel": "Cancel",
       "saving": "Saving...",
+      "deleteSuccess": "Expense deleted successfully",
       "deleteError": "Could not delete. Please try again.",
       "saveError": "Could not save. Please try again.",
       "fixedNote": "Fixed expense — changes affect following months",

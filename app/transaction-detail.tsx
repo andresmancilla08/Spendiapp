@@ -25,6 +25,7 @@ import {
 import { db } from '../config/firebase';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
+import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import ScreenBackground from '../components/ScreenBackground';
 import { useSharedTransactions } from '../hooks/useSharedTransactions';
@@ -96,6 +97,7 @@ export default function TransactionDetailScreen() {
   const customCatMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const { deleteSharedTransaction } = useSharedTransactions();
   const { deleteSentIncome } = useSentIncome();
+  const { showToast } = useToast();
 
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [duplicateLoading, setDuplicateLoading] = useState(false);
@@ -164,11 +166,13 @@ export default function TransactionDetailScreen() {
       } else {
         await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
       }
+      showToast(t('history.edit.deleteSuccess'), 'success');
       setDeleteLoading(false);
       setLastAction('deleted');
       router.back();
     } catch (e) {
       console.error('[handleDelete]', e);
+      showToast(t('history.edit.deleteError'), 'error');
       setDeleteLoading(false);
     }
   }, [transaction, currentUserUid, currentUserName, viewYear, viewMonth, deleteSharedTransaction, setLastAction, router]);
