@@ -712,7 +712,8 @@
     "shared_transaction_updated": "{{fromDisplayName}} updated a shared expense: {{description}}",
     "shared_transaction_deleted": "{{fromDisplayName}} deleted the shared expense: {{description}}",
     "goal_monthly_reminder": "Remember to add to your {{count}} active goals this month 🎯",
-    "sent_income": "{{name}} sent you income: {{description}}"
+    "sent_income": "{{name}} sent you income: {{description}}",
+    "sent_income_deleted": "{{name}} deleted the sent income: {{description}}"
   },
   "whatsNew": {
     "version": "What's new · v{{version}}",

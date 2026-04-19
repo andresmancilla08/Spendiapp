@@ -2,14 +2,21 @@ import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 
 interface Props {
   children: React.ReactNode;
   style?: ViewStyle;
 }
 
+const CONTENT_MAX_WIDTH: Record<string, number> = {
+  tablet: 720,
+  desktop: 960,
+};
+
 export default function ScreenBackground({ children, style }: Props) {
   const { colors, isDark } = useTheme();
+  const { breakpoint, isMobile } = useBreakpoint();
 
   const gradientColors: [string, string, string] = isDark
     ? ['#0D1A1C', '#062830', '#003840']
@@ -41,8 +48,17 @@ export default function ScreenBackground({ children, style }: Props) {
           { backgroundColor: colors.primaryLight, opacity: isDark ? 0.1 : 0.25 },
         ]}
       />
-      {/* Contenido siempre encima de los blobs */}
-      <View style={styles.content}>
+      {/* Contenido siempre encima de los blobs — centrado en tablet/desktop */}
+      <View
+        style={[
+          styles.content,
+          !isMobile && {
+            maxWidth: CONTENT_MAX_WIDTH[breakpoint] ?? CONTENT_MAX_WIDTH.desktop,
+            alignSelf: 'center' as const,
+            width: '100%' as any,
+          },
+        ]}
+      >
         {children}
       </View>
     </LinearGradient>
