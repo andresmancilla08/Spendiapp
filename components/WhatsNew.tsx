@@ -10,6 +10,12 @@ import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
 import appConfig from '../app.json';
+import { useBreakpoint } from '../hooks/useBreakpoint';
+
+const CONTENT_MAX_WIDTH: Record<string, number> = {
+  tablet: 640,
+  desktop: 720,
+};
 
 // WHATS_NEW_VERSION siempre debe coincidir con app.json version.
 // Al hacer deploy, bump app.json y agregar entrada en VERSION_HISTORY.
@@ -108,7 +114,14 @@ const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
+  const { breakpoint, isMobile } = useBreakpoint();
   const [dismissing, setDismissing] = useState(false);
+
+  const contentStyle = !isMobile ? {
+    maxWidth: CONTENT_MAX_WIDTH[breakpoint] ?? CONTENT_MAX_WIDTH.desktop,
+    alignSelf: 'center' as const,
+    width: '100%' as any,
+  } : {};
 
   const handleDismiss = async () => {
     if (dismissing) return;
@@ -123,6 +136,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
   return (
     <Modal visible={visible} animationType="slide" statusBarTranslucent>
       <SafeAreaView style={[styles.root, { backgroundColor: colors.background }]}>
+        <View style={[styles.inner, contentStyle]}>
 
         {/* Header fijo */}
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
@@ -203,6 +217,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
           </TouchableOpacity>
         </View>
 
+        </View>
       </SafeAreaView>
     </Modal>
   );
@@ -210,6 +225,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  inner: { flex: 1 },
 
   header: {
     paddingHorizontal: 24,
