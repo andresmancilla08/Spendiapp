@@ -566,6 +566,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     gap: 20,
+    width: '100%',
+    maxWidth: 768,
+    alignSelf: 'center',
   },
   monthNav: {
     flexDirection: 'row',

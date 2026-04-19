@@ -739,7 +739,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: Platform.OS === 'web' ? 120 : 40 },
+  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: Platform.OS === 'web' ? 120 : 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
 
   // ChangePinModal
   modalOverlay: { flex: 1, justifyContent: 'flex-end' },

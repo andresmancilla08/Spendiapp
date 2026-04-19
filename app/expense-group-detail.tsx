@@ -785,7 +785,7 @@ const styles = StyleSheet.create({
   tabLabel: { fontFamily: Fonts.semiBold, fontSize: 14 },
 
   // Scroll
-  scroll: { padding: 16, paddingTop: 4, paddingBottom: 40 },
+  scroll: { padding: 16, paddingTop: 4, paddingBottom: 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
   // Empty state
   emptyCard: { borderRadius: 20, padding: 36, alignItems: 'center', marginBottom: 16 },

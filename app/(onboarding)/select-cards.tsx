@@ -269,11 +269,11 @@ export default function SelectCardsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  header: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 16 },
+  header: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
   title: { fontSize: 28, fontFamily: Fonts.bold, marginBottom: 8 },
   subtitle: { fontSize: 15, fontFamily: Fonts.regular, lineHeight: 22 },
   list: { flex: 1 },
-  listContent: { paddingHorizontal: 20 },
+  listContent: { paddingHorizontal: 20, width: '100%', maxWidth: 640, alignSelf: 'center' },
   section: { marginBottom: 24 },
   sectionLabel: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 0.8, marginBottom: 8, marginLeft: 4 },
   bankGroup: { borderRadius: 16, overflow: 'hidden' },
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   formError: { fontSize: 12, fontFamily: Fonts.regular },
   addBtn: { height: 46, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
   addBtnText: { fontSize: 15, fontFamily: Fonts.bold, color: '#FFFFFF' },
-  footer: { flexDirection: 'column', paddingHorizontal: 20, paddingVertical: 16, gap: 10, borderTopWidth: 1 },
+  footer: { flexDirection: 'column', paddingHorizontal: 20, paddingVertical: 16, gap: 10, borderTopWidth: 1, width: '100%', maxWidth: 640, alignSelf: 'center' },
   skipBtn: { height: 52, borderRadius: 50, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   skipText: { fontSize: 16, fontFamily: Fonts.semiBold },
   doneBtn: { height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },

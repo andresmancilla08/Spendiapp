@@ -220,8 +220,8 @@ export default function SupportScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 },
-  footer: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 },
+  scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  footer: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
 
   heroCard: {
     borderRadius: 24,

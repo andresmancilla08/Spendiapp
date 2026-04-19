@@ -1201,7 +1201,7 @@ export default function AddTransactionScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
-  scroll: { padding: 20, paddingBottom: 16, gap: 16 },
+  scroll: { padding: 20, paddingBottom: 16, gap: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
   footer: {
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 20,

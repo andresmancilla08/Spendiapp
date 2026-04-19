@@ -248,6 +248,9 @@ const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 20,
     paddingBottom: Platform.OS === 'web' ? 120 : 40,
+    width: '100%',
+    maxWidth: 768,
+    alignSelf: 'center',
   },
 
   // Empty state

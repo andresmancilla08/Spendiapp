@@ -377,6 +377,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 40,
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
   },
 
   // Section header

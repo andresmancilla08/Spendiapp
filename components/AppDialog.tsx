@@ -203,6 +203,7 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
@@ -214,6 +215,8 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingBottom: 40,
     alignItems: 'center',
+    width: '100%',
+    maxWidth: 560,
   },
   iconWrapper: {
     marginBottom: 16,
