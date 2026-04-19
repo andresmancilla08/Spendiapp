@@ -167,7 +167,8 @@ export default function TransactionDetailScreen() {
       setDeleteLoading(false);
       setLastAction('deleted');
       router.back();
-    } catch {
+    } catch (e) {
+      console.error('[handleDelete]', e);
       setDeleteLoading(false);
     }
   }, [transaction, currentUserUid, currentUserName, viewYear, viewMonth, deleteSharedTransaction, setLastAction, router]);
