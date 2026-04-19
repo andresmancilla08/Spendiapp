@@ -160,6 +160,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
   },
   headerSection: {
     alignItems: 'center',

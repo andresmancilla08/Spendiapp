@@ -1352,6 +1352,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 4,
     paddingBottom: 120,
+    width: '100%',
+    maxWidth: 768,
+    alignSelf: 'center',
   },
 
   // Day group

@@ -309,6 +309,9 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     alignItems: 'center',
     gap: 20,
+    width: '100%',
+    maxWidth: 768,
+    alignSelf: 'center',
   },
   titleBlock: {
     alignSelf: 'stretch',

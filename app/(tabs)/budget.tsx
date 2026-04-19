@@ -443,7 +443,7 @@ export default function BudgetScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scroll: { padding: 16, paddingTop: 12, paddingBottom: 40 },
+  scroll: { padding: 16, paddingTop: 12, paddingBottom: 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
   monthRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 8, paddingVertical: 10,

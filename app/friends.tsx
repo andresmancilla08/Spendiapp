@@ -572,7 +572,7 @@ function RequestsTab({ incoming, outgoing, uid, profileCache, actionLoading, onA
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: Platform.OS === 'web' ? 120 : 40 },
+  scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: Platform.OS === 'web' ? 120 : 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
   // Tabs
   tabRow: { flexDirection: 'row', borderBottomWidth: 1, marginHorizontal: 20 },

@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
   avatar: { width: 42, height: 42, borderRadius: 21 },
   avatarFallback: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
 
-  scroll: { paddingHorizontal: 20, paddingBottom: 130 },
+  scroll: { paddingHorizontal: 20, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
   greeting: { marginBottom: 20 },
   greetingHi: { fontSize: 22, fontFamily: Fonts.bold, marginBottom: 4 },

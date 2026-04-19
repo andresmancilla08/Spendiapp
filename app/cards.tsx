@@ -190,7 +190,7 @@ const dialogDescStyle = { fontSize: 15, lineHeight: 22, textAlign: 'center' as c
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   addButton: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  scroll: { padding: 20, paddingBottom: 40 },
+  scroll: { padding: 20, paddingBottom: 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
   card: { borderRadius: 16, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14 },
   meta: { flex: 1 },

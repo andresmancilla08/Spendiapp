@@ -104,7 +104,7 @@ export default function ToolsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  scroll: { padding: 16, paddingBottom: 100 },
+  scroll: { padding: 16, paddingBottom: 100, width: '100%', maxWidth: 768, alignSelf: 'center' },
   cardWrapper: { marginBottom: 12 },
   card: {
     borderRadius: 20,
