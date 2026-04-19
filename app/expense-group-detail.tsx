@@ -145,8 +145,9 @@ export default function ExpenseGroupDetailScreen() {
       await deleteExpense(selectedExpenseId);
       showToast(t('expenseGroups.detail.deleteExpense'), 'success');
       closeDialog();
-    } catch {
-      showToast(t('expenseGroups.addExpense.validationDesc'), 'error');
+    } catch (e) {
+      console.error('[handleDeleteExpense]', e);
+      showToast(t('common.genericError'), 'error');
     } finally {
       setSaving(false);
     }
@@ -159,8 +160,9 @@ export default function ExpenseGroupDetailScreen() {
       await settleGroup(groupId);
       showToast(t('expenseGroups.settled'), 'success');
       closeDialog();
-    } catch {
-      showToast(t('expenseGroups.addExpense.validationDesc'), 'error');
+    } catch (e) {
+      console.error('[handleSettle]', e);
+      showToast(t('common.genericError'), 'error');
     } finally {
       setSaving(false);
     }
@@ -173,8 +175,9 @@ export default function ExpenseGroupDetailScreen() {
       await reopenGroup(groupId);
       showToast(t('expenseGroups.statusActive'), 'success');
       closeDialog();
-    } catch {
-      showToast(t('expenseGroups.addExpense.validationDesc'), 'error');
+    } catch (e) {
+      console.error('[handleReopen]', e);
+      showToast(t('common.genericError'), 'error');
     } finally {
       setSaving(false);
     }
@@ -188,8 +191,9 @@ export default function ExpenseGroupDetailScreen() {
       showToast(t('expenseGroups.deleteGroup'), 'success');
       closeDialog();
       transitionRef.current?.animateOut(() => router.back());
-    } catch {
-      showToast(t('expenseGroups.addExpense.validationDesc'), 'error');
+    } catch (e) {
+      console.error('[handleDeleteGroup]', e);
+      showToast(t('common.genericError'), 'error');
     } finally {
       setSaving(false);
     }

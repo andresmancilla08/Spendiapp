@@ -11,6 +11,11 @@ service cloud.firestore {
         (request.resource.data.isSentIncome == true &&
          request.auth.uid == request.resource.data.sentByUid)
       );
+      allow delete: if request.auth != null && (
+        request.auth.uid == resource.data.userId ||
+        (resource.data.isShared == true &&
+         resource.data.sharedOwnerUid == request.auth.uid)
+      );
     }
 
     match /cards/{docId} {
