@@ -14,7 +14,9 @@ service cloud.firestore {
       allow delete: if request.auth != null && (
         request.auth.uid == resource.data.userId ||
         (resource.data.isShared == true &&
-         resource.data.sharedOwnerUid == request.auth.uid)
+         resource.data.sharedOwnerUid == request.auth.uid) ||
+        (resource.data.isSentIncome == true &&
+         resource.data.sentByUid == request.auth.uid)
       );
     }
 
