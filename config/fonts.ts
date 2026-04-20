@@ -1,4 +1,3 @@
-// Fuentes Montserrat centralizadas — usar en todos los componentes
 export const Fonts = {
   regular:   'Montserrat_400Regular',
   medium:    'Montserrat_500Medium',

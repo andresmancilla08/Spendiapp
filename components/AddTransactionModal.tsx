@@ -445,8 +445,6 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
     : formatDisplayDate(selectedDate);
 
   const nowForPicker = new Date();
-  const isNextMonthDisabled =
-    pickerYear === nowForPicker.getFullYear() && pickerMonth === nowForPicker.getMonth();
 
   return (
     <>
@@ -867,12 +865,12 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                         <TouchableOpacity
                           style={styles.pickerNavBtn}
                           onPress={nextMonth}
-                          activeOpacity={isNextMonthDisabled ? 1 : 0.7}
+                          activeOpacity={0.7}
                         >
                           <Ionicons
                             name="chevron-forward"
                             size={20}
-                            color={isNextMonthDisabled ? colors.textSecondary : colors.textPrimary}
+                            color={colors.textPrimary}
                           />
                         </TouchableOpacity>
                       </View>
@@ -888,21 +886,18 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           const isCurrentMonth =
                             pickerMonth === nowForPicker.getMonth() &&
                             pickerYear === nowForPicker.getFullYear();
-                          const isFuture = isCurrentMonth && day > nowForPicker.getDate();
                           const isSelected = day === pickerDay;
                           const isTodayDay = day === nowForPicker.getDate() && isCurrentMonth;
                           return (
                             <TouchableOpacity
                               style={[
                                 styles.dayCircle,
-                                isSelected && !isFuture && { backgroundColor: colors.primary },
+                                isSelected && { backgroundColor: colors.primary },
                                 !isSelected && isTodayDay && { borderWidth: 1.5, borderColor: colors.tertiary ?? colors.primary },
                                 !isSelected && !isTodayDay && { backgroundColor: colors.surface },
-                                isFuture && { opacity: 0.3 },
                               ]}
-                              onPress={() => { if (!isFuture) setPickerDay(day); }}
-                              activeOpacity={isFuture ? 1 : 0.8}
-                              disabled={isFuture}
+                              onPress={() => setPickerDay(day)}
+                              activeOpacity={0.8}
                             >
                               <Text style={[styles.dayText, { color: isSelected ? '#FFFFFF' : colors.textPrimary }]}>
                                 {day}
@@ -926,18 +921,16 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                         <Text style={[styles.pickerMonthLabel, { color: colors.textPrimary }]}>{pickerYear}</Text>
                         <TouchableOpacity
                           style={styles.pickerNavBtn}
-                          onPress={() => setPickerYear((y) => Math.min(nowForPicker.getFullYear(), y + 1))}
-                          activeOpacity={pickerYear >= nowForPicker.getFullYear() ? 1 : 0.7}
+                          onPress={() => setPickerYear((y) => y + 1)}
+                          activeOpacity={0.7}
                         >
-                          <Ionicons name="chevron-forward" size={20} color={pickerYear >= nowForPicker.getFullYear() ? colors.textSecondary : colors.textPrimary} />
+                          <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                       </View>
 
                       {/* 3×4 month grid */}
                       <View style={styles.monthGrid}>
                         {MONTHS_ES.map((name, idx) => {
-                          const isFutureMonth =
-                            pickerYear === nowForPicker.getFullYear() && idx > nowForPicker.getMonth();
                           const isSelectedMonth = idx === pickerMonth;
                           return (
                             <TouchableOpacity
@@ -946,19 +939,12 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                                 styles.monthChip,
                                 isSelectedMonth && { backgroundColor: colors.primary },
                                 !isSelectedMonth && { backgroundColor: colors.surface },
-                                isFutureMonth && { opacity: 0.3 },
                               ]}
                               onPress={() => {
-                                if (isFutureMonth) return;
                                 setPickerMonth(idx);
-                                // Clamp day if landing on current month
-                                if (pickerYear === nowForPicker.getFullYear() && idx === nowForPicker.getMonth()) {
-                                  setPickerDay((d) => Math.min(d, nowForPicker.getDate()));
-                                }
                                 setPickerMode('day');
                               }}
-                              disabled={isFutureMonth}
-                              activeOpacity={isFutureMonth ? 1 : 0.8}
+                              activeOpacity={0.8}
                             >
                               <Text style={[styles.monthChipText, { color: isSelectedMonth ? '#FFFFFF' : colors.textPrimary }]}>
                                 {name.slice(0, 3)}
