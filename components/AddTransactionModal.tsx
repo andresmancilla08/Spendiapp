@@ -332,14 +332,6 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
   };
 
   const nextMonth = () => {
-    const now = new Date();
-    if (pickerYear === now.getFullYear() && pickerMonth === now.getMonth()) return;
-    const newMonth = pickerMonth === 11 ? 0 : pickerMonth + 1;
-    const newYear = pickerMonth === 11 ? pickerYear + 1 : pickerYear;
-    // If landing on current month, clamp day to today
-    if (newYear === now.getFullYear() && newMonth === now.getMonth()) {
-      setPickerDay((d) => Math.min(d, now.getDate()));
-    }
     if (pickerMonth === 11) {
       setPickerMonth(0);
       setPickerYear((y) => y + 1);
