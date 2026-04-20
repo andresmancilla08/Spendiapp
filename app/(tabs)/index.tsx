@@ -8,7 +8,10 @@ import {
   RefreshControl,
   ActivityIndicator,
   Platform,
+  Animated,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -230,6 +233,21 @@ export default function HomeScreen() {
   const photoUrl = user?.photoURL;
   const recent = transactions.slice(0, 5);
 
+  // Animated balance counter
+  const animatedBalanceValue = useRef(new Animated.Value(0)).current;
+  const [displayBalance, setDisplayBalance] = useState(0);
+  useEffect(() => {
+    if (loading) return;
+    animatedBalanceValue.removeAllListeners();
+    animatedBalanceValue.addListener(({ value }) => setDisplayBalance(Math.round(value)));
+    Animated.timing(animatedBalanceValue, {
+      toValue: balance,
+      duration: 800,
+      useNativeDriver: false,
+    }).start();
+    return () => animatedBalanceValue.removeAllListeners();
+  }, [balance, loading]);
+
   const handleTapTx = useCallback((tx: Transaction) => {
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth();
@@ -356,14 +374,37 @@ export default function HomeScreen() {
         {Platform.OS === 'web' && <PwaInstallBanner />}
 
         {/* Balance card */}
-        <View style={[styles.balanceCard, { backgroundColor: colors.primaryDark }]}>
-          <Text style={[styles.balanceLabel, { color: colors.onPrimary }]}>{t('home.balanceLabel')}</Text>
-          <Text style={[styles.balanceAmount, { color: colors.onPrimary }]}>{formatCurrency(balance)}</Text>
-          <View style={[styles.balanceBadge, { backgroundColor: colors.tertiary }]}>
-            <Ionicons name="trending-up" size={12} color={colors.onTertiary} />
-            <Text style={[styles.balanceBadgeText, { color: colors.onTertiary }]}>{t('home.balanceBadge')}</Text>
+        <LinearGradient
+          colors={['#006978', '#00ACC1', '#26C6DA']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[
+            styles.balanceCard,
+            Platform.OS !== 'web' && {
+              shadowColor: '#00ACC1',
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.28,
+              shadowRadius: 24,
+              elevation: 12,
+            },
+          ]}
+        >
+          <Text style={styles.balanceLabel}>{t('home.balanceLabel')}</Text>
+          <Text style={styles.balanceAmount}>{formatCurrency(displayBalance)}</Text>
+          <View style={styles.balanceStatsRow}>
+            <View style={styles.balanceStat}>
+              <Ionicons name="arrow-down-outline" size={12} color="rgba(255,255,255,0.75)" />
+              <Text style={styles.balanceStatLabel}>{t('home.incomeLabel')}</Text>
+              <Text style={styles.balanceStatValue}>{formatCurrency(totalIncome)}</Text>
+            </View>
+            <View style={styles.balanceStatDivider} />
+            <View style={styles.balanceStat}>
+              <Ionicons name="arrow-up-outline" size={12} color="rgba(255,255,255,0.75)" />
+              <Text style={styles.balanceStatLabel}>{t('home.expensesLabel')}</Text>
+              <Text style={[styles.balanceStatValue, { color: '#FFB3B3' }]}>{formatCurrency(totalExpenses)}</Text>
+            </View>
           </View>
-        </View>
+        </LinearGradient>
 
         {/* Income / Expenses */}
         <View style={styles.summaryRow}>
@@ -378,11 +419,11 @@ export default function HomeScreen() {
           </View>
 
           <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
-            <View style={[styles.summaryIconCircle, { backgroundColor: colors.errorLight }]}>
-              <Ionicons name="arrow-up" size={24} color={colors.error} />
+            <View style={[styles.summaryIconCircle, { backgroundColor: colors.expenseLight }]}>
+              <Ionicons name="arrow-up" size={24} color={colors.expense} />
             </View>
             <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.expensesLabel')}</Text>
-            <Text style={[styles.summaryCardValue, { color: colors.error }]}>
+            <Text style={[styles.summaryCardValue, { color: colors.expense }]}>
               {formatCurrency(totalExpenses)}
             </Text>
           </View>
@@ -453,8 +494,11 @@ export default function HomeScreen() {
       {/* FAB */}
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: colors.primary }]}
-        activeOpacity={0.85}
-        onPress={() => router.push('/add-transaction')}
+        activeOpacity={0.78}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          router.push('/add-transaction');
+        }}
       >
         <Ionicons name="add" size={30} color={colors.onPrimary} />
       </TouchableOpacity>
@@ -525,31 +569,60 @@ const styles = StyleSheet.create({
   // Balance card
   balanceCard: {
     borderRadius: 28,
-    paddingVertical: 32,
+    paddingVertical: 28,
     paddingHorizontal: 24,
     marginBottom: 16,
     alignItems: 'center',
+    overflow: 'hidden',
   },
   balanceLabel: {
     fontSize: 11,
-    fontFamily: Fonts.bold,
-    marginBottom: 10,
-    opacity: 0.7,
+    fontFamily: Fonts.semiBold,
+    color: 'rgba(255,255,255,0.7)',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    marginBottom: 8,
   },
   balanceAmount: {
-    fontSize: 40,
+    fontSize: 42,
     fontFamily: Fonts.extraBold,
-    marginBottom: 18,
+    color: '#FFFFFF',
+    marginBottom: 20,
+    letterSpacing: -1,
   },
-  balanceBadge: {
+  balanceStatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    width: '100%',
+    gap: 0,
   },
-  balanceBadgeText: { fontSize: 12, fontFamily: Fonts.bold },
+  balanceStat: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 3,
+  },
+  balanceStatLabel: {
+    fontSize: 11,
+    fontFamily: Fonts.medium,
+    color: 'rgba(255,255,255,0.65)',
+  },
+  balanceStatValue: {
+    fontSize: 14,
+    fontFamily: Fonts.bold,
+    color: '#FFFFFF',
+  },
+  balanceStatDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    marginHorizontal: 8,
+  },
 
   // Summary
   summaryRow: { flexDirection: 'row', gap: 12, marginBottom: 28 },

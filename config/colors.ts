@@ -22,16 +22,20 @@ export const LightColors = {
   warningLight: '#FEF3C7',
   info: '#00ACC1',
   infoLight: '#E0F7FA',
+  expense: '#FF6B6B',
+  expenseLight: '#FFF0F0',
+  achievement: '#F59E0B',
 
   // Background & Surface
   background: '#FFFFFF',
-  backgroundSecondary: '#F5F9FA',
+  backgroundSecondary: '#F0F7F8',
   surface: '#FFFFFF',
   surfaceSecondary: '#EEF4F5',
+  surfaceElevated: '#F5F9FA',
 
   // Text
   textPrimary: '#1A2428',
-  textSecondary: '#737879',
+  textSecondary: '#6B7280',
   textTertiary: '#9EABAF',
   textInverse: '#FFFFFF',
 
@@ -72,12 +76,17 @@ export const DarkColors = {
   warningLight: '#2D1F00',
   info: '#00BCD4',
   infoLight: '#003840',
+  expense: '#FF8E8E',
+  expenseLight: '#3D1515',
+  achievement: '#FBBF24',
 
   // Background & Surface
   background: '#0D1A1C',
   backgroundSecondary: '#111F22',
   surface: '#162428',
   surfaceSecondary: '#1E2E32',
+  surfaceElevated: '#1E3035',
+  surfaceOverlay: '#253B42',
 
   // Text
   textPrimary: '#EEF6F8',
