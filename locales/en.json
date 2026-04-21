@@ -892,7 +892,18 @@
       "sharedWith": "Shared with {{name}}",
       "sharedWithMore": "Shared with {{name}} and {{count}} more",
       "sharedBy": "Shared by {{name}}"
-    }
+    },
+    "appFriendsTab": "Friends in app",
+    "externalTab": "External person",
+    "externalName": "Full name",
+    "externalEmail": "Email address",
+    "externalNamePlaceholder": "e.g. John Smith",
+    "externalEmailPlaceholder": "email@example.com",
+    "addExternalBtn": "Add",
+    "invalidEmail": "Invalid email",
+    "emailAlreadyAdded": "This email is already added",
+    "externalBadge": "External",
+    "selectedWith": "With"
   },
   "sentIncome": {
     "toggle": "Register as income for a friend",

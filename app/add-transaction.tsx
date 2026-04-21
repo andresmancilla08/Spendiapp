@@ -87,6 +87,7 @@ export default function AddTransactionScreen() {
   const scrollRef = useRef<ElementRef<typeof ScrollView>>(null);
   const catScrollRef = useRef<ElementRef<typeof ScrollView>>(null);
   const chipOffsets = useRef<Record<string, number>>({});
+  const scrollDown = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
 
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
@@ -183,6 +184,13 @@ export default function AddTransactionScreen() {
       }, 50);
     }
   }, [datePickerOpen, pickerMode]);
+
+  useEffect(() => { if (isShared)        scrollDown(); }, [isShared]);
+  useEffect(() => { if (isSentIncome)    scrollDown(); }, [isSentIncome]);
+  useEffect(() => { if (showNewCatForm)  scrollDown(); }, [showNewCatForm]);
+  useEffect(() => { if (showEmojiPicker) scrollDown(); }, [showEmojiPicker]);
+  useEffect(() => { if (catExpanded)     scrollDown(); }, [catExpanded]);
+  useEffect(() => { if (sharedParticipants.length > 0) scrollDown(); }, [sharedParticipants.length]);
 
   // Auto-scroll category strip to the AI-selected chip
   useEffect(() => {
@@ -1120,6 +1128,7 @@ export default function AddTransactionScreen() {
                 installmentCount={installmentCount}
                 ownerPercentage={ownerPercentage}
                 onOwnerPercentageChange={setOwnerPercentage}
+                onExpand={scrollDown}
               />
             )}
 
