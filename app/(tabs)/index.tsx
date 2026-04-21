@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
@@ -168,11 +168,20 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const { justLoggedIn, setJustLoggedIn } = useAuthStore();
-  const { setSelectedTransaction } = useHistoryStore();
+  const { setSelectedTransaction, pendingEditTx, setPendingEditTx, lastAction, setLastAction } = useHistoryStore();
   const { showToast } = useToast();
   const now = new Date();
   const [refreshKey, setRefreshKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  useFocusEffect(useCallback(() => {
+    if (pendingEditTx) {
+      router.push('/edit-transaction');
+    }
+    if (lastAction) {
+      setLastAction(null);
+      setRefreshKey((k) => k + 1);
+    }
+  }, [pendingEditTx, lastAction, setLastAction]));
   const [biometricOfferVisible, setBiometricOfferVisible] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
@@ -395,7 +404,7 @@ export default function HomeScreen() {
             <View style={styles.balanceStat}>
               <Ionicons name="arrow-down-outline" size={12} color="rgba(255,255,255,0.75)" />
               <Text style={styles.balanceStatLabel}>{t('home.incomeLabel')}</Text>
-              <Text style={styles.balanceStatValue}>{formatCurrency(totalIncome)}</Text>
+              <Text style={[styles.balanceStatValue, { color: '#A7F3D0' }]}>{formatCurrency(totalIncome)}</Text>
             </View>
             <View style={styles.balanceStatDivider} />
             <View style={styles.balanceStat}>

@@ -20,6 +20,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../config/fonts';
 import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
+import PressableScale from '../../components/PressableScale';
 
 function GoogleIcon({ size = 18 }: { size?: number }) {
   return (
@@ -51,7 +52,7 @@ export default function LoginScreen() {
   return (
     <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
-      <ScreenBackground>
+      <ScreenBackground auroraIntensity="intense">
         {/* Top bar */}
         <View style={styles.topBar}>
           <TouchableOpacity
@@ -77,12 +78,11 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.buttonsSection}>
-            <TouchableOpacity
+            <PressableScale
               style={[styles.googleButton, {
-                borderColor: isDark ? 'rgba(238,246,248,0.18)' : colors.border,
-                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : colors.surface,
+                borderColor: isDark ? colors.border : colors.border,
+                backgroundColor: isDark ? colors.surfaceElevated : colors.surface,
               }]}
-              activeOpacity={0.8}
               disabled={loading}
               onPress={() => promptAsync()}
             >
@@ -96,17 +96,23 @@ export default function LoginScreen() {
                   </Text>
                 </>
               )}
-            </TouchableOpacity>
+            </PressableScale>
 
             <View style={styles.dividerRow}>
-              <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(238,246,248,0.1)' : colors.border }]} />
+              <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : colors.border }]} />
               <Text style={[styles.dividerText, { color: colors.textTertiary }]}>o</Text>
-              <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(238,246,248,0.1)' : colors.border }]} />
+              <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : colors.border }]} />
             </View>
 
-            <TouchableOpacity
-              style={[styles.emailButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
-              activeOpacity={0.8}
+            <PressableScale
+              style={[styles.emailButton, {
+                backgroundColor: colors.primary,
+                shadowColor: colors.primary,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: isDark ? 0.45 : 0.28,
+                shadowRadius: 14,
+                elevation: 6,
+              }]}
               disabled={loading}
               onPress={() => router.push('/(auth)/login-email')}
             >
@@ -114,7 +120,7 @@ export default function LoginScreen() {
               <Text style={[styles.emailButtonText, { color: colors.onPrimary }]}>
                 {t('login.emailButton')}
               </Text>
-            </TouchableOpacity>
+            </PressableScale>
           </View>
 
           <TouchableOpacity

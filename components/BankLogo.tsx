@@ -20,13 +20,14 @@ const LOCAL_LOGOS: Record<string, ImageSourcePropType> = {
   lulo:        require('../assets/banks/lulo.png'),
   rappipay:    require('../assets/banks/rappipay.png'),
   movii:       require('../assets/banks/movii.png'),
+  falabella:   require('../assets/banks/falabella.png'),
 };
 
 // Bancos con logo real descargado en assets/banks/ (PNG válido verificado)
 const BANKS_WITH_REAL_LOGO = new Set<string>([
   'bancolombia', 'davivienda', 'bbva', 'bogota', 'colpatria', 'itau', 'occidente',
   'popular', 'avvillas', 'cajasocial', 'nequi', 'daviplata',
-  'nubank', 'lulo', 'rappipay', 'movii',
+  'nubank', 'lulo', 'rappipay', 'movii', 'falabella',
 ]);
 
 interface BankLogoProps {

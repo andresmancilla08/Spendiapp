@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -10,6 +10,7 @@ import {
   FlatList,
   StyleSheet,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -37,6 +38,21 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
   const [nickname, setNickname] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = useRef(new Animated.Value(400)).current;
+
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.timing(overlayOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+        Animated.spring(sheetTranslateY, { toValue: 0, damping: 26, stiffness: 400, mass: 1.0, useNativeDriver: true }),
+      ]).start();
+    } else {
+      overlayOpacity.setValue(0);
+      sheetTranslateY.setValue(400);
+    }
+  }, [visible]);
 
   const reset = () => {
     setStep('bank');
@@ -72,12 +88,12 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
   const canSave = nickname.trim().length > 0 && !saving;
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+    <Modal visible={visible} transparent animationType="none" onRequestClose={handleClose}>
       <TouchableWithoutFeedback onPress={handleClose}>
-        <View style={[styles.overlay, { backgroundColor: colors.overlay }]} />
+        <Animated.View style={[styles.overlay, { backgroundColor: colors.overlay, opacity: overlayOpacity }]} />
       </TouchableWithoutFeedback>
 
-      <View style={[styles.sheet, { backgroundColor: colors.surface }]}>
+      <Animated.View style={[styles.sheet, { backgroundColor: colors.surface, transform: [{ translateY: sheetTranslateY }] }]}>
         {/* Handle */}
         <View style={styles.handleRow}>
           <View style={[styles.handle, { backgroundColor: colors.border }]} />
@@ -209,7 +225,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
             </TouchableOpacity>
           </View>
         )}
-      </View>
+      </Animated.View>
     </Modal>
   );
 }

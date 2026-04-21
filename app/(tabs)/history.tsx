@@ -4,15 +4,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Modal,
   Animated,
   Easing,
-  TouchableWithoutFeedback,
   TextInput,
-  KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  useWindowDimensions,
   PanResponder,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
@@ -28,8 +24,6 @@ import {
   deleteDoc,
   doc,
   Timestamp,
-  addDoc,
-  collection,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useTheme } from '../../context/ThemeContext';
@@ -118,290 +112,6 @@ function getActualId(transaction: Transaction): string {
     return transaction.id.split('_virtual_')[0];
   }
   return transaction.id;
-}
-
-// ── Edit Bottom Sheet ─────────────────────────────────────────────────────────
-
-type EditAction = 'saved' | 'deleted' | 'duplicated';
-
-interface EditSheetProps {
-  visible: boolean;
-  transaction: Transaction | null;
-  onClose: () => void;
-  onActionDone: (action: EditAction) => void;
-}
-
-function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: EditSheetProps) {
-  const { t } = useTranslation();
-  const { colors } = useTheme();
-  const { height: screenHeight } = useWindowDimensions();
-  const SHEET_HEIGHT = Math.round(screenHeight * 0.82);
-
-  const CATEGORY_LABELS: Record<string, string> = {
-    food: t('categories.names.food'),
-    transport: t('categories.names.transport'),
-    health: t('categories.names.health'),
-    entertainment: t('categories.names.entertainment'),
-    shopping: t('categories.names.shopping'),
-    home: t('categories.names.home'),
-    salary: t('categories.names.salary'),
-    other: t('categories.names.other'),
-  };
-
-  const slideAnim = useRef(new Animated.Value(0)).current;
-
-  const [editDesc, setEditDesc] = useState('');
-  const [editAmount, setEditAmount] = useState('');
-  const [editCategory, setEditCategory] = useState('');
-  const [editLoading, setEditLoading] = useState(false);
-  const [editError, setEditError] = useState('');
-  // Pre-fill when transaction changes
-  useEffect(() => {
-    if (transaction) {
-      setEditDesc(transaction.description);
-      setEditAmount(String(transaction.amount));
-      setEditCategory(transaction.category);
-      setEditError('');
-    }
-  }, [transaction]);
-
-  const animateIn = useCallback(() => {
-    Animated.timing(slideAnim, {
-      toValue: 1,
-      duration: 350,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
-  }, [slideAnim]);
-
-  const animateOut = useCallback((callback: () => void) => {
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 280,
-      easing: Easing.in(Easing.cubic),
-      useNativeDriver: true,
-    }).start(() => callback());
-  }, [slideAnim]);
-
-  useEffect(() => {
-    if (visible) {
-      animateIn();
-    }
-  }, [visible, animateIn]);
-
-  const handleClose = useCallback(() => {
-    animateOut(() => {
-      slideAnim.setValue(0);
-      onClose();
-    });
-  }, [animateOut, onClose, slideAnim]);
-
-  const handleSave = async () => {
-    if (!transaction) return;
-    const parsed = parseFloat(editAmount.replace(',', '.'));
-    if (isNaN(parsed) || parsed <= 0) return;
-
-    setEditLoading(true);
-    setEditError('');
-    try {
-      await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
-        description: editDesc,
-        amount: parsed,
-        category: editCategory,
-      });
-      handleClose();
-      onActionDone('saved');
-    } catch {
-      setEditError(t('history.edit.saveError'));
-      setEditLoading(false);
-    }
-  };
-
-  const translateY = slideAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [SHEET_HEIGHT, 0],
-  });
-
-  const activeCategories = transaction?.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-
-  const parsedAmount = parseFloat(editAmount.replace(',', '.'));
-  const isSaveDisabled = editLoading || isNaN(parsedAmount) || parsedAmount <= 0 || editCategory === '';
-
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={handleClose}
-    >
-      <TouchableWithoutFeedback onPress={handleClose}>
-        <Animated.View
-          style={[
-            styles.backdrop,
-            {
-              opacity: slideAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 0.55],
-              }),
-            },
-          ]}
-        />
-      </TouchableWithoutFeedback>
-
-      <Animated.View
-        style={[
-          styles.sheetWrapper,
-          { height: SHEET_HEIGHT, transform: [{ translateY }] },
-        ]}
-        pointerEvents="box-none"
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ flex: 1 }}
-        >
-          <View style={[styles.sheet, { backgroundColor: colors.surface, height: SHEET_HEIGHT }]}>
-            {/* Drag handle */}
-            <View style={styles.dragHandleRow}>
-              <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
-            </View>
-
-            {/* Title row */}
-            <View style={styles.titleRow}>
-              <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>
-                {t('history.edit.title')}
-              </Text>
-              <TouchableOpacity
-                onPress={handleClose}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Ionicons name="close" size={22} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.sheetScrollContent}
-              keyboardShouldPersistTaps="handled"
-            >
-              {/* Nota gasto fijo */}
-              {transaction?.isVirtualFixed && (
-                <View style={[styles.fixedNoteBar, { backgroundColor: `${colors.primary}18` }]}>
-                  <Ionicons name="repeat" size={14} color={colors.primary} />
-                  <Text style={[styles.fixedNoteText, { color: colors.primary }]}>
-                    {t('history.edit.fixedNote')}
-                  </Text>
-                </View>
-              )}
-
-              {/* Description */}
-              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>
-                {t('history.edit.descriptionLabel').toUpperCase()}
-              </Text>
-              <View
-                style={[
-                  styles.inputWrap,
-                  { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                ]}
-              >
-                <TextInput
-                  style={[styles.textInput, { color: colors.textPrimary }]}
-                  value={editDesc}
-                  onChangeText={setEditDesc}
-                  placeholderTextColor={colors.textSecondary}
-                  returnKeyType="done"
-                />
-              </View>
-
-              {/* Amount */}
-              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>
-                {t('history.edit.amountLabel').toUpperCase()}
-              </Text>
-              <View
-                style={[
-                  styles.inputWrap,
-                  { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                ]}
-              >
-                <TextInput
-                  style={[styles.textInput, { color: colors.textPrimary }]}
-                  value={editAmount}
-                  onChangeText={setEditAmount}
-                  keyboardType="numeric"
-                  returnKeyType="done"
-                />
-              </View>
-
-              {/* Category */}
-              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>
-                {t('history.edit.categoryLabel').toUpperCase()}
-              </Text>
-              <View style={styles.categoryGrid}>
-                {activeCategories.map((key) => {
-                  const meta = CATEGORY_META[key] ?? CATEGORY_META.other;
-                  const isSelected = editCategory === key;
-                  return (
-                    <TouchableOpacity
-                      key={key}
-                      style={[
-                        styles.categoryChip,
-                        isSelected
-                          ? { backgroundColor: colors.primary }
-                          : {
-                              backgroundColor: colors.backgroundSecondary,
-                              borderWidth: 1,
-                              borderColor: colors.border,
-                            },
-                      ]}
-                      onPress={() => setEditCategory(key)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={styles.chipIcon}>{meta.icon}</Text>
-                      <Text
-                        style={[
-                          styles.chipLabel,
-                          { color: isSelected ? '#FFFFFF' : colors.textSecondary },
-                        ]}
-                      >
-                        {CATEGORY_LABELS[key] ?? key}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {/* Error */}
-              {editError !== '' && (
-                <Text style={[styles.errorText, { color: colors.error }]}>{editError}</Text>
-              )}
-
-              {/* Save button */}
-              <TouchableOpacity
-                style={[
-                  styles.saveButton,
-                  { backgroundColor: colors.primary },
-                  isSaveDisabled && styles.buttonDisabled,
-                ]}
-                onPress={handleSave}
-                disabled={isSaveDisabled}
-                activeOpacity={0.85}
-              >
-                {editLoading ? (
-                  <View style={styles.loadingRow}>
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                    <Text style={styles.saveButtonText}>{t('history.edit.saving')}</Text>
-                  </View>
-                ) : (
-                  <Text style={styles.saveButtonText}>{t('history.edit.saveButton')}</Text>
-                )}
-              </TouchableOpacity>
-
-            </ScrollView>
-          </View>
-        </KeyboardAvoidingView>
-      </Animated.View>
-    </Modal>
-  );
 }
 
 // ── Transaction Row ──────────────────────────────────────────────────────────
@@ -660,8 +370,6 @@ export default function HistoryScreen() {
 
   const { setSelectedTransaction, pendingEditTx, setPendingEditTx, lastAction, setLastAction } = useHistoryStore();
 
-  const [editingTx, setEditingTx] = useState<Transaction | null>(null);
-  const [sheetVisible, setSheetVisible] = useState(false);
   const [paidLoadingId, setPaidLoadingId] = useState<string | null>(null);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
 
@@ -681,9 +389,7 @@ export default function HistoryScreen() {
   // Manejar acciones pendientes desde la pantalla de detalle
   useFocusEffect(useCallback(() => {
     if (pendingEditTx) {
-      setPendingEditTx(null);
-      setEditingTx(pendingEditTx);
-      setSheetVisible(true);
+      router.push('/edit-transaction');
     }
     if (lastAction) {
       setLastAction(null);
@@ -692,7 +398,7 @@ export default function HistoryScreen() {
       if (lastAction === 'deleted')    showToast(t('history.toasts.deleted'), 'success');
       if (lastAction === 'duplicated') showToast(t('history.toasts.duplicated'), 'info');
     }
-  }, [pendingEditTx, setPendingEditTx, lastAction, setLastAction, showToast, t]));
+  }, [pendingEditTx, lastAction, setLastAction, showToast, t]));
 
   const { transactions, totalIncome, totalExpenses, balance, loading } = useTransactions(
     user?.uid ?? '',
@@ -748,22 +454,10 @@ export default function HistoryScreen() {
   }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, currentUserName]);
 
   const handleLongPress = useCallback((tx: Transaction) => {
-    if (tx.isFixed && isPastMonth) return; // fijos pasados: bloqueados
-    setEditingTx(tx);
-    setSheetVisible(true);
-  }, [isPastMonth]);
-
-  const handleSheetClose = useCallback(() => {
-    setSheetVisible(false);
-    setEditingTx(null);
-  }, []);
-
-  const handleActionDone = useCallback((action: EditAction) => {
-    setRefreshKey((k) => k + 1);
-    if (action === 'saved')      showToast(t('history.toasts.saved'), 'success');
-    if (action === 'deleted')    showToast(t('history.toasts.deleted'), 'success');
-    if (action === 'duplicated') showToast(t('history.toasts.duplicated'), 'info');
-  }, [showToast, t]);
+    if (tx.isFixed && isPastMonth) return;
+    setPendingEditTx(tx);
+    router.push('/edit-transaction');
+  }, [isPastMonth, setPendingEditTx]);
 
   const handleTogglePaid = useCallback(async (tx: Transaction) => {
     const actualId = getActualId(tx);
@@ -1134,13 +828,6 @@ export default function HistoryScreen() {
         </ScrollView>
       )}
 
-      {/* Edit Sheet */}
-      <EditTransactionSheet
-        visible={sheetVisible}
-        transaction={editingTx}
-        onClose={handleSheetClose}
-        onActionDone={handleActionDone}
-      />
       </ScreenBackground>
     </SafeAreaView>
     </ScreenTransition>
