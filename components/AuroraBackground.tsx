@@ -6,9 +6,9 @@ import { useTheme } from '../context/ThemeContext';
 export type AuroraIntensity = 'intense' | 'default' | 'subtle';
 
 const MULTIPLIER: Record<AuroraIntensity, number> = {
-  intense: 1.0,
-  default: 0.6,
-  subtle: 0.35,
+  intense: 0.7,
+  default: 0.32,
+  subtle: 0.16,
 };
 
 interface Props {
@@ -82,12 +82,12 @@ export default function AuroraBackground({ intensity = 'default' }: Props) {
   const lightOp6 = b6.interpolate({ inputRange: [0.82, 1.32, 1.82],       outputRange: [0.05 * m, 0.12 * m, 0.05 * m], extrapolate: 'clamp' });
 
   const darkColors: [string, string][] = [
-    ['#00BCD4', '#006978'],
-    ['#0097A7', '#004D5A'],
-    ['#00897B', '#004D40'],
-    ['#26C6DA', '#0097A7'],
-    ['#4DD0E1', '#00838F'],
-    ['#009688', '#00695C'],
+    ['#007A8A', '#004050'],
+    ['#006070', '#003040'],
+    ['#005A52', '#003030'],
+    ['#008090', '#004555'],
+    ['#009BA8', '#005060'],
+    ['#006860', '#003A38'],
   ];
   const lightColors: [string, string][] = [
     ['#B2EBF2', '#80DEEA'],
