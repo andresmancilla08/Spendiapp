@@ -39,6 +39,23 @@ interface Feature {
 // Lista limpia y única de todas las funciones de la app (sin repetidos ni supersedidas).
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
+    version: '2.9.0',
+    features: [
+      {
+        icon: 'star-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.defaultCard.title',
+        items: ['whatsNew.defaultCard.item1', 'whatsNew.defaultCard.item2', 'whatsNew.defaultCard.item3'],
+      },
+      {
+        icon: 'pencil-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.cardManagement.title',
+        items: ['whatsNew.cardManagement.item1', 'whatsNew.cardManagement.item2', 'whatsNew.cardManagement.item3'],
+      },
+    ],
+  },
+  {
     version: '2.8.0',
     features: [
       {
@@ -300,6 +317,7 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 8,
   },
+
 
 
   card: {

@@ -9,6 +9,7 @@ import {
   doc,
   getDocs,
   writeBatch,
+  updateDoc,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -45,6 +46,7 @@ export function useCards(userId: string): UseCardsResult {
             bankName: v.bankName,
             type: v.type as CardType,
             nickname: v.nickname ?? v.lastFour ?? '',
+            isDefault: v.isDefault ?? false,
             createdAt: (v.createdAt as Timestamp).toDate(),
           };
         });
@@ -73,16 +75,40 @@ export async function addCard(
   bankName: string,
   type: CardType,
   nickname: string,
+  isDefault = false,
 ): Promise<string> {
+  if (isDefault) {
+    const snap = await getDocs(query(collection(db, 'cards'), where('userId', '==', userId)));
+    if (!snap.empty) {
+      const batch = writeBatch(db);
+      snap.forEach((d) => batch.update(d.ref, { isDefault: false }));
+      await batch.commit();
+    }
+  }
   const ref = await addDoc(collection(db, 'cards'), {
     userId,
     bankId,
     bankName,
     type,
     nickname,
+    isDefault,
     createdAt: Timestamp.fromDate(new Date()),
   });
   return ref.id;
+}
+
+export async function updateCard(
+  cardId: string,
+  updates: { bankId?: string; bankName?: string; type?: CardType; nickname?: string; isDefault?: boolean },
+): Promise<void> {
+  await updateDoc(doc(db, 'cards', cardId), updates);
+}
+
+export async function setDefaultCard(cardId: string, userId: string): Promise<void> {
+  const snap = await getDocs(query(collection(db, 'cards'), where('userId', '==', userId)));
+  const batch = writeBatch(db);
+  snap.forEach((d) => batch.update(d.ref, { isDefault: d.id === cardId }));
+  await batch.commit();
 }
 
 export async function deleteCard(cardId: string): Promise<void> {

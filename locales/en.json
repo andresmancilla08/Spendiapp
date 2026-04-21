@@ -607,7 +607,9 @@
     },
     "deletedSuccess": "Card deleted successfully",
     "deleteError": "Could not delete the card",
-    "pageDesc": "Manage your cards and payment methods"
+    "pageDesc": "Manage your cards and payment methods",
+    "defaultBadge": "Default",
+    "setDefaultSuccess": "Default card updated"
   },
   "cardForm": {
     "selectBank": "Select bank",
@@ -618,7 +620,15 @@
     "nicknamePlaceholder": "E.g.: Main, Salary, Travel...",
     "nicknameError": "Enter a name for the card",
     "addButton": "Add card",
-    "saveError": "Could not save the card. Please try again."
+    "saveError": "Could not save the card. Please try again.",
+    "defaultToggle": "Default for expenses",
+    "defaultToggleHint": "Will be auto-selected when logging expenses"
+  },
+  "cardEditForm": {
+    "title": "Edit card",
+    "changeBank": "Change bank",
+    "saveButton": "Save changes",
+    "saveError": "Could not save changes. Please try again."
   },
   "support": {
     "title": "Suggestions box",
@@ -874,6 +884,18 @@
       "item1": "Aurora effect with 6 floating circles on every screen",
       "item2": "Smooth, continuous animation that persists while navigating",
       "item3": "Different intensities per screen, adapts to light and dark mode"
+    },
+    "defaultCard": {
+      "title": "Default card for expenses",
+      "item1": "Mark a card as default when adding or editing it",
+      "item2": "Auto-selected when logging a new expense",
+      "item3": "Star badge ★ in My Cards to identify it at a glance"
+    },
+    "cardManagement": {
+      "title": "Full card editing",
+      "item1": "Edit bank, type, name and default directly from My Cards",
+      "item2": "Redesigned action buttons with tinted squircle backgrounds",
+      "item3": "Change the bank directly inside the edit form"
     }
   },
   "sharedExpense": {

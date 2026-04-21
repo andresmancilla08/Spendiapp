@@ -607,7 +607,9 @@
     },
     "deletedSuccess": "Carta eliminata con successo",
     "deleteError": "Impossibile eliminare la carta",
-    "pageDesc": "Gestisci le tue carte e i metodi di pagamento"
+    "pageDesc": "Gestisci le tue carte e i metodi di pagamento",
+    "defaultBadge": "Predefinita",
+    "setDefaultSuccess": "Carta predefinita aggiornata"
   },
   "cardForm": {
     "selectBank": "Seleziona la banca",
@@ -618,7 +620,15 @@
     "nicknamePlaceholder": "Es.: Principale, Stipendio, Viaggi...",
     "nicknameError": "Inserisci un nome per la carta",
     "addButton": "Aggiungi carta",
-    "saveError": "Impossibile salvare la carta. Riprova."
+    "saveError": "Impossibile salvare la carta. Riprova.",
+    "defaultToggle": "Predefinita per le uscite",
+    "defaultToggleHint": "Verrà selezionata automaticamente alla registrazione delle spese"
+  },
+  "cardEditForm": {
+    "title": "Modifica carta",
+    "changeBank": "Cambia banca",
+    "saveButton": "Salva modifiche",
+    "saveError": "Impossibile salvare le modifiche. Riprova."
   },
   "support": {
     "title": "Casella dei suggerimenti",
@@ -874,6 +884,18 @@
       "item1": "Effetto aurora con 6 cerchi fluttuanti in ogni schermata",
       "item2": "Animazione fluida e continua durante la navigazione",
       "item3": "Intensità diverse per schermata, si adatta a chiaro e scuro"
+    },
+    "defaultCard": {
+      "title": "Carta predefinita per le uscite",
+      "item1": "Imposta una carta come predefinita aggiungendola o modificandola",
+      "item2": "Viene selezionata automaticamente alla registrazione di una spesa",
+      "item3": "Badge ★ in Le mie carte per identificarla a colpo d'occhio"
+    },
+    "cardManagement": {
+      "title": "Gestione completa delle carte",
+      "item1": "Modifica banca, tipo, nome e predefinita direttamente da Le mie carte",
+      "item2": "Pulsanti d'azione ridisegnati con sfondi tintati a squircle",
+      "item3": "Cambia la banca direttamente nel modulo di modifica"
     }
   },
   "sharedExpense": {

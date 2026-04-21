@@ -17,23 +17,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { COLOMBIAN_BANKS, Bank } from '../config/banks';
-import { addCard } from '../hooks/useCards';
-import type { CardType } from '../types/card';
+import { updateCard, setDefaultCard } from '../hooks/useCards';
+import type { Card, CardType } from '../types/card';
 import BankLogo from './BankLogo';
 
 const MAX_NICKNAME = 15;
 
-interface CardFormSheetProps {
+interface CardEditSheetProps {
   visible: boolean;
   onClose: () => void;
+  card: Card | null;
   userId: string;
 }
 
-export default function CardFormSheet({ visible, onClose, userId }: CardFormSheetProps) {
+export default function CardEditSheet({ visible, onClose, card, userId }: CardEditSheetProps) {
   const { colors } = useTheme();
   const { t } = useTranslation();
 
-  const [step, setStep] = useState<'bank' | 'details'>('bank');
+  const [step, setStep] = useState<'bank' | 'details'>('details');
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
   const [cardType, setCardType] = useState<CardType>('debit');
   const [nickname, setNickname] = useState('');
@@ -45,7 +46,16 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
   const sheetTranslateY = useRef(new Animated.Value(400)).current;
 
   useEffect(() => {
-    if (visible) {
+    if (visible && card) {
+      const bank = COLOMBIAN_BANKS.find((b) => b.id === card.bankId) ?? null;
+      setSelectedBank(bank);
+      setCardType(card.type);
+      setNickname(card.nickname);
+      setIsDefault(card.isDefault);
+      setStep('details');
+      setError('');
+      setSaving(false);
+
       Animated.parallel([
         Animated.timing(overlayOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
         Animated.spring(sheetTranslateY, { toValue: 0, damping: 26, stiffness: 400, mass: 1.0, useNativeDriver: true }),
@@ -54,19 +64,12 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
       overlayOpacity.setValue(0);
       sheetTranslateY.setValue(400);
     }
-  }, [visible]);
+  }, [visible, card]);
 
-  const reset = () => {
-    setStep('bank');
-    setSelectedBank(null);
-    setCardType('debit');
-    setNickname('');
-    setIsDefault(false);
-    setSaving(false);
-    setError('');
+  const handleClose = () => {
+    setStep('details');
+    onClose();
   };
-
-  const handleClose = () => { reset(); onClose(); };
 
   const handleSelectBank = (bank: Bank) => {
     setSelectedBank(bank);
@@ -74,21 +77,32 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
   };
 
   const handleSave = async () => {
-    if (!selectedBank) return;
+    if (!card || !selectedBank) return;
     const trimmed = nickname.trim();
     if (!trimmed) { setError(t('cardForm.nicknameError')); return; }
     setError('');
     setSaving(true);
     try {
-      await addCard(userId, selectedBank.id, selectedBank.name, cardType, trimmed, isDefault);
+      if (isDefault && !card.isDefault) {
+        await setDefaultCard(card.id, userId);
+      }
+      await updateCard(card.id, {
+        bankId: selectedBank.id,
+        bankName: selectedBank.name,
+        type: cardType,
+        nickname: trimmed,
+        isDefault,
+      });
       handleClose();
     } catch {
-      setError(t('cardForm.saveError'));
+      setError(t('cardEditForm.saveError'));
       setSaving(false);
     }
   };
 
   const canSave = nickname.trim().length > 0 && !saving;
+
+  const headerTitle = step === 'bank' ? t('cardForm.selectBank') : t('cardEditForm.title');
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={handleClose}>
@@ -104,16 +118,14 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
 
         {/* Header */}
         <View style={styles.headerRow}>
-          {step === 'details' ? (
-            <TouchableOpacity onPress={() => setStep('bank')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          {step === 'bank' ? (
+            <TouchableOpacity onPress={() => setStep('details')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
               <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
             </TouchableOpacity>
           ) : (
             <View style={{ width: 22 }} />
           )}
-          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-            {step === 'bank' ? t('cardForm.selectBank') : selectedBank?.name ?? ''}
-          </Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{headerTitle}</Text>
           <TouchableOpacity onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Ionicons name="close" size={22} color={colors.textSecondary} />
           </TouchableOpacity>
@@ -133,35 +145,56 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
               >
                 <BankLogo bankId={item.id} size={32} radius={8} />
                 <Text style={[styles.bankItemText, { color: colors.textPrimary }]}>{item.name}</Text>
-                <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+                {selectedBank?.id === item.id && (
+                  <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
+                )}
+                {selectedBank?.id !== item.id && (
+                  <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+                )}
               </TouchableOpacity>
             )}
           />
         )}
 
-        {/* Paso 2: Tipo + apodo */}
+        {/* Paso 2: Editar detalles */}
         {step === 'details' && (
           <View style={styles.detailsForm}>
+            {/* Cambiar banco */}
+            {selectedBank && (
+              <TouchableOpacity
+                style={[styles.changeBankRow, { borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]}
+                onPress={() => setStep('bank')}
+                activeOpacity={0.8}
+              >
+                <BankLogo bankId={selectedBank.id} size={32} radius={8} />
+                <Text style={[styles.changeBankName, { color: colors.textPrimary }]}>{selectedBank.name}</Text>
+                <View style={styles.changeBankAction}>
+                  <Text style={[styles.changeBankLabel, { color: colors.primary }]}>{t('cardEditForm.changeBank')}</Text>
+                  <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+                </View>
+              </TouchableOpacity>
+            )}
+
             {/* Chips tipo */}
             <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('cardForm.typeLabel')}</Text>
             <View style={styles.typeRow}>
-              {(['debit', 'credit'] as CardType[]).map((cardTypeOpt) => (
+              {(['debit', 'credit'] as CardType[]).map((opt) => (
                 <TouchableOpacity
-                  key={cardTypeOpt}
+                  key={opt}
                   style={[
                     styles.typeChip,
                     { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                    cardType === cardTypeOpt && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    cardType === opt && { backgroundColor: colors.primary, borderColor: colors.primary },
                   ]}
-                  onPress={() => setCardType(cardTypeOpt)}
+                  onPress={() => setCardType(opt)}
                   activeOpacity={0.8}
                 >
                   <Text style={[
                     styles.typeChipText,
                     { color: colors.textSecondary },
-                    cardType === cardTypeOpt && { color: '#FFFFFF' },
+                    cardType === opt && { color: '#FFFFFF' },
                   ]}>
-                    {cardTypeOpt === 'debit' ? t('cardForm.debit') : t('cardForm.credit')}
+                    {opt === 'debit' ? t('cardForm.debit') : t('cardForm.credit')}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -206,28 +239,6 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
               />
             </View>
 
-            {/* Preview badge */}
-            {nickname.trim().length > 0 && (
-              <View style={styles.previewRow}>
-                <View style={[styles.previewBadge, { backgroundColor: colors.primaryLight }]}>
-                  <Text style={[styles.previewBadgeText, { color: colors.primary }]}>
-                    {nickname.trim()}
-                  </Text>
-                </View>
-                <View style={[
-                  styles.previewBadge,
-                  { backgroundColor: cardType === 'credit' ? colors.primaryLight : colors.tertiaryLight },
-                ]}>
-                  <Text style={[
-                    styles.previewBadgeText,
-                    { color: cardType === 'credit' ? colors.primary : colors.tertiaryDark },
-                  ]}>
-                    {cardType === 'debit' ? t('cardForm.debit') : t('cardForm.credit')}
-                  </Text>
-                </View>
-              </View>
-            )}
-
             {/* Botón guardar */}
             <TouchableOpacity
               style={[styles.saveBtn, { backgroundColor: colors.primary }, !canSave && { opacity: 0.4 }]}
@@ -237,7 +248,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
             >
               {saving
                 ? <ActivityIndicator color="#FFFFFF" />
-                : <Text style={styles.saveBtnText}>{t('cardForm.addButton')}</Text>
+                : <Text style={styles.saveBtnText}>{t('cardEditForm.saveButton')}</Text>
               }
             </TouchableOpacity>
           </View>
@@ -256,7 +267,7 @@ const styles = StyleSheet.create({
     right: 0,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '80%',
+    maxHeight: '85%',
     paddingBottom: 40,
   },
   handleRow: { alignItems: 'center', paddingTop: 12, paddingBottom: 4 },
@@ -266,7 +277,11 @@ const styles = StyleSheet.create({
   bankList: { maxHeight: 380 },
   bankItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1 },
   bankItemText: { flex: 1, fontSize: 15, fontFamily: Fonts.medium },
-  detailsForm: { paddingHorizontal: 20, paddingTop: 8, gap: 12 },
+  detailsForm: { paddingHorizontal: 20, paddingTop: 4, gap: 12 },
+  changeBankRow: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
+  changeBankName: { flex: 1, fontSize: 15, fontFamily: Fonts.semiBold },
+  changeBankAction: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  changeBankLabel: { fontSize: 13, fontFamily: Fonts.semiBold },
   fieldLabel: { fontSize: 13, fontFamily: Fonts.semiBold },
   labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   charCount: { fontSize: 11, fontFamily: Fonts.regular },
@@ -282,13 +297,10 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.semiBold,
   },
   errorText: { fontSize: 12, fontFamily: Fonts.regular },
-  previewRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  previewBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
-  previewBadgeText: { fontSize: 12, fontFamily: Fonts.semiBold },
-  saveBtn: { height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-  saveBtnText: { fontSize: 16, fontFamily: Fonts.bold, color: '#FFFFFF' },
   defaultRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, gap: 12 },
   defaultTexts: { flex: 1 },
   defaultLabel: { fontSize: 14, fontFamily: Fonts.semiBold },
   defaultHint: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 2 },
+  saveBtn: { height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  saveBtnText: { fontSize: 16, fontFamily: Fonts.bold, color: '#FFFFFF' },
 });
