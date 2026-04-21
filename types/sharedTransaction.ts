@@ -1,22 +1,31 @@
 import { Timestamp } from 'firebase/firestore';
 
 export interface SharedParticipant {
-  uid: string;
-  userName: string;
+  uid: string;          // UID real para usuarios de la app; email para externos (solo UI/tracking)
+  userName: string;     // @userName para usuarios de la app; '' para externos
   displayName: string;
-  percentage: number; // 0-100, suma total debe ser 100
+  percentage: number;   // 0-100, suma total debe ser 100
+  isExternal?: boolean; // true si la persona aún no tiene cuenta en la app
+  email?: string;       // solo para externos — clave única para vinculación futura
+}
+
+export interface ExternalParticipantRef {
+  email: string;
+  displayName: string;
+  percentage: number;
 }
 
 export interface MirrorRef {
   uid: string;
-  transactionId: string; // ID del doc en /transactions (una entrada por doc)
-  installmentGroupId?: string; // si es cuotas, mismo valor para las N entradas del participante
+  transactionId: string;
+  installmentGroupId?: string;
 }
 
 export interface SharedTransaction {
   sharedId: string;
   ownerUid: string;
   createdAt: Timestamp;
-  mirrorRefs: MirrorRef[]; // incluye refs del owner Y de todos los participantes
-  participantUids: string[]; // [ownerUid, p1Uid, p2Uid, ...] — array plano para reglas Firestore
+  mirrorRefs: MirrorRef[];
+  participantUids: string[];            // solo UIDs reales para reglas Firestore
+  externalParticipants?: ExternalParticipantRef[]; // sin cuenta, vinculables por email
 }

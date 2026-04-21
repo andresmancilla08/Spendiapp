@@ -5,6 +5,8 @@ import {
   Timestamp,
   addDoc,
   getDoc,
+  setDoc,
+  arrayUnion,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { SharedParticipant, MirrorRef, SharedTransaction } from '../types/sharedTransaction';
@@ -48,14 +50,18 @@ export function useSharedTransactions() {
     const sharedId = doc(collection(db, 'sharedTransactions')).id;
     const batch = writeBatch(db);
     const mirrorRefs: MirrorRef[] = [];
-    const participantUids = participants.map((p) => p.uid);
     const interestRate = (withInterest && teaValue != null) ? teaValue : 0;
     const isInstallment = installmentCount > 1;
+
+    // Separar participantes con cuenta de externos
+    const realParticipants = participants.filter((p) => !p.isExternal);
+    const externalParticipants = participants.filter((p) => p.isExternal);
+    const participantUids = realParticipants.map((p) => p.uid);
 
     // Extraer cardId para no propagarlo a mirrors
     const { cardId, ...baseDocWithoutCard } = baseDoc;
 
-    for (const participant of participants) {
+    for (const participant of realParticipants) {
       const isOwner = participant.uid === ownerUid;
 
       const sharedFields = {
@@ -125,13 +131,39 @@ export function useSharedTransactions() {
       createdAt: Timestamp.fromDate(new Date()),
       mirrorRefs,
       participantUids,
+      ...(externalParticipants.length > 0 && {
+        externalParticipants: externalParticipants.map((p) => ({
+          email: p.email!,
+          displayName: p.displayName,
+          percentage: p.percentage,
+        })),
+      }),
     };
     batch.set(coordRef, coordData);
 
     await batch.commit();
 
-    // Enviar notificaciones a participantes no-owner (fuera del batch — no crítico)
-    const nonOwners = participants.filter((p) => p.uid !== ownerUid);
+    // Registrar pendingExternalLinks para futura vinculación (fuera del batch — no crítico)
+    for (const ext of externalParticipants) {
+      await setDoc(
+        doc(db, 'pendingExternalLinks', ext.email!),
+        {
+          email: ext.email,
+          links: arrayUnion({
+            ownerUid,
+            sharedId,
+            displayName: ext.displayName,
+            percentage: ext.percentage,
+            description: baseDoc.description,
+            createdAt: Timestamp.fromDate(new Date()),
+          }),
+        },
+        { merge: true },
+      );
+    }
+
+    // Enviar notificaciones a participantes no-owner con cuenta (fuera del batch — no crítico)
+    const nonOwners = realParticipants.filter((p) => p.uid !== ownerUid);
     for (const p of nonOwners) {
       await addDoc(collection(db, 'notifications'), {
         toUserId: p.uid,

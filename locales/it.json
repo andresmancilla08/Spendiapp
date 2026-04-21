@@ -892,7 +892,18 @@
       "sharedWith": "Condiviso con {{name}}",
       "sharedWithMore": "Condiviso con {{name}} e altri {{count}}",
       "sharedBy": "Condiviso da {{name}}"
-    }
+    },
+    "appFriendsTab": "Amici nell'app",
+    "externalTab": "Persona esterna",
+    "externalName": "Nome completo",
+    "externalEmail": "Indirizzo email",
+    "externalNamePlaceholder": "Es. Mario Rossi",
+    "externalEmailPlaceholder": "email@esempio.com",
+    "addExternalBtn": "Aggiungi",
+    "invalidEmail": "Email non valida",
+    "emailAlreadyAdded": "Questa email è già stata aggiunta",
+    "externalBadge": "Esterno",
+    "selectedWith": "Con"
   },
   "sentIncome": {
     "toggle": "Registra come entrata per un amico",

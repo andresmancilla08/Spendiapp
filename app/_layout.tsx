@@ -96,6 +96,7 @@ export default function RootLayout() {
           authUser.uid,
           authUser.displayName ?? authUser.email ?? 'Usuario',
           authUser.photoURL,
+          authUser.email,
         ).catch(() => {
           // Fallo silencioso — el perfil se creará en el siguiente login
         });
