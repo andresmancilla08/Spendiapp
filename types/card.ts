@@ -7,5 +7,6 @@ export interface Card {
   bankName: string;
   type: CardType;
   nickname: string;
+  isDefault: boolean;
   createdAt: Date;
 }

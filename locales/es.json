@@ -636,7 +636,9 @@
     },
     "deletedSuccess": "Tarjeta eliminada correctamente",
     "deleteError": "No se pudo eliminar la tarjeta",
-    "pageDesc": "Gestiona tus tarjetas y métodos de pago"
+    "pageDesc": "Gestiona tus tarjetas y métodos de pago",
+    "defaultBadge": "Predeterminada",
+    "setDefaultSuccess": "Tarjeta predeterminada actualizada"
   },
   "cardForm": {
     "selectBank": "Selecciona el banco",
@@ -647,7 +649,15 @@
     "nicknamePlaceholder": "Ej: Principal, Nómina, Viajes...",
     "nicknameError": "Escribe un nombre para la tarjeta",
     "addButton": "Agregar tarjeta",
-    "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo."
+    "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo.",
+    "defaultToggle": "Predeterminada para egresos",
+    "defaultToggleHint": "Se seleccionará automáticamente al registrar gastos"
+  },
+  "cardEditForm": {
+    "title": "Editar tarjeta",
+    "changeBank": "Cambiar banco",
+    "saveButton": "Guardar cambios",
+    "saveError": "No se pudo guardar los cambios. Intenta de nuevo."
   },
   "pwaInstall": {
     "title": "Instala Spendia",
@@ -875,6 +885,18 @@
       "item1": "Efecto aurora con 6 círculos flotantes en cada pantalla",
       "item2": "Animación continua y suave, sin interrupciones al navegar",
       "item3": "Intensidades distintas según la pantalla, adaptado a claro y oscuro"
+    },
+    "defaultCard": {
+      "title": "Tarjeta predeterminada para egresos",
+      "item1": "Marca una tarjeta como predeterminada al agregarla o editarla",
+      "item2": "Se selecciona automáticamente al registrar un nuevo gasto",
+      "item3": "Badge ★ en Mis Tarjetas para identificarla de un vistazo"
+    },
+    "cardManagement": {
+      "title": "Edición completa de tarjetas",
+      "item1": "Edita banco, tipo, nombre y predeterminada desde Mis Tarjetas",
+      "item2": "Botones de acción rediseñados con fondos tintados y squircle",
+      "item3": "Cambio de banco directo dentro del formulario de edición"
     }
   },
   "sharedExpense": {

@@ -15,6 +15,7 @@ import { useAuthStore } from '../store/authStore';
 import { Fonts } from '../config/fonts';
 import { useCards, deleteCardAndTransactions } from '../hooks/useCards';
 import CardFormSheet from '../components/CardFormSheet';
+import CardEditSheet from '../components/CardEditSheet';
 import BankLogo from '../components/BankLogo';
 import AppDialog from '../components/AppDialog';
 import { router } from 'expo-router';
@@ -33,6 +34,7 @@ export default function CardsScreen() {
   const { cards, loading } = useCards(user?.uid ?? '');
 
   const [cardFormVisible, setCardFormVisible] = useState(false);
+  const [editTarget, setEditTarget] = useState<Card | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Card | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -64,23 +66,10 @@ export default function CardsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
 
-      <AppHeader
-        showBack
-        onBack={handleBack}
-        rightAction={
-          <TouchableOpacity
-            onPress={() => setCardFormVisible(true)}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            style={[styles.addButton, { backgroundColor: colors.primary }]}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="add" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        }
-      />
+      <AppHeader showBack onBack={handleBack} />
       <PageTitle title={t('cardsScreen.title')} description={t('cardsScreen.pageDesc')} />
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
 
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           {loading ? (
@@ -131,14 +120,32 @@ export default function CardsScreen() {
                         {card.type === 'credit' ? t('cardsScreen.credit') : t('cardsScreen.debit')}
                       </Text>
                     </View>
+                    {card.isDefault && (
+                      <View style={[styles.badge, { backgroundColor: `${colors.primary}18` }]}>
+                        <Ionicons name="star" size={9} color={colors.primary} style={{ marginRight: 3 }} />
+                        <Text style={[styles.badgeText, { color: colors.primary }]}>
+                          {t('cardsScreen.defaultBadge')}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 </View>
-                <TouchableOpacity
-                  onPress={() => setDeleteTarget(card)}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Ionicons name="trash-outline" size={18} color={colors.error} />
-                </TouchableOpacity>
+                <View style={styles.rowActions}>
+                  <TouchableOpacity
+                    onPress={() => setEditTarget(card)}
+                    style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="pencil-outline" size={15} color={colors.primary} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setDeleteTarget(card)}
+                    style={[styles.actionBtn, { backgroundColor: colors.errorLight }]}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="trash-outline" size={15} color={colors.error} />
+                  </TouchableOpacity>
+                </View>
               </View>
             ))
           )}
@@ -146,9 +153,26 @@ export default function CardsScreen() {
 
       </ScrollView>
 
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: colors.primary }]}
+        onPress={() => setCardFormVisible(true)}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="add" size={20} color="#FFFFFF" />
+        <Text style={styles.fabText}>{t('cardForm.addButton')}</Text>
+      </TouchableOpacity>
+
       <CardFormSheet
         visible={cardFormVisible}
         onClose={() => setCardFormVisible(false)}
+        userId={user?.uid ?? ''}
+      />
+
+      <CardEditSheet
+        visible={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        card={editTarget}
+        userId={user?.uid ?? ''}
       />
 
       <AppDialog
@@ -189,15 +213,30 @@ const dialogDescStyle = { fontSize: 15, lineHeight: 22, textAlign: 'center' as c
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  addButton: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  scroll: { padding: 20, paddingBottom: 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  scroll: { padding: 20, paddingBottom: 100, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  fab: {
+    position: 'absolute',
+    bottom: 28,
+    left: 20,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: 16,
+    paddingVertical: 14,
+    minHeight: 52,
+  },
+  fabText: { fontSize: 16, fontFamily: Fonts.bold, color: '#FFFFFF' },
   card: { borderRadius: 16, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14 },
   meta: { flex: 1 },
   cardName: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 4 },
   badgeRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
+  badge: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
   badgeText: { fontSize: 11, fontFamily: Fonts.semiBold },
+  rowActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  actionBtn: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   emptyWrap: { alignItems: 'center', paddingVertical: 32, gap: 4 },
   emptyText: { fontSize: 14, fontFamily: Fonts.semiBold },
   emptyHint: { fontSize: 12, fontFamily: Fonts.regular },

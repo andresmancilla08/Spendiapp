@@ -100,6 +100,14 @@ export default function AddTransactionScreen() {
   // Tarjeta y cuotas
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const defaultApplied = useRef(false);
+  useEffect(() => {
+    if (!cardsLoading && !defaultApplied.current) {
+      defaultApplied.current = true;
+      const def = cards.find((c) => c.isDefault);
+      if (def) setSelectedCardId(def.id);
+    }
+  }, [cardsLoading, cards]);
   const [installmentCount, setInstallmentCount] = useState(1);
   const [withInterest, setWithInterest] = useState(false);
   const [teaInput, setTeaInput] = useState('');
