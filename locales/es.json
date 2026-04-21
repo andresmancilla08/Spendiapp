@@ -374,6 +374,14 @@
       "saveFailed": "No se pudo guardar. Intenta de nuevo."
     }
   },
+  "editTransaction": {
+    "title": "Editar movimiento",
+    "pageDesc": "Modifica los datos del registro",
+    "installmentNotice": "Cuota {{current}} de {{total}} — edita solo esta cuota",
+    "fixedExpense": "Gasto fijo",
+    "fixedIncome": "Ingreso fijo",
+    "saveCategoryError": "No se pudo guardar la categoría"
+  },
   "history": {
     "title": "Historial",
     "incomeLabel": "Ingresos",
@@ -400,7 +408,10 @@
       "cancelFixedButton": "Cancelar fijo",
       "confirmCancelFixed": "Esto cancelará el movimiento fijo a partir de este mes. Los meses anteriores no se verán afectados.",
       "confirmCancelFixedYes": "Sí, cancelar",
-      "fixedLocked": "Este movimiento ya ocurrió y no puede modificarse."
+      "fixedLocked": "Este movimiento ya ocurrió y no puede modificarse.",
+      "dateLabel": "Fecha",
+      "isFixedLabel": "Fijo mensual",
+      "isFixedHint": "Se repite automáticamente cada mes"
     },
     "months": [
       "Ene",
@@ -840,6 +851,30 @@
       "item1": "Crea grupos para viajes o salidas y registra quién pagó qué",
       "item2": "Calcula automáticamente quién le debe cuánto a quién",
       "item3": "Liquida o reabre grupos con un toque"
+    },
+    "editTransactionParity": {
+      "title": "Editar movimiento mejorado",
+      "item1": "Categorización automática con IA al escribir la descripción",
+      "item2": "Crear categorías personalizadas directamente al editar",
+      "item3": "Sugerencias rápidas de descripción y selector de tarjeta completo"
+    },
+    "visualPolish": {
+      "title": "Mejoras visuales",
+      "item1": "Animación aurora en el login: suave y continua en modo oscuro y claro",
+      "item2": "Blobs animados visibles en modo claro con tonos cyan sutiles",
+      "item3": "Botón de Google corregido en modo oscuro con fondo sólido"
+    },
+    "transactionDetail": {
+      "title": "Detalle y edición de movimientos",
+      "item1": "Ve el desglose completo de cada gasto e ingreso",
+      "item2": "Edita cualquier campo directamente desde el detalle",
+      "item3": "Cambia la fecha con un selector visual intuitivo"
+    },
+    "auroraBackground": {
+      "title": "Fondo animado en toda la app",
+      "item1": "Efecto aurora con 6 círculos flotantes en cada pantalla",
+      "item2": "Animación continua y suave, sin interrupciones al navegar",
+      "item3": "Intensidades distintas según la pantalla, adaptado a claro y oscuro"
     }
   },
   "sharedExpense": {

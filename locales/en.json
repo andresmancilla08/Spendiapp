@@ -374,6 +374,14 @@
       "saveFailed": "Could not save. Please try again."
     }
   },
+  "editTransaction": {
+    "title": "Edit transaction",
+    "pageDesc": "Update the details of this record",
+    "installmentNotice": "Installment {{current}} of {{total}} — editing this installment only",
+    "fixedExpense": "Fixed expense",
+    "fixedIncome": "Fixed income",
+    "saveCategoryError": "Could not save the category"
+  },
   "history": {
     "title": "History",
     "incomeLabel": "Income",
@@ -400,7 +408,10 @@
       "cancelFixedButton": "Cancel recurring",
       "confirmCancelFixed": "This will cancel the recurring transaction from this month onwards. Previous months will not be affected.",
       "confirmCancelFixedYes": "Yes, cancel",
-      "fixedLocked": "This transaction already occurred and cannot be modified."
+      "fixedLocked": "This transaction already occurred and cannot be modified.",
+      "dateLabel": "Date",
+      "isFixedLabel": "Monthly recurring",
+      "isFixedHint": "Repeats automatically every month"
     },
     "months": [
       "Jan",
@@ -839,6 +850,30 @@
       "item1": "Create groups for trips or outings and track who paid what",
       "item2": "Automatically calculate who owes whom and how much",
       "item3": "Settle or reopen groups with a single tap"
+    },
+    "editTransactionParity": {
+      "title": "Improved edit transaction",
+      "item1": "AI-powered auto-categorization when typing the description",
+      "item2": "Create custom categories directly while editing",
+      "item3": "Quick description suggestions and full card selector"
+    },
+    "visualPolish": {
+      "title": "Visual improvements",
+      "item1": "Smooth, seamless aurora animation on login in both dark and light mode",
+      "item2": "Animated blobs now visible in light mode with subtle cyan tones",
+      "item3": "Google button fixed in dark mode with a solid background"
+    },
+    "transactionDetail": {
+      "title": "Transaction detail & editing",
+      "item1": "See the full breakdown of every expense and income",
+      "item2": "Edit any field directly from the detail view",
+      "item3": "Change the date with an intuitive visual picker"
+    },
+    "auroraBackground": {
+      "title": "Animated background across the app",
+      "item1": "Aurora effect with 6 floating circles on every screen",
+      "item2": "Smooth, continuous animation that persists while navigating",
+      "item3": "Different intensities per screen, adapts to light and dark mode"
     }
   },
   "sharedExpense": {

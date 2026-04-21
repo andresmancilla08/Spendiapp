@@ -24,6 +24,7 @@ export const COLOMBIAN_BANKS: Bank[] = [
   { id: 'lulo',        name: 'Lulo Bank',            category: 'digital',     logoUrl: 'https://logo.clearbit.com/lulobank.com.co',            color: '#F5A623', initials: 'LU' },
   { id: 'rappipay',    name: 'RappiPay',             category: 'digital',     logoUrl: 'https://logo.clearbit.com/rappipay.com',               color: '#FF441F', initials: 'RP' },
   { id: 'movii',       name: 'Movii',                category: 'digital',     logoUrl: 'https://logo.clearbit.com/movii.com.co',               color: '#00B4D8', initials: 'MV' },
+  { id: 'falabella',   name: 'Banco Falabella',      category: 'traditional', logoUrl: 'https://logo.clearbit.com/bancofalabella.com.co',      color: '#006B33', initials: 'FA' },
   { id: 'efectivo',    name: 'Efectivo',             category: 'other',       logoUrl: null,                                                    color: '#4CAF50', initials: 'EF' },
 ];
 

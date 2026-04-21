@@ -39,6 +39,31 @@ interface Feature {
 // Lista limpia y única de todas las funciones de la app (sin repetidos ni supersedidas).
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
+    version: '2.8.0',
+    features: [
+      {
+        icon: 'receipt-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.transactionDetail.title',
+        items: [
+          'whatsNew.transactionDetail.item1',
+          'whatsNew.transactionDetail.item2',
+          'whatsNew.transactionDetail.item3',
+        ],
+      },
+      {
+        icon: 'sparkles-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.auroraBackground.title',
+        items: [
+          'whatsNew.auroraBackground.item1',
+          'whatsNew.auroraBackground.item2',
+          'whatsNew.auroraBackground.item3',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.5.1',
     features: [
       {

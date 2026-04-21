@@ -374,6 +374,14 @@
       "saveFailed": "Impossibile salvare. Riprova."
     }
   },
+  "editTransaction": {
+    "title": "Modifica movimento",
+    "pageDesc": "Aggiorna i dati di questo record",
+    "installmentNotice": "Rata {{current}} di {{total}} — modifica solo questa rata",
+    "fixedExpense": "Spesa fissa",
+    "fixedIncome": "Entrata fissa",
+    "saveCategoryError": "Impossibile salvare la categoria"
+  },
   "history": {
     "title": "Cronologia",
     "incomeLabel": "Entrate",
@@ -400,7 +408,10 @@
       "cancelFixedButton": "Annulla ricorrente",
       "confirmCancelFixed": "Questo cancellerà la transazione ricorrente da questo mese in poi. I mesi precedenti non saranno interessati.",
       "confirmCancelFixedYes": "Sì, annulla",
-      "fixedLocked": "Questa transazione è già avvenuta e non può essere modificata."
+      "fixedLocked": "Questa transazione è già avvenuta e non può essere modificata.",
+      "dateLabel": "Data",
+      "isFixedLabel": "Ricorrente mensile",
+      "isFixedHint": "Si ripete automaticamente ogni mese"
     },
     "months": [
       "Gen",
@@ -839,6 +850,30 @@
       "item1": "Crea gruppi per viaggi o uscite e registra chi ha pagato cosa",
       "item2": "Calcola automaticamente chi deve quanto a chi",
       "item3": "Salda o riapri i gruppi con un solo tocco"
+    },
+    "editTransactionParity": {
+      "title": "Modifica movimento migliorata",
+      "item1": "Categorizzazione automatica con IA durante la digitazione della descrizione",
+      "item2": "Crea categorie personalizzate direttamente durante la modifica",
+      "item3": "Suggerimenti rapidi per la descrizione e selettore carta completo"
+    },
+    "visualPolish": {
+      "title": "Miglioramenti visivi",
+      "item1": "Animazione aurora nel login: fluida e continua in modalità scura e chiara",
+      "item2": "Blob animati visibili in modalità chiara con toni cyan sottili",
+      "item3": "Pulsante Google corretto in modalità scura con sfondo solido"
+    },
+    "transactionDetail": {
+      "title": "Dettaglio e modifica delle transazioni",
+      "item1": "Vedi il riepilogo completo di ogni spesa e entrata",
+      "item2": "Modifica qualsiasi campo direttamente dal dettaglio",
+      "item3": "Cambia la data con un selettore visivo intuitivo"
+    },
+    "auroraBackground": {
+      "title": "Sfondo animato in tutta l'app",
+      "item1": "Effetto aurora con 6 cerchi fluttuanti in ogni schermata",
+      "item2": "Animazione fluida e continua durante la navigazione",
+      "item3": "Intensità diverse per schermata, si adatta a chiaro e scuro"
     }
   },
   "sharedExpense": {

@@ -6,12 +6,15 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import PressableScale from '../../components/PressableScale';
 import Svg, { Circle } from 'react-native-svg';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
@@ -73,9 +76,22 @@ function DonutChart({ percent, color, size = 140 }: { percent: number; color: st
 
 function ProgressBar({ percent, color }: { percent: number; color: string }) {
   const clamped = Math.min(percent, 100);
+  const anim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: clamped,
+      duration: 600,
+      useNativeDriver: false,
+      easing: Easing.out(Easing.cubic),
+    }).start();
+  }, [clamped]);
+
+  const width = anim.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] });
+
   return (
     <View style={progressStyles.track}>
-      <View style={[progressStyles.fill, { width: `${clamped}%` as any, backgroundColor: color }]} />
+      <Animated.View style={[progressStyles.fill, { width, backgroundColor: color }]} />
     </View>
   );
 }
@@ -295,12 +311,11 @@ export default function BudgetScreen() {
             const pct = b.limitAmount > 0 ? (spent / b.limitAmount) * 100 : 0;
             const color = progressColor(pct, colors.success, colors.error);
             return (
-              <TouchableOpacity
+              <PressableScale
                 key={b.id}
                 style={[styles.budgetRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
                 onPress={() => openEdit(b)}
                 onLongPress={() => openDelete(b)}
-                activeOpacity={0.75}
               >
                 {/* Left accent */}
                 <View style={[styles.budgetAccent, { backgroundColor: color }]} />
@@ -324,7 +339,7 @@ export default function BudgetScreen() {
                   </View>
                   <ProgressBar percent={pct} color={color} />
                 </View>
-              </TouchableOpacity>
+              </PressableScale>
             );
           })}
 
@@ -333,11 +348,10 @@ export default function BudgetScreen() {
             <View style={styles.unlimitedSection}>
               <Text style={[styles.sectionHeader, { color: colors.textTertiary }]}>{t('budget.unlimitedSection')}</Text>
               {unlimitedCategories.map((cat) => (
-                <TouchableOpacity
+                <PressableScale
                   key={cat.id}
                   style={[styles.unlimitedRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
                   onPress={() => openAdd(cat)}
-                  activeOpacity={0.75}
                 >
                   <View style={[styles.catIconWrap, { backgroundColor: colors.backgroundSecondary }]}>
                     <Text style={styles.catIcon}>{cat.icon}</Text>
@@ -347,7 +361,7 @@ export default function BudgetScreen() {
                     <Ionicons name="add" size={13} color={colors.primary} />
                     <Text style={[styles.addChipText, { color: colors.primary }]}>{t('budget.addLimit')}</Text>
                   </View>
-                </TouchableOpacity>
+                </PressableScale>
               ))}
             </View>
           )}
