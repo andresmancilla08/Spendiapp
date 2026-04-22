@@ -93,7 +93,6 @@ export function useSharedTransactions() {
             amount: amt,
             date: Timestamp.fromDate(dates[i]),
             createdAt: Timestamp.fromDate(new Date()),
-            isFixed: false,
             installmentGroupId: groupId,
             installmentNumber: i + 1,
             installmentTotal: installmentCount,
