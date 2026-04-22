@@ -896,6 +896,18 @@
       "item1": "Modifica banca, tipo, nome e predefinita direttamente da Le mie carte",
       "item2": "Pulsanti d'azione ridisegnati con sfondi tintati a squircle",
       "item3": "Cambia la banca direttamente nel modulo di modifica"
+    },
+    "auroraBlur": {
+      "title": "Sfondo aurora migliorato",
+      "item1": "Effetto blur morbido sui cerchi animati dello sfondo",
+      "item2": "Intensità adattiva: sottile in modalità chiara, più marcata in scura",
+      "item3": "Le animazioni continuano a scorrere senza interruzioni"
+    },
+    "toolCardsRedesign": {
+      "title": "Schede strumenti rinnovate",
+      "item1": "Sfondo solido con maggior contrasto sull'aurora animata",
+      "item2": "Ombra sottile con tinta dalla palette principale dell'app",
+      "item3": "Angoli perfettamente arrotondati su Android e iOS"
     }
   },
   "sharedExpense": {

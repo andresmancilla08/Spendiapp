@@ -107,11 +107,6 @@ export default function LoginScreen() {
             <PressableScale
               style={[styles.emailButton, {
                 backgroundColor: colors.primary,
-                shadowColor: colors.primary,
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: isDark ? 0.45 : 0.28,
-                shadowRadius: 14,
-                elevation: 6,
               }]}
               disabled={loading}
               onPress={() => router.push('/(auth)/login-email')}

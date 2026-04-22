@@ -896,6 +896,18 @@
       "item1": "Edit bank, type, name and default directly from My Cards",
       "item2": "Redesigned action buttons with tinted squircle backgrounds",
       "item3": "Change the bank directly inside the edit form"
+    },
+    "auroraBlur": {
+      "title": "Improved aurora background",
+      "item1": "Soft blur effect over the animated background circles",
+      "item2": "Adaptive intensity: subtle in light mode, stronger in dark",
+      "item3": "Animations keep flowing smoothly with the new effect"
+    },
+    "toolCardsRedesign": {
+      "title": "Redesigned tool cards",
+      "item1": "Solid background with better contrast over the animated aurora",
+      "item2": "Subtle shadow with a tint from the app's primary palette",
+      "item3": "Perfectly rounded corners on both Android and iOS"
     }
   },
   "sharedExpense": {
