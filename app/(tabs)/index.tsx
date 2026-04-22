@@ -404,13 +404,13 @@ export default function HomeScreen() {
             <View style={styles.balanceStat}>
               <Ionicons name="arrow-down-outline" size={12} color="rgba(255,255,255,0.75)" />
               <Text style={styles.balanceStatLabel}>{t('home.incomeLabel')}</Text>
-              <Text style={[styles.balanceStatValue, { color: '#A7F3D0' }]}>{formatCurrency(totalIncome)}</Text>
+              <Text style={[styles.balanceStatValue, { color: colors.success }]}>{formatCurrency(totalIncome)}</Text>
             </View>
             <View style={styles.balanceStatDivider} />
             <View style={styles.balanceStat}>
               <Ionicons name="arrow-up-outline" size={12} color="rgba(255,255,255,0.75)" />
               <Text style={styles.balanceStatLabel}>{t('home.expensesLabel')}</Text>
-              <Text style={[styles.balanceStatValue, { color: '#FFB3B3' }]}>{formatCurrency(totalExpenses)}</Text>
+              <Text style={[styles.balanceStatValue, { color: colors.error }]}>{formatCurrency(totalExpenses)}</Text>
             </View>
           </View>
         </LinearGradient>
