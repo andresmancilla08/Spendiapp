@@ -1,7 +1,6 @@
 // app/(tabs)/tools.tsx
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -24,22 +23,35 @@ interface ToolCardData {
 
 function ToolCard({ emoji, icon, title, description, onPress, colors }: ToolCardData & { colors: any }) {
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.75} style={styles.cardWrapper}>
-      <LinearGradient
-        colors={[`${colors.primary}18`, `${colors.primary}06`]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.card, { borderColor: `${colors.primary}28`, borderWidth: 1 }]}
-      >
-        <View style={[styles.iconWrap, { backgroundColor: `${colors.primary}18` }]}>
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.8}
+      style={[
+        styles.cardWrapper,
+        {
+          backgroundColor: colors.surface,
+          borderColor: `${colors.primary}30`,
+          borderWidth: 1,
+          shadowColor: colors.primary,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.12,
+          shadowRadius: 12,
+          elevation: 4,
+        },
+      ]}
+    >
+      <View style={styles.card}>
+        <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
           <Text style={styles.emoji}>{emoji}</Text>
         </View>
         <View style={styles.cardContent}>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{title}</Text>
           <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{description}</Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
-      </LinearGradient>
+        <View style={[styles.chevronWrap, { backgroundColor: `${colors.primary}12` }]}>
+          <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+        </View>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -105,9 +117,8 @@ export default function ToolsScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   scroll: { padding: 16, paddingBottom: 100, width: '100%', maxWidth: 768, alignSelf: 'center' },
-  cardWrapper: { marginBottom: 12 },
+  cardWrapper: { marginBottom: 12, borderRadius: 20 },
   card: {
-    borderRadius: 20,
     padding: 18,
     flexDirection: 'row',
     alignItems: 'center',
@@ -124,4 +135,11 @@ const styles = StyleSheet.create({
   cardContent: { flex: 1 },
   cardTitle: { fontSize: 16, fontFamily: Fonts.bold, marginBottom: 3 },
   cardDesc: { fontSize: 13, fontFamily: Fonts.regular, lineHeight: 19 },
+  chevronWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

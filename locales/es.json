@@ -897,6 +897,18 @@
       "item1": "Edita banco, tipo, nombre y predeterminada desde Mis Tarjetas",
       "item2": "Botones de acción rediseñados con fondos tintados y squircle",
       "item3": "Cambio de banco directo dentro del formulario de edición"
+    },
+    "auroraBlur": {
+      "title": "Fondo aurora mejorado",
+      "item1": "Efecto blur suave sobre los círculos animados del fondo",
+      "item2": "Intensidad adaptada: sutil en modo claro, más marcado en oscuro",
+      "item3": "Las animaciones siguen fluyendo sin interrupciones"
+    },
+    "toolCardsRedesign": {
+      "title": "Tarjetas de herramientas renovadas",
+      "item1": "Fondo sólido con mejor contraste sobre el aurora animado",
+      "item2": "Sombra sutil con tinte de la paleta principal de la app",
+      "item3": "Bordes perfectamente redondeados en Android e iOS"
     }
   },
   "sharedExpense": {

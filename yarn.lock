@@ -3095,6 +3095,11 @@ expo-auth-session@^55.0.10:
     expo-web-browser "~55.0.10"
     invariant "^2.2.4"
 
+expo-blur@~55.0.14:
+  version "55.0.14"
+  resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-55.0.14.tgz#ae2cc7eb7766279830fc6d622ca7b4c8706eb786"
+  integrity sha512-NKyCKFWTNpX4CZSsiE1sgkqk/yvR1K0UTukuIbxVKoobB+yALLg1CFav0NqfdQqjhtoj5oEzP0Brlq92Z08Zfg==
+
 expo-clipboard@~55.0.12:
   version "55.0.13"
   resolved "https://registry.npmjs.org/expo-clipboard/-/expo-clipboard-55.0.13.tgz"

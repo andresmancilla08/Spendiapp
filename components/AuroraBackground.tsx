@@ -1,14 +1,14 @@
 import { useRef, useEffect } from 'react';
-import { View, Animated, Easing, StyleSheet } from 'react-native';
+import { View, Animated, Easing, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 
 export type AuroraIntensity = 'intense' | 'default' | 'subtle';
 
 const MULTIPLIER: Record<AuroraIntensity, number> = {
-  intense: 0.7,
-  default: 0.32,
-  subtle: 0.16,
+  intense: 1.0,
+  default: 0.88,
+  subtle: 0.35,
 };
 
 interface Props {
@@ -82,12 +82,12 @@ export default function AuroraBackground({ intensity = 'default' }: Props) {
   const lightOp6 = b6.interpolate({ inputRange: [0.82, 1.32, 1.82],       outputRange: [0.05 * m, 0.12 * m, 0.05 * m], extrapolate: 'clamp' });
 
   const darkColors: [string, string][] = [
-    ['#007A8A', '#004050'],
-    ['#006070', '#003040'],
-    ['#005A52', '#003030'],
-    ['#008090', '#004555'],
-    ['#009BA8', '#005060'],
-    ['#006860', '#003A38'],
+    ['#00BCD4', '#006978'],
+    ['#0097A7', '#004D5A'],
+    ['#00897B', '#004D40'],
+    ['#26C6DA', '#0097A7'],
+    ['#4DD0E1', '#00838F'],
+    ['#009688', '#00695C'],
   ];
   const lightColors: [string, string][] = [
     ['#B2EBF2', '#80DEEA'],
@@ -99,30 +99,32 @@ export default function AuroraBackground({ intensity = 'default' }: Props) {
   ];
   const blobColors = isDark ? darkColors : lightColors;
 
+  const webBlur = Platform.OS === 'web' ? ({ filter: `blur(${isDark ? 10 : 4}px)` } as any) : {};
+
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {/* Blob 4 — grande ambient, centro-izquierda */}
-      <Animated.View style={[styles.blob4, { opacity: isDark ? op4 : lightOp4, transform: [{ translateX: tx4 }, { translateY: ty4 }] }]}>
+      <Animated.View style={[styles.blob4, webBlur, { opacity: isDark ? op4 : lightOp4, transform: [{ translateX: tx4 }, { translateY: ty4 }] }]}>
         <LinearGradient colors={blobColors[3]} style={StyleSheet.absoluteFillObject} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} />
       </Animated.View>
       {/* Blob 1 — grande, top-left */}
-      <Animated.View style={[styles.blob1, { opacity: isDark ? op1 : lightOp1, transform: [{ translateX: tx1 }, { translateY: ty1 }] }]}>
+      <Animated.View style={[styles.blob1, webBlur, { opacity: isDark ? op1 : lightOp1, transform: [{ translateX: tx1 }, { translateY: ty1 }] }]}>
         <LinearGradient colors={blobColors[0]} style={StyleSheet.absoluteFillObject} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
       </Animated.View>
       {/* Blob 6 — mediano-grande, lower-left */}
-      <Animated.View style={[styles.blob6, { opacity: isDark ? op6 : lightOp6, transform: [{ translateX: tx6 }, { translateY: ty6 }] }]}>
+      <Animated.View style={[styles.blob6, webBlur, { opacity: isDark ? op6 : lightOp6, transform: [{ translateX: tx6 }, { translateY: ty6 }] }]}>
         <LinearGradient colors={blobColors[5]} style={StyleSheet.absoluteFillObject} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} />
       </Animated.View>
       {/* Blob 2 — mediano, bottom-right */}
-      <Animated.View style={[styles.blob2, { opacity: isDark ? op2 : lightOp2, transform: [{ translateX: tx2 }, { translateY: ty2 }] }]}>
+      <Animated.View style={[styles.blob2, webBlur, { opacity: isDark ? op2 : lightOp2, transform: [{ translateX: tx2 }, { translateY: ty2 }] }]}>
         <LinearGradient colors={blobColors[1]} style={StyleSheet.absoluteFillObject} start={{ x: 0.5, y: 0 }} end={{ x: 0, y: 1 }} />
       </Animated.View>
       {/* Blob 5 — pequeño, top-right */}
-      <Animated.View style={[styles.blob5, { opacity: isDark ? op5 : lightOp5, transform: [{ translateX: tx5 }, { translateY: ty5 }] }]}>
+      <Animated.View style={[styles.blob5, webBlur, { opacity: isDark ? op5 : lightOp5, transform: [{ translateX: tx5 }, { translateY: ty5 }] }]}>
         <LinearGradient colors={blobColors[4]} style={StyleSheet.absoluteFillObject} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} />
       </Animated.View>
       {/* Blob 3 — pequeño, centro */}
-      <Animated.View style={[styles.blob3, { opacity: isDark ? op3 : lightOp3, transform: [{ translateX: tx3 }, { translateY: ty3 }] }]}>
+      <Animated.View style={[styles.blob3, webBlur, { opacity: isDark ? op3 : lightOp3, transform: [{ translateX: tx3 }, { translateY: ty3 }] }]}>
         <LinearGradient colors={blobColors[2]} style={StyleSheet.absoluteFillObject} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} />
       </Animated.View>
     </View>
