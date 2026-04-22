@@ -733,6 +733,7 @@
     "shared_transaction_added": "{{fromDisplayName}} compartió un gasto contigo: {{description}}",
     "shared_transaction_updated": "{{fromDisplayName}} actualizó un gasto compartido: {{description}}",
     "shared_transaction_deleted": "{{fromDisplayName}} eliminó el gasto compartido: {{description}}",
+    "shared_delete_request": "{{fromDisplayName}} solicita eliminar el gasto compartido: {{description}}",
     "goal_monthly_reminder": "Recuerda agregar a tus {{count}} metas activas este mes 🎯",
     "sent_income": "{{name}} te envió un ingreso: {{description}}",
     "sent_income_deleted": "{{name}} eliminó el ingreso enviado: {{description}}"
@@ -909,6 +910,18 @@
       "item1": "Fondo sólido con mejor contraste sobre el aurora animado",
       "item2": "Sombra sutil con tinte de la paleta principal de la app",
       "item3": "Bordes perfectamente redondeados en Android e iOS"
+    },
+    "sharedFixedPerms": {
+      "title": "Gastos compartidos mejorados",
+      "item1": "Los gastos fijos compartidos ahora se propagan correctamente a meses futuros",
+      "item2": "Solo el dueño puede editar o eliminar un gasto compartido",
+      "item3": "Si no eres el dueño, puedes enviar una solicitud de eliminación al creador"
+    },
+    "balanceCardRedesign": {
+      "title": "Balance Card renovado",
+      "item1": "Nuevo diseño elegante con fondo frosted glass translúcido",
+      "item2": "Ingresos y gastos en una sola fila limpia con divisor sutil",
+      "item3": "Tipografía en negrita para mayor legibilidad de tus cifras"
     }
   },
   "sharedExpense": {
@@ -923,6 +936,9 @@
     "previewInstallment": "{{amount}}/mes × {{n}} cuotas",
     "percentageError": "Los porcentajes deben sumar 100% (actual: {{total}}%)",
     "deleteConfirm": "Este gasto compartido se eliminará para TODOS los participantes. ¿Continuar?",
+    "deleteRequestConfirm": "No puedes eliminar este gasto directamente. Se enviará una solicitud al dueño para que lo elimine.",
+    "deleteRequestButton": "Solicitar eliminación",
+    "deleteRequestSent": "Solicitud enviada al dueño del gasto",
     "chip": {
       "sharedWith": "Compartido con {{name}}",
       "sharedWithMore": "Compartido con {{name}} y {{count}} más",

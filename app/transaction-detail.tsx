@@ -5,7 +5,9 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
@@ -113,6 +115,36 @@ export default function TransactionDetailScreen() {
     salary: t('categories.names.salary'),
     other: t('categories.names.other'),
   };
+
+  const handleRequestDeletion = useCallback(async () => {
+    if (!transaction?.sharedId || !transaction.sharedOwnerUid) return;
+    setDeleteLoading(true);
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        toUserId: transaction.sharedOwnerUid,
+        type: 'shared_delete_request',
+        data: {
+          fromUserId: currentUserUid,
+          fromUserName: currentUserName,
+          fromDisplayName: currentUserName,
+          sharedId: transaction.sharedId,
+          description: transaction.description,
+          sharedAmount: transaction.sharedAmount ?? 0,
+        },
+        read: false,
+        createdAt: Timestamp.now(),
+      });
+      setDeleteLoading(false);
+      setLastAction('deleted');
+      router.back();
+      setTimeout(() => showToast(t('sharedExpense.deleteRequestSent'), 'success'), 350);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error('[handleRequestDeletion] ' + msg);
+      showToast(t('history.edit.deleteError'), 'error');
+      setDeleteLoading(false);
+    }
+  }, [transaction, currentUserUid, currentUserName, setLastAction, router, showToast, t]);
 
   const handleEdit = useCallback(() => {
     if (!transaction) return;
@@ -302,8 +334,20 @@ export default function TransactionDetailScreen() {
             </Text>
           </View>
 
-          {/* Info rows */}
-          <View style={[styles.detailCard, { backgroundColor: colors.backgroundSecondary, borderRadius: 16 }]}>
+          {/* Info rows — glassmorphism card */}
+          <View style={styles.detailCardWrapper}>
+            {Platform.OS === 'web' ? (
+              <View
+                style={[
+                  styles.detailCardWebGlass,
+                  // backdropFilter only valid on web — cast to any to bypass RN type check
+                  { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any,
+                ]}
+              />
+            ) : (
+              <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFillObject} />
+            )}
+            <View style={styles.detailCardOverlay} />
             {/* Date */}
             <View style={styles.detailRow}>
               <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
@@ -493,25 +537,29 @@ export default function TransactionDetailScreen() {
           ) : confirmingDelete ? (
             <View style={[styles.confirmDeleteWrap, { backgroundColor: colors.errorLight, borderRadius: 16, padding: 16 }]}>
               <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
-                {transaction.isFixed
-                  ? t('history.edit.confirmCancelFixed')
-                  : transaction.isShared
-                    ? t('sharedExpense.deleteConfirm')
-                    : t('history.edit.confirmDelete')}
+                {transaction.isShared && !isOwner
+                  ? t('sharedExpense.deleteRequestConfirm')
+                  : transaction.isFixed
+                    ? t('history.edit.confirmCancelFixed')
+                    : transaction.isShared
+                      ? t('sharedExpense.deleteConfirm')
+                      : t('history.edit.confirmDelete')}
               </Text>
               <View style={styles.confirmDeleteBtns}>
                 <TouchableOpacity
                   style={[styles.confirmBtn, { backgroundColor: colors.error, flex: 1 }]}
-                  onPress={handleDelete}
+                  onPress={transaction.isShared && !isOwner ? handleRequestDeletion : handleDelete}
                   disabled={isLoading}
                   activeOpacity={0.8}
                 >
                   {deleteLoading
                     ? <ActivityIndicator size="small" color="#FFFFFF" />
                     : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
-                        {transaction.isFixed
-                          ? t('history.edit.confirmCancelFixedYes')
-                          : t('history.edit.confirmDeleteYes')}
+                        {transaction.isShared && !isOwner
+                          ? t('sharedExpense.deleteRequestButton')
+                          : transaction.isFixed
+                            ? t('history.edit.confirmCancelFixedYes')
+                            : t('history.edit.confirmDeleteYes')}
                       </Text>
                   }
                 </TouchableOpacity>
@@ -528,36 +576,40 @@ export default function TransactionDetailScreen() {
             </View>
           ) : (
             <View style={styles.actionGrid}>
-              <TouchableOpacity
-                style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
-                onPress={handleEdit}
-                activeOpacity={0.75}
-                disabled={isLoading}
-              >
-                <Ionicons name="create-outline" size={22} color={colors.primary} />
-                <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
-                  {t('history.detail.editButton')}
-                </Text>
-              </TouchableOpacity>
+              {!(transaction.isShared && !isOwner) && (
+                <TouchableOpacity
+                  style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
+                  onPress={handleEdit}
+                  activeOpacity={0.75}
+                  disabled={isLoading}
+                >
+                  <Ionicons name="create-outline" size={22} color={colors.primary} />
+                  <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
+                    {t('history.detail.editButton')}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-              <TouchableOpacity
-                style={[
-                  styles.actionTile,
-                  { backgroundColor: `${colors.tertiary}18` },
-                  duplicateLoading && styles.buttonDisabled,
-                ]}
-                onPress={handleDuplicate}
-                activeOpacity={0.75}
-                disabled={isLoading}
-              >
-                {duplicateLoading
-                  ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
-                  : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
-                }
-                <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
-                  {t('history.edit.duplicateButton')}
-                </Text>
-              </TouchableOpacity>
+              {!(transaction.isShared && !isOwner) && (
+                <TouchableOpacity
+                  style={[
+                    styles.actionTile,
+                    { backgroundColor: `${colors.tertiary}18` },
+                    duplicateLoading && styles.buttonDisabled,
+                  ]}
+                  onPress={handleDuplicate}
+                  activeOpacity={0.75}
+                  disabled={isLoading}
+                >
+                  {duplicateLoading
+                    ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
+                    : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
+                  }
+                  <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
+                    {t('history.edit.duplicateButton')}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={[
@@ -571,12 +623,14 @@ export default function TransactionDetailScreen() {
               >
                 {deleteLoading
                   ? <ActivityIndicator size="small" color={colors.error} />
-                  : <Ionicons name={transaction.isFixed ? 'stop-circle-outline' : 'trash-outline'} size={22} color={colors.error} />
+                  : <Ionicons name={transaction.isShared && !isOwner ? 'mail-outline' : transaction.isFixed ? 'stop-circle-outline' : 'trash-outline'} size={22} color={colors.error} />
                 }
                 <Text style={[styles.actionTileLabel, { color: colors.error }]}>
-                  {transaction.isFixed
-                    ? t('history.edit.cancelFixedButton')
-                    : t('history.edit.deleteButton')}
+                  {transaction.isShared && !isOwner
+                    ? t('sharedExpense.deleteRequestButton')
+                    : transaction.isFixed
+                      ? t('history.edit.cancelFixedButton')
+                      : t('history.edit.deleteButton')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -643,9 +697,26 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     textAlign: 'center',
   },
-  detailCard: {
+  // Glassmorphism card wrapper — blur lives here, content stacks on top
+  detailCardWrapper: {
     marginBottom: 16,
+    borderRadius: 16,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.13)',
+    // Fallback background in case blur is unavailable
+    backgroundColor: 'rgba(8,28,34,0.55)',
+  },
+  // Dark overlay on top of blur for text legibility reinforcement
+  // No zIndex needed — render order (blur → overlay → rows) handles stacking
+  detailCardOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.14)',
+  },
+  // Web-only: simulate glass via backgroundColor (backdropFilter not supported in RN StyleSheet)
+  detailCardWebGlass: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(8,28,34,0.68)',
   },
   detailRow: {
     flexDirection: 'row',

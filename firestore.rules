@@ -64,7 +64,7 @@ service cloud.firestore {
       allow read, update: if request.auth != null &&
         request.auth.uid == resource.data.toUserId;
       allow create: if request.auth != null
-        && request.resource.data.type in ['friend_request', 'friend_accepted', 'shared_transaction_added', 'shared_transaction_deleted', 'sent_income']
+        && request.resource.data.type in ['friend_request', 'friend_accepted', 'shared_transaction_added', 'shared_transaction_deleted', 'sent_income', 'sent_income_deleted', 'shared_delete_request']
         && request.resource.data.toUserId is string
         && request.resource.data.data.fromUserId == request.auth.uid;
     }
