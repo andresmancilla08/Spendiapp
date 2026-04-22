@@ -402,7 +402,7 @@ export default function AddTransactionScreen() {
             category,
             description: description.trim(),
             cardId: selectedCardId ?? undefined,
-            isFixed: false,
+            isFixed,
           },
           amount: parsedAmount,
           installmentCount: isInstallment ? installmentCount : 1,

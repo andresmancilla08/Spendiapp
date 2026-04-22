@@ -401,16 +401,23 @@ export default function HomeScreen() {
           <Text style={styles.balanceLabel}>{t('home.balanceLabel')}</Text>
           <Text style={styles.balanceAmount}>{formatCurrency(displayBalance)}</Text>
           <View style={styles.balanceStatsRow}>
-            <View style={styles.balanceStat}>
-              <Ionicons name="arrow-down-outline" size={12} color="rgba(255,255,255,0.75)" />
-              <Text style={styles.balanceStatLabel}>{t('home.incomeLabel')}</Text>
-              <Text style={[styles.balanceStatValue, { color: colors.success }]}>{formatCurrency(totalIncome)}</Text>
+            {/* Income column */}
+            <View style={styles.balanceStatCol}>
+              <Text style={styles.balanceStatLabelIncome}>{t('home.incomeLabel')}</Text>
+              <View style={styles.balanceStatValueRow}>
+                <Ionicons name="arrow-down" size={12} color="#4DD8AD" style={{ marginRight: 4 }} />
+                <Text style={styles.balanceStatValue}>{formatCurrency(totalIncome)}</Text>
+              </View>
             </View>
+            {/* Divider */}
             <View style={styles.balanceStatDivider} />
-            <View style={styles.balanceStat}>
-              <Ionicons name="arrow-up-outline" size={12} color="rgba(255,255,255,0.75)" />
-              <Text style={styles.balanceStatLabel}>{t('home.expensesLabel')}</Text>
-              <Text style={[styles.balanceStatValue, { color: colors.error }]}>{formatCurrency(totalExpenses)}</Text>
+            {/* Expense column */}
+            <View style={styles.balanceStatCol}>
+              <Text style={styles.balanceStatLabelExpense}>{t('home.expensesLabel')}</Text>
+              <View style={styles.balanceStatValueRow}>
+                <Ionicons name="arrow-up" size={12} color="#FF7B70" style={{ marginRight: 4 }} />
+                <Text style={styles.balanceStatValue}>{formatCurrency(totalExpenses)}</Text>
+              </View>
             </View>
           </View>
         </LinearGradient>
@@ -601,36 +608,48 @@ const styles = StyleSheet.create({
   },
   balanceStatsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.18)',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     width: '100%',
-    gap: 0,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+    alignItems: 'center',
   },
-  balanceStat: {
+  balanceStatCol: {
     flex: 1,
     alignItems: 'center',
-    gap: 3,
-  },
-  balanceStatLabel: {
-    fontSize: 11,
-    fontFamily: Fonts.medium,
-    color: 'rgba(255,255,255,0.65)',
-  },
-  balanceStatValue: {
-    fontSize: 14,
-    fontFamily: Fonts.bold,
-    color: '#FFFFFF',
+    gap: 5,
   },
   balanceStatDivider: {
     width: 1,
-    height: 32,
+    height: 36,
     backgroundColor: 'rgba(255,255,255,0.2)',
-    marginHorizontal: 8,
+  },
+  balanceStatValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  balanceStatLabelIncome: {
+    fontSize: 10,
+    fontFamily: Fonts.bold,
+    color: '#4DD8AD',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  balanceStatLabelExpense: {
+    fontSize: 10,
+    fontFamily: Fonts.bold,
+    color: '#FF7B70',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  balanceStatValue: {
+    fontSize: 17,
+    fontFamily: Fonts.extraBold,
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
   },
 
   // Summary

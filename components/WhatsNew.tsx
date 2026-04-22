@@ -39,6 +39,23 @@ interface Feature {
 // Lista limpia y única de todas las funciones de la app (sin repetidos ni supersedidas).
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
+    version: '2.11.0',
+    features: [
+      {
+        icon: 'people-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.sharedFixedPerms.title',
+        items: ['whatsNew.sharedFixedPerms.item1', 'whatsNew.sharedFixedPerms.item2', 'whatsNew.sharedFixedPerms.item3'],
+      },
+      {
+        icon: 'wallet-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.balanceCardRedesign.title',
+        items: ['whatsNew.balanceCardRedesign.item1', 'whatsNew.balanceCardRedesign.item2', 'whatsNew.balanceCardRedesign.item3'],
+      },
+    ],
+  },
+  {
     version: '2.10.0',
     features: [
       {

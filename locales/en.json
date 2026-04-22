@@ -732,6 +732,7 @@
     "shared_transaction_added": "{{fromDisplayName}} shared an expense with you: {{description}}",
     "shared_transaction_updated": "{{fromDisplayName}} updated a shared expense: {{description}}",
     "shared_transaction_deleted": "{{fromDisplayName}} deleted the shared expense: {{description}}",
+    "shared_delete_request": "{{fromDisplayName}} requests to delete the shared expense: {{description}}",
     "goal_monthly_reminder": "Remember to add to your {{count}} active goals this month 🎯",
     "sent_income": "{{name}} sent you income: {{description}}",
     "sent_income_deleted": "{{name}} deleted the sent income: {{description}}"
@@ -908,6 +909,18 @@
       "item1": "Solid background with better contrast over the animated aurora",
       "item2": "Subtle shadow with a tint from the app's primary palette",
       "item3": "Perfectly rounded corners on both Android and iOS"
+    },
+    "sharedFixedPerms": {
+      "title": "Improved shared expenses",
+      "item1": "Fixed shared expenses now correctly propagate to future months",
+      "item2": "Only the owner can edit or delete a shared expense",
+      "item3": "If you're not the owner, you can send a deletion request to the creator"
+    },
+    "balanceCardRedesign": {
+      "title": "Redesigned Balance Card",
+      "item1": "New elegant design with frosted glass translucent background",
+      "item2": "Income and expenses in a single clean row with subtle divider",
+      "item3": "Bold typography for better readability of your figures"
     }
   },
   "sharedExpense": {
@@ -922,6 +935,9 @@
     "previewInstallment": "{{amount}}/mo × {{n}} installments",
     "percentageError": "Percentages must add up to 100% (current: {{total}}%)",
     "deleteConfirm": "This shared expense will be deleted for ALL participants. Continue?",
+    "deleteRequestConfirm": "You cannot delete this expense directly. A deletion request will be sent to the owner.",
+    "deleteRequestButton": "Request deletion",
+    "deleteRequestSent": "Deletion request sent to the expense owner",
     "chip": {
       "sharedWith": "Shared with {{name}}",
       "sharedWithMore": "Shared with {{name}} and {{count}} more",
