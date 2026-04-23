@@ -27,6 +27,7 @@ import { useTransactions } from '../hooks/useTransactions';
 import { getUserProfile } from '../hooks/useUserProfile';
 import { UserProfile } from '../types/friend';
 import { generateFriendReportImage, FriendReportImageData, FriendReportImageLabels, FriendReportImageResult } from '../utils/generateFriendReportImage';
+import { migrateIncomeClaims } from '../utils/migrateIncomeClaims';
 
 // Resolve logo URI — Expo returns a string on web, a number on native
 const _logoMod = require('../assets/logo.png');
@@ -61,6 +62,11 @@ export default function FriendReportScreen() {
 
   const { acceptedFriends, loading: friendshipsLoading } = useFriends(user?.uid ?? '');
   const { transactions, loading: txLoading } = useTransactions(user?.uid ?? '', year, month);
+
+  // Fix old income_claim transactions that were saved with wrong sharedType/sharedAmount
+  useEffect(() => {
+    if (user?.uid) migrateIncomeClaims(user.uid);
+  }, [user?.uid]);
 
   // Stable string of UIDs to avoid re-running on every Firestore snapshot
   const friendUids = useMemo(
@@ -154,18 +160,27 @@ export default function FriendReportScreen() {
     if (!selectedFriend || !user) return;
     setGenerating(true);
     try {
-      // Pre-compute friend's portion for sharedTheyOwe
+      // Pre-compute amounts for shared sections
+      // income_claim → always full tx.amount; expense_share → friend's percentage portion
+      const isIncomeClaim = (tx: { sharedType?: string; type: string }) =>
+        tx.sharedType === 'income_claim' || tx.type === 'income';
+
       const processedSharedTheyOwe = sharedTheyOwe.map((tx) => {
-        if (tx.sharedType === 'income_claim') return { ...tx, sharedAmount: tx.amount };
+        if (isIncomeClaim(tx)) return { ...tx, sharedAmount: tx.amount };
         const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriend.uid);
         return { ...tx, sharedAmount: fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0) };
+      });
+
+      const processedSharedIOwe = sharedIOwe.map((tx) => {
+        if (tx.sharedType === 'income_claim') return { ...tx, sharedAmount: tx.amount };
+        return tx;
       });
 
       const reportData: FriendReportImageData = {
         myName: user.displayName ?? user.email ?? 'Usuario',
         friendName: selectedFriend.displayName,
         month, year, sentToFriend, receivedFromFriend,
-        sharedIOwe, sharedTheyOwe: processedSharedTheyOwe,
+        sharedIOwe: processedSharedIOwe, sharedTheyOwe: processedSharedTheyOwe,
         logoUri: LOGO_URI,
       };
       const monthName = MONTHS[month];
@@ -259,9 +274,14 @@ export default function FriendReportScreen() {
 
   const totalSent = sentToFriend.reduce((s, t) => s + t.amount, 0);
   const totalReceived = receivedFromFriend.reduce((s, t) => s + t.amount, 0);
-  const totalSharedIOwe = sharedIOwe.reduce((s, t) => s + (t.sharedAmount ?? t.amount), 0);
-  const totalSharedTheyOwe = sharedTheyOwe.reduce((s, t) => {
+  const totalSharedIOwe = sharedIOwe.reduce((s, t) => {
+    // income_claim: friend owes the full amount — never divide by percentage
     if (t.sharedType === 'income_claim') return s + t.amount;
+    return s + (t.sharedAmount ?? t.amount);
+  }, 0);
+  const totalSharedTheyOwe = sharedTheyOwe.reduce((s, t) => {
+    // owner's tx type === 'income' → always income_claim, even if sharedType was stored wrong
+    if (t.sharedType === 'income_claim' || t.type === 'income') return s + t.amount;
     const fp = t.sharedParticipants?.find((p) => p.uid === selectedFriendUid!);
     return s + (fp ? Math.round(t.amount * fp.percentage / 100) : (t.sharedAmount ?? 0));
   }, 0);
@@ -273,9 +293,12 @@ export default function FriendReportScreen() {
     const entries: Array<{ id: string; date: Date; description: string; displayAmount: number; isPositive: boolean; kind: EKind }> = [];
     sentToFriend.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.amount, isPositive: false, kind: 'sent' }));
     receivedFromFriend.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.amount, isPositive: true, kind: 'received' }));
-    sharedIOwe.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.sharedAmount ?? tx.amount, isPositive: false, kind: 'shared_i_owe' }));
+    sharedIOwe.forEach((tx) => {
+      const displayAmount = tx.sharedType === 'income_claim' ? tx.amount : (tx.sharedAmount ?? tx.amount);
+      entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount, isPositive: false, kind: 'shared_i_owe' });
+    });
     sharedTheyOwe.forEach((tx) => {
-      const amt = tx.sharedType === 'income_claim'
+      const amt = (tx.sharedType === 'income_claim' || tx.type === 'income')
         ? tx.amount
         : (() => { const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriendUid); return fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0); })();
       entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: amt, isPositive: true, kind: 'shared_they_owe' });
