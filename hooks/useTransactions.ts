@@ -156,6 +156,13 @@ export function useTransactions(userId: string, year: number, month: number, ref
             sharedOwnerUserName: d.sharedOwnerUserName,
             sharedParticipants: d.sharedParticipants,
             sharedAmount: d.sharedAmount,
+            sentIncomeToUid: d.sentIncomeToUid,
+            sentIncomeToName: d.sentIncomeToName,
+            sentIncomeTransactionId: d.sentIncomeTransactionId,
+            isSentIncome: d.isSentIncome ?? false,
+            sentByUid: d.sentByUid,
+            sentByName: d.sentByName,
+            sentByTransactionId: d.sentByTransactionId,
           };
         });
       setFixed(copies);

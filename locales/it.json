@@ -939,6 +939,18 @@
       "item2": "Entrate e uscite in un'unica riga pulita con divisore sottile",
       "item3": "Tipografia in grassetto per una migliore leggibilità delle cifre"
     },
+    "friendReportImproved": {
+      "title": "Report con amico migliorato",
+      "item1": "Le spese condivise ora includono la direzione corretta: ciò che devi e ciò che ti devono",
+      "item2": "Il saldo netto riflette tutti i movimenti: inviati, ricevuti e condivisi",
+      "item3": "Vista unificata raggruppata per data con icone di direzione"
+    },
+    "responsiveViewer": {
+      "title": "Visualizzatore adattivo",
+      "item1": "Il visualizzatore di immagini e PDF si adatta a tablet e schermi desktop",
+      "item2": "Tempo di inattività esteso a 5 minuti per maggiore comodità",
+      "item3": "Contenuto centrato e ottimizzato per schermi grandi"
+    },
     "paletteSelector": {
       "title": "Personalizza la tua palette di colori",
       "item1": "Scegli tra più palette dal tuo profilo",
@@ -1193,6 +1205,11 @@
     "shareBtn": "Condividi",
     "theyOweYou": "{{name}} deve a {{myName}}",
     "youOwe": "{{myName}} deve a {{name}}",
-    "settled": "In pari con {{name}}"
+    "settled": "In pari con {{name}}",
+    "sharedSection": "CONDIVISO CHE DEVO",
+    "sharedTheyOweSection": "CONDIVISO CHE MI DEVONO",
+    "totalShared": "Totale condiviso",
+    "totalSharedIOwe": "Condiviso che devo",
+    "totalSharedTheyOwe": "Condiviso che mi devono"
   }
 }
