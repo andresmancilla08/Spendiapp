@@ -156,6 +156,7 @@ export default function FriendReportScreen() {
     try {
       // Pre-compute friend's portion for sharedTheyOwe
       const processedSharedTheyOwe = sharedTheyOwe.map((tx) => {
+        if (tx.sharedType === 'income_claim') return { ...tx, sharedAmount: tx.amount };
         const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriend.uid);
         return { ...tx, sharedAmount: fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0) };
       });
@@ -260,6 +261,7 @@ export default function FriendReportScreen() {
   const totalReceived = receivedFromFriend.reduce((s, t) => s + t.amount, 0);
   const totalSharedIOwe = sharedIOwe.reduce((s, t) => s + (t.sharedAmount ?? t.amount), 0);
   const totalSharedTheyOwe = sharedTheyOwe.reduce((s, t) => {
+    if (t.sharedType === 'income_claim') return s + t.amount;
     const fp = t.sharedParticipants?.find((p) => p.uid === selectedFriendUid!);
     return s + (fp ? Math.round(t.amount * fp.percentage / 100) : (t.sharedAmount ?? 0));
   }, 0);
@@ -273,8 +275,10 @@ export default function FriendReportScreen() {
     receivedFromFriend.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.amount, isPositive: true, kind: 'received' }));
     sharedIOwe.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.sharedAmount ?? tx.amount, isPositive: false, kind: 'shared_i_owe' }));
     sharedTheyOwe.forEach((tx) => {
-      const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriendUid);
-      entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0), isPositive: true, kind: 'shared_they_owe' });
+      const amt = tx.sharedType === 'income_claim'
+        ? tx.amount
+        : (() => { const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriendUid); return fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0); })();
+      entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: amt, isPositive: true, kind: 'shared_they_owe' });
     });
     return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [sentToFriend, receivedFromFriend, sharedIOwe, sharedTheyOwe, selectedFriendUid]);
