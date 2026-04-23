@@ -181,7 +181,7 @@ export default function RootLayout() {
   }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, biometricLocked]);
 
   const { reset: resetInactivityTimer } = useInactivityTimer({
-    timeoutMs: 180_000,
+    timeoutMs: 300_000,
     onInactive: () => {
       setCountdown(30);
       setInactivityDialogVisible(true);

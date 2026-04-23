@@ -939,6 +939,18 @@
       "item2": "Income and expenses in a single clean row with subtle divider",
       "item3": "Bold typography for better readability of your figures"
     },
+    "friendReportImproved": {
+      "title": "Improved friend report",
+      "item1": "Shared expenses now included with correct direction: what you owe and what they owe",
+      "item2": "Net balance reflects all movements: sent, received and shared",
+      "item3": "Unified view grouped by date with direction icons"
+    },
+    "responsiveViewer": {
+      "title": "Adaptive viewer",
+      "item1": "Image and PDF viewer now adapts to tablets and desktop screens",
+      "item2": "Inactivity timeout extended to 5 minutes for more comfort",
+      "item3": "Centered content optimized for large screens"
+    },
     "paletteSelector": {
       "title": "Customize your color palette",
       "item1": "Choose from multiple palettes in your profile",
@@ -1193,6 +1205,11 @@
     "shareBtn": "Share",
     "theyOweYou": "{{name}} owes {{myName}}",
     "youOwe": "{{myName}} owes {{name}}",
-    "settled": "All settled with {{name}}"
+    "settled": "All settled with {{name}}",
+    "sharedSection": "SHARED I OWE",
+    "sharedTheyOweSection": "SHARED THEY OWE",
+    "totalShared": "Total shared",
+    "totalSharedIOwe": "Shared I owe",
+    "totalSharedTheyOwe": "Shared they owe"
   }
 }

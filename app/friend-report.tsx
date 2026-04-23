@@ -136,7 +136,17 @@ export default function FriendReportScreen() {
       )
     : [];
 
-  const hasTransactions = sentToFriend.length > 0 || receivedFromFriend.length > 0;
+  const sharedWithFriend = selectedFriendUid
+    ? transactions.filter(
+        (tx) => tx.isShared && tx.sharedParticipants?.some((p) => p.uid === selectedFriendUid)
+      )
+    : [];
+
+  // Friend paid → I owe them; I paid → they owe me
+  const sharedIOwe = sharedWithFriend.filter((tx) => tx.sharedOwnerUid === selectedFriendUid);
+  const sharedTheyOwe = sharedWithFriend.filter((tx) => tx.sharedOwnerUid === user?.uid);
+
+  const hasTransactions = sentToFriend.length > 0 || receivedFromFriend.length > 0 || sharedWithFriend.length > 0;
 
   const selectedFriend = friendOptions.find((f) => f.uid === selectedFriendUid);
 
@@ -144,10 +154,17 @@ export default function FriendReportScreen() {
     if (!selectedFriend || !user) return;
     setGenerating(true);
     try {
+      // Pre-compute friend's portion for sharedTheyOwe
+      const processedSharedTheyOwe = sharedTheyOwe.map((tx) => {
+        const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriend.uid);
+        return { ...tx, sharedAmount: fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0) };
+      });
+
       const reportData: FriendReportImageData = {
         myName: user.displayName ?? user.email ?? 'Usuario',
         friendName: selectedFriend.displayName,
         month, year, sentToFriend, receivedFromFriend,
+        sharedIOwe, sharedTheyOwe: processedSharedTheyOwe,
         logoUri: LOGO_URI,
       };
       const monthName = MONTHS[month];
@@ -159,8 +176,12 @@ export default function FriendReportScreen() {
         period: t('friendReport.pdfPeriod', { month: monthName, year }),
         sentSection: t('friendReport.sentSection'),
         receivedSection: t('friendReport.receivedSection'),
+        sharedSection: t('friendReport.sharedSection'),
+        sharedTheyOweSection: t('friendReport.sharedTheyOweSection'),
         totalSent: t('friendReport.totalSent'),
         totalReceived: t('friendReport.totalReceived'),
+        totalSharedIOwe: t('friendReport.totalSharedIOwe'),
+        totalSharedTheyOwe: t('friendReport.totalSharedTheyOwe'),
         netBalance: t('friendReport.netBalance'),
         dateCol: t('friendReport.pdfDateCol'),
         descCol: t('friendReport.pdfDescCol'),
@@ -237,7 +258,38 @@ export default function FriendReportScreen() {
 
   const totalSent = sentToFriend.reduce((s, t) => s + t.amount, 0);
   const totalReceived = receivedFromFriend.reduce((s, t) => s + t.amount, 0);
-  const net = totalReceived - totalSent;
+  const totalSharedIOwe = sharedIOwe.reduce((s, t) => s + (t.sharedAmount ?? t.amount), 0);
+  const totalSharedTheyOwe = sharedTheyOwe.reduce((s, t) => {
+    const fp = t.sharedParticipants?.find((p) => p.uid === selectedFriendUid!);
+    return s + (fp ? Math.round(t.amount * fp.percentage / 100) : (t.sharedAmount ?? 0));
+  }, 0);
+  const net = (totalReceived + totalSharedTheyOwe) - (totalSent + totalSharedIOwe);
+
+  const allEntries = useMemo(() => {
+    if (!selectedFriendUid) return [];
+    type EKind = 'sent' | 'received' | 'shared_i_owe' | 'shared_they_owe';
+    const entries: Array<{ id: string; date: Date; description: string; displayAmount: number; isPositive: boolean; kind: EKind }> = [];
+    sentToFriend.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.amount, isPositive: false, kind: 'sent' }));
+    receivedFromFriend.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.amount, isPositive: true, kind: 'received' }));
+    sharedIOwe.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.sharedAmount ?? tx.amount, isPositive: false, kind: 'shared_i_owe' }));
+    sharedTheyOwe.forEach((tx) => {
+      const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriendUid);
+      entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0), isPositive: true, kind: 'shared_they_owe' });
+    });
+    return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [sentToFriend, receivedFromFriend, sharedIOwe, sharedTheyOwe, selectedFriendUid]);
+
+  const allDateGroups = useMemo(() => {
+    const map = new Map<string, { displayDate: string; entries: typeof allEntries }>();
+    for (const entry of allEntries) {
+      const d = entry.date;
+      const isoKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const displayDate = d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long' });
+      if (!map.has(isoKey)) map.set(isoKey, { displayDate, entries: [] });
+      map.get(isoKey)!.entries.push(entry);
+    }
+    return Array.from(map.values());
+  }, [allEntries]);
 
   const formatCOP = (n: number) =>
     new Intl.NumberFormat('es-CO', {
@@ -342,68 +394,79 @@ export default function FriendReportScreen() {
                   </View>
                 ) : (
                   <View style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    {/* Sent rows */}
-                    {sentToFriend.length > 0 && (
-                      <>
-                        <Text style={[styles.txSectionLabel, { color: colors.error ?? '#E53935' }]}>
-                          {t('friendReport.sentSection')}
-                        </Text>
-                        {sentToFriend.map((tx) => (
-                          <View key={tx.id} style={styles.txRow}>
-                            <Text style={[styles.txDate, { color: colors.textTertiary }]}>
-                              {tx.date.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}
-                            </Text>
-                            <Text style={[styles.txDesc, { color: colors.textPrimary }]} numberOfLines={1}>
-                              {tx.description}
-                            </Text>
-                            <Text style={[styles.txAmount, { color: colors.error ?? '#E53935' }]}>
-                              −{formatCOP(tx.amount)}
-                            </Text>
-                          </View>
-                        ))}
-                      </>
-                    )}
-
-                    {/* Received rows */}
-                    {receivedFromFriend.length > 0 && (
-                      <>
-                        <Text style={[styles.txSectionLabel, { color: colors.secondary ?? '#00897B' }]}>
-                          {t('friendReport.receivedSection')}
-                        </Text>
-                        {receivedFromFriend.map((tx) => (
-                          <View key={tx.id} style={styles.txRow}>
-                            <Text style={[styles.txDate, { color: colors.textTertiary }]}>
-                              {tx.date.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })}
-                            </Text>
-                            <Text style={[styles.txDesc, { color: colors.textPrimary }]} numberOfLines={1}>
-                              {tx.description}
-                            </Text>
-                            <Text style={[styles.txAmount, { color: colors.secondary ?? '#00897B' }]}>
-                              +{formatCOP(tx.amount)}
-                            </Text>
-                          </View>
-                        ))}
-                      </>
-                    )}
+                    {/* Unified date-grouped movements */}
+                    {allDateGroups.map(({ displayDate, entries: dayEntries }) => (
+                      <View key={displayDate}>
+                        <View style={styles.dateChipRow}>
+                          <View style={[styles.dateChipLine, { backgroundColor: colors.border }]} />
+                          <Text style={[styles.dateChip, { color: colors.textTertiary }]}>{displayDate}</Text>
+                          <View style={[styles.dateChipLine, { backgroundColor: colors.border }]} />
+                        </View>
+                        {dayEntries.map((entry) => {
+                          const entryColor = entry.isPositive ? (colors.secondary ?? '#00897B') : (colors.error ?? '#E53935');
+                          return (
+                            <View key={entry.id} style={styles.txRow}>
+                              <View style={[styles.entryDot, { backgroundColor: `${entryColor}20` }]}>
+                                <Ionicons
+                                  name={entry.isPositive ? 'arrow-down-outline' : 'arrow-up-outline'}
+                                  size={11}
+                                  color={entryColor}
+                                />
+                              </View>
+                              <Text style={[styles.txDesc, { color: colors.textPrimary }]} numberOfLines={1}>
+                                {entry.description}
+                              </Text>
+                              <Text style={[styles.txAmount, { color: entryColor }]}>
+                                {entry.isPositive ? '+' : '−'}{formatCOP(entry.displayAmount)}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    ))}
 
                     {/* Totals divider */}
                     <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                    <View style={styles.totalRow}>
-                      <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-                        {t('friendReport.totalSent')}
-                      </Text>
-                      <Text style={[styles.totalValue, { color: colors.error ?? '#E53935' }]}>
-                        −{formatCOP(totalSent)}
-                      </Text>
-                    </View>
-                    <View style={styles.totalRow}>
-                      <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-                        {t('friendReport.totalReceived')}
-                      </Text>
-                      <Text style={[styles.totalValue, { color: colors.secondary ?? '#00897B' }]}>
-                        +{formatCOP(totalReceived)}
-                      </Text>
-                    </View>
+                    {totalSent > 0 && (
+                      <View style={styles.totalRow}>
+                        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
+                          {t('friendReport.totalSent')}
+                        </Text>
+                        <Text style={[styles.totalValue, { color: colors.error ?? '#E53935' }]}>
+                          −{formatCOP(totalSent)}
+                        </Text>
+                      </View>
+                    )}
+                    {totalReceived > 0 && (
+                      <View style={styles.totalRow}>
+                        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
+                          {t('friendReport.totalReceived')}
+                        </Text>
+                        <Text style={[styles.totalValue, { color: colors.secondary ?? '#00897B' }]}>
+                          +{formatCOP(totalReceived)}
+                        </Text>
+                      </View>
+                    )}
+                    {totalSharedIOwe > 0 && (
+                      <View style={styles.totalRow}>
+                        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
+                          {t('friendReport.totalSharedIOwe')}
+                        </Text>
+                        <Text style={[styles.totalValue, { color: colors.error ?? '#E53935' }]}>
+                          −{formatCOP(totalSharedIOwe)}
+                        </Text>
+                      </View>
+                    )}
+                    {totalSharedTheyOwe > 0 && (
+                      <View style={styles.totalRow}>
+                        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
+                          {t('friendReport.totalSharedTheyOwe')}
+                        </Text>
+                        <Text style={[styles.totalValue, { color: colors.secondary ?? '#00897B' }]}>
+                          +{formatCOP(totalSharedTheyOwe)}
+                        </Text>
+                      </View>
+                    )}
                     <View style={[styles.divider, { backgroundColor: colors.border }]} />
                     {/* Balance callout */}
                     {net === 0 ? (
@@ -506,25 +569,28 @@ export default function FriendReportScreen() {
               showsVerticalScrollIndicator={false}
               bounces
             >
-              {previewPages.map((page, idx) => (
-                <View key={idx} style={styles.previewPageWrapper}>
-                  {previewPages.length > 1 && (
-                    <View style={[styles.previewPageBadge, { backgroundColor: colors.primary }]}>
-                      <Text style={styles.previewPageBadgeText}>
-                        {idx + 1} / {previewPages.length}
-                      </Text>
-                    </View>
-                  )}
-                  <Image
-                    source={{ uri: page.url }}
-                    style={{
-                      width: screenWidth,
-                      height: screenWidth * (page.height / page.width),
-                    }}
-                    resizeMode="contain"
-                  />
-                </View>
-              ))}
+              {previewPages.map((page, idx) => {
+                const imgW = Math.min(screenWidth, 960);
+                return (
+                  <View key={idx} style={[styles.previewPageWrapper, { width: imgW }]}>
+                    {previewPages.length > 1 && (
+                      <View style={[styles.previewPageBadge, { backgroundColor: colors.primary }]}>
+                        <Text style={styles.previewPageBadgeText}>
+                          {idx + 1} / {previewPages.length}
+                        </Text>
+                      </View>
+                    )}
+                    <Image
+                      source={{ uri: page.url }}
+                      style={{
+                        width: imgW,
+                        height: imgW * (page.height / page.width),
+                      }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                );
+              })}
             </ScrollView>
 
             {/* Actions */}
@@ -804,5 +870,29 @@ const styles = StyleSheet.create({
   previewActionText: {
     fontFamily: Fonts.semiBold,
     fontSize: 14,
+  },
+  dateChipRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+    marginBottom: 2,
+  },
+  dateChipLine: {
+    flex: 1,
+    height: 1,
+  },
+  dateChip: {
+    fontFamily: Fonts.semiBold,
+    fontSize: 11,
+    letterSpacing: 0.3,
+  },
+  entryDot: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
 });

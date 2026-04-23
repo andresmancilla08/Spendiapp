@@ -7,6 +7,7 @@ import {
   Modal,
   ActivityIndicator,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,6 +27,8 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const { width: screenWidth } = useWindowDimensions();
+  const isWide = screenWidth >= 768;
 
   const blobUrl = useMemo(() => {
     if (Platform.OS !== 'web') return '';
@@ -74,58 +77,60 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        {/* Header */}
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-            {t('reports.viewerTitle', { year: data.year })}
-          </Text>
-          <TouchableOpacity onPress={onClose} hitSlop={12} activeOpacity={0.7}>
-            <Ionicons name="close" size={24} color={colors.textPrimary} />
-          </TouchableOpacity>
-        </View>
-
-        {/* PDF Viewer — solo web */}
-        <View style={styles.pdfArea}>
-          {Platform.OS === 'web' && blobUrl
-            ? React.createElement('embed', {
-                src: blobUrl,
-                type: 'application/pdf',
-                style: {
-                  width: '100%',
-                  height: '100%',
-                } as React.CSSProperties,
-              })
-            : (
-              <View style={styles.loadingBox}>
-                <ActivityIndicator color={colors.primary} size="large" />
-              </View>
-            )}
-        </View>
-
-        {/* Toolbar */}
-        <View style={[styles.toolbar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
-          <TouchableOpacity
-            style={[styles.toolbarBtn, { backgroundColor: colors.primary + '15' }]}
-            onPress={handleShare}
-            activeOpacity={0.75}
-          >
-            <Ionicons name="share-outline" size={20} color={colors.primary} />
-            <Text style={[styles.toolbarBtnText, { color: colors.primary }]}>
-              {t('reports.share')}
+      <SafeAreaView style={[styles.container, { backgroundColor: isWide ? colors.background + 'cc' : colors.background }]}>
+        <View style={[styles.inner, isWide && { maxWidth: 1100, alignSelf: 'center' as const }, { backgroundColor: colors.background }]}>
+          {/* Header */}
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+              {t('reports.viewerTitle', { year: data.year })}
             </Text>
-          </TouchableOpacity>
+            <TouchableOpacity onPress={onClose} hitSlop={12} activeOpacity={0.7}>
+              <Ionicons name="close" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
-            style={[styles.toolbarBtn, { backgroundColor: colors.primary + '10' }]}
-            onPress={handleDownload}
-            activeOpacity={0.75}
-          >
-            <Ionicons name="download-outline" size={20} color={colors.primary} />
-            <Text style={[styles.toolbarBtnText, { color: colors.primary }]}>
-              {t('reports.save')}
-            </Text>
-          </TouchableOpacity>
+          {/* PDF Viewer — solo web */}
+          <View style={styles.pdfArea}>
+            {Platform.OS === 'web' && blobUrl
+              ? React.createElement('embed', {
+                  src: blobUrl,
+                  type: 'application/pdf',
+                  style: {
+                    width: '100%',
+                    height: '100%',
+                  } as React.CSSProperties,
+                })
+              : (
+                <View style={styles.loadingBox}>
+                  <ActivityIndicator color={colors.primary} size="large" />
+                </View>
+              )}
+          </View>
+
+          {/* Toolbar */}
+          <View style={[styles.toolbar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+            <TouchableOpacity
+              style={[styles.toolbarBtn, { backgroundColor: colors.primary + '15' }]}
+              onPress={handleShare}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="share-outline" size={20} color={colors.primary} />
+              <Text style={[styles.toolbarBtnText, { color: colors.primary }]}>
+                {t('reports.share')}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.toolbarBtn, { backgroundColor: colors.primary + '10' }]}
+              onPress={handleDownload}
+              activeOpacity={0.75}
+            >
+              <Ionicons name="download-outline" size={20} color={colors.primary} />
+              <Text style={[styles.toolbarBtnText, { color: colors.primary }]}>
+                {t('reports.save')}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </SafeAreaView>
     </Modal>
@@ -135,6 +140,11 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+  },
+  inner: {
+    flex: 1,
+    width: '100%',
   },
   header: {
     flexDirection: 'row',

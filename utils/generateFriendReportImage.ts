@@ -8,6 +8,8 @@ export interface FriendReportImageData {
   year: number;
   sentToFriend: Transaction[];
   receivedFromFriend: Transaction[];
+  sharedIOwe: Transaction[];       // friend paid → my sharedAmount is what I owe
+  sharedTheyOwe: Transaction[];    // I paid → sharedAmount pre-set to friend's portion
   logoUri?: string;
 }
 
@@ -17,8 +19,12 @@ export interface FriendReportImageLabels {
   period: string;
   sentSection: string;
   receivedSection: string;
+  sharedSection: string;
+  sharedTheyOweSection: string;
   totalSent: string;
   totalReceived: string;
+  totalSharedIOwe: string;
+  totalSharedTheyOwe: string;
   netBalance: string;
   dateCol: string;
   descCol: string;
@@ -207,6 +213,7 @@ function drawSectionCard(
   total: number,
   labels: FriendReportImageLabels,
   isContinuation = false,
+  totalLabel?: string,
 ): void {
   const rows  = Math.max(txs.length, 1);
   const cardH = sectionHeight(rows);
@@ -309,7 +316,7 @@ function drawSectionCard(
       ctx.fillText(clip(ctx, tx.description, cw - 100 - 170 - 20), cx + 100, ry + H_ROW / 2);
       // Amount pill
       const sign   = isExpense ? '−' : '+';
-      const amtTxt = `${sign}${fmtCOP(tx.amount)}`;
+      const amtTxt = `${sign}${fmtCOP(tx.sharedAmount ?? tx.amount)}`;
       ctx.font = `700 12.5px ${FONT}`;
       const amtW = ctx.measureText(amtTxt).width;
       const pW = amtW + 26, pH = 30;
@@ -336,7 +343,7 @@ function drawSectionCard(
   const fY = ry + H_SFOOT / 2;
   ctx.fillStyle = GRAY_600; ctx.font = `600 13px ${FONT}`;
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText(isExpense ? labels.totalSent : labels.totalReceived, cx + 20, fY);
+  ctx.fillText(totalLabel ?? (isExpense ? labels.totalSent : labels.totalReceived), cx + 20, fY);
   ctx.fillStyle = accent; ctx.font = `800 18px ${FONT}`;
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   ctx.fillText(`${isExpense ? '−' : '+'}${fmtCOP(total)}`, cx + cw - 20, fY);
@@ -461,9 +468,11 @@ export async function generateFriendReportImage(
   labels: FriendReportImageLabels,
 ): Promise<FriendReportImageResult[]> {
 
-  const totalSent     = data.sentToFriend.reduce((s, t) => s + t.amount, 0);
-  const totalReceived = data.receivedFromFriend.reduce((s, t) => s + t.amount, 0);
-  const net           = totalReceived - totalSent;
+  const totalSent           = data.sentToFriend.reduce((s, t) => s + t.amount, 0);
+  const totalReceived       = data.receivedFromFriend.reduce((s, t) => s + t.amount, 0);
+  const totalSharedIOwe     = data.sharedIOwe.reduce((s, t) => s + (t.sharedAmount ?? t.amount), 0);
+  const totalSharedTheyOwe  = data.sharedTheyOwe.reduce((s, t) => s + (t.sharedAmount ?? t.amount), 0);
+  const net                 = (totalReceived + totalSharedTheyOwe) - (totalSent + totalSharedIOwe);
   const balCol        = net === 0 ? EMERALD : net > 0 ? GREEN : RED;
 
   const logoImg = data.logoUri ? await loadImg(data.logoUri) : null;
@@ -477,29 +486,39 @@ export async function generateFriendReportImage(
     return pages;
   }
 
-  const sentChunks = chunk(data.sentToFriend);
-  const recvChunks = chunk(data.receivedFromFriend);
+  const sentChunks          = chunk(data.sentToFriend);
+  const recvChunks          = chunk(data.receivedFromFriend);
+  const sharedIOweChunks    = data.sharedIOwe.length > 0    ? chunk(data.sharedIOwe)    : [];
+  const sharedTheyOweChunks = data.sharedTheyOwe.length > 0 ? chunk(data.sharedTheyOwe) : [];
 
   // Build page layout: page 1 gets full header + balance + summary + first chunks;
   // extra pages get mini header + overflow chunks
   interface PageSpec {
     isFirst: boolean;
-    sentChunk: Transaction[] | null;   // null = skip section
+    sentChunk: Transaction[] | null;
     recvChunk: Transaction[] | null;
+    sharedIOweChunk: Transaction[] | null;
+    sharedTheyOweChunk: Transaction[] | null;
     sentIsCont: boolean;
     recvIsCont: boolean;
+    sharedIOweIsCont: boolean;
+    sharedTheyOweIsCont: boolean;
   }
 
   const pageSpecs: PageSpec[] = [];
-  const maxChunks = Math.max(sentChunks.length, recvChunks.length);
+  const maxChunks = Math.max(sentChunks.length, recvChunks.length, sharedIOweChunks.length, sharedTheyOweChunks.length);
 
   for (let i = 0; i < maxChunks; i++) {
     pageSpecs.push({
-      isFirst:    i === 0,
-      sentChunk:  sentChunks[i] ?? null,
-      recvChunk:  recvChunks[i] ?? null,
-      sentIsCont: i > 0,
-      recvIsCont: i > 0,
+      isFirst:             i === 0,
+      sentChunk:           sentChunks[i] ?? null,
+      recvChunk:           recvChunks[i] ?? null,
+      sharedIOweChunk:     sharedIOweChunks[i] ?? null,
+      sharedTheyOweChunk:  sharedTheyOweChunks[i] ?? null,
+      sentIsCont:          i > 0,
+      recvIsCont:          i > 0,
+      sharedIOweIsCont:    i > 0,
+      sharedTheyOweIsCont: i > 0,
     });
   }
 
@@ -524,6 +543,12 @@ export async function generateFriendReportImage(
     }
     if (spec.recvChunk !== null) {
       contentH += sectionHeight(Math.max(spec.recvChunk.length, 1)) + GAP;
+    }
+    if (spec.sharedIOweChunk !== null) {
+      contentH += sectionHeight(Math.max(spec.sharedIOweChunk.length, 1)) + GAP;
+    }
+    if (spec.sharedTheyOweChunk !== null) {
+      contentH += sectionHeight(Math.max(spec.sharedTheyOweChunk.length, 1)) + GAP;
     }
     contentH += H_FOOT;
 
@@ -637,6 +662,14 @@ export async function generateFriendReportImage(
     if (spec.recvChunk !== null) {
       drawSectionCard(ctx, y, labels.receivedSection, spec.recvChunk, GREEN, false, totalReceived, labels, spec.recvIsCont);
       y += sectionHeight(Math.max(spec.recvChunk.length, 1)) + GAP;
+    }
+    if (spec.sharedIOweChunk !== null) {
+      drawSectionCard(ctx, y, labels.sharedSection, spec.sharedIOweChunk, RED, true, totalSharedIOwe, labels, spec.sharedIOweIsCont, labels.totalSharedIOwe);
+      y += sectionHeight(Math.max(spec.sharedIOweChunk.length, 1)) + GAP;
+    }
+    if (spec.sharedTheyOweChunk !== null) {
+      drawSectionCard(ctx, y, labels.sharedTheyOweSection, spec.sharedTheyOweChunk, GREEN, false, totalSharedTheyOwe, labels, spec.sharedTheyOweIsCont, labels.totalSharedTheyOwe);
+      y += sectionHeight(Math.max(spec.sharedTheyOweChunk.length, 1)) + GAP;
     }
 
     drawFooter(ctx, y, labels.footer, logoImg);

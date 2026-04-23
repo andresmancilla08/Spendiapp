@@ -940,6 +940,18 @@
       "item2": "Ingresos y gastos en una sola fila limpia con divisor sutil",
       "item3": "Tipografía en negrita para mayor legibilidad de tus cifras"
     },
+    "friendReportImproved": {
+      "title": "Reporte con amigo mejorado",
+      "item1": "Los gastos compartidos se incluyen con dirección correcta: lo que debes y lo que te deben",
+      "item2": "El balance neto refleja todos los movimientos: enviados, recibidos y compartidos",
+      "item3": "Vista unificada agrupada por fecha con iconos de dirección"
+    },
+    "responsiveViewer": {
+      "title": "Visualizador adaptable",
+      "item1": "El visor de imágenes y PDF se adapta a tablets y pantallas de escritorio",
+      "item2": "Tiempo de inactividad extendido a 5 minutos para mayor comodidad",
+      "item3": "Contenido centrado y optimizado en pantallas grandes"
+    },
     "paletteSelector": {
       "title": "Personaliza tu paleta de colores",
       "item1": "Elige entre múltiples paletas desde tu perfil",
@@ -1194,6 +1206,11 @@
     "shareBtn": "Compartir",
     "theyOweYou": "{{name}} le debe a {{myName}}",
     "youOwe": "{{myName}} le debe a {{name}}",
-    "settled": "Están al día con {{name}}"
+    "settled": "Están al día con {{name}}",
+    "sharedSection": "COMPARTIDO QUE DEBO",
+    "sharedTheyOweSection": "COMPARTIDO QUE ME DEBEN",
+    "totalShared": "Total compartido",
+    "totalSharedIOwe": "Compartido que debo",
+    "totalSharedTheyOwe": "Compartido que me deben"
   }
 }
