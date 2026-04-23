@@ -312,6 +312,11 @@ export default function AddTransactionScreen() {
   const handleTypeChange = (newType: TransactionType) => {
     setType(newType);
     setCategory('');
+    setIsShared(false);
+    setSharedParticipants([]);
+    setOwnerPercentage(100);
+    setIsSentIncome(false);
+    setSentIncomeRecipient(null);
   };
 
   const handleNavigateToCards = () => {
@@ -360,13 +365,16 @@ export default function AddTransactionScreen() {
   const teaValue = teaInput !== '' ? parseFloat(teaInput) : null;
   const teaValid = !showInstallments || !withInterest || (teaValue !== null && teaValue > 0 && teaValue <= 200);
 
+  const sharedParticipantRequired = !isShared || sharedParticipants.length > 0;
+
   const sharedPercentageValid = !isShared
+    || type === 'income'  // income_claim no usa porcentajes
     || sharedParticipants.length === 0
     || Math.round(ownerPercentage + sharedParticipants.reduce((s, p) => s + p.percentage, 0)) === 100;
 
   const sentIncomeValid = !isSentIncome || sentIncomeRecipient !== null;
 
-  const isSaveDisabledFull = isSaveDisabled || !teaValid || !sharedPercentageValid || !sentIncomeValid;
+  const isSaveDisabledFull = isSaveDisabled || !teaValid || !sharedParticipantRequired || !sharedPercentageValid || !sentIncomeValid;
 
   const handleSave = async () => {
     if (isSaveDisabledFull || !user) return;
@@ -409,6 +417,7 @@ export default function AddTransactionScreen() {
           withInterest: isInstallment ? withInterest : false,
           teaValue: isInstallment ? teaValueNum : null,
           selectedDate,
+          sharedType: type === 'income' ? 'income_claim' : 'expense_share',
         });
       } else {
         const now = new Date();
@@ -938,8 +947,8 @@ export default function AddTransactionScreen() {
               )}
             </View>
 
-            {/* Método de pago */}
-            {!cardsLoading && (
+            {/* Método de pago — solo para egresos */}
+            {type === 'expense' && !cardsLoading && (
               <View style={[styles.fixedRow, { borderColor: colors.border, flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingVertical: 12, paddingHorizontal: 16 }]}>
                 <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>{t('addTransaction.paymentMethod')}</Text>
 
@@ -1121,9 +1130,10 @@ export default function AddTransactionScreen() {
               </View>
             )}
 
-            {/* Shared expense section — only for expenses */}
-            {type === 'expense' && !isSentIncome && (
+            {/* Shared expense (egreso) / income claim (ingreso) */}
+            {!isSentIncome && (
               <SharedExpenseSection
+                mode={type === 'income' ? 'income_claim' : 'expense_share'}
                 userId={user?.uid ?? ''}
                 userName={ownerUserName}
                 displayName={user?.displayName ?? ''}

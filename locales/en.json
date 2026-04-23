@@ -482,6 +482,8 @@
       "debitType": "Debit",
       "sharedWithLabel": "SHARED WITH",
       "sharedByLabel": "SHARED BY",
+      "owesYouLabel": "OWED TO ME",
+      "youOweLabel": "I OWE TO",
       "pageDesc": "Transaction details"
     },
     "pageDesc": "A record of all your transactions",
@@ -749,7 +751,8 @@
     "shared_delete_request": "{{fromDisplayName}} requests to delete the shared expense: {{description}}",
     "goal_monthly_reminder": "Remember to add to your {{count}} active goals this month 🎯",
     "sent_income": "{{name}} sent you income: {{description}}",
-    "sent_income_deleted": "{{name}} deleted the sent income: {{description}}"
+    "sent_income_deleted": "{{name}} deleted the sent income: {{description}}",
+    "income_claim_added": "{{fromDisplayName}} registered that they owe you: {{description}}"
   },
   "whatsNew": {
     "version": "What's new · v{{version}}",
@@ -949,6 +952,9 @@
       "item3": "Animated aurora stays visible beneath an elegant veil"
     }
   },
+  "incomeClaim": {
+    "toggle": "A friend owes me this income"
+  },
   "sharedExpense": {
     "toggle": "Share this expense",
     "withWho": "With who",
@@ -967,7 +973,10 @@
     "chip": {
       "sharedWith": "Shared with {{name}}",
       "sharedWithMore": "Shared with {{name}} and {{count}} more",
-      "sharedBy": "Shared by {{name}}"
+      "sharedBy": "Shared by {{name}}",
+      "owesYou": "{{name}} owes you",
+      "owesYouMore": "{{name}} and {{count}} more owe you",
+      "youOwe": "You owe {{name}}"
     },
     "appFriendsTab": "Friends in app",
     "externalTab": "External person",

@@ -22,8 +22,9 @@ export interface Transaction {
   installmentTotal?: number;
   isInstallment?: boolean;
   isPaid?: boolean;
-  // Gastos compartidos — solo presentes si isShared === true
+  // Gastos compartidos / ingresos reclamados — solo presentes si isShared === true
   isShared?: boolean;
+  sharedType?: 'expense_share' | 'income_claim';
   sharedId?: string;
   sharedOwnerUid?: string;
   sharedOwnerUserName?: string;

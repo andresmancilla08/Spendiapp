@@ -482,6 +482,8 @@
       "debitType": "Débito",
       "sharedWithLabel": "COMPARTIDO CON",
       "sharedByLabel": "COMPARTIDO POR",
+      "owesYouLabel": "ME DEBEN",
+      "youOweLabel": "LE DEBO A",
       "pageDesc": "Información del movimiento"
     },
     "pageDesc": "Un registro de todos tus movimientos",
@@ -750,7 +752,8 @@
     "shared_delete_request": "{{fromDisplayName}} solicita eliminar el gasto compartido: {{description}}",
     "goal_monthly_reminder": "Recuerda agregar a tus {{count}} metas activas este mes 🎯",
     "sent_income": "{{name}} te envió un ingreso: {{description}}",
-    "sent_income_deleted": "{{name}} eliminó el ingreso enviado: {{description}}"
+    "sent_income_deleted": "{{name}} eliminó el ingreso enviado: {{description}}",
+    "income_claim_added": "{{fromDisplayName}} registró que te debe: {{description}}"
   },
   "whatsNew": {
     "version": "Novedades · v{{version}}",
@@ -950,6 +953,9 @@
       "item3": "La aurora animada permanece visible bajo un velo elegante"
     }
   },
+  "incomeClaim": {
+    "toggle": "Un amigo me debe este ingreso"
+  },
   "sharedExpense": {
     "toggle": "Compartir este gasto",
     "withWho": "Con quién",
@@ -968,7 +974,10 @@
     "chip": {
       "sharedWith": "Compartido con {{name}}",
       "sharedWithMore": "Compartido con {{name}} y {{count}} más",
-      "sharedBy": "Compartido por {{name}}"
+      "sharedBy": "Compartido por {{name}}",
+      "owesYou": "Te debe {{name}}",
+      "owesYouMore": "Te deben {{name}} y {{count}} más",
+      "youOwe": "Le debes a {{name}}"
     },
     "appFriendsTab": "Amigos en la app",
     "externalTab": "Persona externa",

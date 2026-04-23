@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
-import { Animated, Text, View, StyleSheet } from 'react-native';
+import { Animated, Text, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../config/fonts';
@@ -31,6 +31,8 @@ const CONFIG: Record<ToastType, { bg: string; icon: keyof typeof Ionicons.glyphM
 
 function ToastBanner({ toast }: { toast: ToastState }) {
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
+  const horizontalOffset = screenWidth > 640 ? Math.max(16, (screenWidth - 480) / 2) : 16;
   const translateY = useRef(new Animated.Value(-120)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,7 +73,7 @@ function ToastBanner({ toast }: { toast: ToastState }) {
     <Animated.View
       style={[
         styles.banner,
-        { top: insets.top + 10, backgroundColor: cfg.bg, transform: [{ translateY }], opacity },
+        { top: insets.top + 10, left: horizontalOffset, right: horizontalOffset, backgroundColor: cfg.bg, transform: [{ translateY }], opacity },
       ]}
       pointerEvents="none"
     >
@@ -101,8 +103,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 const styles = StyleSheet.create({
   banner: {
     position: 'absolute',
-    left: 16,
-    right: 16,
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 16,
