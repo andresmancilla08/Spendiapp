@@ -28,6 +28,8 @@ export type NotificationType =
   | 'shared_transaction_added'
   | 'shared_transaction_updated'
   | 'shared_transaction_deleted'
+  | 'income_claim_added'
+  | 'shared_delete_request'
   | 'goal_monthly_reminder'
   | 'sent_income'
   | 'sent_income_deleted';

@@ -31,12 +31,14 @@ interface CreateSharedParams {
   withInterest: boolean;
   teaValue: number | null;
   selectedDate: Date;
+  sharedType?: 'expense_share' | 'income_claim';
 }
 
 interface DeleteSharedParams {
   sharedId: string;
   currentUserUid: string;
   currentUserName: string;
+  currentUserDisplayName?: string;
   description: string;
 }
 
@@ -45,6 +47,7 @@ export function useSharedTransactions() {
     const {
       participants, ownerUid, ownerUserName, baseDoc,
       amount, installmentCount, withInterest, teaValue, selectedDate,
+      sharedType = 'expense_share',
     } = params;
 
     const sharedId = doc(collection(db, 'sharedTransactions')).id;
@@ -52,6 +55,7 @@ export function useSharedTransactions() {
     const mirrorRefs: MirrorRef[] = [];
     const interestRate = (withInterest && teaValue != null) ? teaValue : 0;
     const isInstallment = installmentCount > 1;
+    const isIncomeClaim = sharedType === 'income_claim';
 
     // Separar participantes con cuenta de externos
     const realParticipants = participants.filter((p) => !p.isExternal);
@@ -63,14 +67,18 @@ export function useSharedTransactions() {
 
     for (const participant of realParticipants) {
       const isOwner = participant.uid === ownerUid;
+      // income_claim: amigos reciben egreso; expense_share: todos el mismo tipo
+      const docType = isIncomeClaim && !isOwner ? 'expense' : baseDoc.type;
 
       const sharedFields = {
         isShared: true,
+        sharedType,
         sharedId,
         sharedOwnerUid: ownerUid,
         sharedOwnerUserName: ownerUserName,
         sharedParticipants: participants,
-        sharedAmount: calcSharedAmount(amount, interestRate, installmentCount, participant.percentage),
+        // income_claim: monto completo para todos; expense_share: proporcional al porcentaje
+        sharedAmount: isIncomeClaim ? amount : calcSharedAmount(amount, interestRate, installmentCount, participant.percentage),
       };
 
       if (isInstallment) {
@@ -89,6 +97,7 @@ export function useSharedTransactions() {
           batch.set(ref, {
             userId: participant.uid,
             ...baseDocWithoutCard,
+            type: docType,
             ...(isOwner && cardId ? { cardId } : {}),
             amount: amt,
             date: Timestamp.fromDate(dates[i]),
@@ -107,10 +116,11 @@ export function useSharedTransactions() {
         });
       } else {
         const ref = doc(collection(db, 'transactions'));
-        const sharedAmount = calcSharedAmount(amount, interestRate, 1, participant.percentage);
+        const sharedAmount = isIncomeClaim ? amount : calcSharedAmount(amount, interestRate, 1, participant.percentage);
         batch.set(ref, {
           userId: participant.uid,
           ...baseDocWithoutCard,
+          type: docType,
           ...(isOwner && cardId ? { cardId } : {}),
           amount,
           date: Timestamp.fromDate(selectedDate),
@@ -162,15 +172,18 @@ export function useSharedTransactions() {
     }
 
     // Enviar notificaciones a participantes no-owner con cuenta (fuera del batch — no crítico)
+    const ownerParticipant = realParticipants.find((p) => p.uid === ownerUid);
+    const ownerDisplayName = ownerParticipant?.displayName || ownerUserName;
     const nonOwners = realParticipants.filter((p) => p.uid !== ownerUid);
+    const notifType = isIncomeClaim ? 'income_claim_added' : 'shared_transaction_added';
     for (const p of nonOwners) {
       await addDoc(collection(db, 'notifications'), {
         toUserId: p.uid,
-        type: 'shared_transaction_added',
+        type: notifType,
         data: {
           fromUserId: ownerUid,
           fromUserName: ownerUserName,
-          fromDisplayName: ownerUserName,
+          fromDisplayName: ownerDisplayName,
           sharedId,
           description: baseDoc.description,
           sharedAmount: calcSharedAmount(amount, interestRate, installmentCount, p.percentage),
@@ -182,7 +195,8 @@ export function useSharedTransactions() {
   }
 
   async function deleteSharedTransaction(params: DeleteSharedParams): Promise<void> {
-    const { sharedId, currentUserUid, currentUserName, description } = params;
+    const { sharedId, currentUserUid, currentUserName, currentUserDisplayName, description } = params;
+    const resolvedDisplayName = currentUserDisplayName || currentUserName;
 
     const coordSnap = await getDoc(doc(db, 'sharedTransactions', sharedId));
     if (!coordSnap.exists()) return;
@@ -209,7 +223,7 @@ export function useSharedTransactions() {
         data: {
           fromUserId: currentUserUid,
           fromUserName: currentUserName,
-          fromDisplayName: currentUserName,
+          fromDisplayName: resolvedDisplayName,
           sharedId,
           description,
           sharedAmount: 0,

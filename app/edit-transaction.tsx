@@ -15,7 +15,7 @@ import { useRef, useEffect, useState, type ElementRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { updateDoc, doc, Timestamp, addDoc, collection } from 'firebase/firestore';
+import { updateDoc, doc, Timestamp, addDoc, collection, deleteField } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -293,6 +293,8 @@ export default function EditTransactionScreen() {
         date: Timestamp.fromDate(selectedDate),
         isFixed,
         cardId: selectedCardId ?? null,
+        // Si se edita una transacción fija, limpiar la cancelación para restaurar todos los meses
+        ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
       });
       setLastAction('saved');
       showToast(t('history.toasts.saved'), 'success');

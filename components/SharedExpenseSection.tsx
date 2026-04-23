@@ -26,6 +26,7 @@ interface Props {
   ownerPercentage: number;
   onOwnerPercentageChange: (p: number) => void;
   onExpand?: () => void;
+  mode?: 'expense_share' | 'income_claim';
 }
 
 type SplitType = 'equal' | 'custom';
@@ -39,6 +40,7 @@ export default function SharedExpenseSection({
   participants, onParticipantsChange,
   amount, interestRate, installmentCount,
   ownerPercentage, onOwnerPercentageChange, onExpand,
+  mode = 'expense_share',
 }: Props) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
@@ -117,9 +119,9 @@ export default function SharedExpenseSection({
       {/* Toggle principal */}
       <View style={[styles.toggleRow, { borderColor: colors.border, backgroundColor: colors.surface }]}>
         <View style={styles.toggleLabel}>
-          <Ionicons name="people-outline" size={20} color={colors.primary} />
+          <Ionicons name={mode === 'income_claim' ? 'cash-outline' : 'people-outline'} size={20} color={colors.primary} />
           <Text style={[styles.toggleText, { color: colors.textPrimary }]}>
-            {t('sharedExpense.toggle')}
+            {t(mode === 'income_claim' ? 'incomeClaim.toggle' : 'sharedExpense.toggle')}
           </Text>
         </View>
         <Switch
@@ -275,109 +277,143 @@ export default function SharedExpenseSection({
           {/* Split type + porcentajes + preview (solo cuando hay al menos un participante) */}
           {participants.length > 0 && (
             <>
-              <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-                {t('sharedExpense.splitType').toUpperCase()}
-              </Text>
-              <View style={styles.splitRow}>
-                {(['equal', 'custom'] as SplitType[]).map((s) => (
-                  <TouchableOpacity
-                    key={s}
-                    style={[
-                      styles.splitBtn,
-                      {
-                        backgroundColor: splitType === s ? colors.primary : colors.surface,
-                        borderColor: splitType === s ? colors.primary : colors.border,
-                      },
-                    ]}
-                    onPress={() => setSplitType(s)}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={[
-                      styles.splitBtnText,
-                      { color: splitType === s ? colors.onPrimary : colors.textSecondary },
-                    ]}>
-                      {t(s === 'equal' ? 'sharedExpense.equalParts' : 'sharedExpense.customParts')}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {splitType === 'custom' && (
-                <View style={styles.pctContainer}>
-                  {allParticipants.map((p) => {
-                    const isOwnerRow = p.uid === userId;
-                    return (
-                      <View key={p.uid} style={styles.pctRow}>
-                        <Text style={[styles.pctName, { color: colors.textPrimary }]} numberOfLines={1}>
-                          {isOwnerRow ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`)}
-                        </Text>
-                        <View style={[styles.pctInput, { borderColor: !isPctValid ? colors.error : colors.border }]}>
-                          <TextInput
-                            value={isOwnerRow ? String(ownerPercentage) : String(p.percentage)}
-                            onChangeText={(v) => {
-                              const num = Math.min(100, parseInt(v.replace(/\D/g, ''), 10) || 0);
-                              const remaining = 100 - num;
-                              const otherCount = allParticipants.length - 1;
-                              const base  = Math.floor(remaining / otherCount);
-                              const extra = remaining - base * otherCount;
-                              if (isOwnerRow) {
-                                onOwnerPercentageChange(num);
-                                onParticipantsChange(
-                                  participants.map((pp, i) => ({ ...pp, percentage: base + (i === 0 ? extra : 0) })),
-                                );
-                              } else {
-                                onOwnerPercentageChange(base + extra);
-                                onParticipantsChange(
-                                  participants.map((pp) =>
-                                    pp.uid === p.uid ? { ...pp, percentage: num } : { ...pp, percentage: base },
-                                  ),
-                                );
-                              }
-                            }}
-                            keyboardType="number-pad"
-                            maxLength={3}
-                            style={[styles.pctTextInput, { color: colors.textPrimary }]}
-                          />
-                          <Text style={[styles.pctSymbol, { color: colors.textSecondary }]}>%</Text>
-                        </View>
-                      </View>
-                    );
-                  })}
-                  {!isPctValid && (
-                    <Text style={[styles.pctError, { color: colors.error }]}>
-                      {t('sharedExpense.percentageError', { total: totalPct })}
-                    </Text>
-                  )}
-                </View>
-              )}
-
-              <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-                {t('sharedExpense.preview').toUpperCase()}
-              </Text>
-              <View style={[styles.previewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                {allParticipants.map((p) => {
-                  const isOwnerRow = p.uid === userId;
-                  const monthly = calcSharedAmount(amount, interestRate, installmentCount, p.percentage);
-                  const formatted = monthly.toLocaleString('es-CO');
-                  return (
-                    <View key={p.uid} style={styles.previewRow}>
-                      <View style={styles.previewNameRow}>
-                        {p.isExternal && (
-                          <Ionicons name="mail-outline" size={13} color={colors.textTertiary} style={{ marginRight: 4 }} />
-                        )}
-                        <Text style={[styles.previewName, { color: colors.textPrimary }]}>
-                          {isOwnerRow ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`)}
-                        </Text>
-                      </View>
-                      <Text style={[styles.previewAmt, { color: colors.primary }]}>
-                        {installmentCount > 1
-                          ? t('sharedExpense.previewInstallment', { amount: `$${formatted}`, n: installmentCount })
-                          : `$${formatted}`}
+              {/* income_claim: sin división, monto completo — solo preview simplificado */}
+              {mode === 'income_claim' ? (
+                <>
+                  <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+                    {t('sharedExpense.preview').toUpperCase()}
+                  </Text>
+                  <View style={[styles.previewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <View style={styles.previewRow}>
+                      <Text style={[styles.previewName, { color: colors.textPrimary }]}>{t('sharedExpense.you')}</Text>
+                      <Text style={[styles.previewAmt, { color: colors.success ?? colors.primary }]}>
+                        +${amount.toLocaleString('es-CO')}
                       </Text>
                     </View>
-                  );
-                })}
-              </View>
+                    {participants.map((p) => (
+                      <View key={p.uid} style={styles.previewRow}>
+                        <View style={styles.previewNameRow}>
+                          {p.isExternal && (
+                            <Ionicons name="mail-outline" size={13} color={colors.textTertiary} style={{ marginRight: 4 }} />
+                          )}
+                          <Text style={[styles.previewName, { color: colors.textPrimary }]}>
+                            {p.isExternal ? p.displayName : `@${p.userName}`}
+                          </Text>
+                        </View>
+                        <Text style={[styles.previewAmt, { color: colors.expense ?? '#EF4444' }]}>
+                          −${amount.toLocaleString('es-CO')}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              ) : (
+                <>
+                  <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+                    {t('sharedExpense.splitType').toUpperCase()}
+                  </Text>
+                  <View style={styles.splitRow}>
+                    {(['equal', 'custom'] as SplitType[]).map((s) => (
+                      <TouchableOpacity
+                        key={s}
+                        style={[
+                          styles.splitBtn,
+                          {
+                            backgroundColor: splitType === s ? colors.primary : colors.surface,
+                            borderColor: splitType === s ? colors.primary : colors.border,
+                          },
+                        ]}
+                        onPress={() => setSplitType(s)}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={[
+                          styles.splitBtnText,
+                          { color: splitType === s ? colors.onPrimary : colors.textSecondary },
+                        ]}>
+                          {t(s === 'equal' ? 'sharedExpense.equalParts' : 'sharedExpense.customParts')}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {splitType === 'custom' && (
+                    <View style={styles.pctContainer}>
+                      {allParticipants.map((p) => {
+                        const isOwnerRow = p.uid === userId;
+                        return (
+                          <View key={p.uid} style={styles.pctRow}>
+                            <Text style={[styles.pctName, { color: colors.textPrimary }]} numberOfLines={1}>
+                              {isOwnerRow ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`)}
+                            </Text>
+                            <View style={[styles.pctInput, { borderColor: !isPctValid ? colors.error : colors.border }]}>
+                              <TextInput
+                                value={isOwnerRow ? String(ownerPercentage) : String(p.percentage)}
+                                onChangeText={(v) => {
+                                  const num = Math.min(100, parseInt(v.replace(/\D/g, ''), 10) || 0);
+                                  const remaining = 100 - num;
+                                  const otherCount = allParticipants.length - 1;
+                                  const base  = Math.floor(remaining / otherCount);
+                                  const extra = remaining - base * otherCount;
+                                  if (isOwnerRow) {
+                                    onOwnerPercentageChange(num);
+                                    onParticipantsChange(
+                                      participants.map((pp, i) => ({ ...pp, percentage: base + (i === 0 ? extra : 0) })),
+                                    );
+                                  } else {
+                                    onOwnerPercentageChange(base + extra);
+                                    onParticipantsChange(
+                                      participants.map((pp) =>
+                                        pp.uid === p.uid ? { ...pp, percentage: num } : { ...pp, percentage: base },
+                                      ),
+                                    );
+                                  }
+                                }}
+                                keyboardType="number-pad"
+                                maxLength={3}
+                                style={[styles.pctTextInput, { color: colors.textPrimary }]}
+                              />
+                              <Text style={[styles.pctSymbol, { color: colors.textSecondary }]}>%</Text>
+                            </View>
+                          </View>
+                        );
+                      })}
+                      {!isPctValid && (
+                        <Text style={[styles.pctError, { color: colors.error }]}>
+                          {t('sharedExpense.percentageError', { total: totalPct })}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+
+                  <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+                    {t('sharedExpense.preview').toUpperCase()}
+                  </Text>
+                  <View style={[styles.previewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    {allParticipants.map((p) => {
+                      const isOwnerRow = p.uid === userId;
+                      const monthly = calcSharedAmount(amount, interestRate, installmentCount, p.percentage);
+                      const formatted = monthly.toLocaleString('es-CO');
+                      return (
+                        <View key={p.uid} style={styles.previewRow}>
+                          <View style={styles.previewNameRow}>
+                            {p.isExternal && (
+                              <Ionicons name="mail-outline" size={13} color={colors.textTertiary} style={{ marginRight: 4 }} />
+                            )}
+                            <Text style={[styles.previewName, { color: colors.textPrimary }]}>
+                              {isOwnerRow ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`)}
+                            </Text>
+                          </View>
+                          <Text style={[styles.previewAmt, { color: colors.primary }]}>
+                            {installmentCount > 1
+                              ? t('sharedExpense.previewInstallment', { amount: `$${formatted}`, n: installmentCount })
+                              : `$${formatted}`}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </>
+              )}
             </>
           )}
         </>

@@ -124,7 +124,7 @@ export default function TransactionDetailScreen() {
         data: {
           fromUserId: currentUserUid,
           fromUserName: currentUserName,
-          fromDisplayName: currentUserName,
+          fromDisplayName: user?.displayName ?? currentUserName,
           sharedId: transaction.sharedId,
           description: transaction.description,
           sharedAmount: transaction.sharedAmount ?? 0,
@@ -184,6 +184,7 @@ export default function TransactionDetailScreen() {
           sharedId: transaction.sharedId,
           currentUserUid,
           currentUserName,
+          currentUserDisplayName: user?.displayName ?? currentUserName,
           description: transaction.description,
         });
       } else if (transaction.sentIncomeTransactionId) {
@@ -461,9 +462,9 @@ export default function TransactionDetailScreen() {
                 <View style={[styles.detailDivider, { backgroundColor: colors.border }]} />
                 <View style={styles.detailRow}>
                   <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
-                    {isOwner
-                      ? t('history.detail.sharedWithLabel')
-                      : t('history.detail.sharedByLabel')}
+                    {transaction.sharedType === 'income_claim'
+                      ? (isOwner ? t('history.detail.owesYouLabel') : t('history.detail.youOweLabel'))
+                      : (isOwner ? t('history.detail.sharedWithLabel') : t('history.detail.sharedByLabel'))}
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'flex-end', marginLeft: 16 }}>
                     <Ionicons name="people-outline" size={14} color={colors.primary} />
@@ -568,40 +569,36 @@ export default function TransactionDetailScreen() {
             </View>
           ) : (
             <View style={styles.actionGrid}>
-              {!(transaction.isShared && !isOwner) && (
-                <TouchableOpacity
-                  style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
-                  onPress={handleEdit}
-                  activeOpacity={0.75}
-                  disabled={isLoading}
-                >
-                  <Ionicons name="create-outline" size={22} color={colors.primary} />
-                  <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
-                    {t('history.detail.editButton')}
-                  </Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity
+                style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
+                onPress={handleEdit}
+                activeOpacity={0.75}
+                disabled={isLoading}
+              >
+                <Ionicons name="create-outline" size={22} color={colors.primary} />
+                <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
+                  {t('history.detail.editButton')}
+                </Text>
+              </TouchableOpacity>
 
-              {!(transaction.isShared && !isOwner) && (
-                <TouchableOpacity
-                  style={[
-                    styles.actionTile,
-                    { backgroundColor: `${colors.tertiary}18` },
-                    duplicateLoading && styles.buttonDisabled,
-                  ]}
-                  onPress={handleDuplicate}
-                  activeOpacity={0.75}
-                  disabled={isLoading}
-                >
-                  {duplicateLoading
-                    ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
-                    : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
-                  }
-                  <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
-                    {t('history.edit.duplicateButton')}
-                  </Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity
+                style={[
+                  styles.actionTile,
+                  { backgroundColor: `${colors.tertiary}18` },
+                  duplicateLoading && styles.buttonDisabled,
+                ]}
+                onPress={handleDuplicate}
+                activeOpacity={0.75}
+                disabled={isLoading}
+              >
+                {duplicateLoading
+                  ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
+                  : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
+                }
+                <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
+                  {t('history.edit.duplicateButton')}
+                </Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={[
