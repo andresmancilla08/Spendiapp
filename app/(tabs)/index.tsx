@@ -10,7 +10,7 @@ import {
   Platform,
   Animated,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import BalanceCard from '../../components/BalanceCard';
 import * as Haptics from 'expo-haptics';
 import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -383,58 +383,29 @@ export default function HomeScreen() {
         {Platform.OS === 'web' && <PwaInstallBanner />}
 
         {/* Balance card */}
-        <LinearGradient
-          colors={['#006978', '#00ACC1', '#26C6DA']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.balanceCard,
-            Platform.OS !== 'web' && {
-              shadowColor: '#00ACC1',
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.28,
-              shadowRadius: 24,
-              elevation: 12,
-            },
-          ]}
-        >
-          <Text style={styles.balanceLabel}>{t('home.balanceLabel')}</Text>
-          <Text style={styles.balanceAmount}>{formatCurrency(displayBalance)}</Text>
-          <View style={styles.balanceStatsRow}>
-            {/* Income column */}
-            <View style={styles.balanceStatCol}>
-              <Text style={styles.balanceStatLabelIncome}>{t('home.incomeLabel')}</Text>
-              <View style={styles.balanceStatValueRow}>
-                <Ionicons name="arrow-down" size={12} color="#4DD8AD" style={{ marginRight: 4 }} />
-                <Text style={styles.balanceStatValue}>{formatCurrency(totalIncome)}</Text>
-              </View>
-            </View>
-            {/* Divider */}
-            <View style={styles.balanceStatDivider} />
-            {/* Expense column */}
-            <View style={styles.balanceStatCol}>
-              <Text style={styles.balanceStatLabelExpense}>{t('home.expensesLabel')}</Text>
-              <View style={styles.balanceStatValueRow}>
-                <Ionicons name="arrow-up" size={12} color="#FF7B70" style={{ marginRight: 4 }} />
-                <Text style={styles.balanceStatValue}>{formatCurrency(totalExpenses)}</Text>
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
+        <BalanceCard
+          displayBalance={displayBalance}
+          totalIncome={totalIncome}
+          totalExpenses={totalExpenses}
+          formatCurrency={formatCurrency}
+          balanceLabel={t('home.balanceLabel')}
+          incomeLabel={t('home.incomeLabel')}
+          expensesLabel={t('home.expensesLabel')}
+        />
 
         {/* Income / Expenses */}
         <View style={styles.summaryRow}>
-          <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
-            <View style={[styles.summaryIconCircle, { backgroundColor: colors.success }]}>
-              <Ionicons name="arrow-down" size={24} color={colors.onTertiary} />
+          <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '28' }]}>
+            <View style={[styles.summaryIconCircle, { backgroundColor: colors.primary }]}>
+              <Ionicons name="arrow-down" size={24} color={colors.onPrimary} />
             </View>
             <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.incomeLabel')}</Text>
-            <Text style={[styles.summaryCardValue, { color: colors.success }]}>
+            <Text style={[styles.summaryCardValue, { color: colors.primary }]}>
               {formatCurrency(totalIncome)}
             </Text>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
+          <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.expense + '28' }]}>
             <View style={[styles.summaryIconCircle, { backgroundColor: colors.expenseLight }]}>
               <Ionicons name="arrow-up" size={24} color={colors.expense} />
             </View>
@@ -582,81 +553,12 @@ const styles = StyleSheet.create({
   },
   pillText: { fontSize: 11, fontFamily: Fonts.semiBold },
 
-  // Balance card
-  balanceCard: {
-    borderRadius: 28,
-    paddingVertical: 28,
-    paddingHorizontal: 24,
-    marginBottom: 16,
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  balanceLabel: {
-    fontSize: 11,
-    fontFamily: Fonts.semiBold,
-    color: 'rgba(255,255,255,0.7)',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 8,
-  },
-  balanceAmount: {
-    fontSize: 42,
-    fontFamily: Fonts.extraBold,
-    color: '#FFFFFF',
-    marginBottom: 20,
-    letterSpacing: -1,
-  },
-  balanceStatsRow: {
-    flexDirection: 'row',
-    width: '100%',
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    paddingVertical: 14,
-    paddingHorizontal: 4,
-    alignItems: 'center',
-  },
-  balanceStatCol: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 5,
-  },
-  balanceStatDivider: {
-    width: 1,
-    height: 36,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  balanceStatValueRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  balanceStatLabelIncome: {
-    fontSize: 10,
-    fontFamily: Fonts.bold,
-    color: '#4DD8AD',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  balanceStatLabelExpense: {
-    fontSize: 10,
-    fontFamily: Fonts.bold,
-    color: '#FF7B70',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  balanceStatValue: {
-    fontSize: 17,
-    fontFamily: Fonts.extraBold,
-    color: '#FFFFFF',
-    letterSpacing: -0.5,
-  },
-
   // Summary
   summaryRow: { flexDirection: 'row', gap: 12, marginBottom: 28 },
   summaryCard: {
     flex: 1,
     borderRadius: 24,
+    borderWidth: 1.5,
     paddingVertical: 28,
     paddingHorizontal: 16,
     alignItems: 'center',
@@ -670,8 +572,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 8,
   },
-  summaryCardLabel: { fontSize: 11, fontFamily: Fonts.bold },
-  summaryCardValue: { fontSize: 22, fontFamily: Fonts.bold },
+  summaryCardLabel: { fontSize: 11, fontFamily: Fonts.bold, textAlign: 'center' },
+  summaryCardValue: { fontSize: 22, fontFamily: Fonts.bold, textAlign: 'center' },
 
   // Section
   sectionHeader: {

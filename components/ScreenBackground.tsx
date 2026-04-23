@@ -17,12 +17,9 @@ const CONTENT_MAX_WIDTH: Record<string, number> = {
 };
 
 export default function ScreenBackground({ children, style, auroraIntensity = 'default' }: Props) {
-  const { isDark } = useTheme();
+  const { isDark, activePalette } = useTheme();
   const { breakpoint, isMobile } = useBreakpoint();
-
-  const gradientColors: [string, string, string] = isDark
-    ? ['#0D1A1C', '#062830', '#003840']
-    : ['#FFFFFF', '#F5F9FA', '#E0F7FA'];
+  const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
 
   return (
     <LinearGradient
@@ -32,6 +29,7 @@ export default function ScreenBackground({ children, style, auroraIntensity = 'd
       style={[styles.gradient, style]}
     >
       <AuroraBackground intensity={auroraIntensity} />
+      {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.45)' }]} pointerEvents="none" />}
       {/* Contenido siempre encima de los blobs — centrado en tablet/desktop */}
       <View
         style={[

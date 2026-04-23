@@ -1,5 +1,6 @@
-import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import { Animated, Easing, ViewStyle } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 
 export interface ScreenTransitionRef {
   animateOut: (callback: () => void) => void;
@@ -14,27 +15,43 @@ const ScreenTransition = forwardRef<ScreenTransitionRef, Props>(
   ({ children, style }, ref) => {
     const opacity = useRef(new Animated.Value(0)).current;
     const translateY = useRef(new Animated.Value(18)).current;
+    const activeAnimation = useRef<Animated.CompositeAnimation | null>(null);
 
-    useEffect(() => {
-      Animated.parallel([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 300,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, []);
+    useFocusEffect(
+      useCallback(() => {
+        opacity.setValue(0);
+        translateY.setValue(18);
+        const animation = Animated.parallel([
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 300,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]);
+        activeAnimation.current = animation;
+        animation.start(({ finished }) => {
+          if (!finished) {
+            opacity.setValue(1);
+            translateY.setValue(0);
+          }
+        });
+        return () => {
+          animation.stop();
+        };
+      }, []),
+    );
 
     useImperativeHandle(ref, () => ({
       animateOut: (callback: () => void) => {
-        Animated.parallel([
+        if (activeAnimation.current) activeAnimation.current.stop();
+        const animation = Animated.parallel([
           Animated.timing(opacity, {
             toValue: 0,
             duration: 220,
@@ -47,7 +64,9 @@ const ScreenTransition = forwardRef<ScreenTransitionRef, Props>(
             easing: Easing.in(Easing.cubic),
             useNativeDriver: true,
           }),
-        ]).start(() => callback());
+        ]);
+        activeAnimation.current = animation;
+        animation.start(() => callback());
       },
     }));
 
@@ -58,7 +77,7 @@ const ScreenTransition = forwardRef<ScreenTransitionRef, Props>(
         {children}
       </Animated.View>
     );
-  }
+  },
 );
 
 ScreenTransition.displayName = 'ScreenTransition';

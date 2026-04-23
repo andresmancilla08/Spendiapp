@@ -34,8 +34,9 @@ import AppDialog, { DialogType } from '../../components/AppDialog';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import { Fonts } from '../../config/fonts';
-import { getUserProfile } from '../../hooks/useUserProfile';
+import { getUserProfile, updateUserColorPalette } from '../../hooks/useUserProfile';
 import { useFriends } from '../../hooks/useFriends';
+import { PALETTES, PaletteId } from '../../config/palettes';
 import * as Clipboard from 'expo-clipboard';
 import { useToast } from '../../context/ToastContext';
 import appConfig from '../../app.json';
@@ -48,10 +49,11 @@ interface OptionRow {
   value?: string;
   color?: string;
   badge?: number;
+  isLast?: boolean;
   onPress: () => void;
 }
 
-function OptionItem({ icon, label, value, color, badge, onPress }: OptionRow) {
+function OptionItem({ icon, label, value, color, badge, isLast, onPress }: OptionRow) {
   const { colors } = useTheme();
   const iconColor = color ?? colors.primary;
   return (
@@ -79,7 +81,7 @@ function OptionItem({ icon, label, value, color, badge, onPress }: OptionRow) {
         ) : null}
         <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
       </TouchableOpacity>
-      <View style={[styles.optionDivider, { backgroundColor: colors.border }]} />
+      {!isLast && <View style={[styles.optionDivider, { backgroundColor: colors.border }]} />}
     </>
   );
 }
@@ -324,6 +326,87 @@ function LangModal({ visible, onClose, colors, i18n, t }: {
   );
 }
 
+// ── Modal selector de paleta ────────────────────────────────────────────────
+function PaletteModal({ visible, onClose, colors, paletteId, setPaletteId, t }: {
+  visible: boolean; onClose: () => void;
+  colors: any; paletteId: PaletteId; setPaletteId: (id: PaletteId) => void; t: any;
+}) {
+  const translateY = useRef(new Animated.Value(400)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (visible) {
+      translateY.setValue(400);
+      opacity.setValue(0);
+      Animated.parallel([
+        Animated.timing(opacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.spring(translateY, { toValue: 0, damping: 20, stiffness: 200, useNativeDriver: true }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: 400, duration: 200, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [visible]);
+
+  const handleSelect = (id: PaletteId) => {
+    setPaletteId(id);
+    onClose();
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="none">
+      <Animated.View style={[styles.langOverlay, { opacity, backgroundColor: colors.overlay }]}>
+        <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={onClose} />
+        <Animated.View style={[styles.langSheet, { backgroundColor: colors.surface, transform: [{ translateY }] }]}>
+          <View style={[styles.langHandle, { backgroundColor: colors.border }]} />
+          <View style={[styles.langIconWrap, { backgroundColor: colors.primaryLight }]}>
+            <Ionicons name="color-palette-outline" size={28} color={colors.primary} />
+          </View>
+          <Text style={[styles.langTitle, { color: colors.textPrimary }]}>{t('profile.palette.title')}</Text>
+          <Text style={[styles.langSubtitle, { color: colors.textSecondary }]}>{t('profile.palette.subtitle')}</Text>
+          <ScrollView style={{ width: '100%', maxHeight: 380 }} contentContainerStyle={{ gap: 10 }} showsVerticalScrollIndicator={false}>
+            {PALETTES.map((palette) => {
+              const isSelected = paletteId === palette.id;
+              const [p1, p2, p3] = palette.previewColors;
+              return (
+                <TouchableOpacity
+                  key={palette.id}
+                  style={[
+                    styles.paletteOption,
+                    { borderColor: isSelected ? p1 : colors.border },
+                    isSelected && { backgroundColor: p1 + '18' },
+                  ]}
+                  onPress={() => handleSelect(palette.id)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.paletteSwatches}>
+                    <View style={[styles.paletteSwatch, { backgroundColor: p3, zIndex: 1, borderColor: colors.surface }]} />
+                    <View style={[styles.paletteSwatch, { backgroundColor: p2, zIndex: 2, left: 16, borderColor: colors.surface }]} />
+                    <View style={[styles.paletteSwatch, { backgroundColor: p1, zIndex: 3, left: 32, borderColor: colors.surface }]} />
+                  </View>
+                  <Text style={[styles.paletteName, { color: isSelected ? p1 : colors.textPrimary, fontFamily: isSelected ? Fonts.bold : Fonts.medium }]}>
+                    {t(`profile.palette.${palette.id}`)}
+                  </Text>
+                  {isSelected && <Ionicons name="checkmark-circle" size={20} color={p1} />}
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+          <TouchableOpacity
+            style={[styles.langCancelBtn, { backgroundColor: colors.surface, borderColor: colors.primary }]}
+            onPress={onClose}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.langCancelText, { color: colors.primary }]}>{t('common.cancel')}</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </Animated.View>
+    </Modal>
+  );
+}
+
 // ── Estado de dialogs ───────────────────────────────────────────────────────
 interface DialogState {
   visible: boolean;
@@ -345,7 +428,7 @@ const DIALOG_CLOSED: DialogState = {
 export default function ProfileScreen() {
   const { user, setUser } = useAuthStore();
   const { incomingRequests } = useFriends(user?.uid ?? '');
-  const { colors, themeMode, setThemeMode, isDark } = useTheme();
+  const { colors, themeMode, setThemeMode, isDark, paletteId, setPaletteId } = useTheme();
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
 
@@ -355,6 +438,7 @@ export default function ProfileScreen() {
   const [editNameLoading, setEditNameLoading] = useState(false);
   const [changePinVisible, setChangePinVisible] = useState(false);
   const [langVisible, setLangVisible] = useState(false);
+  const [paletteVisible, setPaletteVisible] = useState(false);
   const [dialog, setDialog] = useState<DialogState>(DIALOG_CLOSED);
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
   const [userName, setUserName] = useState<string>('');
@@ -486,6 +570,9 @@ export default function ProfileScreen() {
   };
 
   const transitionRef = useRef<ScreenTransitionRef>(null);
+
+  if (!user) return null;
+
   const handleBack = () => {
     if (transitionRef.current) {
       transitionRef.current.animateOut(() => router.back());
@@ -554,6 +641,7 @@ export default function ProfileScreen() {
             icon="people-outline"
             label={t('profile.friends.label')}
             badge={incomingRequests.length || undefined}
+            isLast
             onPress={() => router.push('/friends')}
           />
         </View>
@@ -578,6 +666,7 @@ export default function ProfileScreen() {
             icon="mail-outline"
             label={t('profile.email.label')}
             value={user?.email ?? ''}
+            isLast
             onPress={() => showInfo(
               t('profile.email.dialog.title'),
               isGoogleUser
@@ -597,9 +686,16 @@ export default function ProfileScreen() {
             onPress={cycleTheme}
           />
           <OptionItem
+            icon="color-palette-outline"
+            label={t('profile.palette.label')}
+            value={t(`profile.palette.${paletteId}`)}
+            onPress={() => setPaletteVisible(true)}
+          />
+          <OptionItem
             icon="language-outline"
             label={t('profile.language.label')}
             value={`${currentLang.flag} ${currentLang.label}`}
+            isLast
             onPress={handleLanguage}
           />
         </View>
@@ -610,6 +706,7 @@ export default function ProfileScreen() {
           <OptionItem
             icon="card-outline"
             label={t('profile.cards.label')}
+            isLast
             onPress={() => router.push('/cards')}
           />
         </View>
@@ -651,6 +748,7 @@ export default function ProfileScreen() {
           <OptionItem
             icon="help-circle-outline"
             label={t('profile.faq.label')}
+            isLast
             onPress={() => router.push('/support')}
           />
         </View>
@@ -697,6 +795,21 @@ export default function ProfileScreen() {
         onClose={() => setLangVisible(false)}
         colors={colors}
         i18n={i18n}
+        t={t}
+      />
+
+      {/* Modal: Selector de paleta */}
+      <PaletteModal
+        visible={paletteVisible}
+        onClose={() => setPaletteVisible(false)}
+        colors={colors}
+        paletteId={paletteId}
+        setPaletteId={(id) => {
+          setPaletteId(id);
+          if (user?.uid) {
+            updateUserColorPalette(user.uid, id).catch(() => {});
+          }
+        }}
         t={t}
       />
 
@@ -843,6 +956,12 @@ const styles = StyleSheet.create({
   langCancelBtn: { width: '100%', paddingVertical: 16, borderRadius: 50, borderWidth: 1.5, alignItems: 'center', marginTop: 4 },
   langCancelText: { fontSize: 15, fontFamily: Fonts.semiBold },
 
+
+  // Palette modal
+  paletteOption: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14, borderRadius: 16, borderWidth: 1.5, marginBottom: 0 },
+  paletteSwatches: { width: 60, height: 28, position: 'relative' },
+  paletteSwatch: { position: 'absolute', top: 0, width: 28, height: 28, borderRadius: 14, borderWidth: 2 },
+  paletteName: { flex: 1, fontSize: 15 },
 
   cardTypeBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
   cardTypeBadgeText: { fontSize: 11, fontFamily: Fonts.semiBold },

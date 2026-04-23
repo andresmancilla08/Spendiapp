@@ -203,6 +203,20 @@
       "title": "Lingua",
       "subtitle": "Seleziona la lingua dell'app"
     },
+    "palette": {
+      "label": "Personalizzazione",
+      "title": "Personalizzazione",
+      "subtitle": "Personalizza l'identità visiva della tua app",
+      "deepWater": "Acque Profonde",
+      "sunset": "Tramonto",
+      "forest": "Foresta",
+      "midnight": "Mezzanotte",
+      "rose": "Rosa",
+      "ocean": "Oceano",
+      "ember": "Brace",
+      "lavender": "Lavanda",
+      "slate": "Ardesia"
+    },
     "notifications": {
       "label": "Notifiche",
       "soon": "Le impostazioni delle notifiche saranno disponibili a breve."
@@ -921,6 +935,18 @@
       "item1": "Nuovo design elegante con sfondo frosted glass traslucido",
       "item2": "Entrate e uscite in un'unica riga pulita con divisore sottile",
       "item3": "Tipografia in grassetto per una migliore leggibilità delle cifre"
+    },
+    "paletteSelector": {
+      "title": "Personalizza la tua palette di colori",
+      "item1": "Scegli tra più palette dal tuo profilo",
+      "item2": "Ogni palette trasforma colori, aurora e sfumature dell'app",
+      "item3": "La tua selezione viene salvata automaticamente per le sessioni future"
+    },
+    "darkOverlay": {
+      "title": "Sfondo scuro più profondo",
+      "item1": "Strato scuro sottile sullo sfondo in modalità scura",
+      "item2": "I componenti risaltano con più chiarezza sullo sfondo",
+      "item3": "L'aurora animata rimane visibile sotto un elegante velo"
     }
   },
   "sharedExpense": {
