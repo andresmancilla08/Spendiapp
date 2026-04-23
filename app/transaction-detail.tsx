@@ -5,9 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
@@ -334,20 +332,14 @@ export default function TransactionDetailScreen() {
             </Text>
           </View>
 
-          {/* Info rows — glassmorphism card */}
-          <View style={styles.detailCardWrapper}>
-            {Platform.OS === 'web' ? (
-              <View
-                style={[
-                  styles.detailCardWebGlass,
-                  // backdropFilter only valid on web — cast to any to bypass RN type check
-                  { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any,
-                ]}
-              />
-            ) : (
-              <BlurView intensity={70} tint="dark" style={StyleSheet.absoluteFillObject} />
-            )}
-            <View style={styles.detailCardOverlay} />
+          {/* Info rows card */}
+          <View style={[
+            styles.detailCardWrapper,
+            {
+              backgroundColor: colors.surfaceElevated,
+              borderColor: colors.primary + '20',
+            },
+          ]}>
             {/* Date */}
             <View style={styles.detailRow}>
               <Text style={[styles.detailRowLabel, { color: colors.textTertiary }]}>
@@ -697,26 +689,11 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
     textAlign: 'center',
   },
-  // Glassmorphism card wrapper — blur lives here, content stacks on top
   detailCardWrapper: {
     marginBottom: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.13)',
-    // Fallback background in case blur is unavailable
-    backgroundColor: 'rgba(8,28,34,0.55)',
-  },
-  // Dark overlay on top of blur for text legibility reinforcement
-  // No zIndex needed — render order (blur → overlay → rows) handles stacking
-  detailCardOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.14)',
-  },
-  // Web-only: simulate glass via backgroundColor (backdropFilter not supported in RN StyleSheet)
-  detailCardWebGlass: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(8,28,34,0.68)',
+    borderWidth: 1.5,
   },
   detailRow: {
     flexDirection: 'row',

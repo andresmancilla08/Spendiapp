@@ -103,6 +103,11 @@ async function userNameExists(userName: string): Promise<boolean> {
   return !snap.empty;
 }
 
+/** Guarda la paleta de colores elegida por el usuario. */
+export async function updateUserColorPalette(uid: string, paletteId: string): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { colorPalette: paletteId });
+}
+
 /** Marca si el usuario ya vio la pantalla de novedades. */
 export async function setWhatsNewSeen(uid: string, version: string): Promise<void> {
   await updateDoc(doc(db, 'users', uid), { whatsNewSeen: version });

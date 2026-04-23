@@ -39,6 +39,23 @@ interface Feature {
 // Lista limpia y única de todas las funciones de la app (sin repetidos ni supersedidas).
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
+    version: '2.11.1',
+    features: [
+      {
+        icon: 'color-palette-outline',
+        colorKey: 'primary',
+        titleKey: 'whatsNew.paletteSelector.title',
+        items: ['whatsNew.paletteSelector.item1', 'whatsNew.paletteSelector.item2', 'whatsNew.paletteSelector.item3'],
+      },
+      {
+        icon: 'contrast-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.darkOverlay.title',
+        items: ['whatsNew.darkOverlay.item1', 'whatsNew.darkOverlay.item2', 'whatsNew.darkOverlay.item3'],
+      },
+    ],
+  },
+  {
     version: '2.11.0',
     features: [
       {

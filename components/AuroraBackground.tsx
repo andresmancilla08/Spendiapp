@@ -16,8 +16,8 @@ interface Props {
 }
 
 export default function AuroraBackground({ intensity = 'default' }: Props) {
-  const { isDark } = useTheme();
-  const m = MULTIPLIER[intensity];
+  const { isDark, activePalette } = useTheme();
+  const m = MULTIPLIER[intensity] * (isDark ? 1.4 : 1.0);
 
   const b1 = useRef(new Animated.Value(0.00)).current;
   const b2 = useRef(new Animated.Value(0.33)).current;
@@ -81,23 +81,7 @@ export default function AuroraBackground({ intensity = 'default' }: Props) {
   const ty6      = b6.interpolate({ inputRange: [0.82, 1.07, 1.57, 1.82], outputRange: [0, -20, 18, 0],                 extrapolate: 'clamp' });
   const lightOp6 = b6.interpolate({ inputRange: [0.82, 1.32, 1.82],       outputRange: [0.05 * m, 0.12 * m, 0.05 * m], extrapolate: 'clamp' });
 
-  const darkColors: [string, string][] = [
-    ['#00BCD4', '#006978'],
-    ['#0097A7', '#004D5A'],
-    ['#00897B', '#004D40'],
-    ['#26C6DA', '#0097A7'],
-    ['#4DD0E1', '#00838F'],
-    ['#009688', '#00695C'],
-  ];
-  const lightColors: [string, string][] = [
-    ['#B2EBF2', '#80DEEA'],
-    ['#80DEEA', '#4DD0E1'],
-    ['#B2DFDB', '#80CBC4'],
-    ['#E0F7FA', '#B2EBF2'],
-    ['#E0F2F1', '#B2DFDB'],
-    ['#B2DFDB', '#80CBC4'],
-  ];
-  const blobColors = isDark ? darkColors : lightColors;
+  const blobColors = isDark ? activePalette.auroraBlobs.dark : activePalette.auroraBlobs.light;
 
   const webBlur = Platform.OS === 'web' ? ({ filter: `blur(${isDark ? 10 : 4}px)` } as any) : {};
 

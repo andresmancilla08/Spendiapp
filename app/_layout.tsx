@@ -7,7 +7,8 @@ import { getRedirectResult } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
-import { ThemeProvider, useTheme } from '../context/ThemeContext';
+import { ThemeProvider, useTheme, PaletteId } from '../context/ThemeContext';
+import { PALETTE_MAP } from '../config/palettes';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import { isBiometricsAppEnrolled } from '../hooks/useBiometrics';
@@ -17,7 +18,25 @@ import { useInactivityTimer } from '../hooks/useInactivityTimer';
 import AppDialog from '../components/AppDialog';
 import WebAppShell from '../components/WebAppShell';
 import { useTranslation } from 'react-i18next';
-import { createUserProfile } from '../hooks/useUserProfile';
+import { createUserProfile, getUserProfile } from '../hooks/useUserProfile';
+
+function PaletteLoader() {
+  const { user } = useAuthStore();
+  const { setPaletteId } = useTheme();
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    getUserProfile(user.uid)
+      .then((profile) => {
+        if (profile?.colorPalette && PALETTE_MAP[profile.colorPalette as PaletteId]) {
+          setPaletteId(profile.colorPalette as PaletteId);
+        }
+      })
+      .catch(() => {});
+  }, [user?.uid]);
+
+  return null;
+}
 
 function ThemedStack() {
   const { colors } = useTheme();
@@ -216,6 +235,7 @@ export default function RootLayout() {
     <ThemeProvider>
       <ToastProvider>
         <WebAppShell>
+          <PaletteLoader />
           <ThemedStack />
           <InactivityDialog
             visible={inactivityDialogVisible}

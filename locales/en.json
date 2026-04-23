@@ -203,6 +203,20 @@
       "title": "Language",
       "subtitle": "Select the app language"
     },
+    "palette": {
+      "label": "Personalization",
+      "title": "Personalization",
+      "subtitle": "Personalize your app's visual identity",
+      "deepWater": "Deep Water",
+      "sunset": "Sunset",
+      "forest": "Forest",
+      "midnight": "Midnight",
+      "rose": "Rose",
+      "ocean": "Ocean",
+      "ember": "Ember",
+      "lavender": "Lavender",
+      "slate": "Slate"
+    },
     "notifications": {
       "label": "Notifications",
       "soon": "Notification settings will be available soon."
@@ -921,6 +935,18 @@
       "item1": "New elegant design with frosted glass translucent background",
       "item2": "Income and expenses in a single clean row with subtle divider",
       "item3": "Bold typography for better readability of your figures"
+    },
+    "paletteSelector": {
+      "title": "Customize your color palette",
+      "item1": "Choose from multiple palettes in your profile",
+      "item2": "Each palette transforms colors, aurora, and gradients across the app",
+      "item3": "Your selection is saved automatically for future sessions"
+    },
+    "darkOverlay": {
+      "title": "Deeper dark background",
+      "item1": "Subtle dark overlay on the background in dark mode",
+      "item2": "Components stand out more clearly against the background",
+      "item3": "Animated aurora stays visible beneath an elegant veil"
     }
   },
   "sharedExpense": {
