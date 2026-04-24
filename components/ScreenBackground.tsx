@@ -38,8 +38,8 @@ export default function ScreenBackground({ children, style, auroraIntensity = 'd
     <>
       <StatusBar
         barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={statusBarColor}
-        translucent={false}
+        backgroundColor="transparent"
+        translucent={true}
       />
       <LinearGradient
       colors={gradientColors}
