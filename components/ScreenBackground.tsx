@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, ViewStyle, StatusBar, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useBreakpoint } from '../hooks/useBreakpoint';
@@ -20,9 +20,28 @@ export default function ScreenBackground({ children, style, auroraIntensity = 'd
   const { isDark, activePalette } = useTheme();
   const { breakpoint, isMobile } = useBreakpoint();
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
+  const statusBarColor = gradientColors[0] as string;
+
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        document.head.appendChild(meta);
+      }
+      meta.content = statusBarColor;
+    }
+  }, [statusBarColor]);
 
   return (
-    <LinearGradient
+    <>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={statusBarColor}
+        translucent={false}
+      />
+      <LinearGradient
       colors={gradientColors}
       start={{ x: 0.1, y: 0 }}
       end={{ x: 0.9, y: 1 }}
@@ -43,7 +62,8 @@ export default function ScreenBackground({ children, style, auroraIntensity = 'd
       >
         {children}
       </View>
-    </LinearGradient>
+      </LinearGradient>
+    </>
   );
 }
 
