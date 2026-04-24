@@ -153,6 +153,36 @@ export default function TransactionDetailScreen() {
     }
   }, [transaction, currentUserUid, currentUserName, setLastAction, router, showToast, t]);
 
+  const handleRequestSentIncomeDeletion = useCallback(async () => {
+    if (!transaction?.sentByUid) return;
+    setDeleteLoading(true);
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        toUserId: transaction.sentByUid,
+        type: 'sent_income_delete_request',
+        data: {
+          fromUserId: currentUserUid,
+          fromUserName: currentUserName,
+          fromDisplayName: user?.displayName ?? currentUserName,
+          transactionId: getActualId(transaction),
+          description: transaction.description,
+          amount: transaction.amount,
+        },
+        read: false,
+        createdAt: Timestamp.now(),
+      });
+      setDeleteLoading(false);
+      setLastAction('deleted');
+      router.back();
+      setTimeout(() => showToast(t('sentIncome.deleteRequestSent'), 'success'), 350);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error('[handleRequestSentIncomeDeletion] ' + msg);
+      showToast(t('history.edit.deleteError'), 'error');
+      setDeleteLoading(false);
+    }
+  }, [transaction, currentUserUid, currentUserName, user, setLastAction, router, showToast, t]);
+
   const handleEdit = useCallback(() => {
     if (!transaction) return;
     const txForEdit = transaction.isVirtualFixed
@@ -752,7 +782,9 @@ export default function TransactionDetailScreen() {
             /* ── Confirm delete ── */
             <View style={[styles.confirmDeleteWrap, { backgroundColor: colors.errorLight, borderRadius: 16, padding: 16 }]}>
               <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
-                {transaction.isShared && !isOwner
+                {isReceivedSentIncome
+                  ? t('sentIncome.deleteRequestConfirm')
+                  : transaction.isShared && !isOwner
                   ? t('sharedExpense.deleteRequestConfirm')
                   : transaction.isFixed && deleteScope === 'single'
                     ? t('history.edit.scopeConfirmFixed_single')
@@ -771,14 +803,20 @@ export default function TransactionDetailScreen() {
               <View style={styles.confirmDeleteBtns}>
                 <TouchableOpacity
                   style={[styles.confirmBtn, { backgroundColor: colors.error, flex: 1 }]}
-                  onPress={transaction.isShared && !isOwner ? handleRequestDeletion : handleDelete}
+                  onPress={
+                    isReceivedSentIncome
+                      ? handleRequestSentIncomeDeletion
+                      : transaction.isShared && !isOwner
+                        ? handleRequestDeletion
+                        : handleDelete
+                  }
                   disabled={isLoading}
                   activeOpacity={0.8}
                 >
                   {deleteLoading
                     ? <ActivityIndicator size="small" color="#FFFFFF" />
                     : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
-                        {transaction.isShared && !isOwner
+                        {isReceivedSentIncome || (transaction.isShared && !isOwner)
                           ? t('sharedExpense.deleteRequestButton')
                           : t('history.edit.confirmDeleteYes')}
                       </Text>
@@ -839,16 +877,32 @@ export default function TransactionDetailScreen() {
                   { backgroundColor: colors.errorLight },
                   deleteLoading && styles.buttonDisabled,
                 ]}
-                onPress={transaction.isShared && !isOwner ? () => setDeleteStep('confirm') : handleDeletePress}
+                onPress={
+                  isReceivedSentIncome
+                    ? () => setDeleteStep('confirm')
+                    : transaction.isShared && !isOwner
+                      ? () => setDeleteStep('confirm')
+                      : handleDeletePress
+                }
                 activeOpacity={0.75}
                 disabled={isLoading}
               >
                 {deleteLoading
                   ? <ActivityIndicator size="small" color={colors.error} />
-                  : <Ionicons name={transaction.isShared && !isOwner ? 'mail-outline' : transaction.isFixed ? 'stop-circle-outline' : 'trash-outline'} size={22} color={colors.error} />
+                  : <Ionicons
+                      name={
+                        isReceivedSentIncome || (transaction.isShared && !isOwner)
+                          ? 'mail-outline'
+                          : transaction.isFixed
+                            ? 'stop-circle-outline'
+                            : 'trash-outline'
+                      }
+                      size={22}
+                      color={colors.error}
+                    />
                 }
                 <Text style={[styles.actionTileLabel, { color: colors.error }]}>
-                  {transaction.isShared && !isOwner
+                  {isReceivedSentIncome || (transaction.isShared && !isOwner)
                     ? t('sharedExpense.deleteRequestButton')
                     : transaction.isFixed
                       ? t('history.edit.cancelFixedButton')

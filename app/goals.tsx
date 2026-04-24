@@ -20,6 +20,7 @@ import { Goal } from '../types/goal';
 import AppDialog from '../components/AppDialog';
 import { EmojiPicker } from '../components/EmojiPicker';
 import AppHeader from '../components/AppHeader';
+import AppSegmentedControl from '../components/AppSegmentedControl';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -248,28 +249,15 @@ export default function GoalsScreen() {
           <PageTitle title={t('goals.title')} description={t('goals.pageDesc')} />
 
           {/* Tabs */}
-          <View style={[styles.tabRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            {(['active', 'completed'] as TabType[]).map((tabKey) => {
-              const isActive = tab === tabKey;
-              return (
-                <TouchableOpacity
-                  key={tabKey}
-                  style={[styles.tabBtn, isActive && { backgroundColor: colors.primary }]}
-                  onPress={() => setTab(tabKey)}
-                  activeOpacity={0.75}
-                >
-                  <Text
-                    style={[
-                      styles.tabLabel,
-                      { color: isActive ? colors.onPrimary : colors.textSecondary },
-                    ]}
-                  >
-                    {tabKey === 'active' ? t('goals.activeTab') : t('goals.completedTab')}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <AppSegmentedControl
+            segments={[
+              { key: 'active', label: t('goals.activeTab') },
+              { key: 'completed', label: t('goals.completedTab') },
+            ]}
+            activeKey={tab}
+            onChange={(key) => setTab(key as TabType)}
+            style={styles.tabRow}
+          />
 
           {loading ? (
             <View style={styles.center}>
@@ -542,22 +530,10 @@ const styles = StyleSheet.create({
   scroll: { padding: 16, paddingTop: 8, paddingBottom: 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
   // Tabs
   tabRow: {
-    flexDirection: 'row',
     marginHorizontal: 16,
     marginTop: 8,
     marginBottom: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 4,
-    gap: 4,
   },
-  tabBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: 9,
-    alignItems: 'center',
-  },
-  tabLabel: { fontFamily: Fonts.semiBold, fontSize: 14 },
   // Nueva meta
   newGoalBtn: {
     flexDirection: 'row',
