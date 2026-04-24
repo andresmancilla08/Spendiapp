@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   collection,
   query,
@@ -25,17 +25,25 @@ export function useTransactions(userId: string, year: number, month: number, ref
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Limpiar datos al cambiar mes/año para no mostrar datos obsoletos
+  // Ambas queries deben resolver antes de quitar el loading
+  const q1Done = useRef(false);
+  const q2Done = useRef(false);
+  const resolveLoading = () => {
+    if (q1Done.current && q2Done.current) setLoading(false);
+  };
+
+  // Limpiar datos al cambiar mes/año/refreshKey para no mostrar datos obsoletos
   useEffect(() => {
+    q1Done.current = false;
+    q2Done.current = false;
     setRegular([]);
     setFixed([]);
     setLoading(true);
-  }, [userId, year, month]);
+  }, [userId, year, month, refreshKey]);
 
   // Query 1: transacciones normales del mes (incluyendo las fijas creadas este mes)
   useEffect(() => {
-    if (!userId) { setLoading(false); return; }
-    setLoading(true);
+    if (!userId) { q1Done.current = true; resolveLoading(); return; }
 
     const start = new Date(year, month, 1);
     const end   = new Date(year, month + 1, 0, 23, 59, 59);
@@ -48,10 +56,7 @@ export function useTransactions(userId: string, year: number, month: number, ref
       orderBy('date', 'desc')
     );
 
-    const unsub = onSnapshot(q, { includeMetadataChanges: true }, (snap) => {
-      // Esperar confirmación del servidor antes de actualizar la UI
-      // Esto evita que re-ordenamientos optimistas ocurran antes del toast de confirmación
-      if (snap.metadata.hasPendingWrites) return;
+    const unsub = onSnapshot(q, (snap) => {
       const viewStart = new Date(year, month, 1);
       setRegular(snap.docs.map((doc) => {
         const d = doc.data();
@@ -78,6 +83,7 @@ export function useTransactions(userId: string, year: number, month: number, ref
           installmentTotal: d.installmentTotal,
           isInstallment: d.isInstallment ?? false,
           fixedCancelledFrom: d.fixedCancelledFrom ? (d.fixedCancelledFrom as Timestamp).toDate() : undefined,
+          fixedSkipMonths: d.fixedSkipMonths ?? [],
           // Ingreso enviado — remitente
           sentIncomeToUid: d.sentIncomeToUid,
           sentIncomeToName: d.sentIncomeToName,
@@ -89,16 +95,21 @@ export function useTransactions(userId: string, year: number, month: number, ref
           sentByTransactionId: d.sentByTransactionId,
         };
       }).filter((tx) => {
-        // Ocultar fijos cancelados a partir del mes visualizado
-        if (!tx.isFixed || !tx.fixedCancelledFrom) return true;
-        return viewStart < tx.fixedCancelledFrom;
+        if (!tx.isFixed) return true;
+        // Cancelado a partir de este mes
+        if (tx.fixedCancelledFrom && viewStart >= tx.fixedCancelledFrom) return false;
+        // Mes omitido individualmente
+        if ((tx.fixedSkipMonths ?? []).includes(`${year}_${month}`)) return false;
+        return true;
       }));
       setError(null);
-      setLoading(false);
+      q1Done.current = true;
+      resolveLoading();
     }, (err) => {
       console.warn('useTransactions error:', err.code);
       setError(err.code);
-      setLoading(false);
+      q1Done.current = true;
+      resolveLoading();
     });
 
     return unsub;
@@ -129,6 +140,9 @@ export function useTransactions(userId: string, year: number, month: number, ref
             const cancelledFrom: Date = (d.fixedCancelledFrom as Timestamp).toDate();
             if (start >= cancelledFrom) return false;
           }
+          // Excluir si este mes fue omitido individualmente
+          const skipMonths: string[] = d.fixedSkipMonths ?? [];
+          if (skipMonths.includes(`${year}_${month}`)) return false;
           return true;
         })
         .map((doc) => {
@@ -166,9 +180,13 @@ export function useTransactions(userId: string, year: number, month: number, ref
           };
         });
       setFixed(copies);
+      q2Done.current = true;
+      resolveLoading();
     }, (err) => {
       console.warn('useTransactions fixed query error:', err.code);
       setFixed([]);
+      q2Done.current = true;
+      resolveLoading();
     });
 
     return unsub;

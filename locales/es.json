@@ -386,7 +386,8 @@
     },
     "errors": {
       "saveFailed": "No se pudo guardar. Intenta de nuevo."
-    }
+    },
+    "cutoffAdjusted": "Fecha ajustada al 1 del mes siguiente por la fecha de corte (día {{day}})"
   },
   "editTransaction": {
     "title": "Editar movimiento",
@@ -425,7 +426,24 @@
       "fixedLocked": "Este movimiento ya ocurrió y no puede modificarse.",
       "dateLabel": "Fecha",
       "isFixedLabel": "Fijo mensual",
-      "isFixedHint": "Se repite automáticamente cada mes"
+      "isFixedHint": "Se repite automáticamente cada mes",
+      "scopePickerTitle": "¿Qué movimientos deseas afectar?",
+      "scopeOnlyThis": "Solo este mes",
+      "scopeOnlyThisDesc": "Este mes no aparecerá, pero el fijo continuará normalmente.",
+      "scopeFromNow": "Este mes en adelante",
+      "scopeFromNowDesc": "El fijo se cancelará a partir de aquí. Meses anteriores intactos.",
+      "scopeAll": "Eliminar por completo",
+      "scopeAllDesc": "Desaparecerá de todos los meses, sin excepciones.",
+      "scopeOnlyThisInstallment": "Solo esta cuota",
+      "scopeOnlyThisInstallmentDesc": "Las demás cuotas no se verán afectadas.",
+      "scopeFromNowInstallment": "Esta cuota y las siguientes",
+      "scopeFromNowInstallmentDesc": "Se eliminarán esta cuota y todas las que restan.",
+      "scopeContinue": "Continuar",
+      "scopeConfirmFixed_single": "Solo se omitirá este mes. El movimiento fijo continuará en los meses siguientes.",
+      "scopeConfirmFixed_fromNow": "El movimiento fijo se cancelará a partir de este mes. Los meses anteriores no se afectan.",
+      "scopeConfirmFixed_all": "El movimiento fijo se eliminará de todos los meses permanentemente.",
+      "scopeConfirmInstallment_single": "Solo se eliminará esta cuota. Las demás permanecen.",
+      "scopeConfirmInstallment_fromNow": "Se eliminarán esta cuota y todas las siguientes del mismo grupo."
     },
     "months": [
       "Ene",
@@ -667,7 +685,11 @@
     "addButton": "Agregar tarjeta",
     "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo.",
     "defaultToggle": "Predeterminada para egresos",
-    "defaultToggleHint": "Se seleccionará automáticamente al registrar gastos"
+    "defaultToggleHint": "Se seleccionará automáticamente al registrar gastos",
+    "cutoffDayLabel": "Fecha de corte",
+    "cutoffDayHint": "Día del mes en que cierra tu ciclo de facturación (solo crédito)",
+    "cutoffDayPlaceholder": "Ej: 15",
+    "cutoffDayError": "Ingresa un día válido (1-28)"
   },
   "cardEditForm": {
     "title": "Editar tarjeta",
@@ -963,6 +985,12 @@
       "item1": "Capa oscura sutil sobre el fondo en modo oscuro",
       "item2": "Los componentes destacan con mayor claridad sobre el fondo",
       "item3": "La aurora animada permanece visible bajo un velo elegante"
+    },
+    "editCardDialogFit": {
+      "title": "Diálogos más compactos",
+      "item1": "El diálogo de editar tarjeta ahora se ajusta a su contenido sin scroll innecesario",
+      "item2": "La hoja inferior ocupa solo el espacio necesario según los campos visibles",
+      "item3": "Todo visible de un vistazo al editar, sin necesidad de desplazarse"
     }
   },
   "incomeClaim": {

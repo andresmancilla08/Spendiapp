@@ -386,7 +386,8 @@
     },
     "errors": {
       "saveFailed": "Impossibile salvare. Riprova."
-    }
+    },
+    "cutoffAdjusted": "Data adeguata al 1° del mese successivo per la data di chiusura (giorno {{day}})"
   },
   "editTransaction": {
     "title": "Modifica movimento",
@@ -425,7 +426,24 @@
       "fixedLocked": "Questa transazione è già avvenuta e non può essere modificata.",
       "dateLabel": "Data",
       "isFixedLabel": "Ricorrente mensile",
-      "isFixedHint": "Si ripete automaticamente ogni mese"
+      "isFixedHint": "Si ripete automaticamente ogni mese",
+      "scopePickerTitle": "Quali movimenti vuoi modificare?",
+      "scopeOnlyThis": "Solo questo mese",
+      "scopeOnlyThisDesc": "Questo mese verrà saltato, ma il fisso continuerà normalmente.",
+      "scopeFromNow": "Da questo mese in poi",
+      "scopeFromNowDesc": "Il fisso verrà cancellato da qui. I mesi precedenti restano invariati.",
+      "scopeAll": "Elimina completamente",
+      "scopeAllDesc": "Scomparirà da tutti i mesi, senza eccezioni.",
+      "scopeOnlyThisInstallment": "Solo questa rata",
+      "scopeOnlyThisInstallmentDesc": "Le altre rate non saranno interessate.",
+      "scopeFromNowInstallment": "Questa e le seguenti rate",
+      "scopeFromNowInstallmentDesc": "Verranno eliminate questa rata e tutte quelle rimanenti.",
+      "scopeContinue": "Continua",
+      "scopeConfirmFixed_single": "Solo questo mese verrà saltato. Il fisso continuerà nei mesi successivi.",
+      "scopeConfirmFixed_fromNow": "Il fisso verrà cancellato da questo mese. I mesi precedenti non sono interessati.",
+      "scopeConfirmFixed_all": "Il fisso verrà eliminato permanentemente da tutti i mesi.",
+      "scopeConfirmInstallment_single": "Solo questa rata verrà eliminata. Le altre rimangono.",
+      "scopeConfirmInstallment_fromNow": "Questa rata e tutte quelle seguenti dello stesso gruppo verranno eliminate."
     },
     "months": [
       "Gen",
@@ -638,7 +656,11 @@
     "addButton": "Aggiungi carta",
     "saveError": "Impossibile salvare la carta. Riprova.",
     "defaultToggle": "Predefinita per le uscite",
-    "defaultToggleHint": "Verrà selezionata automaticamente alla registrazione delle spese"
+    "defaultToggleHint": "Verrà selezionata automaticamente alla registrazione delle spese",
+    "cutoffDayLabel": "Data di chiusura",
+    "cutoffDayHint": "Giorno del mese in cui si chiude il ciclo di fatturazione (solo credito)",
+    "cutoffDayPlaceholder": "Es: 15",
+    "cutoffDayError": "Inserisci un giorno valido (1-28)"
   },
   "cardEditForm": {
     "title": "Modifica carta",
@@ -962,6 +984,12 @@
       "item1": "Strato scuro sottile sullo sfondo in modalità scura",
       "item2": "I componenti risaltano con più chiarezza sullo sfondo",
       "item3": "L'aurora animata rimane visibile sotto un elegante velo"
+    },
+    "editCardDialogFit": {
+      "title": "Finestre di dialogo più compatte",
+      "item1": "Il dialogo di modifica carta si adatta all'altezza del contenuto senza scorrimento inutile",
+      "item2": "Il pannello inferiore occupa solo lo spazio necessario per i campi visibili",
+      "item3": "Tutto visibile a colpo d'occhio durante la modifica, senza dover scorrere"
     }
   },
   "incomeClaim": {

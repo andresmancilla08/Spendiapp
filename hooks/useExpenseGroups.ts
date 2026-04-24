@@ -110,6 +110,7 @@ interface UseGroupExpensesResult {
     amount: number,
     paidById: string,
     splitAmong: string[],
+    createdByUid?: string,
   ) => Promise<void>;
   deleteExpense: (expenseId: string) => Promise<void>;
 }
@@ -142,6 +143,7 @@ export function useGroupExpenses(groupId: string): UseGroupExpensesResult {
     amount: number,
     paidById: string,
     splitAmong: string[],
+    createdByUid?: string,
   ): Promise<void> => {
     await addDoc(collection(db, 'expenseGroups', groupId, 'expenses'), {
       groupId,
@@ -150,6 +152,7 @@ export function useGroupExpenses(groupId: string): UseGroupExpensesResult {
       paidById,
       splitAmong,
       createdAt: Timestamp.now(),
+      ...(createdByUid ? { createdByUid } : {}),
     });
   };
 

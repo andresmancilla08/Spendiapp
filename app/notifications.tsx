@@ -55,6 +55,27 @@ const NOTIF_COLORS: Record<NotificationType, 'primary' | 'success'> = {
   sent_income_deleted: 'primary',
 };
 
+function getNotificationRoute(notif: NotificationDoc): string | null {
+  switch (notif.type) {
+    case 'friend_request':
+      return '/friends?tab=requests';
+    case 'friend_accepted':
+      return '/friends';
+    case 'shared_transaction_added':
+    case 'shared_transaction_updated':
+    case 'shared_transaction_deleted':
+    case 'income_claim_added':
+    case 'shared_delete_request':
+    case 'sent_income':
+    case 'sent_income_deleted':
+      return '/(tabs)/history';
+    case 'goal_monthly_reminder':
+      return '/goals';
+    default:
+      return null;
+  }
+}
+
 function NotifItem({
   notif, onPress, onDelete, colors, t,
 }: { notif: NotificationDoc; onPress: () => void; onDelete: () => void; colors: any; t: any }) {
@@ -62,6 +83,7 @@ function NotifItem({
   const colorKey = NOTIF_COLORS[notif.type] ?? 'primary';
   const accentColor = colors[colorKey];
   const accentBg = colorKey === 'success' ? colors.successLight : colors.primaryLight;
+  const hasRoute = getNotificationRoute(notif) !== null;
 
   // Build translation params based on notification type
   let translationParams: any = {};
@@ -114,6 +136,9 @@ function NotifItem({
           <Text style={[styles.notifTime, { color: colors.textTertiary }]}>
             {timeAgoLabel(notif.createdAt, t)}
           </Text>
+          {hasRoute && (
+            <Ionicons name="chevron-forward-outline" size={11} color={colors.primary} style={{ marginLeft: 4 }} />
+          )}
         </View>
       </View>
 
@@ -198,9 +223,10 @@ export default function NotificationsScreen() {
                   <NotifItem
                     notif={n}
                     onPress={() => {
-                    if (!n.read) markAsRead(n.id).catch(() => {});
-                    if (n.type === 'friend_request') router.push('/friends?tab=requests');
-                  }}
+                      if (!n.read) markAsRead(n.id).catch(() => {});
+                      const route = getNotificationRoute(n);
+                      if (route) router.push(route as any);
+                    }}
                     onDelete={() => deleteNotification(n.id).catch(() => {})}
                     colors={colors}
                     t={t}

@@ -37,6 +37,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
   const [cardType, setCardType] = useState<CardType>('debit');
   const [nickname, setNickname] = useState('');
+  const [cutoffDayInput, setCutoffDayInput] = useState('');
   const [isDefault, setIsDefault] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -61,6 +62,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
     setSelectedBank(null);
     setCardType('debit');
     setNickname('');
+    setCutoffDayInput('');
     setIsDefault(false);
     setSaving(false);
     setError('');
@@ -77,10 +79,15 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
     if (!selectedBank) return;
     const trimmed = nickname.trim();
     if (!trimmed) { setError(t('cardForm.nicknameError')); return; }
+    const cutoffDayNum = cutoffDayInput.trim() ? parseInt(cutoffDayInput.trim(), 10) : undefined;
+    if (cutoffDayNum !== undefined && (isNaN(cutoffDayNum) || cutoffDayNum < 1 || cutoffDayNum > 28)) {
+      setError(t('cardForm.cutoffDayError'));
+      return;
+    }
     setError('');
     setSaving(true);
     try {
-      await addCard(userId, selectedBank.id, selectedBank.name, cardType, trimmed, isDefault);
+      await addCard(userId, selectedBank.id, selectedBank.name, cardType, trimmed, isDefault, cutoffDayNum);
       handleClose();
     } catch {
       setError(t('cardForm.saveError'));
@@ -166,6 +173,30 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* Fecha de corte — solo crédito */}
+            {cardType === 'credit' && (
+              <>
+                <Text style={[styles.fieldLabel, { color: colors.textSecondary, marginTop: 8 }]}>
+                  {t('cardForm.cutoffDayLabel')}
+                </Text>
+                <Text style={[styles.defaultHint, { color: colors.textTertiary, marginBottom: 6 }]}>
+                  {t('cardForm.cutoffDayHint')}
+                </Text>
+                <TextInput
+                  style={[
+                    styles.nicknameInput,
+                    { borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary },
+                  ]}
+                  placeholder={t('cardForm.cutoffDayPlaceholder')}
+                  placeholderTextColor={colors.textTertiary}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  value={cutoffDayInput}
+                  onChangeText={(v) => { setError(''); setCutoffDayInput(v.replace(/[^0-9]/g, '')); }}
+                />
+              </>
+            )}
 
             {/* Nombre / apodo */}
             <View style={styles.labelRow}>

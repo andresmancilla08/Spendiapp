@@ -25,6 +25,7 @@ export interface GroupExpense {
   paidById: string;     // participant.id
   splitAmong: string[]; // participant.id[] — quiénes dividen este gasto
   createdAt: Timestamp;
+  createdByUid?: string; // uid del usuario que creó el gasto (para permisos)
 }
 
 export interface Settlement {

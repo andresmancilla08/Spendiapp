@@ -386,7 +386,8 @@
     },
     "errors": {
       "saveFailed": "Could not save. Please try again."
-    }
+    },
+    "cutoffAdjusted": "Date adjusted to the 1st of next month due to cutoff day {{day}}"
   },
   "editTransaction": {
     "title": "Edit transaction",
@@ -425,7 +426,24 @@
       "fixedLocked": "This transaction already occurred and cannot be modified.",
       "dateLabel": "Date",
       "isFixedLabel": "Monthly recurring",
-      "isFixedHint": "Repeats automatically every month"
+      "isFixedHint": "Repeats automatically every month",
+      "scopePickerTitle": "Which transactions do you want to affect?",
+      "scopeOnlyThis": "Only this month",
+      "scopeOnlyThisDesc": "This month will be skipped, but the recurring will continue normally.",
+      "scopeFromNow": "This month onwards",
+      "scopeFromNowDesc": "The recurring will be cancelled from here. Previous months untouched.",
+      "scopeAll": "Delete completely",
+      "scopeAllDesc": "Will disappear from all months, no exceptions.",
+      "scopeOnlyThisInstallment": "Only this installment",
+      "scopeOnlyThisInstallmentDesc": "Other installments will not be affected.",
+      "scopeFromNowInstallment": "This and following installments",
+      "scopeFromNowInstallmentDesc": "This installment and all remaining ones will be deleted.",
+      "scopeContinue": "Continue",
+      "scopeConfirmFixed_single": "Only this month will be skipped. The recurring will continue in following months.",
+      "scopeConfirmFixed_fromNow": "The recurring will be cancelled from this month. Previous months are not affected.",
+      "scopeConfirmFixed_all": "The recurring will be permanently deleted from all months.",
+      "scopeConfirmInstallment_single": "Only this installment will be deleted. Others remain.",
+      "scopeConfirmInstallment_fromNow": "This installment and all following ones in this group will be deleted."
     },
     "months": [
       "Jan",
@@ -638,7 +656,11 @@
     "addButton": "Add card",
     "saveError": "Could not save the card. Please try again.",
     "defaultToggle": "Default for expenses",
-    "defaultToggleHint": "Will be auto-selected when logging expenses"
+    "defaultToggleHint": "Will be auto-selected when logging expenses",
+    "cutoffDayLabel": "Cutoff date",
+    "cutoffDayHint": "Day of the month your billing cycle closes (credit only)",
+    "cutoffDayPlaceholder": "e.g. 15",
+    "cutoffDayError": "Enter a valid day (1-28)"
   },
   "cardEditForm": {
     "title": "Edit card",
@@ -962,6 +984,12 @@
       "item1": "Subtle dark overlay on the background in dark mode",
       "item2": "Components stand out more clearly against the background",
       "item3": "Animated aurora stays visible beneath an elegant veil"
+    },
+    "editCardDialogFit": {
+      "title": "More compact dialogs",
+      "item1": "The edit card dialog now fits its content without unnecessary scrolling",
+      "item2": "The bottom sheet only takes up as much space as its visible fields require",
+      "item3": "Everything visible at a glance when editing — no scrolling needed"
     }
   },
   "incomeClaim": {
