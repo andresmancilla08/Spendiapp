@@ -1,16 +1,13 @@
 import { Tabs } from 'expo-router';
 import AppTabBar from '../../components/AppTabBar';
-import { useTheme } from '../../context/ThemeContext';
-
 export default function TabsLayout() {
-  const { colors } = useTheme();
   return (
     <Tabs
       tabBar={(props) => <AppTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         animation: 'shift',
-        sceneStyle: { backgroundColor: colors.background },
+        sceneStyle: { backgroundColor: 'transparent' },
       }}
     >
       <Tabs.Screen name="index" />
