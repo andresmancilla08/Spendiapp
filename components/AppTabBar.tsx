@@ -82,10 +82,12 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
           const config = TAB_CONFIG[route.name];
           if (!config) return null;
           const isFocused = effectiveIndex === index;
+          // Navegación usa el tab real, no el efectivo — permite navegar a Home desde sub-pantallas
+          const isActualTab = state.routes[state.index].name === route.name;
 
           const onPress = () => {
             const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-            if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name);
+            if (!isActualTab && !event.defaultPrevented) navigation.navigate(route.name);
           };
 
           return (

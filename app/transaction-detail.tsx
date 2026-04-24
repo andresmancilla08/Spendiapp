@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
@@ -79,7 +80,7 @@ function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): str
 
 export default function TransactionDetailScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -334,50 +335,128 @@ export default function TransactionDetailScreen() {
           contentContainerStyle={[styles.sheetScrollContent, { paddingBottom: 16 }]}
         >
           {/* Hero — icono, tipo, monto, descripción */}
-          <View style={[
-            styles.detailHero,
-            { backgroundColor: isExpense ? `${colors.error}0C` : `${colors.secondary}0C` },
-          ]}>
-            {/* Icono grande centrado */}
-            <View style={[
-              styles.detailHeroIcon,
-              { backgroundColor: isExpense ? `${colors.error}20` : `${colors.secondary}20` },
-            ]}>
-              <Text style={{ fontSize: 34 }}>{cat.icon}</Text>
-            </View>
+          {(() => {
+            const accentColor = isExpense ? colors.error : colors.secondary;
+            return (
+              <View
+                style={[
+                  styles.detailHero,
+                  {
+                    backgroundColor: colors.surfaceElevated,
+                    borderColor: accentColor + '2E',
+                    ...(Platform.OS !== 'web'
+                      ? {
+                          shadowColor: isDark ? accentColor : '#000000',
+                          shadowOffset: { width: 0, height: 4 },
+                          shadowOpacity: isDark ? 0.38 : 0.07,
+                          shadowRadius: isDark ? 24 : 8,
+                          elevation: isDark ? 12 : 4,
+                        }
+                      : ({
+                          boxShadow: isDark
+                            ? `0 8px 32px 0 ${accentColor}38`
+                            : '0 4px 12px 0 rgba(0,0,0,0.08)',
+                        } as any)),
+                  },
+                ]}
+              >
+                {/* Inner highlight — simula luz desde arriba, profundidad material */}
+                <View
+                  style={[
+                    styles.detailHeroInnerHighlight,
+                    {
+                      borderColor: isDark
+                        ? 'rgba(255,255,255,0.05)'
+                        : 'rgba(255,255,255,0.60)',
+                    },
+                  ]}
+                  pointerEvents="none"
+                />
 
-            {/* Badge tipo con dot */}
-            <View style={[
-              styles.detailTypeBadge,
-              { backgroundColor: isExpense ? `${colors.error}18` : `${colors.secondary}18` },
-            ]}>
-              <View style={[
-                styles.detailTypeDot,
-                { backgroundColor: isExpense ? colors.error : colors.secondary },
-              ]} />
-              <Text style={[
-                styles.detailTypeBadgeText,
-                { color: isExpense ? colors.error : colors.secondary },
-              ]}>
-                {isExpense ? t('history.detail.typeExpense') : t('history.detail.typeIncome')}
-              </Text>
-            </View>
+                {/* Top accent bar — stripe del color de acento */}
+                <View
+                  style={[styles.detailHeroTopBar, { backgroundColor: accentColor }]}
+                  pointerEvents="none"
+                />
 
-            {/* Monto — protagonista */}
-            <Text style={[
-              styles.detailAmount,
-              { color: isExpense ? colors.error : colors.secondary },
-            ]}>
-              {isExpense
-                ? `−${formatCurrency(transaction.amount)}`
-                : `+${formatCurrency(transaction.amount)}`}
-            </Text>
+                {/* Blob decorativo top-right */}
+                <View
+                  style={[
+                    styles.detailHeroBlob,
+                    {
+                      backgroundColor: isDark
+                        ? accentColor + '18'
+                        : accentColor + '22',
+                    },
+                  ]}
+                  pointerEvents="none"
+                />
 
-            {/* Descripción */}
-            <Text style={[styles.detailDescription, { color: colors.textSecondary }]}>
-              {transaction.description}
-            </Text>
-          </View>
+                {/* Blob secundario bottom-left */}
+                <View
+                  style={[
+                    styles.detailHeroBlobSecondary,
+                    {
+                      backgroundColor: isDark
+                        ? accentColor + '10'
+                        : accentColor + '18',
+                    },
+                  ]}
+                  pointerEvents="none"
+                />
+
+                {/* Icono grande centrado */}
+                <View
+                  style={[
+                    styles.detailHeroIcon,
+                    {
+                      backgroundColor: isDark
+                        ? accentColor + '20'
+                        : accentColor + '14',
+                      borderColor: accentColor + '30',
+                    },
+                  ]}
+                >
+                  <Text style={{ fontSize: 34 }}>{cat.icon}</Text>
+                </View>
+
+                {/* Badge tipo con dot */}
+                <View
+                  style={[
+                    styles.detailTypeBadge,
+                    { backgroundColor: accentColor + '18' },
+                  ]}
+                >
+                  <View
+                    style={[styles.detailTypeDot, { backgroundColor: accentColor }]}
+                  />
+                  <Text
+                    style={[styles.detailTypeBadgeText, { color: accentColor }]}
+                  >
+                    {isExpense
+                      ? t('history.detail.typeExpense')
+                      : t('history.detail.typeIncome')}
+                  </Text>
+                </View>
+
+                {/* Monto — protagonista */}
+                <Text
+                  style={[styles.detailAmount, { color: accentColor }]}
+                >
+                  {isExpense
+                    ? `−${formatCurrency(transaction.amount)}`
+                    : `+${formatCurrency(transaction.amount)}`}
+                </Text>
+
+                {/* Descripción */}
+                <Text
+                  style={[styles.detailDescription, { color: colors.textSecondary }]}
+                >
+                  {transaction.description}
+                </Text>
+              </View>
+            );
+          })()}
 
           {/* Info rows card */}
           <View style={[
@@ -797,17 +876,60 @@ const styles = StyleSheet.create({
   // Detail hero
   detailHero: {
     borderRadius: 24,
+    borderWidth: 1.5,
     paddingTop: 32,
     paddingBottom: 28,
     paddingHorizontal: 20,
     marginBottom: 12,
     alignItems: 'center',
     gap: 10,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  // Borde blanco interno: simula luz desde arriba (material depth)
+  detailHeroInnerHighlight: {
+    position: 'absolute',
+    top: 1,
+    left: 1,
+    right: 1,
+    bottom: 1,
+    borderRadius: 23,
+    borderWidth: 1,
+  },
+  // Stripe de 3px en el tope — marca de color de acento
+  detailHeroTopBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    opacity: 0.85,
+  },
+  // Blob decorativo top-right — movimiento sin distracción
+  detailHeroBlob: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    top: -50,
+    right: -38,
+    opacity: 0.45,
+  },
+  // Blob secundario bottom-left — contrapeso visual
+  detailHeroBlobSecondary: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    bottom: -28,
+    left: -22,
+    opacity: 0.20,
   },
   detailHeroIcon: {
     width: 76,
     height: 76,
     borderRadius: 22,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 2,
@@ -834,6 +956,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontFamily: Fonts.extraBold,
     letterSpacing: -1,
+    includeFontPadding: false,
   },
   detailDescription: {
     fontSize: 15,

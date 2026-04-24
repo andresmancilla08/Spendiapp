@@ -36,9 +36,13 @@ function ToastBanner({ toast }: { toast: ToastState }) {
   const translateY = useRef(new Animated.Value(-120)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startedIdRef = useRef<number>(-1);
   const cfg = CONFIG[toast.type];
 
   useEffect(() => {
+    // Guard against Strict Mode double-invoke: only animate once per toast ID
+    if (startedIdRef.current === toast.id) return;
+    startedIdRef.current = toast.id;
     if (timerRef.current) clearTimeout(timerRef.current);
     translateY.setValue(-120);
     opacity.setValue(0);
