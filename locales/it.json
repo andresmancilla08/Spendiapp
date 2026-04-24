@@ -666,7 +666,8 @@
     "title": "Modifica carta",
     "changeBank": "Cambia banca",
     "saveButton": "Salva modifiche",
-    "saveError": "Impossibile salvare le modifiche. Riprova."
+    "saveError": "Impossibile salvare le modifiche. Riprova.",
+    "saveSuccess": "Carta aggiornata correttamente"
   },
   "support": {
     "title": "Casella dei suggerimenti",
@@ -778,8 +779,8 @@
   },
   "whatsNew": {
     "version": "Novità · v{{version}}",
-    "title": "Cosa c'è di nuovo?",
-    "subtitle": "Ecco i miglioramenti e le funzionalità arrivate in questa versione.",
+    "title": "Cosa puoi fare?",
+    "subtitle": "Esplora le funzionalità principali di Spendia.",
     "dismiss": "Capito",
     "sharedExpenses": {
       "title": "Spese condivise",

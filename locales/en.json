@@ -666,7 +666,8 @@
     "title": "Edit card",
     "changeBank": "Change bank",
     "saveButton": "Save changes",
-    "saveError": "Could not save changes. Please try again."
+    "saveError": "Could not save changes. Please try again.",
+    "saveSuccess": "Card updated successfully"
   },
   "support": {
     "title": "Suggestions box",
@@ -778,8 +779,8 @@
   },
   "whatsNew": {
     "version": "What's new · v{{version}}",
-    "title": "What's new?",
-    "subtitle": "Here are the improvements and features that arrived in this version.",
+    "title": "What can you do?",
+    "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
     "sharedExpenses": {
       "title": "Shared expenses",

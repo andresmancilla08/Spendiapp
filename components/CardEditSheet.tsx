@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import { COLOMBIAN_BANKS, Bank } from '../config/banks';
 import { updateCard, setDefaultCard } from '../hooks/useCards';
@@ -33,6 +34,7 @@ interface CardEditSheetProps {
 
 export default function CardEditSheet({ visible, onClose, card, userId }: CardEditSheetProps) {
   const { colors } = useTheme();
+  const { showToast } = useToast();
   const { t } = useTranslation();
 
   const [step, setStep] = useState<'bank' | 'details'>('details');
@@ -102,6 +104,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
         isDefault,
         cutoffDay: cutoffDayNum ?? null,
       });
+      showToast(t('cardEditForm.saveSuccess'), 'success');
       handleClose();
     } catch {
       setError(t('cardEditForm.saveError'));

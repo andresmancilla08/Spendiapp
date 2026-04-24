@@ -695,7 +695,8 @@
     "title": "Editar tarjeta",
     "changeBank": "Cambiar banco",
     "saveButton": "Guardar cambios",
-    "saveError": "No se pudo guardar los cambios. Intenta de nuevo."
+    "saveError": "No se pudo guardar los cambios. Intenta de nuevo.",
+    "saveSuccess": "Tarjeta actualizada correctamente"
   },
   "pwaInstall": {
     "title": "Instala Spendia",
@@ -779,8 +780,8 @@
   },
   "whatsNew": {
     "version": "Novedades · v{{version}}",
-    "title": "¿Qué hay de nuevo?",
-    "subtitle": "Estas son las mejoras y funcionalidades que llegaron en esta versión.",
+    "title": "¿Qué puedes hacer?",
+    "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
     "sharedExpenses": {
       "title": "Gastos compartidos",

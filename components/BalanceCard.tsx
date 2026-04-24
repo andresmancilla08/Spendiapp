@@ -41,14 +41,16 @@ export default function BalanceCard({
           backgroundColor: colors.surfaceElevated,
           borderColor: colors.primary + '2E',
           ...(Platform.OS !== 'web' && {
-            shadowColor: colors.primary,
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: isDark ? 0.40 : 0.22,
-            shadowRadius: 24,
-            elevation: 12,
+            shadowColor: isDark ? colors.primary : '#000000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: isDark ? 0.40 : 0.07,
+            shadowRadius: isDark ? 24 : 8,
+            elevation: isDark ? 12 : 4,
           }),
           ...(Platform.OS === 'web' && {
-            boxShadow: `0 8px 32px 0 ${colors.primary}38`,
+            boxShadow: isDark
+              ? `0 8px 32px 0 ${colors.primary}38`
+              : '0 4px 12px 0 rgba(0,0,0,0.08)',
           } as any),
         },
       ]}
