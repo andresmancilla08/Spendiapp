@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   PanResponder,
 } from 'react-native';
+import AppSegmentedControl from '../../components/AppSegmentedControl';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useFocusEffect, router } from 'expo-router';
 import { useHistoryStore } from '../../store/historyStore';
@@ -361,7 +362,7 @@ export default function HistoryScreen() {
   const [month, setMonth] = useState(now.getMonth());
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeFilter, setActiveFilter] = useState<'all' | 'income' | 'expense'>('all');
-  const [paidFilter, setPaidFilter] = useState<'all' | 'paid' | 'unpaid'>('all');
+  const [paidFilter, setPaidFilter] = useState<'all' | 'paid' | 'unpaid'>('unpaid');
   const [sharedFilter, setSharedFilter] = useState<'all' | 'shared' | 'notShared'>('all');
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
@@ -380,7 +381,7 @@ export default function HistoryScreen() {
     setMonth(n.getMonth());
     setActiveFilter('all');
     setSearchQuery('');
-    setPaidFilter('all');
+    setPaidFilter('unpaid');
     setSharedFilter('all');
     setFilterPanelOpen(false);
     setMonthPickerOpen(false);
@@ -411,7 +412,7 @@ export default function HistoryScreen() {
   const resetFilters = () => {
     setActiveFilter('all');
     setSearchQuery('');
-    setPaidFilter('all');
+    setPaidFilter('unpaid');
     setSharedFilter('all');
     setFilterPanelOpen(false);
   };
@@ -516,7 +517,7 @@ export default function HistoryScreen() {
 
   const toggleSummary = () => setSummaryExpanded(prev => !prev);
 
-  const hasActiveFilters = paidFilter !== 'all' || sharedFilter !== 'all';
+  const hasActiveFilters = sharedFilter !== 'all';
 
   const toggleFilter = (f: 'income' | 'expense') => {
     setActiveFilter(prev => prev === f ? 'all' : f);
@@ -716,6 +717,17 @@ export default function HistoryScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Paid filter tabs */}
+      <AppSegmentedControl
+        segments={[
+          { key: 'unpaid', label: t('history.filters.pending') },
+          { key: 'paid', label: t('history.filters.paidTab') },
+        ]}
+        activeKey={paidFilter}
+        onChange={(key) => setPaidFilter(key as 'paid' | 'unpaid')}
+        style={styles.paidTabs}
+      />
+
       {/* Filter panel */}
       {filterMounted && (
         <Animated.View
@@ -728,34 +740,6 @@ export default function HistoryScreen() {
             },
           ]}
         >
-          {/* Pago */}
-          <View style={styles.filterSection}>
-            <Text style={[styles.filterSectionLabel, { color: colors.primary }]}>
-              {t('history.filters.payLabel').toUpperCase()}
-            </Text>
-            <View style={styles.filterSectionOptions}>
-              {(['all', 'paid', 'unpaid'] as const).map((val) => (
-                <TouchableOpacity
-                  key={val}
-                  onPress={() => setPaidFilter(p => p === val ? 'all' : val)}
-                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
-                >
-                  <Text style={[
-                    styles.filterSectionOption,
-                    {
-                      color: paidFilter === val ? colors.textPrimary : colors.textTertiary,
-                      fontFamily: paidFilter === val ? Fonts.bold : Fonts.regular,
-                    },
-                  ]}>
-                    {t(`history.filters.${val === 'all' ? 'allLabel' : val}`)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={[styles.filterDivider, { backgroundColor: colors.border }]} />
-
           {/* Compartido */}
           <View style={styles.filterSection}>
             <Text style={[styles.filterSectionLabel, { color: colors.primary }]}>
@@ -967,6 +951,10 @@ const styles = StyleSheet.create({
   filterDivider: {
     height: 1,
     marginVertical: 4,
+  },
+  paidTabs: {
+    marginHorizontal: 20,
+    marginBottom: 8,
   },
   searchInput: {
     flex: 1,

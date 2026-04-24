@@ -541,7 +541,9 @@
       "paid": "Pagado",
       "unpaid": "Sin pagar",
       "shared": "Compartido",
-      "notShared": "No compartido"
+      "notShared": "No compartido",
+      "pending": "Pendientes",
+      "paidTab": "Pagados"
     }
   },
   "categories": {
