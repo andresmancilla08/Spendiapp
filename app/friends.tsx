@@ -18,6 +18,7 @@ import { getUserProfile, searchUserByUserName } from '../hooks/useUserProfile';
 import { UserProfile, Friendship } from '../types/friend';
 import { useLocalSearchParams, router } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import AppSegmentedControl from '../components/AppSegmentedControl';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
@@ -242,30 +243,15 @@ export default function FriendsScreen() {
         <PageTitle title={t('friends.title')} description={t('friends.pageDesc')} />
 
         {/* Tabs */}
-        <View style={[styles.tabRow, { borderBottomColor: colors.border }]}>
-          {(['friends', 'requests'] as Tab[]).map((t_) => {
-            const isActive = tab === t_;
-            return (
-              <TouchableOpacity
-                key={t_}
-                style={[styles.tab, isActive && { borderBottomColor: colors.primary, borderBottomWidth: 2.5 }]}
-                onPress={() => setTab(t_)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.tabLabelRow}>
-                  <Text style={[styles.tabText, { color: isActive ? colors.primary : colors.textSecondary }]}>
-                    {t_ === 'friends' ? t('friends.tabs.friends') : t('friends.tabs.requests')}
-                  </Text>
-                  {t_ === 'requests' && requestBadge > 0 && (
-                    <View style={[styles.tabBadge, { backgroundColor: colors.error }]}>
-                      <Text style={styles.tabBadgeText}>{requestBadge}</Text>
-                    </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <AppSegmentedControl
+          segments={[
+            { key: 'friends', label: t('friends.tabs.friends') },
+            { key: 'requests', label: t('friends.tabs.requests'), badge: requestBadge },
+          ]}
+          activeKey={tab}
+          onChange={(key) => setTab(key as Tab)}
+          style={styles.tabRow}
+        />
 
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
@@ -575,18 +561,7 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: Platform.OS === 'web' ? 120 : 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
   // Tabs
-  tabRow: { flexDirection: 'row', borderBottomWidth: 1, marginHorizontal: 20 },
-  tab: { flex: 1, paddingVertical: 13, alignItems: 'center' },
-  tabLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  tabText: { fontSize: 14, fontFamily: Fonts.semiBold },
-  tabBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 9,
-    minWidth: 18,
-    alignItems: 'center',
-  },
-  tabBadgeText: { color: '#fff', fontSize: 10, fontFamily: Fonts.bold },
+  tabRow: { marginHorizontal: 20, marginBottom: 12 },
 
   // Search
   searchRow: {

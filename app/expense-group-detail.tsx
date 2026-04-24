@@ -24,6 +24,7 @@ import { Settlement } from '../types/expenseGroup';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import AppDialog from '../components/AppDialog';
 import AppHeader from '../components/AppHeader';
+import AppSegmentedControl from '../components/AppSegmentedControl';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { Fonts } from '../config/fonts';
@@ -286,25 +287,16 @@ export default function ExpenseGroupDetailScreen() {
               )}
 
               {/* Tabs */}
-              <View style={[styles.tabRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                {(['expenses', 'settlement'] as TabType[]).map((tabKey) => {
-                  const isActive = tab === tabKey;
-                  return (
-                    <TouchableOpacity
-                      key={tabKey}
-                      style={[styles.tabBtn, isActive && { backgroundColor: accentColor }]}
-                      onPress={() => setTab(tabKey)}
-                      activeOpacity={0.75}
-                    >
-                      <Text style={[styles.tabLabel, { color: isActive ? colors.onPrimary : colors.textSecondary }]}>
-                        {tabKey === 'expenses'
-                          ? t('expenseGroups.detail.expenses')
-                          : t('expenseGroups.settlement.title')}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+              <AppSegmentedControl
+                segments={[
+                  { key: 'expenses', label: t('expenseGroups.detail.expenses') },
+                  { key: 'settlement', label: t('expenseGroups.settlement.title') },
+                ]}
+                activeKey={tab}
+                onChange={(key) => setTab(key as TabType)}
+                activeColor={accentColor}
+                style={styles.tabRow}
+              />
 
               {/* Tab: Gastos */}
               {tab === 'expenses' && (
@@ -775,17 +767,10 @@ const styles = StyleSheet.create({
 
   // Tabs
   tabRow: {
-    flexDirection: 'row',
     marginHorizontal: 16,
     marginTop: 4,
     marginBottom: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 4,
-    gap: 4,
   },
-  tabBtn: { flex: 1, paddingVertical: 8, borderRadius: 9, alignItems: 'center' },
-  tabLabel: { fontFamily: Fonts.semiBold, fontSize: 14 },
 
   // Scroll
   scroll: { padding: 16, paddingTop: 4, paddingBottom: 40, width: '100%', maxWidth: 768, alignSelf: 'center' },

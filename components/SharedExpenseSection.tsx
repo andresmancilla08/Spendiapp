@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
+import AppSegmentedControl from './AppSegmentedControl';
 import { Fonts } from '../config/fonts';
 import { useFriends } from '../hooks/useFriends';
 import { getUserProfile } from '../hooks/useUserProfile';
@@ -177,28 +178,15 @@ export default function SharedExpenseSection({
           <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
             {t('sharedExpense.withWho').toUpperCase()}
           </Text>
-          <View style={[styles.tabRow, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
-            {(['friends', 'external'] as AddMode[]).map((mode) => (
-              <TouchableOpacity
-                key={mode}
-                style={[
-                  styles.tab,
-                  addMode === mode && { backgroundColor: colors.primary },
-                ]}
-                onPress={() => { setAddMode(mode); setEmailError(''); onExpand?.(); }}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name={mode === 'friends' ? 'people-outline' : 'mail-outline'}
-                  size={14}
-                  color={addMode === mode ? colors.onPrimary : colors.textSecondary}
-                />
-                <Text style={[styles.tabText, { color: addMode === mode ? colors.onPrimary : colors.textSecondary }]}>
-                  {t(mode === 'friends' ? 'sharedExpense.appFriendsTab' : 'sharedExpense.externalTab')}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <AppSegmentedControl
+            segments={[
+              { key: 'friends', label: t('sharedExpense.appFriendsTab'), icon: 'people-outline' },
+              { key: 'external', label: t('sharedExpense.externalTab'), icon: 'mail-outline' },
+            ]}
+            activeKey={addMode}
+            onChange={(key) => { setAddMode(key as AddMode); setEmailError(''); onExpand?.(); }}
+            style={{ backgroundColor: colors.surfaceElevated, marginBottom: 10 }}
+          />
 
           {/* Contenido del tab activo */}
           {addMode === 'friends' ? (
@@ -448,16 +436,6 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 13, fontFamily: Fonts.medium },
   externalBadge: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.3 },
 
-  // Tabs
-  tabRow: {
-    flexDirection: 'row', borderRadius: 12, borderWidth: StyleSheet.hairlineWidth,
-    padding: 3, gap: 3, marginBottom: 10,
-  },
-  tab: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: 6, paddingVertical: 9, borderRadius: 10,
-  },
-  tabText: { fontSize: 13, fontFamily: Fonts.medium },
 
   // Amigos
   emptyText: { fontSize: 14, fontFamily: Fonts.regular, textAlign: 'center', paddingVertical: 8 },

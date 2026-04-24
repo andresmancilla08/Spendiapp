@@ -51,6 +51,8 @@ export function useExpenseGroups(userId: string): UseExpenseGroupsResult {
     const unsub = onSnapshot(q, (snap) => {
       setGroups(snap.docs.map((d) => ({ id: d.id, ...d.data() } as ExpenseGroup)));
       setLoading(false);
+    }, () => {
+      setLoading(false);
     });
 
     return unsub;
@@ -132,6 +134,8 @@ export function useGroupExpenses(groupId: string): UseGroupExpensesResult {
 
     const unsub = onSnapshot(q, (snap) => {
       setExpenses(snap.docs.map((d) => ({ id: d.id, ...d.data() } as GroupExpense)));
+      setLoading(false);
+    }, () => {
       setLoading(false);
     });
 

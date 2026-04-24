@@ -39,6 +39,12 @@ interface Feature {
 // Catálogo curado de funcionalidades principales de la app — sin duplicados ni versiones.
 const APP_FEATURES: Feature[] = [
   {
+    icon: 'sparkles-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.uiPolish.title',
+    items: ['whatsNew.uiPolish.item1', 'whatsNew.uiPolish.item2', 'whatsNew.uiPolish.item3'],
+  },
+  {
     icon: 'bar-chart-outline',
     colorKey: 'primary',
     titleKey: 'whatsNew.budget.title',

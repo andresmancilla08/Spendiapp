@@ -215,7 +215,36 @@
       "ocean": "Oceano",
       "ember": "Brace",
       "lavender": "Lavanda",
-      "slate": "Ardesia"
+      "slate": "Ardesia",
+      "deepWaterPastel": "Acque Profonde Pastello",
+      "sunsetPastel": "Tramonto Pastello",
+      "forestPastel": "Foresta Pastello",
+      "midnightPastel": "Mezzanotte Pastello",
+      "rosePastel": "Rosa Pastello",
+      "oceanPastel": "Oceano Pastello",
+      "emberPastel": "Brace Pastello",
+      "lavenderPastel": "Lavanda Pastello",
+      "slatePastel": "Ardesia Pastello",
+      "sakura": "Sakura",
+      "nordic": "Nordica",
+      "cottonCandy": "Cotone Dolce",
+      "peach": "Pesca",
+      "mint": "Menta",
+      "aurora": "Aurora",
+      "mocha": "Mocaccino",
+      "sakuraPastel": "Sakura Pastello",
+      "nordicPastel": "Nordica Pastello",
+      "cottonCandyPastel": "Cotone Dolce Pastello",
+      "peachPastel": "Pesca Pastello",
+      "mintPastel": "Menta Pastello",
+      "auroraPastel": "Aurora Pastello",
+      "mochaPastel": "Mocaccino Pastello",
+      "group": {
+        "classic": "Classiche",
+        "pastel": "Pastello",
+        "new": "Nuove",
+        "newPastel": "Nuove Pastello"
+      }
     },
     "notifications": {
       "label": "Notifiche",
@@ -991,6 +1020,12 @@
       "item1": "Il dialogo di modifica carta si adatta all'altezza del contenuto senza scorrimento inutile",
       "item2": "Il pannello inferiore occupa solo lo spazio necessario per i campi visibili",
       "item3": "Tutto visibile a colpo d'occhio durante la modifica, senza dover scorrere"
+    },
+    "uiPolish": {
+      "title": "Miglioramenti di design e correzioni",
+      "item1": "Nuovo selettore tab con bordi completamente arrotondati in tutta l'app",
+      "item2": "Tavolozze riorganizzate in 2 gruppi (Classiche / Pastello) con nomi tradotti correttamente",
+      "item3": "Correzione: la schermata delle spese di gruppo non rimane più bloccata in caricamento"
     }
   },
   "incomeClaim": {
@@ -1037,6 +1072,8 @@
     "noFriends": "Non hai ancora amici su Spendia",
     "sentByLabel": "INVIATO DA",
     "sentToLabel": "INVIATO A",
+    "deleteRequestConfirm": "Non puoi eliminare questa entrata direttamente. Verrà inviata una richiesta a chi l'ha registrata per eliminarla.",
+    "deleteRequestSent": "Richiesta di eliminazione inviata",
     "chip": {
       "sentBy": "Inviato da {{name}}",
       "sentTo": "Inviato a {{name}}"

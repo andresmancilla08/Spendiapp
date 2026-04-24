@@ -215,7 +215,36 @@
       "ocean": "Ocean",
       "ember": "Ember",
       "lavender": "Lavender",
-      "slate": "Slate"
+      "slate": "Slate",
+      "deepWaterPastel": "Deep Water Pastel",
+      "sunsetPastel": "Sunset Pastel",
+      "forestPastel": "Forest Pastel",
+      "midnightPastel": "Midnight Pastel",
+      "rosePastel": "Rose Pastel",
+      "oceanPastel": "Ocean Pastel",
+      "emberPastel": "Ember Pastel",
+      "lavenderPastel": "Lavender Pastel",
+      "slatePastel": "Slate Pastel",
+      "sakura": "Sakura",
+      "nordic": "Nordic",
+      "cottonCandy": "Cotton Candy",
+      "peach": "Peach",
+      "mint": "Mint",
+      "aurora": "Aurora",
+      "mocha": "Mocha",
+      "sakuraPastel": "Sakura Pastel",
+      "nordicPastel": "Nordic Pastel",
+      "cottonCandyPastel": "Cotton Candy Pastel",
+      "peachPastel": "Peach Pastel",
+      "mintPastel": "Mint Pastel",
+      "auroraPastel": "Aurora Pastel",
+      "mochaPastel": "Mocha Pastel",
+      "group": {
+        "classic": "Classic",
+        "pastel": "Pastel",
+        "new": "New",
+        "newPastel": "New Pastel"
+      }
     },
     "notifications": {
       "label": "Notifications",
@@ -991,6 +1020,12 @@
       "item1": "The edit card dialog now fits its content without unnecessary scrolling",
       "item2": "The bottom sheet only takes up as much space as its visible fields require",
       "item3": "Everything visible at a glance when editing — no scrolling needed"
+    },
+    "uiPolish": {
+      "title": "Design improvements and fixes",
+      "item1": "New fully rounded tab selector applied across the entire app",
+      "item2": "Palettes reorganized into 2 groups (Classic / Pastel) with correctly translated names",
+      "item3": "Fix: group expense screen no longer gets stuck on loading"
     }
   },
   "incomeClaim": {
@@ -1037,6 +1072,8 @@
     "noFriends": "You have no friends on Spendia yet",
     "sentByLabel": "SENT BY",
     "sentToLabel": "SENT TO",
+    "deleteRequestConfirm": "You cannot delete this income directly. A request will be sent to whoever registered it to delete it.",
+    "deleteRequestSent": "Deletion request sent",
     "chip": {
       "sentBy": "Sent by {{name}}",
       "sentTo": "Sent to {{name}}"

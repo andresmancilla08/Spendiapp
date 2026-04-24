@@ -215,7 +215,36 @@
       "ocean": "Océano",
       "ember": "Brasa",
       "lavender": "Lavanda",
-      "slate": "Pizarra"
+      "slate": "Pizarra",
+      "deepWaterPastel": "Aguas Profundas Pastel",
+      "sunsetPastel": "Atardecer Pastel",
+      "forestPastel": "Bosque Pastel",
+      "midnightPastel": "Medianoche Pastel",
+      "rosePastel": "Rosa Pastel",
+      "oceanPastel": "Océano Pastel",
+      "emberPastel": "Brasa Pastel",
+      "lavenderPastel": "Lavanda Pastel",
+      "slatePastel": "Pizarra Pastel",
+      "sakura": "Sakura",
+      "nordic": "Nórdica",
+      "cottonCandy": "Algodón",
+      "peach": "Melocotón",
+      "mint": "Menta",
+      "aurora": "Aurora",
+      "mocha": "Moca",
+      "sakuraPastel": "Sakura Pastel",
+      "nordicPastel": "Nórdica Pastel",
+      "cottonCandyPastel": "Algodón Pastel",
+      "peachPastel": "Melocotón Pastel",
+      "mintPastel": "Menta Pastel",
+      "auroraPastel": "Aurora Pastel",
+      "mochaPastel": "Moca Pastel",
+      "group": {
+        "classic": "Clásicas",
+        "pastel": "Pastel",
+        "new": "Nuevas",
+        "newPastel": "Nuevas Pastel"
+      }
     },
     "notifications": {
       "label": "Notificaciones",
@@ -992,6 +1021,12 @@
       "item1": "El diálogo de editar tarjeta ahora se ajusta a su contenido sin scroll innecesario",
       "item2": "La hoja inferior ocupa solo el espacio necesario según los campos visibles",
       "item3": "Todo visible de un vistazo al editar, sin necesidad de desplazarse"
+    },
+    "uiPolish": {
+      "title": "Diseño mejorado y correcciones",
+      "item1": "Nuevo selector de tabs con bordes totalmente redondeados aplicado en toda la app",
+      "item2": "Paletas organizadas en 2 grupos (Clásicas / Pastel) con nombres correctamente traducidos",
+      "item3": "Corrección: la pantalla de gastos grupales ya no se queda pegada en carga"
     }
   },
   "incomeClaim": {
@@ -1038,6 +1073,8 @@
     "noFriends": "Aún no tienes amigos en Spendia",
     "sentByLabel": "ENVIADO POR",
     "sentToLabel": "ENVIADO A",
+    "deleteRequestConfirm": "No puedes eliminar este ingreso directamente. Se enviará una solicitud a quien lo registró para que lo elimine.",
+    "deleteRequestSent": "Solicitud de eliminación enviada",
     "chip": {
       "sentBy": "Enviado por {{name}}",
       "sentTo": "Enviado a {{name}}"
