@@ -128,7 +128,7 @@ export default function ExpenseGroupDetailScreen() {
     }
     setSaving(true);
     try {
-      await addExpense(descInput.trim(), amount, paidById, splitIds);
+      await addExpense(descInput.trim(), amount, paidById, splitIds, user?.uid);
       showToast(t('expenseGroups.addExpense.add'), 'success');
       closeDialog();
     } catch {
@@ -340,7 +340,10 @@ export default function ExpenseGroupDetailScreen() {
                       return (
                         <TouchableOpacity
                           key={exp.id}
-                          onLongPress={() => !isSettled && openDeleteExpense(exp.id)}
+                          onLongPress={() => {
+                            const isCreator = !exp.createdByUid || exp.createdByUid === user?.uid;
+                            if (!isSettled && isCreator) openDeleteExpense(exp.id);
+                          }}
                           activeOpacity={0.8}
                           style={[styles.expenseCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
                         >

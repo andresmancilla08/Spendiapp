@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   collection, query, where, onSnapshot, addDoc, updateDoc,
   deleteDoc, doc, serverTimestamp,
@@ -10,11 +10,21 @@ import { Friendship } from '../types/friend';
 export function useFriends(uid: string) {
   const fromRef = useRef<Record<string, Friendship>>({});
   const toRef = useRef<Record<string, Friendship>>({});
+  const q1Done = useRef(false);
+  const q2Done = useRef(false);
   const [friendships, setFriendships] = useState<Friendship[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const resolveLoading = useCallback(() => {
+    if (q1Done.current && q2Done.current) setLoading(false);
+  }, []);
+
   useEffect(() => {
-    if (!uid) return;
+    if (!uid) { setLoading(false); return; }
+
+    q1Done.current = false;
+    q2Done.current = false;
+    setLoading(true);
 
     const merge = () => {
       setFriendships(Object.values({ ...fromRef.current, ...toRef.current }));
@@ -29,7 +39,8 @@ export function useFriends(uid: string) {
         fromRef.current[d.id] = { id: d.id, ...d.data() } as Friendship;
       });
       merge();
-      setLoading(false);
+      q1Done.current = true;
+      resolveLoading();
     });
 
     const unsub2 = onSnapshot(q2,
@@ -39,11 +50,13 @@ export function useFriends(uid: string) {
           toRef.current[d.id] = { id: d.id, ...d.data() } as Friendship;
         });
         merge();
-        setLoading(false);
+        q2Done.current = true;
+        resolveLoading();
       },
       (error) => {
         console.error('[useFriends] incoming query error:', error.code, error.message);
-        setLoading(false);
+        q2Done.current = true;
+        resolveLoading();
       },
     );
 
@@ -51,7 +64,7 @@ export function useFriends(uid: string) {
       unsub1();
       unsub2();
     };
-  }, [uid]);
+  }, [uid, resolveLoading]);
 
   const acceptedFriends = friendships.filter((f) => f.status === 'accepted');
   const incomingRequests = friendships.filter(

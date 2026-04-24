@@ -14,6 +14,7 @@ export interface Transaction {
   isFixed?: boolean;
   isVirtualFixed?: boolean; // true cuando es una copia virtual de un fijo en otro mes
   fixedCancelledFrom?: Date; // si está seteado, el fijo no aparece desde este mes en adelante
+  fixedSkipMonths?: string[]; // meses a saltar: ["2026_3", "2026_4"] → año_mesIndex
   // Tarjeta
   cardId?: string;
   // Cuotas

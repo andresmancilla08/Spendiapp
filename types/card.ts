@@ -9,4 +9,5 @@ export interface Card {
   nickname: string;
   isDefault: boolean;
   createdAt: Date;
+  cutoffDay?: number; // Día de corte de tarjeta crédito (1-28)
 }

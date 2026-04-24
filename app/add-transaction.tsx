@@ -362,6 +362,16 @@ export default function AddTransactionScreen() {
   const selectedCard = cards.find((c) => c.id === selectedCardId) ?? null;
   const isCredit = selectedCard?.type === 'credit';
   const showInstallments = isCredit && installmentCount > 1;
+
+  // Ajuste automático de fecha por fecha de corte de tarjeta crédito
+  const cutoffAdjusted =
+    isCredit &&
+    type === 'expense' &&
+    !!selectedCard?.cutoffDay &&
+    selectedDate.getDate() <= selectedCard.cutoffDay;
+  const effectiveDate = cutoffAdjusted
+    ? new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1)
+    : selectedDate;
   const teaValue = teaInput !== '' ? parseFloat(teaInput) : null;
   const teaValid = !showInstallments || !withInterest || (teaValue !== null && teaValue > 0 && teaValue <= 200);
 
@@ -393,7 +403,7 @@ export default function AddTransactionScreen() {
           amount: parsedAmount,
           category,
           description: description.trim(),
-          date: selectedDate,
+          date: effectiveDate,
           cardId: selectedCardId ?? undefined,
         });
       } else if (isShared && sharedParticipants.length > 0) {
@@ -416,7 +426,7 @@ export default function AddTransactionScreen() {
           installmentCount: isInstallment ? installmentCount : 1,
           withInterest: isInstallment ? withInterest : false,
           teaValue: isInstallment ? teaValueNum : null,
-          selectedDate,
+          selectedDate: effectiveDate,
           sharedType: type === 'income' ? 'income_claim' : 'expense_share',
         });
       } else {
@@ -432,7 +442,7 @@ export default function AddTransactionScreen() {
         };
         if (isInstallment) {
           const amounts = calculateInstallments(parsedAmount, installmentCount, withInterest ? teaValueNum : null);
-          const dates = calculateInstallmentDates(selectedDate, installmentCount);
+          const dates = calculateInstallmentDates(effectiveDate, installmentCount);
           const groupId = Crypto.randomUUID();
           const batch = writeBatch(db);
           amounts.forEach((amt, i) => {
@@ -453,7 +463,7 @@ export default function AddTransactionScreen() {
           await addDoc(collection(db, 'transactions'), {
             ...baseDoc,
             amount: parsedAmount,
-            date: Timestamp.fromDate(selectedDate),
+            date: Timestamp.fromDate(effectiveDate),
           });
         }
       }
@@ -833,6 +843,16 @@ export default function AddTransactionScreen() {
                   />
                 </View>
               </TouchableOpacity>
+
+              {/* Cutoff adjustment notice */}
+              {cutoffAdjusted && (
+                <View style={[styles.cutoffNotice, { backgroundColor: colors.primaryLight, borderTopColor: colors.border }]}>
+                  <Ionicons name="information-circle" size={14} color={colors.primary} />
+                  <Text style={[styles.cutoffNoticeText, { color: colors.primary }]}>
+                    {t('addTransaction.cutoffAdjusted', { day: selectedCard?.cutoffDay })}
+                  </Text>
+                </View>
+              )}
 
               {/* Inline date picker */}
               {datePickerOpen && (
@@ -1323,6 +1343,19 @@ const styles = StyleSheet.create({
   },
   dateChevron: {
     marginTop: 1,
+  },
+  cutoffNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+  },
+  cutoffNoticeText: {
+    flex: 1,
+    fontSize: 12,
+    fontFamily: Fonts.medium,
   },
   datePickerWrap: {
     marginBottom: 20,

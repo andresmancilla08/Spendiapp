@@ -39,7 +39,7 @@ interface Feature {
 // Lista limpia y única de todas las funciones de la app (sin repetidos ni supersedidas).
 const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
   {
-    version: '2.13.0',
+    version: '2.13.3',
     features: [
       {
         icon: 'people-outline',
@@ -52,6 +52,12 @@ const VERSION_HISTORY: { version: string; features: Feature[] }[] = [
         colorKey: 'success',
         titleKey: 'whatsNew.responsiveViewer.title',
         items: ['whatsNew.responsiveViewer.item1', 'whatsNew.responsiveViewer.item2', 'whatsNew.responsiveViewer.item3'],
+      },
+      {
+        icon: 'contract-outline',
+        colorKey: 'success',
+        titleKey: 'whatsNew.editCardDialogFit.title',
+        items: ['whatsNew.editCardDialogFit.item1', 'whatsNew.editCardDialogFit.item2', 'whatsNew.editCardDialogFit.item3'],
       },
     ],
   },

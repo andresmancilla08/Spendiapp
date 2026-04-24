@@ -21,6 +21,10 @@ import {
   Timestamp,
   addDoc,
   collection,
+  getDocs,
+  query,
+  where,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../context/ThemeContext';
@@ -99,9 +103,13 @@ export default function TransactionDetailScreen() {
   const { deleteSentIncome } = useSentIncome();
   const { showToast } = useToast();
 
+  type DeleteStep = 'idle' | 'scope' | 'confirm';
+  type DeleteScope = 'single' | 'fromNow' | 'all';
+
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [duplicateLoading, setDuplicateLoading] = useState(false);
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<DeleteStep>('idle');
+  const [deleteScope, setDeleteScope] = useState<DeleteScope>('fromNow');
 
   const CATEGORY_LABELS: Record<string, string> = {
     food: t('categories.names.food'),
@@ -175,6 +183,19 @@ export default function TransactionDetailScreen() {
     }
   }, [transaction, setLastAction, router]);
 
+  const handleDeletePress = useCallback(() => {
+    if (!transaction) return;
+    if (transaction.isFixed) {
+      setDeleteScope('fromNow');
+      setDeleteStep('scope');
+    } else if (transaction.isInstallment) {
+      setDeleteScope('single');
+      setDeleteStep('scope');
+    } else {
+      setDeleteStep('confirm');
+    }
+  }, [transaction]);
+
   const handleDelete = useCallback(async () => {
     if (!transaction) return;
     setDeleteLoading(true);
@@ -188,7 +209,6 @@ export default function TransactionDetailScreen() {
           description: transaction.description,
         });
       } else if (transaction.sentIncomeTransactionId) {
-        // Gasto con ingreso vinculado: eliminar ambos en batch
         await deleteSentIncome({
           senderTransactionId: getActualId(transaction),
           incomeTransactionId: transaction.sentIncomeTransactionId,
@@ -199,9 +219,33 @@ export default function TransactionDetailScreen() {
           amount: transaction.amount,
         });
       } else if (transaction.isFixed) {
-        await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
-          fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
-        });
+        const txId = getActualId(transaction);
+        if (deleteScope === 'single') {
+          const monthKey = `${viewYear}_${viewMonth}`;
+          await updateDoc(doc(db, 'transactions', txId), {
+            fixedSkipMonths: [...(transaction.fixedSkipMonths ?? []), monthKey],
+          });
+        } else if (deleteScope === 'fromNow') {
+          await updateDoc(doc(db, 'transactions', txId), {
+            fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
+          });
+        } else {
+          await deleteDoc(doc(db, 'transactions', txId));
+        }
+      } else if (transaction.isInstallment && transaction.installmentGroupId) {
+        if (deleteScope === 'single') {
+          await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
+        } else {
+          const q = query(
+            collection(db, 'transactions'),
+            where('installmentGroupId', '==', transaction.installmentGroupId),
+            where('installmentNumber', '>=', transaction.installmentNumber ?? 1),
+          );
+          const snap = await getDocs(q);
+          const batch = writeBatch(db);
+          snap.docs.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
       } else {
         await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
       }
@@ -215,7 +259,7 @@ export default function TransactionDetailScreen() {
       showToast(t('history.edit.deleteError'), 'error');
       setDeleteLoading(false);
     }
-  }, [transaction, currentUserUid, currentUserName, viewYear, viewMonth, deleteSharedTransaction, setLastAction, router]);
+  }, [transaction, currentUserUid, currentUserName, viewYear, viewMonth, deleteScope, deleteSharedTransaction, setLastAction, router]);
 
   useEffect(() => {
     if (!transaction) {
@@ -250,6 +294,8 @@ export default function TransactionDetailScreen() {
 
   // ── Shared expense display info ──────────────────────────────────────────────
   const isOwner = transaction.sharedOwnerUid === currentUserUid;
+  const isReceivedSentIncome = transaction.isSentIncome === true;
+  const canModify = !isReceivedSentIncome && (!transaction.isShared || isOwner);
   const ownerParticipant = transaction.sharedParticipants?.find(
     (p) => p.uid === transaction.sharedOwnerUid,
   );
@@ -527,16 +573,121 @@ export default function TransactionDetailScreen() {
                 {t('history.edit.fixedLocked')}
               </Text>
             </View>
-          ) : confirmingDelete ? (
+          ) : deleteStep === 'scope' ? (
+            /* ── Scope picker ── */
+            <View style={[styles.confirmDeleteWrap, { backgroundColor: colors.surfaceElevated, borderRadius: 16, padding: 14, gap: 10 }]}>
+              <Text style={[styles.confirmDeleteText, { color: colors.textPrimary, fontSize: 13, marginBottom: 2 }]}>
+                {t('history.edit.scopePickerTitle')}
+              </Text>
+              {transaction.isFixed ? (
+                <>
+                  {(['single', 'fromNow', 'all'] as const).map((scope) => {
+                    const labels: Record<string, string> = {
+                      single: t('history.edit.scopeOnlyThis'),
+                      fromNow: t('history.edit.scopeFromNow'),
+                      all: t('history.edit.scopeAll'),
+                    };
+                    const descs: Record<string, string> = {
+                      single: t('history.edit.scopeOnlyThisDesc'),
+                      fromNow: t('history.edit.scopeFromNowDesc'),
+                      all: t('history.edit.scopeAllDesc'),
+                    };
+                    const selected = deleteScope === scope;
+                    return (
+                      <TouchableOpacity
+                        key={scope}
+                        onPress={() => setDeleteScope(scope)}
+                        activeOpacity={0.75}
+                        style={[styles.scopeOption, {
+                          borderColor: selected ? colors.primary : colors.border,
+                          backgroundColor: selected ? `${colors.primary}10` : colors.surface,
+                        }]}
+                      >
+                        <View style={[styles.scopeRadio, { borderColor: selected ? colors.primary : colors.textTertiary }]}>
+                          {selected && <View style={[styles.scopeRadioDot, { backgroundColor: colors.primary }]} />}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.scopeLabel, { color: colors.textPrimary }]}>{labels[scope]}</Text>
+                          <Text style={[styles.scopeDesc, { color: colors.textTertiary }]}>{descs[scope]}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </>
+              ) : (
+                <>
+                  {(['single', 'fromNow'] as const).map((scope) => {
+                    const labels: Record<string, string> = {
+                      single: t('history.edit.scopeOnlyThisInstallment'),
+                      fromNow: t('history.edit.scopeFromNowInstallment'),
+                    };
+                    const descs: Record<string, string> = {
+                      single: t('history.edit.scopeOnlyThisInstallmentDesc'),
+                      fromNow: t('history.edit.scopeFromNowInstallmentDesc'),
+                    };
+                    const selected = deleteScope === scope;
+                    return (
+                      <TouchableOpacity
+                        key={scope}
+                        onPress={() => setDeleteScope(scope)}
+                        activeOpacity={0.75}
+                        style={[styles.scopeOption, {
+                          borderColor: selected ? colors.primary : colors.border,
+                          backgroundColor: selected ? `${colors.primary}10` : colors.surface,
+                        }]}
+                      >
+                        <View style={[styles.scopeRadio, { borderColor: selected ? colors.primary : colors.textTertiary }]}>
+                          {selected && <View style={[styles.scopeRadioDot, { backgroundColor: colors.primary }]} />}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.scopeLabel, { color: colors.textPrimary }]}>{labels[scope]}</Text>
+                          <Text style={[styles.scopeDesc, { color: colors.textTertiary }]}>{descs[scope]}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </>
+              )}
+              <View style={styles.confirmDeleteBtns}>
+                <TouchableOpacity
+                  style={[styles.confirmBtn, { backgroundColor: colors.error, flex: 1 }]}
+                  onPress={() => setDeleteStep('confirm')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
+                    {t('history.edit.scopeContinue')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.confirmBtn, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border, flex: 1 }]}
+                  onPress={() => setDeleteStep('idle')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
+                    {t('history.edit.confirmDeleteCancel')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : deleteStep === 'confirm' ? (
+            /* ── Confirm delete ── */
             <View style={[styles.confirmDeleteWrap, { backgroundColor: colors.errorLight, borderRadius: 16, padding: 16 }]}>
               <Text style={[styles.confirmDeleteText, { color: colors.error }]}>
                 {transaction.isShared && !isOwner
                   ? t('sharedExpense.deleteRequestConfirm')
-                  : transaction.isFixed
-                    ? t('history.edit.confirmCancelFixed')
-                    : transaction.isShared
-                      ? t('sharedExpense.deleteConfirm')
-                      : t('history.edit.confirmDelete')}
+                  : transaction.isFixed && deleteScope === 'single'
+                    ? t('history.edit.scopeConfirmFixed_single')
+                    : transaction.isFixed && deleteScope === 'all'
+                      ? t('history.edit.scopeConfirmFixed_all')
+                      : transaction.isFixed
+                        ? t('history.edit.confirmCancelFixed')
+                        : transaction.isInstallment && deleteScope === 'fromNow'
+                          ? t('history.edit.scopeConfirmInstallment_fromNow')
+                          : transaction.isInstallment
+                            ? t('history.edit.scopeConfirmInstallment_single')
+                            : transaction.isShared
+                              ? t('sharedExpense.deleteConfirm')
+                              : t('history.edit.confirmDelete')}
               </Text>
               <View style={styles.confirmDeleteBtns}>
                 <TouchableOpacity
@@ -550,15 +701,13 @@ export default function TransactionDetailScreen() {
                     : <Text style={[styles.confirmBtnText, { color: '#FFFFFF' }]}>
                         {transaction.isShared && !isOwner
                           ? t('sharedExpense.deleteRequestButton')
-                          : transaction.isFixed
-                            ? t('history.edit.confirmCancelFixedYes')
-                            : t('history.edit.confirmDeleteYes')}
+                          : t('history.edit.confirmDeleteYes')}
                       </Text>
                   }
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.confirmBtn, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border, flex: 1 }]}
-                  onPress={() => setConfirmingDelete(false)}
+                  onPress={() => setDeleteStep(transaction.isFixed || transaction.isInstallment ? 'scope' : 'idle')}
                   activeOpacity={0.8}
                 >
                   <Text style={[styles.confirmBtnText, { color: colors.textSecondary }]}>
@@ -568,37 +717,42 @@ export default function TransactionDetailScreen() {
               </View>
             </View>
           ) : (
+            /* ── Action grid ── */
             <View style={styles.actionGrid}>
-              <TouchableOpacity
-                style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
-                onPress={handleEdit}
-                activeOpacity={0.75}
-                disabled={isLoading}
-              >
-                <Ionicons name="create-outline" size={22} color={colors.primary} />
-                <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
-                  {t('history.detail.editButton')}
-                </Text>
-              </TouchableOpacity>
+              {canModify && (
+                <TouchableOpacity
+                  style={[styles.actionTile, { backgroundColor: `${colors.primary}15` }]}
+                  onPress={handleEdit}
+                  activeOpacity={0.75}
+                  disabled={isLoading}
+                >
+                  <Ionicons name="create-outline" size={22} color={colors.primary} />
+                  <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
+                    {t('history.detail.editButton')}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-              <TouchableOpacity
-                style={[
-                  styles.actionTile,
-                  { backgroundColor: `${colors.tertiary}18` },
-                  duplicateLoading && styles.buttonDisabled,
-                ]}
-                onPress={handleDuplicate}
-                activeOpacity={0.75}
-                disabled={isLoading}
-              >
-                {duplicateLoading
-                  ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
-                  : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
-                }
-                <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
-                  {t('history.edit.duplicateButton')}
-                </Text>
-              </TouchableOpacity>
+              {canModify && (
+                <TouchableOpacity
+                  style={[
+                    styles.actionTile,
+                    { backgroundColor: `${colors.tertiary}18` },
+                    duplicateLoading && styles.buttonDisabled,
+                  ]}
+                  onPress={handleDuplicate}
+                  activeOpacity={0.75}
+                  disabled={isLoading}
+                >
+                  {duplicateLoading
+                    ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
+                    : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
+                  }
+                  <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
+                    {t('history.edit.duplicateButton')}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={[
@@ -606,7 +760,7 @@ export default function TransactionDetailScreen() {
                   { backgroundColor: colors.errorLight },
                   deleteLoading && styles.buttonDisabled,
                 ]}
-                onPress={() => setConfirmingDelete(true)}
+                onPress={transaction.isShared && !isOwner ? () => setDeleteStep('confirm') : handleDeletePress}
                 activeOpacity={0.75}
                 disabled={isLoading}
               >
@@ -802,5 +956,40 @@ const styles = StyleSheet.create({
   confirmBtnText: {
     fontSize: 12,
     fontFamily: Fonts.semiBold,
+  },
+
+  // Scope picker
+  scopeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  scopeRadio: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  scopeRadioDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  scopeLabel: {
+    fontSize: 13,
+    fontFamily: Fonts.semiBold,
+    marginBottom: 1,
+  },
+  scopeDesc: {
+    fontSize: 11,
+    fontFamily: Fonts.regular,
+    lineHeight: 14,
   },
 });

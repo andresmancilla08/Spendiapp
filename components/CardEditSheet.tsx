@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Modal,
   FlatList,
+  ScrollView,
   StyleSheet,
   ActivityIndicator,
   Switch,
@@ -38,6 +39,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
   const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
   const [cardType, setCardType] = useState<CardType>('debit');
   const [nickname, setNickname] = useState('');
+  const [cutoffDayInput, setCutoffDayInput] = useState('');
   const [isDefault, setIsDefault] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -51,6 +53,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
       setSelectedBank(bank);
       setCardType(card.type);
       setNickname(card.nickname);
+      setCutoffDayInput(card.cutoffDay ? String(card.cutoffDay) : '');
       setIsDefault(card.isDefault);
       setStep('details');
       setError('');
@@ -80,6 +83,11 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
     if (!card || !selectedBank) return;
     const trimmed = nickname.trim();
     if (!trimmed) { setError(t('cardForm.nicknameError')); return; }
+    const cutoffDayNum = cutoffDayInput.trim() ? parseInt(cutoffDayInput.trim(), 10) : undefined;
+    if (cutoffDayNum !== undefined && (isNaN(cutoffDayNum) || cutoffDayNum < 1 || cutoffDayNum > 28)) {
+      setError(t('cardForm.cutoffDayError'));
+      return;
+    }
     setError('');
     setSaving(true);
     try {
@@ -92,6 +100,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
         type: cardType,
         nickname: trimmed,
         isDefault,
+        cutoffDay: cutoffDayNum ?? null,
       });
       handleClose();
     } catch {
@@ -158,7 +167,13 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
 
         {/* Paso 2: Editar detalles */}
         {step === 'details' && (
-          <View style={styles.detailsForm}>
+          <>
+          <ScrollView
+            style={styles.detailsScroll}
+            contentContainerStyle={styles.detailsForm}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             {/* Cambiar banco */}
             {selectedBank && (
               <TouchableOpacity
@@ -200,6 +215,30 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
               ))}
             </View>
 
+            {/* Fecha de corte — solo crédito */}
+            {cardType === 'credit' && (
+              <>
+                <Text style={[styles.fieldLabel, { color: colors.textSecondary, marginTop: 8 }]}>
+                  {t('cardForm.cutoffDayLabel')}
+                </Text>
+                <Text style={[styles.defaultHint, { color: colors.textTertiary, marginBottom: 6 }]}>
+                  {t('cardForm.cutoffDayHint')}
+                </Text>
+                <TextInput
+                  style={[
+                    styles.nicknameInput,
+                    { borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary },
+                  ]}
+                  placeholder={t('cardForm.cutoffDayPlaceholder')}
+                  placeholderTextColor={colors.textTertiary}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  value={cutoffDayInput}
+                  onChangeText={(v) => { setError(''); setCutoffDayInput(v.replace(/[^0-9]/g, '')); }}
+                />
+              </>
+            )}
+
             {/* Nombre / apodo */}
             <View style={styles.labelRow}>
               <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('cardForm.nicknameLabel')}</Text>
@@ -239,7 +278,10 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
               />
             </View>
 
-            {/* Botón guardar */}
+          </ScrollView>
+
+          {/* Botón guardar — fijo fuera del scroll */}
+          <View style={styles.bottomBar}>
             <TouchableOpacity
               style={[styles.saveBtn, { backgroundColor: colors.primary }, !canSave && { opacity: 0.4 }]}
               onPress={handleSave}
@@ -252,6 +294,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
               }
             </TouchableOpacity>
           </View>
+          </>
         )}
       </Animated.View>
     </Modal>
@@ -277,7 +320,9 @@ const styles = StyleSheet.create({
   bankList: { maxHeight: 380 },
   bankItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1 },
   bankItemText: { flex: 1, fontSize: 15, fontFamily: Fonts.medium },
-  detailsForm: { paddingHorizontal: 20, paddingTop: 4, gap: 12 },
+  detailsScroll: { flexShrink: 1 },
+  detailsForm: { paddingHorizontal: 20, paddingTop: 4, paddingBottom: 16, gap: 12 },
+  bottomBar: { paddingHorizontal: 20, paddingTop: 8 },
   changeBankRow: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10 },
   changeBankName: { flex: 1, fontSize: 15, fontFamily: Fonts.semiBold },
   changeBankAction: { flexDirection: 'row', alignItems: 'center', gap: 2 },

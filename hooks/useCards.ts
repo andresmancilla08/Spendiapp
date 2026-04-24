@@ -48,6 +48,7 @@ export function useCards(userId: string): UseCardsResult {
             nickname: v.nickname ?? v.lastFour ?? '',
             isDefault: v.isDefault ?? false,
             createdAt: (v.createdAt as Timestamp).toDate(),
+            cutoffDay: v.cutoffDay ?? undefined,
           };
         });
         // Sort client-side: más reciente primero
@@ -76,6 +77,7 @@ export async function addCard(
   type: CardType,
   nickname: string,
   isDefault = false,
+  cutoffDay?: number,
 ): Promise<string> {
   if (isDefault) {
     const snap = await getDocs(query(collection(db, 'cards'), where('userId', '==', userId)));
@@ -93,13 +95,14 @@ export async function addCard(
     nickname,
     isDefault,
     createdAt: Timestamp.fromDate(new Date()),
+    ...(cutoffDay ? { cutoffDay } : {}),
   });
   return ref.id;
 }
 
 export async function updateCard(
   cardId: string,
-  updates: { bankId?: string; bankName?: string; type?: CardType; nickname?: string; isDefault?: boolean },
+  updates: { bankId?: string; bankName?: string; type?: CardType; nickname?: string; isDefault?: boolean; cutoffDay?: number | null },
 ): Promise<void> {
   await updateDoc(doc(db, 'cards', cardId), updates);
 }
