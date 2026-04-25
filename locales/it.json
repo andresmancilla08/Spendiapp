@@ -37,9 +37,34 @@
     "forgotPin": "Hai dimenticato il PIN?",
     "forgotDialog": {
       "title": "Recupera PIN",
-      "description": "Inserisci la tua email e ti invieremo un link per reimpostare il tuo PIN.",
-      "send": "Invia link"
+      "description": "Inserisci la tua email e ti invieremo un codice di verifica.",
+      "send": "Invia codice"
     }
+  },
+  "forgotPinOtp": {
+    "title": "Controlla la tua email",
+    "subtitle": "Abbiamo inviato un codice a",
+    "timerExpires": "Il codice scade tra {{time}}",
+    "resendPrompt": "Non lo hai ricevuto?",
+    "resendLink": "Reinvia codice",
+    "verifyButton": "Verifica",
+    "errorWrong": "Codice errato. Riprova.",
+    "errorExpired": "Il codice è scaduto. Inviane uno nuovo.",
+    "errorTooMany": "Troppi tentativi. Invia un nuovo codice.",
+    "resentSuccess": "Codice reinviato",
+    "emailLabel": "Indirizzo email",
+    "sendButton": "Invia codice",
+    "errorEmailCheck": "Verifica la tua email e riprova."
+  },
+  "forgotPinReset": {
+    "title": "Crea il tuo nuovo PIN",
+    "subtitle": "Scegli 4 cifre facili da ricordare",
+    "newPinLabel": "NUOVO PIN",
+    "confirmPinLabel": "CONFERMA PIN",
+    "matchOk": "Corrispondono",
+    "matchFail": "Non corrispondono",
+    "saveButton": "Salva nuovo PIN",
+    "errorGeneric": "Impossibile aggiornare il PIN. Riprova."
   },
   "pinEntry": {
     "createTitle": "Crea il tuo PIN di accesso",
@@ -82,6 +107,7 @@
     "resetEmailSent": "Ti abbiamo inviato un'email per reimpostare il PIN",
     "resetEmailError": "Non siamo riusciti a inviare l'email. Controlla la tua email e riprova.",
     "wrongPin": "Il PIN inserito non è valido. Riprova.",
+    "invalidCredentials": "Email o PIN errati. Verifica i tuoi dati e riprova.",
     "wrongPinTitle": "PIN errato",
     "signOutError": "Impossibile disconnettersi",
     "genericError": "Si è verificato un errore. Riprova."

@@ -21,13 +21,14 @@ export async function createUserProfile(
   displayName: string,
   photoURL: string | null,
   email?: string | null,
+  forceUpdate?: boolean,
 ): Promise<void> {
   const userRef = doc(db, 'users', uid);
   const existing = await getDoc(userRef);
 
   if (existing.exists()) {
     const data = existing.data() as UserProfile;
-    const needsUpdate = !data.fullName || ABBREVIATED_PATTERN.test(data.userName);
+    const needsUpdate = forceUpdate || !data.fullName || ABBREVIATED_PATTERN.test(data.userName);
 
     if (needsUpdate) {
       const newUserName = await generateUniqueUserName(displayName);

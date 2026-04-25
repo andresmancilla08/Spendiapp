@@ -37,9 +37,34 @@
     "forgotPin": "Forgot your PIN?",
     "forgotDialog": {
       "title": "Recover PIN",
-      "description": "Enter your email and we will send you a link to reset your PIN.",
-      "send": "Send link"
+      "description": "Enter your email and we will send you a verification code.",
+      "send": "Send code"
     }
+  },
+  "forgotPinOtp": {
+    "title": "Check your email",
+    "subtitle": "We sent a code to",
+    "timerExpires": "Code expires in {{time}}",
+    "resendPrompt": "Didn't receive it?",
+    "resendLink": "Resend code",
+    "verifyButton": "Verify",
+    "errorWrong": "Incorrect code. Try again.",
+    "errorExpired": "The code expired. Send a new one.",
+    "errorTooMany": "Too many attempts. Send a new code.",
+    "resentSuccess": "Code resent",
+    "emailLabel": "Email address",
+    "sendButton": "Send code",
+    "errorEmailCheck": "Verify your email and try again."
+  },
+  "forgotPinReset": {
+    "title": "Create your new PIN",
+    "subtitle": "Choose 4 digits that are easy to remember",
+    "newPinLabel": "NEW PIN",
+    "confirmPinLabel": "CONFIRM PIN",
+    "matchOk": "Match",
+    "matchFail": "Don't match",
+    "saveButton": "Save new PIN",
+    "errorGeneric": "Could not update PIN. Try again."
   },
   "pinEntry": {
     "createTitle": "Create your access PIN",
@@ -82,6 +107,7 @@
     "resetEmailSent": "We sent you an email to reset your PIN",
     "resetEmailError": "We couldn't send the email. Check your email and try again.",
     "wrongPin": "The entered PIN is not valid. Please try again.",
+    "invalidCredentials": "Incorrect email or PIN. Please verify your details and try again.",
     "wrongPinTitle": "Incorrect PIN",
     "signOutError": "Could not sign out",
     "genericError": "An error occurred. Please try again."

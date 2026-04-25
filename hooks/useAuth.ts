@@ -11,7 +11,8 @@ import {
   onAuthStateChanged as firebaseOnAuthStateChanged,
   User,
 } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { auth, functions } from '../config/firebase';
 
 export interface AuthUser {
   uid: string;
@@ -65,6 +66,21 @@ export async function changePin(currentPin: string, newPin: string): Promise<voi
 
 export async function sendPinResetEmail(email: string): Promise<void> {
   await sendPasswordResetEmail(auth, email);
+}
+
+export async function sendOtpEmail(email: string): Promise<void> {
+  const fn = httpsCallable(functions, 'sendPinResetOtp');
+  await fn({ email });
+}
+
+export async function verifyOtp(email: string, otp: string): Promise<void> {
+  const fn = httpsCallable(functions, 'verifyPinResetOtp');
+  await fn({ email, otp });
+}
+
+export async function resetPinWithOtp(email: string, otp: string, newPin: string): Promise<void> {
+  const fn = httpsCallable(functions, 'resetPinWithOtp');
+  await fn({ email, otp, newPin });
 }
 
 export function onAuthStateChanged(callback: (user: AuthUser | null) => void) {
