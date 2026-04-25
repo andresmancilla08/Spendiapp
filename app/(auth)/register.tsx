@@ -20,6 +20,7 @@ import PageTitle from '../../components/PageTitle';
 import AppDialog from '../../components/AppDialog';
 import PinInput from '../../components/PinInput';
 import { registerWithEmailAndPin } from '../../hooks/useAuth';
+import { createUserProfile } from '../../hooks/useUserProfile';
 import { auth } from '../../config/firebase';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
@@ -34,13 +35,15 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [nameFocused, setNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const { setJustRegistered, setUser } = useAuthStore();
 
   const isNameValid = name.trim().length >= 2;
-  const isEmailValid = email.trim().length > 0 && email.includes('@');
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const showEmailError = emailTouched && email.trim().length > 0 && !isEmailValid;
   const isPinComplete = pin.length === 4;
   const canSubmit = isNameValid && isEmailValid && isPinComplete;
 
@@ -51,10 +54,13 @@ export default function RegisterScreen() {
     try {
       setJustRegistered(true);
       await registerWithEmailAndPin(name.trim(), email.trim().toLowerCase(), pin);
-      // onAuthStateChanged fires before updateProfile, so displayName is null in the store.
-      // Update it manually so the home screen shows the correct name immediately.
+      // onAuthStateChanged fires before updateProfile completes, so displayName may be null/email
+      // when _layout.tsx creates the Firestore profile. Force-correct it with the real name.
       const cu = auth.currentUser;
-      if (cu) setUser({ uid: cu.uid, email: cu.email, displayName: name.trim(), photoURL: cu.photoURL });
+      if (cu) {
+        setUser({ uid: cu.uid, email: cu.email, displayName: name.trim(), photoURL: cu.photoURL });
+        createUserProfile(cu.uid, name.trim(), null, email.trim().toLowerCase(), true).catch(() => {});
+      }
       setShowSuccess(true);
     } catch (e: any) {
       setJustRegistered(false);
@@ -81,7 +87,7 @@ export default function RegisterScreen() {
     color: colors.textPrimary,
   };
   const emailInputStyle = {
-    borderColor: emailFocused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
+    borderColor: showEmailError ? colors.error : emailFocused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
     backgroundColor: isDark ? 'rgba(0,172,193,0.07)' : colors.inputBackground,
     color: colors.textPrimary,
   };
@@ -163,11 +169,16 @@ export default function RegisterScreen() {
                     autoCorrect={false}
                     returnKeyType="done"
                     value={email}
-                    onChangeText={setEmail}
+                    onChangeText={(v) => { setEmail(v); }}
                     onFocus={() => setEmailFocused(true)}
-                    onBlur={() => setEmailFocused(false)}
+                    onBlur={() => { setEmailFocused(false); setEmailTouched(true); }}
                   />
                 </View>
+                {showEmailError && (
+                  <Text style={[styles.inputError, { color: colors.error }]}>
+                    {t('errors.invalidEmail')}
+                  </Text>
+                )}
               </View>
 
               {/* PIN */}
@@ -238,6 +249,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
   },
   inputWithIcon: { paddingLeft: 44 },
+  inputError: { fontSize: 12, fontFamily: Fonts.medium, marginTop: 4 },
   pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
   primaryButton: {
     height: 56,

@@ -8,13 +8,12 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import ScreenBackground from '../../components/ScreenBackground';
-import { sendPinResetEmail, getEmailProvider, loginWithEmailAndPin } from '../../hooks/useAuth';
+import { getEmailProvider, loginWithEmailAndPin } from '../../hooks/useAuth';
 import AppDialog from '../../components/AppDialog';
 import AppHeader from '../../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
@@ -28,49 +27,39 @@ export default function LoginEmailScreen() {
   const [email, setEmail] = useState('');
   const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
-  const [pinError, setPinError] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const [emailFocused, setEmailFocused] = useState(false);
-  const [dialog, setDialog] = useState<'google' | 'not_found' | null>(null);
-  const [forgotVisible, setForgotVisible] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotLoading, setForgotLoading] = useState(false);
+  const [dialog, setDialog] = useState<'google' | null>(null);
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
 
-  const isEmailValid = email.trim().length > 0 && email.includes('@');
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const isPinComplete = pin.length === 4;
   const canSubmit = isEmailValid && isPinComplete;
 
   const handleContinue = async () => {
-    setPinError(false);
+    setLoginError(null);
     setLoading(true);
     try {
       const provider = await getEmailProvider(email.trim().toLowerCase());
       if (provider === 'google') { setDialog('google'); return; }
-      else if (provider === 'none') { setDialog('not_found'); return; }
+      if (provider === 'none') {
+        setLoginError(t('errors.invalidCredentials'));
+        return;
+      }
       await loginWithEmailAndPin(email.trim().toLowerCase(), pin);
     } catch {
-      setPinError(true);
-      Alert.alert('Error', t('errors.wrongPin'));
+      setLoginError(t('errors.invalidCredentials'));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleForgotPin = () => { setForgotEmail(email); setForgotVisible(true); };
-
-  const handleSendReset = async () => {
-    setForgotLoading(true);
-    try {
-      await sendPinResetEmail(forgotEmail.trim());
-      setForgotVisible(false);
-      setForgotEmail('');
-      Alert.alert('', t('errors.resetEmailSent'));
-    } catch {
-      Alert.alert('Error', t('errors.resetEmailError'));
-    } finally {
-      setForgotLoading(false);
-    }
+  const handleForgotPin = () => {
+    router.push({
+      pathname: '/(auth)/forgot-pin-otp',
+      params: { email: email.trim() },
+    });
   };
 
   const transitionRef = useRef<ScreenTransitionRef>(null);
@@ -96,32 +85,6 @@ export default function LoginEmailScreen() {
           onPrimary={() => { setDialog(null); router.replace('/(auth)/login'); }}
           onSecondary={() => setDialog(null)}
         />
-        <AppDialog
-          visible={dialog === 'not_found'}
-          type="warning"
-          title={t('dialogs.emailNotFound.title')}
-          description={t('dialogs.emailNotFound.description')}
-          primaryLabel={t('dialogs.emailNotFound.primary')}
-          secondaryLabel={t('dialogs.emailNotFound.secondary')}
-          onPrimary={() => { setDialog(null); router.replace({ pathname: '/(auth)/register', params: { email } }); }}
-          onSecondary={() => setDialog(null)}
-        />
-        <AppDialog
-          visible={forgotVisible}
-          type="info"
-          title={t('loginEmail.forgotDialog.title')}
-          description={t('loginEmail.forgotDialog.description')}
-          primaryLabel={t('loginEmail.forgotDialog.send')}
-          secondaryLabel={t('common.cancel')}
-          onPrimary={handleSendReset}
-          onSecondary={() => { setForgotVisible(false); setForgotEmail(''); }}
-          loading={forgotLoading}
-          inputValue={forgotEmail}
-          onInputChange={setForgotEmail}
-          inputPlaceholder={t('loginEmail.emailPlaceholder')}
-          inputType="email"
-        />
-
         <AppHeader />
 
         <KeyboardAvoidingView
@@ -161,7 +124,7 @@ export default function LoginEmailScreen() {
                     autoCorrect={false}
                     returnKeyType="done"
                     value={email}
-                    onChangeText={(v) => { setEmail(v); setPinError(false); }}
+                    onChangeText={(v) => { setEmail(v); setLoginError(null); }}
                     onFocus={() => setEmailFocused(true)}
                     onBlur={() => setEmailFocused(false)}
                   />
@@ -173,7 +136,10 @@ export default function LoginEmailScreen() {
                   <Ionicons name="lock-closed-outline" size={14} color={colors.textSecondary} />
                   <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.enterTitle')}</Text>
                 </View>
-                <PinInput value={pin} onChange={(v) => { setPin(v); setPinError(false); }} error={pinError} />
+                <PinInput value={pin} onChange={(v) => { setPin(v); setLoginError(null); }} error={!!loginError} />
+                {loginError && (
+                  <Text style={[styles.errorLabel, { color: colors.error }]}>{loginError}</Text>
+                )}
               </View>
             </View>
           </ScrollView>
@@ -240,6 +206,7 @@ const styles = StyleSheet.create({
   },
   inputWithIcon: { paddingLeft: 44 },
   pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
+  errorLabel: { fontSize: 13, fontFamily: Fonts.medium, marginTop: 8, textAlign: 'left' },
   primaryButton: {
     height: 56,
     borderRadius: 50,
