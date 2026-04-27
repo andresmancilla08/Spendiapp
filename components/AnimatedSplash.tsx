@@ -93,13 +93,13 @@ export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C'
         toValue: glowAlpha,
         duration: 600,
         easing: ease,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.timing(glowScale, {
         toValue: 1,
         duration: 700,
         easing: Easing.out(Easing.back(1.4)),
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]);
 
@@ -109,14 +109,14 @@ export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C'
         toValue: 1,
         duration: 480,
         easing: ease,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.spring(logoScale, {
         toValue: 1,
         damping: 18,
         stiffness: 220,
         mass: 0.9,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]);
 
@@ -126,13 +126,13 @@ export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C'
         toValue: 1,
         duration: 340,
         easing: ease,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.timing(textTranslateY, {
         toValue: 0,
         duration: 360,
         easing: ease,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]);
 
@@ -141,7 +141,7 @@ export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C'
       toValue: 1,
       duration: 300,
       easing: ease,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     });
 
     // Fase 3 — letterSpacing collapse + scale settle (900–1420ms)
@@ -168,13 +168,13 @@ export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C'
         toValue: 1.10,
         duration: 220,
         easing: Easing.out(Easing.sin),
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.timing(glowBreath, {
         toValue: 1,
         duration: 320,
         easing: Easing.in(Easing.sin),
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]);
 
@@ -183,7 +183,7 @@ export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C'
       toValue: 1,
       duration: 360,
       easing: easeIn,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     });
 
     // Master sequence

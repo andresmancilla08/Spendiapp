@@ -142,14 +142,14 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
   const animateIn = useCallback(() => {
     Animated.timing(slideAnim, {
       toValue: 1, duration: 350,
-      easing: Easing.out(Easing.cubic), useNativeDriver: true,
+      easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web',
     }).start();
   }, [slideAnim]);
 
   const animateOut = useCallback((callback: () => void) => {
     Animated.timing(slideAnim, {
       toValue: 0, duration: 280,
-      easing: Easing.in(Easing.cubic), useNativeDriver: true,
+      easing: Easing.in(Easing.cubic), useNativeDriver: Platform.OS !== 'web',
     }).start(() => callback());
   }, [slideAnim]);
 

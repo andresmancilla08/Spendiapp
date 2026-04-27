@@ -65,7 +65,7 @@ export default function ForgotPinOtpScreen() {
           Animated.timing(resendOpacity, {
             toValue: 1,
             duration: 300,
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
             easing: Easing.out(Easing.cubic),
           }).start();
           return 0;
@@ -80,13 +80,13 @@ export default function ForgotPinOtpScreen() {
 
   const triggerShake = useCallback(() => {
     Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: -8, duration: 57, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: 8,  duration: 57, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: -6, duration: 57, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: 6,  duration: 57, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: -4, duration: 57, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: 4,  duration: 57, useNativeDriver: true, easing: Easing.linear }),
-      Animated.timing(shakeAnim, { toValue: 0,  duration: 57, useNativeDriver: true, easing: Easing.linear }),
+      Animated.timing(shakeAnim, { toValue: -8, duration: 57, useNativeDriver: Platform.OS !== 'web', easing: Easing.linear }),
+      Animated.timing(shakeAnim, { toValue: 8,  duration: 57, useNativeDriver: Platform.OS !== 'web', easing: Easing.linear }),
+      Animated.timing(shakeAnim, { toValue: -6, duration: 57, useNativeDriver: Platform.OS !== 'web', easing: Easing.linear }),
+      Animated.timing(shakeAnim, { toValue: 6,  duration: 57, useNativeDriver: Platform.OS !== 'web', easing: Easing.linear }),
+      Animated.timing(shakeAnim, { toValue: -4, duration: 57, useNativeDriver: Platform.OS !== 'web', easing: Easing.linear }),
+      Animated.timing(shakeAnim, { toValue: 4,  duration: 57, useNativeDriver: Platform.OS !== 'web', easing: Easing.linear }),
+      Animated.timing(shakeAnim, { toValue: 0,  duration: 57, useNativeDriver: Platform.OS !== 'web', easing: Easing.linear }),
     ]).start(() => setOtp(''));
   }, [shakeAnim]);
 

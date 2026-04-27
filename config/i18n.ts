@@ -15,18 +15,23 @@ export const LANGUAGES = [
   { code: 'it', label: 'IT', flag: '🇮🇹' },
 ];
 
+// Register instance at module load so useTranslation() works on first render
+const _initPromise = i18n.use(initReactI18next).init({
+  resources: { es: { translation: es }, en: { translation: en }, it: { translation: it } },
+  lng: 'es',
+  fallbackLng: 'es',
+  interpolation: { escapeValue: false },
+});
+
 export async function initI18n() {
+  await _initPromise;
   const saved = await AsyncStorage.getItem(LANGUAGE_KEY);
   const deviceLang = getLocales()[0]?.languageCode ?? 'es';
   const supported = LANGUAGES.map((l) => l.code);
   const lng = saved ?? (supported.includes(deviceLang) ? deviceLang : 'es');
-
-  await i18n.use(initReactI18next).init({
-    resources: { es: { translation: es }, en: { translation: en }, it: { translation: it } },
-    lng,
-    fallbackLng: 'es',
-    interpolation: { escapeValue: false },
-  });
+  if (lng !== i18n.language) {
+    await i18n.changeLanguage(lng);
+  }
 }
 
 export async function changeLanguage(code: string) {

@@ -1,4 +1,4 @@
-import { Animated, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { Animated, Platform, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { useRef } from 'react';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -21,7 +21,7 @@ export default function PressableScale({
   const handlePressIn = (e: any) => {
     Animated.spring(scale, {
       toValue: scaleValue,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
       damping: 15,
       stiffness: 500,
       mass: 0.8,
@@ -32,7 +32,7 @@ export default function PressableScale({
   const handlePressOut = (e: any) => {
     Animated.spring(scale, {
       toValue: 1,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
       damping: 15,
       stiffness: 500,
       mass: 0.8,

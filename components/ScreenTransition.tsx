@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
-import { Animated, Easing, ViewStyle } from 'react-native';
+import { Animated, Easing, Platform, ViewStyle } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 
 export interface ScreenTransitionRef {
@@ -26,13 +26,13 @@ const ScreenTransition = forwardRef<ScreenTransitionRef, Props>(
             toValue: 1,
             duration: 300,
             easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
           Animated.timing(translateY, {
             toValue: 0,
             duration: 300,
             easing: Easing.out(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
         ]);
         activeAnimation.current = animation;
@@ -56,13 +56,13 @@ const ScreenTransition = forwardRef<ScreenTransitionRef, Props>(
             toValue: 0,
             duration: 220,
             easing: Easing.in(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
           Animated.timing(translateY, {
             toValue: -12,
             duration: 220,
             easing: Easing.in(Easing.cubic),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
         ]);
         activeAnimation.current = animation;

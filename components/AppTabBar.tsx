@@ -30,8 +30,8 @@ const PILL_H     = 38;
 const PILL_W     = 56;
 
 // Design system spring values for tab bar
-const SPRING_IN  = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: true } as const;
-const SPRING_OUT = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: true } as const;
+const SPRING_IN  = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: Platform.OS !== 'web' } as const;
+const SPRING_OUT = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: Platform.OS !== 'web' } as const;
 
 export default function AppTabBar(props: BottomTabBarProps) {
   const { isPremium } = useAuthStore();

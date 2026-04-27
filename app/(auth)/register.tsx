@@ -27,6 +27,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
 import { Ionicons } from '@expo/vector-icons';
+import { useFlags } from '../../context/FeatureFlagsContext';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
@@ -40,6 +41,7 @@ export default function RegisterScreen() {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const { setJustRegistered, setUser } = useAuthStore();
+  const { flags } = useFlags();
 
   const isNameValid = name.trim().length >= 2;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -100,6 +102,27 @@ export default function RegisterScreen() {
       router.back();
     }
   };
+
+  if (!flags.registrationOpen) {
+    return (
+      <ScreenTransition>
+        <SafeAreaView style={styles.safeArea}>
+          <ScreenBackground>
+            <AppHeader />
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+              <Ionicons name="lock-closed-outline" size={64} color={colors.textTertiary} />
+              <Text style={{ fontFamily: Fonts.bold, fontSize: 22, color: colors.textPrimary, textAlign: 'center', marginTop: 24, marginBottom: 12 }}>
+                {t('register.closedTitle')}
+              </Text>
+              <Text style={{ fontFamily: Fonts.regular, fontSize: 15, color: colors.textSecondary, textAlign: 'center' }}>
+                {t('register.closedSubtitle')}
+              </Text>
+            </View>
+          </ScreenBackground>
+        </SafeAreaView>
+      </ScreenTransition>
+    );
+  }
 
   return (
     <ScreenTransition ref={transitionRef}>

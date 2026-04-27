@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import NotificationBell from './NotificationBell';
+import { useFlags } from '../context/FeatureFlagsContext';
 
 interface AppHeaderProps {
   showBack?: boolean;
@@ -21,6 +22,7 @@ export default function AppHeader({
 }: AppHeaderProps) {
   const { colors } = useTheme();
   const { user } = useAuthStore();
+  const { flags } = useFlags();
 
   const handleBack = () => {
     if (onBack) onBack();
@@ -51,7 +53,7 @@ export default function AppHeader({
           // Vistas secundarias: notificaciones + perfil
           <>
             {rightAction}
-            <NotificationBell uid={user!.uid} />
+            {flags.notificationsEnabled && <NotificationBell uid={user!.uid} />}
             <TouchableOpacity
               onPress={() => router.push('/(tabs)/profile')}
               activeOpacity={0.7}
@@ -70,7 +72,7 @@ export default function AppHeader({
         ) : (
           // Vistas principales o sin usuario: logo + opcionalmente notificaciones
           <>
-            {showNotifications && user?.uid && (
+            {showNotifications && user?.uid && flags.notificationsEnabled && (
               <NotificationBell uid={user.uid} />
             )}
             <Image

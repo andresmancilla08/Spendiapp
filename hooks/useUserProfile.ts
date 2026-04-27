@@ -121,6 +121,11 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   return snap.data() as UserProfile;
 }
 
+/** Guarda la versión de la app instalada por el usuario. */
+export async function updateAppVersion(uid: string, version: string): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { appVersion: version });
+}
+
 /** Busca un perfil por userName exacto (case-sensitive). */
 export async function searchUserByUserName(userName: string): Promise<UserProfile | null> {
   const q = query(collection(db, 'users'), where('userName', '==', userName));

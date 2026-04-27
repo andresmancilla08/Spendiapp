@@ -156,12 +156,12 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   const isOpen = useRef(false);
 
   const snapClose = useCallback(() => {
-    Animated.spring(swipeX, { toValue: 0, useNativeDriver: true, bounciness: 6, speed: 18 }).start();
+    Animated.spring(swipeX, { toValue: 0, useNativeDriver: Platform.OS !== 'web', bounciness: 6, speed: 18 }).start();
     isOpen.current = false;
   }, [swipeX]);
 
   const snapOpen = useCallback(() => {
-    Animated.spring(swipeX, { toValue: -ACTION_WIDTH, useNativeDriver: true, bounciness: 6, speed: 18 }).start();
+    Animated.spring(swipeX, { toValue: -ACTION_WIDTH, useNativeDriver: Platform.OS !== 'web', bounciness: 6, speed: 18 }).start();
     isOpen.current = true;
   }, [swipeX]);
 
@@ -501,7 +501,7 @@ export default function HistoryScreen() {
       toValue: filterPanelOpen ? 1 : 0,
       duration: filterPanelOpen ? 200 : 150,
       easing: filterPanelOpen ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     }).start(() => { if (!filterPanelOpen) setFilterMounted(false); });
   }, [filterPanelOpen]);
 
@@ -511,7 +511,7 @@ export default function HistoryScreen() {
       toValue: summaryExpanded ? 1 : 0,
       duration: summaryExpanded ? 220 : 170,
       easing: summaryExpanded ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     }).start(() => { if (!summaryExpanded) setSummaryMounted(false); });
   }, [summaryExpanded]);
 

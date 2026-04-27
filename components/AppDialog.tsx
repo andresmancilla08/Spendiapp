@@ -98,8 +98,8 @@ export default function AppDialog({
       cardTranslateY.setValue(300);
       overlayOpacity.setValue(0);
       Animated.parallel([
-        Animated.timing(overlayOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
-        Animated.spring(cardTranslateY, { toValue: 0, damping: 20, stiffness: 260, useNativeDriver: true }),
+        Animated.timing(overlayOpacity, { toValue: 1, duration: 200, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.spring(cardTranslateY, { toValue: 0, damping: 20, stiffness: 260, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
 
       iconScale.setValue(0);
@@ -107,7 +107,7 @@ export default function AppDialog({
         toValue: 1,
         damping: 8,
         stiffness: 180,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }).start();
     } else {
       cardTranslateY.setValue(300);
