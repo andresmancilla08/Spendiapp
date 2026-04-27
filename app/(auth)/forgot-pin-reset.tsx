@@ -45,12 +45,12 @@ export default function ForgotPinResetScreen() {
   useEffect(() => {
     if (matchStatus === 'idle') {
       Animated.timing(matchAnim, {
-        toValue: 0, duration: 150, useNativeDriver: true,
+        toValue: 0, duration: 150, useNativeDriver: Platform.OS !== 'web',
         easing: Easing.in(Easing.cubic),
       }).start();
     } else {
       Animated.timing(matchAnim, {
-        toValue: 1, duration: 250, useNativeDriver: true,
+        toValue: 1, duration: 250, useNativeDriver: Platform.OS !== 'web',
         easing: Easing.out(Easing.cubic),
       }).start();
     }

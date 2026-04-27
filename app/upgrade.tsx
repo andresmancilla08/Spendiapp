@@ -55,19 +55,19 @@ export default function UpgradeScreen() {
   useEffect(() => {
     // Star entrance
     Animated.spring(starScale, {
-      toValue: 1, damping: 9, stiffness: 120, useNativeDriver: true,
+      toValue: 1, damping: 9, stiffness: 120, useNativeDriver: Platform.OS !== 'web',
     }).start();
 
     // Star pulse loop
     Animated.loop(
       Animated.parallel([
         Animated.sequence([
-          Animated.timing(starPulse, { toValue: 1.1, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          Animated.timing(starPulse, { toValue: 1,   duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(starPulse, { toValue: 1.1, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(starPulse, { toValue: 1,   duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
         ]),
         Animated.sequence([
-          Animated.timing(haloOpacity, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          Animated.timing(haloOpacity, { toValue: 0.5, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(haloOpacity, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(haloOpacity, { toValue: 0.5, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
         ]),
       ])
     ).start();
@@ -75,16 +75,16 @@ export default function UpgradeScreen() {
     // Hero section fade-in
     Animated.stagger(100, [
       Animated.parallel([
-        Animated.timing(heroOpacity, { toValue: 1, duration: 450, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(heroSlide,   { toValue: 0, duration: 450, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(heroOpacity, { toValue: 1, duration: 450, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(heroSlide,   { toValue: 0, duration: 450, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
       ]),
       Animated.parallel([
-        Animated.timing(badgeOpacity, { toValue: 1, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(badgeSlide,   { toValue: 0, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(badgeOpacity, { toValue: 1, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(badgeSlide,   { toValue: 0, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
       ]),
       Animated.parallel([
-        Animated.timing(cardOpacity, { toValue: 1, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(cardSlide,   { toValue: 0, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(cardOpacity, { toValue: 1, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(cardSlide,   { toValue: 0, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
       ]),
     ]).start();
 
@@ -92,8 +92,8 @@ export default function UpgradeScreen() {
     const shimmerLoop = Animated.loop(
       Animated.sequence([
         Animated.delay(1600),
-        Animated.timing(shimmerX, { toValue: 300, duration: 650, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-        Animated.timing(shimmerX, { toValue: -300, duration: 0, useNativeDriver: true }),
+        Animated.timing(shimmerX, { toValue: 300, duration: 650, easing: Easing.out(Easing.quad), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(shimmerX, { toValue: -300, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
       ])
     );
     shimmerLoop.start();
@@ -106,11 +106,11 @@ export default function UpgradeScreen() {
 
   const handlePressIn = () => {
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Animated.spring(btnScale, { toValue: 0.96, tension: 300, friction: 10, useNativeDriver: true }).start();
+    Animated.spring(btnScale, { toValue: 0.96, tension: 300, friction: 10, useNativeDriver: Platform.OS !== 'web' }).start();
   };
 
   const handlePressOut = () => {
-    Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 7, useNativeDriver: true }).start();
+    Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 7, useNativeDriver: Platform.OS !== 'web' }).start();
   };
 
   const handleActivate = () => {

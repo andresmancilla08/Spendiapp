@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
-import { Animated, Text, View, StyleSheet, useWindowDimensions } from 'react-native';
+import { Animated, Platform, Text, View, StyleSheet, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../config/fonts';
@@ -50,21 +50,21 @@ function ToastBanner({ toast }: { toast: ToastState }) {
     Animated.parallel([
       Animated.spring(translateY, {
         toValue: 0,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
         tension: 90,
         friction: 11,
       }),
       Animated.timing(opacity, {
         toValue: 1,
         duration: 180,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]).start();
 
     timerRef.current = setTimeout(() => {
       Animated.parallel([
-        Animated.timing(translateY, { toValue: -120, duration: 280, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0, duration: 280, useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: -120, duration: 280, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(opacity, { toValue: 0, duration: 280, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
     }, 3000);
 

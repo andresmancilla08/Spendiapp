@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Switch,
   Animated,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -48,8 +49,8 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(overlayOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
-        Animated.spring(sheetTranslateY, { toValue: 0, damping: 26, stiffness: 400, mass: 1.0, useNativeDriver: true }),
+        Animated.timing(overlayOpacity, { toValue: 1, duration: 200, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.spring(sheetTranslateY, { toValue: 0, damping: 26, stiffness: 400, mass: 1.0, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
     } else {
       overlayOpacity.setValue(0);

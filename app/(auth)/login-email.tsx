@@ -42,15 +42,20 @@ export default function LoginEmailScreen() {
     setLoading(true);
     try {
       const provider = await getEmailProvider(email.trim().toLowerCase());
-      if (provider === 'google') { setDialog('google'); return; }
+      if (provider === 'google') {
+        setDialog('google');
+        setLoading(false);
+        return;
+      }
       if (provider === 'none') {
         setLoginError(t('errors.invalidCredentials'));
+        setLoading(false);
         return;
       }
       await loginWithEmailAndPin(email.trim().toLowerCase(), pin);
+      // spinner stays until onAuthStateChanged navigates away
     } catch {
       setLoginError(t('errors.invalidCredentials'));
-    } finally {
       setLoading(false);
     }
   };

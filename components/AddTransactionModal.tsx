@@ -39,6 +39,7 @@ import * as Crypto from 'expo-crypto';
 import { router } from 'expo-router';
 import { useCards } from '../hooks/useCards';
 import { useTEARate } from '../hooks/useTEARate';
+import { useFlags } from '../context/FeatureFlagsContext';
 import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
 import type { Card } from '../types/card';
 import BankLogo from './BankLogo';
@@ -82,6 +83,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
   const { colors } = useTheme();
   const { user } = useAuthStore();
   const { showToast } = useToast();
+  const { flags } = useFlags();
   const { height: screenHeight } = useWindowDimensions();
   const { categories: customCategories } = useCategories(user?.uid ?? '');
 
@@ -225,7 +227,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
       toValue: 1,
       duration: 350,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     }).start();
   }, [slideAnim]);
 
@@ -234,7 +236,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
       toValue: 0,
       duration: 280,
       easing: Easing.in(Easing.cubic),
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     }).start(() => callback());
   }, [slideAnim]);
 
@@ -1032,7 +1034,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
               )}
 
               {/* Cuotas — solo si tarjeta crédito seleccionada */}
-              {isCredit && type === 'expense' && (
+              {flags.installmentsEnabled && isCredit && type === 'expense' && (
                 <View style={[styles.fixedRow, { borderColor: colors.border, flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingVertical: 12, paddingHorizontal: 16 }]}>
                   <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>{t('addTransaction.installments')}</Text>
 

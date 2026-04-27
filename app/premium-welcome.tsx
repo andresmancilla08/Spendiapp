@@ -58,41 +58,41 @@ export default function PremiumWelcomeScreen() {
   useEffect(() => {
     // Star spring entrance
     Animated.spring(starScale, {
-      toValue: 1, damping: 9, stiffness: 120, useNativeDriver: true,
+      toValue: 1, damping: 9, stiffness: 120, useNativeDriver: Platform.OS !== 'web',
     }).start();
 
     // Star pulse + halo breathing loop
     Animated.loop(
       Animated.parallel([
         Animated.sequence([
-          Animated.timing(starPulse, { toValue: 1.08, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          Animated.timing(starPulse, { toValue: 1,    duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(starPulse, { toValue: 1.08, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(starPulse, { toValue: 1,    duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
         ]),
         Animated.sequence([
-          Animated.timing(haloOpacity, { toValue: 0,   duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          Animated.timing(haloOpacity, { toValue: 0.5, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(haloOpacity, { toValue: 0,   duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(haloOpacity, { toValue: 0.5, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
         ]),
       ])
     ).start();
 
     // Badge entrance
     Animated.parallel([
-      Animated.timing(badgeOpacity, { toValue: 1, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-      Animated.timing(badgeSlide,   { toValue: 0, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(badgeOpacity, { toValue: 1, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(badgeSlide,   { toValue: 0, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
     ]).start();
 
     // Title stagger
     Animated.sequence([
       Animated.delay(300),
       Animated.parallel([
-        Animated.timing(titleOpacity, { toValue: 1, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(titleSlide,   { toValue: 0, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(titleOpacity, { toValue: 1, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(titleSlide,   { toValue: 0, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
       ]),
     ]).start();
 
     Animated.sequence([
       Animated.delay(420),
-      Animated.timing(subOpacity, { toValue: 1, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(subOpacity, { toValue: 1, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
     ]).start();
 
     // Features stagger — slide from left + checkmark spring
@@ -101,13 +101,13 @@ export default function PremiumWelcomeScreen() {
       Animated.sequence([
         Animated.delay(delay),
         Animated.parallel([
-          Animated.timing(opacity, { toValue: 1, duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-          Animated.timing(slide,   { toValue: 0, duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 1, duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(slide,   { toValue: 0, duration: 340, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
         ]),
       ]).start();
       Animated.sequence([
         Animated.delay(delay + 220),
-        Animated.spring(check, { toValue: 1, damping: 9, stiffness: 200, useNativeDriver: true }),
+        Animated.spring(check, { toValue: 1, damping: 9, stiffness: 200, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
     });
 
@@ -115,8 +115,8 @@ export default function PremiumWelcomeScreen() {
     Animated.sequence([
       Animated.delay(1080),
       Animated.parallel([
-        Animated.timing(ctaOpacity, { toValue: 1, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-        Animated.timing(ctaSlide,   { toValue: 0, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(ctaOpacity, { toValue: 1, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(ctaSlide,   { toValue: 0, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
       ]),
     ]).start();
 
@@ -124,8 +124,8 @@ export default function PremiumWelcomeScreen() {
     const shimmerLoop = Animated.loop(
       Animated.sequence([
         Animated.delay(1800),
-        Animated.timing(shimmerX, { toValue: 300, duration: 650, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-        Animated.timing(shimmerX, { toValue: -300, duration: 0, useNativeDriver: true }),
+        Animated.timing(shimmerX, { toValue: 300, duration: 650, easing: Easing.out(Easing.quad), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(shimmerX, { toValue: -300, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
       ])
     );
     shimmerLoop.start();
@@ -143,10 +143,10 @@ export default function PremiumWelcomeScreen() {
   };
 
   const handlePressIn = () =>
-    Animated.spring(btnScale, { toValue: 0.96, tension: 300, friction: 10, useNativeDriver: true }).start();
+    Animated.spring(btnScale, { toValue: 0.96, tension: 300, friction: 10, useNativeDriver: Platform.OS !== 'web' }).start();
 
   const handlePressOut = () =>
-    Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 7, useNativeDriver: true }).start();
+    Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 7, useNativeDriver: Platform.OS !== 'web' }).start();
 
   const features = t('premiumWelcome.features', { returnObjects: true }) as string[];
 

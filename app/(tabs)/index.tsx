@@ -42,6 +42,8 @@ import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
 import type { Category } from '../../types/category';
+import { useFlags } from '../../context/FeatureFlagsContext';
+import AnnouncementBanner from '../../components/AnnouncementBanner';
 
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
@@ -160,13 +162,14 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
 }
 
 export default function HomeScreen() {
-  const { user } = useAuthStore();
+  const { user, isPremium } = useAuthStore();
   const { categories } = useCategories(user?.uid ?? '');
   const customCatMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
+  const { flags } = useFlags();
   const { justLoggedIn, setJustLoggedIn } = useAuthStore();
   const { setSelectedTransaction, pendingEditTx, setPendingEditTx, lastAction, setLastAction } = useHistoryStore();
   const { showToast } = useToast();
@@ -325,22 +328,37 @@ export default function HomeScreen() {
           <Text style={[styles.headerTitle, { color: colors.primary }]}>Spendia</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          {user?.uid && <NotificationBell uid={user.uid} />}
-          <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
-            {photoUrl && !avatarError ? (
-              <Image
-                source={{ uri: photoUrl }}
-                style={styles.avatar}
-                onError={() => setAvatarError(true)}
-              />
-            ) : (
-              <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight, borderWidth: 1.5, borderColor: colors.primary + '40' }]}>
-                <Ionicons name="person" size={18} color={colors.primary} />
+          {user?.uid && flags.notificationsEnabled && <NotificationBell uid={user.uid} />}
+          <View style={{ position: 'relative' }}>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
+              {photoUrl && !avatarError ? (
+                <Image
+                  source={{ uri: photoUrl }}
+                  style={styles.avatar}
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight, borderWidth: 1.5, borderColor: colors.primary + '40' }]}>
+                  <Ionicons name="person" size={18} color={colors.primary} />
+                </View>
+              )}
+            </TouchableOpacity>
+            {isPremium && (
+              <View style={{
+                position: 'absolute', bottom: 0, right: 0,
+                width: 14, height: 14, borderRadius: 7,
+                backgroundColor: colors.warning,
+                borderWidth: 1.5, borderColor: colors.surface,
+                alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Ionicons name="star" size={7} color="#FFF" />
               </View>
             )}
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
+
+      <AnnouncementBanner />
 
       <ScrollView
         contentContainerStyle={styles.scroll}

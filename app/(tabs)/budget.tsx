@@ -28,6 +28,7 @@ import PageTitle from '../../components/PageTitle';
 import { Fonts } from '../../config/fonts';
 import { useToast } from '../../context/ToastContext';
 import ScreenTransition from '../../components/ScreenTransition';
+import { useFlags } from '../../context/FeatureFlagsContext';
 
 
 const DEFAULT_EXPENSE_CATEGORIES = [
@@ -111,6 +112,7 @@ function progressColor(percent: number, successColor: string, errorColor: string
 export default function BudgetScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const { flags } = useFlags();
   const { user } = useAuthStore();
 
   const now = new Date();
@@ -215,6 +217,27 @@ export default function BudgetScreen() {
   };
 
   const isSaveDisabled = parseInt(limitInput.replace(/\D/g, ''), 10) <= 0 || limitInput.trim() === '';
+
+  if (!flags.budgetsEnabled) {
+    return (
+      <ScreenTransition>
+        <SafeAreaView style={styles.safe}>
+          <ScreenBackground>
+            <AppHeader showBack={false} showNotifications />
+            <View style={styles.pausedWrap}>
+              <Ionicons name="pause-circle-outline" size={64} color={colors.primary} style={{ opacity: 0.4 }} />
+              <Text style={[styles.pausedTitle, { color: colors.textPrimary }]}>
+                {t('common.featurePaused.title')}
+              </Text>
+              <Text style={[styles.pausedDesc, { color: colors.textSecondary }]}>
+                {t('common.featurePaused.description')}
+              </Text>
+            </View>
+          </ScreenBackground>
+        </SafeAreaView>
+      </ScreenTransition>
+    );
+  }
 
   return (
     <ScreenTransition>
@@ -456,6 +479,24 @@ export default function BudgetScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  pausedWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    gap: 12,
+  },
+  pausedTitle: {
+    fontFamily: Fonts.bold,
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  pausedDesc: {
+    fontFamily: Fonts.regular,
+    fontSize: 14,
+    lineHeight: 21,
+    textAlign: 'center',
+  },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   scroll: { padding: 16, paddingTop: 12, paddingBottom: 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
   monthRow: {

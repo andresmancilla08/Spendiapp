@@ -80,7 +80,7 @@ export function CategoryFormModal({
       toValue: 1,
       duration: 350,
       easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     }).start();
   }, [slideAnim]);
 
@@ -90,7 +90,7 @@ export function CategoryFormModal({
         toValue: 0,
         duration: 280,
         easing: Easing.in(Easing.cubic),
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }).start(() => callback());
     },
     [slideAnim],

@@ -24,8 +24,8 @@ const ICON_AREA_W = 52;
 const ICON_AREA_H = 42;
 const GLOW_SIZE   = 50;
 
-const SPRING = { damping: 22, stiffness: 400, mass: 0.85, useNativeDriver: true } as const;
-const PRESS  = { damping: 15, stiffness: 500, mass: 0.8,  useNativeDriver: true } as const;
+const SPRING = { damping: 22, stiffness: 400, mass: 0.85, useNativeDriver: Platform.OS !== 'web' } as const;
+const PRESS  = { damping: 15, stiffness: 500, mass: 0.8,  useNativeDriver: Platform.OS !== 'web' } as const;
 
 export default function PremiumTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { colors, isDark } = useTheme();
@@ -56,13 +56,13 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
           toValue: 1.045,
           duration: 1800,
           easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(breatheAnim, {
           toValue: 1,
           duration: 1800,
           easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
       ])
     );

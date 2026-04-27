@@ -284,7 +284,6 @@ function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; 
 export default function RootLayout() {
   const { user, isLoading, setUser, setLoading, setJustLoggedIn } = useAuthStore();
   const [i18nReady, setI18nReady] = useState(false);
-  const { t } = useTranslation();
   const isFirstAuthCall = useRef(true);
   const prevUserRef = useRef<boolean>(false);
   const [inactivityDialogVisible, setInactivityDialogVisible] = useState(false);

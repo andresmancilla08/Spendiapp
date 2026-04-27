@@ -279,13 +279,13 @@ function LangModal({ visible, onClose, colors, i18n, t }: {
       translateY.setValue(400);
       opacity.setValue(0);
       Animated.parallel([
-        Animated.timing(opacity, { toValue: 1, duration: 250, useNativeDriver: true }),
-        Animated.spring(translateY, { toValue: 0, damping: 20, stiffness: 200, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 250, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.spring(translateY, { toValue: 0, damping: 20, stiffness: 200, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }),
-        Animated.timing(translateY, { toValue: 400, duration: 200, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(translateY, { toValue: 400, duration: 200, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
     }
   }, [visible]);
@@ -369,18 +369,18 @@ const PaletteCard = memo(function PaletteCard({
 
   useEffect(() => {
     Animated.parallel([
-      Animated.spring(badgeScale, { toValue: isSelected ? 1 : 0, damping: 10, stiffness: 400, useNativeDriver: true }),
-      Animated.timing(badgeOpacity, { toValue: isSelected ? 1 : 0, duration: isSelected ? 120 : 80, useNativeDriver: true }),
+      Animated.spring(badgeScale, { toValue: isSelected ? 1 : 0, damping: 10, stiffness: 400, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(badgeOpacity, { toValue: isSelected ? 1 : 0, duration: isSelected ? 120 : 80, useNativeDriver: Platform.OS !== 'web' }),
     ]).start();
   }, [isSelected]);
 
   const handlePressIn = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Animated.spring(scale, { toValue: 0.93, damping: 18, stiffness: 400, useNativeDriver: true }).start();
+    Animated.spring(scale, { toValue: 0.93, damping: 18, stiffness: 400, useNativeDriver: Platform.OS !== 'web' }).start();
   };
 
   const handlePressOut = () => {
-    Animated.spring(scale, { toValue: 1, damping: 12, stiffness: 280, useNativeDriver: true }).start();
+    Animated.spring(scale, { toValue: 1, damping: 12, stiffness: 280, useNativeDriver: Platform.OS !== 'web' }).start();
   };
 
   const handlePress = () => {
@@ -508,13 +508,13 @@ function PaletteModal({ visible, onClose, colors, paletteId, setPaletteId, t }: 
       translateY.setValue(500);
       overlayOpacity.setValue(0);
       Animated.parallel([
-        Animated.timing(overlayOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
-        Animated.spring(translateY, { toValue: 0, damping: 22, stiffness: 210, mass: 0.9, useNativeDriver: true }),
+        Animated.timing(overlayOpacity, { toValue: 1, duration: 220, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.spring(translateY, { toValue: 0, damping: 22, stiffness: 210, mass: 0.9, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(overlayOpacity, { toValue: 0, duration: 180, useNativeDriver: true }),
-        Animated.timing(translateY, { toValue: 500, duration: 220, useNativeDriver: true }),
+        Animated.timing(overlayOpacity, { toValue: 0, duration: 180, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(translateY, { toValue: 500, duration: 220, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
     }
   }, [visible]);
@@ -523,9 +523,9 @@ function PaletteModal({ visible, onClose, colors, paletteId, setPaletteId, t }: 
     if (idx === activeIdx) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setActiveIdx(idx);
-    Animated.timing(contentOpacity, { toValue: 0, duration: 90, useNativeDriver: true }).start(() => {
+    Animated.timing(contentOpacity, { toValue: 0, duration: 90, useNativeDriver: Platform.OS !== 'web' }).start(() => {
       setDisplayIdx(idx);
-      Animated.timing(contentOpacity, { toValue: 1, duration: 160, useNativeDriver: true }).start();
+      Animated.timing(contentOpacity, { toValue: 1, duration: 160, useNativeDriver: Platform.OS !== 'web' }).start();
     });
   };
 
