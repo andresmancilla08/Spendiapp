@@ -25,7 +25,9 @@
       "title": "Welcome, {{name}}!",
       "description": "Your account was created successfully. You can now start tracking your finances.",
       "primaryLabel": "Continue"
-    }
+    },
+    "closedTitle": "Registration closed",
+    "closedSubtitle": "Registration is temporarily closed. Please check back soon."
   },
   "loginEmail": {
     "back": "← Back",
@@ -122,7 +124,12 @@
     "comingSoon": "Coming Soon",
     "comingSoonDesc": "This feature will be available soon.",
     "error": "Error",
-    "and": "and"
+    "and": "and",
+    "featurePaused": {
+      "title": "Feature temporarily paused",
+      "description": "This feature is currently paused. Our team is working on improvements. Check back soon!",
+      "close": "Got it"
+    }
   },
   "tabBar": {
     "home": "HOME",
@@ -1305,5 +1312,37 @@
     "totalShared": "Total shared",
     "totalSharedIOwe": "Shared I owe",
     "totalSharedTheyOwe": "Shared they owe"
+  },
+  "maintenance": {
+    "title": "Under Maintenance",
+    "subtitle": "Spendia is currently undergoing improvements. We'll be back very soon.",
+    "estimatedReturn": "Estimated time: {{time}}"
+  },
+  "blocked": {
+    "title": "Account suspended",
+    "subtitle": "Your account has been temporarily suspended. Contact support if you think this is a mistake.",
+    "reason": "Reason: {{reason}}",
+    "contact": "Contact support"
+  },
+  "premium": {
+    "lockedTitle": "Premium Feature",
+    "lockedSubtitle": "Unlock this feature with Spendia Premium.",
+    "upgradeButton": "View plans",
+    "badge": "Premium",
+    "bannerSubtitle": "Contact us on WhatsApp to activate your plan"
+  },
+  "upgrade": {
+    "title": "Spendia Premium",
+    "subtitle": "Unlock the full potential of Spendia",
+    "price": "COP $9,900/month · $79,900/year",
+    "benefitsTitle": "Everything included:",
+    "benefits": ["Unlimited PDF reports", "Savings goals", "Friends and shared expenses", "Smart notifications", "Unlimited custom categories", "Priority support"],
+    "ctaButton": "Activate Premium",
+    "ctaNote": "Admin will activate your access after confirming payment"
+  },
+  "updateRequired": {
+    "title": "Update required",
+    "subtitle": "This version of Spendia is no longer supported. Open the app in your browser to update.",
+    "ctaButton": "Open Spendia"
   }
 }

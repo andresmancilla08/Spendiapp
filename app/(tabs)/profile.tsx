@@ -13,6 +13,7 @@ import {
   Platform,
   Switch,
   Dimensions,
+
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -42,6 +43,7 @@ import { PALETTES, PaletteId } from '../../config/palettes';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useToast } from '../../context/ToastContext';
+import { useFlags } from '../../context/FeatureFlagsContext';
 import appConfig from '../../app.json';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -625,11 +627,12 @@ const DIALOG_CLOSED: DialogState = {
 
 // ── Pantalla principal ──────────────────────────────────────────────────────
 export default function ProfileScreen() {
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, isPremium } = useAuthStore();
   const { incomingRequests } = useFriends(user?.uid ?? '');
   const { colors, themeMode, setThemeMode, isDark, paletteId, setPaletteId } = useTheme();
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
+  const { flags } = useFlags();
 
   const [nameInput, setNameInput] = useState('');
   const [nameInputError, setNameInputError] = useState('');
@@ -794,7 +797,7 @@ export default function ProfileScreen() {
           <View style={[styles.profileBand, { backgroundColor: colors.primaryLight }]} />
 
           {/* Avatar with surface ring */}
-          <View style={[styles.avatarRingOuter, { borderColor: colors.surface, backgroundColor: colors.surface }]}>
+          <View style={[styles.avatarRingOuter, { borderColor: isPremium ? colors.warning : colors.surface, backgroundColor: colors.surface }]}>
             {photoUrl ? (
               <Image source={{ uri: photoUrl }} style={styles.avatar} />
             ) : (
@@ -830,20 +833,62 @@ export default function ProfileScreen() {
                 {isGoogleUser ? t('profile.providerGoogle') : t('profile.providerEmail')}
               </Text>
             </View>
+            {isPremium && (
+              <View style={{
+                flexDirection: 'row', alignItems: 'center', gap: 4,
+                backgroundColor: colors.warning + '20',
+                borderWidth: 1, borderColor: colors.warning + '66',
+                borderRadius: 20, paddingHorizontal: 9, paddingVertical: 3,
+                shadowColor: colors.warning, shadowOpacity: 0.2, shadowRadius: 6, elevation: 2,
+              }}>
+                <Ionicons name="star" size={11} color={colors.warning} />
+                <Text style={{ fontFamily: Fonts.semiBold, fontSize: 10, color: colors.warning, letterSpacing: 0.8 }}>
+                  PRO
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
+        {/* Premium Banner — solo para usuarios free */}
+        {!isPremium && (
+          <TouchableOpacity
+            style={[styles.premiumBanner, { backgroundColor: colors.warning + '15', borderColor: colors.warning + '40' }]}
+            onPress={() => router.push('/upgrade' as any)}
+            activeOpacity={0.85}
+          >
+            <View style={[styles.premiumBannerIcon, { backgroundColor: colors.warning + '25' }]}>
+              <Ionicons name="star" size={22} color={colors.warning} />
+            </View>
+            <View style={styles.premiumBannerContent}>
+              <Text style={[styles.premiumBannerTitle, { color: colors.textPrimary }]}>
+                {t('upgrade.title')}
+              </Text>
+              <Text style={[styles.premiumBannerSub, { color: colors.textSecondary }]}>
+                {t('premium.bannerSubtitle')}
+              </Text>
+            </View>
+            <View style={[styles.premiumBannerChevron, { backgroundColor: colors.warning }]}>
+              <Ionicons name="chevron-forward" size={16} color="#fff" />
+            </View>
+          </TouchableOpacity>
+        )}
+
         {/* SOCIAL */}
-        <SectionTitle label={t('profile.friends.section')} />
-        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
-          <OptionItem
-            icon="people-outline"
-            label={t('profile.friends.label')}
-            badge={incomingRequests.length || undefined}
-            isLast
-            onPress={() => router.push('/friends')}
-          />
-        </View>
+        {flags.friendsEnabled && (
+          <>
+            <SectionTitle label={t('profile.friends.section')} />
+            <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+              <OptionItem
+                icon="people-outline"
+                label={t('profile.friends.label')}
+                badge={incomingRequests.length || undefined}
+                isLast
+                onPress={() => router.push('/friends')}
+              />
+            </View>
+          </>
+        )}
 
         {/* CUENTA */}
         <SectionTitle label={t('profile.sections.account')} />
@@ -878,18 +923,22 @@ export default function ProfileScreen() {
         {/* PREFERENCIAS */}
         <SectionTitle label={t('profile.sections.preferences')} />
         <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
-          <OptionItem
-            icon={isDark ? 'moon-outline' : 'sunny-outline'}
-            label={t('profile.theme.label')}
-            value={themeLabels[themeMode]}
-            onPress={cycleTheme}
-          />
-          <OptionItem
-            icon="color-palette-outline"
-            label={t('profile.palette.label')}
-            value={t(`profile.palette.${paletteId}`)}
-            onPress={() => setPaletteVisible(true)}
-          />
+          {isPremium && (
+            <OptionItem
+              icon={isDark ? 'moon-outline' : 'sunny-outline'}
+              label={t('profile.theme.label')}
+              value={themeLabels[themeMode]}
+              onPress={cycleTheme}
+            />
+          )}
+          {isPremium && (
+            <OptionItem
+              icon="color-palette-outline"
+              label={t('profile.palette.label')}
+              value={t(`profile.palette.${paletteId}`)}
+              onPress={() => setPaletteVisible(true)}
+            />
+          )}
           <OptionItem
             icon="language-outline"
             label={t('profile.language.label')}
@@ -900,15 +949,19 @@ export default function ProfileScreen() {
         </View>
 
         {/* MIS TARJETAS */}
-        <SectionTitle label={t('profile.cards.section')} />
-        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
-          <OptionItem
-            icon="card-outline"
-            label={t('profile.cards.label')}
-            isLast
-            onPress={() => router.push('/cards')}
-          />
-        </View>
+        {flags.cardsEnabled && (
+          <>
+            <SectionTitle label={t('profile.cards.section')} />
+            <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+              <OptionItem
+                icon="card-outline"
+                label={t('profile.cards.label')}
+                isLast
+                onPress={() => router.push('/cards')}
+              />
+            </View>
+          </>
+        )}
 
         {/* SEGURIDAD — Biometría (solo nativo) */}
         {Platform.OS !== 'web' && (
@@ -1217,6 +1270,12 @@ const styles = StyleSheet.create({
   optionSub: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 1 },
   optionDivider: { height: StyleSheet.hairlineWidth, marginLeft: 68 },
 
+  premiumBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 20, padding: 16, borderWidth: 1, marginBottom: 24 },
+  premiumBannerIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  premiumBannerContent: { flex: 1, gap: 3 },
+  premiumBannerTitle: { fontSize: 15, fontFamily: Fonts.bold },
+  premiumBannerSub: { fontSize: 12, fontFamily: Fonts.regular, lineHeight: 17 },
+  premiumBannerChevron: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   signOutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16, borderRadius: 50, marginBottom: 20 },
   signOutText: { fontSize: 15, fontFamily: Fonts.bold },
   version: { textAlign: 'center', fontSize: 12, fontFamily: Fonts.regular },

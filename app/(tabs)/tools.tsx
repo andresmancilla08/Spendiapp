@@ -1,14 +1,17 @@
-// app/(tabs)/tools.tsx
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 import { router } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
+import { useFlags } from '../../context/FeatureFlagsContext';
+import { useAuthStore } from '../../store/authStore';
 import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
+import FeaturePausedSheet from '../../components/FeaturePausedSheet';
 import { Fonts } from '../../config/fonts';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -19,13 +22,21 @@ interface ToolCardData {
   title: string;
   description: string;
   onPress: () => void;
+  disabled?: boolean;
 }
 
-function ToolCard({ emoji, icon, title, description, onPress, colors }: ToolCardData & { colors: any }) {
+function ToolCard({
+  emoji,
+  title,
+  description,
+  onPress,
+  colors,
+  disabled,
+}: ToolCardData & { colors: any }) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.8}
+      activeOpacity={disabled ? 1 : 0.8}
       style={[
         styles.cardWrapper,
         {
@@ -34,23 +45,41 @@ function ToolCard({ emoji, icon, title, description, onPress, colors }: ToolCard
           borderWidth: 1,
           shadowColor: colors.primary,
           shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.12,
+          shadowOpacity: disabled ? 0.04 : 0.12,
           shadowRadius: 12,
-          elevation: 4,
+          elevation: disabled ? 0 : 4,
+          opacity: disabled ? 0.45 : 1,
         },
       ]}
     >
       <View style={styles.card}>
-        <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
-          <Text style={styles.emoji}>{emoji}</Text>
+        <View style={styles.iconContainer}>
+          <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
+            <Text style={styles.emoji}>{emoji}</Text>
+          </View>
+          {disabled && (
+            <View
+              style={[
+                styles.pauseBadge,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: `${colors.textSecondary}40`,
+                },
+              ]}
+            >
+              <Ionicons name="pause-circle" size={14} color={colors.textSecondary} />
+            </View>
+          )}
         </View>
         <View style={styles.cardContent}>
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{title}</Text>
           <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{description}</Text>
         </View>
-        <View style={[styles.chevronWrap, { backgroundColor: `${colors.primary}12` }]}>
-          <Ionicons name="chevron-forward" size={16} color={colors.primary} />
-        </View>
+        {!disabled && (
+          <View style={[styles.chevronWrap, { backgroundColor: `${colors.primary}12` }]}>
+            <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -59,6 +88,11 @@ function ToolCard({ emoji, icon, title, description, onPress, colors }: ToolCard
 export default function ToolsScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const { flags } = useFlags();
+  const { isPremium } = useAuthStore();
+  const [pausedFeature, setPausedFeature] = useState<string | null>(null);
+
+  const paused = (name: string) => () => setPausedFeature(name);
 
   return (
     <ScreenTransition>
@@ -72,7 +106,8 @@ export default function ToolsScreen() {
               icon="flag"
               title={t('tools.goalsCard.title')}
               description={t('tools.goalsCard.description')}
-              onPress={() => router.push('/goals')}
+              onPress={flags.goalsEnabled ? () => router.push('/goals') : paused(t('tools.goalsCard.title'))}
+              disabled={!flags.goalsEnabled}
               colors={colors}
             />
             <ToolCard
@@ -80,7 +115,8 @@ export default function ToolsScreen() {
               icon="grid-outline"
               title={t('tools.categoriesCard.title')}
               description={t('tools.categoriesCard.description')}
-              onPress={() => router.push('/categories')}
+              onPress={flags.categoriesEnabled ? () => router.push('/categories') : paused(t('tools.categoriesCard.title'))}
+              disabled={!flags.categoriesEnabled}
               colors={colors}
             />
             <ToolCard
@@ -88,28 +124,41 @@ export default function ToolsScreen() {
               icon="document-text-outline"
               title={t('tools.reportsCard.title')}
               description={t('tools.reportsCard.description')}
-              onPress={() => router.push('/reports')}
+              onPress={flags.reportsEnabled ? () => router.push('/reports') : paused(t('tools.reportsCard.title'))}
+              disabled={!flags.reportsEnabled}
               colors={colors}
             />
-            <ToolCard
-              emoji="👥"
-              icon="people-outline"
-              title={t('tools.friendReportCard.title')}
-              description={t('tools.friendReportCard.description')}
-              onPress={() => router.push('/friend-report')}
-              colors={colors}
-            />
-            <ToolCard
-              emoji="🧳"
-              icon="people-outline"
-              title={t('tools.expenseGroupsCard.title')}
-              description={t('tools.expenseGroupsCard.description')}
-              onPress={() => router.push('/expense-groups')}
-              colors={colors}
-            />
+            {isPremium && (
+              <ToolCard
+                emoji="👥"
+                icon="people-outline"
+                title={t('tools.friendReportCard.title')}
+                description={t('tools.friendReportCard.description')}
+                onPress={flags.friendsEnabled ? () => router.push('/friend-report') : paused(t('tools.friendReportCard.title'))}
+                disabled={!flags.friendsEnabled}
+                colors={colors}
+              />
+            )}
+            {isPremium && (
+              <ToolCard
+                emoji="🧳"
+                icon="people-outline"
+                title={t('tools.expenseGroupsCard.title')}
+                description={t('tools.expenseGroupsCard.description')}
+                onPress={flags.expenseGroupsEnabled ? () => router.push('/expense-groups') : paused(t('tools.expenseGroupsCard.title'))}
+                disabled={!flags.expenseGroupsEnabled}
+                colors={colors}
+              />
+            )}
           </ScrollView>
         </ScreenBackground>
       </SafeAreaView>
+
+      <FeaturePausedSheet
+        visible={!!pausedFeature}
+        featureName={pausedFeature ?? ''}
+        onClose={() => setPausedFeature(null)}
+      />
     </ScreenTransition>
   );
 }
@@ -124,10 +173,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
   },
+  iconContainer: { position: 'relative' },
   iconWrap: {
     width: 52,
     height: 52,
     borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pauseBadge: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
