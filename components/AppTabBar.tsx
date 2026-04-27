@@ -21,7 +21,6 @@ const TAB_CONFIG: Record<string, {
   premiumOnly?: boolean;
 }> = {
   index:   { icon: 'home-outline',   iconActive: 'home' },
-  budget:  { icon: 'wallet-outline', iconActive: 'wallet', premiumOnly: true },
   history: { icon: 'time-outline',   iconActive: 'time' },
   tools:   { icon: 'hammer-outline', iconActive: 'hammer' },
 };
@@ -81,7 +80,6 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   const tabLabels: Record<string, string> = {
     index:   t('tabBar.home'),
-    budget:  t('tabBar.budget'),
     history: t('tabBar.history'),
     tools:   t('tabBar.tools'),
   };
@@ -188,10 +186,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     width: '90%',
     borderWidth: 1,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    elevation: 14,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 14,
+    elevation: 7,
   },
   tab: {
     flex: 1,

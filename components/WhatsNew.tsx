@@ -39,6 +39,24 @@ interface Feature {
 // Catálogo curado de funcionalidades principales de la app — sin duplicados ni versiones.
 const APP_FEATURES: Feature[] = [
   {
+    icon: 'star-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.premiumWelcome.title',
+    items: ['whatsNew.premiumWelcome.item1', 'whatsNew.premiumWelcome.item2', 'whatsNew.premiumWelcome.item3'],
+  },
+  {
+    icon: 'mail-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.otpPinReset.title',
+    items: ['whatsNew.otpPinReset.item1', 'whatsNew.otpPinReset.item2', 'whatsNew.otpPinReset.item3'],
+  },
+  {
+    icon: 'flash-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.animatedSplash.title',
+    items: ['whatsNew.animatedSplash.item1', 'whatsNew.animatedSplash.item2', 'whatsNew.animatedSplash.item3'],
+  },
+  {
     icon: 'sparkles-outline',
     colorKey: 'primary',
     titleKey: 'whatsNew.uiPolish.title',

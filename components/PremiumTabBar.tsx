@@ -15,7 +15,6 @@ type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 const TAB_CONFIG: Record<string, { icon: IoniconsName; iconActive: IoniconsName }> = {
   index:   { icon: 'home-outline',   iconActive: 'home' },
-  budget:  { icon: 'wallet-outline', iconActive: 'wallet' },
   history: { icon: 'time-outline',   iconActive: 'time' },
   tools:   { icon: 'hammer-outline', iconActive: 'hammer' },
 };
@@ -91,7 +90,6 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
 
   const tabLabels: Record<string, string> = {
     index:   t('tabBar.home'),
-    budget:  t('tabBar.budget'),
     history: t('tabBar.history'),
     tools:   t('tabBar.tools'),
   };

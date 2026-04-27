@@ -1061,6 +1061,24 @@
       "item1": "New fully rounded tab selector applied across the entire app",
       "item2": "Palettes reorganized into 2 groups (Classic / Pastel) with correctly translated names",
       "item3": "Fix: group expense screen no longer gets stuck on loading"
+    },
+    "premiumWelcome": {
+      "title": "Renewed Premium experience",
+      "item1": "Exclusive welcome screen when activating Premium with direct access to all your features",
+      "item2": "Special gradient navbar that sets your premium account apart",
+      "item3": "Unlock Spendia's full potential: advanced budgets, reports and more"
+    },
+    "otpPinReset": {
+      "title": "Recover your PIN by email",
+      "item1": "Forgot your PIN? Request a verification code sent directly to your email",
+      "item2": "Secure 6-digit code with themed design and automatic expiration",
+      "item3": "Your account stays protected throughout the entire recovery process"
+    },
+    "animatedSplash": {
+      "title": "New animated loading screen",
+      "item1": "Splash screen with professional animation: glow, shimmer and smooth spring physics",
+      "item2": "The Spendia logo comes to life with light effects on every app launch",
+      "item3": "Fluid transition from the splash screen to sign in"
     }
   },
   "incomeClaim": {
@@ -1168,6 +1186,10 @@
     "expenseGroupsCard": {
       "title": "Group Expenses",
       "description": "Track and split expenses on outings or trips"
+    },
+    "budgetCard": {
+      "title": "Monthly budget",
+      "description": "Set spending limits by category and stay in control"
     }
   },
   "goals": {
@@ -1324,6 +1346,20 @@
     "reason": "Reason: {{reason}}",
     "contact": "Contact support"
   },
+  "premiumWelcome": {
+    "badge": "SPENDIA PREMIUM",
+    "title1": "Your account is",
+    "title2": "active.",
+    "subtitle": "Welcome to the full Spendia experience.",
+    "cta": "Start exploring",
+    "features": [
+      "Smart budget",
+      "Friend report",
+      "Group expenses",
+      "Color palette",
+      "Premium themes"
+    ]
+  },
   "premium": {
     "lockedTitle": "Premium Feature",
     "lockedSubtitle": "Unlock this feature with Spendia Premium.",
@@ -1336,7 +1372,14 @@
     "subtitle": "Unlock the full potential of Spendia",
     "price": "COP $9,900/month · $79,900/year",
     "benefitsTitle": "Everything included:",
-    "benefits": ["Unlimited PDF reports", "Savings goals", "Friends and shared expenses", "Smart notifications", "Unlimited custom categories", "Priority support"],
+    "benefits": [
+      "Unlimited PDF reports",
+      "Savings goals",
+      "Friends and shared expenses",
+      "Smart notifications",
+      "Unlimited custom categories",
+      "Priority support"
+    ],
     "ctaButton": "Activate Premium",
     "ctaNote": "Admin will activate your access after confirming payment"
   },
