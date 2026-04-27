@@ -162,16 +162,20 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
   // Si el doc no existe aún, tratamos sessionVersion como 0 para detectar la primera creación
   useEffect(() => {
     const ref = doc(db, 'config', 'security');
-    const unsub = onSnapshot(ref, (snap) => {
-      const sv: number = snap.exists() ? (snap.data()?.sessionVersion ?? 0) : 0;
-      if (knownSessionVersion.current === null) {
-        knownSessionVersion.current = sv;
-      } else if (sv !== knownSessionVersion.current) {
-        knownSessionVersion.current = sv;
-        signOut();
-        router.replace('/(auth)/login' as Parameters<typeof router.replace>[0]);
-      }
-    });
+    const unsub = onSnapshot(
+      ref,
+      (snap) => {
+        const sv: number = snap.exists() ? (snap.data()?.sessionVersion ?? 0) : 0;
+        if (knownSessionVersion.current === null) {
+          knownSessionVersion.current = sv;
+        } else if (sv !== knownSessionVersion.current) {
+          knownSessionVersion.current = sv;
+          signOut();
+          router.replace('/(auth)/login' as Parameters<typeof router.replace>[0]);
+        }
+      },
+      () => { /* permission-denied antes de que se restaure el auth state — ignorar silenciosamente */ }
+    );
     return unsub;
   }, []);
 
