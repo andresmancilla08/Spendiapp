@@ -11,37 +11,49 @@ import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useAuthStore } from '../store/authStore';
+import PremiumTabBar from './PremiumTabBar';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
-const TAB_CONFIG: Record<string, { icon: IoniconsName; iconActive: IoniconsName }> = {
+const TAB_CONFIG: Record<string, {
+  icon: IoniconsName;
+  iconActive: IoniconsName;
+  premiumOnly?: boolean;
+}> = {
   index:   { icon: 'home-outline',   iconActive: 'home' },
-  budget:  { icon: 'wallet-outline', iconActive: 'wallet' },
+  budget:  { icon: 'wallet-outline', iconActive: 'wallet', premiumOnly: true },
   history: { icon: 'time-outline',   iconActive: 'time' },
   tools:   { icon: 'hammer-outline', iconActive: 'hammer' },
 };
 
-const BAR_HEIGHT = 64;
-const PILL_H     = 36;
-const PILL_W     = 52;
+const BAR_HEIGHT = 68;
+const PILL_H     = 38;
+const PILL_W     = 56;
 
-export default function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+// Design system spring values for tab bar
+const SPRING_IN  = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: true } as const;
+const SPRING_OUT = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: true } as const;
+
+export default function AppTabBar(props: BottomTabBarProps) {
+  const { isPremium } = useAuthStore();
+  if (isPremium) return <PremiumTabBar {...props} />;
+  return <FreeTabBar {...props} />;
+}
+
+function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { isMobile, isDesktop } = useBreakpoint();
   const { isPremium } = useAuthStore();
 
-  // All tabs — stable set used for animated value indices (always includes budget)
   const allTabRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
-  // Budget is premium-only: hide from tab bar for free users
-  const visibleRoutes = allTabRoutes.filter(r => !(r.name === 'budget' && !isPremium));
+  // Budget is premium-only: hidden for free users
+  const visibleRoutes = allTabRoutes.filter(r => !(TAB_CONFIG[r.name]?.premiumOnly && !isPremium));
 
   const activeInAll = allTabRoutes.findIndex(r => r.name === state.routes[state.index].name);
-  // Sub-screens (profile, notifications, etc.) → fall back to Home
   const effectiveAllIdx = activeInAll === -1 ? 0 : activeInAll;
 
-  // Animated values indexed by allTabRoutes (stable indices prevent mismatch if premium changes)
   const pillOpacity = useRef(allTabRoutes.map((_, i) => new Animated.Value(i === effectiveAllIdx ? 1 : 0))).current;
   const pillScale   = useRef(allTabRoutes.map((_, i) => new Animated.Value(i === effectiveAllIdx ? 1 : 0.75))).current;
   const iconScale   = useRef(allTabRoutes.map((_, i) => new Animated.Value(i === effectiveAllIdx ? 1 : 0.85))).current;
@@ -54,16 +66,16 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
     prevActive.current = effectiveAllIdx;
 
     const fadeOutPrev = prev >= 0 ? [
-      Animated.spring(pillOpacity[prev], { toValue: 0, damping: 18, stiffness: 300, useNativeDriver: true }),
-      Animated.spring(pillScale[prev],   { toValue: 0.75, damping: 18, stiffness: 300, useNativeDriver: true }),
-      Animated.spring(iconScale[prev],   { toValue: 0.85, damping: 18, stiffness: 300, useNativeDriver: true }),
+      Animated.spring(pillOpacity[prev], { toValue: 0,    ...SPRING_OUT }),
+      Animated.spring(pillScale[prev],   { toValue: 0.75, ...SPRING_OUT }),
+      Animated.spring(iconScale[prev],   { toValue: 0.85, ...SPRING_OUT }),
     ] : [];
 
     Animated.parallel([
       ...fadeOutPrev,
-      Animated.spring(pillOpacity[effectiveAllIdx], { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
-      Animated.spring(pillScale[effectiveAllIdx],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
-      Animated.spring(iconScale[effectiveAllIdx],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
+      Animated.spring(pillOpacity[effectiveAllIdx], { toValue: 1, ...SPRING_IN }),
+      Animated.spring(pillScale[effectiveAllIdx],   { toValue: 1, ...SPRING_IN }),
+      Animated.spring(iconScale[effectiveAllIdx],   { toValue: 1, ...SPRING_IN }),
     ]).start();
   }, [effectiveAllIdx]);
 
@@ -80,7 +92,11 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
     <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
       <View style={[
         styles.container,
-        { backgroundColor: colors.surface, shadowColor: '#000' },
+        {
+          backgroundColor: colors.surface,
+          shadowColor: '#000',
+          borderColor: `${colors.primary}20`,
+        },
         !isMobile && { maxWidth: isDesktop ? 640 : 560 },
       ]}>
         {visibleRoutes.map((route) => {
@@ -95,41 +111,53 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
             if (!isActualTab && !event.defaultPrevented) navigation.navigate(route.name);
           };
 
+          const iconColor = isFocused ? colors.onPrimary : colors.textTertiary;
+          const labelColor = isFocused ? colors.primary : colors.textTertiary;
+
           return (
             <TouchableOpacity
               key={route.key}
               style={styles.tab}
               onPress={onPress}
-              activeOpacity={0.9}
+              activeOpacity={0.85}
               accessibilityRole="button"
             >
               <View style={styles.iconArea}>
+                {/* Active pill with cyan glow */}
                 <Animated.View
                   style={[
                     styles.pill,
                     {
                       backgroundColor: colors.primary,
+                      shadowColor: colors.primary,
                       opacity: pillOpacity[allIdx],
                       transform: [{ scale: pillScale[allIdx] }],
                     },
                   ]}
                 />
+
+                {/* Tab icon */}
                 <Animated.View style={{ transform: [{ scale: iconScale[allIdx] }] }}>
                   <Ionicons
                     name={isFocused ? config.iconActive : config.icon}
                     size={22}
-                    color={isFocused ? colors.onPrimary : colors.textTertiary}
+                    color={iconColor}
                   />
                 </Animated.View>
+
+                {/* Premium star badge (budget tab, premium users) */}
+                {config.premiumOnly && isPremium && (
+                  <View style={[styles.cornerBadge, styles.premiumBadge]}>
+                    <Ionicons name="star" size={7} color="#F59E0B" />
+                  </View>
+                )}
+
               </View>
 
               <Text
                 style={[
                   styles.label,
-                  {
-                    color: isFocused ? colors.primary : colors.textTertiary,
-                    fontFamily: isFocused ? Fonts.bold : Fonts.regular,
-                  },
+                  { color: labelColor, fontFamily: isFocused ? Fonts.bold : Fonts.regular },
                 ]}
                 numberOfLines={1}
               >
@@ -156,13 +184,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: BAR_HEIGHT,
-    borderRadius: 32,
+    borderRadius: 34,
     paddingHorizontal: 8,
-    width: '92%',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.14,
-    shadowRadius: 20,
-    elevation: 12,
+    width: '90%',
+    borderWidth: 1,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    elevation: 14,
   },
   tab: {
     flex: 1,
@@ -180,6 +209,25 @@ const styles = StyleSheet.create({
   pill: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 30,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.45,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  cornerBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 2,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  premiumBadge: {
+    backgroundColor: 'rgba(245,158,11,0.18)',
+    borderColor: 'rgba(245,158,11,0.5)',
   },
   label: {
     fontSize: 10,

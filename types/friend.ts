@@ -9,6 +9,13 @@ export interface UserProfile {
   createdAt: Timestamp;
   whatsNewSeen?: boolean | string;
   colorPalette?: string;
+  isBlocked?: boolean;
+  blockedReason?: string;
+  blockedUntil?: Timestamp;
+  isPremium?: boolean;
+  premiumSince?: Timestamp;
+  premiumExpiry?: Timestamp;
+  premiumWelcomeSeen?: boolean;
 }
 
 export type FriendshipStatus = 'pending' | 'accepted' | 'rejected';
