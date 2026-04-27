@@ -6,7 +6,7 @@
  *   0–600  → Fase 0: radial glow pulse in (opacity 0→0.6, scale 0.4→1)
  *   200–800→ Fase 1: logo ribbon draw + scale-spring (scale 0.6→1, opacity 0→1)
  *   600–950→ Fase 2: "SPENDIA" letter-group fade+slide-up (opacity 0→1, translateY 12→0)
- *   900–1300→Fase 3: shimmer sweep across wordmark
+ *   900–1420→Fase 3: letterSpacing collapse 18→10 + scale settle 1.04→1
  *   1400–1600→Fase 3b: glow breathe pulse (scale 1→1.08→1)
  *   2400–2700→Fase 4: full-screen white overlay fade in → onComplete fires at 2700
  *
@@ -17,30 +17,19 @@ import { useEffect, useRef } from 'react';
 import {
   Animated,
   Easing,
+  Image,
   Platform,
   StyleSheet,
   View,
 } from 'react-native';
-import Svg, {
-  Defs,
-  LinearGradient as SvgLinearGradient,
-  Stop,
-  Path,
-  G,
-  Circle,
-} from 'react-native-svg';
 
 // ─── Brand tokens ──────────────────────────────────────────────────────────────
-const BG           = '#07111A';      // deep dark navy — slightly deeper than app #0D1A1C for drama
 const CYAN         = '#00BCD4';
-const CYAN_BRIGHT  = '#26E5F5';      // light tip of ribbon
-const TEAL         = '#00897B';
-const TEAL_DEEP    = '#00695C';
+const CYAN_BRIGHT  = '#26E5F5';
 const GLOW_COLOR   = '#00BCD4';
-const OVERLAY_EXIT = '#07111A';      // same as BG — fade to dark before navigation
 
 // ─── Geometry ──────────────────────────────────────────────────────────────────
-const LOGO_SIZE    = 96;             // bounding box of the "S" ribbon SVG
+const LOGO_SIZE    = 72;             // bounding box of the "S" ribbon SVG
 const GLOW_RADIUS  = 140;            // radial glow circle behind logo
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -56,9 +45,13 @@ function prefersReducedMotion(): boolean {
 // ─── Component ─────────────────────────────────────────────────────────────────
 interface Props {
   onComplete: () => void;
+  backgroundColor?: string;
+  isDark?: boolean;
 }
 
-export default function AnimatedSplash({ onComplete }: Props) {
+export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C', isDark = true }: Props) {
+  const textColor  = isDark ? '#EEF6F8' : '#1A2428';
+  const glowAlpha  = isDark ? 0.55 : 0.35;
   const reducedMotion = prefersReducedMotion();
 
   // Animated values
@@ -68,7 +61,8 @@ export default function AnimatedSplash({ onComplete }: Props) {
   const logoScale     = useRef(new Animated.Value(0.55)).current;
   const textOpacity   = useRef(new Animated.Value(0)).current;
   const textTranslateY= useRef(new Animated.Value(14)).current;
-  const shimmerX      = useRef(new Animated.Value(-240)).current;  // sweeps L→R over 240px text
+  const wordmarkLetterSpacing = useRef(new Animated.Value(12)).current;  // collapses 12→5
+  const wordmarkScale         = useRef(new Animated.Value(1.04)).current; // settles 1.04→1
   const glowBreath    = useRef(new Animated.Value(1)).current;
   const taglineOpacity= useRef(new Animated.Value(0)).current;
   const exitOpacity   = useRef(new Animated.Value(0)).current;
@@ -82,6 +76,8 @@ export default function AnimatedSplash({ onComplete }: Props) {
       logoScale.setValue(1);
       textOpacity.setValue(1);
       textTranslateY.setValue(0);
+      wordmarkLetterSpacing.setValue(5);
+      wordmarkScale.setValue(1);
       taglineOpacity.setValue(1);
       const t = setTimeout(() => onComplete(), 400);
       return () => clearTimeout(t);
@@ -94,7 +90,7 @@ export default function AnimatedSplash({ onComplete }: Props) {
     // Fase 0 — glow pulse in (0–600ms)
     const phase0 = Animated.parallel([
       Animated.timing(glowOpacity, {
-        toValue: 0.55,
+        toValue: glowAlpha,
         duration: 600,
         easing: ease,
         useNativeDriver: true,
@@ -148,13 +144,23 @@ export default function AnimatedSplash({ onComplete }: Props) {
       useNativeDriver: true,
     });
 
-    // Fase 3 — shimmer sweep (900–1350ms)
-    const phase3Shimmer = Animated.timing(shimmerX, {
-      toValue: 320,
-      duration: 520,
-      easing: easeInOut,
-      useNativeDriver: true,
-    });
+    // Fase 3 — letterSpacing collapse + scale settle (900–1420ms)
+    // useNativeDriver must be consistent within a parallel group; letterSpacing requires false
+    const phase3Collapse = Animated.parallel([
+      Animated.timing(wordmarkLetterSpacing, {
+        toValue: 5,
+        duration: 520,
+        easing: ease,
+        useNativeDriver: false,
+      }),
+      Animated.spring(wordmarkScale, {
+        toValue: 1,
+        damping: 18,
+        stiffness: 120,
+        mass: 0.8,
+        useNativeDriver: false,
+      }),
+    ]);
 
     // Fase 3b — glow breathe (1400–1800ms)
     const phase3Breath = Animated.sequence([
@@ -195,10 +201,10 @@ export default function AnimatedSplash({ onComplete }: Props) {
         Animated.delay(50),
         Animated.parallel([phase2, Animated.sequence([Animated.delay(80), phaseTagline])]),
       ]),
-      // Phase 3 shimmer: 250ms hold
+      // Phase 3 letterSpacing collapse: 250ms hold
       Animated.sequence([
         Animated.delay(250),
-        phase3Shimmer,
+        phase3Collapse,
       ]),
       // Phase 3b breath: 50ms gap
       Animated.sequence([
@@ -214,11 +220,8 @@ export default function AnimatedSplash({ onComplete }: Props) {
     });
   }, []);
 
-  // Shimmer clipped translate — clamped to text area
-  const shimmerTranslate = shimmerX;
-
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor }]}>
       {/* ── Radial glow behind logo ── */}
       <Animated.View
         style={[
@@ -226,7 +229,7 @@ export default function AnimatedSplash({ onComplete }: Props) {
           {
             opacity: glowOpacity,
             transform: [
-              { scale: Animated.multiply(glowScale, glowBreath) },
+              { scale: glowScale },
             ],
           },
         ]}
@@ -248,32 +251,40 @@ export default function AnimatedSplash({ onComplete }: Props) {
           },
         ]}
       >
-        <SpendiaLogoSvg size={LOGO_SIZE} />
+        <Image
+          source={require('../assets/logo-transparent.png')}
+          style={{ width: LOGO_SIZE, height: LOGO_SIZE }}
+          resizeMode="contain"
+        />
       </Animated.View>
 
-      {/* ── Wordmark + shimmer ── */}
+      {/* ── Wordmark ── */}
       <Animated.View
         style={[
           styles.wordmarkContainer,
           {
             opacity: textOpacity,
             transform: [{ translateY: textTranslateY }],
+            backgroundColor: 'transparent',
           },
         ]}
       >
-        <View style={styles.wordmarkClip}>
-          <Animated.Text style={styles.wordmark}>
-            SPENDIA
-          </Animated.Text>
-          {/* Shimmer overlay — translates across the text */}
-          <Animated.View
-            style={[
-              styles.shimmerBar,
-              { transform: [{ translateX: shimmerTranslate }] },
-            ]}
-            pointerEvents="none"
-          />
-        </View>
+        <Animated.Text
+          style={[
+            styles.wordmark,
+            {
+              color: textColor,
+              backgroundColor: 'transparent',
+              letterSpacing: wordmarkLetterSpacing,
+              transform: [{ scale: wordmarkScale }],
+            },
+            isDark && Platform.OS === 'web'
+              ? ({ textShadow: '0 0 32px rgba(0,188,212,0.45), 0 0 8px rgba(0,188,212,0.25)' } as any)
+              : undefined,
+          ]}
+        >
+          SPENDIA
+        </Animated.Text>
 
         {/* Tagline */}
         <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
@@ -289,121 +300,10 @@ export default function AnimatedSplash({ onComplete }: Props) {
 
       {/* ── Exit overlay ── */}
       <Animated.View
-        style={[styles.exitOverlay, { opacity: exitOpacity }]}
+        style={[styles.exitOverlay, { opacity: exitOpacity, backgroundColor }]}
         pointerEvents="none"
       />
     </View>
-  );
-}
-
-// ─── Spendia "S" ribbon SVG ────────────────────────────────────────────────────
-// Geometry: two fluid curved bands forming an "S":
-//   • Upper band: cyan (#00BCD4 → #26E5F5) — sweeps top-right to center-left
-//   • Lower band: teal (#00897B → #00695C) — sweeps center-right to bottom-left
-// Each band is a filled bezier path with width ≈ 22px, gap of ~6px between them.
-// The overall shape fits in a 96×96 viewBox.
-
-function SpendiaLogoSvg({ size }: { size: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 96 96" fill="none">
-      <Defs>
-        {/* Cyan band gradient — upper ribbon */}
-        <SvgLinearGradient id="gradCyan" x1="72" y1="10" x2="24" y2="46" gradientUnits="userSpaceOnUse">
-          <Stop offset="0" stopColor="#26E5F5" />
-          <Stop offset="0.5" stopColor="#00BCD4" />
-          <Stop offset="1" stopColor="#0097A7" />
-        </SvgLinearGradient>
-
-        {/* Teal band gradient — lower ribbon */}
-        <SvgLinearGradient id="gradTeal" x1="24" y1="50" x2="72" y2="86" gradientUnits="userSpaceOnUse">
-          <Stop offset="0" stopColor="#00A896" />
-          <Stop offset="0.5" stopColor="#00897B" />
-          <Stop offset="1" stopColor="#00695C" />
-        </SvgLinearGradient>
-
-        {/* Highlight gradient for inner edge shimmer */}
-        <SvgLinearGradient id="gradHighCyan" x1="72" y1="12" x2="40" y2="32" gradientUnits="userSpaceOnUse">
-          <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.35" />
-          <Stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
-        </SvgLinearGradient>
-
-        <SvgLinearGradient id="gradHighTeal" x1="24" y1="64" x2="56" y2="84" gradientUnits="userSpaceOnUse">
-          <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.25" />
-          <Stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
-        </SvgLinearGradient>
-      </Defs>
-
-      {/* ── Upper cyan ribbon ──
-          Entry: top-right (≈72,12)
-          Sweeps through center, exits center-left (≈18,44)
-          Band thickness ≈ 22px */}
-      <G>
-        {/* Outer (upper) edge of cyan band */}
-        <Path
-          d={[
-            'M 72 12',
-            'C 64 10, 52 10, 42 18',
-            'C 32 26, 22 36, 18 44',
-            'C 20 46, 22 48, 26 48',
-            'C 30 40, 38 30, 48 24',
-            'C 56 18, 68 16, 76 18',
-            'C 78 16, 76 12, 72 12',
-            'Z',
-          ].join(' ')}
-          fill="url(#gradCyan)"
-        />
-        {/* Inner highlight on cyan band */}
-        <Path
-          d={[
-            'M 72 12',
-            'C 64 10, 52 10, 42 18',
-            'C 36 22, 30 28, 26 34',
-            'C 30 30, 38 22, 48 18',
-            'C 58 14, 68 14, 76 18',
-            'C 78 16, 76 12, 72 12',
-            'Z',
-          ].join(' ')}
-          fill="url(#gradHighCyan)"
-        />
-      </G>
-
-      {/* ── Lower teal ribbon ──
-          Entry: center-right (≈72,50)
-          Sweeps through center, exits bottom-left (≈24,84) */}
-      <G>
-        <Path
-          d={[
-            'M 78 50',
-            'C 74 48, 70 48, 66 50',
-            'C 60 54, 50 62, 44 70',
-            'C 36 80, 28 86, 20 86',
-            'C 18 88, 20 90, 24 90',
-            'C 34 90, 44 82, 52 72',
-            'C 60 62, 68 52, 76 52',
-            'C 80 52, 82 50, 78 50',
-            'Z',
-          ].join(' ')}
-          fill="url(#gradTeal)"
-        />
-        {/* Inner highlight on teal band */}
-        <Path
-          d={[
-            'M 78 50',
-            'C 74 48, 70 48, 66 50',
-            'C 62 52, 58 56, 54 62',
-            'C 58 56, 64 52, 70 50',
-            'C 74 50, 78 50, 78 50',
-            'Z',
-          ].join(' ')}
-          fill="url(#gradHighTeal)"
-        />
-      </G>
-
-      {/* ── Center connector dot — where ribbons cross ──
-          Small glowing circle at the intersection (~48, 48) */}
-      <Circle cx="44" cy="47" r="5" fill="#00BCD4" opacity={0.9} />
-      <Circle cx="44" cy="47" r="3" fill="#26E5F5" opacity={0.7} />
-    </Svg>
   );
 }
 
@@ -411,7 +311,6 @@ function SpendiaLogoSvg({ size }: { size: number }) {
 const styles = StyleSheet.create({
   root: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: BG,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 9999,
@@ -458,41 +357,17 @@ const styles = StyleSheet.create({
 
   // Wordmark block
   wordmarkContainer: {
+    width: '100%',
     alignItems: 'center',
     marginTop: 20,
-  },
-  wordmarkClip: {
-    overflow: 'hidden',
-    position: 'relative',
+    backgroundColor: 'transparent',
   },
   wordmark: {
     fontFamily: 'Montserrat_800ExtraBold',
     fontSize: 36,
-    letterSpacing: 10,
-    color: '#EEF6F8',
     includeFontPadding: false,
-    ...(Platform.OS === 'web'
-      ? ({
-          textShadow: `0 0 32px rgba(0,188,212,0.45), 0 0 8px rgba(0,188,212,0.25)`,
-        } as any)
-      : {}),
-  },
-
-  // Shimmer bar: a narrow diagonal bright stripe
-  shimmerBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 60,
-    height: '100%' as any,
-    opacity: 0.28,
-    ...(Platform.OS === 'web'
-      ? ({
-          background: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.85) 50%, transparent 80%)',
-        } as any)
-      : {
-          backgroundColor: 'rgba(255,255,255,0.18)',
-        }),
+    textAlign: 'center',
+    width: '100%',
   },
 
   // Tagline
@@ -516,16 +391,14 @@ const styles = StyleSheet.create({
     opacity: 0.18,
     ...(Platform.OS === 'web'
       ? ({
-          background: `linear-gradient(to bottom, transparent, ${CYAN}, transparent)`,
+          backgroundImage: `linear-gradient(to bottom, transparent, ${CYAN}, transparent)`,
           width: 1,
         } as any)
       : {}),
   },
 
-  // Exit overlay — fades to BG color before navigation
   exitOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: OVERLAY_EXIT,
     zIndex: 10,
   },
 });
