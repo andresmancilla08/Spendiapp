@@ -3,10 +3,13 @@ import {
   Text,
   StyleSheet,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
+
+const HIDDEN_MASK = '••••••';
 
 interface BalanceCardProps {
   displayBalance: number;
@@ -16,6 +19,8 @@ interface BalanceCardProps {
   balanceLabel: string;
   incomeLabel: string;
   expensesLabel: string;
+  hidden?: boolean;
+  onToggleHidden?: () => void;
 }
 
 export default function BalanceCard({
@@ -26,6 +31,8 @@ export default function BalanceCard({
   balanceLabel,
   incomeLabel,
   expensesLabel,
+  hidden = false,
+  onToggleHidden,
 }: BalanceCardProps) {
   const { colors, isDark } = useTheme();
 
@@ -55,7 +62,7 @@ export default function BalanceCard({
         },
       ]}
     >
-      {/* Inner highlight — simulates light source from above, material feel */}
+      {/* Inner highlight */}
       <View
         style={[
           styles.innerHighlight,
@@ -68,7 +75,7 @@ export default function BalanceCard({
         pointerEvents="none"
       />
 
-      {/* Decorative blobs (palette-tinted) */}
+      {/* Decorative blobs */}
       <View
         style={[
           styles.accentBlob,
@@ -92,7 +99,7 @@ export default function BalanceCard({
         pointerEvents="none"
       />
 
-      {/* Top accent bar — 3px brand stripe, unique identifier of this card */}
+      {/* Top accent bar */}
       <View
         style={[styles.topAccentBar, { backgroundColor: colors.primary }]}
         pointerEvents="none"
@@ -103,41 +110,63 @@ export default function BalanceCard({
         <Text style={[styles.balanceLabel, { color: colors.textTertiary }]}>
           {balanceLabel}
         </Text>
-        {/* Health ring + dot (Stripe/Linear-style pulse indicator) */}
-        <View
-          style={[
-            styles.healthRing,
-            {
-              borderColor: isPositive
-                ? colors.success + '50'
-                : colors.expense + '50',
-            },
-          ]}
-        >
+        <View style={styles.labelRowRight}>
+          {/* Health indicator */}
           <View
             style={[
-              styles.healthDot,
-              { backgroundColor: isPositive ? colors.success : colors.expense },
+              styles.healthRing,
+              {
+                borderColor: isPositive
+                  ? colors.success + '50'
+                  : colors.expense + '50',
+              },
             ]}
-          />
+          >
+            <View
+              style={[
+                styles.healthDot,
+                { backgroundColor: isPositive ? colors.success : colors.expense },
+              ]}
+            />
+          </View>
+          {/* Eye toggle */}
+          {onToggleHidden && (
+            <TouchableOpacity
+              onPress={onToggleHidden}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              style={styles.eyeBtn}
+            >
+              <Ionicons
+                name={hidden ? 'eye-off-outline' : 'eye-outline'}
+                size={15}
+                color={colors.textTertiary}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
-      {/* Amount — primary color connects to brand identity per palette */}
+      {/* Amount */}
       <Text
         style={[
           styles.balanceAmount,
-          { color: isPositive ? colors.primary : colors.expense },
+          {
+            color: hidden
+              ? colors.textTertiary
+              : isPositive ? colors.primary : colors.expense,
+            letterSpacing: hidden ? 4 : -0.5,
+          },
         ]}
         numberOfLines={1}
         adjustsFontSizeToFit
         minimumFontScale={0.6}
       >
-        {formatCurrency(displayBalance)}
+        {hidden ? HIDDEN_MASK : formatCurrency(displayBalance)}
       </Text>
 
-      {/* Progress bar: income vs expenses */}
-      {totalIncome > 0 && (
+      {/* Progress bar — solo cuando hay datos y no está oculto */}
+      {totalIncome > 0 && !hidden && (
         <View style={styles.progressWrap}>
           <View
             style={[styles.progressTrack, { backgroundColor: colors.border }]}
@@ -163,7 +192,7 @@ export default function BalanceCard({
         </View>
       )}
 
-      {/* Stats footer — primary-tinted surface, flush to card bottom */}
+      {/* Stats footer */}
       <View
         style={[
           styles.statsRow,
@@ -188,8 +217,8 @@ export default function BalanceCard({
               {incomeLabel}
             </Text>
           </View>
-          <Text style={[styles.statValue, { color: colors.success }]}>
-            {formatCurrency(totalIncome)}
+          <Text style={[styles.statValue, { color: hidden ? colors.textTertiary : colors.success, letterSpacing: hidden ? 3 : -0.4 }]}>
+            {hidden ? HIDDEN_MASK : formatCurrency(totalIncome)}
           </Text>
         </View>
 
@@ -211,8 +240,8 @@ export default function BalanceCard({
               {expensesLabel}
             </Text>
           </View>
-          <Text style={[styles.statValue, { color: colors.expense }]}>
-            {formatCurrency(totalExpenses)}
+          <Text style={[styles.statValue, { color: hidden ? colors.textTertiary : colors.expense, letterSpacing: hidden ? 3 : -0.4 }]}>
+            {hidden ? HIDDEN_MASK : formatCurrency(totalExpenses)}
           </Text>
         </View>
       </View>
@@ -232,8 +261,6 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
 
-  // Renders a subtle white border just inside the card border,
-  // simulating a light source from above — creates material depth
   innerHighlight: {
     position: 'absolute',
     top: 1,
@@ -244,7 +271,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
 
-  // 3px primary brand stripe at card top — differentiator vs other cards
   topAccentBar: {
     position: 'absolute',
     top: 0,
@@ -281,11 +307,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 4,
   },
+  labelRowRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   balanceLabel: {
     fontSize: 11,
     fontFamily: Fonts.semiBold,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
+  },
+
+  eyeBtn: {
+    padding: 2,
   },
 
   healthRing: {
@@ -305,7 +340,6 @@ const styles = StyleSheet.create({
   balanceAmount: {
     fontSize: 40,
     fontFamily: Fonts.extraBold,
-    letterSpacing: -0.5,
     marginBottom: 16,
     includeFontPadding: false,
     minHeight: 52,
@@ -334,7 +368,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
 
-  // Footer section flush to card bottom edges via negative margin
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -370,7 +403,6 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 14,
     fontFamily: Fonts.bold,
-    letterSpacing: -0.4,
     includeFontPadding: false,
   },
   vertSep: {

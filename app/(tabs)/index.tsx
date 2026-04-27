@@ -44,6 +44,7 @@ import { useCategories } from '../../hooks/useCategories';
 import type { Category } from '../../types/category';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import AnnouncementBanner from '../../components/AnnouncementBanner';
+import { useAmountsVisibility } from '../../hooks/useAmountsVisibility';
 
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
@@ -170,6 +171,7 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const { flags } = useFlags();
+  const { hidden, toggle: toggleHidden } = useAmountsVisibility();
   const { justLoggedIn, setJustLoggedIn } = useAuthStore();
   const { setSelectedTransaction, pendingEditTx, setPendingEditTx, lastAction, setLastAction } = useHistoryStore();
   const { showToast } = useToast();
@@ -409,6 +411,11 @@ export default function HomeScreen() {
           balanceLabel={t('home.balanceLabel')}
           incomeLabel={t('home.incomeLabel')}
           expensesLabel={t('home.expensesLabel')}
+          hidden={hidden}
+          onToggleHidden={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            toggleHidden();
+          }}
         />
 
         {/* Income / Expenses */}
@@ -418,8 +425,8 @@ export default function HomeScreen() {
               <Ionicons name="arrow-down" size={24} color={colors.onPrimary} />
             </View>
             <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.incomeLabel')}</Text>
-            <Text style={[styles.summaryCardValue, { color: colors.primary }]}>
-              {formatCurrency(totalIncome)}
+            <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.primary, letterSpacing: hidden ? 3 : undefined }]}>
+              {hidden ? '••••••' : formatCurrency(totalIncome)}
             </Text>
           </View>
 
@@ -428,8 +435,8 @@ export default function HomeScreen() {
               <Ionicons name="arrow-up" size={24} color={colors.expense} />
             </View>
             <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.expensesLabel')}</Text>
-            <Text style={[styles.summaryCardValue, { color: colors.expense }]}>
-              {formatCurrency(totalExpenses)}
+            <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.expense, letterSpacing: hidden ? 3 : undefined }]}>
+              {hidden ? '••••••' : formatCurrency(totalExpenses)}
             </Text>
           </View>
         </View>
