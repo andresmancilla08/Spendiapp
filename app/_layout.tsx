@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, StyleSheet } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { onAuthStateChanged, signOut } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
@@ -40,6 +40,24 @@ function PaletteLoader() {
   }, [user?.uid]);
 
   return null;
+}
+
+function ThemedSplash({ onComplete }: { onComplete: () => void }) {
+  const { colors, isDark } = useTheme();
+  return (
+    <AnimatedSplash
+      onComplete={onComplete}
+      backgroundColor={colors.background}
+      isDark={isDark}
+    />
+  );
+}
+
+function NavReadyOverlay() {
+  const { colors } = useTheme();
+  return (
+    <View style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.background, zIndex: 9998 }]} />
+  );
 }
 
 function ThemedStack() {
@@ -99,14 +117,19 @@ function compareVersions(a: string, b: string): number {
   return 0;
 }
 
-function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded: boolean }) {
+function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; fontsLoaded: boolean; onFirstNav: () => void }) {
   const { flags, flagsLoading } = useFlags();
-  const { user, isLoading, justRegistered, biometricLocked, setBiometricLocked } = useAuthStore();
+  const { user, isLoading, justRegistered, biometricLocked, setBiometricLocked, setIsPremium } = useAuthStore();
   const [isBlockedChecked, setIsBlockedChecked] = useState(false);
   const [userIsBlocked, setUserIsBlocked] = useState(false);
   const [versionChecked, setVersionChecked] = useState(false);
   const [needsUpdate, setNeedsUpdate] = useState(false);
   const knownSessionVersion = useRef<number | null>(null);
+  const lastNav = useRef<string | null>(null);
+  const prevIsPremiumRef = useRef<boolean | null>(null);
+
+  // Reset lastNav when user identity changes so new-session routing always fires
+  useEffect(() => { lastNav.current = null; }, [user?.uid]);
 
   // Versión mínima — onSnapshot para detectar cambios remotos
   useEffect(() => {
@@ -124,11 +147,13 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
     return unsub;
   }, []);
 
-  // isBlocked — onSnapshot en tiempo real: admin bloquea → app reacciona instantáneamente
+  // isBlocked + isPremium — onSnapshot en tiempo real: admin cambia → app reacciona instantáneamente
   useEffect(() => {
     if (!user?.uid) {
       setUserIsBlocked(false);
       setIsBlockedChecked(true);
+      setIsPremium(false);
+      prevIsPremiumRef.current = null;
       return;
     }
     setIsBlockedChecked(false);
@@ -139,6 +164,7 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
         if (!snap.exists()) {
           setUserIsBlocked(false);
           setIsBlockedChecked(true);
+          setIsPremium(false);
           return;
         }
         const data = snap.data();
@@ -150,10 +176,23 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
           data.blockedUntil.toDate() > now;
         setUserIsBlocked(blockedByFlag || blockedByTime);
         setIsBlockedChecked(true);
+        // Premium: activo si isPremium === true y (sin expiración o expiración futura)
+        const premiumActive = !!data.isPremium && (
+          !data.premiumExpiry ||
+          (typeof data.premiumExpiry.toDate === 'function' && data.premiumExpiry.toDate() > now)
+        );
+        const prevWasPremium = prevIsPremiumRef.current;
+        prevIsPremiumRef.current = premiumActive;
+        setIsPremium(premiumActive);
+        // Trigger welcome screen only on free→premium transition (not on first load already premium)
+        if (prevWasPremium === false && premiumActive && !data.premiumWelcomeSeen) {
+          router.push('/premium-welcome' as Parameters<typeof router.push>[0]);
+        }
       },
       () => {
         setUserIsBlocked(false);
         setIsBlockedChecked(true);
+        setIsPremium(false);
       }
     );
     return unsub;
@@ -184,15 +223,22 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
     if (!i18nReady || !fontsLoaded || isLoading || flagsLoading || justRegistered || !versionChecked) return;
     if (user && !isBlockedChecked) return;
 
+    const navigate = (path: string) => {
+      if (lastNav.current === path) return;
+      lastNav.current = path;
+      onFirstNav();
+      router.replace(path as Parameters<typeof router.replace>[0]);
+    };
+
     // 0. Versión mínima (máxima prioridad absoluta)
     if (needsUpdate) {
-      router.replace('/update-required' as any);
+      navigate('/update-required');
       return;
     }
 
     // 1. Mantenimiento
     if (flags.maintenanceMode) {
-      router.replace('/maintenance' as any);
+      navigate('/maintenance');
       return;
     }
 
@@ -200,7 +246,7 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
       // 2. Bloqueado
       if (userIsBlocked) {
         signOut();
-        router.replace('/blocked' as any);
+        navigate('/blocked');
         return;
       }
       // 3. Biométrico (solo nativo)
@@ -210,25 +256,25 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
           .then((enrolled) => {
             if (cancelled) return;
             if (enrolled) {
-              router.replace('/(auth)/biometric-lock');
+              navigate('/(auth)/biometric-lock');
             } else {
               setBiometricLocked(false);
-              router.replace('/(tabs)/');
+              navigate('/(tabs)/');
             }
           })
           .catch(() => {
             if (!cancelled) {
               setBiometricLocked(false);
-              router.replace('/(tabs)/');
+              navigate('/(tabs)/');
             }
           });
         return () => { cancelled = true; };
       } else {
-        router.replace('/(tabs)/');
+        navigate('/(tabs)/');
       }
     } else {
       setBiometricLocked(true);
-      router.replace('/(auth)/login');
+      navigate('/(auth)/login');
     }
   }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, biometricLocked, flags.maintenanceMode, flagsLoading, userIsBlocked, isBlockedChecked, versionChecked, needsUpdate]);
 
@@ -246,6 +292,7 @@ export default function RootLayout() {
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [splashDone, setSplashDone] = useState(false);
+  const [navReady, setNavReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
@@ -351,32 +398,30 @@ export default function RootLayout() {
     signOut();
   };
 
-  // Show splash until fonts+i18n are ready AND the animation has completed.
-  // The splash renders independently (no ThemeProvider needed — it uses hardcoded
-  // brand tokens) so it appears instantly while the rest of the tree bootstraps.
-  if (!splashDone || !i18nReady || !fontsLoaded) {
-    return (
-      <AnimatedSplash
-        onComplete={() => setSplashDone(true)}
-      />
-    );
-  }
+  const splashVisible = !splashDone || !i18nReady || !fontsLoaded || isLoading;
 
   return (
     <ThemeProvider>
       <ToastProvider>
         <FeatureFlagsProvider>
-          <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} />
-          <WebAppShell>
-            <PaletteLoader />
-            <ThemedStack />
-            <InactivityDialog
-              visible={inactivityDialogVisible}
-              countdown={countdown}
-              onStay={handleStay}
-              onLogout={handleLogout}
-            />
-          </WebAppShell>
+          {splashVisible ? (
+            <ThemedSplash onComplete={() => setSplashDone(true)} />
+          ) : (
+            <>
+              <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} onFirstNav={() => setNavReady(true)} />
+              <WebAppShell>
+                <PaletteLoader />
+                <ThemedStack />
+                <InactivityDialog
+                  visible={inactivityDialogVisible}
+                  countdown={countdown}
+                  onStay={handleStay}
+                  onLogout={handleLogout}
+                />
+              </WebAppShell>
+              {!navReady && <NavReadyOverlay />}
+            </>
+          )}
         </FeatureFlagsProvider>
       </ToastProvider>
     </ThemeProvider>
