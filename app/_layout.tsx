@@ -18,6 +18,7 @@ import { Fonts } from '../config/fonts';
 import { useInactivityTimer } from '../hooks/useInactivityTimer';
 import AppDialog from '../components/AppDialog';
 import WebAppShell from '../components/WebAppShell';
+import AnimatedSplash from '../components/AnimatedSplash';
 import { useTranslation } from 'react-i18next';
 import { createUserProfile, getUserProfile, updateAppVersion } from '../hooks/useUserProfile';
 import Constants from 'expo-constants';
@@ -244,6 +245,8 @@ export default function RootLayout() {
   const [countdown, setCountdown] = useState(30);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const [splashDone, setSplashDone] = useState(false);
+
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
     Montserrat_500Medium,
@@ -348,7 +351,16 @@ export default function RootLayout() {
     signOut();
   };
 
-  if (!i18nReady || !fontsLoaded) return null;
+  // Show splash until fonts+i18n are ready AND the animation has completed.
+  // The splash renders independently (no ThemeProvider needed — it uses hardcoded
+  // brand tokens) so it appears instantly while the rest of the tree bootstraps.
+  if (!splashDone || !i18nReady || !fontsLoaded) {
+    return (
+      <AnimatedSplash
+        onComplete={() => setSplashDone(true)}
+      />
+    );
+  }
 
   return (
     <ThemeProvider>
