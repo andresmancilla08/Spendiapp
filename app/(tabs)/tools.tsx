@@ -23,6 +23,7 @@ interface ToolCardData {
   description: string;
   onPress: () => void;
   disabled?: boolean;
+  premiumLocked?: boolean;
 }
 
 function ToolCard({
@@ -32,6 +33,7 @@ function ToolCard({
   onPress,
   colors,
   disabled,
+  premiumLocked,
 }: ToolCardData & { colors: any }) {
   return (
     <TouchableOpacity
@@ -41,9 +43,9 @@ function ToolCard({
         styles.cardWrapper,
         {
           backgroundColor: colors.surface,
-          borderColor: `${colors.primary}30`,
+          borderColor: premiumLocked ? 'rgba(245,158,11,0.30)' : `${colors.primary}30`,
           borderWidth: 1,
-          shadowColor: colors.primary,
+          shadowColor: premiumLocked ? '#F59E0B' : colors.primary,
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: disabled ? 0.04 : 0.12,
           shadowRadius: 12,
@@ -54,10 +56,10 @@ function ToolCard({
     >
       <View style={styles.card}>
         <View style={styles.iconContainer}>
-          <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
+          <View style={[styles.iconWrap, { backgroundColor: premiumLocked ? 'rgba(245,158,11,0.10)' : colors.primaryLight }]}>
             <Text style={styles.emoji}>{emoji}</Text>
           </View>
-          {disabled && (
+          {disabled && !premiumLocked && (
             <View
               style={[
                 styles.pauseBadge,
@@ -72,12 +74,20 @@ function ToolCard({
           )}
         </View>
         <View style={styles.cardContent}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{title}</Text>
+          <View style={styles.cardTitleRow}>
+            <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{title}</Text>
+            {premiumLocked && (
+              <View style={styles.premiumBadge}>
+                <Ionicons name="star" size={9} color="#F59E0B" />
+                <Text style={styles.premiumBadgeText}>Premium</Text>
+              </View>
+            )}
+          </View>
           <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{description}</Text>
         </View>
         {!disabled && (
-          <View style={[styles.chevronWrap, { backgroundColor: `${colors.primary}12` }]}>
-            <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+          <View style={[styles.chevronWrap, { backgroundColor: premiumLocked ? 'rgba(245,158,11,0.10)' : `${colors.primary}12` }]}>
+            <Ionicons name="chevron-forward" size={16} color={premiumLocked ? '#F59E0B' : colors.primary} />
           </View>
         )}
       </View>
@@ -101,6 +111,22 @@ export default function ToolsScreen() {
           <AppHeader />
           <PageTitle title={t('tools.title')} description={t('tools.pageDesc')} />
           <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <ToolCard
+              emoji="📊"
+              icon="wallet-outline"
+              title={t('tools.budgetCard.title')}
+              description={t('tools.budgetCard.description')}
+              premiumLocked={!isPremium}
+              onPress={
+                !isPremium
+                  ? () => router.push('/upgrade' as any)
+                  : flags.budgetsEnabled
+                  ? () => router.push('/budget' as any)
+                  : paused(t('tools.budgetCard.title'))
+              }
+              disabled={isPremium && !flags.budgetsEnabled}
+              colors={colors}
+            />
             <ToolCard
               emoji="🎯"
               icon="flag"
@@ -194,8 +220,21 @@ const styles = StyleSheet.create({
   },
   emoji: { fontSize: 26 },
   cardContent: { flex: 1 },
-  cardTitle: { fontSize: 16, fontFamily: Fonts.bold, marginBottom: 3 },
+  cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 },
+  cardTitle: { fontSize: 16, fontFamily: Fonts.bold },
   cardDesc: { fontSize: 13, fontFamily: Fonts.regular, lineHeight: 19 },
+  premiumBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 20,
+    backgroundColor: 'rgba(245,158,11,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,158,11,0.35)',
+  },
+  premiumBadgeText: { fontSize: 9, fontFamily: Fonts.bold, color: '#F59E0B' },
   chevronWrap: {
     width: 30,
     height: 30,

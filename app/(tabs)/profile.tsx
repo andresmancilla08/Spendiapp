@@ -835,14 +835,14 @@ export default function ProfileScreen() {
             </View>
             {isPremium && (
               <View style={{
-                flexDirection: 'row', alignItems: 'center', gap: 4,
+                flexDirection: 'row', alignItems: 'center', gap: 5,
                 backgroundColor: colors.warning + '20',
                 borderWidth: 1, borderColor: colors.warning + '66',
-                borderRadius: 20, paddingHorizontal: 9, paddingVertical: 3,
+                borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5,
                 shadowColor: colors.warning, shadowOpacity: 0.2, shadowRadius: 6, elevation: 2,
               }}>
-                <Ionicons name="star" size={11} color={colors.warning} />
-                <Text style={{ fontFamily: Fonts.semiBold, fontSize: 10, color: colors.warning, letterSpacing: 0.8 }}>
+                <Ionicons name="star" size={12} color={colors.warning} />
+                <Text style={{ fontFamily: Fonts.semiBold, fontSize: 12, color: colors.warning, letterSpacing: 0.8 }}>
                   PRO
                 </Text>
               </View>

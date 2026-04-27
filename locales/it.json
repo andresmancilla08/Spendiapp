@@ -1061,6 +1061,24 @@
       "item1": "Nuovo selettore tab con bordi completamente arrotondati in tutta l'app",
       "item2": "Tavolozze riorganizzate in 2 gruppi (Classiche / Pastello) con nomi tradotti correttamente",
       "item3": "Correzione: la schermata delle spese di gruppo non rimane più bloccata in caricamento"
+    },
+    "premiumWelcome": {
+      "title": "Esperienza Premium rinnovata",
+      "item1": "Schermata di benvenuto esclusiva all'attivazione Premium con accesso diretto a tutte le funzioni",
+      "item2": "Navbar con gradiente speciale che distingue il tuo account premium",
+      "item3": "Sblocca tutto il potenziale di Spendia: budget avanzati, report e molto altro"
+    },
+    "otpPinReset": {
+      "title": "Recupera il tuo PIN via email",
+      "item1": "Hai dimenticato il PIN? Richiedi un codice di verifica direttamente alla tua email",
+      "item2": "Codice sicuro a 6 cifre con design tematico e scadenza automatica",
+      "item3": "Il tuo account rimane protetto durante tutto il processo di recupero"
+    },
+    "animatedSplash": {
+      "title": "Nuova schermata di caricamento animata",
+      "item1": "Splash screen con animazione professionale: glow, shimmer e fisica a molla fluida",
+      "item2": "Il logo di Spendia prende vita con effetti luminosi ad ogni avvio",
+      "item3": "Transizione fluida dalla schermata iniziale al login"
     }
   },
   "incomeClaim": {
@@ -1168,6 +1186,10 @@
     "expenseGroupsCard": {
       "title": "Spese di gruppo",
       "description": "Registra e dividi le spese in uscite o viaggi"
+    },
+    "budgetCard": {
+      "title": "Budget mensile",
+      "description": "Imposta limiti di spesa per categoria e mantieni il controllo"
     }
   },
   "goals": {
@@ -1324,6 +1346,20 @@
     "reason": "Motivo: {{reason}}",
     "contact": "Contatta il supporto"
   },
+  "premiumWelcome": {
+    "badge": "SPENDIA PREMIUM",
+    "title1": "Il tuo account è",
+    "title2": "attivo.",
+    "subtitle": "Benvenuto nell'esperienza completa di Spendia.",
+    "cta": "Inizia ad esplorare",
+    "features": [
+      "Budget intelligente",
+      "Report con amico",
+      "Spese di gruppo",
+      "Palette colori",
+      "Temi premium"
+    ]
+  },
   "premium": {
     "lockedTitle": "Funzione Premium",
     "lockedSubtitle": "Sblocca questa funzione con Spendia Premium.",
@@ -1336,7 +1372,14 @@
     "subtitle": "Sblocca il pieno potenziale di Spendia",
     "price": "COP $9.900/mese · $79.900/anno",
     "benefitsTitle": "Tutto incluso:",
-    "benefits": ["Report PDF illimitati", "Obiettivi di risparmio", "Amici e spese condivise", "Notifiche intelligenti", "Categorie personalizzate illimitate", "Supporto prioritario"],
+    "benefits": [
+      "Report PDF illimitati",
+      "Obiettivi di risparmio",
+      "Amici e spese condivise",
+      "Notifiche intelligenti",
+      "Categorie personalizzate illimitate",
+      "Supporto prioritario"
+    ],
     "ctaButton": "Attiva Premium",
     "ctaNote": "L'admin attiverà il tuo accesso dopo aver confermato il pagamento"
   },
