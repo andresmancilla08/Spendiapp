@@ -10,6 +10,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import { useAuthStore } from '../store/authStore';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -29,24 +30,28 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { isMobile, isDesktop } = useBreakpoint();
+  const { isPremium } = useAuthStore();
 
-  const visibleRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
-  const activeIndex = visibleRoutes.findIndex(r => r.name === state.routes[state.index].name);
-  // Cuando estamos en una sub-pantalla (profile, notifications, etc.), activeIndex=-1.
-  // Mostramos Home como activo por defecto.
-  const effectiveIndex = activeIndex === -1 ? 0 : activeIndex;
+  // All tabs — stable set used for animated value indices (always includes budget)
+  const allTabRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
+  // Budget is premium-only: hide from tab bar for free users
+  const visibleRoutes = allTabRoutes.filter(r => !(r.name === 'budget' && !isPremium));
 
-  // Per-tab animated values (pill opacity/scale + icon scale)
-  const pillOpacity = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === effectiveIndex ? 1 : 0))).current;
-  const pillScale   = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === effectiveIndex ? 1 : 0.75))).current;
-  const iconScale   = useRef(visibleRoutes.map((_, i) => new Animated.Value(i === effectiveIndex ? 1 : 0.85))).current;
+  const activeInAll = allTabRoutes.findIndex(r => r.name === state.routes[state.index].name);
+  // Sub-screens (profile, notifications, etc.) → fall back to Home
+  const effectiveAllIdx = activeInAll === -1 ? 0 : activeInAll;
 
-  const prevActive = useRef(effectiveIndex);
+  // Animated values indexed by allTabRoutes (stable indices prevent mismatch if premium changes)
+  const pillOpacity = useRef(allTabRoutes.map((_, i) => new Animated.Value(i === effectiveAllIdx ? 1 : 0))).current;
+  const pillScale   = useRef(allTabRoutes.map((_, i) => new Animated.Value(i === effectiveAllIdx ? 1 : 0.75))).current;
+  const iconScale   = useRef(allTabRoutes.map((_, i) => new Animated.Value(i === effectiveAllIdx ? 1 : 0.85))).current;
+
+  const prevActive = useRef(effectiveAllIdx);
 
   useEffect(() => {
     const prev = prevActive.current;
-    if (prev === effectiveIndex) return;
-    prevActive.current = effectiveIndex;
+    if (prev === effectiveAllIdx) return;
+    prevActive.current = effectiveAllIdx;
 
     const fadeOutPrev = prev >= 0 ? [
       Animated.spring(pillOpacity[prev], { toValue: 0, damping: 18, stiffness: 300, useNativeDriver: true }),
@@ -56,11 +61,11 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
 
     Animated.parallel([
       ...fadeOutPrev,
-      Animated.spring(pillOpacity[effectiveIndex], { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
-      Animated.spring(pillScale[effectiveIndex],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
-      Animated.spring(iconScale[effectiveIndex],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
+      Animated.spring(pillOpacity[effectiveAllIdx], { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
+      Animated.spring(pillScale[effectiveAllIdx],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
+      Animated.spring(iconScale[effectiveAllIdx],   { toValue: 1, damping: 14, stiffness: 260, useNativeDriver: true }),
     ]).start();
-  }, [effectiveIndex]);
+  }, [effectiveAllIdx]);
 
   const tabLabels: Record<string, string> = {
     index:   t('tabBar.home'),
@@ -78,11 +83,11 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
         { backgroundColor: colors.surface, shadowColor: '#000' },
         !isMobile && { maxWidth: isDesktop ? 640 : 560 },
       ]}>
-        {visibleRoutes.map((route, index) => {
+        {visibleRoutes.map((route) => {
+          const allIdx = allTabRoutes.findIndex(r => r.key === route.key);
           const config = TAB_CONFIG[route.name];
           if (!config) return null;
-          const isFocused = effectiveIndex === index;
-          // Navegación usa el tab real, no el efectivo — permite navegar a Home desde sub-pantallas
+          const isFocused = effectiveAllIdx === allIdx;
           const isActualTab = state.routes[state.index].name === route.name;
 
           const onPress = () => {
@@ -98,19 +103,18 @@ export default function AppTabBar({ state, descriptors, navigation }: BottomTabB
               activeOpacity={0.9}
               accessibilityRole="button"
             >
-              {/* Pill detrás del ícono — mismo contenedor, alineación garantizada */}
               <View style={styles.iconArea}>
                 <Animated.View
                   style={[
                     styles.pill,
                     {
                       backgroundColor: colors.primary,
-                      opacity: pillOpacity[index],
-                      transform: [{ scale: pillScale[index] }],
+                      opacity: pillOpacity[allIdx],
+                      transform: [{ scale: pillScale[allIdx] }],
                     },
                   ]}
                 />
-                <Animated.View style={{ transform: [{ scale: iconScale[index] }] }}>
+                <Animated.View style={{ transform: [{ scale: iconScale[allIdx] }] }}>
                   <Ionicons
                     name={isFocused ? config.iconActive : config.icon}
                     size={22}
