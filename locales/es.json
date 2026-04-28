@@ -136,7 +136,7 @@
     "budget": "Presupuesto",
     "history": "Historial",
     "whatsNew": "Novedades",
-    "tools": "Útiles"
+    "tools": "Herramientas"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -183,7 +183,7 @@
       "account": "CUENTA",
       "preferences": "PREFERENCIAS",
       "support": "SOPORTE",
-      "tools": "Útiles"
+      "tools": "Herramientas"
     },
     "editName": {
       "label": "Editar nombre",
@@ -1166,7 +1166,7 @@
     "pages": "páginas"
   },
   "tools": {
-    "title": "Útiles",
+    "title": "Herramientas",
     "pageDesc": "Funcionalidades para potenciar tus finanzas",
     "goalsCard": {
       "title": "Metas de ahorro",
