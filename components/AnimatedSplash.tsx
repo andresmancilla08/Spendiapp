@@ -259,9 +259,6 @@ export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C'
               letterSpacing: wordmarkLetterSpacing,
               transform: [{ scale: wordmarkScale }],
             },
-            isDark && Platform.OS === 'web'
-              ? ({ textShadow: '0 0 32px rgba(0,188,212,0.45), 0 0 8px rgba(0,188,212,0.25)' } as any)
-              : undefined,
           ]}
         >
           SPENDIA
