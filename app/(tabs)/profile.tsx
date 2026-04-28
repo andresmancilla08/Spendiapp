@@ -426,7 +426,7 @@ const PaletteCard = memo(function PaletteCard({
           style={[
             palCardStyles.name,
             {
-              color: isSelected ? p1 : colors.textPrimary,
+              color: isSelected ? p1 : 'rgba(30,30,30,0.85)',
               fontFamily: isSelected ? Fonts.semiBold : Fonts.medium,
               letterSpacing: isSelected ? 0.4 : 0.1,
             },
