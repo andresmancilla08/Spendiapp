@@ -26,8 +26,8 @@ const TAB_CONFIG: Record<string, {
 };
 
 const BAR_HEIGHT = 68;
-const PILL_H     = 38;
-const PILL_W     = 56;
+const PILL_H     = 30;
+const PILL_W     = 44;
 
 // Design system spring values for tab bar
 const SPRING_IN  = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: Platform.OS !== 'web' } as const;
