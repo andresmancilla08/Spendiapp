@@ -1063,6 +1063,18 @@
       "item2": "Paletas organizadas en 2 grupos (Clásicas / Pastel) con nombres correctamente traducidos",
       "item3": "Corrección: la pantalla de gastos grupales ya no se queda pegada en carga"
     },
+    "hideAmounts": {
+      "title": "Oculta tus montos con un toque",
+      "item1": "Toca el icono del ojo en el inicio para ocultar todos los montos de un vistazo",
+      "item2": "Ideal para revisar la app en lugares públicos sin exponer tus finanzas",
+      "item3": "La preferencia se guarda automáticamente entre sesiones"
+    },
+    "premiumExperience": {
+      "title": "Vistas ajustadas para Premium",
+      "item1": "Los usuarios Premium tienen un navbar con diseño exclusivo y animación de respiración",
+      "item2": "Pantalla de bienvenida especial al activar Premium con acceso directo a funciones clave",
+      "item3": "Badge PRO visible en tu perfil para identificar tu cuenta en todo momento"
+    },
     "premiumWelcome": {
       "title": "Experiencia Premium renovada",
       "item1": "Pantalla de bienvenida exclusiva al activar Premium con acceso directo a todas tus funciones",

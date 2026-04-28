@@ -1062,6 +1062,18 @@
       "item2": "Palettes reorganized into 2 groups (Classic / Pastel) with correctly translated names",
       "item3": "Fix: group expense screen no longer gets stuck on loading"
     },
+    "hideAmounts": {
+      "title": "Hide your amounts with a tap",
+      "item1": "Tap the eye icon on the home screen to hide all amounts at once",
+      "item2": "Perfect for checking the app in public without exposing your finances",
+      "item3": "Your preference is saved automatically between sessions"
+    },
+    "premiumExperience": {
+      "title": "Tailored views for Premium",
+      "item1": "Premium users get an exclusive navbar design with a subtle breathing animation",
+      "item2": "Special welcome screen when activating Premium with direct access to key features",
+      "item3": "PRO badge visible on your profile to identify your account at a glance"
+    },
     "premiumWelcome": {
       "title": "Renewed Premium experience",
       "item1": "Exclusive welcome screen when activating Premium with direct access to all your features",
