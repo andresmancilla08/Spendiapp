@@ -222,25 +222,6 @@ export default function AnimatedSplash({ onComplete, backgroundColor = '#0D1A1C'
 
   return (
     <View style={[styles.root, { backgroundColor }]}>
-      {/* ── Radial glow behind logo ── */}
-      <Animated.View
-        style={[
-          styles.glowContainer,
-          {
-            opacity: glowOpacity,
-            transform: [
-              { scale: glowScale },
-            ],
-          },
-        ]}
-        pointerEvents="none"
-      >
-        {/* Outer diffuse ring */}
-        <View style={styles.glowOuter} />
-        {/* Inner core */}
-        <View style={styles.glowInner} />
-      </Animated.View>
-
       {/* ── Logo: double-ribbon "S" SVG ── */}
       <Animated.View
         style={[

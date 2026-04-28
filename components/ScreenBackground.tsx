@@ -48,7 +48,7 @@ export default function ScreenBackground({ children, style, auroraIntensity = 'd
       style={[styles.gradient, style]}
     >
       <AuroraBackground intensity={auroraIntensity} />
-      {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.45)' }]} pointerEvents="none" />}
+      {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.7)' }]} pointerEvents="none" />}
       {/* Contenido siempre encima de los blobs — centrado en tablet/desktop */}
       <View
         style={[
