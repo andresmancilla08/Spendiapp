@@ -1062,6 +1062,18 @@
       "item2": "Tavolozze riorganizzate in 2 gruppi (Classiche / Pastello) con nomi tradotti correttamente",
       "item3": "Correzione: la schermata delle spese di gruppo non rimane più bloccata in caricamento"
     },
+    "hideAmounts": {
+      "title": "Nascondi gli importi con un tocco",
+      "item1": "Tocca l'icona dell'occhio nella schermata principale per nascondere tutti gli importi",
+      "item2": "Ideale per controllare l'app in pubblico senza esporre le tue finanze",
+      "item3": "La tua preferenza viene salvata automaticamente tra le sessioni"
+    },
+    "premiumExperience": {
+      "title": "Viste personalizzate per Premium",
+      "item1": "Gli utenti Premium hanno una navbar esclusiva con animazione di respirazione sottile",
+      "item2": "Schermata di benvenuto speciale all'attivazione Premium con accesso diretto alle funzioni chiave",
+      "item3": "Badge PRO visibile nel profilo per identificare il tuo account in ogni momento"
+    },
     "premiumWelcome": {
       "title": "Esperienza Premium rinnovata",
       "item1": "Schermata di benvenuto esclusiva all'attivazione Premium con accesso diretto a tutte le funzioni",
