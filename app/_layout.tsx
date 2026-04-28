@@ -162,9 +162,14 @@ function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; 
       ref,
       (snap) => {
         if (!snap.exists()) {
-          setUserIsBlocked(false);
-          setIsBlockedChecked(true);
-          setIsPremium(false);
+          if (useAuthStore.getState().justRegistered) return;
+          // Extra guard: cuenta creada hace menos de 2 min — doc Firestore puede no haberse escrito aún
+          const cu = auth.currentUser;
+          if (cu?.metadata?.creationTime) {
+            if (Date.now() - new Date(cu.metadata.creationTime).getTime() < 120_000) return;
+          }
+          signOut();
+          router.replace('/(auth)/login' as Parameters<typeof router.replace>[0]);
           return;
         }
         const data = snap.data();

@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, Linking,
+  View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Animated, Easing, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,7 +15,6 @@ import AppHeader from '../components/AppHeader';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
-const WHATSAPP_URL = 'https://wa.me/573207492444?text=Quiero%20activar%20Spendia%20Premium';
 
 const BENEFIT_ICONS: Array<React.ComponentProps<typeof Ionicons>['name']> = [
   'document-text-outline',
@@ -114,7 +113,7 @@ export default function UpgradeScreen() {
   };
 
   const handleActivate = () => {
-    Linking.openURL(WHATSAPP_URL);
+    router.push('/payment-qr' as any);
   };
 
   const benefits = t('upgrade.benefits', { returnObjects: true }) as string[];
@@ -243,7 +242,7 @@ export default function UpgradeScreen() {
                       colors={['transparent', 'rgba(255,255,255,0.22)', 'transparent']}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 0 }}
-                      style={{ width: 60, flex: 1 }}
+                      style={{ width: 80, flex: 1 }}
                     />
                   </Animated.View>
                 </LinearGradient>
@@ -297,7 +296,7 @@ const styles = StyleSheet.create({
     fontSize: 10, fontFamily: Fonts.bold,
     letterSpacing: 2.5,
   },
-  starContainer: { alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  starContainer: { alignItems: 'center', justifyContent: 'center', width: 110, height: 110, marginBottom: 4 },
   starHalo: {
     position: 'absolute',
     width: 110, height: 110, borderRadius: 55,
@@ -364,6 +363,6 @@ const styles = StyleSheet.create({
   ctaBtnText: { fontSize: 17, fontFamily: Fonts.bold, color: '#fff' },
   shimmer: {
     position: 'absolute', top: 0, bottom: 0,
-    width: 60, overflow: 'hidden',
+    width: 80, overflow: 'hidden',
   },
 });
