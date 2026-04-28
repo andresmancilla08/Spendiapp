@@ -20,9 +20,9 @@ const TAB_CONFIG: Record<string, { icon: IoniconsName; iconActive: IoniconsName 
 };
 
 const BAR_HEIGHT  = 70;
-const ICON_AREA_W = 52;
-const ICON_AREA_H = 42;
-const GLOW_SIZE   = 50;
+const ICON_AREA_W = 44;
+const ICON_AREA_H = 34;
+const GLOW_SIZE   = 36;
 
 const SPRING = { damping: 22, stiffness: 400, mass: 0.85, useNativeDriver: Platform.OS !== 'web' } as const;
 const PRESS  = { damping: 15, stiffness: 500, mass: 0.8,  useNativeDriver: Platform.OS !== 'web' } as const;
