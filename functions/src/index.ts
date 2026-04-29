@@ -2,6 +2,7 @@
 import * as admin from 'firebase-admin';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import { defineSecret } from 'firebase-functions/params';
 import { Resend } from 'resend';
 import { getPaletteColors } from './paletteColors';
@@ -24,13 +25,18 @@ export const sendPinResetOtp = onCall({ secrets: [resendApiKey] }, async (reques
   let userRecord: admin.auth.UserRecord;
   try {
     userRecord = await admin.auth().getUserByEmail(email.trim().toLowerCase());
-  } catch {
-    throw new HttpsError('not-found', 'Email no encontrado');
+  } catch (error: any) {
+    if (error.code === 'auth/user-not-found') {
+      // No revelar que el email no existe
+      return { success: true, message: 'Si el email está registrado con PIN, recibirás un código.' };
+    }
+    throw error;
   }
 
   const hasPin = userRecord.providerData.some((p) => p.providerId === 'password');
   if (!hasPin) {
-    throw new HttpsError('failed-precondition', 'Cuenta sin PIN');
+    // No revelar que la cuenta existe pero usa Google
+    return { success: true, message: 'Si el email está registrado con PIN, recibirás un código.' };
   }
 
   const uid = userRecord.uid;
@@ -140,6 +146,119 @@ export const resetPinWithOtp = onCall(async (request) => {
   await resetRef.delete();
   return { success: true };
 });
+
+// ── Cleanup Orphan Auth Accounts ─────────────────────────────────────────────
+// Elimina cuentas de Firebase Auth que no tienen doc en Firestore (eliminadas desde admin sin limpiar Auth)
+
+export const cleanupOrphanAccounts = onCall(async (request) => {
+  // Solo ejecutable por el admin principal
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Se requiere autenticación');
+
+  const callerDoc = await admin.firestore().collection('users').doc(request.auth.uid).get();
+  if (!callerDoc.exists || !callerDoc.data()?.isAdmin) {
+    throw new HttpsError('permission-denied', 'Solo administradores pueden ejecutar esta función');
+  }
+
+  const allAuthUsers: string[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const result = await admin.auth().listUsers(1000, pageToken);
+    allAuthUsers.push(...result.users.map((u) => u.uid));
+    pageToken = result.pageToken;
+  } while (pageToken);
+
+  const orphans: string[] = [];
+  for (const uid of allAuthUsers) {
+    const docSnap = await db.collection('users').doc(uid).get();
+    if (!docSnap.exists) orphans.push(uid);
+  }
+
+  for (const uid of orphans) {
+    try {
+      await admin.auth().deleteUser(uid);
+    } catch (err) {
+      console.error(`Failed to delete orphan auth user ${uid}:`, err);
+    }
+  }
+
+  console.log(`Cleanup complete: deleted ${orphans.length} orphan auth accounts`, orphans);
+  return { deleted: orphans.length, uids: orphans };
+});
+
+// ── Honeypot Functions ────────────────────────────────────────────────────────
+
+// HONEYPOT: Función que parece un bypass de admin pero registra al atacante
+export const adminBypass = onCall(async (request) => {
+  const uid = request.auth?.uid ?? 'unauthenticated';
+  const email = request.auth?.token?.email ?? 'unknown';
+
+  await admin.firestore().collection('honeypotLogs').add({
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    type: 'function-honeypot',
+    trapName: 'adminBypass',
+    uid,
+    email,
+    data: JSON.stringify(request.data ?? {}),
+    severity: 'critical',
+  });
+
+  throw new HttpsError('not-found', 'Function not found');
+});
+
+// HONEYPOT: Trampa para quien intente leer colección admin directamente
+export const getSystemConfig = onCall(async (request) => {
+  const uid = request.auth?.uid ?? 'unauthenticated';
+
+  await admin.firestore().collection('honeypotLogs').add({
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    type: 'function-honeypot',
+    trapName: 'getSystemConfig',
+    uid,
+    severity: 'high',
+  });
+
+  throw new HttpsError('permission-denied', 'Access denied');
+});
+
+// HONEYPOT: Detectar modificación de campos premium via cliente
+export const detectPremiumTampering = onDocumentUpdated(
+  'users/{userId}',
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    if (!before || !after) return;
+
+    const sensitiveFields = ['isPremium', 'premiumExpiry', 'isBlocked', 'isAdmin'];
+    const tampered = sensitiveFields.filter((f) => before[f] !== after[f]);
+
+    if (tampered.length > 0) {
+      const userId = event.params.userId;
+
+      await admin.firestore().collection('honeypotLogs').add({
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        type: 'firestore-field-tampering',
+        trapName: 'premium-field-modification',
+        userId,
+        tampered,
+        before: tampered.reduce((acc, f) => ({ ...acc, [f]: before[f] }), {}),
+        after: tampered.reduce((acc, f) => ({ ...acc, [f]: after[f] }), {}),
+        severity: 'critical',
+      });
+
+      // Revertir los campos manipulados automáticamente
+      const revert: Record<string, unknown> = {};
+      for (const field of tampered) {
+        revert[field] = before[field];
+      }
+      await event.data?.after.ref.update(revert);
+
+      console.warn(
+        `[HONEYPOT] Premium tampering detected for user ${userId}. Fields: ${tampered.join(', ')}. Reverted.`
+      );
+    }
+  }
+);
 
 // ── Goals Monthly Reminder ────────────────────────────────────────────────────
 

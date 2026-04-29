@@ -17,7 +17,7 @@ interface Props {
 
 export default function AuroraBackground({ intensity = 'default' }: Props) {
   const { isDark, activePalette } = useTheme();
-  const m = MULTIPLIER[intensity] * (isDark ? 1.4 : 1.0);
+  const m = MULTIPLIER[intensity] * (isDark ? 2.4 : 1.0);
 
   const b1 = useRef(new Animated.Value(0.00)).current;
   const b2 = useRef(new Animated.Value(0.33)).current;

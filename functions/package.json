@@ -17,5 +17,8 @@
     "@types/node": "^20.0.0",
     "typescript": "^5.3.3"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "protobufjs": ">=7.5.5"
+  }
 }
