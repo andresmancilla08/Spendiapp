@@ -13,8 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import ScreenBackground from '../../components/ScreenBackground';
-import { getEmailProvider, loginWithEmailAndPin } from '../../hooks/useAuth';
-import AppDialog from '../../components/AppDialog';
+import { loginWithEmailAndPin } from '../../hooks/useAuth';
 import AppHeader from '../../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import PinInput from '../../components/PinInput';
@@ -29,7 +28,6 @@ export default function LoginEmailScreen() {
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [emailFocused, setEmailFocused] = useState(false);
-  const [dialog, setDialog] = useState<'google' | null>(null);
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
 
@@ -41,12 +39,6 @@ export default function LoginEmailScreen() {
     setLoginError(null);
     setLoading(true);
     try {
-      const provider = await getEmailProvider(email.trim().toLowerCase());
-      if (provider === 'google') {
-        setDialog('google');
-        setLoading(false);
-        return;
-      }
       await loginWithEmailAndPin(email.trim().toLowerCase(), pin);
       // spinner stays until onAuthStateChanged navigates away
     } catch {
@@ -75,16 +67,6 @@ export default function LoginEmailScreen() {
     <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-        <AppDialog
-          visible={dialog === 'google'}
-          type="info"
-          title={t('dialogs.googleAccount.title')}
-          description={t('dialogs.googleAccount.description')}
-          primaryLabel={t('dialogs.googleAccount.primary')}
-          secondaryLabel={t('dialogs.googleAccount.secondary')}
-          onPrimary={() => { setDialog(null); router.replace('/(auth)/login'); }}
-          onSecondary={() => setDialog(null)}
-        />
         <AppHeader />
 
         <KeyboardAvoidingView

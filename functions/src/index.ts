@@ -1,5 +1,6 @@
 // functions/src/index.ts
 import * as admin from 'firebase-admin';
+import { randomInt } from 'crypto';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
@@ -13,7 +14,7 @@ const db = admin.firestore();
 const resendApiKey = defineSecret('RESEND_API_KEY');
 
 function generateOtp(): string {
-  return Math.floor(1000 + Math.random() * 9000).toString();
+  return randomInt(1000, 10000).toString();
 }
 
 // ── OTP PIN Reset ────────────────────────────────────────────────────────────
@@ -90,12 +91,12 @@ export const verifyPinResetOtp = onCall(async (request) => {
     const userRecord = await admin.auth().getUserByEmail(email.trim().toLowerCase());
     uid = userRecord.uid;
   } catch {
-    throw new HttpsError('not-found', 'Email no encontrado');
+    throw new HttpsError('invalid-argument', 'Código inválido o expirado');
   }
 
   const resetRef = db.collection('pin_resets').doc(uid);
   const resetDoc = await resetRef.get();
-  if (!resetDoc.exists) throw new HttpsError('not-found', 'Sin solicitud activa');
+  if (!resetDoc.exists) throw new HttpsError('invalid-argument', 'Código inválido o expirado');
 
   const data = resetDoc.data()!;
 
