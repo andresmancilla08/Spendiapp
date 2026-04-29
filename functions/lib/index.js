@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.goalsMonthlyReminder = exports.detectPremiumTampering = exports.getSystemConfig = exports.adminBypass = exports.cleanupOrphanAccounts = exports.resetPinWithOtp = exports.verifyPinResetOtp = exports.sendPinResetOtp = void 0;
 // functions/src/index.ts
 const admin = __importStar(require("firebase-admin"));
+const crypto_1 = require("crypto");
 const scheduler_1 = require("firebase-functions/v2/scheduler");
 const https_1 = require("firebase-functions/v2/https");
 const firestore_1 = require("firebase-functions/v2/firestore");
@@ -47,7 +48,7 @@ admin.initializeApp();
 const db = admin.firestore();
 const resendApiKey = (0, params_1.defineSecret)('RESEND_API_KEY');
 function generateOtp() {
-    return Math.floor(1000 + Math.random() * 9000).toString();
+    return (0, crypto_1.randomInt)(1000, 10000).toString();
 }
 // ── OTP PIN Reset ────────────────────────────────────────────────────────────
 exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async (request) => {
@@ -117,12 +118,12 @@ exports.verifyPinResetOtp = (0, https_1.onCall)(async (request) => {
         uid = userRecord.uid;
     }
     catch (_a) {
-        throw new https_1.HttpsError('not-found', 'Email no encontrado');
+        throw new https_1.HttpsError('invalid-argument', 'Código inválido o expirado');
     }
     const resetRef = db.collection('pin_resets').doc(uid);
     const resetDoc = await resetRef.get();
     if (!resetDoc.exists)
-        throw new https_1.HttpsError('not-found', 'Sin solicitud activa');
+        throw new https_1.HttpsError('invalid-argument', 'Código inválido o expirado');
     const data = resetDoc.data();
     if (data.expiresAt.toDate() < new Date()) {
         await resetRef.delete();

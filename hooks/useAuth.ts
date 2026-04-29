@@ -7,7 +7,6 @@ import {
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
-  fetchSignInMethodsForEmail,
   onAuthStateChanged as firebaseOnAuthStateChanged,
   User,
 } from 'firebase/auth';
@@ -40,14 +39,6 @@ export async function loginWithEmailAndPin(email: string, pin: string): Promise<
 
 export async function signOut(): Promise<void> {
   await firebaseSignOut(auth);
-}
-
-// Returns 'google', 'pin', or 'none'
-export async function getEmailProvider(email: string): Promise<'google' | 'pin' | 'none'> {
-  const methods = await fetchSignInMethodsForEmail(auth, email);
-  if (methods.includes('google.com')) return 'google';
-  if (methods.includes('password')) return 'pin';
-  return 'none';
 }
 
 export async function updateDisplayName(name: string): Promise<void> {
