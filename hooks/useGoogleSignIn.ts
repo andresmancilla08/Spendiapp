@@ -56,11 +56,8 @@ export function useGoogleSignIn() {
     const provider = new GoogleAuthProvider();
 
     try {
-      // signInWithPopup funciona en todos los contextos web cuando es disparado
-      // directamente por un gesto del usuario (click). Es la estrategia más
-      // confiable para PWA iOS/Android/Desktop.
       await signInWithPopup(auth, provider);
-      // onAuthStateChanged en _layout.tsx detecta el usuario y enruta a /(tabs)/
+      setLoading(false);
     } catch (err: any) {
       const code: string = err?.code ?? '';
 

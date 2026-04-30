@@ -51,7 +51,9 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if request.auth != null;
       allow list: if request.auth != null && request.query.limit <= 10;
-      allow write: if request.auth != null && request.auth.uid == userId && noSensitiveFieldsModified();
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId && noSensitiveFieldsModified();
+      allow delete: if false;
     }
 
     // Friendships: leer/eliminar si eres fromId o toId
