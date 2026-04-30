@@ -38,6 +38,7 @@ export default function RegisterScreen() {
   const [emailFocused, setEmailFocused] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const { setJustRegistered, setUser } = useAuthStore();
@@ -47,7 +48,7 @@ export default function RegisterScreen() {
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const showEmailError = emailTouched && email.trim().length > 0 && !isEmailValid;
   const isPinComplete = pin.length === 4;
-  const canSubmit = isNameValid && isEmailValid && isPinComplete;
+  const canSubmit = isNameValid && isEmailValid && isPinComplete && termsAccepted;
 
   const handleContinue = async () => {
     if (!isNameValid) { Alert.alert('Error', t('errors.fillAllFields')); return; }
@@ -213,6 +214,39 @@ export default function RegisterScreen() {
                 <Text style={[styles.inputSub, { color: colors.textSecondary }]}>{t('pinEntry.createSubtitle')}</Text>
                 <PinInput value={pin} onChange={setPin} />
               </View>
+
+              {/* Términos y Privacidad */}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setTermsAccepted(v => !v)}
+                style={styles.consentRow}
+              >
+                <View style={[
+                  styles.checkbox,
+                  {
+                    backgroundColor: termsAccepted ? colors.primary : 'transparent',
+                    borderColor: termsAccepted ? colors.primary : colors.border,
+                  }
+                ]}>
+                  {termsAccepted && <Ionicons name="checkmark" size={13} color={colors.onPrimary} />}
+                </View>
+                <Text style={[styles.consentText, { color: colors.textSecondary }]}>
+                  {t('register.acceptPrefix')}{' '}
+                  <Text
+                    style={{ color: colors.primary, fontFamily: Fonts.semiBold }}
+                    onPress={(e) => { e.stopPropagation?.(); router.push('/terms' as any); }}
+                  >
+                    {t('register.termsLabel')}
+                  </Text>
+                  {' '}{t('register.acceptAnd')}{' '}
+                  <Text
+                    style={{ color: colors.primary, fontFamily: Fonts.semiBold }}
+                    onPress={(e) => { e.stopPropagation?.(); router.push('/privacy' as any); }}
+                  >
+                    {t('register.privacyLabel')}
+                  </Text>
+                </Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
 
@@ -274,6 +308,14 @@ const styles = StyleSheet.create({
   inputWithIcon: { paddingLeft: 44 },
   inputError: { fontSize: 12, fontFamily: Fonts.medium, marginTop: 4 },
   pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
+  consentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  checkbox: {
+    width: 22, height: 22,
+    borderRadius: 6, borderWidth: 1.5,
+    alignItems: 'center', justifyContent: 'center',
+    marginTop: 1, flexShrink: 0,
+  },
+  consentText: { flex: 1, fontSize: 13, fontFamily: Fonts.regular, lineHeight: 20 },
   primaryButton: {
     height: 56,
     borderRadius: 50,

@@ -8,7 +8,11 @@
     "registerLink": "Regístrate",
     "errors": {
       "popupBlocked": "Tu navegador bloqueó la ventana de Google. Usa el acceso con correo y PIN."
-    }
+    },
+    "consentPrefix": "Al registrarte, aceptas los",
+    "consentTerms": "Términos y Condiciones",
+    "consentAnd": "y la",
+    "consentPrivacy": "Política de Privacidad"
   },
   "register": {
     "back": "← Volver",
@@ -27,7 +31,11 @@
       "primaryLabel": "Continuar"
     },
     "closedTitle": "Registro cerrado",
-    "closedSubtitle": "El registro está temporalmente cerrado. Vuelve pronto."
+    "closedSubtitle": "El registro está temporalmente cerrado. Vuelve pronto.",
+    "acceptPrefix": "Acepto los",
+    "termsLabel": "Términos y Condiciones",
+    "acceptAnd": "y la",
+    "privacyLabel": "Política de Privacidad"
   },
   "loginEmail": {
     "back": "← Volver",
