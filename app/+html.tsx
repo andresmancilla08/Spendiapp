@@ -9,9 +9,11 @@ export default function Root({ children }: PropsWithChildren) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
 
-        <title>Spendia — Control inteligente de gastos</title>
+        <title>Spendia</title>
         <meta name="description" content="Spendia es una app de control de gastos personales para Colombia. Registra tus transacciones, visualiza tus finanzas y toma el control de tu dinero." />
         <meta name="application-name" content="Spendia" />
+        <link rel="privacy-policy" href="https://spendia.co/privacy" />
+        <link rel="terms-of-service" href="https://spendia.co/terms" />
 
         {/* Open Graph */}
         <meta property="og:title" content="Spendia — Control inteligente de gastos" />
@@ -123,7 +125,7 @@ export default function Root({ children }: PropsWithChildren) {
             function hide() {
               el.style.opacity = '0';
               el.style.pointerEvents = 'none';
-              setTimeout(function() { el.style.display = 'none'; }, 380);
+              setTimeout(function() { el.style.visibility = 'hidden'; }, 380);
             }
             window.addEventListener('spendiaReady', hide, { once: true });
             setTimeout(hide, 6000);
