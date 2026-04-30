@@ -18,7 +18,6 @@ import { Fonts } from '../config/fonts';
 import { useInactivityTimer } from '../hooks/useInactivityTimer';
 import AppDialog from '../components/AppDialog';
 import WebAppShell from '../components/WebAppShell';
-import AnimatedSplash from '../components/AnimatedSplash';
 import { useTranslation } from 'react-i18next';
 import { savePendingConsent } from '../hooks/useConsentLogger';
 import { createUserProfile, getUserProfile, updateAppVersion } from '../hooks/useUserProfile';
@@ -41,17 +40,6 @@ function PaletteLoader() {
   }, [user?.uid]);
 
   return null;
-}
-
-function ThemedSplash({ onComplete }: { onComplete: () => void }) {
-  const { colors, isDark } = useTheme();
-  return (
-    <AnimatedSplash
-      onComplete={onComplete}
-      backgroundColor={colors.background}
-      isDark={isDark}
-    />
-  );
 }
 
 function NavReadyOverlay() {
@@ -302,7 +290,6 @@ export default function RootLayout() {
   const [countdown, setCountdown] = useState(30);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [splashDone, setSplashDone] = useState(false);
   const [navReady, setNavReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
@@ -410,35 +397,27 @@ export default function RootLayout() {
     signOut();
   };
 
-  const splashVisible = !isPublicRoute && (!splashDone || !i18nReady || !fontsLoaded || isLoading);
-
   return (
     <ThemeProvider>
       <ToastProvider>
         <FeatureFlagsProvider>
-          {splashVisible ? (
-            <ThemedSplash onComplete={() => setSplashDone(true)} />
-          ) : (
-            <>
-              <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} onFirstNav={() => {
-                setNavReady(true);
-                if (Platform.OS === 'web' && typeof window !== 'undefined') {
-                  window.dispatchEvent(new Event('spendiaReady'));
-                }
-              }} />
-              <WebAppShell>
-                <PaletteLoader />
-                <ThemedStack />
-                <InactivityDialog
-                  visible={inactivityDialogVisible}
-                  countdown={countdown}
-                  onStay={handleStay}
-                  onLogout={handleLogout}
-                />
-              </WebAppShell>
-              {!navReady && !isPublicRoute && <NavReadyOverlay />}
-            </>
-          )}
+          <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} onFirstNav={() => {
+            setNavReady(true);
+            if (Platform.OS === 'web' && typeof window !== 'undefined') {
+              window.dispatchEvent(new Event('spendiaReady'));
+            }
+          }} />
+          <WebAppShell>
+            <PaletteLoader />
+            <ThemedStack />
+            <InactivityDialog
+              visible={inactivityDialogVisible}
+              countdown={countdown}
+              onStay={handleStay}
+              onLogout={handleLogout}
+            />
+          </WebAppShell>
+          {!navReady && !isPublicRoute && <NavReadyOverlay />}
         </FeatureFlagsProvider>
       </ToastProvider>
     </ThemeProvider>
