@@ -8,12 +8,13 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, Link } from 'expo-router';
 import appConfig from '../../app.json';
 import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTheme } from '../../context/ThemeContext';
@@ -22,7 +23,7 @@ import { Fonts } from '../../config/fonts';
 import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
 import PressableScale from '../../components/PressableScale';
 import ConsentModal from '../../components/ConsentModal';
-import { setPendingConsent, type AuthMethod } from '../../hooks/useConsentLogger';
+import { setPendingConsent, hasAcceptedConsent, type AuthMethod } from '../../hooks/useConsentLogger';
 
 function GoogleIcon({ size = 18 }: { size?: number }) {
   return (
@@ -46,6 +47,14 @@ export default function LoginScreen() {
   const { promptAsync, loading, error } = useGoogleSignIn();
   const [consentVisible, setConsentVisible] = useState(false);
   const [pendingMethod, setPendingMethod] = useState<AuthMethod>('google');
+  const pendingReopenConsent = useRef(false);
+
+  useFocusEffect(useCallback(() => {
+    if (pendingReopenConsent.current) {
+      pendingReopenConsent.current = false;
+      setTimeout(() => setConsentVisible(true), 280);
+    }
+  }, []));
   const { t } = useTranslation();
   const { colors, isDark, setThemeMode } = useTheme();
 
@@ -53,9 +62,16 @@ export default function LoginScreen() {
     if (error) Alert.alert('Error', error);
   }, [error]);
 
-  const handleMethodPress = (method: AuthMethod) => {
+  const handleMethodPress = async (method: AuthMethod) => {
     setPendingMethod(method);
-    setConsentVisible(true);
+    const already = await hasAcceptedConsent();
+    if (already) {
+      setPendingConsent(method);
+      if (method === 'google') promptAsync();
+      else router.push('/(auth)/login-email');
+    } else {
+      setConsentVisible(true);
+    }
   };
 
   const handleConsentAccept = () => {
@@ -150,6 +166,15 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.footer}>
+          <Link href="/privacy" style={[styles.footerLink, { color: colors.primary }]}>
+            {t('consentModal.privacy')}
+          </Link>
+          <Text style={[styles.footerDot, { color: colors.textTertiary }]}>·</Text>
+          <Link href="/terms" style={[styles.footerLink, { color: colors.primary }]}>
+            {t('consentModal.terms')}
+          </Link>
+        </View>
         <Text style={[styles.version, { color: colors.textTertiary }]}>
           {t('profile.version', { version: appConfig.expo.version })}
         </Text>
@@ -162,6 +187,16 @@ export default function LoginScreen() {
       method={pendingMethod}
       onAccept={handleConsentAccept}
       onCancel={() => setConsentVisible(false)}
+      onTermsPress={() => {
+        setConsentVisible(false);
+        pendingReopenConsent.current = true;
+        router.push('/terms' as any);
+      }}
+      onPrivacyPress={() => {
+        setConsentVisible(false);
+        pendingReopenConsent.current = true;
+        router.push('/privacy' as any);
+      }}
     />
     </>
   );
@@ -269,6 +304,21 @@ const styles = StyleSheet.create({
   },
   registerLinkHighlight: {
     fontFamily: Fonts.semiBold,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingBottom: 6,
+  },
+  footerLink: {
+    fontSize: 12,
+    fontFamily: Fonts.medium,
+  },
+  footerDot: {
+    fontSize: 12,
+    fontFamily: Fonts.regular,
   },
   version: {
     textAlign: 'center',
