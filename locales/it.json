@@ -1440,5 +1440,13 @@
     "accept": "Accetto e continua",
     "cancel": "Annulla",
     "legalNote": "Continuando, confermi di aver letto e accettato i documenti indicati. Salviamo la data e l'ora della tua accettazione."
+  },
+  "landing": {
+    "description": "Registra entrate e uscite, categorizza le transazioni e visualizza le tue finanze con grafici chiari. Progettato per la Colombia.",
+    "register": "Crea account gratuito",
+    "signIn": "Accedi",
+    "feature1Label": "Transazioni",
+    "feature2Label": "Analisi",
+    "feature3Label": "Obiettivi"
   }
 }

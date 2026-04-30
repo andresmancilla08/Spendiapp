@@ -118,7 +118,7 @@ function compareVersions(a: string, b: string): number {
   return 0;
 }
 
-const PUBLIC_ROUTES = new Set(['/privacy', '/terms']);
+const PUBLIC_ROUTES = new Set(['/', '/privacy', '/terms']);
 
 function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; fontsLoaded: boolean; onFirstNav: () => void }) {
   const { flags, flagsLoading } = useFlags();
