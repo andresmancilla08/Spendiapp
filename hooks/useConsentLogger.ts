@@ -1,6 +1,9 @@
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
+
+const CONSENT_KEY = 'spendia_consent_accepted';
 
 export type AuthMethod = 'google' | 'email';
 
@@ -29,10 +32,19 @@ export function setPendingConsent(method: AuthMethod) {
   };
 }
 
+export async function hasAcceptedConsent(): Promise<boolean> {
+  try {
+    return (await AsyncStorage.getItem(CONSENT_KEY)) === 'true';
+  } catch {
+    return false;
+  }
+}
+
 export async function savePendingConsent(userId: string) {
   if (!_pending) return;
   const data = { ..._pending };
   _pending = null;
+  try { await AsyncStorage.setItem(CONSENT_KEY, 'true'); } catch {}
 
   let ipAddress = 'unknown';
   if (Platform.OS === 'web') {
