@@ -281,7 +281,7 @@ function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; 
         navigate('/(tabs)/');
       }
     } else {
-      if (PUBLIC_ROUTES.has(pathname)) return;
+      if (PUBLIC_ROUTES.has(pathname)) { onFirstNav(); return; }
       setBiometricLocked(true);
       navigate('/(auth)/login');
     }
@@ -291,6 +291,8 @@ function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; 
 }
 
 export default function RootLayout() {
+  const pathname = usePathname();
+  const isPublicRoute = PUBLIC_ROUTES.has(pathname);
   const { user, isLoading, setUser, setLoading, setJustLoggedIn } = useAuthStore();
   const [i18nReady, setI18nReady] = useState(false);
   const isFirstAuthCall = useRef(true);
@@ -406,7 +408,7 @@ export default function RootLayout() {
     signOut();
   };
 
-  const splashVisible = !splashDone || !i18nReady || !fontsLoaded || isLoading;
+  const splashVisible = !isPublicRoute && (!splashDone || !i18nReady || !fontsLoaded || isLoading);
 
   return (
     <ThemeProvider>
@@ -427,7 +429,7 @@ export default function RootLayout() {
                   onLogout={handleLogout}
                 />
               </WebAppShell>
-              {!navReady && <NavReadyOverlay />}
+              {!navReady && !isPublicRoute && <NavReadyOverlay />}
             </>
           )}
         </FeatureFlagsProvider>

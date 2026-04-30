@@ -8,7 +8,11 @@
     "registerLink": "Registrati",
     "errors": {
       "popupBlocked": "Il tuo browser ha bloccato la finestra di Google. Usa email e PIN."
-    }
+    },
+    "consentPrefix": "Registrandoti, accetti i",
+    "consentTerms": "Termini e Condizioni",
+    "consentAnd": "e la",
+    "consentPrivacy": "Politica sulla Privacy"
   },
   "register": {
     "back": "← Indietro",
@@ -27,7 +31,11 @@
       "primaryLabel": "Continua"
     },
     "closedTitle": "Registrazione chiusa",
-    "closedSubtitle": "La registrazione è temporaneamente chiusa. Torna presto."
+    "closedSubtitle": "La registrazione è temporaneamente chiusa. Torna presto.",
+    "acceptPrefix": "Accetto i",
+    "termsLabel": "Termini e Condizioni",
+    "acceptAnd": "e la",
+    "privacyLabel": "Politica sulla Privacy"
   },
   "loginEmail": {
     "back": "← Indietro",

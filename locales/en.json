@@ -8,7 +8,11 @@
     "registerLink": "Sign up",
     "errors": {
       "popupBlocked": "Your browser blocked the Google sign-in window. Use email and PIN instead."
-    }
+    },
+    "consentPrefix": "By signing up, you accept the",
+    "consentTerms": "Terms and Conditions",
+    "consentAnd": "and the",
+    "consentPrivacy": "Privacy Policy"
   },
   "register": {
     "back": "← Back",
@@ -27,7 +31,11 @@
       "primaryLabel": "Continue"
     },
     "closedTitle": "Registration closed",
-    "closedSubtitle": "Registration is temporarily closed. Please check back soon."
+    "closedSubtitle": "Registration is temporarily closed. Please check back soon.",
+    "acceptPrefix": "I accept the",
+    "termsLabel": "Terms and Conditions",
+    "acceptAnd": "and the",
+    "privacyLabel": "Privacy Policy"
   },
   "loginEmail": {
     "back": "← Back",
