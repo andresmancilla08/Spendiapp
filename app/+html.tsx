@@ -60,14 +60,41 @@ export default function Root({ children }: PropsWithChildren) {
       </head>
       <body>
         {children}
+        {/* Always-present landing content — visible to crawlers and before React hydrates.
+            The app renders as position:fixed overlay, so this footer is visually behind it
+            but always present in the DOM for search engines and brand verifiers. */}
+        <div id="spendia-landing" style={{
+          position: 'fixed' as const,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: -1,
+          fontFamily: 'sans-serif',
+          padding: '16px 24px',
+          background: '#0D1A1C',
+          color: '#EEF6F8',
+          fontSize: '13px',
+          display: 'flex',
+          flexDirection: 'column' as const,
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <p style={{ margin: 0, fontWeight: 700, fontSize: '18px' }}>Spendia</p>
+          <p style={{ margin: 0, color: '#00BCD4' }}>Control inteligente de gastos personales para Colombia</p>
+          <p style={{ margin: 0, color: '#9BAFB5', maxWidth: '480px', textAlign: 'center' as const, lineHeight: '1.5' }}>
+            Registra ingresos y gastos, categoriza transacciones y visualiza tus finanzas con gráficas claras.
+          </p>
+          <p style={{ margin: 0, display: 'flex', gap: '24px' }}>
+            <a href="/privacy" style={{ color: '#00BCD4' }}>Política de Privacidad</a>
+            <a href="/terms" style={{ color: '#00BCD4' }}>Términos y Condiciones</a>
+          </p>
+        </div>
         <noscript>
           <div style={{ fontFamily: 'sans-serif', maxWidth: '600px', margin: '60px auto', padding: '0 24px', color: '#1A2428' }}>
             <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Spendia</h1>
             <p style={{ fontSize: '18px', color: '#00BCD4', marginBottom: '24px' }}>Control inteligente de gastos</p>
             <p style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '32px' }}>
               Spendia es una aplicación de control de gastos personales para Colombia.
-              Registra tus ingresos y egresos, categoriza tus transacciones, visualiza
-              tus finanzas con gráficas claras y toma el control de tu dinero.
             </p>
             <p>
               <a href="/privacy" style={{ color: '#00BCD4', marginRight: '24px' }}>Política de privacidad</a>

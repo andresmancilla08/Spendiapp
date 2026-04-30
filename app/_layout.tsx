@@ -20,6 +20,7 @@ import AppDialog from '../components/AppDialog';
 import WebAppShell from '../components/WebAppShell';
 import AnimatedSplash from '../components/AnimatedSplash';
 import { useTranslation } from 'react-i18next';
+import { savePendingConsent } from '../hooks/useConsentLogger';
 import { createUserProfile, getUserProfile, updateAppVersion } from '../hooks/useUserProfile';
 import Constants from 'expo-constants';
 import { FeatureFlagsProvider, useFlags } from '../context/FeatureFlagsContext';
@@ -319,6 +320,7 @@ export default function RootLayout() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((authUser) => {
       if (authUser) {
+        savePendingConsent(authUser.uid).catch(() => {});
         // Crear perfil Firestore si no existe (idempotente)
         createUserProfile(
           authUser.uid,

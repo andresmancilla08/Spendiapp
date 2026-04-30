@@ -21,6 +21,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../config/fonts';
 import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
 import PressableScale from '../../components/PressableScale';
+import ConsentModal from '../../components/ConsentModal';
+import { setPendingConsent, type AuthMethod } from '../../hooks/useConsentLogger';
 
 function GoogleIcon({ size = 18 }: { size?: number }) {
   return (
@@ -42,13 +44,29 @@ function GoogleIcon({ size = 18 }: { size?: number }) {
 
 export default function LoginScreen() {
   const { promptAsync, loading, error } = useGoogleSignIn();
-  const [consentAccepted, setConsentAccepted] = useState(false);
+  const [consentVisible, setConsentVisible] = useState(false);
+  const [pendingMethod, setPendingMethod] = useState<AuthMethod>('google');
   const { t } = useTranslation();
   const { colors, isDark, setThemeMode } = useTheme();
 
   useEffect(() => {
     if (error) Alert.alert('Error', error);
   }, [error]);
+
+  const handleMethodPress = (method: AuthMethod) => {
+    setPendingMethod(method);
+    setConsentVisible(true);
+  };
+
+  const handleConsentAccept = () => {
+    setConsentVisible(false);
+    setPendingConsent(pendingMethod);
+    if (pendingMethod === 'google') {
+      promptAsync();
+    } else {
+      router.push('/(auth)/login-email');
+    }
+  };
 
   return (
     <ScreenTransition>
@@ -79,49 +97,15 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.buttonsSection}>
-            {/* Consent checkbox */}
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setConsentAccepted(v => !v)}
-              style={styles.consentRow}
-            >
-              <View style={[
-                styles.checkbox,
-                {
-                  backgroundColor: consentAccepted ? colors.primary : 'transparent',
-                  borderColor: consentAccepted ? colors.primary : colors.border,
-                }
-              ]}>
-                {consentAccepted && <Ionicons name="checkmark" size={13} color={colors.onPrimary} />}
-              </View>
-              <Text style={[styles.consentText, { color: colors.textSecondary }]}>
-                {t('login.consentPrefix')}{' '}
-                <Text
-                  style={{ color: colors.primary, fontFamily: Fonts.semiBold }}
-                  onPress={(e) => { e.stopPropagation?.(); router.push('/terms' as any); }}
-                >
-                  {t('login.consentTerms')}
-                </Text>
-                {' '}{t('login.consentAnd')}{' '}
-                <Text
-                  style={{ color: colors.primary, fontFamily: Fonts.semiBold }}
-                  onPress={(e) => { e.stopPropagation?.(); router.push('/privacy' as any); }}
-                >
-                  {t('login.consentPrivacy')}
-                </Text>
-              </Text>
-            </TouchableOpacity>
-
             <PressableScale
               style={[styles.googleButton, {
-                borderColor: isDark ? colors.border : colors.border,
+                borderColor: colors.border,
                 backgroundColor: isDark ? colors.surfaceElevated : colors.surface,
-                opacity: consentAccepted ? 1 : 0.4,
               }]}
-              disabled={loading || !consentAccepted}
-              onPress={() => promptAsync()}
+              disabled={loading}
+              onPress={() => handleMethodPress('google')}
             >
-              {loading ? (
+              {loading && pendingMethod === 'google' ? (
                 <ActivityIndicator color={colors.textSecondary} />
               ) : (
                 <>
@@ -140,12 +124,9 @@ export default function LoginScreen() {
             </View>
 
             <PressableScale
-              style={[styles.emailButton, {
-                backgroundColor: colors.primary,
-                opacity: consentAccepted ? 1 : 0.4,
-              }]}
-              disabled={loading || !consentAccepted}
-              onPress={() => router.push('/(auth)/login-email')}
+              style={[styles.emailButton, { backgroundColor: colors.primary }]}
+              disabled={loading}
+              onPress={() => handleMethodPress('email')}
             >
               <Ionicons name="mail-outline" size={18} color={colors.onPrimary} />
               <Text style={[styles.emailButtonText, { color: colors.onPrimary }]}>
@@ -174,6 +155,13 @@ export default function LoginScreen() {
       </ScreenBackground>
     </SafeAreaView>
     </ScreenTransition>
+
+    <ConsentModal
+      visible={consentVisible}
+      method={pendingMethod}
+      onAccept={handleConsentAccept}
+      onCancel={() => setConsentVisible(false)}
+    />
   );
 }
 
@@ -226,19 +214,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 32,
   },
-  consentRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    marginBottom: 16,
-  },
-  checkbox: {
-    width: 22, height: 22,
-    borderRadius: 6, borderWidth: 1.5,
-    alignItems: 'center', justifyContent: 'center',
-    marginTop: 1, flexShrink: 0,
-  },
-  consentText: { flex: 1, fontSize: 13, fontFamily: Fonts.regular, lineHeight: 20 },
   googleButton: {
     width: '100%',
     paddingVertical: 14,
