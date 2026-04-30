@@ -69,6 +69,7 @@ export default function LoginScreen() {
   };
 
   return (
+    <>
     <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground auroraIntensity="intense">
@@ -162,6 +163,7 @@ export default function LoginScreen() {
       onAccept={handleConsentAccept}
       onCancel={() => setConsentVisible(false)}
     />
+    </>
   );
 }
 
