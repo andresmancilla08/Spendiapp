@@ -1440,5 +1440,13 @@
     "accept": "I accept and continue",
     "cancel": "Cancel",
     "legalNote": "By continuing, you confirm that you have read and accepted the indicated documents. We store the date and time of your acceptance."
+  },
+  "landing": {
+    "description": "Track income and expenses, categorize transactions and visualize your finances with clear charts. Designed for Colombia.",
+    "register": "Create free account",
+    "signIn": "Sign in",
+    "feature1Label": "Transactions",
+    "feature2Label": "Analytics",
+    "feature3Label": "Goals"
   }
 }

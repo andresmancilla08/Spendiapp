@@ -1441,5 +1441,13 @@
     "accept": "Acepto y continuar",
     "cancel": "Cancelar",
     "legalNote": "Al continuar, confirmas que has leído y aceptas los documentos indicados. Guardamos la fecha y hora de tu aceptación."
+  },
+  "landing": {
+    "description": "Registra ingresos y gastos, categoriza transacciones y visualiza tus finanzas con gráficas claras. Diseñado para Colombia.",
+    "register": "Crear cuenta gratis",
+    "signIn": "Iniciar sesión",
+    "feature1Label": "Transacciones",
+    "feature2Label": "Análisis",
+    "feature3Label": "Metas"
   }
 }
