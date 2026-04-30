@@ -21,9 +21,11 @@ interface Props {
   method: AuthMethod;
   onAccept: () => void;
   onCancel: () => void;
+  onTermsPress?: () => void;
+  onPrivacyPress?: () => void;
 }
 
-export default function ConsentModal({ visible, method, onAccept, onCancel }: Props) {
+export default function ConsentModal({ visible, method, onAccept, onCancel, onTermsPress, onPrivacyPress }: Props) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
 
@@ -92,9 +94,9 @@ export default function ConsentModal({ visible, method, onAccept, onCancel }: Pr
             {/* Docs list */}
             <View style={[styles.docsContainer, { borderColor: colors.border }]}>
               <TouchableOpacity
-                style={[styles.docRow, { borderBottomColor: colors.border }]}
+                style={[styles.docRow, styles.docRowDivider, { borderBottomColor: colors.border }]}
                 activeOpacity={0.7}
-                onPress={() => router.push('/terms' as any)}
+                onPress={() => onTermsPress ? onTermsPress() : router.push('/terms' as any)}
               >
                 <View style={[styles.docIconWrap, { backgroundColor: colors.primary + '18' }]}>
                   <Ionicons name="document-text-outline" size={16} color={colors.primary} />
@@ -113,7 +115,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel }: Pr
               <TouchableOpacity
                 style={styles.docRow}
                 activeOpacity={0.7}
-                onPress={() => router.push('/privacy' as any)}
+                onPress={() => onPrivacyPress ? onPrivacyPress() : router.push('/privacy' as any)}
               >
                 <View style={[styles.docIconWrap, { backgroundColor: colors.primary + '18' }]}>
                   <Ionicons name="lock-closed-outline" size={16} color={colors.primary} />
@@ -228,6 +230,8 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 14,
     gap: 10,
+  },
+  docRowDivider: {
     borderBottomWidth: 1,
   },
   docIconWrap: {

@@ -43,8 +43,9 @@ export default function PrivacyScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
   const handleBack = () => {
+    const go = () => router.canGoBack() ? router.back() : router.replace('/(auth)/login' as any);
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(go);
     } else {
       router.back();
     }
@@ -56,11 +57,9 @@ export default function PrivacyScreen() {
         <ScreenBackground>
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border }]}>
-            {router.canGoBack() && (
-              <TouchableOpacity onPress={handleBack} style={styles.backBtn} activeOpacity={0.7}>
+            <TouchableOpacity onPress={handleBack} style={styles.backBtn} activeOpacity={0.7}>
                 <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
               </TouchableOpacity>
-            )}
             <View style={styles.headerTitles}>
               <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Política de Privacidad</Text>
               <Text style={[styles.headerSub, { color: colors.textTertiary }]}>Spendia · Última actualización: {LAST_UPDATED}</Text>
