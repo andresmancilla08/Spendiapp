@@ -420,7 +420,12 @@ export default function RootLayout() {
             <ThemedSplash onComplete={() => setSplashDone(true)} />
           ) : (
             <>
-              <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} onFirstNav={() => setNavReady(true)} />
+              <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} onFirstNav={() => {
+                setNavReady(true);
+                if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                  window.dispatchEvent(new Event('spendiaReady'));
+                }
+              }} />
               <WebAppShell>
                 <PaletteLoader />
                 <ThemedStack />
