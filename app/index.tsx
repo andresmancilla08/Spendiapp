@@ -112,16 +112,9 @@ export default function LandingScreen() {
               <TouchableOpacity
                 style={[styles.btnPrimary, { backgroundColor: colors.primary }]}
                 activeOpacity={0.85}
-                onPress={() => router.push('/(auth)/register' as any)}
-              >
-                <Text style={[styles.btnPrimaryText, { color: '#0D1A1C' }]}>{t('landing.register')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.btnGhost, { borderColor: colors.primary }]}
-                activeOpacity={0.85}
                 onPress={() => router.push('/(auth)/login' as any)}
               >
-                <Text style={[styles.btnGhostText, { color: colors.primary }]}>{t('landing.signIn')}</Text>
+                <Text style={[styles.btnPrimaryText, { color: '#0D1A1C' }]}>{t('register.continueButton')}</Text>
               </TouchableOpacity>
             </Animated.View>
           </View>
