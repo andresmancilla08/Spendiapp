@@ -408,7 +408,7 @@ export default function RootLayout() {
     signOut();
   };
 
-  const splashVisible = !isPublicRoute && (!splashDone || !i18nReady || !fontsLoaded || isLoading);
+  const splashVisible = Platform.OS !== 'web' && !isPublicRoute && (!splashDone || !i18nReady || !fontsLoaded || isLoading);
 
   return (
     <ThemeProvider>
