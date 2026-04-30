@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
-import { Stack, router } from 'expo-router';
+import { Stack, router, usePathname } from 'expo-router';
 import { onAuthStateChanged, signOut } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
 import { getRedirectResult } from 'firebase/auth';
@@ -117,8 +117,11 @@ function compareVersions(a: string, b: string): number {
   return 0;
 }
 
+const PUBLIC_ROUTES = new Set(['/privacy', '/terms']);
+
 function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; fontsLoaded: boolean; onFirstNav: () => void }) {
   const { flags, flagsLoading } = useFlags();
+  const pathname = usePathname();
   const { user, isLoading, justRegistered, biometricLocked, setBiometricLocked, setIsPremium } = useAuthStore();
   const [isBlockedChecked, setIsBlockedChecked] = useState(false);
   const [userIsBlocked, setUserIsBlocked] = useState(false);
@@ -278,10 +281,11 @@ function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; 
         navigate('/(tabs)/');
       }
     } else {
+      if (PUBLIC_ROUTES.has(pathname)) return;
       setBiometricLocked(true);
       navigate('/(auth)/login');
     }
-  }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, biometricLocked, flags.maintenanceMode, flagsLoading, userIsBlocked, isBlockedChecked, versionChecked, needsUpdate]);
+  }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, biometricLocked, flags.maintenanceMode, flagsLoading, userIsBlocked, isBlockedChecked, versionChecked, needsUpdate, pathname]);
 
   return null;
 }
