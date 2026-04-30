@@ -1430,5 +1430,15 @@
     "title": "Update required",
     "subtitle": "This version of Spendia is no longer supported. Open the app in your browser to update.",
     "ctaButton": "Open Spendia"
+  },
+  "consentModal": {
+    "title": "Before continuing",
+    "subtitle": "To use Spendia you must accept our legal documents.",
+    "terms": "Terms and Conditions",
+    "privacy": "Privacy Policy",
+    "read": "Read",
+    "accept": "I accept and continue",
+    "cancel": "Cancel",
+    "legalNote": "By continuing, you confirm that you have read and accepted the indicated documents. We store the date and time of your acceptance."
   }
 }

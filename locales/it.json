@@ -1430,5 +1430,15 @@
     "title": "Aggiornamento richiesto",
     "subtitle": "Questa versione di Spendia non è più supportata. Apri l'app dal browser per aggiornare.",
     "ctaButton": "Apri Spendia"
+  },
+  "consentModal": {
+    "title": "Prima di continuare",
+    "subtitle": "Per usare Spendia devi accettare i nostri documenti legali.",
+    "terms": "Termini e Condizioni",
+    "privacy": "Politica sulla Privacy",
+    "read": "Leggi",
+    "accept": "Accetto e continua",
+    "cancel": "Annulla",
+    "legalNote": "Continuando, confermi di aver letto e accettato i documenti indicati. Salviamo la data e l'ora della tua accettazione."
   }
 }
