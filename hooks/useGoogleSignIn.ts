@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithCredential, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import i18next from 'i18next';
 import { auth } from '../config/firebase';
 
@@ -55,6 +55,18 @@ export function useGoogleSignIn() {
     setError(null);
     const provider = new GoogleAuthProvider();
 
+    // iOS Safari: los popups no comunican bien con el opener — usar redirect siempre
+    const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isIOS) {
+      try {
+        await signInWithRedirect(auth, provider);
+      } catch {
+        setError(i18next.t('login.errors.popupBlocked'));
+        setLoading(false);
+      }
+      return;
+    }
+
     try {
       await signInWithPopup(auth, provider);
       setLoading(false);
@@ -62,16 +74,18 @@ export function useGoogleSignIn() {
       const code: string = err?.code ?? '';
 
       if (USER_CANCELLED_CODES.has(code)) {
-        // El usuario cerró el popup — no es un error
         setLoading(false);
         return;
       }
 
       if (code === 'auth/popup-blocked') {
-        // iOS Safari PWA bloquea popups y signInWithRedirect falla por sessionStorage
-        // particionado — no hay fallback confiable. Indicar al usuario que use email/PIN.
-        setError(i18next.t('login.errors.popupBlocked'));
-        setLoading(false);
+        // Fallback a redirect si el popup fue bloqueado (ej. Brave, algunos Android)
+        try {
+          await signInWithRedirect(auth, provider);
+        } catch {
+          setError(i18next.t('login.errors.popupBlocked'));
+          setLoading(false);
+        }
         return;
       }
 

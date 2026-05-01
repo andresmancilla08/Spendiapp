@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Platform, View, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 import { Stack, router, usePathname } from 'expo-router';
 import { onAuthStateChanged, signOut } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
@@ -40,13 +40,6 @@ function PaletteLoader() {
   }, [user?.uid]);
 
   return null;
-}
-
-function NavReadyOverlay() {
-  const { colors } = useTheme();
-  return (
-    <View style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.background, zIndex: 9998 }]} />
-  );
 }
 
 function ThemedStack() {
@@ -106,9 +99,9 @@ function compareVersions(a: string, b: string): number {
   return 0;
 }
 
-const PUBLIC_ROUTES = new Set(['/', '/privacy', '/terms']);
+const PUBLIC_ROUTES = new Set(['/privacy', '/terms']);
 
-function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; fontsLoaded: boolean; onFirstNav: () => void }) {
+function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded: boolean }) {
   const { flags, flagsLoading } = useFlags();
   const pathname = usePathname();
   const { user, isLoading, justRegistered, biometricLocked, setBiometricLocked, setIsPremium } = useAuthStore();
@@ -217,24 +210,23 @@ function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; 
   }, []);
 
   useEffect(() => {
-    if (!i18nReady || !fontsLoaded || isLoading || flagsLoading || justRegistered || !versionChecked) return;
-    if (user && !isBlockedChecked) return;
+    if (!i18nReady || !fontsLoaded || isLoading || justRegistered) return;
+    if (user && (flagsLoading || !versionChecked || !isBlockedChecked)) return;
 
     const navigate = (path: string) => {
       if (lastNav.current === path) return;
       lastNav.current = path;
-      onFirstNav();
       router.replace(path as Parameters<typeof router.replace>[0]);
     };
 
-    // 0. Versión mínima (máxima prioridad absoluta)
-    if (needsUpdate) {
+    // 0. Versión mínima (máxima prioridad absoluta — solo cuando ya se cargó)
+    if (versionChecked && needsUpdate) {
       navigate('/update-required');
       return;
     }
 
-    // 1. Mantenimiento
-    if (flags.maintenanceMode) {
+    // 1. Mantenimiento (solo cuando flags ya cargaron)
+    if (!flagsLoading && flags.maintenanceMode) {
       navigate('/maintenance');
       return;
     }
@@ -270,7 +262,7 @@ function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; 
         navigate('/(tabs)/');
       }
     } else {
-      if (PUBLIC_ROUTES.has(pathname)) { onFirstNav(); return; }
+      if (PUBLIC_ROUTES.has(pathname)) return;
       setBiometricLocked(true);
       navigate('/(auth)/login');
     }
@@ -280,8 +272,6 @@ function AppGuard({ i18nReady, fontsLoaded, onFirstNav }: { i18nReady: boolean; 
 }
 
 export default function RootLayout() {
-  const pathname = usePathname();
-  const isPublicRoute = PUBLIC_ROUTES.has(pathname);
   const { user, isLoading, setUser, setLoading, setJustLoggedIn } = useAuthStore();
   const [i18nReady, setI18nReady] = useState(false);
   const isFirstAuthCall = useRef(true);
@@ -289,8 +279,6 @@ export default function RootLayout() {
   const [inactivityDialogVisible, setInactivityDialogVisible] = useState(false);
   const [countdown, setCountdown] = useState(30);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const [navReady, setNavReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
@@ -401,12 +389,7 @@ export default function RootLayout() {
     <ThemeProvider>
       <ToastProvider>
         <FeatureFlagsProvider>
-          <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} onFirstNav={() => {
-            setNavReady(true);
-            if (Platform.OS === 'web' && typeof window !== 'undefined') {
-              window.dispatchEvent(new Event('spendiaReady'));
-            }
-          }} />
+          <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} />
           <WebAppShell>
             <PaletteLoader />
             <ThemedStack />
@@ -417,7 +400,6 @@ export default function RootLayout() {
               onLogout={handleLogout}
             />
           </WebAppShell>
-          {!navReady && !isPublicRoute && <NavReadyOverlay />}
         </FeatureFlagsProvider>
       </ToastProvider>
     </ThemeProvider>
