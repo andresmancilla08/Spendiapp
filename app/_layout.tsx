@@ -293,18 +293,17 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged((authUser) => {
+    const unsubscribe = onAuthStateChanged(async (authUser) => {
       if (authUser) {
         savePendingConsent(authUser.uid).catch(() => {});
-        // Crear perfil Firestore si no existe (idempotente)
-        createUserProfile(
+        // Esperar a que el perfil exista antes de setUser, para que el onSnapshot
+        // de AppGuard lo encuentre y no ejecute el signOut por doc faltante
+        await createUserProfile(
           authUser.uid,
           authUser.displayName ?? authUser.email ?? 'Usuario',
           authUser.photoURL,
           authUser.email,
-        ).catch(() => {
-          // Fallo silencioso — el perfil se creará en el siguiente login
-        });
+        ).catch(() => {});
         const appVersion = Constants.expoConfig?.version;
         if (appVersion) {
           updateAppVersion(authUser.uid, appVersion).catch(() => {});
