@@ -108,6 +108,14 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
 
+    // Consentimientos legales: solo el propio usuario puede crear, nunca leer/modificar desde cliente
+    match /consents/{docId} {
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId
+        && request.resource.data.accepted == true;
+      allow read, update, delete: if false;
+    }
+
     // pendingExternalLinks: ownership por email del token, campos permitidos restringidos
     match /pendingExternalLinks/{email} {
       allow read: if request.auth != null && request.auth.token.email == email;
