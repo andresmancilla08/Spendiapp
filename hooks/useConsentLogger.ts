@@ -17,6 +17,10 @@ interface PendingConsent {
 
 let _pending: PendingConsent | null = null;
 
+export function hasPendingConsent(): boolean {
+  return _pending !== null;
+}
+
 export function setPendingConsent(method: AuthMethod) {
   const ua =
     Platform.OS === 'web'
