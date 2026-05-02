@@ -19,7 +19,8 @@ import { useInactivityTimer } from '../hooks/useInactivityTimer';
 import AppDialog from '../components/AppDialog';
 import WebAppShell from '../components/WebAppShell';
 import { useTranslation } from 'react-i18next';
-import { savePendingConsent } from '../hooks/useConsentLogger';
+import { savePendingConsent, hasAcceptedConsent, hasPendingConsent, setPendingConsent } from '../hooks/useConsentLogger';
+import ConsentModal from '../components/ConsentModal';
 import { createUserProfile, getUserProfile, updateAppVersion } from '../hooks/useUserProfile';
 import Constants from 'expo-constants';
 import { FeatureFlagsProvider, useFlags } from '../context/FeatureFlagsContext';
@@ -271,6 +272,22 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
   return null;
 }
 
+function ConsentGuard({ consentRequired, onAccept }: { consentRequired: boolean; onAccept: () => void }) {
+  const pathname = usePathname();
+  const visible = consentRequired && pathname !== '/terms' && pathname !== '/privacy';
+  return (
+    <ConsentModal
+      visible={visible}
+      method="google"
+      onAccept={onAccept}
+      onCancel={() => {}}
+      required
+      onTermsPress={() => router.push('/terms' as any)}
+      onPrivacyPress={() => router.push('/privacy' as any)}
+    />
+  );
+}
+
 export default function RootLayout() {
   const { user, isLoading, setUser, setLoading, setJustLoggedIn } = useAuthStore();
   const [i18nReady, setI18nReady] = useState(false);
@@ -279,6 +296,8 @@ export default function RootLayout() {
   const [inactivityDialogVisible, setInactivityDialogVisible] = useState(false);
   const [countdown, setCountdown] = useState(30);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [consentRequired, setConsentRequired] = useState(false);
+  const consentUserUidRef = useRef<string | null>(null);
 
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
@@ -295,7 +314,8 @@ export default function RootLayout() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(async (authUser) => {
       if (authUser) {
-        savePendingConsent(authUser.uid).catch(() => {});
+        const pendingExists = hasPendingConsent();
+        await savePendingConsent(authUser.uid).catch(() => {});
         // Esperar a que el perfil exista antes de setUser, para que el onSnapshot
         // de AppGuard lo encuentre y no ejecute el signOut por doc faltante
         await createUserProfile(
@@ -312,6 +332,18 @@ export default function RootLayout() {
         if (!isFirstAuthCall.current && !prevUserRef.current) {
           setJustLoggedIn(true);
         }
+        // Mostrar modal de consentimiento si el usuario aún no ha aceptado
+        if (!pendingExists) {
+          hasAcceptedConsent().then((accepted) => {
+            if (!accepted) {
+              consentUserUidRef.current = authUser.uid;
+              setConsentRequired(true);
+            }
+          });
+        }
+      } else {
+        consentUserUidRef.current = null;
+        setConsentRequired(false);
       }
       isFirstAuthCall.current = false;
       prevUserRef.current = !!authUser;
@@ -384,6 +416,14 @@ export default function RootLayout() {
     signOut();
   };
 
+  const handleConsentAccept = async () => {
+    setConsentRequired(false);
+    setPendingConsent('google');
+    if (consentUserUidRef.current) {
+      await savePendingConsent(consentUserUidRef.current).catch(() => {});
+    }
+  };
+
   return (
     <ThemeProvider>
       <ToastProvider>
@@ -399,6 +439,7 @@ export default function RootLayout() {
               onLogout={handleLogout}
             />
           </WebAppShell>
+          <ConsentGuard consentRequired={consentRequired} onAccept={handleConsentAccept} />
         </FeatureFlagsProvider>
       </ToastProvider>
     </ThemeProvider>
