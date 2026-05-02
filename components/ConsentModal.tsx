@@ -23,9 +23,10 @@ interface Props {
   onCancel: () => void;
   onTermsPress?: () => void;
   onPrivacyPress?: () => void;
+  required?: boolean;
 }
 
-export default function ConsentModal({ visible, method, onAccept, onCancel, onTermsPress, onPrivacyPress }: Props) {
+export default function ConsentModal({ visible, method, onAccept, onCancel, onTermsPress, onPrivacyPress, required }: Props) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
 
@@ -63,7 +64,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
           style={[styles.overlay, { opacity: overlayOpacity }]}
           pointerEvents={visible ? 'auto' : 'none'}
         >
-          <TouchableOpacity style={StyleSheet.absoluteFillObject} onPress={onCancel} activeOpacity={1} />
+          <TouchableOpacity style={StyleSheet.absoluteFillObject} onPress={required ? undefined : onCancel} activeOpacity={1} />
         </Animated.View>
 
         {/* Card */}
@@ -144,12 +145,14 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
               </Text>
             </TouchableOpacity>
 
-            {/* Cancel */}
-            <TouchableOpacity onPress={onCancel} activeOpacity={0.7} style={styles.cancelBtn}>
-              <Text style={[styles.cancelText, { color: colors.textTertiary }]}>
-                {t('consentModal.cancel')}
-              </Text>
-            </TouchableOpacity>
+            {/* Cancel — oculto cuando el consentimiento es obligatorio */}
+            {!required && (
+              <TouchableOpacity onPress={onCancel} activeOpacity={0.7} style={styles.cancelBtn}>
+                <Text style={[styles.cancelText, { color: colors.textTertiary }]}>
+                  {t('consentModal.cancel')}
+                </Text>
+              </TouchableOpacity>
+            )}
 
             {/* Legal note */}
             <Text style={[styles.legalNote, { color: colors.textTertiary }]}>

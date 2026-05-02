@@ -64,11 +64,15 @@ export default function LoginScreen() {
 
   const handleMethodPress = async (method: AuthMethod) => {
     setPendingMethod(method);
+    if (method === 'google') {
+      // Consent se valida obligatoriamente en el home tras el login
+      promptAsync();
+      return;
+    }
     const already = await hasAcceptedConsent();
     if (already) {
       setPendingConsent(method);
-      if (method === 'google') promptAsync();
-      else router.push('/(auth)/login-email');
+      router.push('/(auth)/login-email');
     } else {
       setConsentVisible(true);
     }
@@ -77,11 +81,7 @@ export default function LoginScreen() {
   const handleConsentAccept = () => {
     setConsentVisible(false);
     setPendingConsent(pendingMethod);
-    if (pendingMethod === 'google') {
-      promptAsync();
-    } else {
-      router.push('/(auth)/login-email');
-    }
+    router.push('/(auth)/login-email');
   };
 
   return (
