@@ -41,6 +41,15 @@ export default function Root({ children }: PropsWithChildren) {
           });
         `}} />
 
+        {/* Service Worker (required for Android PWA install prompt) */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+              navigator.serviceWorker.register('/sw.js');
+            });
+          }
+        `}} />
+
         <ScrollViewStyleReset />
 
         {/* Remove browser focus outline on all inputs */}
