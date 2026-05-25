@@ -465,7 +465,10 @@
     "installmentNotice": "Installment {{current}} of {{total}} — editing this installment only",
     "fixedExpense": "Fixed expense",
     "fixedIncome": "Fixed income",
-    "saveCategoryError": "Could not save the category"
+    "saveCategoryError": "Could not save the category",
+    "sharedSection": "Shared expense",
+    "sharedOwnerNote": "Changes apply to all participants",
+    "sharedParticipantNote": "You can edit your record without affecting others"
   },
   "history": {
     "title": "History",

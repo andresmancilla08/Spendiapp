@@ -465,7 +465,10 @@
     "installmentNotice": "Rata {{current}} di {{total}} — modifica solo questa rata",
     "fixedExpense": "Spesa fissa",
     "fixedIncome": "Entrata fissa",
-    "saveCategoryError": "Impossibile salvare la categoria"
+    "saveCategoryError": "Impossibile salvare la categoria",
+    "sharedSection": "Spesa condivisa",
+    "sharedOwnerNote": "Le modifiche si applicano a tutti i partecipanti",
+    "sharedParticipantNote": "Puoi modificare il tuo record senza influenzare gli altri"
   },
   "history": {
     "title": "Cronologia",

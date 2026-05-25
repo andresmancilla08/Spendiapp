@@ -465,7 +465,10 @@
     "installmentNotice": "Cuota {{current}} de {{total}} — edita solo esta cuota",
     "fixedExpense": "Gasto fijo",
     "fixedIncome": "Ingreso fijo",
-    "saveCategoryError": "No se pudo guardar la categoría"
+    "saveCategoryError": "No se pudo guardar la categoría",
+    "sharedSection": "Gasto compartido",
+    "sharedOwnerNote": "Los cambios se aplican a todos los participantes",
+    "sharedParticipantNote": "Puedes editar tu registro sin afectar a los demás"
   },
   "history": {
     "title": "Historial",
