@@ -4,6 +4,7 @@ import { Stack, router, usePathname } from 'expo-router';
 import { onAuthStateChanged, signOut } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
 import { getRedirectResult } from 'firebase/auth';
+import { REDIRECT_PENDING_KEY } from '../hooks/useGoogleSignIn';
 import { auth, db } from '../config/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
@@ -312,27 +313,29 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(async (authUser) => {
+    const unsubscribe = onAuthStateChanged((authUser) => {
+      // Actualizar estado inmediatamente — sin bloquear en Firestore
+      if (!isFirstAuthCall.current && !prevUserRef.current && authUser) {
+        setJustLoggedIn(true);
+      }
+      isFirstAuthCall.current = false;
+      prevUserRef.current = !!authUser;
+      setUser(authUser);
+      setLoading(false);
+
       if (authUser) {
+        // Operaciones en background — no bloquean el routing
         const pendingExists = hasPendingConsent();
-        await savePendingConsent(authUser.uid).catch(() => {});
-        // Esperar a que el perfil exista antes de setUser, para que el onSnapshot
-        // de AppGuard lo encuentre y no ejecute el signOut por doc faltante
-        await createUserProfile(
+        savePendingConsent(authUser.uid).catch(() => {});
+        createUserProfile(
           authUser.uid,
           authUser.displayName ?? authUser.email ?? 'Usuario',
           authUser.photoURL,
           authUser.email,
         ).catch(() => {});
         const appVersion = Constants.expoConfig?.version;
-        if (appVersion) {
-          updateAppVersion(authUser.uid, appVersion).catch(() => {});
-        }
-        // Login fresco: la sesión no venía persistida (primer callback fue sin usuario)
-        if (!isFirstAuthCall.current && !prevUserRef.current) {
-          setJustLoggedIn(true);
-        }
-        // Mostrar modal de consentimiento si el usuario aún no ha aceptado
+        if (appVersion) updateAppVersion(authUser.uid, appVersion).catch(() => {});
+
         if (!pendingExists) {
           hasAcceptedConsent().then((accepted) => {
             if (!accepted) {
@@ -345,10 +348,6 @@ export default function RootLayout() {
         consentUserUidRef.current = null;
         setConsentRequired(false);
       }
-      isFirstAuthCall.current = false;
-      prevUserRef.current = !!authUser;
-      setUser(authUser);
-      setLoading(false);
     });
     return unsubscribe;
   }, []);
@@ -356,10 +355,11 @@ export default function RootLayout() {
   // Procesar resultado de signInWithRedirect si el popup fue bloqueado y
   // se usó redirect como fallback. onAuthStateChanged se dispara automáticamente
   // cuando getRedirectResult completa con éxito.
+  // Skip when useGoogleSignIn is handling the result (iOS redirect flow).
   useEffect(() => {
     if (Platform.OS !== 'web') return;
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(REDIRECT_PENDING_KEY)) return;
     getRedirectResult(auth).catch((err) => {
-      // Solo ignorar si no hay resultado pendiente (caso normal al cargar la app)
       if (err?.code !== 'auth/no-auth-event') {
         console.warn('[Auth] getRedirectResult error:', err?.code, err?.message);
       }
@@ -416,11 +416,12 @@ export default function RootLayout() {
     signOut();
   };
 
-  const handleConsentAccept = async () => {
+  const handleConsentAccept = () => {
     setConsentRequired(false);
-    setPendingConsent('google');
+    const isGoogle = auth.currentUser?.providerData?.some(p => p.providerId === 'google.com') ?? false;
+    setPendingConsent(isGoogle ? 'google' : 'email');
     if (consentUserUidRef.current) {
-      await savePendingConsent(consentUserUidRef.current).catch(() => {});
+      savePendingConsent(consentUserUidRef.current).catch(() => {});
     }
   };
 

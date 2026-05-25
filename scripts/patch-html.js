@@ -35,6 +35,15 @@ const pwaTags = `
     });
   </script>
 
+  <!-- Service Worker registration (required for Android PWA install prompt) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
+
   <!-- Quitar outline y tap highlight en todos los elementos interactivos (PWA mobile) -->
   <style>
     *, *:focus, *:focus-visible, *:focus-within {

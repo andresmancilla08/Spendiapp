@@ -13,8 +13,7 @@ import appConfig from '../../app.json';
 import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTheme } from '../../context/ThemeContext';
@@ -22,8 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../config/fonts';
 import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
 import PressableScale from '../../components/PressableScale';
-import ConsentModal from '../../components/ConsentModal';
-import { setPendingConsent, hasAcceptedConsent, type AuthMethod } from '../../hooks/useConsentLogger';
+import { type AuthMethod } from '../../hooks/useConsentLogger';
 
 function GoogleIcon({ size = 18 }: { size?: number }) {
   return (
@@ -45,16 +43,7 @@ function GoogleIcon({ size = 18 }: { size?: number }) {
 
 export default function LoginScreen() {
   const { promptAsync, loading, error } = useGoogleSignIn();
-  const [consentVisible, setConsentVisible] = useState(false);
   const [pendingMethod, setPendingMethod] = useState<AuthMethod>('google');
-  const pendingReopenConsent = useRef(false);
-
-  useFocusEffect(useCallback(() => {
-    if (pendingReopenConsent.current) {
-      pendingReopenConsent.current = false;
-      setTimeout(() => setConsentVisible(true), 280);
-    }
-  }, []));
   const { t } = useTranslation();
   const { colors, isDark, setThemeMode } = useTheme();
 
@@ -62,25 +51,12 @@ export default function LoginScreen() {
     if (error) Alert.alert('Error', error);
   }, [error]);
 
-  const handleMethodPress = async (method: AuthMethod) => {
+  const handleMethodPress = (method: AuthMethod) => {
     setPendingMethod(method);
     if (method === 'google') {
-      // Consent se valida obligatoriamente en el home tras el login
       promptAsync();
       return;
     }
-    const already = await hasAcceptedConsent();
-    if (already) {
-      setPendingConsent(method);
-      router.push('/(auth)/login-email');
-    } else {
-      setConsentVisible(true);
-    }
-  };
-
-  const handleConsentAccept = () => {
-    setConsentVisible(false);
-    setPendingConsent(pendingMethod);
     router.push('/(auth)/login-email');
   };
 
@@ -182,22 +158,6 @@ export default function LoginScreen() {
     </SafeAreaView>
     </ScreenTransition>
 
-    <ConsentModal
-      visible={consentVisible}
-      method={pendingMethod}
-      onAccept={handleConsentAccept}
-      onCancel={() => setConsentVisible(false)}
-      onTermsPress={() => {
-        setConsentVisible(false);
-        pendingReopenConsent.current = true;
-        router.push('/terms' as any);
-      }}
-      onPrivacyPress={() => {
-        setConsentVisible(false);
-        pendingReopenConsent.current = true;
-        router.push('/privacy' as any);
-      }}
-    />
     </>
   );
 }
