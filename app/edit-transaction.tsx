@@ -15,7 +15,7 @@ import { useRef, useEffect, useState, type ElementRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { updateDoc, doc, Timestamp, addDoc, collection, deleteField } from 'firebase/firestore';
+import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -36,6 +36,8 @@ import ScreenTransition from '../components/ScreenTransition';
 import { categorizeLocal, categorizeWithGemini } from '../utils/categorize';
 import { suggestEmojiLocal, suggestEmojiWithGemini } from '../utils/suggestEmoji';
 import { EmojiPicker } from '../components/EmojiPicker';
+import type { SharedParticipant, SharedTransaction } from '../types/sharedTransaction';
+import { calcSharedAmount, calcEqualPercentages } from '../utils/sharedCalc';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
 const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
@@ -91,6 +93,11 @@ export default function EditTransactionScreen() {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [loading, setLoading]               = useState(false);
   const [error, setError]                   = useState('');
+
+  // Shared transaction editing
+  const [isSharedTx, setIsSharedTx]                     = useState(false);
+  const [sharedEditParticipants, setSharedEditParticipants] = useState<SharedParticipant[]>([]);
+  const [sharedSplitType, setSharedSplitType]           = useState<'equal' | 'custom'>('equal');
 
   // Category UI
   const [catExpanded, setCatExpanded]             = useState(false);
@@ -210,6 +217,13 @@ export default function EditTransactionScreen() {
     setPickerYear(d.getFullYear());
     setPickerMonth(d.getMonth());
     setPickerDay(d.getDate());
+    if (tx.isShared && tx.sharedParticipants?.length) {
+      setIsSharedTx(true);
+      setSharedEditParticipants(tx.sharedParticipants);
+      const percs = calcEqualPercentages(tx.sharedParticipants.length);
+      const isEqual = tx.sharedParticipants.every((p, i) => p.percentage === percs[i]);
+      setSharedSplitType(isEqual ? 'equal' : 'custom');
+    }
     setPendingEditTx(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -262,6 +276,14 @@ export default function EditTransactionScreen() {
 
   const handleNavigateToCards = () => router.push('/(onboarding)/select-cards');
 
+  const handleSharedSplitTypeChange = (st: 'equal' | 'custom') => {
+    setSharedSplitType(st);
+    if (st === 'equal') {
+      const percs = calcEqualPercentages(sharedEditParticipants.length);
+      setSharedEditParticipants((prev) => prev.map((p, i) => ({ ...p, percentage: percs[i] })));
+    }
+  };
+
   const parsedAmount    = amount ? parseInt(amount, 10) : 0;
   const isAmountValid   = amount.trim() !== '' && parsedAmount > 0;
   const formattedNumber = amount ? amount.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
@@ -271,7 +293,11 @@ export default function EditTransactionScreen() {
 
   const handleAmountChange = (text: string) => setAmount(text.replace(/\D/g, ''));
 
-  const isSaveDisabled = !isAmountValid || category === '' || description.trim() === '' || loading;
+  const isOwnerOfShared = isSharedTx && transaction?.sharedOwnerUid === user?.uid;
+  const sharedTotalPct  = isSharedTx ? Math.round(sharedEditParticipants.reduce((s, p) => s + p.percentage, 0)) : 100;
+  const sharedPctValid  = !isSharedTx || !isOwnerOfShared || sharedTotalPct === 100;
+
+  const isSaveDisabled = !isAmountValid || category === '' || description.trim() === '' || loading || !sharedPctValid;
 
   const dateDisplayText = isToday(selectedDate)
     ? `${t('addTransaction.today')}, ${formatDisplayDate(selectedDate)}`
@@ -281,21 +307,47 @@ export default function EditTransactionScreen() {
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
   const handleSave = async () => {
-    if (isSaveDisabled || !transaction) return;
+    if (isSaveDisabled || !transaction || !user) return;
     setLoading(true);
     setError('');
     try {
-      await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
-        type,
-        description: description.trim(),
-        amount: parsedAmount,
-        category,
-        date: Timestamp.fromDate(selectedDate),
-        isFixed,
-        cardId: selectedCardId ?? null,
-        // Si se edita una transacción fija, limpiar la cancelación para restaurar todos los meses
-        ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
-      });
+      if (isSharedTx && transaction.sharedId && isOwnerOfShared && !transaction.isInstallment) {
+        // Actualizar todos los mirrors del gasto compartido
+        const coordSnap = await getDoc(doc(db, 'sharedTransactions', transaction.sharedId));
+        if (!coordSnap.exists()) throw new Error('coordination doc missing');
+        const coordData = coordSnap.data() as SharedTransaction;
+        const batch = writeBatch(db);
+        for (const mirrorRef of coordData.mirrorRefs) {
+          const participant = sharedEditParticipants.find((p) => p.uid === mirrorRef.uid);
+          if (!participant) continue;
+          const newSharedAmount = calcSharedAmount(parsedAmount, 0, 1, participant.percentage);
+          batch.update(doc(db, 'transactions', mirrorRef.transactionId), {
+            type,
+            description: description.trim(),
+            amount: parsedAmount,
+            category,
+            date: Timestamp.fromDate(selectedDate),
+            isFixed,
+            sharedParticipants: sharedEditParticipants,
+            sharedAmount: newSharedAmount,
+            ...(mirrorRef.uid === user.uid ? { cardId: selectedCardId ?? null } : {}),
+            ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
+          });
+        }
+        await batch.commit();
+      } else {
+        await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
+          type,
+          description: description.trim(),
+          amount: parsedAmount,
+          category,
+          date: Timestamp.fromDate(selectedDate),
+          isFixed,
+          cardId: selectedCardId ?? null,
+          // Si se edita una transacción fija, limpiar la cancelación para restaurar todos los meses
+          ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
+        });
+      }
       setLastAction('saved');
       showToast(t('history.toasts.saved'), 'success');
       router.back();
@@ -430,6 +482,103 @@ export default function EditTransactionScreen() {
                   trackColor={{ false: colors.border, true: colors.primary }}
                   thumbColor="#fff"
                 />
+              </View>
+            )}
+
+            {/* Shared expense percentage editor */}
+            {isSharedTx && (
+              <View style={[styles.sharedSection, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <View style={styles.sharedHeader}>
+                  <Ionicons name="people-outline" size={16} color={colors.primary} />
+                  <Text style={[styles.sharedTitle, { color: colors.textPrimary }]}>
+                    {t('editTransaction.sharedSection')}
+                  </Text>
+                </View>
+
+                {isOwnerOfShared && (
+                  <>
+                    <View style={styles.splitRow}>
+                      {(['equal', 'custom'] as const).map((s) => (
+                        <TouchableOpacity
+                          key={s}
+                          style={[styles.splitBtn, {
+                            backgroundColor: sharedSplitType === s ? colors.primary : colors.surface,
+                            borderColor: sharedSplitType === s ? colors.primary : colors.border,
+                          }]}
+                          onPress={() => handleSharedSplitTypeChange(s)}
+                          activeOpacity={0.8}
+                        >
+                          <Text style={[styles.splitBtnText, { color: sharedSplitType === s ? '#FFFFFF' : colors.textSecondary }]}>
+                            {t(s === 'equal' ? 'sharedExpense.equalParts' : 'sharedExpense.customParts')}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+
+                    {sharedSplitType === 'custom' && (
+                      <View style={styles.pctContainer}>
+                        {sharedEditParticipants.map((p) => {
+                          const isMe = p.uid === user?.uid;
+                          const label = isMe ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`);
+                          return (
+                            <View key={p.uid} style={styles.pctRow}>
+                              <Text style={[styles.pctName, { color: colors.textPrimary }]} numberOfLines={1}>{label}</Text>
+                              <View style={[styles.pctInput, { borderColor: !sharedPctValid ? colors.error : colors.border }]}>
+                                <TextInput
+                                  value={String(p.percentage)}
+                                  onChangeText={(v) => {
+                                    const num = Math.min(100, parseInt(v.replace(/\D/g, ''), 10) || 0);
+                                    const remaining = 100 - num;
+                                    const otherCount = sharedEditParticipants.length - 1;
+                                    const base = otherCount > 0 ? Math.floor(remaining / otherCount) : 0;
+                                    const extra = otherCount > 0 ? remaining - base * otherCount : 0;
+                                    setSharedEditParticipants((prev) => {
+                                      const others = prev.filter((x) => x.uid !== p.uid);
+                                      return prev.map((pp) => {
+                                        if (pp.uid === p.uid) return { ...pp, percentage: num };
+                                        const idx = others.findIndex((x) => x.uid === pp.uid);
+                                        return { ...pp, percentage: base + (idx === 0 ? extra : 0) };
+                                      });
+                                    });
+                                  }}
+                                  keyboardType="number-pad"
+                                  maxLength={3}
+                                  style={[styles.pctTextInput, { color: colors.textPrimary }]}
+                                />
+                                <Text style={[styles.pctSymbol, { color: colors.textSecondary }]}>%</Text>
+                              </View>
+                            </View>
+                          );
+                        })}
+                        {!sharedPctValid && (
+                          <Text style={[styles.pctError, { color: colors.error }]}>
+                            {t('sharedExpense.percentageError', { total: sharedTotalPct })}
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                  </>
+                )}
+
+                {/* Preview de montos por participante */}
+                <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: isOwnerOfShared ? 8 : 0 }]}>
+                  {t('sharedExpense.preview').toUpperCase()}
+                </Text>
+                <View style={{ gap: 8 }}>
+                  {sharedEditParticipants.map((p) => {
+                    const isMe = p.uid === user?.uid;
+                    const label = isMe ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`);
+                    const portionAmt = calcSharedAmount(parsedAmount || 0, 0, 1, p.percentage);
+                    return (
+                      <View key={p.uid} style={styles.sharedPreviewRow}>
+                        <Text style={[styles.sharedPreviewName, { color: colors.textPrimary }]}>{label}</Text>
+                        <Text style={[styles.sharedPreviewAmt, { color: colors.primary }]}>
+                          ${portionAmt.toLocaleString('es-CO')}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
               </View>
             )}
 
@@ -905,4 +1054,21 @@ const styles = StyleSheet.create({
   cardTypeBadgeText: { fontSize: 10, fontFamily: Fonts.bold },
   noCardsPrompt:     { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1.5 },
   noCardsPromptText: { fontSize: 13, fontFamily: Fonts.semiBold },
+  // Shared expense editor
+  sharedSection:    { borderWidth: StyleSheet.hairlineWidth, borderRadius: 14, padding: 14 },
+  sharedHeader:     { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  sharedTitle:      { fontSize: 14, fontFamily: Fonts.semiBold },
+  splitRow:         { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  splitBtn:         { flex: 1, paddingVertical: 10, borderRadius: 10, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center' },
+  splitBtnText:     { fontSize: 13, fontFamily: Fonts.medium },
+  pctContainer:     { gap: 10, marginBottom: 4 },
+  pctRow:           { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  pctName:          { fontSize: 14, fontFamily: Fonts.regular, flex: 1, marginRight: 8 },
+  pctInput:         { flexDirection: 'row', alignItems: 'center', borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, minWidth: 72 },
+  pctTextInput:     { fontSize: 15, fontFamily: Fonts.bold, textAlign: 'center', minWidth: 36 },
+  pctSymbol:        { fontSize: 15, fontFamily: Fonts.regular },
+  pctError:         { fontSize: 12, fontFamily: Fonts.regular, textAlign: 'center', marginTop: 2 },
+  sharedPreviewRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sharedPreviewName:{ fontSize: 14, fontFamily: Fonts.regular },
+  sharedPreviewAmt: { fontSize: 14, fontFamily: Fonts.bold },
 });
