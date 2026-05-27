@@ -83,7 +83,8 @@ service cloud.firestore {
           'shared_transaction_added', 'shared_transaction_updated', 'shared_transaction_deleted',
           'income_claim_added',
           'sent_income', 'sent_income_deleted',
-          'shared_delete_request'
+          'shared_delete_request',
+          'sent_income_delete_request'
         ]
         && request.resource.data.toUserId is string
         && request.resource.data.data.fromUserId == request.auth.uid;

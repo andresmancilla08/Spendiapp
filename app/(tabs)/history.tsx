@@ -10,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
   PanResponder,
+  Alert,
 } from 'react-native';
 import AppSegmentedControl from '../../components/AppSegmentedControl';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
@@ -19,6 +20,7 @@ import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
 import {
   updateDoc,
@@ -126,9 +128,10 @@ interface TransactionRowProps {
   onTogglePaid?: (tx: Transaction) => void;
   paidLoading?: boolean;
   customCatMap: Record<string, Category>;
+  onDelete?: (tx: Transaction) => void;
 }
 
-function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onTogglePaid, paidLoading, customCatMap }: TransactionRowProps) {
+function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onTogglePaid, paidLoading, customCatMap, onDelete }: TransactionRowProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const customCat = customCatMap[item.category];
@@ -150,50 +153,76 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
     ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`
     : item.description;
 
-  const ACTION_WIDTH = 70;
-  const SWIPE_THRESHOLD = 45;
+  const ACTION_WIDTH = 80;
+  const SWIPE_THRESHOLD = 48;
   const swipeX = useRef(new Animated.Value(0)).current;
-  const isOpen = useRef(false);
+  const openDir = useRef<'none' | 'left' | 'right'>('none');
 
-  const snapClose = useCallback(() => {
+  const snapToCenter = useCallback(() => {
     Animated.spring(swipeX, { toValue: 0, useNativeDriver: Platform.OS !== 'web', bounciness: 6, speed: 18 }).start();
-    isOpen.current = false;
+    openDir.current = 'none';
   }, [swipeX]);
 
-  const snapOpen = useCallback(() => {
+  const snapLeft = useCallback(() => {
     Animated.spring(swipeX, { toValue: -ACTION_WIDTH, useNativeDriver: Platform.OS !== 'web', bounciness: 6, speed: 18 }).start();
-    isOpen.current = true;
+    openDir.current = 'left';
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, [swipeX]);
 
-  // Auto-close when paid state changes (after toggle)
+  const snapRight = useCallback(() => {
+    Animated.spring(swipeX, { toValue: ACTION_WIDTH, useNativeDriver: Platform.OS !== 'web', bounciness: 6, speed: 18 }).start();
+    openDir.current = 'right';
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }, [swipeX]);
+
   useEffect(() => {
-    snapClose();
-  }, [isPaid, snapClose]);
+    snapToCenter();
+  }, [isPaid, snapToCenter]);
 
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gs) =>
         Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 8,
       onPanResponderMove: (_, gs) => {
-        const base = isOpen.current ? -ACTION_WIDTH : 0;
-        const next = Math.max(Math.min(base + gs.dx, 0), -ACTION_WIDTH);
+        const base = openDir.current === 'left' ? -ACTION_WIDTH : openDir.current === 'right' ? ACTION_WIDTH : 0;
+        let next = base + gs.dx;
+        if (openDir.current === 'left') {
+          next = Math.max(-ACTION_WIDTH, Math.min(next, 0));
+        } else if (openDir.current === 'right') {
+          next = Math.max(0, Math.min(next, ACTION_WIDTH));
+        } else {
+          next = isExpense
+            ? Math.max(-ACTION_WIDTH, Math.min(next, ACTION_WIDTH))
+            : Math.max(0, Math.min(next, ACTION_WIDTH));
+        }
         swipeX.setValue(next);
       },
       onPanResponderRelease: (_, gs) => {
-        const base = isOpen.current ? -ACTION_WIDTH : 0;
-        if (base + gs.dx < -SWIPE_THRESHOLD) {
-          snapOpen();
+        const base = openDir.current === 'left' ? -ACTION_WIDTH : openDir.current === 'right' ? ACTION_WIDTH : 0;
+        const projected = base + gs.dx;
+        if (projected < -SWIPE_THRESHOLD && isExpense) {
+          snapLeft();
+        } else if (projected > SWIPE_THRESHOLD) {
+          snapRight();
         } else {
-          snapClose();
+          snapToCenter();
         }
       },
     })
   ).current;
 
-  const handleActionPress = useCallback(() => {
-    snapClose();
+  const handlePaidPress = useCallback(() => {
+    snapToCenter();
     setTimeout(() => onTogglePaid?.(item), 180);
-  }, [snapClose, onTogglePaid, item]);
+  }, [snapToCenter, onTogglePaid, item]);
+
+  const handleDeleteAction = useCallback(() => {
+    snapToCenter();
+    setTimeout(() => onDelete?.(item), 180);
+  }, [snapToCenter, onDelete, item]);
+
+  const paidOpacity = swipeX.interpolate({ inputRange: [-ACTION_WIDTH, 0], outputRange: [1, 0], extrapolate: 'clamp' });
+  const deleteOpacity = swipeX.interpolate({ inputRange: [0, ACTION_WIDTH], outputRange: [0, 1], extrapolate: 'clamp' });
 
   const rowBg = isPaid ? colors.primaryLight : colors.surface;
   const amountColor = isExpense ? (isPaid ? colors.primaryDark : colors.error) : colors.secondary;
@@ -206,28 +235,41 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
         isExpense && !isPaid && { borderRightWidth: 4, borderRightColor: colors.primaryDark },
       ]}
     >
-      {/* Action button — revealed on swipe left */}
-      {isExpense && (
+      {/* DELETE button — left side, revealed by swiping row RIGHT */}
+      <Animated.View style={[styles.txDeleteBtn, { width: ACTION_WIDTH, opacity: deleteOpacity }]}>
         <TouchableOpacity
-          onPress={handleActionPress}
-          disabled={paidLoading}
+          onPress={handleDeleteAction}
           activeOpacity={0.85}
-          style={[
-            styles.txActionBtn,
-            { width: ACTION_WIDTH, backgroundColor: colors.primary },
-          ]}
+          style={[StyleSheet.absoluteFillObject, styles.txActionBtnInner, { backgroundColor: colors.error }]}
         >
-          <Ionicons name={isPaid ? 'close-circle-outline' : 'checkmark-circle-outline'} size={22} color="#FFFFFF" />
+          <Ionicons name="trash-outline" size={22} color="#FFFFFF" />
           <Text style={[styles.txActionLabel, { fontFamily: Fonts.semiBold }]}>
-            {isPaid ? t('history.swipe.unmark') : t('history.swipe.mark')}
+            {t('history.swipe.delete')}
           </Text>
         </TouchableOpacity>
+      </Animated.View>
+
+      {/* PAID button — right side, revealed by swiping row LEFT (expenses only) */}
+      {isExpense && (
+        <Animated.View style={[styles.txPaidBtn, { width: ACTION_WIDTH, opacity: paidOpacity }]}>
+          <TouchableOpacity
+            onPress={handlePaidPress}
+            disabled={paidLoading}
+            activeOpacity={0.85}
+            style={[StyleSheet.absoluteFillObject, styles.txActionBtnInner, { backgroundColor: colors.primary }]}
+          >
+            <Ionicons name={isPaid ? 'close-circle-outline' : 'checkmark-circle-outline'} size={22} color="#FFFFFF" />
+            <Text style={[styles.txActionLabel, { fontFamily: Fonts.semiBold }]}>
+              {isPaid ? t('history.swipe.unmark') : t('history.swipe.mark')}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       )}
 
       {/* Swipeable row content */}
       <Animated.View
-        {...(isExpense ? panResponder.panHandlers : {})}
-        style={[{ transform: [{ translateX: isExpense ? swipeX : 0 }] }]}
+        {...panResponder.panHandlers}
+        style={[{ transform: [{ translateX: swipeX }] }]}
       >
         <TouchableOpacity
           onPress={() => onPress(item)}
@@ -477,6 +519,35 @@ export default function HistoryScreen() {
       setPaidLoadingId(null);
     }
   }, [showToast, t, db]);
+
+  const handleDeleteFromSwipe = useCallback((tx: Transaction) => {
+    const isComplex = !!(tx.isFixed || tx.isInstallment || (tx.isShared && tx.sharedId) || tx.isSentIncome || tx.sentIncomeTransactionId);
+    if (isComplex || Platform.OS === 'web') {
+      setSelectedTransaction(tx, { cardsMap, viewYear: year, viewMonth: month, isPastMonth, currentUserName });
+      router.push('/transaction-detail');
+      return;
+    }
+    Alert.alert(
+      t('history.edit.confirmDelete'),
+      undefined,
+      [
+        { text: t('history.edit.confirmDeleteCancel'), style: 'cancel' },
+        {
+          text: t('history.edit.confirmDeleteYes'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(db, 'transactions', getActualId(tx)));
+              setRefreshKey(k => k + 1);
+              showToast(t('history.edit.deleteSuccess'), 'success');
+            } catch {
+              showToast(t('errors.genericError'), 'error');
+            }
+          },
+        },
+      ]
+    );
+  }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, currentUserName, t, showToast]);
 
   const filteredTransactions = useMemo(() =>
     transactions
@@ -804,6 +875,7 @@ export default function HistoryScreen() {
                     onTogglePaid={handleTogglePaid}
                     paidLoading={paidLoadingId === getActualId(tx)}
                     customCatMap={customCatMap}
+                    onDelete={handleDeleteFromSwipe}
                   />
                 ))}
               </View>
@@ -1054,11 +1126,23 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
   },
-  txActionBtn: {
+  txDeleteBtn: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  txPaidBtn: {
     position: 'absolute',
     right: 0,
     top: 0,
     bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  txActionBtnInner: {
     justifyContent: 'center',
     alignItems: 'center',
     gap: 3,
