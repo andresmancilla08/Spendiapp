@@ -567,12 +567,6 @@ export default function HistoryScreen() {
   }, [year, month, showToast, t]);
 
   const handleDeleteFromSwipe = useCallback((tx: Transaction) => {
-    if (Platform.OS === 'web') {
-      setSelectedTransaction(tx, { cardsMap, viewYear: year, viewMonth: month, isPastMonth, currentUserName });
-      router.push('/transaction-detail');
-      return;
-    }
-
     // Compartido / ingreso enviado → detail (flujo de solicitud)
     if ((tx.isShared && tx.sharedId) || tx.isSentIncome || tx.sentIncomeTransactionId) {
       setSelectedTransaction(tx, { cardsMap, viewYear: year, viewMonth: month, isPastMonth, currentUserName });
