@@ -547,7 +547,8 @@
     "installmentChip": "Rata {{n}}/{{total}}",
     "swipe": {
       "mark": "Pagare",
-      "unmark": "Pagato"
+      "unmark": "Pagato",
+      "delete": "Elimina"
     },
     "toasts": {
       "saved": "Modifiche salvate",
