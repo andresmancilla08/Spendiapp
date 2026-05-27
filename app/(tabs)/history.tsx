@@ -27,6 +27,12 @@ import {
   deleteDoc,
   doc,
   Timestamp,
+  arrayUnion,
+  collection,
+  getDocs,
+  query,
+  where,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useTheme } from '../../context/ThemeContext';
@@ -520,13 +526,90 @@ export default function HistoryScreen() {
     }
   }, [showToast, t, db]);
 
+  const executeDeleteWithScope = useCallback(async (tx: Transaction, scope: 'single' | 'fromNow' | 'all') => {
+    const txId = getActualId(tx);
+    try {
+      if (tx.isFixed) {
+        if (scope === 'single') {
+          await updateDoc(doc(db, 'transactions', txId), {
+            fixedSkipMonths: arrayUnion(`${year}_${month}`),
+          });
+        } else if (scope === 'fromNow') {
+          await updateDoc(doc(db, 'transactions', txId), {
+            fixedCancelledFrom: Timestamp.fromDate(new Date(year, month, 1)),
+          });
+        } else {
+          await deleteDoc(doc(db, 'transactions', txId));
+        }
+      } else if (tx.isInstallment && tx.installmentGroupId) {
+        if (scope === 'single') {
+          await deleteDoc(doc(db, 'transactions', txId));
+        } else {
+          const q = query(
+            collection(db, 'transactions'),
+            where('installmentGroupId', '==', tx.installmentGroupId),
+            where('installmentNumber', '>=', tx.installmentNumber ?? 1),
+          );
+          const snap = await getDocs(q);
+          const batch = writeBatch(db);
+          snap.docs.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
+      } else {
+        await deleteDoc(doc(db, 'transactions', txId));
+      }
+      setRefreshKey((k) => k + 1);
+      showToast(t('history.edit.deleteSuccess'), 'success');
+    } catch (e) {
+      console.error('[executeDeleteWithScope] scope=' + scope + ' id=' + tx.id, e);
+      showToast(t('errors.genericError'), 'error');
+    }
+  }, [year, month, showToast, t]);
+
   const handleDeleteFromSwipe = useCallback((tx: Transaction) => {
-    const isComplex = !!(tx.isFixed || tx.isInstallment || (tx.isShared && tx.sharedId) || tx.isSentIncome || tx.sentIncomeTransactionId);
-    if (isComplex || Platform.OS === 'web') {
+    if (Platform.OS === 'web') {
       setSelectedTransaction(tx, { cardsMap, viewYear: year, viewMonth: month, isPastMonth, currentUserName });
       router.push('/transaction-detail');
       return;
     }
+
+    // Compartido / ingreso enviado → detail (flujo de solicitud)
+    if ((tx.isShared && tx.sharedId) || tx.isSentIncome || tx.sentIncomeTransactionId) {
+      setSelectedTransaction(tx, { cardsMap, viewYear: year, viewMonth: month, isPastMonth, currentUserName });
+      router.push('/transaction-detail');
+      return;
+    }
+
+    // Fijo → selector de alcance
+    if (tx.isFixed) {
+      Alert.alert(
+        t('history.edit.scopePickerTitle'),
+        undefined,
+        [
+          { text: t('history.edit.scopeOnlyThis'), onPress: () => executeDeleteWithScope(tx, 'single') },
+          { text: t('history.edit.scopeFromNow'), onPress: () => executeDeleteWithScope(tx, 'fromNow') },
+          { text: t('history.edit.scopeAll'), style: 'destructive', onPress: () => executeDeleteWithScope(tx, 'all') },
+          { text: t('history.edit.confirmDeleteCancel'), style: 'cancel' },
+        ]
+      );
+      return;
+    }
+
+    // Cuotas → selector de alcance
+    if (tx.isInstallment) {
+      Alert.alert(
+        t('history.edit.scopePickerTitle'),
+        undefined,
+        [
+          { text: t('history.edit.scopeOnlyThisInstallment'), onPress: () => executeDeleteWithScope(tx, 'single') },
+          { text: t('history.edit.scopeFromNowInstallment'), style: 'destructive', onPress: () => executeDeleteWithScope(tx, 'fromNow') },
+          { text: t('history.edit.confirmDeleteCancel'), style: 'cancel' },
+        ]
+      );
+      return;
+    }
+
+    // Simple → confirmar
     Alert.alert(
       t('history.edit.confirmDelete'),
       undefined,
@@ -535,19 +618,11 @@ export default function HistoryScreen() {
         {
           text: t('history.edit.confirmDeleteYes'),
           style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteDoc(doc(db, 'transactions', getActualId(tx)));
-              setRefreshKey(k => k + 1);
-              showToast(t('history.edit.deleteSuccess'), 'success');
-            } catch {
-              showToast(t('errors.genericError'), 'error');
-            }
-          },
+          onPress: () => executeDeleteWithScope(tx, 'single'),
         },
       ]
     );
-  }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, currentUserName, t, showToast]);
+  }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, currentUserName, t, executeDeleteWithScope]);
 
   const filteredTransactions = useMemo(() =>
     transactions
