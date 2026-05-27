@@ -10,7 +10,7 @@ import {
   Platform,
   ActivityIndicator,
   PanResponder,
-  Alert,
+  Modal,
 } from 'react-native';
 import AppSegmentedControl from '../../components/AppSegmentedControl';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
@@ -421,6 +421,7 @@ export default function HistoryScreen() {
 
   const [paidLoadingId, setPaidLoadingId] = useState<string | null>(null);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [pendingDeleteTx, setPendingDeleteTx] = useState<Transaction | null>(null);
 
   // Siempre volver al mes actual al entrar
   useFocusEffect(useCallback(() => {
@@ -567,56 +568,13 @@ export default function HistoryScreen() {
   }, [year, month, showToast, t]);
 
   const handleDeleteFromSwipe = useCallback((tx: Transaction) => {
-    // Compartido / ingreso enviado → detail (flujo de solicitud)
     if ((tx.isShared && tx.sharedId) || tx.isSentIncome || tx.sentIncomeTransactionId) {
       setSelectedTransaction(tx, { cardsMap, viewYear: year, viewMonth: month, isPastMonth, currentUserName });
       router.push('/transaction-detail');
       return;
     }
-
-    // Fijo → selector de alcance
-    if (tx.isFixed) {
-      Alert.alert(
-        t('history.edit.scopePickerTitle'),
-        undefined,
-        [
-          { text: t('history.edit.scopeOnlyThis'), onPress: () => executeDeleteWithScope(tx, 'single') },
-          { text: t('history.edit.scopeFromNow'), onPress: () => executeDeleteWithScope(tx, 'fromNow') },
-          { text: t('history.edit.scopeAll'), style: 'destructive', onPress: () => executeDeleteWithScope(tx, 'all') },
-          { text: t('history.edit.confirmDeleteCancel'), style: 'cancel' },
-        ]
-      );
-      return;
-    }
-
-    // Cuotas → selector de alcance
-    if (tx.isInstallment) {
-      Alert.alert(
-        t('history.edit.scopePickerTitle'),
-        undefined,
-        [
-          { text: t('history.edit.scopeOnlyThisInstallment'), onPress: () => executeDeleteWithScope(tx, 'single') },
-          { text: t('history.edit.scopeFromNowInstallment'), style: 'destructive', onPress: () => executeDeleteWithScope(tx, 'fromNow') },
-          { text: t('history.edit.confirmDeleteCancel'), style: 'cancel' },
-        ]
-      );
-      return;
-    }
-
-    // Simple → confirmar
-    Alert.alert(
-      t('history.edit.confirmDelete'),
-      undefined,
-      [
-        { text: t('history.edit.confirmDeleteCancel'), style: 'cancel' },
-        {
-          text: t('history.edit.confirmDeleteYes'),
-          style: 'destructive',
-          onPress: () => executeDeleteWithScope(tx, 'single'),
-        },
-      ]
-    );
-  }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, currentUserName, t, executeDeleteWithScope]);
+    setPendingDeleteTx(tx);
+  }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, currentUserName]);
 
   const filteredTransactions = useMemo(() =>
     transactions
@@ -954,6 +912,99 @@ export default function HistoryScreen() {
       )}
 
       </ScreenBackground>
+
+      {/* Delete confirmation modal — works on web + native */}
+      <Modal
+        visible={pendingDeleteTx !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPendingDeleteTx(null)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setPendingDeleteTx(null)}
+        >
+          <TouchableOpacity activeOpacity={1} style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.textPrimary, fontFamily: Fonts.semiBold }]}>
+              {(pendingDeleteTx?.isFixed || pendingDeleteTx?.isInstallment)
+                ? t('history.edit.scopePickerTitle')
+                : t('history.edit.confirmDelete')}
+            </Text>
+
+            {pendingDeleteTx?.isFixed && (
+              <>
+                <TouchableOpacity
+                  style={[styles.modalOption, { borderTopColor: colors.border }]}
+                  onPress={() => { const tx = pendingDeleteTx; setPendingDeleteTx(null); executeDeleteWithScope(tx, 'single'); }}
+                >
+                  <Text style={[styles.modalOptionText, { color: colors.textPrimary, fontFamily: Fonts.regular }]}>
+                    {t('history.edit.scopeOnlyThis')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalOption, { borderTopColor: colors.border }]}
+                  onPress={() => { const tx = pendingDeleteTx; setPendingDeleteTx(null); executeDeleteWithScope(tx, 'fromNow'); }}
+                >
+                  <Text style={[styles.modalOptionText, { color: colors.textPrimary, fontFamily: Fonts.regular }]}>
+                    {t('history.edit.scopeFromNow')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalOption, { borderTopColor: colors.border }]}
+                  onPress={() => { const tx = pendingDeleteTx; setPendingDeleteTx(null); executeDeleteWithScope(tx, 'all'); }}
+                >
+                  <Text style={[styles.modalOptionText, { color: colors.error, fontFamily: Fonts.semiBold }]}>
+                    {t('history.edit.scopeAll')}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+            {pendingDeleteTx?.isInstallment && !pendingDeleteTx?.isFixed && (
+              <>
+                <TouchableOpacity
+                  style={[styles.modalOption, { borderTopColor: colors.border }]}
+                  onPress={() => { const tx = pendingDeleteTx; setPendingDeleteTx(null); executeDeleteWithScope(tx, 'single'); }}
+                >
+                  <Text style={[styles.modalOptionText, { color: colors.textPrimary, fontFamily: Fonts.regular }]}>
+                    {t('history.edit.scopeOnlyThisInstallment')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalOption, { borderTopColor: colors.border }]}
+                  onPress={() => { const tx = pendingDeleteTx; setPendingDeleteTx(null); executeDeleteWithScope(tx, 'fromNow'); }}
+                >
+                  <Text style={[styles.modalOptionText, { color: colors.error, fontFamily: Fonts.semiBold }]}>
+                    {t('history.edit.scopeFromNowInstallment')}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+            {!pendingDeleteTx?.isFixed && !pendingDeleteTx?.isInstallment && (
+              <TouchableOpacity
+                style={[styles.modalOption, { borderTopColor: colors.border }]}
+                onPress={() => { const tx = pendingDeleteTx; setPendingDeleteTx(null); if (tx) executeDeleteWithScope(tx, 'single'); }}
+              >
+                <Text style={[styles.modalOptionText, { color: colors.error, fontFamily: Fonts.semiBold }]}>
+                  {t('history.edit.confirmDeleteYes')}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={[styles.modalCancel, { borderTopColor: colors.border }]}
+              onPress={() => setPendingDeleteTx(null)}
+            >
+              <Text style={[styles.modalCancelText, { color: colors.textSecondary, fontFamily: Fonts.medium }]}>
+                {t('history.edit.confirmDeleteCancel')}
+              </Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
     </SafeAreaView>
     </ScreenTransition>
   );
@@ -1582,5 +1633,48 @@ const styles = StyleSheet.create({
   confirmBtnText: {
     fontSize: 12,
     fontFamily: Fonts.semiBold,
+  },
+
+  // Delete modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 28,
+  },
+  modalCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+    width: '100%',
+    maxWidth: 340,
+  },
+  modalTitle: {
+    fontSize: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    textAlign: 'center',
+  },
+  modalOption: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    alignItems: 'center',
+  },
+  modalOptionText: {
+    fontSize: 15,
+    textAlign: 'center',
+  },
+  modalCancel: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  modalCancelText: {
+    fontSize: 15,
+    textAlign: 'center',
   },
 });
