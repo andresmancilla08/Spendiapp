@@ -26,6 +26,7 @@ import {
   query,
   where,
   writeBatch,
+  arrayUnion,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../context/ThemeContext';
@@ -254,7 +255,7 @@ export default function TransactionDetailScreen() {
         if (deleteScope === 'single') {
           const monthKey = `${viewYear}_${viewMonth}`;
           await updateDoc(doc(db, 'transactions', txId), {
-            fixedSkipMonths: [...(transaction.fixedSkipMonths ?? []), monthKey],
+            fixedSkipMonths: arrayUnion(monthKey),
           });
         } else if (deleteScope === 'fromNow') {
           await updateDoc(doc(db, 'transactions', txId), {
@@ -290,7 +291,7 @@ export default function TransactionDetailScreen() {
       showToast(t('history.edit.deleteError'), 'error');
       setDeleteLoading(false);
     }
-  }, [transaction, currentUserUid, currentUserName, viewYear, viewMonth, deleteScope, deleteSharedTransaction, setLastAction, router]);
+  }, [transaction, currentUserUid, currentUserName, user, viewYear, viewMonth, deleteScope, deleteSharedTransaction, deleteSentIncome, setLastAction, router, showToast, t]);
 
   useEffect(() => {
     if (!transaction) {
