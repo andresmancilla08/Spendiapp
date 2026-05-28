@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"ACCESS_TOKEN=$(python3 -c \\\"\\nimport json\\nwith open('/Users/andresmancilla/.config/configstore/firebase-tools.json') as f:\\n    d = json.load(f)\\nprint(d['tokens']['access_token'])\\n\\\")\\n...",
+  "error": "Exit code 1\nTraceback (most recent call last):\n  File \"<string>\", line 3, in <module>\n  File \"/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/__init__.py\", line 293, in load\n    return loads(fp.read(),\n  File \"/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n  File \"/Applications/Xcode.app/Contents/De...",
+  "timestamp": "2026-04-25T19:10:47.421Z",
+  "retry_count": 1
+}

@@ -107,7 +107,7 @@ interface ExchangeRateChipsProps {
 
 export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
   const { colors } = useTheme();
-  const { usd, eur, prevUsd, prevEur, loading, error, updatedAt, retry } = useExchangeRates();
+  const { usd, eur, prevUsd, prevEur, loading, error, errorMsg, updatedAt, retry } = useExchangeRates();
 
   const wrapOpacity = useRef(new Animated.Value(0)).current;
 
@@ -154,6 +154,11 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
         >
           <Text style={[styles.retryText, { color: colors.textTertiary }]}>↺</Text>
         </TouchableOpacity>
+        {!!errorMsg && (
+          <Text style={{ fontSize: 9, color: colors.error, textAlign: 'center', paddingHorizontal: 8, paddingBottom: 4 }} numberOfLines={2}>
+            {errorMsg}
+          </Text>
+        )}
       </View>
     );
   }

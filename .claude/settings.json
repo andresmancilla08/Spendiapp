@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // \"\"' | grep -qE '(firestore\\.rules|firestore\\.indexes\\.json)$' && cd /Users/andresmancilla/Documents/GitHub/Spendiapp && firebase deploy --only firestore:rules,firestore:indexes --project spendiapp-159e7 2>&1 | tail -10 || true",
+            "timeout": 120,
+            "statusMessage": "Desplegando Firestore rules/indexes..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,637 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1779854940355,
+  "projectRoot": "/Users/andresmancilla/Documents/GitHub/Spendiapp",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.0",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "yarn",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "yarn start",
+    "scripts": {
+      "start": "expo start",
+      "android": "expo run:android",
+      "ios": "expo run:ios",
+      "web": "expo start --web",
+      "export": "expo export --platform web && node scripts/patch-html.js",
+      "deploy": "npm run export && vercel --prod",
+      "reset-whats-new": "node scripts/reset-whats-new.js"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "assets",
+      "components",
+      "docs",
+      "public",
+      "scripts"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 24,
+      "lastAccessed": 1779854940343,
+      "keyFiles": [
+        "+html.tsx",
+        "_layout.tsx",
+        "add-transaction.tsx",
+        "blocked.tsx",
+        "cards.tsx"
+      ]
+    },
+    "assets": {
+      "path": "assets",
+      "purpose": "Static assets",
+      "fileCount": 9,
+      "lastAccessed": 1779854940344,
+      "keyFiles": [
+        "android-icon-background.png",
+        "android-icon-foreground.png",
+        "android-icon-monochrome.png",
+        "favicon.png",
+        "icon.png"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 36,
+      "lastAccessed": 1779854940346,
+      "keyFiles": [
+        "AddTransactionModal.tsx",
+        "AnimatedSplash.tsx",
+        "AnnouncementBanner.tsx",
+        "AppDialog.tsx",
+        "AppHeader.tsx"
+      ]
+    },
+    "config": {
+      "path": "config",
+      "purpose": "Configuration files",
+      "fileCount": 7,
+      "lastAccessed": 1779854940346,
+      "keyFiles": [
+        "banks.ts",
+        "colors.ts",
+        "firebase.ts",
+        "fonts.ts",
+        "i18n.ts"
+      ]
+    },
+    "constants": {
+      "path": "constants",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1779854940347,
+      "keyFiles": [
+        "categories.ts"
+      ]
+    },
+    "context": {
+      "path": "context",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1779854940347,
+      "keyFiles": [
+        "FeatureFlagsContext.tsx",
+        "ThemeContext.tsx",
+        "ToastContext.tsx"
+      ]
+    },
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 6,
+      "lastAccessed": 1779854940347,
+      "keyFiles": [
+        "apple-touch-icon.png",
+        "favicon.ico",
+        "index.html",
+        "manifest.json",
+        "metadata.json"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1779854940347,
+      "keyFiles": []
+    },
+    "email-preview": {
+      "path": "email-preview",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1779854940347,
+      "keyFiles": [
+        "variants.html"
+      ]
+    },
+    "functions": {
+      "path": "functions",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1779854940348,
+      "keyFiles": [
+        "package-lock.json",
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    "hooks": {
+      "path": "hooks",
+      "purpose": null,
+      "fileCount": 25,
+      "lastAccessed": 1779854940348,
+      "keyFiles": [
+        "useAmountsVisibility.ts",
+        "useAnnouncement.ts",
+        "useAuth.ts",
+        "useBiometrics.ts",
+        "useBiometrics.web.ts"
+      ]
+    },
+    "hosting-public": {
+      "path": "hosting-public",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1779854940348,
+      "keyFiles": []
+    },
+    "ios": {
+      "path": "ios",
+      "purpose": null,
+      "fileCount": 6,
+      "lastAccessed": 1779854940349,
+      "keyFiles": [
+        "Podfile",
+        "Podfile.lock",
+        "Podfile.properties.json"
+      ]
+    },
+    "locales": {
+      "path": "locales",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1779854940349,
+      "keyFiles": [
+        "en.json",
+        "es.json",
+        "it.json"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 3,
+      "lastAccessed": 1779854940349,
+      "keyFiles": [
+        "apple-touch-icon.png",
+        "manifest.json",
+        "sw.js"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 3,
+      "lastAccessed": 1779854940349,
+      "keyFiles": [
+        "download-bank-logos.js",
+        "patch-html.js",
+        "validate-pre-deploy.sh"
+      ]
+    },
+    "store": {
+      "path": "store",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1779854940349,
+      "keyFiles": [
+        "authStore.ts",
+        "historyStore.ts"
+      ]
+    },
+    "types": {
+      "path": "types",
+      "purpose": "Type definitions",
+      "fileCount": 8,
+      "lastAccessed": 1779854940349,
+      "keyFiles": [
+        "budget.ts",
+        "card.ts",
+        "category.ts",
+        "expenseGroup.ts",
+        "friend.ts"
+      ]
+    },
+    "utils": {
+      "path": "utils",
+      "purpose": "Utility functions",
+      "fileCount": 11,
+      "lastAccessed": 1779854940350,
+      "keyFiles": [
+        "categorize.ts",
+        "generateAnnualPDF.ts",
+        "generateAnnualReportImage.ts",
+        "generateFriendReportImage.ts",
+        "generateFriendReportPDF.ts"
+      ]
+    },
+    "dist/assets": {
+      "path": "dist/assets",
+      "purpose": "Static assets",
+      "fileCount": 0,
+      "lastAccessed": 1779854940350,
+      "keyFiles": []
+    },
+    "functions/lib": {
+      "path": "functions/lib",
+      "purpose": "Library code",
+      "fileCount": 6,
+      "lastAccessed": 1779854940351,
+      "keyFiles": [
+        "emailTemplate.js",
+        "emailTemplate.js.map",
+        "index.js"
+      ]
+    },
+    "functions/node_modules": {
+      "path": "functions/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1779854940351,
+      "keyFiles": []
+    },
+    "functions/src": {
+      "path": "functions/src",
+      "purpose": "Source code",
+      "fileCount": 3,
+      "lastAccessed": 1779854940351,
+      "keyFiles": [
+        "emailTemplate.ts",
+        "index.ts",
+        "paletteColors.ts"
+      ]
+    },
+    "ios/build": {
+      "path": "ios/build",
+      "purpose": "Build output",
+      "fileCount": 0,
+      "lastAccessed": 1779854940352,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "app/_layout.tsx",
+      "accessCount": 79,
+      "lastAccessed": 1777744485118,
+      "type": "file"
+    },
+    {
+      "path": "app/(auth)/login.tsx",
+      "accessCount": 31,
+      "lastAccessed": 1777744485899,
+      "type": "file"
+    },
+    {
+      "path": "app.json",
+      "accessCount": 31,
+      "lastAccessed": 1779858530221,
+      "type": "file"
+    },
+    {
+      "path": "components/AnimatedSplash.tsx",
+      "accessCount": 28,
+      "lastAccessed": 1777587471651,
+      "type": "file"
+    },
+    {
+      "path": "hooks/useGoogleSignIn.ts",
+      "accessCount": 20,
+      "lastAccessed": 1777745068315,
+      "type": "file"
+    },
+    {
+      "path": "app/(tabs)/index.tsx",
+      "accessCount": 17,
+      "lastAccessed": 1779990360294,
+      "type": "file"
+    },
+    {
+      "path": ".env.local",
+      "accessCount": 16,
+      "lastAccessed": 1777734742093,
+      "type": "file"
+    },
+    {
+      "path": "components/AppTabBar.tsx",
+      "accessCount": 15,
+      "lastAccessed": 1777354131944,
+      "type": "file"
+    },
+    {
+      "path": "locales/es.json",
+      "accessCount": 15,
+      "lastAccessed": 1777571134644,
+      "type": "file"
+    },
+    {
+      "path": "app/(tabs)/profile.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1777353871321,
+      "type": "file"
+    },
+    {
+      "path": "app/(tabs)/_layout.tsx",
+      "accessCount": 10,
+      "lastAccessed": 1777700042945,
+      "type": "file"
+    },
+    {
+      "path": "firestore.rules",
+      "accessCount": 10,
+      "lastAccessed": 1779854538140,
+      "type": "file"
+    },
+    {
+      "path": "app/terms.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1777568508260,
+      "type": "file"
+    },
+    {
+      "path": "functions/src/index.ts",
+      "accessCount": 9,
+      "lastAccessed": 1777695180969,
+      "type": "file"
+    },
+    {
+      "path": "app/privacy.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1777568509259,
+      "type": "file"
+    },
+    {
+      "path": "components/BalanceCard.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1779990347116,
+      "type": "file"
+    },
+    {
+      "path": "components/WhatsNew.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1777354811382,
+      "type": "file"
+    },
+    {
+      "path": "app/upgrade.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1777394609523,
+      "type": "file"
+    },
+    {
+      "path": "app/(auth)/login-email.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1777502890267,
+      "type": "file"
+    },
+    {
+      "path": "locales/en.json",
+      "accessCount": 7,
+      "lastAccessed": 1777571136315,
+      "type": "file"
+    },
+    {
+      "path": "locales/it.json",
+      "accessCount": 7,
+      "lastAccessed": 1777571138149,
+      "type": "file"
+    },
+    {
+      "path": "components/PremiumTabBar.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1777354133532,
+      "type": "file"
+    },
+    {
+      "path": "hooks/useConsentLogger.ts",
+      "accessCount": 6,
+      "lastAccessed": 1777698378124,
+      "type": "file"
+    },
+    {
+      "path": "store/authStore.ts",
+      "accessCount": 6,
+      "lastAccessed": 1777744963276,
+      "type": "file"
+    },
+    {
+      "path": "app/(tabs)/tools.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1777314189809,
+      "type": "file"
+    },
+    {
+      "path": "app/(auth)/register.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1777510765427,
+      "type": "file"
+    },
+    {
+      "path": "hooks/useAuth.ts",
+      "accessCount": 5,
+      "lastAccessed": 1777744313515,
+      "type": "file"
+    },
+    {
+      "path": "vercel.json",
+      "accessCount": 5,
+      "lastAccessed": 1777749712688,
+      "type": "file"
+    },
+    {
+      "path": "app/payment-qr.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777394938668,
+      "type": "file"
+    },
+    {
+      "path": "firebase.json",
+      "accessCount": 4,
+      "lastAccessed": 1777652210502,
+      "type": "file"
+    },
+    {
+      "path": "components/PremiumGate.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1777393531511,
+      "type": "file"
+    },
+    {
+      "path": "types/friend.ts",
+      "accessCount": 3,
+      "lastAccessed": 1777393957350,
+      "type": "file"
+    },
+    {
+      "path": "eas.json",
+      "accessCount": 3,
+      "lastAccessed": 1777393960132,
+      "type": "file"
+    },
+    {
+      "path": "hooks/useUserProfile.ts",
+      "accessCount": 3,
+      "lastAccessed": 1777701869341,
+      "type": "file"
+    },
+    {
+      "path": "config/colors.ts",
+      "accessCount": 3,
+      "lastAccessed": 1779987740535,
+      "type": "file"
+    },
+    {
+      "path": "context/ThemeContext.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777263435535,
+      "type": "file"
+    },
+    {
+      "path": "hooks/usePremium.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777393530896,
+      "type": "file"
+    },
+    {
+      "path": "components/ScreenTransition.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777602581050,
+      "type": "file"
+    },
+    {
+      "path": "hooks/useFeatureFlags.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777744377491,
+      "type": "file"
+    },
+    {
+      "path": "components/AppHeader.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1779987160536,
+      "type": "file"
+    },
+    {
+      "path": "config/fonts.ts",
+      "accessCount": 2,
+      "lastAccessed": 1779987744369,
+      "type": "file"
+    },
+    {
+      "path": "app/maintenance.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777259690063,
+      "type": "file"
+    },
+    {
+      "path": "hooks/useAmountsVisibility.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777329018853,
+      "type": "file"
+    },
+    {
+      "path": "app/premium-welcome.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777393554889,
+      "type": "file"
+    },
+    {
+      "path": "services/purchases.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777393687731,
+      "type": "file"
+    },
+    {
+      "path": "services/stripe.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777393688336,
+      "type": "file"
+    },
+    {
+      "path": "hooks/usePurchase.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777393693179,
+      "type": "file"
+    },
+    {
+      "path": "storage.rules",
+      "accessCount": 1,
+      "lastAccessed": 1777502855154,
+      "type": "file"
+    },
+    {
+      "path": "app/support.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777509503254,
+      "type": "file"
+    },
+    {
+      "path": "public/privacy.html",
+      "accessCount": 1,
+      "lastAccessed": 1777510573199,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
