@@ -1,0 +1,92 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777396026150,
+  "projectRoot": "/Users/andresmancilla/Documents/GitHub/Spendiapp/functions",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": "20",
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "npm",
+    "runtime": "Node.js 20"
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {
+      "build": "tsc",
+      "deploy": "npm run build && firebase deploy --only functions"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "lib",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "lib": {
+      "path": "lib",
+      "purpose": "Library code",
+      "fileCount": 6,
+      "lastAccessed": 1777396026127,
+      "keyFiles": [
+        "emailTemplate.js",
+        "emailTemplate.js.map",
+        "index.js",
+        "index.js.map",
+        "paletteColors.js"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 3,
+      "lastAccessed": 1777396026127,
+      "keyFiles": [
+        "emailTemplate.ts",
+        "index.ts",
+        "paletteColors.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/index.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777144896773,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

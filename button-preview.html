@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Button Options — Spendia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #0f1923;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      padding: 48px 24px;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .label {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    /* ─── SHIMMER ANIMATION ─── */
+    @keyframes shimmer {
+      0%   { transform: translateX(-120%) rotate(15deg); }
+      100% { transform: translateX(480%) rotate(15deg); }
+    }
+
+    .shimmer-wrap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+    .shimmer-bar {
+      position: absolute;
+      top: -20%; bottom: -20%;
+      width: 60px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      animation: shimmer 2.6s ease-out 1.8s infinite;
+    }
+
+    /* ─────────────────────────────── */
+    /* OPCIÓN A — Minimal limpio       */
+    /* ─────────────────────────────── */
+    .btn-a {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      height: 64px;
+      border-radius: 50px;
+      background: linear-gradient(110deg, #00D4EA 0%, #005F73 100%);
+      box-shadow: 0 8px 28px rgba(0,188,212,0.45), 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      overflow: hidden;
+      border: none;
+      outline: none;
+      transition: transform 160ms ease-out;
+    }
+    .btn-a:active { transform: scale(0.97); }
+    .btn-a .icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+    .btn-a .texts {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .btn-a .main-text {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .btn-a .sub-text {
+      color: rgba(255,255,255,0.72);
+      font-size: 11px;
+      font-weight: 500;
+      margin-top: 2px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ─────────────────────────────── */
+    /* OPCIÓN B — Split                */
+    /* ─────────────────────────────── */
+    .btn-b {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 64px;
+      border-radius: 50px;
+      background: linear-gradient(110deg, #007B8E 0%, #00ACC1 50%, #005F73 100%);
+      box-shadow: 0 8px 28px rgba(0,172,193,0.4), 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      overflow: hidden;
+      border: none;
+      outline: none;
+      transition: transform 160ms ease-out;
+      padding: 0 20px;
+    }
+    .btn-b:active { transform: scale(0.97); }
+    .btn-b .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .btn-b .icon-box {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .btn-b .center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .btn-b .main-text {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .btn-b .right {
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.2);
+      border-radius: 50px;
+      padding: 4px 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-b .price-text {
+      color: rgba(255,255,255,0.9);
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ─────────────────────────────── */
+    /* OPCIÓN C — Stack vertical       */
+    /* ─────────────────────────────── */
+    .btn-c {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 100%;
+      height: 72px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #00BCD4 0%, #006064 100%);
+      box-shadow: 0 8px 28px rgba(0,188,212,0.4), 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      overflow: hidden;
+      border: none;
+      outline: none;
+      transition: transform 160ms ease-out;
+    }
+    .btn-c:active { transform: scale(0.97); }
+    .btn-c .top-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-c .icon { font-size: 18px; line-height: 1; }
+    .btn-c .main-text {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+    .btn-c .divider {
+      width: 40px; height: 1px;
+      background: rgba(255,255,255,0.25);
+    }
+    .btn-c .sub-text {
+      color: rgba(255,255,255,0.65);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .divider-line {
+      width: 100%;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    /* WA green icon using CSS */
+    .wa-icon::before { content: "●"; color: rgba(255,255,255,0.9); font-size: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="section">
+    <div class="label">A — Minimal limpio</div>
+    <button class="btn-a">
+      <span class="icon">⬤</span>
+      <div class="texts">
+        <span class="main-text">Ya realicé mi pago</span>
+        <span class="sub-text">$79.900 / año</span>
+      </div>
+      <div class="shimmer-wrap"><div class="shimmer-bar"></div></div>
+    </button>
+    <p style="color:rgba(255,255,255,0.3);font-size:11px;text-align:center">Ícono + texto alineados izquierda dentro del pill. Ultra limpio.</p>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <div class="section">
+    <div class="label">B — Split</div>
+    <button class="btn-b">
+      <div class="left">
+        <div class="icon-box">⬤</div>
+      </div>
+      <div class="center">
+        <span class="main-text">Ya realicé mi pago</span>
+      </div>
+      <div class="right">
+        <span class="price-text">$79.900 / año</span>
+      </div>
+      <div class="shimmer-wrap"><div class="shimmer-bar"></div></div>
+    </button>
+    <p style="color:rgba(255,255,255,0.3);font-size:11px;text-align:center">Ícono a la izquierda en círculo, texto centrado, precio como tag a la derecha.</p>
+  </div>
+
+  <div class="divider-line"></div>
+
+  <div class="section">
+    <div class="label">C — Stack vertical</div>
+    <button class="btn-c">
+      <div class="top-row">
+        <span class="icon">⬤</span>
+        <span class="main-text">Ya realicé mi pago</span>
+      </div>
+      <div class="divider"></div>
+      <span class="sub-text">$79.900 / año</span>
+      <div class="shimmer-wrap"><div class="shimmer-bar"></div></div>
+    </button>
+    <p style="color:rgba(255,255,255,0.3);font-size:11px;text-align:center">Ícono + texto en fila, línea separadora, precio abajo. Más alto, más respiro.</p>
+  </div>
+
+</body>
+</html>
