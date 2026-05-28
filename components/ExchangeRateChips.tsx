@@ -199,9 +199,6 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
       {updatedAt && (
         <View style={styles.liveRow}>
           <LiveDot />
-          <Text style={[styles.liveTime, { color: colors.textTertiary }]}>
-            {formatTime(updatedAt)}
-          </Text>
         </View>
       )}
     </Animated.View>
