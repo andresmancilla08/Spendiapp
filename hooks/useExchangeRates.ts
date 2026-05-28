@@ -80,7 +80,10 @@ export function useExchangeRates(): ExchangeRates {
       }
 
       try {
-        const res = await fetch(API_URL, { signal: AbortSignal.timeout(8000) });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(API_URL, { signal: controller.signal });
+        clearTimeout(timeout);
         if (!res.ok) throw new Error('bad_response');
         const data = await res.json();
         if (data.result !== 'success') throw new Error('api_error');
