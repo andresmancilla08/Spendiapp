@@ -129,25 +129,29 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
 
   if (loading) {
     return (
-      <View style={[styles.wrap, style]}>
-        <Skeleton width={90} height={36} borderRadius={6} />
-        <View style={[styles.sep, { backgroundColor: colors.border }]} />
-        <Skeleton width={90} height={36} borderRadius={6} />
+      <View style={[styles.wrap, { backgroundColor: colors.primary + '07' }, style]}>
+        <View style={styles.ratesRow}>
+          <Skeleton width={88} height={22} borderRadius={4} />
+          <View style={[styles.sep, { backgroundColor: colors.border }]} />
+          <Skeleton width={88} height={22} borderRadius={4} />
+        </View>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.wrap, style]}>
-        <View style={styles.item}>
-          <Text style={[styles.code, { color: colors.textTertiary }]}>USD</Text>
-          <Text style={[styles.value, { color: colors.textTertiary }]}>—</Text>
-        </View>
-        <View style={[styles.sep, { backgroundColor: colors.border }]} />
-        <View style={styles.item}>
-          <Text style={[styles.code, { color: colors.textTertiary }]}>EUR</Text>
-          <Text style={[styles.value, { color: colors.textTertiary }]}>—</Text>
+      <View style={[styles.wrap, { backgroundColor: colors.primary + '07' }, style]}>
+        <View style={styles.ratesRow}>
+          <View style={styles.item}>
+            <Text style={[styles.code, { color: colors.textTertiary }]}>USD</Text>
+            <Text style={[styles.value, { color: colors.textTertiary }]}>—</Text>
+          </View>
+          <View style={[styles.sep, { backgroundColor: colors.border }]} />
+          <View style={styles.item}>
+            <Text style={[styles.code, { color: colors.textTertiary }]}>EUR</Text>
+            <Text style={[styles.value, { color: colors.textTertiary }]}>—</Text>
+          </View>
         </View>
         <TouchableOpacity
           onPress={retry}
@@ -166,46 +170,62 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
   };
 
   return (
-    <Animated.View style={[styles.wrap, style, { opacity: wrapOpacity }]}>
-      {/* USD */}
-      <TouchableOpacity onPress={() => copyRate('USD', usd)} activeOpacity={0.7} style={styles.item}>
-        <Text style={[styles.code, { color: colors.textSecondary }]}>USD</Text>
-        <RateValue value={usd} prev={prevUsd} textColor={colors.textPrimary} />
-      </TouchableOpacity>
+    <Animated.View
+      style={[
+        styles.wrap,
+        style,
+        {
+          opacity: wrapOpacity,
+          backgroundColor: colors.primary + '07',
+        },
+      ]}
+    >
+      {/* Rates — centered */}
+      <View style={styles.ratesRow}>
+        <TouchableOpacity onPress={() => copyRate('USD', usd)} activeOpacity={0.7} style={styles.item}>
+          <Text style={[styles.code, { color: colors.textSecondary }]}>USD</Text>
+          <RateValue value={usd} prev={prevUsd} textColor={colors.textPrimary} />
+        </TouchableOpacity>
 
-      <View style={[styles.sep, { backgroundColor: colors.border }]} />
+        <View style={[styles.sep, { backgroundColor: colors.border }]} />
 
-      {/* EUR */}
-      <TouchableOpacity onPress={() => copyRate('EUR', eur)} activeOpacity={0.7} style={styles.item}>
-        <Text style={[styles.code, { color: colors.textSecondary }]}>EUR</Text>
-        <RateValue value={eur} prev={prevEur} textColor={colors.textPrimary} />
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => copyRate('EUR', eur)} activeOpacity={0.7} style={styles.item}>
+          <Text style={[styles.code, { color: colors.textSecondary }]}>EUR</Text>
+          <RateValue value={eur} prev={prevEur} textColor={colors.textPrimary} />
+        </TouchableOpacity>
+      </View>
 
-      {/* Live indicator */}
-      <View style={styles.liveRow}>
-        <LiveDot />
-        {updatedAt && (
+      {/* Live indicator — absolute right */}
+      {updatedAt && (
+        <View style={styles.liveRow}>
+          <LiveDot />
           <Text style={[styles.liveTime, { color: colors.textTertiary }]}>
             {formatTime(updatedAt)}
           </Text>
-        )}
-      </View>
+        </View>
+      )}
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 14,
-    marginBottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ratesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 0,
   },
   item: {
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 6,
+    paddingHorizontal: 4,
   },
   code: {
     fontSize: 11,
@@ -222,10 +242,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   liveRow: {
-    flex: 1,
+    position: 'absolute',
+    right: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
     gap: 4,
   },
   dot: {
@@ -239,9 +259,8 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.regular,
   },
   retryBtn: {
-    flex: 1,
-    alignItems: 'flex-end',
-    paddingRight: 2,
+    marginTop: 4,
+    alignItems: 'center',
   },
   retryText: {
     fontSize: 16,
