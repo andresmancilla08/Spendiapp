@@ -1,32 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CACHE_KEY = 'spendia_exchange_rates_v3';
+const CACHE_KEY = 'spendia_exchange_rates_v4';
 const POLL_MS = 5 * 60 * 1000;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-// Two independent APIs — si una falla, se intenta la otra
-const APIS = [
-  {
-    url: 'https://open.er-api.com/v6/latest/USD',
-    parse: (data: any) => {
-      if (data.result !== 'success') throw new Error('api_error');
-      const cop: number = data.rates?.COP ?? 0;
-      const eur: number = data.rates?.EUR ?? 0;
-      if (cop <= 0 || eur <= 0) throw new Error('invalid');
-      return { usd: Math.round(cop), eur: Math.round(cop / eur) };
-    },
-  },
-  {
-    url: 'https://api.exchangerate-api.com/v4/latest/USD',
-    parse: (data: any) => {
-      const cop: number = data.rates?.COP ?? 0;
-      const eur: number = data.rates?.EUR ?? 0;
-      if (cop <= 0 || eur <= 0) throw new Error('invalid');
-      return { usd: Math.round(cop), eur: Math.round(cop / eur) };
-    },
-  },
-];
+// Proxy server-side en Vercel — evita CORS/CSP/bloqueos de red del cliente
+const PROXY_URL = 'https://spendia.co/api/exchange-rates';
 
 interface CachedRates {
   usd: number;
@@ -65,18 +45,12 @@ async function saveCache(rates: CachedRates): Promise<void> {
 }
 
 async function fetchRates(): Promise<{ usd: number; eur: number }> {
-  let lastError: unknown;
-  for (const api of APIS) {
-    try {
-      const res = await fetch(api.url);
-      if (!res.ok) throw new Error(`http_${res.status}`);
-      const data = await res.json();
-      return api.parse(data);
-    } catch (e) {
-      lastError = e;
-    }
-  }
-  throw lastError;
+  const res = await fetch(PROXY_URL);
+  if (!res.ok) throw new Error(`http_${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  if (!data.usd || !data.eur) throw new Error('invalid_response');
+  return { usd: data.usd, eur: data.eur };
 }
 
 export function useExchangeRates(): ExchangeRates {
