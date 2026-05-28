@@ -631,7 +631,7 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
       <AppHeader showBack />
-      <PageTitle title={t('history.title')} description={t('history.pageDesc')} />
+      <PageTitle title={t('history.title')} />
 
       {/* Month navigation */}
       <View style={[styles.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -771,13 +771,17 @@ export default function HistoryScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+
+              {isPremium && (
+                <>
+                  <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
+                  <ExchangeRateChips style={styles.summaryExchangeChips} />
+                </>
+              )}
             </Animated.View>
           )}
         </View>
       )}
-
-      {/* Exchange rate chips — solo premium */}
-      {isPremium && <ExchangeRateChips style={styles.exchangeChips} />}
 
       {/* Search + Filter button */}
       <View style={styles.searchRow}>
@@ -1129,9 +1133,10 @@ const styles = StyleSheet.create({
     height: 1,
     marginVertical: 4,
   },
-  exchangeChips: {
-    marginHorizontal: 20,
-    marginBottom: 8,
+  summaryExchangeChips: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    marginBottom: 0,
   },
   paidTabs: {
     marginHorizontal: 20,

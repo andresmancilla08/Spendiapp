@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Platform,
   TouchableOpacity,
+  ReactNode,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -21,6 +22,7 @@ interface BalanceCardProps {
   expensesLabel: string;
   hidden?: boolean;
   onToggleHidden?: () => void;
+  footer?: ReactNode;
 }
 
 export default function BalanceCard({
@@ -33,6 +35,7 @@ export default function BalanceCard({
   expensesLabel,
   hidden = false,
   onToggleHidden,
+  footer,
 }: BalanceCardProps) {
   const { colors, isDark } = useTheme();
 
@@ -245,6 +248,13 @@ export default function BalanceCard({
           </Text>
         </View>
       </View>
+
+      {/* Footer slot — tasas de cambio u otro contenido contextual */}
+      {footer && (
+        <View style={[styles.footerRow, { borderTopColor: isDark ? colors.primary + '20' : colors.border }]}>
+          {footer}
+        </View>
+      )}
     </View>
   );
 }
@@ -409,5 +419,11 @@ const styles = StyleSheet.create({
     width: 1,
     height: 38,
     marginHorizontal: 16,
+  },
+  footerRow: {
+    marginHorizontal: -24,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderTopWidth: 1,
   },
 });
