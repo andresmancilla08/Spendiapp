@@ -422,8 +422,6 @@ const styles = StyleSheet.create({
   },
   footerRow: {
     marginHorizontal: -24,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
     borderTopWidth: 1,
   },
 });
