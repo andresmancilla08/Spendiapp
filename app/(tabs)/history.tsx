@@ -1134,9 +1134,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   summaryExchangeChips: {
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    marginBottom: 0,
+    paddingTop: 0,
   },
   paidTabs: {
     marginHorizontal: 20,

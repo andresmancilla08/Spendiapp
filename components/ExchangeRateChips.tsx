@@ -6,21 +6,22 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useExchangeRates } from '../hooks/useExchangeRates';
 import { Skeleton } from './Skeleton';
 import { Fonts } from '../config/fonts';
 
-function formatRate(value: number): string {
+const GREEN = '#22C55E';
+const RED = '#EF4444';
+
+function formatValue(value: number): string {
   return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
@@ -28,42 +29,80 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
-interface RateChipProps {
-  flag: string;
-  code: string;
-  value: number;
-  onPress: () => void;
-}
+// Animated value cell — fade + color flash on change
+function RateValue({ value, prev, textColor }: { value: number; prev: number; textColor: string }) {
+  const opacity = useRef(new Animated.Value(1)).current;
+  const [displayColor, setDisplayColor] = useState(textColor);
+  const [displayValue, setDisplayValue] = useState(value);
+  const mounted = useRef(false);
 
-function RateChip({ flag, code, value, onPress }: RateChipProps) {
-  const { colors } = useTheme();
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      setDisplayValue(value);
+      return;
+    }
+    if (value === prev || prev === 0) {
+      setDisplayValue(value);
+      return;
+    }
+    const flashColor = value > prev ? GREEN : RED;
 
-  const handlePress = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, { toValue: 0.94, duration: 60, useNativeDriver: Platform.OS !== 'web' }),
-      Animated.timing(scaleAnim, { toValue: 1, duration: 80, useNativeDriver: Platform.OS !== 'web' }),
-    ]).start();
-    onPress();
-  };
+    Animated.timing(opacity, {
+      toValue: 0,
+      duration: 120,
+      useNativeDriver: Platform.OS !== 'web',
+    }).start(() => {
+      setDisplayValue(value);
+      setDisplayColor(flashColor);
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 160,
+        useNativeDriver: Platform.OS !== 'web',
+      }).start();
+      setTimeout(() => setDisplayColor(textColor), 600);
+    });
+  }, [value]);
+
+  useEffect(() => {
+    setDisplayColor(textColor);
+  }, [textColor]);
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={1}>
-      <Animated.View
-        style={[
-          styles.chip,
-          {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-            transform: [{ scale: scaleAnim }],
-          },
-        ]}
-      >
-        <Text style={styles.chipFlag}>{flag}</Text>
-        <Text style={[styles.chipCode, { color: colors.textTertiary }]}>{code}</Text>
-        <Text style={[styles.chipValue, { color: colors.textPrimary }]}>{formatRate(value)}</Text>
-      </Animated.View>
-    </TouchableOpacity>
+    <Animated.Text style={[styles.value, { color: displayColor, opacity }]}>
+      {formatValue(displayValue)}
+    </Animated.Text>
+  );
+}
+
+// Pulsing live dot
+function LiveDot() {
+  const scale = useRef(new Animated.Value(1)).current;
+  const dotOpacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(scale, { toValue: 1.6, duration: 900, useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(dotOpacity, { toValue: 0, duration: 900, useNativeDriver: Platform.OS !== 'web' }),
+        ]),
+        Animated.parallel([
+          Animated.timing(scale, { toValue: 1, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
+          Animated.timing(dotOpacity, { toValue: 1, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
+        ]),
+        Animated.delay(900),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        styles.dot,
+        { transform: [{ scale }], opacity: dotOpacity },
+      ]}
+    />
   );
 }
 
@@ -74,32 +113,26 @@ interface ExchangeRateChipsProps {
 export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const { usd, eur, loading, error, updatedAt, retry } = useExchangeRates();
+  const { usd, eur, prevUsd, prevEur, loading, error, updatedAt, retry } = useExchangeRates();
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(4)).current;
+  const wrapOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!loading) {
-      Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 180, useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(slideAnim, { toValue: 0, duration: 180, useNativeDriver: Platform.OS !== 'web' }),
-      ]).start();
+    if (!loading && !error) {
+      Animated.timing(wrapOpacity, {
+        toValue: 1,
+        duration: 180,
+        useNativeDriver: Platform.OS !== 'web',
+      }).start();
     }
-  }, [loading]);
-
-  const handleCopy = async (code: string, value: number) => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    await Clipboard.setStringAsync(`1 ${code} = ${formatRate(value)} COP`);
-  };
+  }, [loading, error]);
 
   if (loading) {
     return (
       <View style={[styles.wrap, style]}>
-        <Skeleton width={110} height={32} borderRadius={8} />
-        <Skeleton width={110} height={32} borderRadius={8} />
+        <Skeleton width={90} height={36} borderRadius={6} />
+        <View style={[styles.sep, { backgroundColor: colors.border }]} />
+        <Skeleton width={90} height={36} borderRadius={6} />
       </View>
     );
   }
@@ -107,42 +140,56 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
   if (error) {
     return (
       <View style={[styles.wrap, style]}>
-        <View style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={styles.chipFlag}>🇺🇸</Text>
-          <Text style={[styles.chipCode, { color: colors.textTertiary }]}>USD</Text>
-          <Text style={[styles.chipValue, { color: colors.textTertiary }]}>—</Text>
+        <View style={styles.item}>
+          <Text style={[styles.code, { color: colors.textTertiary }]}>USD</Text>
+          <Text style={[styles.value, { color: colors.textTertiary }]}>—</Text>
         </View>
-        <View style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={styles.chipFlag}>🇪🇺</Text>
-          <Text style={[styles.chipCode, { color: colors.textTertiary }]}>EUR</Text>
-          <Text style={[styles.chipValue, { color: colors.textTertiary }]}>—</Text>
+        <View style={[styles.sep, { backgroundColor: colors.border }]} />
+        <View style={styles.item}>
+          <Text style={[styles.code, { color: colors.textTertiary }]}>EUR</Text>
+          <Text style={[styles.value, { color: colors.textTertiary }]}>—</Text>
         </View>
         <TouchableOpacity
           onPress={retry}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           style={styles.retryBtn}
         >
-          <Ionicons name="refresh-outline" size={14} color={colors.textTertiary} />
+          <Text style={[styles.retryText, { color: colors.textTertiary }]}>↺</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
+  const copyRate = async (code: string, value: number) => {
+    if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Clipboard.setStringAsync(`1 ${code} = $ ${formatValue(value)} COP`);
+  };
+
   return (
-    <Animated.View
-      style={[
-        styles.wrap,
-        style,
-        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-      ]}
-    >
-      <RateChip flag="🇺🇸" code="USD" value={usd} onPress={() => handleCopy('USD', usd)} />
-      <RateChip flag="🇪🇺" code="EUR" value={eur} onPress={() => handleCopy('EUR', eur)} />
-      {updatedAt && (
-        <Text style={[styles.timestamp, { color: colors.textTertiary }]}>
-          {t('exchangeRate.updatedAt', { time: formatTime(updatedAt) })}
-        </Text>
-      )}
+    <Animated.View style={[styles.wrap, style, { opacity: wrapOpacity }]}>
+      {/* USD */}
+      <TouchableOpacity onPress={() => copyRate('USD', usd)} activeOpacity={0.7} style={styles.item}>
+        <Text style={[styles.code, { color: colors.textSecondary }]}>USD</Text>
+        <RateValue value={usd} prev={prevUsd} textColor={colors.textPrimary} />
+      </TouchableOpacity>
+
+      <View style={[styles.sep, { backgroundColor: colors.border }]} />
+
+      {/* EUR */}
+      <TouchableOpacity onPress={() => copyRate('EUR', eur)} activeOpacity={0.7} style={styles.item}>
+        <Text style={[styles.code, { color: colors.textSecondary }]}>EUR</Text>
+        <RateValue value={eur} prev={prevEur} textColor={colors.textPrimary} />
+      </TouchableOpacity>
+
+      {/* Live indicator */}
+      <View style={styles.liveRow}>
+        <LiveDot />
+        {updatedAt && (
+          <Text style={[styles.liveTime, { color: colors.textTertiary }]}>
+            {formatTime(updatedAt)}
+          </Text>
+        )}
+      </View>
     </Animated.View>
   );
 }
@@ -151,37 +198,52 @@ const styles = StyleSheet.create({
   wrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 0,
   },
-  chip: {
+  item: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
+    alignItems: 'baseline',
+    gap: 6,
   },
-  chipFlag: {
-    fontSize: 13,
-  },
-  chipCode: {
-    fontSize: 9,
-    fontFamily: Fonts.regular,
-    letterSpacing: 0.3,
-  },
-  chipValue: {
+  code: {
     fontSize: 11,
     fontFamily: Fonts.semiBold,
+    letterSpacing: 0.5,
   },
-  timestamp: {
+  value: {
+    fontSize: 15,
+    fontFamily: Fonts.bold,
+  },
+  sep: {
+    width: 1,
+    height: 24,
+    marginHorizontal: 12,
+  },
+  liveRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: GREEN,
+  },
+  liveTime: {
     fontSize: 10,
     fontFamily: Fonts.regular,
-    marginLeft: 'auto',
   },
   retryBtn: {
-    padding: 4,
-    marginLeft: 2,
+    flex: 1,
+    alignItems: 'flex-end',
+    paddingRight: 2,
+  },
+  retryText: {
+    fontSize: 16,
   },
 });
