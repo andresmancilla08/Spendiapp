@@ -1453,5 +1453,8 @@
     "feature1Label": "Transacciones",
     "feature2Label": "Análisis",
     "feature3Label": "Metas"
+  },
+  "exchangeRate": {
+    "updatedAt": "Act. {{time}}"
   }
 }
