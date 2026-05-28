@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CACHE_KEY = 'spendia_exchange_rates_v2';
-const POLL_MS = 5 * 60 * 1000; // 5 min — real-time polling
+const POLL_MS = 5 * 60 * 1000;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const API_URL = 'https://open.er-api.com/v6/latest/USD';
 
@@ -41,6 +41,20 @@ async function saveCache(rates: CachedRates): Promise<void> {
   } catch {}
 }
 
+async function fetchRates(): Promise<{ usd: number; eur: number }> {
+  const res = await fetch(API_URL);
+  if (!res.ok) throw new Error('bad_response');
+  const data = await res.json();
+  if (data.result !== 'success') throw new Error('api_error');
+  const copPerUsd: number = data.rates?.COP ?? 0;
+  const eurPerUsd: number = data.rates?.EUR ?? 0;
+  if (copPerUsd <= 0 || eurPerUsd <= 0) throw new Error('invalid_rates');
+  return {
+    usd: Math.round(copPerUsd),
+    eur: Math.round(copPerUsd / eurPerUsd),
+  };
+}
+
 export function useExchangeRates(): ExchangeRates {
   const [usd, setUsd] = useState(0);
   const [eur, setEur] = useState(0);
@@ -58,74 +72,50 @@ export function useExchangeRates(): ExchangeRates {
   useEffect(() => {
     let cancelled = false;
 
-    async function fetch_(force = false) {
-      if (!force) setLoading(true);
-      setError(false);
-
+    async function load(force = false) {
       if (!force) {
+        setLoading(true);
+        setError(false);
         const cached = await loadCache();
-        if (cached) {
-          if (!cancelled) {
-            setPrevUsd(currentUsd.current);
-            setPrevEur(currentEur.current);
-            currentUsd.current = cached.usd;
-            currentEur.current = cached.eur;
-            setUsd(cached.usd);
-            setEur(cached.eur);
-            setUpdatedAt(new Date(cached.fetchedAt));
-            setLoading(false);
-          }
+        if (cached && !cancelled) {
+          setPrevUsd(currentUsd.current);
+          setPrevEur(currentEur.current);
+          currentUsd.current = cached.usd;
+          currentEur.current = cached.eur;
+          setUsd(cached.usd);
+          setEur(cached.eur);
+          setUpdatedAt(new Date(cached.fetchedAt));
+          setLoading(false);
           return;
         }
       }
 
       try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 8000);
-        const res = await fetch(API_URL, { signal: controller.signal });
-        clearTimeout(timeout);
-        if (!res.ok) throw new Error('bad_response');
-        const data = await res.json();
-        if (data.result !== 'success') throw new Error('api_error');
-
-        const copPerUsd: number = data.rates?.COP ?? 0;
-        const eurPerUsd: number = data.rates?.EUR ?? 0;
-        if (copPerUsd <= 0 || eurPerUsd <= 0) throw new Error('invalid_rates');
-
-        const newUsd = Math.round(copPerUsd);
-        const newEur = Math.round(copPerUsd / eurPerUsd);
+        const rates = await fetchRates();
         const now = Date.now();
-
-        await saveCache({ usd: newUsd, eur: newEur, fetchedAt: now });
-
+        await saveCache({ ...rates, fetchedAt: now });
         if (!cancelled) {
           setPrevUsd(currentUsd.current);
           setPrevEur(currentEur.current);
-          currentUsd.current = newUsd;
-          currentEur.current = newEur;
-          setUsd(newUsd);
-          setEur(newEur);
+          currentUsd.current = rates.usd;
+          currentEur.current = rates.eur;
+          setUsd(rates.usd);
+          setEur(rates.eur);
           setUpdatedAt(new Date(now));
           setLoading(false);
+          setError(false);
         }
       } catch {
-        if (!cancelled) {
+        if (!cancelled && !force) {
           setError(true);
           setLoading(false);
         }
       }
     }
 
-    fetch_();
-
-    const interval = setInterval(() => {
-      if (!cancelled) fetch_(true);
-    }, POLL_MS);
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
+    load();
+    const interval = setInterval(() => { if (!cancelled) load(true); }, POLL_MS);
+    return () => { cancelled = true; clearInterval(interval); };
   }, [tick]);
 
   return { usd, eur, prevUsd, prevEur, loading, error, updatedAt, retry };
