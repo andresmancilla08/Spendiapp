@@ -53,3 +53,17 @@ google-services.json
 scripts/serviceAccount.json
 
 .claude/settings.local.json
+
+# Claude Code / OMC internal files
+.omc/
+.claude/worktrees/
+.claude/launch.json
+.agents/
+skills-lock.json
+button-preview.html
+email-preview/
+test_generateUserName.ts
+test_logic.js
+public/sw.js
+scripts/validate-pre-deploy.sh
+components/ExchangeRateBar.tsx
