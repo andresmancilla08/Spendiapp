@@ -417,10 +417,8 @@ export default function HomeScreen() {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             toggleHidden();
           }}
+          footer={isPremium ? <ExchangeRateChips style={{ marginBottom: 0 }} /> : undefined}
         />
-
-        {/* Exchange rate chips — solo premium */}
-        {isPremium && <ExchangeRateChips />}
 
         {/* Income / Expenses */}
         <View style={styles.summaryRow}>
