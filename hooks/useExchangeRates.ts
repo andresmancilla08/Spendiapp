@@ -21,7 +21,6 @@ export interface ExchangeRates {
   prevEur: number;
   loading: boolean;
   error: boolean;
-  errorMsg: string;
   updatedAt: Date | null;
   retry: () => void;
 }
@@ -60,7 +59,6 @@ export function useExchangeRates(): ExchangeRates {
   const [prevEur, setPrevEur] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const [tick, setTick] = useState(0);
   const currentUsd = useRef(0);
@@ -104,10 +102,9 @@ export function useExchangeRates(): ExchangeRates {
           setLoading(false);
           setError(false);
         }
-      } catch (e: any) {
+      } catch {
         if (!cancelled && !force) {
           setError(true);
-          setErrorMsg(String(e?.message ?? e ?? 'unknown'));
           setLoading(false);
         }
       }
@@ -118,5 +115,5 @@ export function useExchangeRates(): ExchangeRates {
     return () => { cancelled = true; clearInterval(interval); };
   }, [tick]);
 
-  return { usd, eur, prevUsd, prevEur, loading, error, errorMsg, updatedAt, retry };
+  return { usd, eur, prevUsd, prevEur, loading, error, updatedAt, retry };
 }
