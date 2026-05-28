@@ -45,6 +45,7 @@ import type { Category } from '../../types/category';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import AnnouncementBanner from '../../components/AnnouncementBanner';
 import { useAmountsVisibility } from '../../hooks/useAmountsVisibility';
+import ExchangeRateChips from '../../components/ExchangeRateChips';
 
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
@@ -417,6 +418,9 @@ export default function HomeScreen() {
             toggleHidden();
           }}
         />
+
+        {/* Exchange rate chips — solo premium */}
+        {isPremium && <ExchangeRateChips />}
 
         {/* Income / Expenses */}
         <View style={styles.summaryRow}>

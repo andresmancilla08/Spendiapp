@@ -1452,5 +1452,8 @@
     "feature1Label": "Transactions",
     "feature2Label": "Analytics",
     "feature3Label": "Goals"
+  },
+  "exchangeRate": {
+    "updatedAt": "Upd. {{time}}"
   }
 }

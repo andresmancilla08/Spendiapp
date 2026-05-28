@@ -47,6 +47,7 @@ import { useSharedTransactions } from '../../hooks/useSharedTransactions';
 import { getUserProfile } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
+import ExchangeRateChips from '../../components/ExchangeRateChips';
 import type { Category } from '../../types/category';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -387,7 +388,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
 export default function HistoryScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const { user } = useAuthStore();
+  const { user, isPremium } = useAuthStore();
   const { categories } = useCategories(user?.uid ?? '');
   const customCatMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const { cards } = useCards(user?.uid ?? '');
@@ -775,6 +776,9 @@ export default function HistoryScreen() {
         </View>
       )}
 
+      {/* Exchange rate chips — solo premium */}
+      {isPremium && <ExchangeRateChips style={styles.exchangeChips} />}
+
       {/* Search + Filter button */}
       <View style={styles.searchRow}>
         <View style={[styles.searchWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -1124,6 +1128,10 @@ const styles = StyleSheet.create({
   filterDivider: {
     height: 1,
     marginVertical: 4,
+  },
+  exchangeChips: {
+    marginHorizontal: 20,
+    marginBottom: 8,
   },
   paidTabs: {
     marginHorizontal: 20,
