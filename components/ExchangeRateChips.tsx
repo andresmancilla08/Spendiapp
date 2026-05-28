@@ -9,7 +9,6 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useExchangeRates } from '../hooks/useExchangeRates';
 import { Skeleton } from './Skeleton';
@@ -23,10 +22,6 @@ function formatValue(value: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);
-}
-
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 // Animated value cell — fade + color flash on change
@@ -111,7 +106,6 @@ interface ExchangeRateChipsProps {
 }
 
 export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
-  const { t } = useTranslation();
   const { colors } = useTheme();
   const { usd, eur, prevUsd, prevEur, loading, error, updatedAt, retry } = useExchangeRates();
 
@@ -180,6 +174,13 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
         },
       ]}
     >
+      {/* Live dot — top center */}
+      {updatedAt && (
+        <View style={styles.dotRow}>
+          <LiveDot />
+        </View>
+      )}
+
       {/* Rates — centered */}
       <View style={styles.ratesRow}>
         <TouchableOpacity onPress={() => copyRate('USD', usd)} activeOpacity={0.7} style={styles.item}>
@@ -194,29 +195,27 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
           <RateValue value={eur} prev={prevEur} textColor={colors.textPrimary} />
         </TouchableOpacity>
       </View>
-
-      {/* Live indicator — absolute right */}
-      {updatedAt && (
-        <View style={styles.liveRow}>
-          <LiveDot />
-        </View>
-      )}
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingTop: 6,
+    paddingBottom: 10,
+    paddingHorizontal: 14,
+  },
+  dotRow: {
+    alignItems: 'center',
+    marginBottom: 4,
   },
   ratesRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 0,
   },
   item: {
     flexDirection: 'row',
@@ -238,22 +237,11 @@ const styles = StyleSheet.create({
     height: 24,
     marginHorizontal: 12,
   },
-  liveRow: {
-    position: 'absolute',
-    right: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
   dot: {
     width: 5,
     height: 5,
     borderRadius: 2.5,
     backgroundColor: GREEN,
-  },
-  liveTime: {
-    fontSize: 10,
-    fontFamily: Fonts.regular,
   },
   retryBtn: {
     marginTop: 4,
