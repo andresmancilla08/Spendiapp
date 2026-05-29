@@ -14,7 +14,7 @@ import BalanceCard from '../../components/BalanceCard';
 import * as Haptics from 'expo-haptics';
 import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from '../../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { router, useFocusEffect } from 'expo-router';

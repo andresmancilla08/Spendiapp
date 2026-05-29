@@ -2,7 +2,7 @@
 import { useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon, { AppIconName } from '@/components/AppIcon';
+import AppIcon, { AppIconName } from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { Timestamp } from 'firebase/firestore';
 import { router } from 'expo-router';

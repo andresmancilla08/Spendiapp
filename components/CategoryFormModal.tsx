@@ -15,7 +15,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { addDoc, updateDoc, doc, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';

@@ -1,6 +1,6 @@
 // components/NotificationBell.tsx
 import { TouchableOpacity, View, Text, StyleSheet, Platform } from 'react-native';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { router } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';

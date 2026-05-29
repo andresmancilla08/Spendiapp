@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon, { AppIconName } from '@/components/AppIcon';
+import AppIcon, { AppIconName } from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';

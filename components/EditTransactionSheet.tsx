@@ -17,7 +17,7 @@ import {
   Switch,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';

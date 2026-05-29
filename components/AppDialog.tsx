@@ -3,7 +3,7 @@ import {
   Modal, View, Text, TouchableOpacity, StyleSheet,
   Animated, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
-import AppIcon, { AppIconName } from '@/components/AppIcon';
+import AppIcon, { AppIconName } from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 

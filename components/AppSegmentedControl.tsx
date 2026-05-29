@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
-import AppIcon, { AppIconName } from '@/components/AppIcon';
+import AppIcon, { AppIconName } from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import * as Haptics from 'expo-haptics';

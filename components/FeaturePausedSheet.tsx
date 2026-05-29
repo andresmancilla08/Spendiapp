@@ -9,7 +9,7 @@ import {
   Platform,
   StyleSheet,
 } from 'react-native';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';

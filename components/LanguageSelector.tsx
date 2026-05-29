@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { LANGUAGES, changeLanguage } from '../config/i18n';
 import { useTheme } from '../context/ThemeContext';
 

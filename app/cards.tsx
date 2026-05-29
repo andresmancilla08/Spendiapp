@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from '../components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useAuthStore } from '../store/authStore';

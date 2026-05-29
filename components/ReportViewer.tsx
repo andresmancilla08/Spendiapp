@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';

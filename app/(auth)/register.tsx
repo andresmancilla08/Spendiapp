@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from '../../components/AppIcon';
 import { useFlags } from '../../context/FeatureFlagsContext';
 
 export default function RegisterScreen() {
