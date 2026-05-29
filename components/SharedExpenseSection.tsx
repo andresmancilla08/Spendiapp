@@ -2,7 +2,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, TextInput, Switch,
 } from 'react-native';
 import { useState, useEffect } from 'react';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import AppSegmentedControl from './AppSegmentedControl';

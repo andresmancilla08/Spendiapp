@@ -9,7 +9,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { router } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';

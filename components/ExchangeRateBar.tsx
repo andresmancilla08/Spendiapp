@@ -22,7 +22,7 @@ import {
 import { useEffect, useRef } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useExchangeRates } from '../hooks/useExchangeRates';

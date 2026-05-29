@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon, { AppIconName } from '@/components/AppIcon';
+import AppIcon, { AppIconName } from '../../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { router } from 'expo-router';

@@ -13,7 +13,7 @@ import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import {
   updateDoc,

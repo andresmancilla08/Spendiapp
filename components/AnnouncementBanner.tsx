@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useAnnouncement } from '../hooks/useAnnouncement';

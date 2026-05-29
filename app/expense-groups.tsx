@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { randomUUID } from 'expo-crypto';
 import { router } from 'expo-router';

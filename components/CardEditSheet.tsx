@@ -15,7 +15,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';

@@ -20,7 +20,7 @@ import PinInput from '../../components/PinInput';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from '../../components/AppIcon';
 import { resetPinWithOtp } from '../../hooks/useAuth';
 import { useToast } from '../../context/ToastContext';
 

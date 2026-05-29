@@ -16,7 +16,7 @@ import {
 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon, { AppIconName } from '@/components/AppIcon';
+import AppIcon, { AppIconName } from '../../components/AppIcon';
 import { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { useAuthStore } from '../../store/authStore';

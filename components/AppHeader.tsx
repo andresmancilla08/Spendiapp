@@ -1,7 +1,7 @@
 // components/AppHeader.tsx
 import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import NotificationBell from './NotificationBell';

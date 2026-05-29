@@ -14,7 +14,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { COLOMBIAN_BANKS, Bank } from '../config/banks';

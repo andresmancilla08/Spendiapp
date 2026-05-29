@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ReactNode,
 } from 'react-native';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useRef, useEffect, useState, type ElementRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../config/firebase';

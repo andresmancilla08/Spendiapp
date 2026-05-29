@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import AppIcon from '@/components/AppIcon';
+import AppIcon from '../components/AppIcon';
 import ScreenTransition from '../components/ScreenTransition';
 import ScreenBackground from '../components/ScreenBackground';
 import { useTheme } from '../context/ThemeContext';
