@@ -181,11 +181,11 @@ interface AppIconProps {
   size?: number;
   color?: string;
   style?: StyleProp<ViewStyle>;
-  stroke?: number;
+  strokeWidth?: number;
 }
 
-export default function AppIcon({ name, size = 24, color = '#000', style, stroke = 2 }: AppIconProps) {
+export default function AppIcon({ name, size = 24, color = '#000', style, strokeWidth = 2 }: AppIconProps) {
   const Icon = ICON_MAP[name];
   if (!Icon) return null;
-  return <Icon size={size} color={color} stroke={stroke} style={style} />;
+  return <Icon size={size} color={color} strokeWidth={strokeWidth} style={style} />;
 }
