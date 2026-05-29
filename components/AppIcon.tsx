@@ -1,9 +1,11 @@
 import {
   IconAlertCircle,
+  IconAlertTriangle,
   IconArrowNarrowDownDashed,
   IconArrowNarrowUpDashed,
   IconArrowLeft,
   IconArrowRight,
+  IconAdjustmentsHorizontal,
   IconBan,
   IconBell,
   IconBellOff,
@@ -76,6 +78,7 @@ import {
   IconUsers,
   IconUsersGroup,
   IconWallet,
+  IconWifi,
   IconX,
 } from '@tabler/icons-react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
@@ -118,6 +121,7 @@ const ICON_MAP = {
   'document-text-outline': IconFileText,
   'download-outline': IconDownload,
   'ellipsis-horizontal': IconDots,
+  'options-outline': IconAdjustmentsHorizontal,
   'eye-off-outline': IconEyeOff,
   'eye-outline': IconEye,
   'finger-print': IconFingerprint,
@@ -172,6 +176,8 @@ const ICON_MAP = {
   'time-outline': IconHistoryToggle,
   'trash-outline': IconTrash,
   'wallet-outline': IconWallet,
+  'warning-outline': IconAlertTriangle,
+  'wifi-outline': IconWifi,
 } as const;
 
 export type AppIconName = keyof typeof ICON_MAP;
