@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
@@ -27,10 +27,9 @@ interface WhatsNewProps {
   onDismiss: () => Promise<void>;
 }
 
-type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
 interface Feature {
-  icon: IoniconName;
+  icon: AppIconName;
   colorKey: 'primary' | 'success';
   titleKey: string;
   items: string[];
@@ -141,7 +140,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
               >
                 <View style={styles.cardHeader}>
                   <View style={[styles.iconWrap, { backgroundColor: accentBg }]}>
-                    <Ionicons name={f.icon} size={20} color={accentColor} />
+                    <AppIcon name={f.icon} size={20} color={accentColor} />
                   </View>
                   <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
                     {t(f.titleKey)}
@@ -173,7 +172,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
             {dismissing
               ? <ActivityIndicator size="small" color={colors.primary} />
               : <>
-                  <Ionicons name="checkmark-circle-outline" size={20} color={colors.onPrimary} />
+                  <AppIcon name="checkmark-circle-outline" size={20} color={colors.onPrimary} />
                   <Text style={[styles.dismissText, { color: colors.onPrimary }]}>
                     {t('whatsNew.dismiss')}
                   </Text>

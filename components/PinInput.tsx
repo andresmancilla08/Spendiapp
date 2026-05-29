@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
@@ -115,7 +115,7 @@ export default function PinInput({ value, onChange, error = false, defaultVisibl
           activeOpacity={0.7}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Ionicons
+          <AppIcon
             name={showPin ? 'eye-outline' : 'eye-off-outline'}
             size={22}
             color={colors.textTertiary}

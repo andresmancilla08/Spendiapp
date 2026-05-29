@@ -1,6 +1,6 @@
 // components/SharedExpenseChip.tsx
 import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
@@ -56,7 +56,7 @@ export default function SharedExpenseChip({
         },
       ]}
     >
-      <Ionicons name="people-outline" size={13} color={colors.primary} />
+      <AppIcon name="people-outline" size={13} color={colors.primary} />
       <Text style={[styles.text, { color: colors.primary }]}>{label}</Text>
     </View>
   );

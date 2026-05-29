@@ -16,7 +16,7 @@ import {
 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
@@ -46,10 +46,9 @@ import { useToast } from '../../context/ToastContext';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import appConfig from '../../app.json';
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 interface OptionRow {
-  icon: IoniconsName;
+  icon: AppIconName;
   label: string;
   value?: string;
   color?: string;
@@ -69,7 +68,7 @@ function OptionItem({ icon, label, value, color, badge, isLast, onPress }: Optio
         activeOpacity={0.7}
       >
         <View style={[styles.optionIconWrap, { backgroundColor: iconColor + '18' }]}>
-          <Ionicons name={icon} size={18} color={iconColor} />
+          <AppIcon name={icon} size={18} color={iconColor} />
         </View>
         <View style={styles.optionMeta}>
           <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>{label}</Text>
@@ -84,7 +83,7 @@ function OptionItem({ icon, label, value, color, badge, isLast, onPress }: Optio
             <Text style={styles.optionBadgeText}>{badge}</Text>
           </View>
         ) : null}
-        <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+        <AppIcon name="chevron-forward" size={16} color={colors.textTertiary} />
       </TouchableOpacity>
       {!isLast && <View style={[styles.optionDivider, { backgroundColor: colors.border }]} />}
     </>
@@ -297,7 +296,7 @@ function LangModal({ visible, onClose, colors, i18n, t }: {
         <Animated.View style={[styles.langSheet, { backgroundColor: colors.surface, transform: [{ translateY }] }]}>
           <View style={[styles.langHandle, { backgroundColor: colors.border }]} />
           <View style={[styles.langIconWrap, { backgroundColor: colors.primaryLight }]}>
-            <Ionicons name="language" size={28} color={colors.primary} />
+            <AppIcon name="language" size={28} color={colors.primary} />
           </View>
           <Text style={[styles.langTitle, { color: colors.textPrimary }]}>{t('profile.language.title')}</Text>
           <Text style={[styles.langSubtitle, { color: colors.textSecondary }]}>{t('profile.language.subtitle')}</Text>
@@ -313,7 +312,7 @@ function LangModal({ visible, onClose, colors, i18n, t }: {
                 >
                   <Text style={styles.langFlag}>{lang.flag}</Text>
                   <Text style={[styles.langName, { color: isSelected ? colors.primary : colors.textPrimary }]}>{lang.label}</Text>
-                  {isSelected && <Ionicons name="checkmark-circle" size={20} color={colors.primary} />}
+                  {isSelected && <AppIcon name="checkmark-circle" size={20} color={colors.primary} />}
                 </TouchableOpacity>
               );
             })}
@@ -443,7 +442,7 @@ const PaletteCard = memo(function PaletteCard({
             { backgroundColor: p1, transform: [{ scale: badgeScale }], opacity: badgeOpacity },
           ]}
         >
-          <Ionicons name="checkmark" size={9} color="#FFFFFF" />
+          <AppIcon name="checkmark" size={9} color="#FFFFFF" />
         </Animated.View>
       </TouchableOpacity>
     </Animated.View>
@@ -548,7 +547,7 @@ function PaletteModal({ visible, onClose, colors, paletteId, setPaletteId, t }: 
           {/* Header */}
           <View style={palStyles.header}>
             <View style={[palStyles.headerIconWrap, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name="color-palette" size={22} color={colors.primary} />
+              <AppIcon name="color-palette" size={22} color={colors.primary} />
             </View>
             <View style={palStyles.headerText}>
               <Text style={[palStyles.headerTitle, { color: colors.textPrimary }]}>
@@ -802,7 +801,7 @@ export default function ProfileScreen() {
               <Image source={{ uri: photoUrl }} style={styles.avatar} />
             ) : (
               <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
-                <Ionicons name="person" size={42} color={colors.primary} />
+                <AppIcon name="person" size={42} color={colors.primary} />
               </View>
             )}
           </View>
@@ -824,11 +823,11 @@ export default function ProfileScreen() {
               >
                 <Text style={[styles.userNameChipAt, { color: colors.primary }]}>@</Text>
                 <Text style={[styles.userNameChipText, { color: colors.primary }]}>{userName}</Text>
-                <Ionicons name="copy-outline" size={12} color={colors.primary} style={{ marginLeft: 4 }} />
+                <AppIcon name="copy-outline" size={12} color={colors.primary} style={{ marginLeft: 4 }} />
               </TouchableOpacity>
             ) : null}
             <View style={[styles.providerBadge, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, borderWidth: 1 }]}>
-              <Ionicons name={isGoogleUser ? 'logo-google' : 'mail-outline'} size={12} color={colors.textSecondary} />
+              <AppIcon name={isGoogleUser ? 'logo-google' : 'mail-outline'} size={12} color={colors.textSecondary} />
               <Text style={[styles.providerText, { color: colors.textSecondary }]}>
                 {isGoogleUser ? t('profile.providerGoogle') : t('profile.providerEmail')}
               </Text>
@@ -841,7 +840,7 @@ export default function ProfileScreen() {
                 borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5,
                 shadowColor: colors.warning, shadowOpacity: 0.2, shadowRadius: 6, elevation: 2,
               }}>
-                <Ionicons name="star" size={12} color={colors.warning} />
+                <AppIcon name="star" size={12} color={colors.warning} />
                 <Text style={{ fontFamily: Fonts.semiBold, fontSize: 12, color: colors.warning, letterSpacing: 0.8 }}>
                   PRO
                 </Text>
@@ -858,7 +857,7 @@ export default function ProfileScreen() {
             activeOpacity={0.85}
           >
             <View style={[styles.premiumBannerIcon, { backgroundColor: colors.warning + '25' }]}>
-              <Ionicons name="star" size={22} color={colors.warning} />
+              <AppIcon name="star" size={22} color={colors.warning} />
             </View>
             <View style={styles.premiumBannerContent}>
               <Text style={[styles.premiumBannerTitle, { color: colors.textPrimary }]}>
@@ -869,7 +868,7 @@ export default function ProfileScreen() {
               </Text>
             </View>
             <View style={[styles.premiumBannerChevron, { backgroundColor: colors.warning }]}>
-              <Ionicons name="chevron-forward" size={16} color="#fff" />
+              <AppIcon name="chevron-forward" size={16} color="#fff" />
             </View>
           </TouchableOpacity>
         )}
@@ -970,7 +969,7 @@ export default function ProfileScreen() {
             <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
               <View style={[styles.optionRow, { opacity: biometricsAvailable ? 1 : 0.4 }]}>
                 <View style={[styles.optionIconWrap, { backgroundColor: colors.primaryLight }]}>
-                  <Ionicons name="finger-print" size={18} color={colors.primary} />
+                  <AppIcon name="finger-print" size={18} color={colors.primary} />
                 </View>
                 <View style={styles.optionMeta}>
                   <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
@@ -1010,7 +1009,7 @@ export default function ProfileScreen() {
           onPress={handleSignOut}
           activeOpacity={0.8}
         >
-          <Ionicons name="log-out-outline" size={18} color={colors.error} />
+          <AppIcon name="log-out-outline" size={18} color={colors.error} />
           <Text style={[styles.signOutText, { color: colors.error }]}>{t('profile.signOut.button')}</Text>
         </TouchableOpacity>
 

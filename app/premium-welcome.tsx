@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -16,9 +16,8 @@ import { Fonts } from '../config/fonts';
 import { useAuthStore } from '../store/authStore';
 import { db } from '../config/firebase';
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
-const FEATURE_ICONS: IoniconsName[] = [
+const FEATURE_ICONS: AppIconName[] = [
   'wallet-outline',
   'document-text-outline',
   'people-outline',
@@ -179,7 +178,7 @@ export default function PremiumWelcomeScreen() {
                 { opacity: badgeOpacity, transform: [{ translateY: badgeSlide }] },
               ]}
             >
-              <Ionicons name="star" size={10} color="#fff" />
+              <AppIcon name="star" size={10} color="#fff" />
               <Text style={styles.premiumBadgeText}>{t('premiumWelcome.badge')}</Text>
             </Animated.View>
 
@@ -191,7 +190,7 @@ export default function PremiumWelcomeScreen() {
                 style={{ transform: [{ scale: Animated.multiply(starScale, starPulse) }], zIndex: 2 }}
               >
                 <LinearGradient colors={['#FEF3C7', '#F59E0B']} style={styles.starCircle}>
-                  <Ionicons name="star" size={36} color="#fff" />
+                  <AppIcon name="star" size={36} color="#fff" />
                 </LinearGradient>
               </Animated.View>
             </View>
@@ -232,11 +231,11 @@ export default function PremiumWelcomeScreen() {
                 ]}
               >
                 <View style={[styles.featureIconWrap, { backgroundColor: FEATURE_COLORS[i] + '20' }]}>
-                  <Ionicons name={FEATURE_ICONS[i]} size={20} color={FEATURE_COLORS[i]} />
+                  <AppIcon name={FEATURE_ICONS[i]} size={20} color={FEATURE_COLORS[i]} />
                 </View>
                 <Text style={[styles.featureText, { color: colors.textPrimary }]}>{feature}</Text>
                 <Animated.View style={{ transform: [{ scale: featureAnims[i].check }] }}>
-                  <Ionicons name="checkmark-circle" size={22} color="#22C55E" />
+                  <AppIcon name="checkmark-circle" size={22} color="#22C55E" />
                 </Animated.View>
               </Animated.View>
             ))}
@@ -269,7 +268,7 @@ export default function PremiumWelcomeScreen() {
                 end={{ x: 1, y: 0 }}
                 style={styles.ctaBtn}
               >
-                <Ionicons name="star" size={20} color="#fff" />
+                <AppIcon name="star" size={20} color="#fff" />
                 <Text style={styles.ctaBtnText}>{t('premiumWelcome.cta')}</Text>
                 <Animated.View
                   pointerEvents="none"

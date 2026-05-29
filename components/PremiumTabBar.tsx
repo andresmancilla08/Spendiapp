@@ -5,15 +5,14 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
-const TAB_CONFIG: Record<string, { icon: IoniconsName; iconActive: IoniconsName }> = {
+const TAB_CONFIG: Record<string, { icon: AppIconName; iconActive: AppIconName }> = {
   index:   { icon: 'home-outline',   iconActive: 'home' },
   history: { icon: 'time-outline',   iconActive: 'time' },
   tools:   { icon: 'hammer-outline', iconActive: 'hammer' },
@@ -152,7 +151,7 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
                     ]}
                   />
                   <Animated.View style={{ transform: iconTransform }}>
-                    <Ionicons
+                    <AppIcon
                       name={isFocused ? config.iconActive : config.icon}
                       size={22}
                       color={isFocused ? colors.primary : iconInactive}

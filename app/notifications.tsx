@@ -2,7 +2,7 @@
 import { useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { Timestamp } from 'firebase/firestore';
 import { router } from 'expo-router';
@@ -28,7 +28,7 @@ function timeAgoLabel(createdAt: Timestamp | undefined, t: any): string {
   return t('notifications.timeAgo.daysAgo', { n: Math.floor(diffH / 24) });
 }
 
-const NOTIF_ICONS: Record<NotificationType, React.ComponentProps<typeof Ionicons>['name']> = {
+const NOTIF_ICONS: Record<NotificationType, AppIconName> = {
   friend_request: 'person-add-outline',
   friend_accepted: 'people-outline',
   shared_transaction_added: 'people-circle-outline',
@@ -121,7 +121,7 @@ function NotifItem({
       ]} />
 
       <View style={[styles.notifIconWrap, { backgroundColor: accentBg }]}>
-        <Ionicons name={icon} size={18} color={accentColor} />
+        <AppIcon name={icon} size={18} color={accentColor} />
       </View>
 
       <View style={styles.notifContent}>
@@ -132,12 +132,12 @@ function NotifItem({
           {text}
         </Text>
         <View style={styles.notifMeta}>
-          <Ionicons name="time-outline" size={11} color={colors.textTertiary} />
+          <AppIcon name="time-outline" size={11} color={colors.textTertiary} />
           <Text style={[styles.notifTime, { color: colors.textTertiary }]}>
             {timeAgoLabel(notif.createdAt, t)}
           </Text>
           {hasRoute && (
-            <Ionicons name="chevron-forward-outline" size={11} color={colors.primary} style={{ marginLeft: 4 }} />
+            <AppIcon name="chevron-forward-outline" size={11} color={colors.primary} style={{ marginLeft: 4 }} />
           )}
         </View>
       </View>
@@ -148,7 +148,7 @@ function NotifItem({
         style={[styles.deleteBtn, { backgroundColor: colors.errorLight }]}
         accessibilityLabel={t('notifications.delete')}
       >
-        <Ionicons name="trash-outline" size={14} color={colors.error} />
+        <AppIcon name="trash-outline" size={14} color={colors.error} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -187,7 +187,7 @@ export default function NotificationsScreen() {
               activeOpacity={0.8}
               style={[styles.markAllBtn, { borderColor: colors.primary + '50' }]}
             >
-              <Ionicons name="checkmark-done-outline" size={14} color={colors.primary} />
+              <AppIcon name="checkmark-done-outline" size={14} color={colors.primary} />
               <Text style={[styles.markAllText, { color: colors.primary }]}>
                 {t('notifications.markAllRead')}
               </Text>
@@ -202,7 +202,7 @@ export default function NotificationsScreen() {
           {notifications.length === 0 ? (
             <View style={styles.emptyState}>
               <View style={[styles.emptyIconWrap, { backgroundColor: colors.surfaceSecondary }]}>
-                <Ionicons name="notifications-off-outline" size={36} color={colors.textTertiary} />
+                <AppIcon name="notifications-off-outline" size={36} color={colors.textTertiary} />
               </View>
               <Text style={[styles.emptyText, { color: colors.textPrimary }]}>
                 {t('notifications.empty')}

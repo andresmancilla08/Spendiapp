@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useAnnouncement } from '../hooks/useAnnouncement';
@@ -20,7 +20,7 @@ export default function AnnouncementBanner() {
 
   return (
     <View style={[styles.banner, { backgroundColor: `${config.color}18`, borderColor: `${config.color}40` }]}>
-      <Ionicons name={config.icon} size={18} color={config.color} />
+      <AppIcon name={config.icon} size={18} color={config.color} />
       <Text style={[styles.msg, { color: colors.textPrimary, flex: 1 }]}>{announcement.message}</Text>
       {announcement.cta && (
         <TouchableOpacity onPress={() => Linking.openURL(announcement.cta!)} activeOpacity={0.8}>

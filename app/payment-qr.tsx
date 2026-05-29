@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -24,7 +24,7 @@ const ADMIN_PHONE = '573207492444';
 
 type Plan = 'monthly' | 'annual';
 
-const STEP_ICONS: Array<React.ComponentProps<typeof Ionicons>['name']> = [
+const STEP_ICONS: Array<AppIconName> = [
   'copy-outline',
   'cash-outline',
   'checkmark-done-outline',
@@ -161,7 +161,7 @@ export default function PaymentQrScreen() {
                 <View style={[styles.decoCircle, { top: -50, right: -30, width: 160, height: 160, borderRadius: 80 }]} />
                 <View style={[styles.decoCircle, { bottom: -40, left: -20, width: 110, height: 110, borderRadius: 55 }]} />
                 <View style={styles.heroBadge}>
-                  <Ionicons name="star" size={10} color="#FFD166" />
+                  <AppIcon name="star" size={10} color="#FFD166" />
                   <Text style={styles.heroBadgeText}>PREMIUM</Text>
                 </View>
                 <Text style={styles.heroTitle}>{t('paymentQr.title')}</Text>
@@ -226,7 +226,7 @@ export default function PaymentQrScreen() {
                 shadowColor: colors.primary,
               }]}>
                 <View style={[styles.breBBadge, { backgroundColor: `${colors.primary}18`, borderColor: `${colors.primary}35` }]}>
-                  <Ionicons name="phone-portrait-outline" size={13} color={colors.primary} />
+                  <AppIcon name="phone-portrait-outline" size={13} color={colors.primary} />
                   <Text style={[styles.breBBadgeText, { color: colors.primary }]}>Bre-B</Text>
                 </View>
 
@@ -243,7 +243,7 @@ export default function PaymentQrScreen() {
                     activeOpacity={0.75}
                     style={[styles.copyBtn, { backgroundColor: copied ? '#00897B' : colors.primary }]}
                   >
-                    <Ionicons name={copied ? 'checkmark' : 'copy-outline'} size={16} color="#fff" />
+                    <AppIcon name={copied ? 'checkmark' : 'copy-outline'} size={16} color="#fff" />
                     <Text style={styles.copyBtnText}>
                       {copied ? t('paymentQr.keyCopied') : t('paymentQr.copyKey')}
                     </Text>
@@ -262,7 +262,7 @@ export default function PaymentQrScreen() {
                 {(['step1', 'step2', 'step3', 'step4'] as const).map((key, i) => (
                   <View key={key} style={styles.stepRow}>
                     <View style={[styles.stepNum, { backgroundColor: `${colors.primary}18` }]}>
-                      <Ionicons name={STEP_ICONS[i]} size={15} color={colors.primary} />
+                      <AppIcon name={STEP_ICONS[i]} size={15} color={colors.primary} />
                     </View>
                     <Text style={[styles.stepText, { color: colors.textSecondary }]}>{t(`paymentQr.${key}`)}</Text>
                   </View>
@@ -272,13 +272,13 @@ export default function PaymentQrScreen() {
 
             {status === 'sent' && (
               <View style={[styles.statusBox, { backgroundColor: '#00897B18', borderColor: '#00897B40' }]}>
-                <Ionicons name="checkmark-circle" size={20} color="#00897B" />
+                <AppIcon name="checkmark-circle" size={20} color="#00897B" />
                 <Text style={[styles.statusText, { color: '#00897B' }]}>{t('paymentQr.sent')}</Text>
               </View>
             )}
             {status === 'error' && (
               <View style={[styles.statusBox, { backgroundColor: '#EF444418', borderColor: '#EF444440' }]}>
-                <Ionicons name="alert-circle" size={20} color="#EF4444" />
+                <AppIcon name="alert-circle" size={20} color="#EF4444" />
                 <Text style={[styles.statusText, { color: '#EF4444' }]}>{t('paymentQr.error')}</Text>
               </View>
             )}
@@ -314,7 +314,7 @@ export default function PaymentQrScreen() {
                     <>
                       {/* Left icon circle */}
                       <View style={styles.ctaIconCircle}>
-                        <Ionicons
+                        <AppIcon
                           name={status === 'sent' ? 'checkmark' : 'logo-whatsapp'}
                           size={19} color="#fff"
                         />

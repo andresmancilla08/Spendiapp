@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
@@ -85,7 +85,7 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
               {t('reports.viewerTitle', { year: data.year })}
             </Text>
             <TouchableOpacity onPress={onClose} hitSlop={12} activeOpacity={0.7}>
-              <Ionicons name="close" size={24} color={colors.textPrimary} />
+              <AppIcon name="close" size={24} color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
 
@@ -114,7 +114,7 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
               onPress={handleShare}
               activeOpacity={0.75}
             >
-              <Ionicons name="share-outline" size={20} color={colors.primary} />
+              <AppIcon name="share-outline" size={20} color={colors.primary} />
               <Text style={[styles.toolbarBtnText, { color: colors.primary }]}>
                 {t('reports.share')}
               </Text>
@@ -125,7 +125,7 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
               onPress={handleDownload}
               activeOpacity={0.75}
             >
-              <Ionicons name="download-outline" size={20} color={colors.primary} />
+              <AppIcon name="download-outline" size={20} color={colors.primary} />
               <Text style={[styles.toolbarBtnText, { color: colors.primary }]}>
                 {t('reports.save')}
               </Text>

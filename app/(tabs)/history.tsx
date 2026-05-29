@@ -19,7 +19,7 @@ import { useHistoryStore } from '../../store/historyStore';
 import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
 import {
@@ -249,7 +249,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
           activeOpacity={0.85}
           style={[StyleSheet.absoluteFillObject, styles.txActionBtnInner, { backgroundColor: colors.error }]}
         >
-          <Ionicons name="trash-outline" size={22} color="#FFFFFF" />
+          <AppIcon name="trash-outline" size={22} color="#FFFFFF" />
           <Text style={[styles.txActionLabel, { fontFamily: Fonts.semiBold }]}>
             {t('history.swipe.delete')}
           </Text>
@@ -265,7 +265,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
             activeOpacity={0.85}
             style={[StyleSheet.absoluteFillObject, styles.txActionBtnInner, { backgroundColor: colors.primary }]}
           >
-            <Ionicons name={isPaid ? 'close-circle-outline' : 'checkmark-circle-outline'} size={22} color="#FFFFFF" />
+            <AppIcon name={isPaid ? 'close-circle-outline' : 'checkmark-circle-outline'} size={22} color="#FFFFFF" />
             <Text style={[styles.txActionLabel, { fontFamily: Fonts.semiBold }]}>
               {isPaid ? t('history.swipe.unmark') : t('history.swipe.mark')}
             </Text>
@@ -345,7 +345,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                 </Text>
               )}
               <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.secondary}18`, borderColor: `${colors.secondary}28` }]}>
-                <Ionicons name="gift-outline" size={11} color={colors.secondary} />
+                <AppIcon name="gift-outline" size={11} color={colors.secondary} />
                 <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]} numberOfLines={1}>
                   {t('sentIncome.chip.sentBy', { name: item.sentByName })}
                 </Text>
@@ -362,7 +362,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                 </Text>
               )}
               <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.primary}18`, borderColor: `${colors.primary}28` }]}>
-                <Ionicons name="send-outline" size={11} color={colors.primary} />
+                <AppIcon name="send-outline" size={11} color={colors.primary} />
                 <Text style={[styles.sentIncomeChipText, { color: colors.primary }]} numberOfLines={1}>
                   {t('sentIncome.chip.sentTo', { name: item.sentIncomeToName })}
                 </Text>
@@ -636,7 +636,7 @@ export default function HistoryScreen() {
       {/* Month navigation */}
       <View style={[styles.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <TouchableOpacity onPress={goToPrevMonth} style={styles.monthNavBtn} activeOpacity={0.7}>
-          <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
+          <AppIcon name="chevron-back" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -647,7 +647,7 @@ export default function HistoryScreen() {
           <Text style={[styles.monthNavLabel, { color: colors.primary }]}>
             {MONTHS[month].toUpperCase()} {year}
           </Text>
-          <Ionicons name={monthPickerOpen ? 'chevron-up' : 'chevron-down'} size={14} color={colors.primary} style={{ marginLeft: 4 }} />
+          <AppIcon name={monthPickerOpen ? 'chevron-up' : 'chevron-down'} size={14} color={colors.primary} style={{ marginLeft: 4 }} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -655,7 +655,7 @@ export default function HistoryScreen() {
           style={styles.monthNavBtn}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
+          <AppIcon name="chevron-forward" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -669,7 +669,7 @@ export default function HistoryScreen() {
               style={styles.pickerNavBtn}
               activeOpacity={year <= MIN_YEAR ? 1 : 0.7}
             >
-              <Ionicons name="chevron-back" size={20} color={year <= MIN_YEAR ? colors.border : colors.textPrimary} />
+              <AppIcon name="chevron-back" size={20} color={year <= MIN_YEAR ? colors.border : colors.textPrimary} />
             </TouchableOpacity>
             <Text style={[styles.pickerYearLabel, { color: colors.textPrimary }]}>{year}</Text>
             <TouchableOpacity
@@ -678,7 +678,7 @@ export default function HistoryScreen() {
               activeOpacity={year >= MAX_YEAR ? 1 : 0.7}
               disabled={year >= MAX_YEAR}
             >
-              <Ionicons name="chevron-forward" size={20} color={year >= MAX_YEAR ? colors.border : colors.textPrimary} />
+              <AppIcon name="chevron-forward" size={20} color={year >= MAX_YEAR ? colors.border : colors.textPrimary} />
             </TouchableOpacity>
           </View>
           {/* Month grid 3×4 */}
@@ -719,7 +719,7 @@ export default function HistoryScreen() {
               }]}>
                 {balance > 0 ? '+' : ''}{formatCurrency(balance)}
               </Text>
-              <Ionicons
+              <AppIcon
                 name={summaryExpanded ? 'chevron-up' : 'chevron-down'}
                 size={16}
                 color={colors.textTertiary}
@@ -743,7 +743,7 @@ export default function HistoryScreen() {
                   onPress={() => toggleFilter('income')}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="arrow-down" size={13} color={colors.secondary} />
+                  <AppIcon name="arrow-down" size={13} color={colors.secondary} />
                   <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
                     {t('history.incomeLabel')}:
                   </Text>
@@ -762,7 +762,7 @@ export default function HistoryScreen() {
                   onPress={() => toggleFilter('expense')}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="arrow-up" size={13} color={colors.error} />
+                  <AppIcon name="arrow-up" size={13} color={colors.error} />
                   <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
                     {t('history.expensesLabel')}:
                   </Text>
@@ -786,7 +786,7 @@ export default function HistoryScreen() {
       {/* Search + Filter button */}
       <View style={styles.searchRow}>
         <View style={[styles.searchWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Ionicons name="search" size={16} color={colors.textTertiary} />
+          <AppIcon name="search" size={16} color={colors.textTertiary} />
           <TextInput
             style={[styles.searchInput, { color: colors.textPrimary }]}
             value={searchQuery}
@@ -799,7 +799,7 @@ export default function HistoryScreen() {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Ionicons name="close-circle" size={16} color={colors.textTertiary} />
+              <AppIcon name="close-circle" size={16} color={colors.textTertiary} />
             </TouchableOpacity>
           )}
         </View>
@@ -814,7 +814,7 @@ export default function HistoryScreen() {
           onPress={() => setFilterPanelOpen(p => !p)}
           activeOpacity={0.75}
         >
-          <Ionicons
+          <AppIcon
             name="options-outline"
             size={18}
             color={hasActiveFilters ? colors.primary : colors.textTertiary}

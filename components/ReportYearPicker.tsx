@@ -1,6 +1,6 @@
 // components/ReportYearPicker.tsx
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
@@ -52,7 +52,7 @@ export default function ReportYearPicker({ years, selected, onSelect }: ReportYe
             </Text>
             {isSelected && (
               <View style={[styles.checkBadge, { backgroundColor: colors.primary }]}>
-                <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                <AppIcon name="checkmark" size={12} color="#FFFFFF" />
               </View>
             )}
           </TouchableOpacity>

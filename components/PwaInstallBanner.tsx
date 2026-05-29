@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { usePwaInstall } from '../hooks/usePwaInstall';
@@ -57,7 +57,7 @@ export default function PwaInstallBanner() {
         onPress={handlePress}
         activeOpacity={0.8}
       >
-        <Ionicons name="download-outline" size={24} color={colors.tertiaryDark} />
+        <AppIcon name="download-outline" size={24} color={colors.tertiaryDark} />
         <View style={styles.textBlock}>
           <Text style={[styles.title, { color: colors.textPrimary }]}>
             {t('pwaInstall.title')}
@@ -66,7 +66,7 @@ export default function PwaInstallBanner() {
             {t('pwaInstall.subtitle')}
           </Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.tertiaryDark} />
+        <AppIcon name="chevron-forward" size={18} color={colors.tertiaryDark} />
       </TouchableOpacity>
     </>
   );

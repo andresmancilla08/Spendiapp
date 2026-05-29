@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Linking, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import ScreenTransition from '../components/ScreenTransition';
 import ScreenBackground from '../components/ScreenBackground';
 import { useTheme } from '../context/ThemeContext';
@@ -21,7 +21,7 @@ export default function UpdateRequiredScreen() {
         <ScreenBackground>
           <View style={styles.container}>
             <View style={[styles.content, { maxWidth: 400 }]}>
-              <Ionicons name="arrow-up-circle-outline" size={72} color={colors.primary} />
+              <AppIcon name="arrow-up-circle-outline" size={72} color={colors.primary} />
               <Text style={[styles.title, { color: colors.textPrimary }]}>
                 {t('updateRequired.title')}
               </Text>

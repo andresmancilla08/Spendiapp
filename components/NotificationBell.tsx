@@ -1,6 +1,6 @@
 // components/NotificationBell.tsx
 import { TouchableOpacity, View, Text, StyleSheet, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { router } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { useNotifications } from '../hooks/useNotifications';
@@ -20,7 +20,7 @@ export default function NotificationBell({ uid }: NotificationBellProps) {
       activeOpacity={0.7}
       style={styles.button}
     >
-      <Ionicons name="notifications-outline" size={22} color={colors.primary} />
+      <AppIcon name="notifications-outline" size={22} color={colors.primary} />
       {unreadCount > 0 && (
         <View style={[styles.badge, { backgroundColor: colors.error }]}>
           <Text style={styles.badgeText}>

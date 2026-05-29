@@ -20,7 +20,7 @@ import PinInput from '../../components/PinInput';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 
 export default function LoginEmailScreen() {
   const [email, setEmail] = useState('');
@@ -87,7 +87,7 @@ export default function LoginEmailScreen() {
               <View style={styles.inputGroup}>
                 <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('loginEmail.emailLabel')}</Text>
                 <View style={styles.inputWrapper}>
-                  <Ionicons
+                  <AppIcon
                     name="mail-outline"
                     size={18}
                     color={emailFocused ? colors.primary : colors.textTertiary}
@@ -115,7 +115,7 @@ export default function LoginEmailScreen() {
 
               <View style={styles.inputGroup}>
                 <View style={styles.pinLabelRow}>
-                  <Ionicons name="lock-closed-outline" size={14} color={colors.textSecondary} />
+                  <AppIcon name="lock-closed-outline" size={14} color={colors.textSecondary} />
                   <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.enterTitle')}</Text>
                 </View>
                 <PinInput value={pin} onChange={(v) => { setPin(v); setLoginError(null); }} error={!!loginError} />

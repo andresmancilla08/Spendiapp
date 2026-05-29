@@ -20,7 +20,7 @@ import PinInput from '../../components/PinInput';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { resetPinWithOtp } from '../../hooks/useAuth';
 import { useToast } from '../../context/ToastContext';
 
@@ -94,7 +94,7 @@ export default function ForgotPinResetScreen() {
           >
             {/* Icon */}
             <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name="lock-closed-outline" size={28} color={colors.primary} />
+              <AppIcon name="lock-closed-outline" size={28} color={colors.primary} />
             </View>
 
             {/* Title */}
@@ -127,7 +127,7 @@ export default function ForgotPinResetScreen() {
                 <Animated.View style={[styles.matchBadge, { opacity: matchAnim }]}>
                   {matchStatus !== 'idle' && (
                     <View style={styles.matchInner}>
-                      <Ionicons
+                      <AppIcon
                         name={matchStatus === 'match' ? 'checkmark-circle' : 'close-circle'}
                         size={15}
                         color={matchStatus === 'match' ? colors.success : colors.error}

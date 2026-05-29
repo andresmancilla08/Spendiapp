@@ -13,7 +13,7 @@ import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import {
   updateDoc,
@@ -603,7 +603,7 @@ export default function TransactionDetailScreen() {
                     {t('history.detail.fixedLabel').toUpperCase()}
                   </Text>
                   <View style={[styles.detailFixedBadge, { backgroundColor: `${colors.primary}18` }]}>
-                    <Ionicons name="repeat" size={11} color={colors.primary} />
+                    <AppIcon name="repeat" size={11} color={colors.primary} />
                     <Text style={[styles.detailFixedBadgeText, { color: colors.primary }]}>
                       {t('history.detail.fixedLabel')}
                     </Text>
@@ -623,7 +623,7 @@ export default function TransactionDetailScreen() {
                       : (isOwner ? t('history.detail.sharedWithLabel') : t('history.detail.sharedByLabel'))}
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'flex-end', marginLeft: 16 }}>
-                    <Ionicons name="people-outline" size={14} color={colors.primary} />
+                    <AppIcon name="people-outline" size={14} color={colors.primary} />
                     <Text
                       style={{ fontSize: 13, fontFamily: Fonts.medium, color: colors.primary, flexShrink: 1 }}
                       numberOfLines={2}
@@ -644,7 +644,7 @@ export default function TransactionDetailScreen() {
                     {t('sentIncome.sentByLabel')}
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'flex-end', marginLeft: 16 }}>
-                    <Ionicons name="gift-outline" size={14} color={colors.secondary} />
+                    <AppIcon name="gift-outline" size={14} color={colors.secondary} />
                     <Text style={{ fontSize: 13, fontFamily: Fonts.medium, color: colors.secondary, flexShrink: 1 }} numberOfLines={1}>
                       {transaction.sentByName}
                     </Text>
@@ -662,7 +662,7 @@ export default function TransactionDetailScreen() {
                     {t('sentIncome.sentToLabel')}
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'flex-end', marginLeft: 16 }}>
-                    <Ionicons name="send-outline" size={14} color={colors.primary} />
+                    <AppIcon name="send-outline" size={14} color={colors.primary} />
                     <Text style={{ fontSize: 13, fontFamily: Fonts.medium, color: colors.primary, flexShrink: 1 }} numberOfLines={1}>
                       {transaction.sentIncomeToName}
                     </Text>
@@ -678,7 +678,7 @@ export default function TransactionDetailScreen() {
         <View style={[styles.detailFixedActions, { borderTopColor: colors.border, paddingBottom: Math.max(20, insets.bottom + 8) }]}>
           {isPastMonth && transaction.isFixed ? (
             <View style={[styles.confirmDeleteWrap, { backgroundColor: `${colors.primary}10`, borderRadius: 16, padding: 16 }]}>
-              <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={{ alignSelf: 'center', marginBottom: 8 }} />
+              <AppIcon name="lock-closed-outline" size={20} color={colors.primary} style={{ alignSelf: 'center', marginBottom: 8 }} />
               <Text style={[styles.confirmDeleteText, { color: colors.primary, textAlign: 'center' }]}>
                 {t('history.edit.fixedLocked')}
               </Text>
@@ -844,7 +844,7 @@ export default function TransactionDetailScreen() {
                   activeOpacity={0.75}
                   disabled={isLoading}
                 >
-                  <Ionicons name="create-outline" size={22} color={colors.primary} />
+                  <AppIcon name="create-outline" size={22} color={colors.primary} />
                   <Text style={[styles.actionTileLabel, { color: colors.primary }]}>
                     {t('history.detail.editButton')}
                   </Text>
@@ -864,7 +864,7 @@ export default function TransactionDetailScreen() {
                 >
                   {duplicateLoading
                     ? <ActivityIndicator size="small" color={colors.tertiaryDark} />
-                    : <Ionicons name="copy-outline" size={22} color={colors.tertiaryDark} />
+                    : <AppIcon name="copy-outline" size={22} color={colors.tertiaryDark} />
                   }
                   <Text style={[styles.actionTileLabel, { color: colors.tertiaryDark }]}>
                     {t('history.edit.duplicateButton')}
@@ -890,7 +890,7 @@ export default function TransactionDetailScreen() {
               >
                 {deleteLoading
                   ? <ActivityIndicator size="small" color={colors.error} />
-                  : <Ionicons
+                  : <AppIcon
                       name={
                         isReceivedSentIncome || (transaction.isShared && !isOwner)
                           ? 'mail-outline'

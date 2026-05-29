@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { router } from 'expo-router';
@@ -14,11 +14,10 @@ import ScreenTransition from '../../components/ScreenTransition';
 import FeaturePausedSheet from '../../components/FeaturePausedSheet';
 import { Fonts } from '../../config/fonts';
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 interface ToolCardData {
   emoji: string;
-  icon: IoniconsName;
+  icon: AppIconName;
   title: string;
   description: string;
   onPress: () => void;
@@ -69,7 +68,7 @@ function ToolCard({
                 },
               ]}
             >
-              <Ionicons name="pause-circle" size={14} color={colors.textSecondary} />
+              <AppIcon name="pause-circle" size={14} color={colors.textSecondary} />
             </View>
           )}
         </View>
@@ -78,7 +77,7 @@ function ToolCard({
             <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>{title}</Text>
             {premiumLocked && (
               <View style={styles.premiumBadge}>
-                <Ionicons name="star" size={9} color="#F59E0B" />
+                <AppIcon name="star" size={9} color="#F59E0B" />
                 <Text style={styles.premiumBadgeText}>Premium</Text>
               </View>
             )}
@@ -87,7 +86,7 @@ function ToolCard({
         </View>
         {!disabled && (
           <View style={[styles.chevronWrap, { backgroundColor: premiumLocked ? 'rgba(245,158,11,0.10)' : `${colors.primary}12` }]}>
-            <Ionicons name="chevron-forward" size={16} color={premiumLocked ? '#F59E0B' : colors.primary} />
+            <AppIcon name="chevron-forward" size={16} color={premiumLocked ? '#F59E0B' : colors.primary} />
           </View>
         )}
       </View>

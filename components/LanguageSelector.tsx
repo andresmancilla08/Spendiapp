@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { LANGUAGES, changeLanguage } from '../config/i18n';
 import { useTheme } from '../context/ThemeContext';
 
@@ -72,7 +72,7 @@ export default function LanguageSelector() {
                   <Text style={[styles.optionLabel, { color: active ? colors.primary : colors.textSecondary }]}>
                     {lang.label}
                   </Text>
-                  {active && <Ionicons name="checkmark" size={16} color={colors.primary} />}
+                  {active && <AppIcon name="checkmark" size={16} color={colors.primary} />}
                 </TouchableOpacity>
               );
             })}

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useTheme, ThemeMode } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, changeLanguage } from '../../config/i18n';
@@ -12,7 +12,6 @@ import PageTitle from '../../components/PageTitle';
 import ScreenBackground from '../../components/ScreenBackground';
 import { Fonts } from '../../config/fonts';
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 function SectionTitle({ label }: { label: string }) {
   const { colors } = useTheme();
@@ -20,14 +19,14 @@ function SectionTitle({ label }: { label: string }) {
 }
 
 function OptionRow({ icon, label, value, color, onPress }: {
-  icon: IoniconsName; label: string; value?: string; color?: string; onPress: () => void;
+  icon: AppIconName; label: string; value?: string; color?: string; onPress: () => void;
 }) {
   const { colors } = useTheme();
   const ic = color ?? colors.primary;
   return (
     <TouchableOpacity style={[styles.row, { borderBottomColor: colors.border }]} onPress={onPress} activeOpacity={0.7}>
       <View style={[styles.iconWrap, { backgroundColor: ic + '18' }]}>
-        <Ionicons name={icon} size={18} color={ic} />
+        <AppIcon name={icon} size={18} color={ic} />
       </View>
       <View style={styles.rowMeta}>
         <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{label}</Text>
@@ -37,7 +36,7 @@ function OptionRow({ icon, label, value, color, onPress }: {
           </Text>
         ) : null}
       </View>
-      <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+      <AppIcon name="chevron-forward" size={16} color={colors.textTertiary} />
     </TouchableOpacity>
   );
 }
@@ -51,7 +50,7 @@ export default function SettingsScreen() {
     light: t('profile.theme.light'),
     dark: t('profile.theme.dark'),
   };
-  const themeIcons: Record<ThemeMode, IoniconsName> = {
+  const themeIcons: Record<ThemeMode, AppIconName> = {
     system: 'phone-portrait-outline',
     light: 'sunny-outline',
     dark: 'moon-outline',

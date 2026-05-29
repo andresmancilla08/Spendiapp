@@ -15,7 +15,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { addDoc, updateDoc, doc, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -269,7 +269,7 @@ export function CategoryFormModal({
                 onPress={handleClose}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Ionicons name="close" size={22} color={colors.textSecondary} />
+                <AppIcon name="close" size={22} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -400,7 +400,7 @@ export function CategoryFormModal({
                   onPress={() => setShowPicker((prev) => !prev)}
                   activeOpacity={0.8}
                 >
-                  <Ionicons
+                  <AppIcon
                     name={showPicker ? 'chevron-up' : 'happy-outline'}
                     size={16}
                     color={colors.primary}

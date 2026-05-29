@@ -21,7 +21,7 @@ import PinInput from '../../components/PinInput';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { sendOtpEmail, verifyOtp } from '../../hooks/useAuth';
 import { useToast } from '../../context/ToastContext';
 
@@ -173,7 +173,7 @@ export default function ForgotPinOtpScreen() {
             >
               {/* Icon */}
               <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
-                <Ionicons
+                <AppIcon
                   name={phase === 'otp' ? 'mail-open-outline' : 'lock-closed-outline'}
                   size={28}
                   color={colors.primary}
@@ -196,7 +196,7 @@ export default function ForgotPinOtpScreen() {
                       {t('forgotPinOtp.emailLabel')}
                     </Text>
                     <View style={styles.inputWrapper}>
-                      <Ionicons
+                      <AppIcon
                         name="mail-outline"
                         size={18}
                         color={emailFocused ? colors.primary : colors.textTertiary}

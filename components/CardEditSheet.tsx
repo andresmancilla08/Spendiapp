@@ -15,7 +15,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
@@ -133,14 +133,14 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
         <View style={styles.headerRow}>
           {step === 'bank' ? (
             <TouchableOpacity onPress={() => setStep('details')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
+              <AppIcon name="arrow-back" size={22} color={colors.textPrimary} />
             </TouchableOpacity>
           ) : (
             <View style={{ width: 22 }} />
           )}
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{headerTitle}</Text>
           <TouchableOpacity onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="close" size={22} color={colors.textSecondary} />
+            <AppIcon name="close" size={22} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -159,10 +159,10 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
                 <BankLogo bankId={item.id} size={32} radius={8} />
                 <Text style={[styles.bankItemText, { color: colors.textPrimary }]}>{item.name}</Text>
                 {selectedBank?.id === item.id && (
-                  <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
+                  <AppIcon name="checkmark-circle" size={18} color={colors.primary} />
                 )}
                 {selectedBank?.id !== item.id && (
-                  <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+                  <AppIcon name="chevron-forward" size={16} color={colors.textTertiary} />
                 )}
               </TouchableOpacity>
             )}
@@ -189,7 +189,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
                 <Text style={[styles.changeBankName, { color: colors.textPrimary }]}>{selectedBank.name}</Text>
                 <View style={styles.changeBankAction}>
                   <Text style={[styles.changeBankLabel, { color: colors.primary }]}>{t('cardEditForm.changeBank')}</Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+                  <AppIcon name="chevron-forward" size={14} color={colors.primary} />
                 </View>
               </TouchableOpacity>
             )}

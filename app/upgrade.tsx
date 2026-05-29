@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -16,7 +16,7 @@ import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
 
-const BENEFIT_ICONS: Array<React.ComponentProps<typeof Ionicons>['name']> = [
+const BENEFIT_ICONS: Array<AppIconName> = [
   'document-text-outline',
   'trending-up-outline',
   'people-outline',
@@ -147,7 +147,7 @@ export default function UpgradeScreen() {
 
                 {/* PREMIUM badge */}
                 <View style={styles.premiumBadge}>
-                  <Ionicons name="star" size={10} color={colors.warning} />
+                  <AppIcon name="star" size={10} color={colors.warning} />
                   <Text style={[styles.premiumBadgeText, { color: colors.warning }]}>PREMIUM</Text>
                 </View>
 
@@ -160,7 +160,7 @@ export default function UpgradeScreen() {
                       colors={['#FFE566', '#F59E0B']}
                       style={styles.starCircle}
                     >
-                      <Ionicons name="star" size={36} color="#fff" />
+                      <AppIcon name="star" size={36} color="#fff" />
                     </LinearGradient>
                   </Animated.View>
                 </View>
@@ -175,7 +175,7 @@ export default function UpgradeScreen() {
                   end={{ x: 1, y: 0 }}
                   style={styles.pricePill}
                 >
-                  <Ionicons name="pricetag-outline" size={13} color="#fff" />
+                  <AppIcon name="pricetag-outline" size={13} color="#fff" />
                   <Text style={styles.priceText}>{t('upgrade.price')}</Text>
                 </LinearGradient>
               </View>
@@ -194,7 +194,7 @@ export default function UpgradeScreen() {
                 {benefits.map((benefit, i) => (
                   <View key={i} style={styles.benefitRow}>
                     <View style={[styles.benefitIconWrap, { backgroundColor: BENEFIT_COLORS[i % BENEFIT_COLORS.length] + '20' }]}>
-                      <Ionicons
+                      <AppIcon
                         name={BENEFIT_ICONS[i % BENEFIT_ICONS.length]}
                         size={18}
                         color={BENEFIT_COLORS[i % BENEFIT_COLORS.length]}
@@ -230,7 +230,7 @@ export default function UpgradeScreen() {
                   end={{ x: 1, y: 0 }}
                   style={styles.ctaBtn}
                 >
-                  <Ionicons name="logo-whatsapp" size={22} color="#fff" />
+                  <AppIcon name="logo-whatsapp" size={22} color="#fff" />
                   <Text style={styles.ctaBtnText}>{t('upgrade.ctaButton')}</Text>
 
                   {/* Shimmer sweep */}

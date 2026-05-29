@@ -12,7 +12,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
@@ -343,13 +343,13 @@ export default function FriendReportScreen() {
             {/* Month/Year selector */}
             <View style={[styles.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <TouchableOpacity onPress={goToPrevMonth} style={styles.monthNavBtn} activeOpacity={0.7}>
-                <Ionicons name="chevron-back" size={20} color={colors.primary} />
+                <AppIcon name="chevron-back" size={20} color={colors.primary} />
               </TouchableOpacity>
               <Text style={[styles.monthNavLabel, { color: colors.primary }]}>
                 {MONTHS[month].toUpperCase()} {year}
               </Text>
               <TouchableOpacity onPress={goToNextMonth} style={styles.monthNavBtn} activeOpacity={0.7}>
-                <Ionicons name="chevron-forward" size={20} color={colors.primary} />
+                <AppIcon name="chevron-forward" size={20} color={colors.primary} />
               </TouchableOpacity>
             </View>
 
@@ -363,7 +363,7 @@ export default function FriendReportScreen() {
                 <ActivityIndicator color={colors.primary} style={{ marginTop: 16 }} />
               ) : friendOptions.length === 0 ? (
                 <View style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <Ionicons name="people-outline" size={36} color={colors.textTertiary} />
+                  <AppIcon name="people-outline" size={36} color={colors.textTertiary} />
                   <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
                     {t('friendReport.noFriends')}
                   </Text>
@@ -397,8 +397,8 @@ export default function FriendReportScreen() {
                           {friend.displayName}
                         </Text>
                         {active
-                          ? <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
-                          : <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+                          ? <AppIcon name="checkmark-circle" size={20} color={colors.primary} />
+                          : <AppIcon name="chevron-forward" size={16} color={colors.textTertiary} />
                         }
                       </TouchableOpacity>
                     );
@@ -414,7 +414,7 @@ export default function FriendReportScreen() {
                   <ActivityIndicator color={colors.primary} />
                 ) : !hasTransactions ? (
                   <View style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <Ionicons name="document-outline" size={32} color={colors.textTertiary} />
+                    <AppIcon name="document-outline" size={32} color={colors.textTertiary} />
                     <Text style={[styles.emptyDesc, { color: colors.textSecondary }]}>
                       {t('friendReport.noTransactions')}
                     </Text>
@@ -434,7 +434,7 @@ export default function FriendReportScreen() {
                           return (
                             <View key={entry.id} style={styles.txRow}>
                               <View style={[styles.entryDot, { backgroundColor: `${entryColor}20` }]}>
-                                <Ionicons
+                                <AppIcon
                                   name={entry.isPositive ? 'arrow-down-outline' : 'arrow-up-outline'}
                                   size={11}
                                   color={entryColor}
@@ -498,14 +498,14 @@ export default function FriendReportScreen() {
                     {/* Balance callout */}
                     {net === 0 ? (
                       <View style={[styles.balanceCallout, { backgroundColor: `${colors.primary}12`, borderColor: `${colors.primary}25` }]}>
-                        <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
+                        <AppIcon name="checkmark-circle" size={18} color={colors.primary} />
                         <Text style={[styles.balanceCalloutText, { color: colors.primary }]}>
                           {t('friendReport.settled', { name: selectedFriend?.displayName })}
                         </Text>
                       </View>
                     ) : net > 0 ? (
                       <View style={[styles.balanceCallout, { backgroundColor: `${colors.secondary}12`, borderColor: `${colors.secondary}25` }]}>
-                        <Ionicons name="arrow-down-circle" size={18} color={colors.secondary} />
+                        <AppIcon name="arrow-down-circle" size={18} color={colors.secondary} />
                         <View style={{ flex: 1 }}>
                           <Text style={[styles.balanceCalloutLabel, { color: colors.secondary }]}>
                             {t('friendReport.theyOweYou', { name: selectedFriend?.displayName, myName: user?.displayName ?? user?.email ?? 'Yo' })}
@@ -517,7 +517,7 @@ export default function FriendReportScreen() {
                       </View>
                     ) : (
                       <View style={[styles.balanceCallout, { backgroundColor: `${colors.error}10`, borderColor: `${colors.error}22` }]}>
-                        <Ionicons name="arrow-up-circle" size={18} color={colors.error} />
+                        <AppIcon name="arrow-up-circle" size={18} color={colors.error} />
                         <View style={{ flex: 1 }}>
                           <Text style={[styles.balanceCalloutLabel, { color: colors.error }]}>
                             {t('friendReport.youOwe', { name: selectedFriend?.displayName, myName: user?.displayName ?? user?.email ?? 'Yo' })}
@@ -554,7 +554,7 @@ export default function FriendReportScreen() {
                 </>
               ) : (
                 <>
-                  <Ionicons name="eye-outline" size={20} color="#FFFFFF" />
+                  <AppIcon name="eye-outline" size={20} color="#FFFFFF" />
                   <Text style={styles.generateBtnText}>{t('friendReport.previewBtn')}</Text>
                 </>
               )}
@@ -574,7 +574,7 @@ export default function FriendReportScreen() {
             {/* Header */}
             <View style={[styles.previewHeader, { borderBottomColor: colors.border }]}>
               <TouchableOpacity onPress={handleClosePreview} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Ionicons name="chevron-down" size={24} color={colors.textSecondary} />
+                <AppIcon name="chevron-down" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
               <View style={{ alignItems: 'center' }}>
                 <Text style={[styles.previewTitle, { color: colors.textPrimary }]}>
@@ -627,7 +627,7 @@ export default function FriendReportScreen() {
                 onPress={handleDownload}
                 activeOpacity={0.8}
               >
-                <Ionicons name="download-outline" size={18} color={colors.primary} />
+                <AppIcon name="download-outline" size={18} color={colors.primary} />
                 <Text style={[styles.previewActionText, { color: colors.primary }]}>
                   {t('friendReport.downloadBtn')}
                   {previewPages.length > 1 ? ` (${previewPages.length})` : ''}
@@ -638,7 +638,7 @@ export default function FriendReportScreen() {
                 onPress={handleShare}
                 activeOpacity={0.8}
               >
-                <Ionicons name="share-outline" size={18} color="#fff" />
+                <AppIcon name="share-outline" size={18} color="#fff" />
                 <Text style={[styles.previewActionText, { color: '#fff' }]}>
                   {t('friendReport.shareBtn')}
                 </Text>

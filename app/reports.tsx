@@ -12,7 +12,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
@@ -168,7 +168,7 @@ export default function ReportsScreen() {
             </View>
 
             <View style={[styles.iconWrap, { backgroundColor: colors.primary + '18' }]}>
-              <Ionicons name="image-outline" size={48} color={colors.primary} />
+              <AppIcon name="image-outline" size={48} color={colors.primary} />
             </View>
 
             <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
@@ -202,7 +202,7 @@ export default function ReportsScreen() {
                 </>
               ) : (
                 <>
-                  <Ionicons name="create-outline" size={20} color="#FFFFFF" />
+                  <AppIcon name="create-outline" size={20} color="#FFFFFF" />
                   <Text style={styles.generateBtnText}>{t('reports.generate')}</Text>
                 </>
               )}
@@ -227,7 +227,7 @@ export default function ReportsScreen() {
           <SafeAreaView style={[styles.previewSafe, { backgroundColor: colors.background ?? colors.surface }]}>
             <View style={[styles.previewHeader, { borderBottomColor: colors.border }]}>
               <TouchableOpacity onPress={handleClosePreview} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Ionicons name="chevron-down" size={24} color={colors.textSecondary} />
+                <AppIcon name="chevron-down" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
               <View style={{ alignItems: 'center' }}>
                 <Text style={[styles.previewTitle, { color: colors.textPrimary }]}>
@@ -275,7 +275,7 @@ export default function ReportsScreen() {
                 onPress={handleDownload}
                 activeOpacity={0.8}
               >
-                <Ionicons name="download-outline" size={18} color={colors.primary} />
+                <AppIcon name="download-outline" size={18} color={colors.primary} />
                 <Text style={[styles.previewActionText, { color: colors.primary }]}>
                   {t('reports.save')}
                   {previewPages.length > 1 ? ` (${previewPages.length})` : ''}
@@ -286,7 +286,7 @@ export default function ReportsScreen() {
                 onPress={handleShare}
                 activeOpacity={0.8}
               >
-                <Ionicons name="share-outline" size={18} color="#fff" />
+                <AppIcon name="share-outline" size={18} color="#fff" />
                 <Text style={[styles.previewActionText, { color: '#fff' }]}>
                   {t('reports.share')}
                 </Text>

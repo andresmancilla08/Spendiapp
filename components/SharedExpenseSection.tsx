@@ -2,7 +2,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, TextInput, Switch,
 } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import AppSegmentedControl from './AppSegmentedControl';
@@ -120,7 +120,7 @@ export default function SharedExpenseSection({
       {/* Toggle principal */}
       <View style={[styles.toggleRow, { borderColor: colors.border, backgroundColor: colors.surface }]}>
         <View style={styles.toggleLabel}>
-          <Ionicons name={mode === 'income_claim' ? 'cash-outline' : 'people-outline'} size={20} color={colors.primary} />
+          <AppIcon name={mode === 'income_claim' ? 'cash-outline' : 'people-outline'} size={20} color={colors.primary} />
           <Text style={[styles.toggleText, { color: colors.textPrimary }]}>
             {t(mode === 'income_claim' ? 'incomeClaim.toggle' : 'sharedExpense.toggle')}
           </Text>
@@ -152,7 +152,7 @@ export default function SharedExpenseSection({
                       borderColor: p.isExternal ? '#FFA726' : colors.primary,
                     }]}
                   >
-                    <Ionicons
+                    <AppIcon
                       name={p.isExternal ? 'mail-outline' : 'person-outline'}
                       size={12}
                       color={p.isExternal ? '#FFA726' : colors.primary}
@@ -166,7 +166,7 @@ export default function SharedExpenseSection({
                       </Text>
                     )}
                     <TouchableOpacity onPress={() => removeParticipant(p.uid)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                      <Ionicons name="close-circle" size={16} color={p.isExternal ? '#FFA726' : colors.primary} />
+                      <AppIcon name="close-circle" size={16} color={p.isExternal ? '#FFA726' : colors.primary} />
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -210,7 +210,7 @@ export default function SharedExpenseSection({
                     onPress={() => toggleFriend(profile)}
                     activeOpacity={0.75}
                   >
-                    <Ionicons
+                    <AppIcon
                       name={selected ? 'checkmark-circle' : 'ellipse-outline'}
                       size={20}
                       color={selected ? colors.primary : colors.border}
@@ -254,7 +254,7 @@ export default function SharedExpenseSection({
                 onPress={addExternal}
                 activeOpacity={0.85}
               >
-                <Ionicons name="person-add-outline" size={16} color={colors.onPrimary} />
+                <AppIcon name="person-add-outline" size={16} color={colors.onPrimary} />
                 <Text style={[styles.addExternalBtnText, { color: colors.onPrimary }]}>
                   {t('sharedExpense.addExternalBtn')}
                 </Text>
@@ -282,7 +282,7 @@ export default function SharedExpenseSection({
                       <View key={p.uid} style={styles.previewRow}>
                         <View style={styles.previewNameRow}>
                           {p.isExternal && (
-                            <Ionicons name="mail-outline" size={13} color={colors.textTertiary} style={{ marginRight: 4 }} />
+                            <AppIcon name="mail-outline" size={13} color={colors.textTertiary} style={{ marginRight: 4 }} />
                           )}
                           <Text style={[styles.previewName, { color: colors.textPrimary }]}>
                             {p.isExternal ? p.displayName : `@${p.userName}`}
@@ -385,7 +385,7 @@ export default function SharedExpenseSection({
                         <View key={p.uid} style={styles.previewRow}>
                           <View style={styles.previewNameRow}>
                             {p.isExternal && (
-                              <Ionicons name="mail-outline" size={13} color={colors.textTertiary} style={{ marginRight: 4 }} />
+                              <AppIcon name="mail-outline" size={13} color={colors.textTertiary} style={{ marginRight: 4 }} />
                             )}
                             <Text style={[styles.previewName, { color: colors.textPrimary }]}>
                               {isOwnerRow ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`)}

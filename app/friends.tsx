@@ -5,7 +5,7 @@ import {
   TextInput, ActivityIndicator, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -63,7 +63,7 @@ function Avatar({ name, colors }: { name?: string; colors: Colors }) {
       {initials ? (
         <Text style={[avatarStyles.initials, { color: colors.primary }]}>{initials}</Text>
       ) : (
-        <Ionicons name="person" size={18} color={colors.primary} />
+        <AppIcon name="person" size={18} color={colors.primary} />
       )}
     </View>
   );
@@ -257,7 +257,7 @@ export default function FriendsScreen() {
 
           {/* Search bar */}
           <View style={[styles.searchRow, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>
-            <Ionicons name="search-outline" size={18} color={colors.textTertiary} />
+            <AppIcon name="search-outline" size={18} color={colors.textTertiary} />
             <TextInput
               style={[styles.searchInput, { color: colors.textPrimary }]}
               placeholder={t('friends.search.placeholder')}
@@ -288,7 +288,7 @@ export default function FriendsScreen() {
               {searchResult === 'not_found' ? (
                 <View style={styles.notFoundRow}>
                   <View style={[styles.notFoundIconWrap, { backgroundColor: colors.errorLight }]}>
-                    <Ionicons name="person-remove-outline" size={18} color={colors.error} />
+                    <AppIcon name="person-remove-outline" size={18} color={colors.error} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.notFoundText, { color: colors.textPrimary }]}>
@@ -334,7 +334,7 @@ export default function FriendsScreen() {
                           ? <ActivityIndicator size="small" color="#fff" />
                           : (
                             <View style={styles.addBtnInner}>
-                              <Ionicons name="person-add-outline" size={14} color="#fff" />
+                              <AppIcon name="person-add-outline" size={14} color="#fff" />
                               <Text style={styles.addBtnText}>{t('friends.search.sendRequest')}</Text>
                             </View>
                           )}
@@ -409,7 +409,7 @@ function FriendsTab({ friends, uid, profileCache, actionLoading, onRemove, color
     return (
       <View style={styles.emptyState}>
         <View style={[styles.emptyIconWrap, { backgroundColor: colors.surfaceSecondary }]}>
-          <Ionicons name="people-outline" size={36} color={colors.textTertiary} />
+          <AppIcon name="people-outline" size={36} color={colors.textTertiary} />
         </View>
         <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('friends.list.empty')}</Text>
         <Text style={[styles.emptySub, { color: colors.textTertiary }]}>{t('friends.list.emptySub')}</Text>
@@ -447,7 +447,7 @@ function FriendsTab({ friends, uid, profileCache, actionLoading, onRemove, color
             >
               {actionLoading === f.id
                 ? <ActivityIndicator size="small" color={colors.error} />
-                : <Ionicons name="person-remove-outline" size={16} color={colors.error} />}
+                : <AppIcon name="person-remove-outline" size={16} color={colors.error} />}
             </TouchableOpacity>
           </View>
         );
@@ -492,7 +492,7 @@ function RequestsTab({ incoming, outgoing, uid, profileCache, actionLoading, onA
                     activeOpacity={0.8}
                     disabled={!!actionLoading}
                   >
-                    <Ionicons name="close-outline" size={16} color={colors.error} />
+                    <AppIcon name="close-outline" size={16} color={colors.error} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.acceptBtn, { borderColor: colors.primary + '60', backgroundColor: colors.primaryLight }]}
@@ -502,7 +502,7 @@ function RequestsTab({ incoming, outgoing, uid, profileCache, actionLoading, onA
                   >
                     {actionLoading === f.id
                       ? <ActivityIndicator size="small" color={colors.primary} />
-                      : <Ionicons name="checkmark-outline" size={16} color={colors.primary} />}
+                      : <AppIcon name="checkmark-outline" size={16} color={colors.primary} />}
                   </TouchableOpacity>
                 </View>
               </View>

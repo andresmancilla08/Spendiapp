@@ -12,7 +12,7 @@ import {
 import { router } from 'expo-router';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 import { useAuthStore } from '../../store/authStore';
@@ -129,7 +129,7 @@ export default function SelectCardsScreen() {
                         >
                           <BankLogo bankId={bank.id} size={36} radius={10} />
                           <Text style={[styles.bankName, { color: colors.textPrimary }]}>{bank.name}</Text>
-                          <Ionicons
+                          <AppIcon
                             name={isExpanded ? 'chevron-up' : 'add-circle-outline'}
                             size={20}
                             color={isExpanded ? colors.primary : colors.textTertiary}
@@ -154,7 +154,7 @@ export default function SelectCardsScreen() {
                                   }}
                                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                 >
-                                  <Ionicons name="close-circle" size={16} color={colors.primary} />
+                                  <AppIcon name="close-circle" size={16} color={colors.primary} />
                                 </TouchableOpacity>
                               </View>
                             ))}

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { randomUUID } from 'expo-crypto';
 import { router } from 'expo-router';
@@ -83,7 +83,7 @@ const GroupCard = memo(function GroupCard({
                 {isActive ? t('expenseGroups.statusActive') : t('expenseGroups.statusSettled')}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} style={{ marginLeft: 6 }} />
+            <AppIcon name="chevron-forward" size={16} color={colors.textTertiary} style={{ marginLeft: 6 }} />
           </View>
         </View>
       </View>
@@ -205,7 +205,7 @@ export default function ExpenseGroupsScreen() {
                 activeOpacity={0.8}
                 style={[styles.newBtn, { backgroundColor: colors.primary }]}
               >
-                <Ionicons name="add" size={18} color={colors.onPrimary} />
+                <AppIcon name="add" size={18} color={colors.onPrimary} />
                 <Text style={[styles.newBtnText, { color: colors.onPrimary }]}>
                   {t('expenseGroups.newGroup')}
                 </Text>
@@ -220,7 +220,7 @@ export default function ExpenseGroupsScreen() {
                   style={[styles.emptyCard, { borderColor: `${colors.primary}25`, borderWidth: 1 }]}
                 >
                   <View style={[styles.emptyIconWrap, { backgroundColor: `${colors.primary}18` }]}>
-                    <Ionicons name="people-outline" size={36} color={colors.primary} />
+                    <AppIcon name="people-outline" size={36} color={colors.primary} />
                   </View>
                   <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
                     {t('expenseGroups.emptyTitle')}
@@ -314,7 +314,7 @@ export default function ExpenseGroupsScreen() {
                       borderColor: colors.border,
                       backgroundColor: `${colors.primary}10`,
                     }]}>
-                      <Ionicons name="person-circle-outline" size={16} color={colors.primary} style={{ marginRight: 6 }} />
+                      <AppIcon name="person-circle-outline" size={16} color={colors.primary} style={{ marginRight: 6 }} />
                       <Text style={[dialogStyles.participantFixed, { color: colors.primary, fontFamily: Fonts.semiBold }]}>
                         {t('expenseGroups.createGroup.youLabel')}
                       </Text>
@@ -341,7 +341,7 @@ export default function ExpenseGroupsScreen() {
                             activeOpacity={0.7}
                             style={[dialogStyles.removeBtn, { backgroundColor: `${colors.error}15` }]}
                           >
-                            <Ionicons name="close" size={14} color={colors.error} />
+                            <AppIcon name="close" size={14} color={colors.error} />
                           </TouchableOpacity>
                         )}
                       </View>
@@ -361,7 +361,7 @@ export default function ExpenseGroupsScreen() {
                         backgroundColor: `${colors.primary}08`,
                       }]}
                     >
-                      <Ionicons name="add" size={15} color={colors.primary} />
+                      <AppIcon name="add" size={15} color={colors.primary} />
                       <Text style={[dialogStyles.addParticipantText, { color: colors.primary, fontFamily: Fonts.medium }]}>
                         {t('expenseGroups.createGroup.addParticipant')}
                       </Text>
