@@ -17,7 +17,7 @@ import {
   Switch,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -208,14 +208,14 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
             <View style={styles.titleRow}>
               <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>{t('history.edit.title')}</Text>
               <TouchableOpacity onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Ionicons name="close" size={22} color={colors.textSecondary} />
+                <AppIcon name="close" size={22} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetScrollContent} keyboardShouldPersistTaps="handled">
               {transaction?.isVirtualFixed && (
                 <View style={[styles.fixedNoteBar, { backgroundColor: `${colors.primary}18` }]}>
-                  <Ionicons name="repeat" size={14} color={colors.primary} />
+                  <AppIcon name="repeat" size={14} color={colors.primary} />
                   <Text style={[styles.fixedNoteText, { color: colors.primary }]}>{t('history.edit.fixedNote')}</Text>
                 </View>
               )}
@@ -241,10 +241,10 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
                   activeOpacity={0.8}
                 >
                   <View style={styles.dateRowLeft}>
-                    <Ionicons name="calendar-outline" size={16} color={colors.primary} />
+                    <AppIcon name="calendar-outline" size={16} color={colors.primary} />
                     <Text style={[styles.dateValue, { color: colors.textPrimary }]}>{dateDisplayText}</Text>
                   </View>
-                  <Ionicons
+                  <AppIcon
                     name={datePickerOpen ? 'chevron-up' : 'chevron-down'}
                     size={15}
                     color={colors.textSecondary}
@@ -257,16 +257,16 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
                       <>
                         <View style={styles.pickerMonthRow}>
                           <TouchableOpacity style={styles.pickerNavBtn} onPress={prevMonth} activeOpacity={0.7}>
-                            <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
+                            <AppIcon name="chevron-back" size={20} color={colors.textPrimary} />
                           </TouchableOpacity>
                           <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
                             <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
                               {MONTHS_ES[pickerMonth].toUpperCase()} {pickerYear}
                             </Text>
-                            <Ionicons name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
+                            <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.pickerNavBtn} onPress={nextMonth} activeOpacity={0.7}>
-                            <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
+                            <AppIcon name="chevron-forward" size={20} color={colors.textPrimary} />
                           </TouchableOpacity>
                         </View>
 
@@ -307,7 +307,7 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
                             onPress={() => setPickerYear((y) => Math.max(MIN_YEAR, y - 1))}
                             activeOpacity={pickerYear <= MIN_YEAR ? 1 : 0.7}
                           >
-                            <Ionicons name="chevron-back" size={20} color={pickerYear <= MIN_YEAR ? colors.textSecondary : colors.textPrimary} />
+                            <AppIcon name="chevron-back" size={20} color={pickerYear <= MIN_YEAR ? colors.textSecondary : colors.textPrimary} />
                           </TouchableOpacity>
                           <Text style={[styles.pickerMonthLabel, { color: colors.textPrimary }]}>{pickerYear}</Text>
                           <TouchableOpacity
@@ -315,7 +315,7 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
                             onPress={() => setPickerYear((y) => y + 1)}
                             activeOpacity={0.7}
                           >
-                            <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
+                            <AppIcon name="chevron-forward" size={20} color={colors.textPrimary} />
                           </TouchableOpacity>
                         </View>
 

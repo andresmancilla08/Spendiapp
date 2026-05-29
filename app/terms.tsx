@@ -2,7 +2,7 @@ import { useRef, type ReactNode } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -58,7 +58,7 @@ export default function TermsScreen() {
           {/* Header */}
           <View style={[styles.header, { borderBottomColor: colors.border }]}>
             <TouchableOpacity onPress={handleBack} style={styles.backBtn} activeOpacity={0.7}>
-                <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
+                <AppIcon name="arrow-back" size={22} color={colors.textPrimary} />
               </TouchableOpacity>
             <View style={styles.headerTitles}>
               <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Términos y Condiciones</Text>

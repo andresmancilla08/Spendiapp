@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTheme } from '../../context/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { Fonts } from '../../config/fonts';
 import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
 import PressableScale from '../../components/PressableScale';
@@ -72,7 +72,7 @@ export default function LoginScreen() {
             activeOpacity={0.7}
             style={styles.themeToggle}
           >
-            <Ionicons
+            <AppIcon
               name={isDark ? 'sunny-outline' : 'moon-outline'}
               size={20}
               color={colors.primary}
@@ -121,7 +121,7 @@ export default function LoginScreen() {
               disabled={loading}
               onPress={() => handleMethodPress('email')}
             >
-              <Ionicons name="mail-outline" size={18} color={colors.onPrimary} />
+              <AppIcon name="mail-outline" size={18} color={colors.onPrimary} />
               <Text style={[styles.emailButtonText, { color: colors.onPrimary }]}>
                 {t('login.emailButton')}
               </Text>

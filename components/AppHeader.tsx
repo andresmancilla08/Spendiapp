@@ -1,7 +1,7 @@
 // components/AppHeader.tsx
 import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import NotificationBell from './NotificationBell';
@@ -42,7 +42,7 @@ export default function AppHeader({
             activeOpacity={0.7}
             style={styles.iconButton}
           >
-            <Ionicons name="chevron-back" size={24} color={colors.primary} />
+            <AppIcon name="chevron-back" size={24} color={colors.primary} />
           </TouchableOpacity>
         )}
       </View>
@@ -65,7 +65,7 @@ export default function AppHeader({
                   style={[styles.avatarThumb, { borderColor: colors.primary }]}
                 />
               ) : (
-                <Ionicons name="person-circle-outline" size={28} color={colors.primary} />
+                <AppIcon name="person-circle-outline" size={28} color={colors.primary} />
               )}
             </TouchableOpacity>
           </>

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
@@ -78,7 +78,7 @@ export default function BiometricLockScreen() {
       <ScreenBackground>
         <View style={styles.container}>
           <View style={styles.iconWrap}>
-            <Ionicons name="shield-checkmark-outline" size={64} color={colors.primary} />
+            <AppIcon name="shield-checkmark-outline" size={64} color={colors.primary} />
           </View>
 
           <Text style={[styles.title, { color: colors.textPrimary }]}>
@@ -104,7 +104,7 @@ export default function BiometricLockScreen() {
               ? <ActivityIndicator color="#FFFFFF" />
               : (
                 <>
-                  <Ionicons name="finger-print" size={22} color="#FFFFFF" />
+                  <AppIcon name="finger-print" size={22} color="#FFFFFF" />
                   <Text style={styles.biometricBtnText}>{t('biometricLock.button')}</Text>
                 </>
               )

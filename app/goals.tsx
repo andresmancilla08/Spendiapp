@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -272,7 +272,7 @@ export default function GoalsScreen() {
                   activeOpacity={0.8}
                   style={[styles.newGoalBtn, { backgroundColor: colors.primary }]}
                 >
-                  <Ionicons name="add" size={18} color={colors.onPrimary} />
+                  <AppIcon name="add" size={18} color={colors.onPrimary} />
                   <Text style={[styles.newGoalBtnText, { color: colors.onPrimary }]}>
                     {t('goals.newGoalButton')}
                   </Text>
@@ -288,7 +288,7 @@ export default function GoalsScreen() {
                   style={[styles.emptyCard, { borderColor: `${colors.primary}25`, borderWidth: 1 }]}
                 >
                   <View style={[styles.emptyIconWrap, { backgroundColor: `${colors.primary}18` }]}>
-                    <Ionicons name="flag-outline" size={36} color={colors.primary} />
+                    <AppIcon name="flag-outline" size={36} color={colors.primary} />
                   </View>
                   <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
                     {tab === 'active' ? t('goals.emptyActive') : t('goals.emptyCompleted')}

@@ -14,7 +14,7 @@ import BalanceCard from '../../components/BalanceCard';
 import * as Haptics from 'expo-haptics';
 import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { router, useFocusEffect } from 'expo-router';
@@ -136,7 +136,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
             {`+${formatCurrency(item.amount)}`}
           </Text>
           <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.secondary}18`, borderColor: `${colors.secondary}28` }]}>
-            <Ionicons name="gift-outline" size={11} color={colors.secondary} />
+            <AppIcon name="gift-outline" size={11} color={colors.secondary} />
             <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]} numberOfLines={1}>
               {t('sentIncome.chip.sentBy', { name: item.sentByName })}
             </Text>
@@ -148,7 +148,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
             {`−${formatCurrency(item.amount)}`}
           </Text>
           <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.primary}18`, borderColor: `${colors.primary}28` }]}>
-            <Ionicons name="send-outline" size={11} color={colors.primary} />
+            <AppIcon name="send-outline" size={11} color={colors.primary} />
             <Text style={[styles.sentIncomeChipText, { color: colors.primary }]} numberOfLines={1}>
               {t('sentIncome.chip.sentTo', { name: item.sentIncomeToName })}
             </Text>
@@ -342,7 +342,7 @@ export default function HomeScreen() {
                 />
               ) : (
                 <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight, borderWidth: 1.5, borderColor: colors.primary + '40' }]}>
-                  <Ionicons name="person" size={18} color={colors.primary} />
+                  <AppIcon name="person" size={18} color={colors.primary} />
                 </View>
               )}
             </TouchableOpacity>
@@ -354,7 +354,7 @@ export default function HomeScreen() {
                 borderWidth: 1.5, borderColor: colors.surface,
                 alignItems: 'center', justifyContent: 'center',
               }}>
-                <Ionicons name="star" size={7} color="#FFF" />
+                <AppIcon name="star" size={7} color="#FFF" />
               </View>
             )}
           </View>
@@ -391,7 +391,7 @@ export default function HomeScreen() {
             </Text>
             {pillVisible && (
               <View style={[styles.pill, { backgroundColor: pillColor + '20' }]}>
-                <Ionicons name={pillIcon} size={11} color={pillColor} />
+                <AppIcon name={pillIcon} size={11} color={pillColor} />
                 <Text style={[styles.pillText, { color: pillColor }]}>
                   {t('home.pillSpent', { percent: pillPercent })}
                 </Text>
@@ -424,7 +424,7 @@ export default function HomeScreen() {
         <View style={styles.summaryRow}>
           <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '28' }]}>
             <View style={[styles.summaryIconCircle, { backgroundColor: colors.primary }]}>
-              <Ionicons name="arrow-down" size={24} color={colors.onPrimary} />
+              <AppIcon name="arrow-down" size={24} color={colors.onPrimary} />
             </View>
             <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.incomeLabel')}</Text>
             <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.primary, letterSpacing: hidden ? 3 : undefined }]}>
@@ -434,7 +434,7 @@ export default function HomeScreen() {
 
           <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.expense + '28' }]}>
             <View style={[styles.summaryIconCircle, { backgroundColor: colors.expenseLight }]}>
-              <Ionicons name="arrow-up" size={24} color={colors.expense} />
+              <AppIcon name="arrow-up" size={24} color={colors.expense} />
             </View>
             <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.expensesLabel')}</Text>
             <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.expense, letterSpacing: hidden ? 3 : undefined }]}>
@@ -453,7 +453,7 @@ export default function HomeScreen() {
             onPress={() => router.push('/(onboarding)/select-cards')}
             activeOpacity={0.8}
           >
-            <Ionicons name="card-outline" size={24} color={colors.primary} />
+            <AppIcon name="card-outline" size={24} color={colors.primary} />
             <View style={{ flex: 1 }}>
               <Text style={[styles.noCardsBannerTitle, { color: colors.textPrimary }]}>
                 {t('home.noCardsBannerTitle')}
@@ -462,7 +462,7 @@ export default function HomeScreen() {
                 {t('home.noCardsBannerSub')}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+            <AppIcon name="chevron-forward" size={18} color={colors.primary} />
           </TouchableOpacity>
         )}
 
@@ -514,7 +514,7 @@ export default function HomeScreen() {
           router.push('/add-transaction');
         }}
       >
-        <Ionicons name="add" size={30} color={colors.onPrimary} />
+        <AppIcon name="add" size={30} color={colors.onPrimary} />
       </TouchableOpacity>
 
       {Platform.OS !== 'web' && (

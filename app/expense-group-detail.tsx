@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
@@ -253,7 +253,7 @@ export default function ExpenseGroupDetailScreen() {
                 activeOpacity={0.7}
                 style={styles.headerIconBtn}
               >
-                <Ionicons name="ellipsis-horizontal" size={22} color={colors.primary} />
+                <AppIcon name="ellipsis-horizontal" size={22} color={colors.primary} />
               </TouchableOpacity>
             }
           />
@@ -279,7 +279,7 @@ export default function ExpenseGroupDetailScreen() {
               {/* Settled banner */}
               {isSettled && (
                 <View style={[styles.settledBanner, { backgroundColor: `${colors.success}18`, borderColor: `${colors.success}35` }]}>
-                  <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+                  <AppIcon name="checkmark-circle" size={18} color={colors.success} />
                   <Text style={[styles.settledBannerText, { color: colors.success }]}>
                     {t('expenseGroups.settled')}
                   </Text>
@@ -312,7 +312,7 @@ export default function ExpenseGroupDetailScreen() {
                       style={[styles.emptyCard, { borderColor: `${accentColor}25`, borderWidth: 1 }]}
                     >
                       <View style={[styles.emptyIconWrap, { backgroundColor: `${accentColor}18` }]}>
-                        <Ionicons name="receipt-outline" size={36} color={accentColor} />
+                        <AppIcon name="receipt-outline" size={36} color={accentColor} />
                       </View>
                       <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
                         {t('expenseGroups.detail.noExpenses')}
@@ -421,7 +421,7 @@ export default function ExpenseGroupDetailScreen() {
                       style={[styles.emptyCard, { borderColor: `${colors.success}25`, borderWidth: 1 }]}
                     >
                       <View style={[styles.emptyIconWrap, { backgroundColor: `${colors.success}18` }]}>
-                        <Ionicons name="checkmark-done-circle-outline" size={36} color={colors.success} />
+                        <AppIcon name="checkmark-done-circle-outline" size={36} color={colors.success} />
                       </View>
                       <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
                         {t('expenseGroups.settlement.balanced')}
@@ -436,7 +436,7 @@ export default function ExpenseGroupDetailScreen() {
                         <View style={[styles.settlementNamePill, { backgroundColor: `${colors.error}18`, borderColor: `${colors.error}30` }]}>
                           <Text style={[styles.settlementName, { color: colors.error }]} numberOfLines={1}>{s.fromName}</Text>
                         </View>
-                        <Ionicons name="arrow-forward" size={14} color={colors.textTertiary} style={styles.settlementArrow} />
+                        <AppIcon name="arrow-forward" size={14} color={colors.textTertiary} style={styles.settlementArrow} />
                         <View style={[styles.settlementNamePill, { backgroundColor: `${colors.success}18`, borderColor: `${colors.success}30` }]}>
                           <Text style={[styles.settlementName, { color: colors.success }]} numberOfLines={1}>{s.toName}</Text>
                         </View>
@@ -459,7 +459,7 @@ export default function ExpenseGroupDetailScreen() {
                   activeOpacity={0.85}
                   style={[styles.fab, { backgroundColor: colors.primary }]}
                 >
-                  <Ionicons name="add" size={26} color={colors.onPrimary} />
+                  <AppIcon name="add" size={26} color={colors.onPrimary} />
                   <Text style={[styles.fabLabel, { color: colors.onPrimary }]}>
                     {t('expenseGroups.detail.addExpense')}
                   </Text>
@@ -482,7 +482,7 @@ export default function ExpenseGroupDetailScreen() {
                       activeOpacity={0.8}
                       style={[styles.optionBtn, { backgroundColor: `${colors.success}15`, borderColor: `${colors.success}30` }]}
                     >
-                      <Ionicons name="checkmark-circle-outline" size={20} color={colors.success} />
+                      <AppIcon name="checkmark-circle-outline" size={20} color={colors.success} />
                       <Text style={[styles.optionBtnText, { color: colors.success }]}>
                         {t('expenseGroups.settle')}
                       </Text>
@@ -493,7 +493,7 @@ export default function ExpenseGroupDetailScreen() {
                       activeOpacity={0.8}
                       style={[styles.optionBtn, { backgroundColor: `${colors.primary}15`, borderColor: `${colors.primary}30` }]}
                     >
-                      <Ionicons name="refresh-circle-outline" size={20} color={colors.primary} />
+                      <AppIcon name="refresh-circle-outline" size={20} color={colors.primary} />
                       <Text style={[styles.optionBtnText, { color: colors.primary }]}>
                         {t('expenseGroups.reopen')}
                       </Text>
@@ -504,7 +504,7 @@ export default function ExpenseGroupDetailScreen() {
                     activeOpacity={0.8}
                     style={[styles.optionBtn, { backgroundColor: `${colors.error}12`, borderColor: `${colors.error}28` }]}
                   >
-                    <Ionicons name="trash-outline" size={20} color={colors.error} />
+                    <AppIcon name="trash-outline" size={20} color={colors.error} />
                     <Text style={[styles.optionBtnText, { color: colors.error }]}>
                       {t('expenseGroups.deleteGroup')}
                     </Text>
@@ -612,7 +612,7 @@ export default function ExpenseGroupDetailScreen() {
                             }]}
                           >
                             {active && (
-                              <Ionicons name="checkmark" size={12} color={colors.primary} style={{ marginRight: 4 }} />
+                              <AppIcon name="checkmark" size={12} color={colors.primary} style={{ marginRight: 4 }} />
                             )}
                             <Text style={[styles.chipText, { color: active ? colors.primary : colors.textSecondary }]}>
                               {p.name}

@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
@@ -13,11 +13,10 @@ import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useAuthStore } from '../store/authStore';
 import PremiumTabBar from './PremiumTabBar';
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 const TAB_CONFIG: Record<string, {
-  icon: IoniconsName;
-  iconActive: IoniconsName;
+  icon: AppIconName;
+  iconActive: AppIconName;
   premiumOnly?: boolean;
 }> = {
   index:   { icon: 'home-outline',   iconActive: 'home' },
@@ -136,7 +135,7 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
                 {/* Tab icon */}
                 <Animated.View style={{ transform: [{ scale: iconScale[allIdx] }] }}>
-                  <Ionicons
+                  <AppIcon
                     name={isFocused ? config.iconActive : config.icon}
                     size={22}
                     color={iconColor}
@@ -146,7 +145,7 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 {/* Premium star badge (budget tab, premium users) */}
                 {config.premiumOnly && isPremium && (
                   <View style={[styles.cornerBadge, styles.premiumBadge]}>
-                    <Ionicons name="star" size={7} color="#F59E0B" />
+                    <AppIcon name="star" size={7} color="#F59E0B" />
                   </View>
                 )}
 

@@ -14,7 +14,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { COLOMBIAN_BANKS, Bank } from '../config/banks';
@@ -114,7 +114,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
         <View style={styles.headerRow}>
           {step === 'details' ? (
             <TouchableOpacity onPress={() => setStep('bank')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Ionicons name="arrow-back" size={22} color={colors.textPrimary} />
+              <AppIcon name="arrow-back" size={22} color={colors.textPrimary} />
             </TouchableOpacity>
           ) : (
             <View style={{ width: 22 }} />
@@ -123,7 +123,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
             {step === 'bank' ? t('cardForm.selectBank') : selectedBank?.name ?? ''}
           </Text>
           <TouchableOpacity onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="close" size={22} color={colors.textSecondary} />
+            <AppIcon name="close" size={22} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -141,7 +141,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
               >
                 <BankLogo bankId={item.id} size={32} radius={8} />
                 <Text style={[styles.bankItemText, { color: colors.textPrimary }]}>{item.name}</Text>
-                <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+                <AppIcon name="chevron-forward" size={16} color={colors.textTertiary} />
               </TouchableOpacity>
             )}
           />

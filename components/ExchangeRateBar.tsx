@@ -22,7 +22,7 @@ import {
 import { useEffect, useRef } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useExchangeRates } from '../hooks/useExchangeRates';
@@ -216,7 +216,7 @@ export default function ExchangeRateBar({ style }: ExchangeRateBarProps) {
     return (
       <View style={[styles.wrap, style]}>
         <View style={styles.errorRow}>
-          <Ionicons
+          <AppIcon
             name="wifi-outline"
             size={14}
             color={colors.textTertiary}
@@ -229,7 +229,7 @@ export default function ExchangeRateBar({ style }: ExchangeRateBarProps) {
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessibilityRole="button"
           >
-            <Ionicons name="refresh-outline" size={14} color={colors.primary} />
+            <AppIcon name="refresh-outline" size={14} color={colors.primary} />
           </TouchableOpacity>
         </View>
       </View>

@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useFlags } from '../../context/FeatureFlagsContext';
 
 export default function RegisterScreen() {
@@ -111,7 +111,7 @@ export default function RegisterScreen() {
           <ScreenBackground>
             <AppHeader />
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-              <Ionicons name="lock-closed-outline" size={64} color={colors.textTertiary} />
+              <AppIcon name="lock-closed-outline" size={64} color={colors.textTertiary} />
               <Text style={{ fontFamily: Fonts.bold, fontSize: 22, color: colors.textPrimary, textAlign: 'center', marginTop: 24, marginBottom: 12 }}>
                 {t('register.closedTitle')}
               </Text>
@@ -154,7 +154,7 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('register.nameLabel')}</Text>
                 <View style={styles.inputWrapper}>
-                  <Ionicons
+                  <AppIcon
                     name="person-outline"
                     size={18}
                     color={nameFocused ? colors.primary : colors.textTertiary}
@@ -178,7 +178,7 @@ export default function RegisterScreen() {
               <View style={styles.inputGroup}>
                 <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('register.emailLabel')}</Text>
                 <View style={styles.inputWrapper}>
-                  <Ionicons
+                  <AppIcon
                     name="mail-outline"
                     size={18}
                     color={emailFocused ? colors.primary : colors.textTertiary}
@@ -208,7 +208,7 @@ export default function RegisterScreen() {
               {/* PIN */}
               <View style={styles.inputGroup}>
                 <View style={styles.pinLabelRow}>
-                  <Ionicons name="lock-closed-outline" size={14} color={colors.textSecondary} />
+                  <AppIcon name="lock-closed-outline" size={14} color={colors.textSecondary} />
                   <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.createTitle')}</Text>
                 </View>
                 <Text style={[styles.inputSub, { color: colors.textSecondary }]}>{t('pinEntry.createSubtitle')}</Text>
@@ -228,7 +228,7 @@ export default function RegisterScreen() {
                     borderColor: termsAccepted ? colors.primary : colors.border,
                   }
                 ]}>
-                  {termsAccepted && <Ionicons name="checkmark" size={13} color={colors.onPrimary} />}
+                  {termsAccepted && <AppIcon name="checkmark" size={13} color={colors.onPrimary} />}
                 </View>
                 <Text style={[styles.consentText, { color: colors.textSecondary }]}>
                   {t('register.acceptPrefix')}{' '}

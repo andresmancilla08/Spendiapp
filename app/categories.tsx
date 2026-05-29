@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import {
   deleteDoc,
@@ -108,7 +108,7 @@ function DefaultCategoryRow({ emoji, name, type, isLast }: DefaultCategoryRowPro
         {name}
       </Text>
       <TypeBadge type={type} />
-      <Ionicons name="lock-closed" size={14} color={colors.textTertiary} style={styles.lockIcon} />
+      <AppIcon name="lock-closed" size={14} color={colors.textTertiary} style={styles.lockIcon} />
     </View>
   );
 }
@@ -149,7 +149,7 @@ function CustomCategoryRow({ category, isLast, onEdit, onDelete }: CustomCategor
         style={styles.deleteIconButton}
         activeOpacity={0.7}
       >
-        <Ionicons name="trash-outline" size={18} color={colors.error} />
+        <AppIcon name="trash-outline" size={18} color={colors.error} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -280,7 +280,7 @@ export default function CategoriesScreen() {
             style={[styles.addButton, { backgroundColor: colors.primary }]}
             activeOpacity={0.8}
           >
-            <Ionicons name="add" size={22} color={colors.onPrimary} />
+            <AppIcon name="add" size={22} color={colors.onPrimary} />
           </TouchableOpacity>
         }
       />

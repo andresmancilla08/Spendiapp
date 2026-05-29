@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useAuthStore } from '../store/authStore';
@@ -79,7 +79,7 @@ export default function CardsScreen() {
             </>
           ) : cards.length === 0 ? (
             <View style={styles.emptyWrap}>
-              <Ionicons name="card-outline" size={32} color={colors.textTertiary} style={{ marginBottom: 8 }} />
+              <AppIcon name="card-outline" size={32} color={colors.textTertiary} style={{ marginBottom: 8 }} />
               <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
                 {t('cardsScreen.empty')}
               </Text>
@@ -122,7 +122,7 @@ export default function CardsScreen() {
                     </View>
                     {card.isDefault && (
                       <View style={[styles.badge, { backgroundColor: `${colors.primary}18` }]}>
-                        <Ionicons name="star" size={9} color={colors.primary} style={{ marginRight: 3 }} />
+                        <AppIcon name="star" size={9} color={colors.primary} style={{ marginRight: 3 }} />
                         <Text style={[styles.badgeText, { color: colors.primary }]}>
                           {t('cardsScreen.defaultBadge')}
                         </Text>
@@ -136,14 +136,14 @@ export default function CardsScreen() {
                     style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="pencil-outline" size={15} color={colors.primary} />
+                    <AppIcon name="pencil-outline" size={15} color={colors.primary} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setDeleteTarget(card)}
                     style={[styles.actionBtn, { backgroundColor: colors.errorLight }]}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="trash-outline" size={15} color={colors.error} />
+                    <AppIcon name="trash-outline" size={15} color={colors.error} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -158,7 +158,7 @@ export default function CardsScreen() {
         onPress={() => setCardFormVisible(true)}
         activeOpacity={0.85}
       >
-        <Ionicons name="add" size={20} color="#FFFFFF" />
+        <AppIcon name="add" size={20} color="#FFFFFF" />
         <Text style={styles.fabText}>{t('cardForm.addButton')}</Text>
       </TouchableOpacity>
 

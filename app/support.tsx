@@ -4,7 +4,7 @@ import {
   TextInput, Linking, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -190,7 +190,7 @@ export default function SupportScreen() {
             activeOpacity={0.85}
             disabled={!canSubmit}
           >
-            <Ionicons name="logo-whatsapp" size={20} color={colors.onPrimary} />
+            <AppIcon name="logo-whatsapp" size={20} color={colors.onPrimary} />
             <Text style={[styles.submitLabel, { color: colors.onPrimary }]}>
               {t('support.form.submit')}
             </Text>

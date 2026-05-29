@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import PressableScale from '../../components/PressableScale';
@@ -225,7 +225,7 @@ export default function BudgetScreen() {
           <ScreenBackground>
             <AppHeader showBack={false} showNotifications />
             <View style={styles.pausedWrap}>
-              <Ionicons name="pause-circle-outline" size={64} color={colors.primary} style={{ opacity: 0.4 }} />
+              <AppIcon name="pause-circle-outline" size={64} color={colors.primary} style={{ opacity: 0.4 }} />
               <Text style={[styles.pausedTitle, { color: colors.textPrimary }]}>
                 {t('common.featurePaused.title')}
               </Text>
@@ -249,7 +249,7 @@ export default function BudgetScreen() {
       {/* Month nav */}
       <View style={[styles.monthRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <TouchableOpacity onPress={goToPrevMonth} style={styles.monthBtn} activeOpacity={0.7}>
-          <Ionicons name="chevron-back" size={20} color={colors.primary} />
+          <AppIcon name="chevron-back" size={20} color={colors.primary} />
         </TouchableOpacity>
         <TouchableOpacity activeOpacity={0.8} style={styles.monthLabelBtn}>
           <Text style={[styles.monthLabel, { color: colors.textPrimary }]}>
@@ -262,7 +262,7 @@ export default function BudgetScreen() {
           disabled={isCurrentMonth}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-forward" size={20} color={isCurrentMonth ? colors.textTertiary : colors.primary} />
+          <AppIcon name="chevron-forward" size={20} color={isCurrentMonth ? colors.textTertiary : colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -281,7 +281,7 @@ export default function BudgetScreen() {
               style={[styles.emptyCard, { borderColor: `${colors.primary}25`, borderWidth: 1 }]}
             >
               <View style={[styles.emptyIconWrap, { backgroundColor: `${colors.primary}18` }]}>
-                <Ionicons name="wallet-outline" size={36} color={colors.primary} />
+                <AppIcon name="wallet-outline" size={36} color={colors.primary} />
               </View>
               <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('budget.nobudgets.title')}</Text>
               <Text style={[styles.emptySub, { color: colors.textSecondary }]}>{t('budget.nobudgets.sub')}</Text>
@@ -381,7 +381,7 @@ export default function BudgetScreen() {
                   </View>
                   <Text style={[styles.catName, { color: colors.textSecondary }]}>{cat.name}</Text>
                   <View style={[styles.addChip, { backgroundColor: colors.primaryLight }]}>
-                    <Ionicons name="add" size={13} color={colors.primary} />
+                    <AppIcon name="add" size={13} color={colors.primary} />
                     <Text style={[styles.addChipText, { color: colors.primary }]}>{t('budget.addLimit')}</Text>
                   </View>
                 </PressableScale>

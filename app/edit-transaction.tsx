@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useRef, useEffect, useState, type ElementRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -381,7 +381,7 @@ export default function EditTransactionScreen() {
             {/* Notices */}
             {transaction.isInstallment && (
               <View style={[styles.noticeBar, { backgroundColor: `${colors.primary}12` }]}>
-                <Ionicons name="information-circle-outline" size={15} color={colors.primary} />
+                <AppIcon name="information-circle-outline" size={15} color={colors.primary} />
                 <Text style={[styles.noticeText, { color: colors.primary }]}>
                   {t('editTransaction.installmentNotice', {
                     current: transaction.installmentNumber,
@@ -392,7 +392,7 @@ export default function EditTransactionScreen() {
             )}
             {transaction.isVirtualFixed && (
               <View style={[styles.noticeBar, { backgroundColor: `${colors.primary}12` }]}>
-                <Ionicons name="repeat" size={15} color={colors.primary} />
+                <AppIcon name="repeat" size={15} color={colors.primary} />
                 <Text style={[styles.noticeText, { color: colors.primary }]}>
                   {t('history.edit.fixedNote')}
                 </Text>
@@ -489,7 +489,7 @@ export default function EditTransactionScreen() {
             {isSharedTx && (
               <View style={[styles.sharedSection, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                 <View style={styles.sharedHeader}>
-                  <Ionicons name="people-outline" size={16} color={colors.primary} />
+                  <AppIcon name="people-outline" size={16} color={colors.primary} />
                   <Text style={[styles.sharedTitle, { color: colors.textPrimary }]}>
                     {t('editTransaction.sharedSection')}
                   </Text>
@@ -599,7 +599,7 @@ export default function EditTransactionScreen() {
                   onPress={() => setCatExpanded(false)}
                   activeOpacity={0.7}
                 >
-                  <Ionicons name="chevron-up" size={13} color={colors.textSecondary} />
+                  <AppIcon name="chevron-up" size={13} color={colors.textSecondary} />
                   <Text style={{ fontSize: 11, fontFamily: Fonts.medium, color: colors.textSecondary }}>Colapsar</Text>
                 </TouchableOpacity>
                 <View style={styles.categoryGrid}>
@@ -625,11 +625,11 @@ export default function EditTransactionScreen() {
                       <TouchableOpacity onPress={handleSaveNewCategory} disabled={newCatName.trim().length < 2 || newCatSaving} activeOpacity={0.8}>
                         {newCatSaving
                           ? <ActivityIndicator size="small" color={colors.primary} />
-                          : <Ionicons name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
+                          : <AppIcon name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
                         }
                       </TouchableOpacity>
                       <TouchableOpacity onPress={resetNewCatForm} activeOpacity={0.8}>
-                        <Ionicons name="close-circle" size={22} color={colors.textSecondary} />
+                        <AppIcon name="close-circle" size={22} color={colors.textSecondary} />
                       </TouchableOpacity>
                     </View>
                   ) : (
@@ -638,7 +638,7 @@ export default function EditTransactionScreen() {
                       onPress={() => setShowNewCatForm(true)}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="add" size={16} color={colors.textSecondary} />
+                      <AppIcon name="add" size={16} color={colors.textSecondary} />
                       <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>Nueva</Text>
                     </TouchableOpacity>
                   )}
@@ -696,11 +696,11 @@ export default function EditTransactionScreen() {
                         <TouchableOpacity onPress={handleSaveNewCategory} disabled={newCatName.trim().length < 2 || newCatSaving} activeOpacity={0.8}>
                           {newCatSaving
                             ? <ActivityIndicator size="small" color={colors.primary} />
-                            : <Ionicons name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
+                            : <AppIcon name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
                           }
                         </TouchableOpacity>
                         <TouchableOpacity onPress={resetNewCatForm} activeOpacity={0.8}>
-                          <Ionicons name="close-circle" size={22} color={colors.textSecondary} />
+                          <AppIcon name="close-circle" size={22} color={colors.textSecondary} />
                         </TouchableOpacity>
                       </View>
                     ) : (
@@ -711,7 +711,7 @@ export default function EditTransactionScreen() {
                         delayLongPress={2000}
                         activeOpacity={0.8}
                       >
-                        <Ionicons name="add" size={16} color={colors.textSecondary} />
+                        <AppIcon name="add" size={16} color={colors.textSecondary} />
                         <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>Nueva</Text>
                       </TouchableOpacity>
                     )}
@@ -781,7 +781,7 @@ export default function EditTransactionScreen() {
                 </Text>
                 <View style={styles.dateValueRow}>
                   <Text style={[styles.dateValue, { color: colors.textPrimary }]}>{dateDisplayText}</Text>
-                  <Ionicons
+                  <AppIcon
                     name={datePickerOpen ? 'chevron-up' : 'chevron-forward'}
                     size={16}
                     color={colors.textSecondary}
@@ -796,16 +796,16 @@ export default function EditTransactionScreen() {
                     <>
                       <View style={styles.pickerMonthRow}>
                         <TouchableOpacity style={styles.pickerNavBtn} onPress={prevMonth} activeOpacity={0.7}>
-                          <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
+                          <AppIcon name="chevron-back" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
                           <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
                             {MONTHS_ES[pickerMonth].toUpperCase()} {pickerYear}
                           </Text>
-                          <Ionicons name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
+                          <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.pickerNavBtn} onPress={nextMonth} activeOpacity={0.7}>
-                          <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
+                          <AppIcon name="chevron-forward" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                       </View>
                       <FlatList
@@ -845,7 +845,7 @@ export default function EditTransactionScreen() {
                           onPress={() => setPickerYear((y) => Math.max(MIN_YEAR, y - 1))}
                           activeOpacity={pickerYear <= MIN_YEAR ? 1 : 0.7}
                         >
-                          <Ionicons name="chevron-back" size={20} color={pickerYear <= MIN_YEAR ? colors.textSecondary : colors.textPrimary} />
+                          <AppIcon name="chevron-back" size={20} color={pickerYear <= MIN_YEAR ? colors.textSecondary : colors.textPrimary} />
                         </TouchableOpacity>
                         <Text style={[styles.pickerMonthLabel, { color: colors.textPrimary }]}>{pickerYear}</Text>
                         <TouchableOpacity
@@ -853,7 +853,7 @@ export default function EditTransactionScreen() {
                           onPress={() => setPickerYear((y) => y + 1)}
                           activeOpacity={0.7}
                         >
-                          <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
+                          <AppIcon name="chevron-forward" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                       </View>
                       <View style={styles.monthGrid}>
@@ -896,11 +896,11 @@ export default function EditTransactionScreen() {
                     onPress={handleNavigateToCards}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="card-outline" size={18} color={colors.primary} />
+                    <AppIcon name="card-outline" size={18} color={colors.primary} />
                     <Text style={[styles.noCardsPromptText, { color: colors.primary }]}>
                       {t('addTransaction.noCards')}
                     </Text>
-                    <Ionicons name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
+                    <AppIcon name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
                   </TouchableOpacity>
                 ) : (
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>

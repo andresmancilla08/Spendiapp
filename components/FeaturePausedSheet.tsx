@@ -9,7 +9,7 @@ import {
   Platform,
   StyleSheet,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
@@ -87,7 +87,7 @@ export default function FeaturePausedSheet({
           <View style={[styles.handle, { backgroundColor: `${colors.textSecondary}30` }]} />
 
           <View style={[styles.iconCircle, { backgroundColor: `${colors.primary}1A` }]}>
-            <Ionicons name="pause-circle-outline" size={44} color={colors.primary} />
+            <AppIcon name="pause-circle-outline" size={44} color={colors.primary} />
           </View>
 
           <Text style={[styles.title, { color: colors.textPrimary }]}>

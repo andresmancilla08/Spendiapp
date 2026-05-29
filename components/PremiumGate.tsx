@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
@@ -22,7 +22,7 @@ export default function PremiumGate({ children }: PremiumGateProps) {
 
   return (
     <View style={[styles.lock, { backgroundColor: colors.surface, borderColor: `${colors.primary}30` }]}>
-      <Ionicons name="star-outline" size={40} color={colors.primary} />
+      <AppIcon name="star-outline" size={40} color={colors.primary} />
       <Text style={[styles.title, { color: colors.textPrimary }]}>{t('premium.lockedTitle')}</Text>
       <Text style={[styles.sub, { color: colors.textSecondary }]}>{t('premium.lockedSubtitle')}</Text>
       <TouchableOpacity

@@ -9,7 +9,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { router } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
@@ -81,7 +81,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
 
             {/* Icon */}
             <View style={[styles.iconCircle, { backgroundColor: colors.primary + '1A' }]}>
-              <Ionicons name="shield-checkmark-outline" size={28} color={colors.primary} />
+              <AppIcon name="shield-checkmark-outline" size={28} color={colors.primary} />
             </View>
 
             {/* Title */}
@@ -100,7 +100,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
                 onPress={() => onTermsPress ? onTermsPress() : router.push('/terms' as any)}
               >
                 <View style={[styles.docIconWrap, { backgroundColor: colors.primary + '18' }]}>
-                  <Ionicons name="document-text-outline" size={16} color={colors.primary} />
+                  <AppIcon name="document-text-outline" size={16} color={colors.primary} />
                 </View>
                 <Text style={[styles.docLabel, { color: colors.textPrimary }]}>
                   {t('consentModal.terms')}
@@ -109,7 +109,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
                   <Text style={[styles.docRead, { color: colors.primary }]}>
                     {t('consentModal.read')}
                   </Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+                  <AppIcon name="chevron-forward" size={14} color={colors.primary} />
                 </View>
               </TouchableOpacity>
 
@@ -119,7 +119,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
                 onPress={() => onPrivacyPress ? onPrivacyPress() : router.push('/privacy' as any)}
               >
                 <View style={[styles.docIconWrap, { backgroundColor: colors.primary + '18' }]}>
-                  <Ionicons name="lock-closed-outline" size={16} color={colors.primary} />
+                  <AppIcon name="lock-closed-outline" size={16} color={colors.primary} />
                 </View>
                 <Text style={[styles.docLabel, { color: colors.textPrimary }]}>
                   {t('consentModal.privacy')}
@@ -128,7 +128,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
                   <Text style={[styles.docRead, { color: colors.primary }]}>
                     {t('consentModal.read')}
                   </Text>
-                  <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+                  <AppIcon name="chevron-forward" size={14} color={colors.primary} />
                 </View>
               </TouchableOpacity>
             </View>
@@ -139,7 +139,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
               onPress={onAccept}
               activeOpacity={0.85}
             >
-              <Ionicons name={methodIcon} size={17} color={colors.onPrimary} />
+              <AppIcon name={methodIcon} size={17} color={colors.onPrimary} />
               <Text style={[styles.acceptBtnText, { color: colors.onPrimary }]}>
                 {t('consentModal.accept')}
               </Text>

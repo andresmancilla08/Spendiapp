@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ReactNode,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
@@ -140,7 +140,7 @@ export default function BalanceCard({
               accessibilityRole="button"
               style={styles.eyeBtn}
             >
-              <Ionicons
+              <AppIcon
                 name={hidden ? 'eye-off-outline' : 'eye-outline'}
                 size={15}
                 color={colors.textTertiary}
@@ -214,7 +214,7 @@ export default function BalanceCard({
             <View
               style={[styles.statIconWrap, { backgroundColor: colors.success + '20' }]}
             >
-              <Ionicons name="arrow-down" size={11} color={colors.success} />
+              <AppIcon name="arrow-down" size={11} color={colors.success} />
             </View>
             <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
               {incomeLabel}
@@ -237,7 +237,7 @@ export default function BalanceCard({
             <View
               style={[styles.statIconWrap, { backgroundColor: colors.expense + '20' }]}
             >
-              <Ionicons name="arrow-up" size={11} color={colors.expense} />
+              <AppIcon name="arrow-up" size={11} color={colors.expense} />
             </View>
             <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
               {expensesLabel}

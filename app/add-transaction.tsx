@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useRef, useEffect, useState, type ElementRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { addDoc, collection, Timestamp, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -629,7 +629,7 @@ export default function AddTransactionScreen() {
                   onPress={() => setCatExpanded(false)}
                   activeOpacity={0.7}
                 >
-                  <Ionicons name="chevron-up" size={13} color={colors.textSecondary} />
+                  <AppIcon name="chevron-up" size={13} color={colors.textSecondary} />
                   <Text style={{ fontSize: 11, fontFamily: Fonts.medium, color: colors.textSecondary }}>Colapsar</Text>
                 </TouchableOpacity>
                 <View style={styles.categoryGrid}>
@@ -657,11 +657,11 @@ export default function AddTransactionScreen() {
                       <TouchableOpacity onPress={handleSaveNewCategory} disabled={newCatName.trim().length < 2 || newCatSaving} activeOpacity={0.8}>
                         {newCatSaving
                           ? <ActivityIndicator size="small" color={colors.primary} />
-                          : <Ionicons name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
+                          : <AppIcon name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
                         }
                       </TouchableOpacity>
                       <TouchableOpacity onPress={resetNewCatForm} activeOpacity={0.8}>
-                        <Ionicons name="close-circle" size={22} color={colors.textSecondary} />
+                        <AppIcon name="close-circle" size={22} color={colors.textSecondary} />
                       </TouchableOpacity>
                     </View>
                   ) : (
@@ -670,7 +670,7 @@ export default function AddTransactionScreen() {
                       onPress={() => { setShowNewCatForm(true); setNewCatType(type); }}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="add" size={16} color={colors.textSecondary} />
+                      <AppIcon name="add" size={16} color={colors.textSecondary} />
                       <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>Nueva</Text>
                     </TouchableOpacity>
                   )}
@@ -735,11 +735,11 @@ export default function AddTransactionScreen() {
                         <TouchableOpacity onPress={handleSaveNewCategory} disabled={newCatName.trim().length < 2 || newCatSaving} activeOpacity={0.8}>
                           {newCatSaving
                             ? <ActivityIndicator size="small" color={colors.primary} />
-                            : <Ionicons name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
+                            : <AppIcon name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
                           }
                         </TouchableOpacity>
                         <TouchableOpacity onPress={resetNewCatForm} activeOpacity={0.8}>
-                          <Ionicons name="close-circle" size={22} color={colors.textSecondary} />
+                          <AppIcon name="close-circle" size={22} color={colors.textSecondary} />
                         </TouchableOpacity>
                       </View>
                     ) : (
@@ -750,7 +750,7 @@ export default function AddTransactionScreen() {
                         delayLongPress={2000}
                         activeOpacity={0.8}
                       >
-                        <Ionicons name="add" size={16} color={colors.textSecondary} />
+                        <AppIcon name="add" size={16} color={colors.textSecondary} />
                         <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>Nueva</Text>
                       </TouchableOpacity>
                     )}
@@ -835,7 +835,7 @@ export default function AddTransactionScreen() {
                   <Text style={[styles.dateValue, { color: colors.textPrimary }]}>
                     {dateDisplayText}
                   </Text>
-                  <Ionicons
+                  <AppIcon
                     name={datePickerOpen ? 'chevron-up' : 'chevron-forward'}
                     size={16}
                     color={colors.textSecondary}
@@ -847,7 +847,7 @@ export default function AddTransactionScreen() {
               {/* Cutoff adjustment notice */}
               {cutoffAdjusted && (
                 <View style={[styles.cutoffNotice, { backgroundColor: colors.primaryLight, borderTopColor: colors.border }]}>
-                  <Ionicons name="information-circle" size={14} color={colors.primary} />
+                  <AppIcon name="information-circle" size={14} color={colors.primary} />
                   <Text style={[styles.cutoffNoticeText, { color: colors.primary }]}>
                     {t('addTransaction.cutoffAdjusted', { day: selectedCard?.cutoffDay })}
                   </Text>
@@ -862,20 +862,20 @@ export default function AddTransactionScreen() {
                       {/* Day mode header: < ABRIL 2025 > — tap label → month mode */}
                       <View style={styles.pickerMonthRow}>
                         <TouchableOpacity style={styles.pickerNavBtn} onPress={prevMonth} activeOpacity={0.7}>
-                          <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
+                          <AppIcon name="chevron-back" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
                           <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
                             {MONTHS_ES[pickerMonth].toUpperCase()} {pickerYear}
                           </Text>
-                          <Ionicons name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
+                          <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={styles.pickerNavBtn}
                           onPress={nextMonth}
                           activeOpacity={0.7}
                         >
-                          <Ionicons
+                          <AppIcon
                             name="chevron-forward"
                             size={20}
                             color={colors.textPrimary}
@@ -924,7 +924,7 @@ export default function AddTransactionScreen() {
                           onPress={() => setPickerYear((y) => Math.max(MIN_YEAR, y - 1))}
                           activeOpacity={pickerYear <= MIN_YEAR ? 1 : 0.7}
                         >
-                          <Ionicons name="chevron-back" size={20} color={pickerYear <= MIN_YEAR ? colors.textSecondary : colors.textPrimary} />
+                          <AppIcon name="chevron-back" size={20} color={pickerYear <= MIN_YEAR ? colors.textSecondary : colors.textPrimary} />
                         </TouchableOpacity>
                         <Text style={[styles.pickerMonthLabel, { color: colors.textPrimary }]}>{pickerYear}</Text>
                         <TouchableOpacity
@@ -932,7 +932,7 @@ export default function AddTransactionScreen() {
                           onPress={() => setPickerYear((y) => y + 1)}
                           activeOpacity={0.7}
                         >
-                          <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
+                          <AppIcon name="chevron-forward" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                       </View>
 
@@ -979,11 +979,11 @@ export default function AddTransactionScreen() {
                     onPress={handleNavigateToCards}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="card-outline" size={18} color={colors.primary} />
+                    <AppIcon name="card-outline" size={18} color={colors.primary} />
                     <Text style={[styles.noCardsPromptText, { color: colors.primary }]}>
                       {t('addTransaction.noCards')}
                     </Text>
-                    <Ionicons name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
+                    <AppIcon name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
                   </TouchableOpacity>
                 ) : (
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -1060,7 +1060,7 @@ export default function AddTransactionScreen() {
                     style={[styles.qtyBtn, { borderColor: colors.border }]}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="remove" size={18} color={colors.textPrimary} />
+                    <AppIcon name="remove" size={18} color={colors.textPrimary} />
                   </TouchableOpacity>
                   <Text style={[styles.qtyValue, { color: colors.textPrimary }]}>{installmentCount}</Text>
                   <TouchableOpacity
@@ -1068,7 +1068,7 @@ export default function AddTransactionScreen() {
                     style={[styles.qtyBtn, { borderColor: colors.border }]}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="add" size={18} color={colors.textPrimary} />
+                    <AppIcon name="add" size={18} color={colors.textPrimary} />
                   </TouchableOpacity>
                   <Text style={[styles.fixedHint, { color: colors.textTertiary, flex: 1 }]}>
                     {installmentCount === 1 ? t('addTransaction.installmentSingle') : t('addTransaction.installmentsPlural')}

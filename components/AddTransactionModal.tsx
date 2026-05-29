@@ -18,7 +18,7 @@ import {
   Switch,
 } from 'react-native';
 import { useRef, useEffect, useState, useCallback, type ElementRef } from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { addDoc, collection, Timestamp, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -493,7 +493,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                 {t('addTransaction.title')}
               </Text>
               <TouchableOpacity onPress={handleClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Ionicons name="close" size={22} color={colors.textSecondary} />
+                <AppIcon name="close" size={22} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -624,7 +624,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                     onPress={() => setCatExpanded(false)}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="chevron-up" size={13} color={colors.textSecondary} />
+                    <AppIcon name="chevron-up" size={13} color={colors.textSecondary} />
                     <Text style={{ fontSize: 11, fontFamily: Fonts.medium, color: colors.textSecondary }}>Colapsar</Text>
                   </TouchableOpacity>
                   <View style={styles.categoryGrid}>
@@ -652,11 +652,11 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                         <TouchableOpacity onPress={handleSaveNewCategory} disabled={newCatName.trim().length < 2 || newCatSaving} activeOpacity={0.8}>
                           {newCatSaving
                             ? <ActivityIndicator size="small" color={colors.primary} />
-                            : <Ionicons name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
+                            : <AppIcon name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
                           }
                         </TouchableOpacity>
                         <TouchableOpacity onPress={resetNewCatForm} activeOpacity={0.8}>
-                          <Ionicons name="close-circle" size={22} color={colors.textSecondary} />
+                          <AppIcon name="close-circle" size={22} color={colors.textSecondary} />
                         </TouchableOpacity>
                       </View>
                     ) : (
@@ -665,7 +665,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                         onPress={() => { setShowNewCatForm(true); setNewCatType(type); }}
                         activeOpacity={0.8}
                       >
-                        <Ionicons name="add" size={16} color={colors.textSecondary} />
+                        <AppIcon name="add" size={16} color={colors.textSecondary} />
                         <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>Nueva</Text>
                       </TouchableOpacity>
                     )}
@@ -730,11 +730,11 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           <TouchableOpacity onPress={handleSaveNewCategory} disabled={newCatName.trim().length < 2 || newCatSaving} activeOpacity={0.8}>
                             {newCatSaving
                               ? <ActivityIndicator size="small" color={colors.primary} />
-                              : <Ionicons name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
+                              : <AppIcon name="checkmark-circle" size={22} color={newCatName.trim().length >= 2 ? colors.primary : colors.border} />
                             }
                           </TouchableOpacity>
                           <TouchableOpacity onPress={resetNewCatForm} activeOpacity={0.8}>
-                            <Ionicons name="close-circle" size={22} color={colors.textSecondary} />
+                            <AppIcon name="close-circle" size={22} color={colors.textSecondary} />
                           </TouchableOpacity>
                         </View>
                       ) : (
@@ -745,7 +745,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           delayLongPress={2000}
                           activeOpacity={0.8}
                         >
-                          <Ionicons name="add" size={16} color={colors.textSecondary} />
+                          <AppIcon name="add" size={16} color={colors.textSecondary} />
                           <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>Nueva</Text>
                         </TouchableOpacity>
                       )}
@@ -830,7 +830,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                     <Text style={[styles.dateValue, { color: colors.textPrimary }]}>
                       {dateDisplayText}
                     </Text>
-                    <Ionicons
+                    <AppIcon
                       name={datePickerOpen ? 'chevron-up' : 'chevron-forward'}
                       size={16}
                       color={colors.textSecondary}
@@ -848,20 +848,20 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                       {/* Day mode header: < ABRIL 2025 > — tap label → month mode */}
                       <View style={styles.pickerMonthRow}>
                         <TouchableOpacity style={styles.pickerNavBtn} onPress={prevMonth} activeOpacity={0.7}>
-                          <Ionicons name="chevron-back" size={20} color={colors.textPrimary} />
+                          <AppIcon name="chevron-back" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
                           <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
                             {MONTHS_ES[pickerMonth].toUpperCase()} {pickerYear}
                           </Text>
-                          <Ionicons name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
+                          <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={styles.pickerNavBtn}
                           onPress={nextMonth}
                           activeOpacity={0.7}
                         >
-                          <Ionicons
+                          <AppIcon
                             name="chevron-forward"
                             size={20}
                             color={colors.textPrimary}
@@ -910,7 +910,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           onPress={() => setPickerYear((y) => Math.max(MIN_YEAR, y - 1))}
                           activeOpacity={pickerYear <= MIN_YEAR ? 1 : 0.7}
                         >
-                          <Ionicons name="chevron-back" size={20} color={pickerYear <= MIN_YEAR ? colors.textSecondary : colors.textPrimary} />
+                          <AppIcon name="chevron-back" size={20} color={pickerYear <= MIN_YEAR ? colors.textSecondary : colors.textPrimary} />
                         </TouchableOpacity>
                         <Text style={[styles.pickerMonthLabel, { color: colors.textPrimary }]}>{pickerYear}</Text>
                         <TouchableOpacity
@@ -918,7 +918,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                           onPress={() => setPickerYear((y) => y + 1)}
                           activeOpacity={0.7}
                         >
-                          <Ionicons name="chevron-forward" size={20} color={colors.textPrimary} />
+                          <AppIcon name="chevron-forward" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                       </View>
 
@@ -965,11 +965,11 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                       onPress={handleNavigateToCards}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="card-outline" size={18} color={colors.primary} />
+                      <AppIcon name="card-outline" size={18} color={colors.primary} />
                       <Text style={[styles.noCardsPromptText, { color: colors.primary }]}>
                         {t('addTransaction.noCards')}
                       </Text>
-                      <Ionicons name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
+                      <AppIcon name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
                     </TouchableOpacity>
                   ) : (
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -1045,7 +1045,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                       style={[styles.qtyBtn, { borderColor: colors.border }]}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="remove" size={18} color={colors.textPrimary} />
+                      <AppIcon name="remove" size={18} color={colors.textPrimary} />
                     </TouchableOpacity>
                     <Text style={[styles.qtyValue, { color: colors.textPrimary }]}>{installmentCount}</Text>
                     <TouchableOpacity
@@ -1053,7 +1053,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                       style={[styles.qtyBtn, { borderColor: colors.border }]}
                       activeOpacity={0.8}
                     >
-                      <Ionicons name="add" size={18} color={colors.textPrimary} />
+                      <AppIcon name="add" size={18} color={colors.textPrimary} />
                     </TouchableOpacity>
                     <Text style={[styles.fixedHint, { color: colors.textTertiary, flex: 1 }]}>
                       {installmentCount === 1 ? t('addTransaction.installmentSingle') : t('addTransaction.installmentsPlural')}

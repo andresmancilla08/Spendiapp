@@ -3,16 +3,15 @@ import {
   Modal, View, Text, TouchableOpacity, StyleSheet,
   Animated, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 export type DialogType = 'error' | 'warning' | 'success' | 'info';
 export type InputType = 'text' | 'email' | 'pin' | 'name';
 
-const DIALOG_ICON: Record<DialogType, IoniconsName> = {
+const DIALOG_ICON: Record<DialogType, AppIconName> = {
   error: 'close-circle',
   warning: 'alert-circle',
   success: 'checkmark-circle',
@@ -129,7 +128,7 @@ export default function AppDialog({
           !secondaryLabel && styles.cardNoSecondary,
         ]}>
           <Animated.View style={[styles.iconWrapper, { transform: [{ scale: iconScale }] }]}>
-            <Ionicons name={iconName} size={56} color={iconColor} />
+            <AppIcon name={iconName} size={56} color={iconColor} />
           </Animated.View>
 
           <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>

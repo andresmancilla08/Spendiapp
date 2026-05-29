@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Switch,
 } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '@/components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
@@ -61,7 +61,7 @@ export default function SentIncomeSection({
       {/* Toggle principal */}
       <View style={[styles.toggleRow, { borderColor: colors.border, backgroundColor: colors.surface }]}>
         <View style={styles.toggleLabel}>
-          <Ionicons name="gift-outline" size={20} color={colors.secondary} />
+          <AppIcon name="gift-outline" size={20} color={colors.secondary} />
           <Text style={[styles.toggleText, { color: colors.textPrimary }]}>
             {t('sentIncome.toggle')}
           </Text>
@@ -107,7 +107,7 @@ export default function SentIncomeSection({
                     @{profile.userName}
                   </Text>
                   {selected && (
-                    <Ionicons name="checkmark-circle" size={20} color={colors.secondary} />
+                    <AppIcon name="checkmark-circle" size={20} color={colors.secondary} />
                   )}
                 </TouchableOpacity>
               );

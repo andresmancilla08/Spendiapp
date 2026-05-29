@@ -1,15 +1,14 @@
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { AppIconName } from '@/components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import * as Haptics from 'expo-haptics';
 
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 interface Segment {
   key: string;
   label: string;
-  icon?: IoniconsName;
+  icon?: AppIconName;
   badge?: number;
 }
 
@@ -52,7 +51,7 @@ export default function AppSegmentedControl({
             accessibilityState={{ selected: isActive }}
           >
             {seg.icon && (
-              <Ionicons name={seg.icon} size={14} color={textColor} />
+              <AppIcon name={seg.icon} size={14} color={textColor} />
             )}
             <Text
               style={[
