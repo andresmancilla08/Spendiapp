@@ -268,11 +268,16 @@ export default function TransactionDetailScreen() {
         if (deleteScope === 'single') {
           await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
         } else {
+          if (transaction.installmentNumber == null) {
+            showToast(t('history.edit.deleteError'), 'error');
+            setDeleteLoading(false);
+            return;
+          }
           const q = query(
             collection(db, 'transactions'),
             where('userId', '==', currentUserUid),
             where('installmentGroupId', '==', transaction.installmentGroupId),
-            where('installmentNumber', '>=', transaction.installmentNumber ?? 1),
+            where('installmentNumber', '>=', transaction.installmentNumber),
           );
           const snap = await getDocs(q);
           const batch = writeBatch(db);

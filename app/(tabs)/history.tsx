@@ -548,10 +548,15 @@ export default function HistoryScreen() {
         if (scope === 'single') {
           await deleteDoc(doc(db, 'transactions', txId));
         } else {
+          if (tx.installmentNumber == null) {
+            showToast(t('history.edit.deleteError'), 'error');
+            return;
+          }
           const q = query(
             collection(db, 'transactions'),
+            where('userId', '==', user?.uid ?? ''),
             where('installmentGroupId', '==', tx.installmentGroupId),
-            where('installmentNumber', '>=', tx.installmentNumber ?? 1),
+            where('installmentNumber', '>=', tx.installmentNumber),
           );
           const snap = await getDocs(q);
           const batch = writeBatch(db);
@@ -567,7 +572,7 @@ export default function HistoryScreen() {
       console.error('[executeDeleteWithScope] scope=' + scope + ' id=' + tx.id, e);
       showToast(t('errors.genericError'), 'error');
     }
-  }, [year, month, showToast, t]);
+  }, [year, month, showToast, t, user]);
 
   const handleDeleteFromSwipe = useCallback((tx: Transaction) => {
     if ((tx.isShared && tx.sharedId) || tx.isSentIncome || tx.sentIncomeTransactionId) {
