@@ -69,7 +69,13 @@ function formatCurrency(amount: number): string {
 
 function timeAgo(date: Date): string {
   const diff = Math.floor((Date.now() - date.getTime()) / 1000 / 60);
-  if (diff <= 0) return 'Hoy';
+  if (diff < 0) {
+    const days = Math.floor(-diff / 1440);
+    if (days === 0) return 'Hoy';
+    if (days === 1) return 'Mañana';
+    return `En ${days} días`;
+  }
+  if (diff === 0) return 'Ahora';
   if (diff < 60) return `Hace ${diff} min`;
   if (diff < 1440) return `Hace ${Math.floor(diff / 60)} h`;
   if (diff < 2880) return 'Ayer';
