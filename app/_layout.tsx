@@ -337,7 +337,7 @@ export default function RootLayout() {
         if (appVersion) updateAppVersion(authUser.uid, appVersion).catch(() => {});
 
         if (!pendingExists) {
-          hasAcceptedConsent().then((accepted) => {
+          hasAcceptedConsent(authUser.uid).then((accepted) => {
             if (!accepted) {
               consentUserUidRef.current = authUser.uid;
               setConsentRequired(true);
