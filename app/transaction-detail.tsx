@@ -270,6 +270,7 @@ export default function TransactionDetailScreen() {
         } else {
           const q = query(
             collection(db, 'transactions'),
+            where('userId', '==', currentUserUid),
             where('installmentGroupId', '==', transaction.installmentGroupId),
             where('installmentNumber', '>=', transaction.installmentNumber ?? 1),
           );

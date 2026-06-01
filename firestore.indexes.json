@@ -55,6 +55,15 @@
         { "fieldPath": "installmentGroupId", "order": "ASCENDING" },
         { "fieldPath": "installmentNumber", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "transactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "installmentGroupId", "order": "ASCENDING" },
+        { "fieldPath": "installmentNumber", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
