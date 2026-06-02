@@ -10,6 +10,7 @@ import {
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import AppDialog from '../components/AppDialog';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -113,6 +114,7 @@ export default function TransactionDetailScreen() {
   const [duplicateLoading, setDuplicateLoading] = useState(false);
   const [deleteStep, setDeleteStep] = useState<DeleteStep>('idle');
   const [deleteScope, setDeleteScope] = useState<DeleteScope>('fromNow');
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const CATEGORY_LABELS: Record<string, string> = {
     food: t('categories.names.food'),
@@ -299,9 +301,10 @@ export default function TransactionDetailScreen() {
     } catch (e) {
       const code = (e as any)?.code ?? 'unknown';
       const msg = e instanceof Error ? e.message : String(e);
-      console.error(`[handleDelete] code=${code} scope=${deleteScope} txId=${getActualId(transaction)} msg=${msg}`);
-      showToast(t('history.edit.deleteError'), 'error');
+      const txId = getActualId(transaction);
+      console.error(`[handleDelete] code=${code} scope=${deleteScope} txId=${txId} msg=${msg}`);
       setDeleteLoading(false);
+      setDeleteError(`code: ${code}\nscope: ${deleteScope}\ntxId: ${txId}\n\n${msg}`);
     }
   }, [transaction, currentUserUid, currentUserName, user, viewYear, viewMonth, deleteScope, deleteSharedTransaction, deleteSentIncome, setLastAction, router, showToast, t]);
 
@@ -929,6 +932,21 @@ export default function TransactionDetailScreen() {
       </ScreenBackground>
 
     </SafeAreaView>
+
+    <AppDialog
+      visible={deleteError !== null}
+      type="error"
+      title="Error al eliminar"
+      description={
+        <ScrollView style={{ maxHeight: 220, width: '100%' }} showsVerticalScrollIndicator>
+          <Text selectable style={{ fontFamily: Fonts.regular, fontSize: 13, lineHeight: 20, color: colors.textPrimary }}>
+            {deleteError ?? ''}
+          </Text>
+        </ScrollView>
+      }
+      primaryLabel="Cerrar"
+      onPrimary={() => setDeleteError(null)}
+    />
     </ScreenTransition>
   );
 }
