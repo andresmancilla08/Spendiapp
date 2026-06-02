@@ -208,16 +208,22 @@ export function useSharedTransactions() {
       // permiso denegado o error de red — omitir limpieza de mirrors
     }
 
-    const batch = writeBatch(db);
-
     if (coordData) {
+      // Borrar cada mirror individualmente — alguno puede ya no existir
+      // (cuenta del otro participante eliminada) y un batch fallaría entero.
       for (const ref of coordData.mirrorRefs) {
-        batch.delete(doc(db, 'transactions', ref.transactionId));
+        try {
+          await deleteDoc(doc(db, 'transactions', ref.transactionId));
+        } catch {
+          // Mirror ya eliminado o inaccesible — continuar
+        }
       }
-      batch.delete(doc(db, 'sharedTransactions', sharedId));
+      try {
+        await deleteDoc(doc(db, 'sharedTransactions', sharedId));
+      } catch {
+        // No crítico
+      }
     }
-
-    await batch.commit();
 
     // Notificaciones — no críticas, no propagar errores
     if (coordData) {
