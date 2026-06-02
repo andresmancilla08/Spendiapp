@@ -198,39 +198,50 @@ export function useSharedTransactions() {
     const { sharedId, currentUserUid, currentUserName, currentUserDisplayName, description } = params;
     const resolvedDisplayName = currentUserDisplayName || currentUserName;
 
-    const coordSnap = await getDoc(doc(db, 'sharedTransactions', sharedId));
-    if (!coordSnap.exists()) return;
-
-    const coordData = coordSnap.data() as SharedTransaction;
-    const batch = writeBatch(db);
-
-    // Eliminar todos los docs de transacciones (owner + mirrors)
-    for (const ref of coordData.mirrorRefs) {
-      batch.delete(doc(db, 'transactions', ref.transactionId));
+    // Si el doc de coordinación no existe o no tenemos permiso (la otra cuenta fue eliminada),
+    // continuamos silenciosamente — el llamador se encargará de borrar su propia transacción.
+    let coordData: SharedTransaction | null = null;
+    try {
+      const coordSnap = await getDoc(doc(db, 'sharedTransactions', sharedId));
+      if (coordSnap.exists()) coordData = coordSnap.data() as SharedTransaction;
+    } catch {
+      // permiso denegado o error de red — omitir limpieza de mirrors
     }
 
-    // Eliminar doc de coordinación
-    batch.delete(doc(db, 'sharedTransactions', sharedId));
+    const batch = writeBatch(db);
+
+    if (coordData) {
+      for (const ref of coordData.mirrorRefs) {
+        batch.delete(doc(db, 'transactions', ref.transactionId));
+      }
+      batch.delete(doc(db, 'sharedTransactions', sharedId));
+    }
 
     await batch.commit();
 
-    // Notificaciones a todos los participantes excepto quien eliminó
-    const others = coordData.participantUids.filter((uid) => uid !== currentUserUid);
-    for (const uid of others) {
-      await addDoc(collection(db, 'notifications'), {
-        toUserId: uid,
-        type: 'shared_transaction_deleted',
-        data: {
-          fromUserId: currentUserUid,
-          fromUserName: currentUserName,
-          fromDisplayName: resolvedDisplayName,
-          sharedId,
-          description,
-          sharedAmount: 0,
-        },
-        read: false,
-        createdAt: Timestamp.fromDate(new Date()),
-      });
+    // Notificaciones — no críticas, no propagar errores
+    if (coordData) {
+      const others = coordData.participantUids.filter((uid) => uid !== currentUserUid);
+      for (const uid of others) {
+        try {
+          await addDoc(collection(db, 'notifications'), {
+            toUserId: uid,
+            type: 'shared_transaction_deleted',
+            data: {
+              fromUserId: currentUserUid,
+              fromUserName: currentUserName,
+              fromDisplayName: resolvedDisplayName,
+              sharedId,
+              description,
+              sharedAmount: 0,
+            },
+            read: false,
+            createdAt: Timestamp.fromDate(new Date()),
+          });
+        } catch {
+          // notificación no crítica
+        }
+      }
     }
   }
 

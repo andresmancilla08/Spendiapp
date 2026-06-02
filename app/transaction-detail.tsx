@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
-  Alert,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
@@ -242,6 +241,9 @@ export default function TransactionDetailScreen() {
           currentUserDisplayName: user?.displayName ?? currentUserName,
           description: transaction.description,
         });
+        // Fallback: si el doc de coordinación no existía, deleteSharedTransaction no borró
+        // nuestra propia transacción — deleteDoc es no-op si ya fue borrada.
+        await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
       } else if (transaction.sentIncomeTransactionId) {
         await deleteSentIncome({
           senderTransactionId: getActualId(transaction),
@@ -297,9 +299,7 @@ export default function TransactionDetailScreen() {
     } catch (e) {
       const code = (e as any)?.code ?? 'unknown';
       const msg = e instanceof Error ? e.message : String(e);
-      const debugInfo = `code: ${code}\nscope: ${deleteScope}\nuid: ${currentUserUid}\ntxId: ${getActualId(transaction)}\nisInstallment: ${transaction?.isInstallment}\ngroupId: ${transaction?.installmentGroupId}\ninstallmentNum: ${transaction?.installmentNumber}\n\n${msg}`;
-      console.error('[handleDelete] ' + debugInfo);
-      Alert.alert('DEBUG — Error al eliminar', debugInfo);
+      console.error(`[handleDelete] code=${code} scope=${deleteScope} txId=${getActualId(transaction)} msg=${msg}`);
       showToast(t('history.edit.deleteError'), 'error');
       setDeleteLoading(false);
     }
@@ -927,6 +927,7 @@ export default function TransactionDetailScreen() {
         </View>
 
       </ScreenBackground>
+
     </SafeAreaView>
     </ScreenTransition>
   );
