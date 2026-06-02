@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CACHE_KEY = 'spendia_exchange_rates_v4';
+const CACHE_KEY = 'spendia_exchange_rates_v5';
 const POLL_MS = 5 * 60 * 1000;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
