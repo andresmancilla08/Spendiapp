@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
@@ -115,7 +114,6 @@ export default function TransactionDetailScreen() {
   const [duplicateLoading, setDuplicateLoading] = useState(false);
   const [deleteStep, setDeleteStep] = useState<DeleteStep>('idle');
   const [deleteScope, setDeleteScope] = useState<DeleteScope>('fromNow');
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const CATEGORY_LABELS: Record<string, string> = {
     food: t('categories.names.food'),
@@ -304,36 +302,9 @@ export default function TransactionDetailScreen() {
       router.back();
       setTimeout(() => showToast(t('history.edit.deleteSuccess'), 'success'), 350);
     } catch (e) {
-      const code = (e as any)?.code ?? 'unknown';
-      const msg = e instanceof Error ? e.message : String(e);
-      const stack = e instanceof Error ? (e.stack ?? '') : '';
-      const txId = getActualId(transaction);
-      const debugInfo = {
-        timestamp: new Date().toISOString(),
-        code,
-        scope: deleteScope,
-        txId,
-        message: msg,
-        stack: stack.split('\n').slice(0, 10).join('\n'),
-        tx: {
-          id: transaction.id,
-          userId: transaction.userId,
-          isFixed: transaction.isFixed ?? false,
-          isShared: transaction.isShared ?? false,
-          sharedId: transaction.sharedId ?? null,
-          sharedOwnerUid: transaction.sharedOwnerUid ?? null,
-          isInstallment: transaction.isInstallment ?? false,
-          installmentGroupId: transaction.installmentGroupId ?? null,
-          cardId: transaction.cardId ?? null,
-          sentIncomeTransactionId: transaction.sentIncomeTransactionId ?? null,
-          isSentIncome: transaction.isSentIncome ?? false,
-          isVirtualFixed: transaction.isVirtualFixed ?? false,
-          currentUserUid,
-        },
-      };
-      console.error('[handleDelete]', JSON.stringify(debugInfo, null, 2));
+      console.error('[handleDelete]', e);
       setDeleteLoading(false);
-      setDeleteError(JSON.stringify(debugInfo, null, 2));
+      showToast(t('history.edit.deleteError'), 'error');
     }
   }, [transaction, currentUserUid, currentUserName, user, viewYear, viewMonth, deleteScope, deleteSharedTransaction, deleteSentIncome, setLastAction, router, showToast, t]);
 
@@ -962,25 +933,6 @@ export default function TransactionDetailScreen() {
 
     </SafeAreaView>
 
-    <AppDialog
-      visible={deleteError !== null}
-      type="error"
-      title="Error al eliminar"
-      description={
-        <ScrollView style={{ maxHeight: 240, width: '100%' }} showsVerticalScrollIndicator>
-          <Text selectable style={{ fontFamily: Fonts.regular, fontSize: 12, lineHeight: 18, color: colors.textPrimary }}>
-            {deleteError ?? ''}
-          </Text>
-        </ScrollView>
-      }
-      primaryLabel="Copiar error"
-      onPrimary={async () => {
-        if (deleteError) await Clipboard.setStringAsync(deleteError);
-        showToast('Error copiado al portapapeles', 'success');
-      }}
-      secondaryLabel="Cerrar"
-      onSecondary={() => setDeleteError(null)}
-    />
     </ScreenTransition>
   );
 }
