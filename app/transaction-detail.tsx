@@ -244,9 +244,13 @@ export default function TransactionDetailScreen() {
           currentUserDisplayName: user?.displayName ?? currentUserName,
           description: transaction.description,
         });
-        // Fallback: si el doc de coordinación no existía, deleteSharedTransaction no borró
-        // nuestra propia transacción — deleteDoc es no-op si ya fue borrada.
-        await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
+        // Fallback: si deleteSharedTransaction no borró nuestra tx (coord doc inexistente).
+        // Si YA fue borrada por el batch anterior, el deleteDoc falla silenciosamente.
+        try {
+          await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
+        } catch {
+          // Ya eliminada por deleteSharedTransaction — OK
+        }
       } else if (transaction.sentIncomeTransactionId) {
         await deleteSentIncome({
           senderTransactionId: getActualId(transaction),
