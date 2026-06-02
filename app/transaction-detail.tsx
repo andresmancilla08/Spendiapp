@@ -27,6 +27,7 @@ import {
   where,
   writeBatch,
   arrayUnion,
+  orderBy,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../context/ThemeContext';
@@ -278,6 +279,7 @@ export default function TransactionDetailScreen() {
             where('userId', '==', currentUserUid),
             where('installmentGroupId', '==', transaction.installmentGroupId),
             where('installmentNumber', '>=', transaction.installmentNumber),
+            orderBy('installmentNumber', 'asc'),
           );
           const snap = await getDocs(q);
           const batch = writeBatch(db);

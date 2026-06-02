@@ -33,6 +33,7 @@ import {
   query,
   where,
   writeBatch,
+  orderBy,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useTheme } from '../../context/ThemeContext';
@@ -557,6 +558,7 @@ export default function HistoryScreen() {
             where('userId', '==', user?.uid ?? ''),
             where('installmentGroupId', '==', tx.installmentGroupId),
             where('installmentNumber', '>=', tx.installmentNumber),
+            orderBy('installmentNumber', 'asc'),
           );
           const snap = await getDocs(q);
           const batch = writeBatch(db);
