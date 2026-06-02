@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
@@ -301,10 +302,34 @@ export default function TransactionDetailScreen() {
     } catch (e) {
       const code = (e as any)?.code ?? 'unknown';
       const msg = e instanceof Error ? e.message : String(e);
+      const stack = e instanceof Error ? (e.stack ?? '') : '';
       const txId = getActualId(transaction);
-      console.error(`[handleDelete] code=${code} scope=${deleteScope} txId=${txId} msg=${msg}`);
+      const debugInfo = {
+        timestamp: new Date().toISOString(),
+        code,
+        scope: deleteScope,
+        txId,
+        message: msg,
+        stack: stack.split('\n').slice(0, 10).join('\n'),
+        tx: {
+          id: transaction.id,
+          userId: transaction.userId,
+          isFixed: transaction.isFixed ?? false,
+          isShared: transaction.isShared ?? false,
+          sharedId: transaction.sharedId ?? null,
+          sharedOwnerUid: transaction.sharedOwnerUid ?? null,
+          isInstallment: transaction.isInstallment ?? false,
+          installmentGroupId: transaction.installmentGroupId ?? null,
+          cardId: transaction.cardId ?? null,
+          sentIncomeTransactionId: transaction.sentIncomeTransactionId ?? null,
+          isSentIncome: transaction.isSentIncome ?? false,
+          isVirtualFixed: transaction.isVirtualFixed ?? false,
+          currentUserUid,
+        },
+      };
+      console.error('[handleDelete]', JSON.stringify(debugInfo, null, 2));
       setDeleteLoading(false);
-      setDeleteError(`code: ${code}\nscope: ${deleteScope}\ntxId: ${txId}\n\n${msg}`);
+      setDeleteError(JSON.stringify(debugInfo, null, 2));
     }
   }, [transaction, currentUserUid, currentUserName, user, viewYear, viewMonth, deleteScope, deleteSharedTransaction, deleteSentIncome, setLastAction, router, showToast, t]);
 
@@ -938,14 +963,19 @@ export default function TransactionDetailScreen() {
       type="error"
       title="Error al eliminar"
       description={
-        <ScrollView style={{ maxHeight: 220, width: '100%' }} showsVerticalScrollIndicator>
-          <Text selectable style={{ fontFamily: Fonts.regular, fontSize: 13, lineHeight: 20, color: colors.textPrimary }}>
+        <ScrollView style={{ maxHeight: 240, width: '100%' }} showsVerticalScrollIndicator>
+          <Text selectable style={{ fontFamily: Fonts.regular, fontSize: 12, lineHeight: 18, color: colors.textPrimary }}>
             {deleteError ?? ''}
           </Text>
         </ScrollView>
       }
-      primaryLabel="Cerrar"
-      onPrimary={() => setDeleteError(null)}
+      primaryLabel="Copiar error"
+      onPrimary={async () => {
+        if (deleteError) await Clipboard.setStringAsync(deleteError);
+        showToast('Error copiado al portapapeles', 'success');
+      }}
+      secondaryLabel="Cerrar"
+      onSecondary={() => setDeleteError(null)}
     />
     </ScreenTransition>
   );
