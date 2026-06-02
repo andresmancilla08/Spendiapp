@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
+  Alert,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
@@ -294,8 +295,11 @@ export default function TransactionDetailScreen() {
       router.back();
       setTimeout(() => showToast(t('history.edit.deleteSuccess'), 'success'), 350);
     } catch (e) {
+      const code = (e as any)?.code ?? 'unknown';
       const msg = e instanceof Error ? e.message : String(e);
-      console.error('[handleDelete] ' + msg);
+      const debugInfo = `code: ${code}\nscope: ${deleteScope}\nuid: ${currentUserUid}\ntxId: ${getActualId(transaction)}\nisInstallment: ${transaction?.isInstallment}\ngroupId: ${transaction?.installmentGroupId}\ninstallmentNum: ${transaction?.installmentNumber}\n\n${msg}`;
+      console.error('[handleDelete] ' + debugInfo);
+      Alert.alert('DEBUG — Error al eliminar', debugInfo);
       showToast(t('history.edit.deleteError'), 'error');
       setDeleteLoading(false);
     }
