@@ -26,7 +26,7 @@ import type { TransactionType } from '../types/transaction';
 import { categorizeLocal, categorizeWithGemini } from '../utils/categorize';
 import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import AppHeader from '../components/AppHeader';
 import PageTitle from '../components/PageTitle';
 import { useCards } from '../hooks/useCards';
@@ -83,6 +83,7 @@ export default function AddTransactionScreen() {
   const { user } = useAuthStore();
   const { showToast } = useToast();
   const { categories: customCategories } = useCategories(user?.uid ?? '');
+  const { year: yearParam, month: monthParam } = useLocalSearchParams<{ year?: string; month?: string }>();
 
   const scrollRef = useRef<ElementRef<typeof ScrollView>>(null);
   const catScrollRef = useRef<ElementRef<typeof ScrollView>>(null);
@@ -130,14 +131,23 @@ export default function AddTransactionScreen() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Date picker state
+  // Date picker state — si viene de historial con mes distinto al actual, usar día 1 de ese mes
   const today = new Date();
-  const [selectedDate, setSelectedDate] = useState(today);
+  const defaultDate = (() => {
+    if (yearParam && monthParam) {
+      const y = parseInt(yearParam as string, 10);
+      const m = parseInt(monthParam as string, 10);
+      if (y === today.getFullYear() && m === today.getMonth()) return today;
+      return new Date(y, m, 1);
+    }
+    return today;
+  })();
+  const [selectedDate, setSelectedDate] = useState(defaultDate);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [pickerMode, setPickerMode] = useState<'day' | 'month'>('day');
-  const [pickerYear, setPickerYear] = useState(today.getFullYear());
-  const [pickerMonth, setPickerMonth] = useState(today.getMonth());
-  const [pickerDay, setPickerDay] = useState(today.getDate());
+  const [pickerYear, setPickerYear] = useState(defaultDate.getFullYear());
+  const [pickerMonth, setPickerMonth] = useState(defaultDate.getMonth());
+  const [pickerDay, setPickerDay] = useState(defaultDate.getDate());
   const MIN_YEAR = 2020;
 
   // Shared expense state

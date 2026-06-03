@@ -934,7 +934,11 @@ export default function HistoryScreen() {
         activeOpacity={0.78}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          router.push('/add-transaction');
+          if (isCurrentMonth) {
+            router.push('/add-transaction');
+          } else {
+            router.push(`/add-transaction?year=${year}&month=${month}`);
+          }
         }}
       >
         <AppIcon name="add" size={30} color="#FFFFFF" />
