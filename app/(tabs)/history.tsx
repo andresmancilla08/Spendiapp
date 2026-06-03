@@ -928,6 +928,18 @@ export default function HistoryScreen() {
         </ScrollView>
       )}
 
+      {/* FAB */}
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: colors.primary }]}
+        activeOpacity={0.78}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          router.push('/add-transaction');
+        }}
+      >
+        <AppIcon name="add" size={30} color="#FFFFFF" />
+      </TouchableOpacity>
+
       </ScreenBackground>
 
       {/* Scope picker — fijo / cuotas */}
@@ -1663,5 +1675,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: Fonts.regular,
     marginTop: 2,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 110,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 10,
   },
 });
