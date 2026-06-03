@@ -165,6 +165,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   const SWIPE_THRESHOLD = 48;
   const swipeX = useRef(new Animated.Value(0)).current;
   const openDir = useRef<'none' | 'left' | 'right'>('none');
+  const hasDragged = useRef(false);
 
   const snapToCenter = useCallback(() => {
     Animated.spring(swipeX, { toValue: 0, useNativeDriver: Platform.OS !== 'web', bounciness: 6, speed: 18 }).start();
@@ -191,6 +192,9 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gs) =>
         Math.abs(gs.dx) > Math.abs(gs.dy) && Math.abs(gs.dx) > 8,
+      onPanResponderGrant: () => {
+        hasDragged.current = true;
+      },
       onPanResponderMove: (_, gs) => {
         const base = openDir.current === 'left' ? -ACTION_WIDTH : openDir.current === 'right' ? ACTION_WIDTH : 0;
         let next = base + gs.dx;
@@ -280,7 +284,11 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
         style={[{ transform: [{ translateX: swipeX }] }]}
       >
         <TouchableOpacity
-          onPress={() => onPress(item)}
+          onPressIn={() => { hasDragged.current = false; }}
+          onPress={() => {
+            if (Platform.OS === 'web' && hasDragged.current) return;
+            onPress(item);
+          }}
           onLongPress={() => onLongPress(item)}
           delayLongPress={350}
           activeOpacity={0.7}
