@@ -28,6 +28,7 @@ import {
   doc,
   Timestamp,
   arrayUnion,
+  arrayRemove,
   collection,
   getDocs,
   query,
@@ -525,7 +526,14 @@ export default function HistoryScreen() {
     setPaidLoadingId(actualId);
     try {
       const newValue = !tx.isPaid;
-      await updateDoc(doc(db, 'transactions', actualId), { isPaid: newValue });
+      if (tx.isFixed) {
+        const monthKey = `${year}_${month}`;
+        await updateDoc(doc(db, 'transactions', actualId), {
+          fixedPaidMonths: newValue ? arrayUnion(monthKey) : arrayRemove(monthKey),
+        });
+      } else {
+        await updateDoc(doc(db, 'transactions', actualId), { isPaid: newValue });
+      }
       setRefreshKey((k) => k + 1);
       showToast(
         newValue ? t('history.toasts.markedPaid') : t('history.toasts.markedUnpaid'),
@@ -536,7 +544,7 @@ export default function HistoryScreen() {
     } finally {
       setPaidLoadingId(null);
     }
-  }, [showToast, t, db]);
+  }, [showToast, t, db, year, month]);
 
   const executeDeleteWithScope = useCallback(async (tx: Transaction, scope: 'single' | 'fromNow' | 'all') => {
     const txId = getActualId(tx);

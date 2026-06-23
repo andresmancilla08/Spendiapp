@@ -70,7 +70,9 @@ export function useTransactions(userId: string, year: number, month: number, ref
           date: (d.date as Timestamp).toDate(),
           createdAt: (d.createdAt as Timestamp).toDate(),
           isFixed: d.isFixed ?? false,
-          isPaid: d.isPaid ?? false,
+          isPaid: (d.isFixed ?? false)
+            ? (d.fixedPaidMonths ?? []).includes(`${year}_${month}`)
+            : (d.isPaid ?? false),
           isShared: d.isShared ?? false,
           sharedId: d.sharedId,
           sharedOwnerUid: d.sharedOwnerUid,
@@ -162,7 +164,7 @@ export function useTransactions(userId: string, year: number, month: number, ref
             createdAt: (d.createdAt as Timestamp).toDate(),
             isFixed: true,
             isVirtualFixed: true,
-            isPaid: d.isPaid ?? false,
+            isPaid: (d.fixedPaidMonths ?? []).includes(`${year}_${month}`),
             cardId: d.cardId,
             isShared: d.isShared ?? false,
             sharedId: d.sharedId,
