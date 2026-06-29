@@ -415,6 +415,7 @@ export default function AddTransactionScreen() {
           description: description.trim(),
           date: effectiveDate,
           cardId: selectedCardId ?? undefined,
+          isFixed,
         });
       } else if (isShared && sharedParticipants.length > 0) {
         const allParticipants: SharedParticipant[] = [
