@@ -1,5 +1,5 @@
 import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput, Switch,
+  View, Text, StyleSheet, TouchableOpacity, TextInput, Switch, ActivityIndicator,
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import AppIcon from './AppIcon';
@@ -45,8 +45,9 @@ export default function SharedExpenseSection({
 }: Props) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
-  const { acceptedFriends } = useFriends(userId);
+  const { acceptedFriends, loading: friendsLoading } = useFriends(userId);
   const [friendProfiles, setFriendProfiles] = useState<UserProfile[]>([]);
+  const [profilesLoading, setProfilesLoading] = useState(false);
   const [splitType, setSplitType]   = useState<SplitType>('equal');
   const [addMode, setAddMode]       = useState<AddMode>('friends');
   const [extName, setExtName]       = useState('');
@@ -54,7 +55,9 @@ export default function SharedExpenseSection({
   const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
+    if (friendsLoading) return;
     if (acceptedFriends.length === 0) return;
+    setProfilesLoading(true);
     async function load() {
       const profiles: UserProfile[] = [];
       for (const f of acceptedFriends) {
@@ -63,9 +66,12 @@ export default function SharedExpenseSection({
         if (profile) profiles.push(profile);
       }
       setFriendProfiles(profiles);
+      setProfilesLoading(false);
     }
     load();
-  }, [acceptedFriends, userId]);
+  }, [acceptedFriends, userId, friendsLoading]);
+
+  const friendsIsLoading = friendsLoading || profilesLoading;
 
   useEffect(() => {
     if (splitType !== 'equal') return;
@@ -190,7 +196,9 @@ export default function SharedExpenseSection({
 
           {/* Contenido del tab activo */}
           {addMode === 'friends' ? (
-            friendProfiles.length === 0 ? (
+            friendsIsLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} style={styles.loader} />
+            ) : friendProfiles.length === 0 ? (
               <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                 {t('sharedExpense.noFriends')}
               </Text>
@@ -438,6 +446,7 @@ const styles = StyleSheet.create({
 
 
   // Amigos
+  loader: { paddingVertical: 16 },
   emptyText: { fontSize: 14, fontFamily: Fonts.regular, textAlign: 'center', paddingVertical: 8 },
   friendRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,

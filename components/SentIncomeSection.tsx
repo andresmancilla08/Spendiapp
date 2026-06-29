@@ -1,6 +1,6 @@
 // components/SentIncomeSection.tsx
 import {
-  View, Text, StyleSheet, TouchableOpacity, Switch,
+  View, Text, StyleSheet, TouchableOpacity, Switch, ActivityIndicator,
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import AppIcon from './AppIcon';
@@ -28,11 +28,14 @@ export default function SentIncomeSection({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const { acceptedFriends } = useFriends(userId);
+  const { acceptedFriends, loading: friendsLoading } = useFriends(userId);
   const [friendProfiles, setFriendProfiles] = useState<UserProfile[]>([]);
+  const [profilesLoading, setProfilesLoading] = useState(false);
 
   useEffect(() => {
+    if (friendsLoading) return;
     if (acceptedFriends.length === 0) return;
+    setProfilesLoading(true);
     async function load() {
       const profiles: UserProfile[] = [];
       for (const f of acceptedFriends) {
@@ -41,9 +44,12 @@ export default function SentIncomeSection({
         if (profile) profiles.push(profile);
       }
       setFriendProfiles(profiles);
+      setProfilesLoading(false);
     }
     load();
-  }, [acceptedFriends, userId]);
+  }, [acceptedFriends, userId, friendsLoading]);
+
+  const isLoading = friendsLoading || profilesLoading;
 
   const toggleRecipient = (profile: UserProfile) => {
     if (recipient?.uid === profile.uid) {
@@ -80,7 +86,9 @@ export default function SentIncomeSection({
             {t('sentIncome.forWho').toUpperCase()}
           </Text>
 
-          {friendProfiles.length === 0 ? (
+          {isLoading ? (
+            <ActivityIndicator size="small" color={colors.primary} style={styles.loader} />
+          ) : friendProfiles.length === 0 ? (
             <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
               {t('sentIncome.noFriends')}
             </Text>
@@ -132,6 +140,7 @@ const styles = StyleSheet.create({
     fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 0.6,
     marginTop: 16, marginBottom: 8,
   },
+  loader: { paddingVertical: 16 },
   emptyText: { fontSize: 14, fontFamily: Fonts.regular, textAlign: 'center', paddingVertical: 8 },
   friendRow: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
