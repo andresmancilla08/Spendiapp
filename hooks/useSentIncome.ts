@@ -17,11 +17,12 @@ interface CreateSentIncomeParams {
   description: string;
   date: Date;
   cardId?: string;
+  isFixed?: boolean;
 }
 
 export function useSentIncome() {
   async function createSentIncome(params: CreateSentIncomeParams): Promise<void> {
-    const { senderUid, senderName, recipientUid, recipientName, amount, category, description, date, cardId } = params;
+    const { senderUid, senderName, recipientUid, recipientName, amount, category, description, date, cardId, isFixed = false } = params;
 
     const batch = writeBatch(db);
     const now = new Date();
@@ -38,7 +39,7 @@ export function useSentIncome() {
       description,
       date: Timestamp.fromDate(date),
       createdAt: Timestamp.fromDate(now),
-      isFixed: false,
+      isFixed,
       ...(cardId ? { cardId } : {}),
       sentIncomeToUid: recipientUid,
       sentIncomeToName: recipientName,
@@ -54,7 +55,7 @@ export function useSentIncome() {
       description,
       date: Timestamp.fromDate(date),
       createdAt: Timestamp.fromDate(now),
-      isFixed: false,
+      isFixed,
       isSentIncome: true,
       sentByUid: senderUid,
       sentByName: senderName,
