@@ -184,7 +184,10 @@
       "otherCategories": "Altre",
       "total": "TOTALE",
       "points": "{{value}} pts",
-      "noData": "Dati insufficienti"
+      "noData": "Dati insufficienti",
+      "subtitleBelow": "Sei {{pct}}% sotto la spesa del mese scorso 🎯",
+      "subtitleAbove": "Stai spendendo il {{pct}}% in più del mese scorso",
+      "subtitleOnPar": "In linea con il mese scorso"
     },
     "firestoreTitle": "Configura Firestore",
     "firestoreSubtitle": "Aggiorna le regole di sicurezza nella Firebase Console.",

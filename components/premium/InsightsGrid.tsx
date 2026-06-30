@@ -29,14 +29,17 @@ export default function InsightsGrid({ items }: { items: InsightItem[] }) {
             borderColor: isDark ? colors.primary + '22' : colors.border,
           }]}
         >
-          <Text style={[styles.k, { color: colors.textSecondary }]} numberOfLines={1}>
-            {it.icon}  {it.label}
-          </Text>
+          <View style={styles.kRow}>
+            <Text style={styles.kIcon}>{it.icon}</Text>
+            <Text style={[styles.k, { color: colors.textSecondary }]} numberOfLines={2}>
+              {it.label}
+            </Text>
+          </View>
           <Text
             style={[styles.big, { color: colors.textPrimary }]}
             numberOfLines={1}
             adjustsFontSizeToFit
-            minimumFontScale={0.7}
+            minimumFontScale={0.6}
           >
             {it.value}
           </Text>
@@ -60,7 +63,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
   },
-  k: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.3, textTransform: 'uppercase' },
-  big: { fontSize: 21, fontFamily: Fonts.extraBold, marginTop: 8, letterSpacing: -0.5 },
+  kRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, minHeight: 30 },
+  kIcon: { fontSize: 13, lineHeight: 15 },
+  k: { flex: 1, fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.3, textTransform: 'uppercase', lineHeight: 14 },
+  big: { fontSize: 21, fontFamily: Fonts.extraBold, marginTop: 6, letterSpacing: -0.5 },
   delta: { fontSize: 11, fontFamily: Fonts.bold, marginTop: 4 },
 });
