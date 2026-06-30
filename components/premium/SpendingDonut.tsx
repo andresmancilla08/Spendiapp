@@ -19,15 +19,20 @@ interface Props {
 
 const R = 15.915;                // circunferencia ≈ 100 → % = longitud de dash
 const CIRC = 2 * Math.PI * R;
+const STROKE = 3.4;
 
 export default function SpendingDonut({ segments, total, formatCurrency, totalLabel }: Props) {
   const { colors } = useTheme();
 
+  // Gap entre segmentos solo si hay más de uno (una sola categoría = anillo continuo).
+  const gap = segments.length > 1 ? 2.2 : 0;
   let offset = 0;
   const arcs = segments.map((s) => {
     const pct = total > 0 ? (s.amount / total) * 100 : 0;
-    const arc = { color: s.color, dash: (pct / 100) * CIRC, off: offset };
-    offset += (pct / 100) * CIRC;
+    const full = (pct / 100) * CIRC;
+    const dash = Math.max(0.5, full - gap);
+    const arc = { color: s.color, dash, off: offset };
+    offset += full;
     return arc;
   });
 
@@ -40,9 +45,10 @@ export default function SpendingDonut({ segments, total, formatCurrency, totalLa
   return (
     <View style={styles.row}>
       <View style={styles.chartWrap}>
-        <Svg width={124} height={124} viewBox="0 0 42 42">
-          <G rotation={-90} origin="21, 21">
-            <Circle cx="21" cy="21" r={R} fill="transparent" stroke={colors.border} strokeWidth={4.5} />
+        <Svg width={120} height={120} viewBox="0 0 42 42">
+          {/* transform como atributo SVG (evita el warning transform-origin en web) */}
+          <G transform="rotate(-90 21 21)">
+            <Circle cx="21" cy="21" r={R} fill="transparent" stroke={colors.border} strokeWidth={STROKE} opacity={0.5} />
             {arcs.map((a, i) => (
               <Circle
                 key={i}
@@ -51,10 +57,10 @@ export default function SpendingDonut({ segments, total, formatCurrency, totalLa
                 r={R}
                 fill="transparent"
                 stroke={a.color}
-                strokeWidth={4.5}
+                strokeWidth={STROKE}
                 strokeDasharray={`${a.dash} ${CIRC - a.dash}`}
                 strokeDashoffset={-a.off}
-                strokeLinecap="butt"
+                strokeLinecap="round"
               />
             ))}
           </G>
@@ -82,14 +88,14 @@ export default function SpendingDonut({ segments, total, formatCurrency, totalLa
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 18 },
-  chartWrap: { width: 124, height: 124, alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 20 },
+  chartWrap: { width: 120, height: 120, alignItems: 'center', justifyContent: 'center' },
   center: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
-  centerVal: { fontSize: 18, fontFamily: Fonts.extraBold, letterSpacing: -0.5 },
+  centerVal: { fontSize: 19, fontFamily: Fonts.extraBold, letterSpacing: -0.5 },
   centerLbl: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1, marginTop: 2 },
-  legend: { flex: 1, gap: 9 },
+  legend: { flex: 1, gap: 10 },
   lg: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  dot: { width: 11, height: 11, borderRadius: 4 },
+  dot: { width: 10, height: 10, borderRadius: 3 },
   lgName: { flex: 1, fontSize: 13, fontFamily: Fonts.semiBold },
   lgPct: { fontSize: 12, fontFamily: Fonts.bold },
 });

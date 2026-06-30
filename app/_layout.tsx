@@ -14,10 +14,6 @@ import { PALETTE_MAP } from '../config/palettes';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import { isBiometricsAppEnrolled } from '../hooks/useBiometrics';
-import { Text } from 'react-native';
-import { Fonts } from '../config/fonts';
-import { useInactivityTimer } from '../hooks/useInactivityTimer';
-import AppDialog from '../components/AppDialog';
 import WebAppShell from '../components/WebAppShell';
 import { useTranslation } from 'react-i18next';
 import { savePendingConsent, hasAcceptedConsent, hasPendingConsent, setPendingConsent } from '../hooks/useConsentLogger';
@@ -53,40 +49,6 @@ function ThemedStack() {
         animation: 'none',
         contentStyle: { backgroundColor: colors.background },
       }}
-    />
-  );
-}
-
-function InactivityDialog({
-  visible,
-  countdown,
-  onStay,
-  onLogout,
-}: {
-  visible: boolean;
-  countdown: number;
-  onStay: () => void;
-  onLogout: () => void;
-}) {
-  const { colors } = useTheme();
-  const { t } = useTranslation();
-  return (
-    <AppDialog
-      visible={visible}
-      type="warning"
-      title={t('dialogs.inactivity.title')}
-      description={
-        <Text style={{ fontFamily: Fonts.regular, fontSize: 14, lineHeight: 20, textAlign: 'center', alignSelf: 'stretch', color: colors.textPrimary }}>
-          {t('dialogs.inactivity.descBefore')}{' '}
-          <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{countdown}</Text>{' '}
-          {t('dialogs.inactivity.descAfter')}
-        </Text>
-      }
-      primaryLabel={t('dialogs.inactivity.stayButton')}
-      secondaryLabel={t('dialogs.inactivity.logoutButton')}
-      onPrimary={onStay}
-      onSecondary={onLogout}
-      loading={false}
     />
   );
 }
@@ -294,9 +256,6 @@ export default function RootLayout() {
   const [i18nReady, setI18nReady] = useState(false);
   const isFirstAuthCall = useRef(true);
   const prevUserRef = useRef<boolean>(false);
-  const [inactivityDialogVisible, setInactivityDialogVisible] = useState(false);
-  const [countdown, setCountdown] = useState(30);
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [consentRequired, setConsentRequired] = useState(false);
   const consentUserUidRef = useRef<string | null>(null);
 
@@ -367,55 +326,6 @@ export default function RootLayout() {
   }, []);
 
 
-  const { reset: resetInactivityTimer } = useInactivityTimer({
-    timeoutMs: 300_000,
-    onInactive: () => {
-      setCountdown(30);
-      setInactivityDialogVisible(true);
-    },
-    enabled: !!user,
-  });
-
-  useEffect(() => {
-    if (!inactivityDialogVisible) {
-      if (countdownRef.current !== null) {
-        clearInterval(countdownRef.current);
-        countdownRef.current = null;
-      }
-      return;
-    }
-
-    countdownRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownRef.current!);
-          countdownRef.current = null;
-          signOut();
-          setInactivityDialogVisible(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      if (countdownRef.current !== null) {
-        clearInterval(countdownRef.current);
-        countdownRef.current = null;
-      }
-    };
-  }, [inactivityDialogVisible]);
-
-  const handleStay = () => {
-    setInactivityDialogVisible(false);
-    resetInactivityTimer();
-  };
-
-  const handleLogout = () => {
-    setInactivityDialogVisible(false);
-    signOut();
-  };
-
   const handleConsentAccept = () => {
     setConsentRequired(false);
     const isGoogle = auth.currentUser?.providerData?.some(p => p.providerId === 'google.com') ?? false;
@@ -433,12 +343,6 @@ export default function RootLayout() {
           <WebAppShell>
             <PaletteLoader />
             <ThemedStack />
-            <InactivityDialog
-              visible={inactivityDialogVisible}
-              countdown={countdown}
-              onStay={handleStay}
-              onLogout={handleLogout}
-            />
           </WebAppShell>
           <ConsentGuard consentRequired={consentRequired} onAccept={handleConsentAccept} />
         </FeatureFlagsProvider>

@@ -13,10 +13,11 @@ export interface InsightItem {
 
 export default function InsightsGrid({ items }: { items: InsightItem[] }) {
   const { colors, isDark } = useTheme();
+  const cols = colors as Record<string, string>;
   const toneColor = (t?: string) =>
     t === 'pos' ? colors.success
     : t === 'neg' ? colors.expense
-    : t === 'warn' ? '#FFB74D'
+    : t === 'warn' ? (cols.warning ?? '#FFB74D')
     : colors.textTertiary;
 
   return (
