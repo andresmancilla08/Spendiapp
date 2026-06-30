@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import {
   collection, query, where, onSnapshot, addDoc, updateDoc,
   deleteDoc, doc, serverTimestamp,
@@ -80,12 +80,20 @@ export function useFriends(uid: string) {
     };
   }, [uid, resolveLoading]);
 
-  const acceptedFriends = friendships.filter((f) => f.status === 'accepted');
-  const incomingRequests = friendships.filter(
-    (f) => f.status === 'pending' && f.toId === uid,
+  // useMemo estabiliza la referencia de los arrays derivados: sin esto se crea
+  // un array nuevo en cada render, y los consumidores que lo usan en deps de
+  // useEffect entran en bucle infinito (lista → loading → lista → loading...).
+  const acceptedFriends = useMemo(
+    () => friendships.filter((f) => f.status === 'accepted'),
+    [friendships],
   );
-  const outgoingRequests = friendships.filter(
-    (f) => f.status === 'pending' && f.fromId === uid,
+  const incomingRequests = useMemo(
+    () => friendships.filter((f) => f.status === 'pending' && f.toId === uid),
+    [friendships, uid],
+  );
+  const outgoingRequests = useMemo(
+    () => friendships.filter((f) => f.status === 'pending' && f.fromId === uid),
+    [friendships, uid],
   );
 
   return { acceptedFriends, incomingRequests, outgoingRequests, loading };
