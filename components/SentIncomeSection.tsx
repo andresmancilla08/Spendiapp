@@ -37,14 +37,19 @@ export default function SentIncomeSection({
     if (acceptedFriends.length === 0) return;
     setProfilesLoading(true);
     async function load() {
-      const profiles: UserProfile[] = [];
-      for (const f of acceptedFriends) {
-        const friendUid = f.fromId === userId ? f.toId : f.fromId;
-        const profile = await getUserProfile(friendUid);
-        if (profile) profiles.push(profile);
+      try {
+        const profiles: UserProfile[] = [];
+        for (const f of acceptedFriends) {
+          const friendUid = f.fromId === userId ? f.toId : f.fromId;
+          const profile = await getUserProfile(friendUid);
+          if (profile) profiles.push(profile);
+        }
+        setFriendProfiles(profiles);
+      } catch (err) {
+        console.error('[SentIncomeSection] error loading friend profiles:', err);
+      } finally {
+        setProfilesLoading(false);
       }
-      setFriendProfiles(profiles);
-      setProfilesLoading(false);
     }
     load();
   }, [acceptedFriends, userId, friendsLoading]);

@@ -33,15 +33,22 @@ export function useFriends(uid: string) {
     const q1 = query(collection(db, 'friendships'), where('fromId', '==', uid));
     const q2 = query(collection(db, 'friendships'), where('toId', '==', uid));
 
-    const unsub1 = onSnapshot(q1, (snap) => {
-      fromRef.current = {};
-      snap.docs.forEach((d) => {
-        fromRef.current[d.id] = { id: d.id, ...d.data() } as Friendship;
-      });
-      merge();
-      q1Done.current = true;
-      resolveLoading();
-    });
+    const unsub1 = onSnapshot(q1,
+      (snap) => {
+        fromRef.current = {};
+        snap.docs.forEach((d) => {
+          fromRef.current[d.id] = { id: d.id, ...d.data() } as Friendship;
+        });
+        merge();
+        q1Done.current = true;
+        resolveLoading();
+      },
+      (error) => {
+        console.error('[useFriends] outgoing query error:', error.code, error.message);
+        q1Done.current = true;
+        resolveLoading();
+      },
+    );
 
     const unsub2 = onSnapshot(q2,
       (snap) => {

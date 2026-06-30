@@ -95,6 +95,9 @@ export default function FriendReportScreen() {
         );
         setFriendsLoading(false);
       }
+    }).catch((err) => {
+      console.error('[friend-report] error loading friend profiles:', err);
+      if (!cancelled) setFriendsLoading(false);
     });
     return () => { cancelled = true; };
   }, [friendUids, friendshipsLoading]);
