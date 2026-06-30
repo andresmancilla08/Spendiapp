@@ -40,6 +40,8 @@ interface BalanceCardProps {
   loading?: boolean;
   /** Tratamiento premium: gradiente teal + barrido de luz + glow reforzado. */
   pro?: boolean;
+  /** Premium: variación % vs mes anterior. null = sin dato (mes anterior vacío). */
+  netFlow?: { incomePct: number | null; expensePct: number | null };
 }
 
 export default function BalanceCard({
@@ -56,6 +58,7 @@ export default function BalanceCard({
   monthNav,
   loading = false,
   pro = false,
+  netFlow,
 }: BalanceCardProps) {
   const { colors, isDark } = useTheme();
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -317,6 +320,28 @@ export default function BalanceCard({
         </Text>
       )}
 
+      {/* Premium: flujo neto vs mes anterior */}
+      {netFlow && !loading && !hidden && (netFlow.incomePct !== null || netFlow.expensePct !== null) && (
+        <View style={styles.netFlowRow}>
+          {netFlow.incomePct !== null && (
+            <View style={[styles.flowChip, { backgroundColor: (netFlow.incomePct >= 0 ? colors.success : colors.expense) + '20' }]}>
+              <AppIcon name={netFlow.incomePct >= 0 ? 'arrow-up' : 'arrow-down'} size={11} color={netFlow.incomePct >= 0 ? colors.success : colors.expense} />
+              <Text style={[styles.flowChipText, { color: netFlow.incomePct >= 0 ? colors.success : colors.expense }]}>
+                {Math.abs(netFlow.incomePct)}% ingresos
+              </Text>
+            </View>
+          )}
+          {netFlow.expensePct !== null && (
+            <View style={[styles.flowChip, { backgroundColor: (netFlow.expensePct <= 0 ? colors.success : colors.expense) + '20' }]}>
+              <AppIcon name={netFlow.expensePct <= 0 ? 'arrow-down' : 'arrow-up'} size={11} color={netFlow.expensePct <= 0 ? colors.success : colors.expense} />
+              <Text style={[styles.flowChipText, { color: netFlow.expensePct <= 0 ? colors.success : colors.expense }]}>
+                {Math.abs(netFlow.expensePct)}% gastos
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
+
       {/* Progress bar — solo cuando hay datos y no está oculto */}
       {totalIncome > 0 && !hidden && !loading && (
         <View style={styles.progressWrap}>
@@ -576,6 +601,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  netFlowRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 16,
+    marginTop: -4,
+  },
+  flowChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  flowChipText: { fontSize: 11, fontFamily: Fonts.bold },
 
   progressWrap: {
     flexDirection: 'row',

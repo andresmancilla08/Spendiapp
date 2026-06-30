@@ -25,6 +25,11 @@ import { useCards } from '../../hooks/useCards';
 import { Transaction } from '../../types/transaction';
 import { Skeleton, SummaryCardsSkeleton, TransactionRowSkeleton } from '../../components/Skeleton';
 import ProReveal from '../../components/ProReveal';
+import ProCardFx from '../../components/ProCardFx';
+import { useMonthlyTrend } from '../../hooks/useMonthlyTrend';
+import InsightsGrid, { InsightItem } from '../../components/premium/InsightsGrid';
+import SpendingDonut, { DonutSegment } from '../../components/premium/SpendingDonut';
+import TrendBars from '../../components/premium/TrendBars';
 import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
 import {
@@ -170,6 +175,20 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
   );
 }
 
+function ProSectionHeader({ label }: { label: string }) {
+  const { colors } = useTheme();
+  const { t } = useTranslation();
+  return (
+    <View style={styles.proSecRow}>
+      <View style={[styles.proBadge, { backgroundColor: colors.primary }]}>
+        <AppIcon name="star" size={9} color={colors.onPrimary} />
+        <Text style={[styles.proBadgeText, { color: colors.onPrimary }]}>{t('home.pro.badge')}</Text>
+      </View>
+      <Text style={[styles.proSecTitle, { color: colors.textTertiary }]}>{label}</Text>
+    </View>
+  );
+}
+
 export default function HomeScreen() {
   const { user, isPremium } = useAuthStore();
   const { categories } = useCategories(user?.uid ?? '');
@@ -259,6 +278,9 @@ export default function HomeScreen() {
     refreshKey
   );
 
+  // Premium: serie de 6 meses (tendencia + comparación con mes anterior).
+  const { data: trend } = useMonthlyTrend(user?.uid ?? '', year, month, 6, isPremium);
+
   const nameParts = user?.displayName?.split(' ') ?? ['Usuario'];
   const firstName = nameParts[0];
   const lastInitial = nameParts[1] ? ` ${nameParts[1].charAt(0)}.` : '';
@@ -333,6 +355,72 @@ export default function HomeScreen() {
     pillPercent >= 85 ? 'warning' as const
     : pillPercent >= 60 ? 'alert-circle' as const
     : 'trending-down' as const;
+
+  // ===== Premium: flujo neto, insights, breakdown por categoría, tendencia =====
+  const prevBucket = trend.length >= 2 ? trend[trend.length - 2] : null;
+  const pctChange = (cur: number, prev: number) => (prev > 0 ? Math.round(((cur - prev) / prev) * 100) : null);
+  const compactCurrency = (n: number) => {
+    if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1)}M`;
+    if (n >= 1000) return `$${Math.round(n / 1000)}K`;
+    return formatCurrency(Math.round(n));
+  };
+
+  const netFlow = prevBucket
+    ? { incomePct: pctChange(totalIncome, prevBucket.income), expensePct: pctChange(totalExpenses, prevBucket.expenses) }
+    : undefined;
+
+  const DONUT_PALETTE = ['#00ACC1', '#FFB74D', '#00A896', '#B39DDB', '#FF8E8E', '#9CCC65'];
+  const byCat: Record<string, number> = {};
+  transactions.forEach((tx) => {
+    if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
+  });
+  const sortedCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const donutSegments: DonutSegment[] = sortedCats.slice(0, 5).map(([key, amount], i) => ({
+    key,
+    amount,
+    label: customCatMap[key]?.name ?? CATEGORY_META[key]?.icon ?? key,
+    color: CATEGORY_META[key]?.color ?? DONUT_PALETTE[i % DONUT_PALETTE.length],
+  }));
+  const restSum = sortedCats.slice(5).reduce((s, [, v]) => s + v, 0);
+  if (restSum > 0) donutSegments.push({ key: '__rest', amount: restSum, label: t('home.pro.otherCategories'), color: colors.textTertiary });
+  const topCategory = donutSegments[0];
+
+  const savingsRate = totalIncome > 0 ? Math.round((balance / totalIncome) * 100) : 0;
+  const prevSavingsRate = prevBucket && prevBucket.income > 0 ? Math.round((prevBucket.balance / prevBucket.income) * 100) : null;
+  const savingsDelta = prevSavingsRate != null ? savingsRate - prevSavingsRate : null;
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const dayOfMonth = isCurrentMonth ? today.getDate() : daysInMonth;
+  const dailyAvg = dayOfMonth > 0 ? totalExpenses / dayOfMonth : 0;
+  const projection = isCurrentMonth && dayOfMonth > 0 ? (totalExpenses / dayOfMonth) * daysInMonth : totalExpenses;
+  const prevDaily = prevBucket ? prevBucket.expenses / new Date(prevBucket.year, prevBucket.month + 1, 0).getDate() : null;
+  const dailyDelta = prevDaily && prevDaily > 0 ? Math.round(((dailyAvg - prevDaily) / prevDaily) * 100) : null;
+
+  const insights: InsightItem[] = [
+    {
+      key: 'savings', icon: '💧', label: t('home.pro.savingsRate'), value: `${savingsRate}%`,
+      delta: savingsDelta != null ? `${savingsDelta >= 0 ? '▲' : '▼'} ${t('home.pro.points', { value: Math.abs(savingsDelta) })}` : undefined,
+      tone: savingsDelta != null ? (savingsDelta >= 0 ? 'pos' : 'neg') : 'muted',
+    },
+    {
+      key: 'projection', icon: '📈', label: t('home.pro.projection'), value: compactCurrency(projection),
+      delta: isCurrentMonth ? t('home.pro.estimatedSpend') : undefined, tone: 'warn',
+    },
+    {
+      key: 'topcat', icon: '🍽️', label: t('home.pro.topCategory'),
+      value: topCategory ? topCategory.label : '—',
+      delta: topCategory && totalExpenses > 0 ? `${formatCurrency(topCategory.amount)} · ${Math.round((topCategory.amount / totalExpenses) * 100)}%` : undefined,
+      tone: 'neg',
+    },
+    {
+      key: 'daily', icon: '📅', label: t('home.pro.dailyAvg'), value: compactCurrency(dailyAvg),
+      delta: dailyDelta != null ? `${dailyDelta <= 0 ? '▼' : '▲'} ${Math.abs(dailyDelta)}%` : undefined,
+      tone: dailyDelta != null ? (dailyDelta <= 0 ? 'pos' : 'neg') : 'muted',
+    },
+  ];
+
+  const trendActiveIndex = trend.length - 1;
+  const hasCategoryData = donutSegments.length > 0 && totalExpenses > 0;
 
   return (
     <ScreenTransition>
@@ -427,6 +515,7 @@ export default function HomeScreen() {
         <ProReveal index={1}>
         <BalanceCard
           pro={isPremium}
+          netFlow={isPremium ? netFlow : undefined}
           loading={loading || refreshing}
           displayBalance={displayBalance}
           totalIncome={totalIncome}
@@ -474,30 +563,69 @@ export default function HomeScreen() {
           </>
         ) : (
           <>
-            {/* Income / Expenses */}
-            <ProReveal index={2}>
-            <View style={styles.summaryRow}>
-              <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '28' }]}>
-                <View style={[styles.summaryIconCircle, { backgroundColor: colors.primary }]}>
-                  <AppIcon name="arrow-down" size={24} color={colors.onPrimary} />
-                </View>
-                <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.incomeLabel')}</Text>
-                <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.primary, letterSpacing: hidden ? 3 : undefined }]}>
-                  {hidden ? '••••••' : formatCurrency(totalIncome)}
-                </Text>
-              </View>
+            {isPremium ? (
+              <>
+                {/* Insights del mes */}
+                <ProReveal index={2}>
+                  <ProSectionHeader label={t('home.pro.sectionInsights')} />
+                  <InsightsGrid items={insights} />
+                </ProReveal>
 
-              <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.expense + '28' }]}>
-                <View style={[styles.summaryIconCircle, { backgroundColor: colors.expenseLight }]}>
-                  <AppIcon name="arrow-up" size={24} color={colors.expense} />
+                {/* Gastos por categoría */}
+                {hasCategoryData && (
+                  <ProReveal index={3}>
+                    <ProSectionHeader label={t('home.pro.sectionByCategory')} />
+                    <View style={[styles.proCard, { backgroundColor: colors.surface, borderColor: isDark ? colors.primary + '20' : colors.border }]}>
+                      <ProCardFx intensity="subtle" trigger={`${year}-${month}`} />
+                      <SpendingDonut
+                        segments={donutSegments}
+                        total={totalExpenses}
+                        formatCurrency={formatCurrency}
+                        totalLabel={t('home.pro.total')}
+                      />
+                    </View>
+                  </ProReveal>
+                )}
+
+                {/* Tendencia 6 meses */}
+                <ProReveal index={4}>
+                  <ProSectionHeader label={t('home.pro.sectionTrend')} />
+                  <View style={[styles.proCard, { backgroundColor: colors.surface, borderColor: isDark ? colors.primary + '20' : colors.border }]}>
+                    <TrendBars
+                      data={trend}
+                      metric="balance"
+                      monthLabels={MONTHS}
+                      activeIndex={trendActiveIndex}
+                      formatCurrency={formatCurrency}
+                    />
+                  </View>
+                </ProReveal>
+              </>
+            ) : (
+              <ProReveal index={2}>
+                <View style={styles.summaryRow}>
+                  <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '28' }]}>
+                    <View style={[styles.summaryIconCircle, { backgroundColor: colors.primary }]}>
+                      <AppIcon name="arrow-down" size={24} color={colors.onPrimary} />
+                    </View>
+                    <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.incomeLabel')}</Text>
+                    <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.primary, letterSpacing: hidden ? 3 : undefined }]}>
+                      {hidden ? '••••••' : formatCurrency(totalIncome)}
+                    </Text>
+                  </View>
+
+                  <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.expense + '28' }]}>
+                    <View style={[styles.summaryIconCircle, { backgroundColor: colors.expenseLight }]}>
+                      <AppIcon name="arrow-up" size={24} color={colors.expense} />
+                    </View>
+                    <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.expensesLabel')}</Text>
+                    <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.expense, letterSpacing: hidden ? 3 : undefined }]}>
+                      {hidden ? '••••••' : formatCurrency(totalExpenses)}
+                    </Text>
+                  </View>
                 </View>
-                <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.expensesLabel')}</Text>
-                <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.expense, letterSpacing: hidden ? 3 : undefined }]}>
-                  {hidden ? '••••••' : formatCurrency(totalExpenses)}
-                </Text>
-              </View>
-            </View>
-            </ProReveal>
+              </ProReveal>
+            )}
 
             {/* Banner sin tarjetas */}
             {cards.length === 0 && !cardsLoading && (
@@ -523,7 +651,7 @@ export default function HomeScreen() {
             )}
 
             {/* Recent activity */}
-            <ProReveal index={3}>
+            <ProReveal index={5}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('home.recentActivity')}</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/history')} activeOpacity={0.7}>
@@ -667,6 +795,23 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { fontSize: 18, fontFamily: Fonts.bold },
   sectionLink: { fontSize: 13, fontFamily: Fonts.semiBold },
+
+  // Premium sections
+  proSecRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 24, marginBottom: 12 },
+  proBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    paddingHorizontal: 7, paddingVertical: 3, borderRadius: 20,
+  },
+  proBadgeText: { fontSize: 9, fontFamily: Fonts.extraBold, letterSpacing: 0.5, textTransform: 'uppercase' },
+  proSecTitle: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1, textTransform: 'uppercase' },
+  proCard: {
+    borderRadius: 22,
+    borderWidth: 1,
+    padding: 18,
+    marginBottom: 16,
+    overflow: 'hidden',
+    position: 'relative',
+  },
 
   // Transactions
   txCard: { borderRadius: 20, marginBottom: 16, overflow: 'hidden' },
