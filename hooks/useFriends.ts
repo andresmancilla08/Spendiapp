@@ -26,6 +26,12 @@ export function useFriends(uid: string) {
     q2Done.current = false;
     setLoading(true);
 
+    // ponytail: red de seguridad — los listeners onSnapshot de Firestore no
+    // disparan error al no poder conectar, se quedan esperando para siempre.
+    // Si en 8s ningún listener respondió, dejamos de mostrar el spinner; los
+    // datos reales llegan luego cuando el listener resuelva.
+    const safety = setTimeout(() => setLoading(false), 8000);
+
     const merge = () => {
       setFriendships(Object.values({ ...fromRef.current, ...toRef.current }));
     };
@@ -68,6 +74,7 @@ export function useFriends(uid: string) {
     );
 
     return () => {
+      clearTimeout(safety);
       unsub1();
       unsub2();
     };
