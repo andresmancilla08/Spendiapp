@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Image,
   RefreshControl,
-  ActivityIndicator,
   Platform,
   Animated,
 } from 'react-native';
@@ -24,7 +23,7 @@ import { useToast } from '../../context/ToastContext';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useCards } from '../../hooks/useCards';
 import { Transaction } from '../../types/transaction';
-import { HomeScreenSkeleton } from '../../components/Skeleton';
+import { Skeleton, SummaryCardsSkeleton, TransactionRowSkeleton } from '../../components/Skeleton';
 import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
 import {
@@ -184,9 +183,20 @@ export default function HomeScreen() {
   const { setSelectedTransaction, pendingEditTx, setPendingEditTx, lastAction, setLastAction } = useHistoryStore();
   const { showToast } = useToast();
   const now = new Date();
+  const MONTHS = t('history.months', { returnObjects: true }) as string[];
+  const MIN_YEAR = 2020;
+  const MAX_YEAR = now.getFullYear() + 2;
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth());
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+  const isPastMonth = year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth());
   const [refreshKey, setRefreshKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  // Siempre volver al mes actual al entrar al home
   useFocusEffect(useCallback(() => {
+    const n = new Date();
+    setYear(n.getFullYear());
+    setMonth(n.getMonth());
     if (pendingEditTx) {
       router.push('/edit-transaction');
     }
@@ -243,8 +253,8 @@ export default function HomeScreen() {
 
   const { transactions, totalIncome, totalExpenses, balance, loading, error } = useTransactions(
     user?.uid ?? '',
-    now.getFullYear(),
-    now.getMonth(),
+    year,
+    month,
     refreshKey
   );
 
@@ -271,17 +281,15 @@ export default function HomeScreen() {
   }, [balance, loading]);
 
   const handleTapTx = useCallback((tx: Transaction) => {
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
     setSelectedTransaction(tx, {
       cardsMap,
-      viewYear: currentYear,
-      viewMonth: currentMonth,
-      isPastMonth: false,
+      viewYear: year,
+      viewMonth: month,
+      isPastMonth,
       currentUserName: user?.displayName ?? '',
     });
     router.push('/transaction-detail');
-  }, [setSelectedTransaction, cardsMap, user?.displayName]);
+  }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, user?.displayName]);
 
   // Greeting contextual por hora
   const hour = new Date().getHours();
@@ -382,36 +390,41 @@ export default function HomeScreen() {
           />
         }
       >
-        {(loading || refreshing) && <HomeScreenSkeleton />}
-        {!loading && !refreshing && <>
-
         {/* Greeting */}
-        <View style={styles.greeting}>
-          <Text style={[styles.greetingHi, { color: colors.textPrimary }]}>
-            {t(greetingKey, { name: firstName })}
-          </Text>
-          <View style={styles.greetingSubRow}>
-            <Text style={[styles.greetingSubtitle, { color: colors.textSecondary }]}>
-              {subtitleKey
-                ? t(subtitleKey)
-                : t('home.subtitleSpentToday', { amount: formatCurrency(todaySpent) })}
-            </Text>
-            {pillVisible && (
-              <View style={[styles.pill, { backgroundColor: pillColor + '20' }]}>
-                <AppIcon name={pillIcon} size={11} color={pillColor} />
-                <Text style={[styles.pillText, { color: pillColor }]}>
-                  {t('home.pillSpent', { percent: pillPercent })}
-                </Text>
-              </View>
-            )}
+        {loading || refreshing ? (
+          <View style={styles.greeting}>
+            <Skeleton width={180} height={22} borderRadius={8} />
+            <Skeleton width={130} height={13} borderRadius={6} style={{ marginTop: 8 } as any} />
           </View>
-        </View>
+        ) : (
+          <View style={styles.greeting}>
+            <Text style={[styles.greetingHi, { color: colors.textPrimary }]}>
+              {t(greetingKey, { name: firstName })}
+            </Text>
+            <View style={styles.greetingSubRow}>
+              <Text style={[styles.greetingSubtitle, { color: colors.textSecondary }]}>
+                {subtitleKey
+                  ? t(subtitleKey)
+                  : t('home.subtitleSpentToday', { amount: formatCurrency(todaySpent) })}
+              </Text>
+              {pillVisible && (
+                <View style={[styles.pill, { backgroundColor: pillColor + '20' }]}>
+                  <AppIcon name={pillIcon} size={11} color={pillColor} />
+                  <Text style={[styles.pillText, { color: pillColor }]}>
+                    {t('home.pillSpent', { percent: pillPercent })}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
 
         {/* PWA Install Banner */}
-        {Platform.OS === 'web' && <PwaInstallBanner />}
+        {Platform.OS === 'web' && !loading && !refreshing && <PwaInstallBanner />}
 
-        {/* Balance card */}
+        {/* Balance card — siempre visible para mantener el selector de mes fijo */}
         <BalanceCard
+          loading={loading || refreshing}
           displayBalance={displayBalance}
           totalIncome={totalIncome}
           totalExpenses={totalExpenses}
@@ -425,91 +438,119 @@ export default function HomeScreen() {
             toggleHidden();
           }}
           footer={isPremium ? <ExchangeRateChips /> : undefined}
+          monthNav={{
+            year,
+            month,
+            months: MONTHS,
+            minYear: MIN_YEAR,
+            maxYear: MAX_YEAR,
+            onChange: (y, m) => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setYear(y);
+              setMonth(m);
+            },
+          }}
         />
 
-        {/* Income / Expenses */}
-        <View style={styles.summaryRow}>
-          <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '28' }]}>
-            <View style={[styles.summaryIconCircle, { backgroundColor: colors.primary }]}>
-              <AppIcon name="arrow-down" size={24} color={colors.onPrimary} />
+        {loading || refreshing ? (
+          <>
+            {/* Skeleton del resto mientras carga el mes */}
+            <SummaryCardsSkeleton />
+            <View style={styles.sectionHeader}>
+              <Skeleton width={160} height={18} borderRadius={6} />
+              <Skeleton width={55} height={13} borderRadius={6} />
             </View>
-            <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.incomeLabel')}</Text>
-            <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.primary, letterSpacing: hidden ? 3 : undefined }]}>
-              {hidden ? '••••••' : formatCurrency(totalIncome)}
-            </Text>
-          </View>
-
-          <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.expense + '28' }]}>
-            <View style={[styles.summaryIconCircle, { backgroundColor: colors.expenseLight }]}>
-              <AppIcon name="arrow-up" size={24} color={colors.expense} />
+            <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
+              {[0, 1, 2].map((i) => (
+                <View key={i} style={i < 2 ? { borderBottomWidth: 1, borderBottomColor: colors.border } : undefined}>
+                  <TransactionRowSkeleton />
+                </View>
+              ))}
             </View>
-            <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.expensesLabel')}</Text>
-            <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.expense, letterSpacing: hidden ? 3 : undefined }]}>
-              {hidden ? '••••••' : formatCurrency(totalExpenses)}
-            </Text>
-          </View>
-        </View>
-
-        {/* Banner sin tarjetas */}
-        {cards.length === 0 && !cardsLoading && (
-          <TouchableOpacity
-            style={[
-              styles.noCardsBanner,
-              { backgroundColor: colors.primaryLight, borderLeftColor: colors.primary },
-            ]}
-            onPress={() => router.push('/(onboarding)/select-cards')}
-            activeOpacity={0.8}
-          >
-            <AppIcon name="card-outline" size={24} color={colors.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.noCardsBannerTitle, { color: colors.textPrimary }]}>
-                {t('home.noCardsBannerTitle')}
-              </Text>
-              <Text style={[styles.noCardsBannerSub, { color: colors.textSecondary }]}>
-                {t('home.noCardsBannerSub')}
-              </Text>
-            </View>
-            <AppIcon name="chevron-forward" size={18} color={colors.primary} />
-          </TouchableOpacity>
-        )}
-
-        {/* Recent activity */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('home.recentActivity')}</Text>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/history')} activeOpacity={0.7}>
-            <Text style={[styles.sectionLink, { color: colors.primary }]}>{t('home.seeAll')}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {loading ? (
-          <ActivityIndicator color={colors.primary} style={{ marginVertical: 32 }} />
-        ) : error ? (
-          <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>🔒</Text>
-              <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('home.firestoreTitle')}</Text>
-              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
-                {t('home.firestoreSubtitle')}
-              </Text>
-            </View>
-          </View>
-        ) : recent.length === 0 ? (
-          <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>📭</Text>
-              <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('home.noTransactions')}</Text>
-              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>{t('home.noTransactionsSub')}</Text>
-            </View>
-          </View>
+          </>
         ) : (
-          <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
-            {recent.map((tx, i) => (
-              <TransactionRow key={tx.id} item={tx} isLast={i === recent.length - 1} cardsMap={cardsMap} onPress={() => handleTapTx(tx)} customCatMap={customCatMap} />
-            ))}
-          </View>
-        )}
+          <>
+            {/* Income / Expenses */}
+            <View style={styles.summaryRow}>
+              <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '28' }]}>
+                <View style={[styles.summaryIconCircle, { backgroundColor: colors.primary }]}>
+                  <AppIcon name="arrow-down" size={24} color={colors.onPrimary} />
+                </View>
+                <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.incomeLabel')}</Text>
+                <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.primary, letterSpacing: hidden ? 3 : undefined }]}>
+                  {hidden ? '••••••' : formatCurrency(totalIncome)}
+                </Text>
+              </View>
 
-        </>}
+              <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.expense + '28' }]}>
+                <View style={[styles.summaryIconCircle, { backgroundColor: colors.expenseLight }]}>
+                  <AppIcon name="arrow-up" size={24} color={colors.expense} />
+                </View>
+                <Text style={[styles.summaryCardLabel, { color: colors.textTertiary }]}>{t('home.expensesLabel')}</Text>
+                <Text style={[styles.summaryCardValue, { color: hidden ? colors.textTertiary : colors.expense, letterSpacing: hidden ? 3 : undefined }]}>
+                  {hidden ? '••••••' : formatCurrency(totalExpenses)}
+                </Text>
+              </View>
+            </View>
+
+            {/* Banner sin tarjetas */}
+            {cards.length === 0 && !cardsLoading && (
+              <TouchableOpacity
+                style={[
+                  styles.noCardsBanner,
+                  { backgroundColor: colors.primaryLight, borderLeftColor: colors.primary },
+                ]}
+                onPress={() => router.push('/(onboarding)/select-cards')}
+                activeOpacity={0.8}
+              >
+                <AppIcon name="card-outline" size={24} color={colors.primary} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.noCardsBannerTitle, { color: colors.textPrimary }]}>
+                    {t('home.noCardsBannerTitle')}
+                  </Text>
+                  <Text style={[styles.noCardsBannerSub, { color: colors.textSecondary }]}>
+                    {t('home.noCardsBannerSub')}
+                  </Text>
+                </View>
+                <AppIcon name="chevron-forward" size={18} color={colors.primary} />
+              </TouchableOpacity>
+            )}
+
+            {/* Recent activity */}
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('home.recentActivity')}</Text>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/history')} activeOpacity={0.7}>
+                <Text style={[styles.sectionLink, { color: colors.primary }]}>{t('home.seeAll')}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {error ? (
+              <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyIcon}>🔒</Text>
+                  <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('home.firestoreTitle')}</Text>
+                  <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+                    {t('home.firestoreSubtitle')}
+                  </Text>
+                </View>
+              </View>
+            ) : recent.length === 0 ? (
+              <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyIcon}>📭</Text>
+                  <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('home.noTransactions')}</Text>
+                  <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>{t('home.noTransactionsSub')}</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
+                {recent.map((tx, i) => (
+                  <TransactionRow key={tx.id} item={tx} isLast={i === recent.length - 1} cardsMap={cardsMap} onPress={() => handleTapTx(tx)} customCatMap={customCatMap} />
+                ))}
+              </View>
+            )}
+          </>
+        )}
       </ScrollView>
 
       {/* FAB */}
