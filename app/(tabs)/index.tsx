@@ -46,6 +46,7 @@ import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
+import { resolveCategory } from '../../constants/categories';
 import type { Category } from '../../types/category';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import AnnouncementBanner from '../../components/AnnouncementBanner';
@@ -369,6 +370,15 @@ export default function HomeScreen() {
     ? { incomePct: pctChange(totalIncome, prevBucket.income), expensePct: pctChange(totalExpenses, prevBucket.expenses) }
     : undefined;
 
+  // Subtítulo premium con historia de datos (comparación de gasto vs mes anterior).
+  let premiumSubtitle: string | null = null;
+  if (isPremium && isCurrentMonth && prevBucket && prevBucket.expenses > 0) {
+    const pct = Math.round(((totalExpenses - prevBucket.expenses) / prevBucket.expenses) * 100);
+    premiumSubtitle = pct <= -3 ? t('home.pro.subtitleBelow', { pct: Math.abs(pct) })
+      : pct >= 3 ? t('home.pro.subtitleAbove', { pct })
+      : t('home.pro.subtitleOnPar');
+  }
+
   const DONUT_PALETTE = ['#00ACC1', '#FFB74D', '#00A896', '#B39DDB', '#FF8E8E', '#9CCC65'];
   const byCat: Record<string, number> = {};
   transactions.forEach((tx) => {
@@ -378,7 +388,7 @@ export default function HomeScreen() {
   const donutSegments: DonutSegment[] = sortedCats.slice(0, 5).map(([key, amount], i) => ({
     key,
     amount,
-    label: customCatMap[key]?.name ?? CATEGORY_META[key]?.icon ?? key,
+    label: resolveCategory(key, categories).name,
     color: CATEGORY_META[key]?.color ?? DONUT_PALETTE[i % DONUT_PALETTE.length],
   }));
   const restSum = sortedCats.slice(5).reduce((s, [, v]) => s + v, 0);
@@ -409,7 +419,7 @@ export default function HomeScreen() {
     {
       key: 'topcat', icon: '🍽️', label: t('home.pro.topCategory'),
       value: topCategory ? topCategory.label : '—',
-      delta: topCategory && totalExpenses > 0 ? `${formatCurrency(topCategory.amount)} · ${Math.round((topCategory.amount / totalExpenses) * 100)}%` : undefined,
+      delta: topCategory && totalExpenses > 0 ? `${compactCurrency(topCategory.amount)} · ${Math.round((topCategory.amount / totalExpenses) * 100)}%` : undefined,
       tone: 'neg',
     },
     {
@@ -492,9 +502,10 @@ export default function HomeScreen() {
             </Text>
             <View style={styles.greetingSubRow}>
               <Text style={[styles.greetingSubtitle, { color: colors.textSecondary }]}>
-                {subtitleKey
-                  ? t(subtitleKey)
-                  : t('home.subtitleSpentToday', { amount: formatCurrency(todaySpent) })}
+                {premiumSubtitle
+                  ?? (subtitleKey
+                    ? t(subtitleKey)
+                    : t('home.subtitleSpentToday', { amount: formatCurrency(todaySpent) }))}
               </Text>
               {pillVisible && (
                 <View style={[styles.pill, { backgroundColor: pillColor + '20' }]}>

@@ -184,7 +184,10 @@
       "otherCategories": "Other",
       "total": "TOTAL",
       "points": "{{value}} pts",
-      "noData": "Not enough data"
+      "noData": "Not enough data",
+      "subtitleBelow": "You're {{pct}}% below last month's spending 🎯",
+      "subtitleAbove": "You're spending {{pct}}% more than last month",
+      "subtitleOnPar": "On par with last month"
     },
     "firestoreTitle": "Set up Firestore",
     "firestoreSubtitle": "Update the security rules in Firebase Console.",
