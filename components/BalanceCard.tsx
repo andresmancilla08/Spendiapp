@@ -8,7 +8,6 @@ import {
   ReactNode,
 } from 'react-native';
 import { useState } from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon from './AppIcon';
 import ProSheen from './ProSheen';
 import { useTheme } from '../context/ThemeContext';
@@ -91,41 +90,30 @@ export default function BalanceCard({
         styles.card,
         {
           backgroundColor: colors.surfaceElevated,
-          borderColor: pro ? colors.primary + '4A' : colors.primary + '2E',
+          // Premium: elevación NEUTRA (sin halo de color) + borde sutil. El glow teal
+          // exterior leía barato; el premium se logra por restraint, no por brillo.
+          borderColor: pro ? (isDark ? colors.primary + '22' : colors.border) : colors.primary + '2E',
           ...(Platform.OS !== 'web' && {
-            shadowColor: isDark || pro ? colors.primary : '#000000',
-            shadowOffset: { width: 0, height: pro ? 8 : 4 },
-            shadowOpacity: pro ? (isDark ? 0.55 : 0.18) : (isDark ? 0.40 : 0.07),
-            shadowRadius: pro ? (isDark ? 32 : 20) : (isDark ? 24 : 8),
-            elevation: pro ? 16 : (isDark ? 12 : 4),
+            shadowColor: pro ? (isDark ? '#000000' : '#10282E') : (isDark ? colors.primary : '#000000'),
+            shadowOffset: { width: 0, height: pro ? 16 : 4 },
+            shadowOpacity: pro ? (isDark ? 0.5 : 0.16) : (isDark ? 0.40 : 0.07),
+            shadowRadius: pro ? (isDark ? 34 : 26) : (isDark ? 24 : 8),
+            elevation: pro ? 14 : (isDark ? 12 : 4),
           }),
           ...(Platform.OS === 'web' && {
             boxShadow: pro
-              ? (isDark ? `0 12px 44px 0 ${colors.primary}55` : `0 10px 30px 0 ${colors.primary}33`)
+              ? (isDark ? '0 18px 36px -16px rgba(0,0,0,0.6)' : '0 16px 30px -14px rgba(16,40,46,0.20)')
               : (isDark ? `0 8px 32px 0 ${colors.primary}38` : '0 4px 12px 0 rgba(0,0,0,0.08)'),
           } as any),
         },
       ]}
     >
-      {/* Premium: lavado de gradiente teal + barrido de luz */}
+      {/* Premium: solo un barrido de luz muy sutil (sin lavado teal pesado). */}
       {pro && (
-        <>
-          <LinearGradient
-            colors={
-              isDark
-                ? [colors.primary + '22', 'transparent', colors.primary + '12']
-                : [colors.primary + '24', 'transparent', colors.primary + '12']
-            }
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
-          <ProSheen
-            trigger={`${displayBalance}-${loading}`}
-            color={isDark ? 'rgba(255,255,255,0.22)' : colors.primary + '3D'}
-          />
-        </>
+        <ProSheen
+          trigger={`${displayBalance}-${loading}`}
+          color={isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,160,180,0.12)'}
+        />
       )}
 
       {/* Inner highlight */}
@@ -305,11 +293,12 @@ export default function BalanceCard({
         <Text
           style={[
             styles.balanceAmount,
+            pro && styles.balanceAmountPro,
             {
               color: hidden
                 ? colors.textTertiary
                 : isPositive ? colors.primary : colors.expense,
-              letterSpacing: hidden ? 4 : -0.5,
+              letterSpacing: hidden ? 4 : pro ? -1 : -0.5,
             },
           ]}
           numberOfLines={1}
@@ -596,6 +585,10 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     minHeight: 52,
     textAlign: 'center',
+  },
+  balanceAmountPro: {
+    fontSize: 44,
+    fontVariant: ['tabular-nums'],
   },
   amountLoader: {
     alignItems: 'center',

@@ -109,7 +109,6 @@ export default function SettingsScreen() {
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <OptionRow icon="lock-closed-outline" label={t('settings.security.changePin')} onPress={() => Alert.alert(t('common.comingSoon'), t('common.comingSoonDesc'))} />
           <OptionRow icon="finger-print-outline" label={t('settings.security.faceId')} value={t('settings.security.faceIdValue')} onPress={() => Alert.alert(t('common.comingSoon'), t('common.comingSoonDesc'))} />
-          <OptionRow icon="time-outline" label={t('settings.security.inactivity')} value={t('settings.security.inactivityValue')} onPress={() => Alert.alert(t('common.comingSoon'), t('common.comingSoonDesc'))} />
         </View>
 
         <SectionTitle label={t('settings.sections.notifications')} />
