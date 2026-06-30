@@ -24,6 +24,7 @@ import { useTransactions } from '../../hooks/useTransactions';
 import { useCards } from '../../hooks/useCards';
 import { Transaction } from '../../types/transaction';
 import { Skeleton, SummaryCardsSkeleton, TransactionRowSkeleton } from '../../components/Skeleton';
+import ProReveal from '../../components/ProReveal';
 import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
 import {
@@ -397,7 +398,7 @@ export default function HomeScreen() {
             <Skeleton width={130} height={13} borderRadius={6} style={{ marginTop: 8 } as any} />
           </View>
         ) : (
-          <View style={styles.greeting}>
+          <ProReveal index={0} style={styles.greeting}>
             <Text style={[styles.greetingHi, { color: colors.textPrimary }]}>
               {t(greetingKey, { name: firstName })}
             </Text>
@@ -416,14 +417,16 @@ export default function HomeScreen() {
                 </View>
               )}
             </View>
-          </View>
+          </ProReveal>
         )}
 
         {/* PWA Install Banner */}
         {Platform.OS === 'web' && !loading && !refreshing && <PwaInstallBanner />}
 
         {/* Balance card — siempre visible para mantener el selector de mes fijo */}
+        <ProReveal index={1}>
         <BalanceCard
+          pro={isPremium}
           loading={loading || refreshing}
           displayBalance={displayBalance}
           totalIncome={totalIncome}
@@ -438,7 +441,7 @@ export default function HomeScreen() {
             toggleHidden();
           }}
           footer={isPremium ? <ExchangeRateChips /> : undefined}
-          monthNav={{
+          monthNav={isPremium ? {
             year,
             month,
             months: MONTHS,
@@ -449,8 +452,9 @@ export default function HomeScreen() {
               setYear(y);
               setMonth(m);
             },
-          }}
+          } : undefined}
         />
+        </ProReveal>
 
         {loading || refreshing ? (
           <>
@@ -471,6 +475,7 @@ export default function HomeScreen() {
         ) : (
           <>
             {/* Income / Expenses */}
+            <ProReveal index={2}>
             <View style={styles.summaryRow}>
               <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '28' }]}>
                 <View style={[styles.summaryIconCircle, { backgroundColor: colors.primary }]}>
@@ -492,6 +497,7 @@ export default function HomeScreen() {
                 </Text>
               </View>
             </View>
+            </ProReveal>
 
             {/* Banner sin tarjetas */}
             {cards.length === 0 && !cardsLoading && (
@@ -517,6 +523,7 @@ export default function HomeScreen() {
             )}
 
             {/* Recent activity */}
+            <ProReveal index={3}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('home.recentActivity')}</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/history')} activeOpacity={0.7}>
@@ -549,6 +556,7 @@ export default function HomeScreen() {
                 ))}
               </View>
             )}
+            </ProReveal>
           </>
         )}
       </ScrollView>

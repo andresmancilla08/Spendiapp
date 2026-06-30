@@ -8,7 +8,9 @@ import {
   ReactNode,
 } from 'react-native';
 import { useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon from './AppIcon';
+import ProSheen from './ProSheen';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
@@ -36,6 +38,8 @@ interface BalanceCardProps {
   footer?: ReactNode;
   monthNav?: MonthNav;
   loading?: boolean;
+  /** Tratamiento premium: gradiente teal + barrido de luz + glow reforzado. */
+  pro?: boolean;
 }
 
 export default function BalanceCard({
@@ -51,6 +55,7 @@ export default function BalanceCard({
   footer,
   monthNav,
   loading = false,
+  pro = false,
 }: BalanceCardProps) {
   const { colors, isDark } = useTheme();
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -83,22 +88,43 @@ export default function BalanceCard({
         styles.card,
         {
           backgroundColor: colors.surfaceElevated,
-          borderColor: colors.primary + '2E',
+          borderColor: pro ? colors.primary + '4A' : colors.primary + '2E',
           ...(Platform.OS !== 'web' && {
-            shadowColor: isDark ? colors.primary : '#000000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: isDark ? 0.40 : 0.07,
-            shadowRadius: isDark ? 24 : 8,
-            elevation: isDark ? 12 : 4,
+            shadowColor: isDark || pro ? colors.primary : '#000000',
+            shadowOffset: { width: 0, height: pro ? 8 : 4 },
+            shadowOpacity: pro ? (isDark ? 0.55 : 0.18) : (isDark ? 0.40 : 0.07),
+            shadowRadius: pro ? (isDark ? 32 : 20) : (isDark ? 24 : 8),
+            elevation: pro ? 16 : (isDark ? 12 : 4),
           }),
           ...(Platform.OS === 'web' && {
-            boxShadow: isDark
-              ? `0 8px 32px 0 ${colors.primary}38`
-              : '0 4px 12px 0 rgba(0,0,0,0.08)',
+            boxShadow: pro
+              ? (isDark ? `0 12px 44px 0 ${colors.primary}55` : `0 10px 30px 0 ${colors.primary}33`)
+              : (isDark ? `0 8px 32px 0 ${colors.primary}38` : '0 4px 12px 0 rgba(0,0,0,0.08)'),
           } as any),
         },
       ]}
     >
+      {/* Premium: lavado de gradiente teal + barrido de luz */}
+      {pro && (
+        <>
+          <LinearGradient
+            colors={
+              isDark
+                ? [colors.primary + '22', 'transparent', colors.primary + '12']
+                : [colors.primary + '24', 'transparent', colors.primary + '12']
+            }
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+          <ProSheen
+            trigger={`${displayBalance}-${loading}`}
+            color={isDark ? 'rgba(255,255,255,0.22)' : colors.primary + '3D'}
+          />
+        </>
+      )}
+
       {/* Inner highlight */}
       <View
         style={[
