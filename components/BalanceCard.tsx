@@ -4,13 +4,24 @@ import {
   StyleSheet,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
   ReactNode,
 } from 'react-native';
+import { useState } from 'react';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
 const HIDDEN_MASK = '••••••';
+
+interface MonthNav {
+  year: number;
+  month: number;
+  months: string[];
+  minYear: number;
+  maxYear: number;
+  onChange: (year: number, month: number) => void;
+}
 
 interface BalanceCardProps {
   displayBalance: number;
@@ -23,6 +34,8 @@ interface BalanceCardProps {
   hidden?: boolean;
   onToggleHidden?: () => void;
   footer?: ReactNode;
+  monthNav?: MonthNav;
+  loading?: boolean;
 }
 
 export default function BalanceCard({
@@ -36,8 +49,29 @@ export default function BalanceCard({
   hidden = false,
   onToggleHidden,
   footer,
+  monthNav,
+  loading = false,
 }: BalanceCardProps) {
   const { colors, isDark } = useTheme();
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const canGoPrev = monthNav
+    ? !(monthNav.year <= monthNav.minYear && monthNav.month === 0)
+    : false;
+  const canGoNext = monthNav
+    ? !(monthNav.year >= monthNav.maxYear && monthNav.month === 11)
+    : false;
+
+  const goPrev = () => {
+    if (!monthNav || !canGoPrev) return;
+    if (monthNav.month === 0) monthNav.onChange(monthNav.year - 1, 11);
+    else monthNav.onChange(monthNav.year, monthNav.month - 1);
+  };
+  const goNext = () => {
+    if (!monthNav || !canGoNext) return;
+    if (monthNav.month === 11) monthNav.onChange(monthNav.year + 1, 0);
+    else monthNav.onChange(monthNav.year, monthNav.month + 1);
+  };
 
   const expenseRatio = totalIncome > 0 ? Math.min(totalExpenses / totalIncome, 1) : 0;
   const incomeRatio = 1 - expenseRatio;
@@ -108,6 +142,89 @@ export default function BalanceCard({
         pointerEvents="none"
       />
 
+      {/* Month navigation */}
+      {monthNav && (
+        <>
+          <View style={styles.monthNavRow}>
+            <TouchableOpacity
+              onPress={goPrev}
+              disabled={!canGoPrev}
+              style={styles.monthNavBtn}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              activeOpacity={0.7}
+            >
+              <AppIcon name="chevron-back" size={18} color={canGoPrev ? colors.primary : colors.border} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setPickerOpen((v) => !v)}
+              style={styles.monthNavLabelBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 12, right: 12 }}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.monthNavLabel, { color: colors.primary }]}>
+                {monthNav.months[monthNav.month].toUpperCase()} {monthNav.year}
+              </Text>
+              <AppIcon name={pickerOpen ? 'chevron-up' : 'chevron-down'} size={13} color={colors.primary} style={{ marginLeft: 4 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={goNext}
+              disabled={!canGoNext}
+              style={styles.monthNavBtn}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              activeOpacity={0.7}
+            >
+              <AppIcon name="chevron-forward" size={18} color={canGoNext ? colors.primary : colors.border} />
+            </TouchableOpacity>
+          </View>
+
+          {pickerOpen && (
+            <View style={[styles.pickerWrap, { borderColor: isDark ? colors.primary + '25' : colors.border }]}>
+              <View style={styles.pickerYearRow}>
+                <TouchableOpacity
+                  onPress={() => monthNav.onChange(Math.max(monthNav.minYear, monthNav.year - 1), monthNav.month)}
+                  disabled={monthNav.year <= monthNav.minYear}
+                  style={styles.pickerNavBtn}
+                  activeOpacity={0.7}
+                >
+                  <AppIcon name="chevron-back" size={18} color={monthNav.year <= monthNav.minYear ? colors.border : colors.textPrimary} />
+                </TouchableOpacity>
+                <Text style={[styles.pickerYearLabel, { color: colors.textPrimary }]}>{monthNav.year}</Text>
+                <TouchableOpacity
+                  onPress={() => monthNav.onChange(Math.min(monthNav.maxYear, monthNav.year + 1), monthNav.month)}
+                  disabled={monthNav.year >= monthNav.maxYear}
+                  style={styles.pickerNavBtn}
+                  activeOpacity={0.7}
+                >
+                  <AppIcon name="chevron-forward" size={18} color={monthNav.year >= monthNav.maxYear ? colors.border : colors.textPrimary} />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.monthGrid}>
+                {monthNav.months.map((name, idx) => {
+                  const isSelected = idx === monthNav.month;
+                  return (
+                    <TouchableOpacity
+                      key={idx}
+                      style={[
+                        styles.monthChip,
+                        { backgroundColor: isSelected ? colors.primary : (isDark ? colors.primary + '12' : colors.primaryLight) },
+                      ]}
+                      onPress={() => { monthNav.onChange(monthNav.year, idx); setPickerOpen(false); }}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.monthChipText, { color: isSelected ? colors.onPrimary : colors.textPrimary }]}>
+                        {name.slice(0, 3)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+        </>
+      )}
+
       {/* Label row */}
       <View style={styles.labelRow}>
         <Text style={[styles.balanceLabel, { color: colors.textTertiary }]}>
@@ -151,25 +268,31 @@ export default function BalanceCard({
       </View>
 
       {/* Amount */}
-      <Text
-        style={[
-          styles.balanceAmount,
-          {
-            color: hidden
-              ? colors.textTertiary
-              : isPositive ? colors.primary : colors.expense,
-            letterSpacing: hidden ? 4 : -0.5,
-          },
-        ]}
-        numberOfLines={1}
-        adjustsFontSizeToFit
-        minimumFontScale={0.6}
-      >
-        {hidden ? HIDDEN_MASK : formatCurrency(displayBalance)}
-      </Text>
+      {loading ? (
+        <View style={[styles.balanceAmount, styles.amountLoader]}>
+          <ActivityIndicator size="small" color={colors.primary} />
+        </View>
+      ) : (
+        <Text
+          style={[
+            styles.balanceAmount,
+            {
+              color: hidden
+                ? colors.textTertiary
+                : isPositive ? colors.primary : colors.expense,
+              letterSpacing: hidden ? 4 : -0.5,
+            },
+          ]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.6}
+        >
+          {hidden ? HIDDEN_MASK : formatCurrency(displayBalance)}
+        </Text>
+      )}
 
       {/* Progress bar — solo cuando hay datos y no está oculto */}
-      {totalIncome > 0 && !hidden && (
+      {totalIncome > 0 && !hidden && !loading && (
         <View style={styles.progressWrap}>
           <View
             style={[styles.progressTrack, { backgroundColor: colors.border }]}
@@ -221,7 +344,7 @@ export default function BalanceCard({
             </Text>
           </View>
           <Text style={[styles.statValue, { color: hidden ? colors.textTertiary : colors.success, letterSpacing: hidden ? 3 : -0.4 }]}>
-            {hidden ? HIDDEN_MASK : formatCurrency(totalIncome)}
+            {loading ? '—' : hidden ? HIDDEN_MASK : formatCurrency(totalIncome)}
           </Text>
         </View>
 
@@ -244,7 +367,7 @@ export default function BalanceCard({
             </Text>
           </View>
           <Text style={[styles.statValue, { color: hidden ? colors.textTertiary : colors.expense, letterSpacing: hidden ? 3 : -0.4 }]}>
-            {hidden ? HIDDEN_MASK : formatCurrency(totalExpenses)}
+            {loading ? '—' : hidden ? HIDDEN_MASK : formatCurrency(totalExpenses)}
           </Text>
         </View>
       </View>
@@ -309,6 +432,74 @@ const styles = StyleSheet.create({
     opacity: 0.20,
   },
 
+  monthNavRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: 14,
+  },
+  monthNavBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  monthNavLabelBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 150,
+    paddingVertical: 4,
+  },
+  monthNavLabel: {
+    fontSize: 13,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.6,
+  },
+  pickerWrap: {
+    borderTopWidth: 1,
+    paddingTop: 14,
+    marginBottom: 14,
+  },
+  pickerYearRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+    marginBottom: 12,
+  },
+  pickerNavBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pickerYearLabel: {
+    fontSize: 15,
+    fontFamily: Fonts.bold,
+    minWidth: 54,
+    textAlign: 'center',
+  },
+  monthGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 8,
+  },
+  monthChip: {
+    width: '23%',
+    paddingVertical: 9,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  monthChipText: {
+    fontSize: 12,
+    fontFamily: Fonts.semiBold,
+  },
+
   labelRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -354,6 +545,10 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     minHeight: 52,
     textAlign: 'center',
+  },
+  amountLoader: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   progressWrap: {
