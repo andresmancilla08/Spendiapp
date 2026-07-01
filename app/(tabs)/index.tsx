@@ -15,7 +15,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../../components/AppIcon';
 import { useTranslation } from 'react-i18next';
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from 'react';
 import { router, useFocusEffect } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
@@ -176,12 +176,15 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
   );
 }
 
-function ProSectionHeader({ label }: { label: string }) {
+function ProSectionHeader({ label, right }: { label: string; right?: ReactNode }) {
   const { colors } = useTheme();
   return (
-    <View style={styles.proSecRow}>
-      <View style={[styles.proSecAccent, { backgroundColor: colors.primary }]} />
-      <Text style={[styles.proSecTitle, { color: colors.textTertiary }]}>{label}</Text>
+    <View style={[styles.proSecRow, right ? styles.proSecRowBetween : undefined]}>
+      <View style={styles.proSecLeft}>
+        <View style={[styles.proSecAccent, { backgroundColor: colors.primary }]} />
+        <Text style={[styles.proSecTitle, { color: colors.textTertiary }]}>{label}</Text>
+      </View>
+      {right}
     </View>
   );
 }
@@ -380,13 +383,13 @@ export default function HomeScreen() {
     if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
   });
   const sortedCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-  const donutSegments: CategorySegment[] = sortedCats.slice(0, 5).map(([key, amount], i) => ({
+  const donutSegments: CategorySegment[] = sortedCats.slice(0, 3).map(([key, amount], i) => ({
     key,
     amount,
     label: categoryLabel(key, categories, t),
     color: categoryColor(key, i),
   }));
-  const restSum = sortedCats.slice(5).reduce((s, [, v]) => s + v, 0);
+  const restSum = sortedCats.slice(3).reduce((s, [, v]) => s + v, 0);
   if (restSum > 0) donutSegments.push({ key: '__rest', amount: restSum, label: t('home.pro.otherCategories'), color: colors.textTertiary });
   const topCategory = donutSegments[0];
 
@@ -581,7 +584,17 @@ export default function HomeScreen() {
                 {/* Gastos por categoría */}
                 {hasCategoryData && (
                   <ProReveal index={3}>
-                    <ProSectionHeader label={t('home.pro.sectionByCategory')} />
+                    <ProSectionHeader
+                      label={t('home.pro.sectionByCategory')}
+                      right={
+                        <TouchableOpacity
+                          onPress={() => router.push({ pathname: '/category-detail', params: { year: String(year), month: String(month) } })}
+                          activeOpacity={0.7}
+                        >
+                          <Text style={[styles.sectionLink, { color: colors.primary }]}>{t('home.seeAll')}</Text>
+                        </TouchableOpacity>
+                      }
+                    />
                     <View style={[styles.proCard, { backgroundColor: colors.surface, borderColor: isDark ? colors.primary + '20' : colors.border }]}>
                       <ProCardFx intensity="subtle" trigger={`${year}-${month}`} />
                       <CategoryBars
@@ -792,6 +805,8 @@ const styles = StyleSheet.create({
 
   // Premium sections
   proSecRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 24, marginBottom: 12 },
+  proSecRowBetween: { justifyContent: 'space-between' },
+  proSecLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   proSecAccent: { width: 3, height: 14, borderRadius: 2 },
   proSecTitle: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1, textTransform: 'uppercase' },
   proCard: {

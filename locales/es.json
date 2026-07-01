@@ -396,6 +396,9 @@
     "amountPrefix": "$",
     "amountPlaceholder": "0",
     "descriptionPlaceholder": "¿En qué lo usaste?",
+    "addNote": "Agregar nota",
+    "notesLabel": "Nota",
+    "notesPlaceholder": "Detalle adicional (opcional)",
     "categoryLabel": "Categoría",
     "dateLabel": "Fecha",
     "today": "Hoy",
@@ -580,6 +583,7 @@
       "dateLabel": "FECHA",
       "timeLabel": "HORA",
       "categoryLabel": "CATEGORÍA",
+      "notesLabel": "NOTA",
       "cardLabel": "TARJETA",
       "noCard": "Sin tarjeta",
       "installmentLabel": "CUOTAS",
@@ -606,6 +610,14 @@
       "pending": "Pendientes",
       "paidTab": "Pagados"
     }
+  },
+  "categoryDetail": {
+    "title": "Gastos por categoría",
+    "totalLabel": "Total gastado",
+    "categoriesLabel": "Categorías",
+    "movementsCount": "{{count}} movimientos",
+    "emptyTitle": "Sin gastos este mes",
+    "emptySub": "Cuando registres gastos, vas a ver aquí el desglose completo por categoría."
   },
   "categories": {
     "title": "Mis categorías",

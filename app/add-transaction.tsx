@@ -28,6 +28,7 @@ import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
 import { router, useLocalSearchParams } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import NoteField from '../components/NoteField';
 import PageTitle from '../components/PageTitle';
 import { useCards } from '../hooks/useCards';
 import { useTEARate } from '../hooks/useTEARate';
@@ -93,6 +94,7 @@ export default function AddTransactionScreen() {
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [notes, setNotes] = useState('');
   const [category, setCategory] = useState('');
   const [isFixed, setIsFixed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -276,6 +278,7 @@ export default function AddTransactionScreen() {
     setAmount('');
     setCategory('');
     setDescription('');
+    setNotes('');
     setError('');
     setIsFixed(false);
     setLoading(false);
@@ -450,6 +453,7 @@ export default function AddTransactionScreen() {
           createdAt: Timestamp.fromDate(now),
           isFixed,
           ...(selectedCardId ? { cardId: selectedCardId } : {}),
+          ...(notes.trim() ? { notes: notes.trim() } : {}),
         };
         if (isInstallment) {
           const amounts = calculateInstallments(parsedAmount, installmentCount, withInterest ? teaValueNum : null);
@@ -603,6 +607,8 @@ export default function AddTransactionScreen() {
                 </View>
               </ScrollView>
             )}
+
+            <NoteField value={notes} onChange={setNotes} />
 
             {/* Toggle gasto fijo */}
             <View style={[styles.fixedRow, { borderColor: colors.border }]}>

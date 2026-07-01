@@ -9,6 +9,7 @@ export interface Transaction {
   amount: number;
   category: string;
   description: string;
+  notes?: string;
   date: Date;
   createdAt: Date;
   isFixed?: boolean;

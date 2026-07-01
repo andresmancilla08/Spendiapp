@@ -28,6 +28,7 @@ import { filterCategories } from '../constants/categories';
 import { router } from 'expo-router';
 import AppHeader from '../components/AppHeader';
 import PageTitle from '../components/PageTitle';
+import NoteField from '../components/NoteField';
 import { useCards } from '../hooks/useCards';
 import type { Card } from '../types/card';
 import BankLogo from '../components/BankLogo';
@@ -88,6 +89,7 @@ export default function EditTransactionScreen() {
   const [type, setType]                     = useState<TransactionType>('expense');
   const [amount, setAmount]                 = useState('');
   const [description, setDescription]       = useState('');
+  const [notes, setNotes]                   = useState('');
   const [category, setCategory]             = useState('');
   const [isFixed, setIsFixed]               = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
@@ -206,6 +208,7 @@ export default function EditTransactionScreen() {
     setType(tx.type);
     setAmount(String(Math.round(tx.amount)));
     setDescription(tx.description);
+    setNotes(tx.notes ?? '');
     setCategory(tx.category);
     setIsFixed(tx.isFixed ?? false);
     setSelectedCardId(tx.cardId ?? null);
@@ -332,6 +335,7 @@ export default function EditTransactionScreen() {
             sharedAmount: newSharedAmount,
             ...(mirrorRef.uid === user.uid ? { cardId: selectedCardId ?? null } : {}),
             ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
+            ...(notes.trim() ? { notes: notes.trim() } : { notes: deleteField() }),
           });
         }
         await batch.commit();
@@ -346,6 +350,7 @@ export default function EditTransactionScreen() {
           cardId: selectedCardId ?? null,
           // Si se edita una transacción fija, limpiar la cancelación para restaurar todos los meses
           ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
+          ...(notes.trim() ? { notes: notes.trim() } : { notes: deleteField() }),
         });
       }
       setLastAction('saved');
@@ -464,6 +469,8 @@ export default function EditTransactionScreen() {
                 </View>
               </ScrollView>
             )}
+
+            <NoteField value={notes} onChange={setNotes} />
 
             {/* isFixed toggle */}
             {!transaction.isInstallment && (
