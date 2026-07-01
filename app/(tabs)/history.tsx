@@ -814,14 +814,16 @@ export default function HistoryScreen() {
               {isPremium && donutSegments.length > 0 && totalExpenses > 0 && (
                 <>
                   <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
-                  <Text style={[styles.summaryCatLabel, { color: colors.textTertiary }]}>
-                    {t('home.pro.sectionByCategory').toUpperCase()}
-                  </Text>
-                  <CategoryBars
-                    segments={donutSegments}
-                    total={totalExpenses}
-                    formatCurrency={formatCurrency}
-                  />
+                  <View style={styles.summaryCatSection}>
+                    <Text style={[styles.summaryCatLabel, { color: colors.textTertiary }]}>
+                      {t('home.pro.sectionByCategory').toUpperCase()}
+                    </Text>
+                    <CategoryBars
+                      segments={donutSegments}
+                      total={totalExpenses}
+                      formatCurrency={formatCurrency}
+                    />
+                  </View>
                 </>
               )}
 
@@ -1202,8 +1204,9 @@ const styles = StyleSheet.create({
     height: 1,
     marginVertical: 4,
   },
-  summaryExchangeChips: {},
-  summaryCatLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 },
+  summaryExchangeChips: { paddingHorizontal: 16, paddingVertical: 12 },
+  summaryCatSection: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 16 },
+  summaryCatLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 },
   paidTabs: {
     marginHorizontal: 20,
     marginBottom: 8,
