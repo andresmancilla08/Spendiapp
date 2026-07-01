@@ -172,10 +172,8 @@
     "recentActivity": "Actividad Reciente",
     "seeAll": "Ver todo",
     "pro": {
-      "badge": "Pro",
       "sectionInsights": "Análisis del mes",
       "sectionByCategory": "Gastos por categoría",
-      "sectionTrend": "Balance · últimos 6 meses",
       "detailsToggle": "Ingresos y gastos",
       "savingsRate": "Tasa de ahorro",
       "projection": "Proyección fin de mes",
@@ -183,7 +181,6 @@
       "topCategory": "Categoría top",
       "dailyAvg": "Promedio diario",
       "otherCategories": "Otras",
-      "total": "TOTAL",
       "points": "{{value}} pts",
       "noData": "Sin datos suficientes",
       "subtitleBelow": "Vas {{pct}}% por debajo de tu gasto del mes pasado 🎯",
