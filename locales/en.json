@@ -172,10 +172,8 @@
     "recentActivity": "Recent Activity",
     "seeAll": "See all",
     "pro": {
-      "badge": "Pro",
       "sectionInsights": "Month insights",
       "sectionByCategory": "Spending by category",
-      "sectionTrend": "Balance · last 6 months",
       "detailsToggle": "Income & expenses",
       "savingsRate": "Savings rate",
       "projection": "End-of-month projection",
@@ -183,7 +181,6 @@
       "topCategory": "Top category",
       "dailyAvg": "Daily average",
       "otherCategories": "Other",
-      "total": "TOTAL",
       "points": "{{value}} pts",
       "noData": "Not enough data",
       "subtitleBelow": "You're {{pct}}% below last month's spending 🎯",
