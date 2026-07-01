@@ -50,6 +50,9 @@ import { getUserProfile } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
+import SpendingDonut, { DonutSegment } from '../../components/premium/SpendingDonut';
+import { categoryLabel } from '../../constants/categories';
+import { categoryColor } from '../../constants/categoryColors';
 import type { Category } from '../../types/category';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -469,6 +472,19 @@ export default function HistoryScreen() {
     refreshKey
   );
 
+  // Premium: desglose de gastos por categoría del mes (para el resumen).
+  const donutSegments: DonutSegment[] = useMemo(() => {
+    const byCat: Record<string, number> = {};
+    transactions.forEach((tx) => {
+      if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
+    });
+    return Object.entries(byCat)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([key, amount], i) => ({ key, amount, label: categoryLabel(key, categories, t), color: categoryColor(key, i) }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions, categories]);
+
   // Month navigation helpers
   const resetFilters = () => {
     setActiveFilter('all');
@@ -794,6 +810,21 @@ export default function HistoryScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+
+              {isPremium && donutSegments.length > 0 && totalExpenses > 0 && (
+                <>
+                  <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
+                  <Text style={[styles.summaryCatLabel, { color: colors.textTertiary }]}>
+                    {t('home.pro.sectionByCategory').toUpperCase()}
+                  </Text>
+                  <SpendingDonut
+                    segments={donutSegments}
+                    total={totalExpenses}
+                    formatCurrency={formatCurrency}
+                    totalLabel={t('home.pro.total')}
+                  />
+                </>
+              )}
 
               {isPremium && (
                 <>
@@ -1173,6 +1204,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   summaryExchangeChips: {},
+  summaryCatLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 },
   paidTabs: {
     marginHorizontal: 20,
     marginBottom: 8,

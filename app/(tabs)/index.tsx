@@ -45,7 +45,8 @@ import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
-import { resolveCategory } from '../../constants/categories';
+import { categoryLabel } from '../../constants/categories';
+import { categoryColor } from '../../constants/categoryColors';
 import type { Category } from '../../types/category';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import AnnouncementBanner from '../../components/AnnouncementBanner';
@@ -374,7 +375,6 @@ export default function HomeScreen() {
       : t('home.pro.subtitleOnPar');
   }
 
-  const DONUT_PALETTE = ['#00ACC1', '#FFB74D', '#00A896', '#B39DDB', '#FF8E8E', '#9CCC65'];
   const byCat: Record<string, number> = {};
   transactions.forEach((tx) => {
     if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
@@ -383,8 +383,8 @@ export default function HomeScreen() {
   const donutSegments: DonutSegment[] = sortedCats.slice(0, 5).map(([key, amount], i) => ({
     key,
     amount,
-    label: resolveCategory(key, categories).name,
-    color: CATEGORY_META[key]?.color ?? DONUT_PALETTE[i % DONUT_PALETTE.length],
+    label: categoryLabel(key, categories, t),
+    color: categoryColor(key, i),
   }));
   const restSum = sortedCats.slice(5).reduce((s, [, v]) => s + v, 0);
   if (restSum > 0) donutSegments.push({ key: '__rest', amount: restSum, label: t('home.pro.otherCategories'), color: colors.textTertiary });
