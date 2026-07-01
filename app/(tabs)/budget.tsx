@@ -138,16 +138,6 @@ export default function BudgetScreen() {
   const overallPercent = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
   const donutColor = progressColor(overallPercent, colors.success, colors.error);
 
-  // Premium: proyección de fin de mes al ritmo de gasto actual.
-  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const dayOfMonth = isCurrentMonth ? now.getDate() : daysInMonth;
-  const projectedPercent = totalLimit > 0 && dayOfMonth > 0
-    ? Math.round(((totalSpent / dayOfMonth) * daysInMonth / totalLimit) * 100)
-    : 0;
-  const projectionColor = progressColor(projectedPercent, colors.success, colors.error);
-  const showProjection = isPremium && isCurrentMonth && totalLimit > 0 && totalSpent > 0;
-
   const budgetedIds = new Set(budgets.map((b) => b.categoryId));
   const unlimitedCategories = DEFAULT_EXPENSE_CATEGORIES.filter((c) => !budgetedIds.has(c.id));
 
@@ -171,6 +161,15 @@ export default function BudgetScreen() {
 
   const MONTH_NAMES = (t('history.months', { returnObjects: true }) as string[]);
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+
+  // Premium: proyección de fin de mes al ritmo de gasto actual.
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const dayOfMonth = isCurrentMonth ? now.getDate() : daysInMonth;
+  const projectedPercent = totalLimit > 0 && dayOfMonth > 0
+    ? Math.round(((totalSpent / dayOfMonth) * daysInMonth / totalLimit) * 100)
+    : 0;
+  const projectionColor = progressColor(projectedPercent, colors.success, colors.error);
+  const showProjection = isPremium && isCurrentMonth && totalLimit > 0 && totalSpent > 0;
 
   const openAdd = (cat: { id: string; name: string; icon: string }) => {
     setSelectedCategory(cat);

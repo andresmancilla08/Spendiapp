@@ -7,9 +7,8 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
-  ReactNode,
 } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import AppIcon from './AppIcon';
 import ProSheen from './ProSheen';
@@ -185,7 +184,7 @@ export default function BalanceCard({
   );
 
   const renderAmount = (proStyle: boolean) => loading ? (
-    <View style={[styles.balanceAmount, styles.amountLoader, proStyle && styles.balanceAmountPro]}>
+    <View style={[styles.amountLoader, proStyle && { minHeight: 56 }]}>
       <ActivityIndicator size="small" color={colors.primary} />
     </View>
   ) : (
@@ -435,7 +434,7 @@ const styles = StyleSheet.create({
 
   balanceAmount: { fontSize: 40, fontFamily: Fonts.extraBold, marginBottom: 16, includeFontPadding: false, minHeight: 52, textAlign: 'center' },
   balanceAmountPro: { fontSize: 44, fontVariant: ['tabular-nums'] },
-  amountLoader: { alignItems: 'center', justifyContent: 'center' },
+  amountLoader: { minHeight: 52, marginBottom: 16, alignItems: 'center', justifyContent: 'center' },
   netFlowRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 14, marginTop: -4 },
   flowChip: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 20 },
   flowChipText: { fontSize: 11, fontFamily: Fonts.bold },
