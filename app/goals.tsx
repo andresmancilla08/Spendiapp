@@ -120,7 +120,7 @@ function GoalCard({
 export default function GoalsScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
-  const { user } = useAuthStore();
+  const { user, isPremium } = useAuthStore();
   const { showToast } = useToast();
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
@@ -128,6 +128,14 @@ export default function GoalsScreen() {
 
   const activeGoals = useMemo(() => goals.filter((g) => g.status === 'active'), [goals]);
   const completedGoals = useMemo(() => goals.filter((g) => g.status === 'completed'), [goals]);
+
+  // Premium: resumen agregado de las metas activas.
+  const goalsSummary = useMemo(() => {
+    const totalTarget = activeGoals.reduce((s, g) => s + g.targetAmount, 0);
+    const totalSaved = activeGoals.reduce((s, g) => s + g.savedAmount, 0);
+    const pct = totalTarget > 0 ? Math.min((totalSaved / totalTarget) * 100, 100) : 0;
+    return { totalTarget, totalSaved, pct, remaining: Math.max(totalTarget - totalSaved, 0) };
+  }, [activeGoals]);
 
   const [tab, setTab] = useState<TabType>('active');
   const [dialogMode, setDialogMode] = useState<DialogMode>(null);
@@ -296,6 +304,34 @@ export default function GoalsScreen() {
                   <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
                     {tab === 'active' ? t('goals.emptyActiveSub') : t('goals.emptyCompletedSub')}
                   </Text>
+                </LinearGradient>
+              )}
+
+              {/* Premium: resumen agregado de metas activas */}
+              {isPremium && tab === 'active' && activeGoals.length > 0 && (
+                <LinearGradient
+                  colors={[`${colors.primary}18`, `${colors.primary}06`]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={[styles.gsCard, { borderColor: `${colors.primary}25`, borderWidth: 1 }]}
+                >
+                  <View style={styles.gsHeader}>
+                    <Text style={[styles.gsTitle, { color: colors.textSecondary }]}>
+                      {t('goals.summaryTitle').toUpperCase()}
+                    </Text>
+                    <Text style={[styles.gsPct, { color: colors.primary }]}>{Math.round(goalsSummary.pct)}%</Text>
+                  </View>
+                  <ProgressBar percent={goalsSummary.pct} color={colors.primary} />
+                  <View style={styles.gsRow}>
+                    <View>
+                      <Text style={[styles.gsLabel, { color: colors.textTertiary }]}>{t('goals.summarySaved')}</Text>
+                      <Text style={[styles.gsValue, { color: colors.success }]}>{formatCurrency(goalsSummary.totalSaved)}</Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={[styles.gsLabel, { color: colors.textTertiary }]}>{t('goals.summaryRemaining')}</Text>
+                      <Text style={[styles.gsValue, { color: colors.textPrimary }]}>{formatCurrency(goalsSummary.remaining)}</Text>
+                    </View>
+                  </View>
                 </LinearGradient>
               )}
 
@@ -547,6 +583,13 @@ const styles = StyleSheet.create({
   newGoalBtnText: { fontFamily: Fonts.semiBold, fontSize: 15 },
   // Empty state
   emptyCard: { borderRadius: 20, padding: 36, alignItems: 'center', marginBottom: 16 },
+  gsCard: { borderRadius: 20, padding: 18, marginBottom: 16 },
+  gsHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  gsTitle: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1 },
+  gsPct: { fontSize: 18, fontFamily: Fonts.extraBold, letterSpacing: -0.5 },
+  gsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
+  gsLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.6, textTransform: 'uppercase' },
+  gsValue: { fontSize: 15, fontFamily: Fonts.extraBold, letterSpacing: -0.3, marginTop: 3 },
   emptyIconWrap: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   emptyTitle: { fontSize: 17, fontFamily: Fonts.bold, marginBottom: 8, textAlign: 'center' },
   emptySub: { fontSize: 14, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 21 },

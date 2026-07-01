@@ -1240,6 +1240,9 @@
   "goals": {
     "title": "Mis Metas",
     "pageDesc": "Ahorra paso a paso hacia tus sueños",
+    "summaryTitle": "Progreso general",
+    "summarySaved": "Ahorrado",
+    "summaryRemaining": "Faltante",
     "activeTab": "Activas",
     "completedTab": "Completadas",
     "createTitle": "Nueva meta",

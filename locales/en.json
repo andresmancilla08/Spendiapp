@@ -1239,6 +1239,9 @@
   "goals": {
     "title": "My Goals",
     "pageDesc": "Save step by step toward your dreams",
+    "summaryTitle": "Overall progress",
+    "summarySaved": "Saved",
+    "summaryRemaining": "Remaining",
     "activeTab": "Active",
     "completedTab": "Completed",
     "createTitle": "New goal",
