@@ -23,10 +23,10 @@ export default function CategoryBars({ segments, total, formatCurrency }: Props)
   const { colors } = useTheme();
   return (
     <View>
-      {segments.map((s) => {
+      {segments.map((s, i) => {
         const pct = total > 0 ? Math.round((s.amount / total) * 100) : 0;
         return (
-          <View key={s.key} style={styles.row}>
+          <View key={s.key} style={[styles.row, i === segments.length - 1 && styles.rowLast]}>
             <View style={styles.top}>
               <View style={[styles.dot, { backgroundColor: s.color }]} />
               <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>{s.label}</Text>
@@ -47,6 +47,7 @@ export default function CategoryBars({ segments, total, formatCurrency }: Props)
 
 const styles = StyleSheet.create({
   row: { marginBottom: 14 },
+  rowLast: { marginBottom: 0 },
   top: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 7 },
   dot: { width: 9, height: 9, borderRadius: 3 },
   name: { flex: 1, fontSize: 13, fontFamily: Fonts.semiBold },
