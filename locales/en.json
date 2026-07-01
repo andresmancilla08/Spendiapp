@@ -663,6 +663,7 @@
     "totalSpent": "Spent",
     "totalLimit": "Total limit",
     "available": "Available",
+    "projection": "End-of-month projection",
     "spentLabel": "spent",
     "limitExceeded": "Limit exceeded!",
     "nobudgets": {
