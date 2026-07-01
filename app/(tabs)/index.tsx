@@ -29,7 +29,6 @@ import ProCardFx from '../../components/ProCardFx';
 import { useMonthlyTrend } from '../../hooks/useMonthlyTrend';
 import InsightsGrid, { InsightItem } from '../../components/premium/InsightsGrid';
 import SpendingDonut, { DonutSegment } from '../../components/premium/SpendingDonut';
-import TrendBars from '../../components/premium/TrendBars';
 import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
 import {
@@ -178,13 +177,9 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
 
 function ProSectionHeader({ label }: { label: string }) {
   const { colors } = useTheme();
-  const { t } = useTranslation();
   return (
     <View style={styles.proSecRow}>
-      <View style={[styles.proBadge, { backgroundColor: colors.primary }]}>
-        <AppIcon name="star" size={9} color={colors.onPrimary} />
-        <Text style={[styles.proBadgeText, { color: colors.onPrimary }]}>{t('home.pro.badge')}</Text>
-      </View>
+      <View style={[styles.proSecAccent, { backgroundColor: colors.primary }]} />
       <Text style={[styles.proSecTitle, { color: colors.textTertiary }]}>{label}</Text>
     </View>
   );
@@ -429,7 +424,6 @@ export default function HomeScreen() {
     },
   ];
 
-  const trendActiveIndex = trend.length - 1;
   const hasCategoryData = donutSegments.length > 0 && totalExpenses > 0;
 
   return (
@@ -527,6 +521,8 @@ export default function HomeScreen() {
         <BalanceCard
           pro={isPremium}
           netFlow={isPremium ? netFlow : undefined}
+          sparkline={isPremium ? trend.map((b) => b.balance) : undefined}
+          detailsToggleLabel={t('home.pro.detailsToggle')}
           loading={loading || refreshing}
           displayBalance={displayBalance}
           totalIncome={totalIncome}
@@ -598,19 +594,7 @@ export default function HomeScreen() {
                   </ProReveal>
                 )}
 
-                {/* Tendencia 6 meses */}
-                <ProReveal index={4}>
-                  <ProSectionHeader label={t('home.pro.sectionTrend')} />
-                  <View style={[styles.proCard, { backgroundColor: colors.surface, borderColor: isDark ? colors.primary + '20' : colors.border }]}>
-                    <TrendBars
-                      data={trend}
-                      metric="balance"
-                      monthLabels={MONTHS}
-                      activeIndex={trendActiveIndex}
-                      formatCurrency={formatCurrency}
-                    />
-                  </View>
-                </ProReveal>
+                {/* La tendencia de 6 meses ahora vive como sparkline en el hero */}
               </>
             ) : (
               <ProReveal index={2}>
@@ -809,11 +793,7 @@ const styles = StyleSheet.create({
 
   // Premium sections
   proSecRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 24, marginBottom: 12 },
-  proBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 3,
-    paddingHorizontal: 7, paddingVertical: 3, borderRadius: 20,
-  },
-  proBadgeText: { fontSize: 9, fontFamily: Fonts.extraBold, letterSpacing: 0.5, textTransform: 'uppercase' },
+  proSecAccent: { width: 3, height: 14, borderRadius: 2 },
   proSecTitle: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1, textTransform: 'uppercase' },
   proCard: {
     borderRadius: 22,

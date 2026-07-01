@@ -173,9 +173,10 @@
     "seeAll": "Vedi tutto",
     "pro": {
       "badge": "Pro",
-      "sectionInsights": "Insight del mese",
+      "sectionInsights": "Analisi del mese",
       "sectionByCategory": "Spese per categoria",
       "sectionTrend": "Saldo · ultimi 6 mesi",
+      "detailsToggle": "Entrate e uscite",
       "savingsRate": "Tasso di risparmio",
       "projection": "Proiezione fine mese",
       "estimatedSpend": "spesa stimata",
