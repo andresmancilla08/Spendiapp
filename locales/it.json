@@ -1239,6 +1239,9 @@
   "goals": {
     "title": "I miei obiettivi",
     "pageDesc": "Risparmia passo dopo passo verso i tuoi sogni",
+    "summaryTitle": "Progresso generale",
+    "summarySaved": "Risparmiato",
+    "summaryRemaining": "Mancante",
     "activeTab": "Attivi",
     "completedTab": "Completati",
     "createTitle": "Nuovo obiettivo",
