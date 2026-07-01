@@ -20,6 +20,21 @@ export function filterCategories(
   return [...defaults, ...custom];
 }
 
+/**
+ * Etiqueta localizada de una categoría: usa i18n (`categories.names.<id>`) para
+ * las categorías por defecto y el nombre del usuario para las personalizadas.
+ * Respeta el idioma activo (no hardcodea español).
+ */
+export function categoryLabel(
+  id: string,
+  customCategories: Category[],
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): string {
+  const def = DEFAULT_CATEGORIES.find((c) => c.id === id);
+  if (def) return t(`categories.names.${id}`, { defaultValue: def.name });
+  return customCategories.find((c) => c.id === id)?.name ?? id;
+}
+
 export function resolveCategory(
   id: string,
   customCategories: Category[]
