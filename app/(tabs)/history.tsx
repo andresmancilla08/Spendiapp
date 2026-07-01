@@ -50,7 +50,7 @@ import { getUserProfile } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
-import SpendingDonut, { DonutSegment } from '../../components/premium/SpendingDonut';
+import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { categoryLabel } from '../../constants/categories';
 import { categoryColor } from '../../constants/categoryColors';
 import type { Category } from '../../types/category';
@@ -473,7 +473,7 @@ export default function HistoryScreen() {
   );
 
   // Premium: desglose de gastos por categoría del mes (para el resumen).
-  const donutSegments: DonutSegment[] = useMemo(() => {
+  const donutSegments: CategorySegment[] = useMemo(() => {
     const byCat: Record<string, number> = {};
     transactions.forEach((tx) => {
       if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
@@ -817,11 +817,10 @@ export default function HistoryScreen() {
                   <Text style={[styles.summaryCatLabel, { color: colors.textTertiary }]}>
                     {t('home.pro.sectionByCategory').toUpperCase()}
                   </Text>
-                  <SpendingDonut
+                  <CategoryBars
                     segments={donutSegments}
                     total={totalExpenses}
                     formatCurrency={formatCurrency}
-                    totalLabel={t('home.pro.total')}
                   />
                 </>
               )}

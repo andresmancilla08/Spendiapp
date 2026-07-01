@@ -28,7 +28,7 @@ import ProReveal from '../../components/ProReveal';
 import ProCardFx from '../../components/ProCardFx';
 import { useMonthlyTrend } from '../../hooks/useMonthlyTrend';
 import InsightsGrid, { InsightItem } from '../../components/premium/InsightsGrid';
-import SpendingDonut, { DonutSegment } from '../../components/premium/SpendingDonut';
+import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
 import {
@@ -380,7 +380,7 @@ export default function HomeScreen() {
     if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
   });
   const sortedCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-  const donutSegments: DonutSegment[] = sortedCats.slice(0, 5).map(([key, amount], i) => ({
+  const donutSegments: CategorySegment[] = sortedCats.slice(0, 5).map(([key, amount], i) => ({
     key,
     amount,
     label: categoryLabel(key, categories, t),
@@ -584,11 +584,10 @@ export default function HomeScreen() {
                     <ProSectionHeader label={t('home.pro.sectionByCategory')} />
                     <View style={[styles.proCard, { backgroundColor: colors.surface, borderColor: isDark ? colors.primary + '20' : colors.border }]}>
                       <ProCardFx intensity="subtle" trigger={`${year}-${month}`} />
-                      <SpendingDonut
+                      <CategoryBars
                         segments={donutSegments}
                         total={totalExpenses}
                         formatCurrency={formatCurrency}
-                        totalLabel={t('home.pro.total')}
                       />
                     </View>
                   </ProReveal>
