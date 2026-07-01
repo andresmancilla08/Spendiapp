@@ -396,6 +396,9 @@
     "amountPrefix": "$",
     "amountPlaceholder": "0",
     "descriptionPlaceholder": "What did you spend it on?",
+    "addNote": "Add note",
+    "notesLabel": "Note",
+    "notesPlaceholder": "Extra detail (optional)",
     "categoryLabel": "Category",
     "dateLabel": "Date",
     "today": "Today",
@@ -580,6 +583,7 @@
       "dateLabel": "DATE",
       "timeLabel": "TIME",
       "categoryLabel": "CATEGORY",
+      "notesLabel": "NOTE",
       "cardLabel": "CARD",
       "noCard": "No card",
       "installmentLabel": "INSTALLMENTS",
@@ -606,6 +610,14 @@
       "pending": "Pending",
       "paidTab": "Paid"
     }
+  },
+  "categoryDetail": {
+    "title": "Spending by category",
+    "totalLabel": "Total spent",
+    "categoriesLabel": "Categories",
+    "movementsCount": "{{count}} transactions",
+    "emptyTitle": "No expenses this month",
+    "emptySub": "Once you log expenses, you'll see the full breakdown by category here."
   },
   "categories": {
     "title": "My categories",

@@ -396,6 +396,9 @@
     "amountPrefix": "$",
     "amountPlaceholder": "0",
     "descriptionPlaceholder": "A cosa l'hai usato?",
+    "addNote": "Aggiungi nota",
+    "notesLabel": "Nota",
+    "notesPlaceholder": "Dettaglio aggiuntivo (opzionale)",
     "categoryLabel": "Categoria",
     "dateLabel": "Data",
     "today": "Oggi",
@@ -580,6 +583,7 @@
       "dateLabel": "DATA",
       "timeLabel": "ORA",
       "categoryLabel": "CATEGORIA",
+      "notesLabel": "NOTA",
       "cardLabel": "CARTA",
       "noCard": "Nessuna carta",
       "installmentLabel": "RATE",
@@ -606,6 +610,14 @@
       "pending": "In sospeso",
       "paidTab": "Pagati"
     }
+  },
+  "categoryDetail": {
+    "title": "Spese per categoria",
+    "totalLabel": "Totale speso",
+    "categoriesLabel": "Categorie",
+    "movementsCount": "{{count}} movimenti",
+    "emptyTitle": "Nessuna spesa questo mese",
+    "emptySub": "Quando registri delle spese, qui vedrai il dettaglio completo per categoria."
   },
   "categories": {
     "title": "Le mie categorie",

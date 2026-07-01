@@ -478,10 +478,13 @@ export default function HistoryScreen() {
     transactions.forEach((tx) => {
       if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
     });
-    return Object.entries(byCat)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
+    const sortedCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+    const segments = sortedCats
+      .slice(0, 3)
       .map(([key, amount], i) => ({ key, amount, label: categoryLabel(key, categories, t), color: categoryColor(key, i) }));
+    const restSum = sortedCats.slice(3).reduce((s, [, v]) => s + v, 0);
+    if (restSum > 0) segments.push({ key: '__rest', amount: restSum, label: t('home.pro.otherCategories'), color: colors.textTertiary });
+    return segments;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, categories]);
 
@@ -815,9 +818,17 @@ export default function HistoryScreen() {
                 <>
                   <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
                   <View style={styles.summaryCatSection}>
-                    <Text style={[styles.summaryCatLabel, { color: colors.textTertiary }]}>
-                      {t('home.pro.sectionByCategory').toUpperCase()}
-                    </Text>
+                    <View style={styles.summaryCatHeader}>
+                      <Text style={[styles.summaryCatLabel, { color: colors.textTertiary }]}>
+                        {t('home.pro.sectionByCategory').toUpperCase()}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => router.push({ pathname: '/category-detail', params: { year: String(year), month: String(month) } })}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={[styles.summaryCatSeeAll, { color: colors.primary }]}>{t('home.seeAll')}</Text>
+                      </TouchableOpacity>
+                    </View>
                     <CategoryBars
                       segments={donutSegments}
                       total={totalExpenses}
@@ -1206,7 +1217,9 @@ const styles = StyleSheet.create({
   },
   summaryExchangeChips: { paddingHorizontal: 16, paddingVertical: 12 },
   summaryCatSection: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 16 },
-  summaryCatLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 },
+  summaryCatHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
+  summaryCatLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1, textTransform: 'uppercase' },
+  summaryCatSeeAll: { fontSize: 11, fontFamily: Fonts.bold },
   paidTabs: {
     marginHorizontal: 20,
     marginBottom: 8,

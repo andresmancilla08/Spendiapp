@@ -7,19 +7,21 @@ export interface CategorySegment {
   label: string;
   amount: number;
   color: string;
+  count?: number; // # de movimientos — si viene, se muestra como subtítulo
 }
 
 interface Props {
   segments: CategorySegment[];   // ordenados desc
   total: number;
   formatCurrency: (n: number) => string;
+  countLabel?: (count: number) => string; // requerido si algún segmento trae `count`
 }
 
 /**
  * Desglose de gastos por categoría en barras horizontales. Escala de 1 a N
  * categorías sin verse mal (a diferencia del donut, feo con una sola). Premium.
  */
-export default function CategoryBars({ segments, total, formatCurrency }: Props) {
+export default function CategoryBars({ segments, total, formatCurrency, countLabel }: Props) {
   const { colors } = useTheme();
   return (
     <View>
@@ -38,6 +40,9 @@ export default function CategoryBars({ segments, total, formatCurrency }: Props)
               </View>
               <Text style={[styles.pct, { color: colors.textTertiary }]}>{pct}%</Text>
             </View>
+            {!!s.count && !!countLabel && (
+              <Text style={[styles.count, { color: colors.textTertiary }]}>{countLabel(s.count)}</Text>
+            )}
           </View>
         );
       })}
@@ -56,4 +61,5 @@ const styles = StyleSheet.create({
   track: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden' },
   fill: { height: 6, borderRadius: 3 },
   pct: { fontSize: 11, fontFamily: Fonts.bold, minWidth: 34, textAlign: 'right' },
+  count: { fontSize: 11, fontFamily: Fonts.medium, marginTop: 4 },
 });

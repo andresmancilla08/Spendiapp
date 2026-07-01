@@ -687,6 +687,21 @@ export default function TransactionDetailScreen() {
             )}
           </View>
 
+          {/* Nota — solo si el usuario la agregó */}
+          {!!transaction.notes && (
+            <View style={[styles.detailNotesCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '20' }]}>
+              <View style={styles.detailNotesHeader}>
+                <AppIcon name="document-text-outline" size={14} color={colors.textTertiary} />
+                <Text style={[styles.detailNotesLabel, { color: colors.textTertiary }]}>
+                  {t('history.detail.notesLabel')}
+                </Text>
+              </View>
+              <Text style={[styles.detailNotesText, { color: colors.textPrimary }]}>
+                {transaction.notes}
+              </Text>
+            </View>
+          )}
+
         </ScrollView>
 
         {/* ── Acciones fijas en la parte inferior ── */}
@@ -1040,6 +1055,28 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1.5,
+  },
+  detailNotesCard: {
+    marginBottom: 16,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    padding: 16,
+  },
+  detailNotesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  detailNotesLabel: {
+    fontSize: 11,
+    fontFamily: Fonts.semiBold,
+    letterSpacing: 0.5,
+  },
+  detailNotesText: {
+    fontSize: 14,
+    fontFamily: Fonts.regular,
+    lineHeight: 20,
   },
   detailRow: {
     flexDirection: 'row',
