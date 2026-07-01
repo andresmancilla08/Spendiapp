@@ -691,6 +691,7 @@
     "totalSpent": "Gastado",
     "totalLimit": "Límite total",
     "available": "Disponible",
+    "projection": "Proyección fin de mes",
     "spentLabel": "gastado",
     "limitExceeded": "¡Límite superado!",
     "nobudgets": {

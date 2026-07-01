@@ -113,7 +113,7 @@ export default function BudgetScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { flags } = useFlags();
-  const { user } = useAuthStore();
+  const { user, isPremium } = useAuthStore();
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -137,6 +137,16 @@ export default function BudgetScreen() {
   const totalSpent = budgets.reduce((s, b) => s + (spentByCategory[b.categoryId] ?? 0), 0);
   const overallPercent = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
   const donutColor = progressColor(overallPercent, colors.success, colors.error);
+
+  // Premium: proyección de fin de mes al ritmo de gasto actual.
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const dayOfMonth = isCurrentMonth ? now.getDate() : daysInMonth;
+  const projectedPercent = totalLimit > 0 && dayOfMonth > 0
+    ? Math.round(((totalSpent / dayOfMonth) * daysInMonth / totalLimit) * 100)
+    : 0;
+  const projectionColor = progressColor(projectedPercent, colors.success, colors.error);
+  const showProjection = isPremium && isCurrentMonth && totalLimit > 0 && totalSpent > 0;
 
   const budgetedIds = new Set(budgets.map((b) => b.categoryId));
   const unlimitedCategories = DEFAULT_EXPENSE_CATEGORIES.filter((c) => !budgetedIds.has(c.id));
@@ -319,6 +329,19 @@ export default function BudgetScreen() {
                     {formatCurrency(Math.max(totalLimit - totalSpent, 0))}
                   </Text>
                 </View>
+
+                {showProjection && (
+                  <>
+                    <View style={[styles.divider, { backgroundColor: `${colors.primary}25` }]} />
+                    <View style={styles.statRow}>
+                      <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('budget.projection')}</Text>
+                      <View style={[styles.projChip, { backgroundColor: `${projectionColor}1f` }]}>
+                        <AppIcon name="trending-up" size={11} color={projectionColor} />
+                        <Text style={[styles.projChipText, { color: projectionColor }]}>{projectedPercent}%</Text>
+                      </View>
+                    </View>
+                  </>
+                )}
               </View>
             </LinearGradient>
           )}
@@ -524,6 +547,8 @@ const styles = StyleSheet.create({
   statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 7 },
   statLabel: { fontSize: 11, fontFamily: Fonts.regular },
   statValue: { fontSize: 12, fontFamily: Fonts.bold },
+  projChip: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
+  projChipText: { fontSize: 12, fontFamily: Fonts.bold },
   divider: { height: 1, marginVertical: 1 },
   // Budget rows
   sectionHeader: { fontSize: 11, fontFamily: Fonts.semiBold, letterSpacing: 1, marginBottom: 10, marginLeft: 2 },
