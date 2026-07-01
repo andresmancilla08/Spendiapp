@@ -1091,6 +1091,12 @@
       "item2": "Tavolozze riorganizzate in 2 gruppi (Classiche / Pastello) con nomi tradotti correttamente",
       "item3": "Correzione: la schermata delle spese di gruppo non rimane più bloccata in caricamento"
     },
+    "premiumDashboard": {
+      "title": "Dashboard premium rinnovata",
+      "item1": "Saldo con navigazione per mese e mini-trend degli ultimi 6 mesi",
+      "item2": "Analisi del mese: tasso di risparmio, proiezione e categoria top",
+      "item3": "Spese per categoria e proiezione del budget al ritmo attuale"
+    },
     "hideAmounts": {
       "title": "Nascondi gli importi con un tocco",
       "item1": "Tocca l'icona dell'occhio nella schermata principale per nascondere tutti gli importi",

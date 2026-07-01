@@ -38,6 +38,12 @@ interface Feature {
 // Catálogo curado de funcionalidades principales de la app — sin duplicados ni versiones.
 const APP_FEATURES: Feature[] = [
   {
+    icon: 'wallet-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.premiumDashboard.title',
+    items: ['whatsNew.premiumDashboard.item1', 'whatsNew.premiumDashboard.item2', 'whatsNew.premiumDashboard.item3'],
+  },
+  {
     icon: 'eye-off-outline',
     colorKey: 'primary',
     titleKey: 'whatsNew.hideAmounts.title',

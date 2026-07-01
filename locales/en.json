@@ -1091,6 +1091,12 @@
       "item2": "Palettes reorganized into 2 groups (Classic / Pastel) with correctly translated names",
       "item3": "Fix: group expense screen no longer gets stuck on loading"
     },
+    "premiumDashboard": {
+      "title": "Renewed premium dashboard",
+      "item1": "Balance with month navigation and a 6-month mini trend",
+      "item2": "Month insights: savings rate, projection and top category",
+      "item3": "Spending by category and end-of-month budget projection"
+    },
     "hideAmounts": {
       "title": "Hide your amounts with a tap",
       "item1": "Tap the eye icon on the home screen to hide all amounts at once",

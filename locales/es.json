@@ -1092,6 +1092,12 @@
       "item2": "Paletas organizadas en 2 grupos (Clásicas / Pastel) con nombres correctamente traducidos",
       "item3": "Corrección: la pantalla de gastos grupales ya no se queda pegada en carga"
     },
+    "premiumDashboard": {
+      "title": "Panel premium renovado",
+      "item1": "Balance con navegación por mes y mini-tendencia de los últimos 6 meses",
+      "item2": "Análisis del mes: tasa de ahorro, proyección y categoría top",
+      "item3": "Gastos por categoría y proyección de tu presupuesto al ritmo actual"
+    },
     "hideAmounts": {
       "title": "Oculta tus montos con un toque",
       "item1": "Toca el icono del ojo en el inicio para ocultar todos los montos de un vistazo",
