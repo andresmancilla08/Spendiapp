@@ -116,23 +116,21 @@ function Sparkline({ values, color, accent, height = 56 }: { values: number[]; c
     <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
       <Defs>
         <SvgGradient id="spk" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={stroke} stopOpacity={0.32} />
+          <Stop offset="0" stopColor={stroke} stopOpacity={0.34} />
+          <Stop offset="0.7" stopColor={stroke} stopOpacity={0.06} />
           <Stop offset="1" stopColor={stroke} stopOpacity={0} />
         </SvgGradient>
       </Defs>
       <Path d={area} fill="url(#spk)" />
-      <Path
-        d={line}
-        fill="none"
-        stroke={stroke}
-        strokeWidth={2.4}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-      />
+      {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
+      <Path d={line} fill="none" stroke={stroke} strokeWidth={7} strokeOpacity={0.22} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      <Path d={line} fill="none" stroke={stroke} strokeWidth={4} strokeOpacity={0.35} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      {/* Línea nítida */}
+      <Path d={line} fill="none" stroke={stroke} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       {/* Nodo final con halo — el "ahora" */}
-      <Circle cx={end.x} cy={end.y} r={5.5} fill={stroke} opacity={0.22} vectorEffect="non-scaling-stroke" />
-      <Circle cx={end.x} cy={end.y} r={2.6} fill="#FFFFFF" vectorEffect="non-scaling-stroke" />
+      <Circle cx={end.x} cy={end.y} r={6.5} fill={stroke} opacity={0.2} vectorEffect="non-scaling-stroke" />
+      <Circle cx={end.x} cy={end.y} r={4} fill={stroke} opacity={0.45} vectorEffect="non-scaling-stroke" />
+      <Circle cx={end.x} cy={end.y} r={2.4} fill="#FFFFFF" vectorEffect="non-scaling-stroke" />
     </Svg>
   );
 }
@@ -363,7 +361,7 @@ export default function BalanceCard({
         <BlurView intensity={40} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
       )}
 
-      {pro && (
+      {pro && !heroBare && (
         <ProSheen trigger={`${displayBalance}-${loading}`} color={isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,160,180,0.12)'} />
       )}
 
@@ -398,7 +396,7 @@ export default function BalanceCard({
 
           {/* Mini-tendencia (sparkline) */}
           {!hidden && !loading && sparkline && sparkline.length >= 2 && (
-            <View style={styles.sparkWrap}>
+            <View style={[styles.sparkWrap, heroBare && styles.sparkWrapHero]}>
               <Sparkline values={sparkline} color={colors.primary} accent={colors.primary} height={78} />
             </View>
           )}
@@ -478,7 +476,8 @@ export default function BalanceCard({
 
 const styles = StyleSheet.create({
   borderWrap: { marginBottom: 20 },
-  heroBare: { paddingHorizontal: 10, paddingTop: 6, borderWidth: 0 },
+  heroBare: { paddingHorizontal: 10, paddingTop: 6, borderWidth: 0, overflow: 'visible' },
+  sparkWrapHero: { marginHorizontal: -30 },
   card: {
     borderRadius: 28,
     borderWidth: 1.5,
