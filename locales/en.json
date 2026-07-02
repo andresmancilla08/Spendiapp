@@ -188,7 +188,11 @@
       "noData": "Not enough data",
       "subtitleBelow": "You're {{pct}}% below last month's spending 🎯",
       "subtitleAbove": "You're spending {{pct}}% more than last month",
-      "subtitleOnPar": "On par with last month"
+      "subtitleOnPar": "On par with last month",
+      "monthInPhrase": "Your month in a sentence",
+      "insightSpendLess": "You spent {{pct}}% less than last month. Nice pace.",
+      "insightSpendMore": "You spent {{pct}}% more than last month. Watch the pace.",
+      "insightNoPrev": "This is your baseline. Next month you can compare."
     },
     "firestoreTitle": "Set up Firestore",
     "firestoreSubtitle": "Update the security rules in Firebase Console.",

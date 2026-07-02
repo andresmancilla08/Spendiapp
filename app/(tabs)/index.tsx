@@ -28,6 +28,7 @@ import ProReveal from '../../components/ProReveal';
 import ProCardFx from '../../components/ProCardFx';
 import { useMonthlyTrend } from '../../hooks/useMonthlyTrend';
 import InsightsGrid, { InsightItem } from '../../components/premium/InsightsGrid';
+import InsightBanner from '../../components/premium/InsightBanner';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
@@ -457,6 +458,14 @@ export default function HomeScreen() {
 
   const hasCategoryData = donutSegments.length > 0 && totalExpenses > 0;
 
+  // Frase-insight del héroe (Aurora Ledger): dato con contexto, i18n limpio.
+  const insightBanner = vsLastMonthPct != null
+    ? {
+        sentence: t(vsLastMonthPct <= 0 ? 'home.pro.insightSpendLess' : 'home.pro.insightSpendMore', { pct: Math.abs(vsLastMonthPct) }),
+        chip: { label: `${Math.abs(vsLastMonthPct)}%`, tone: (vsLastMonthPct <= 0 ? 'pos' : 'neg') as 'pos' | 'neg' },
+      }
+    : { sentence: t('home.pro.insightNoPrev'), chip: undefined };
+
   return (
     <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
@@ -605,6 +614,8 @@ export default function HomeScreen() {
               <>
                 {/* Insights del mes */}
                 <ProReveal index={2}>
+                  <InsightBanner kicker={t('home.pro.monthInPhrase')} sentence={insightBanner.sentence} chip={insightBanner.chip} />
+                  <View style={{ height: 14 }} />
                   <ProSectionHeader label={t('home.pro.sectionInsights')} />
                   <InsightsGrid items={insights} />
                   {confettiTrigger > 0 && <ConfettiBurst trigger={confettiTrigger} />}

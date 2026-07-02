@@ -9,7 +9,7 @@ import {
   Easing,
 } from 'react-native';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
-import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Circle } from 'react-native-svg';
 import { BlurView } from 'expo-blur';
 import AppIcon from './AppIcon';
 import ProSheen from './ProSheen';
@@ -94,10 +94,13 @@ function monotonePath(pts: { x: number; y: number }[]): string {
   return d;
 }
 
-/** Mini-tendencia (área + línea). Se estira al ancho del contenedor. */
-function Sparkline({ values, color }: { values: number[]; color: string }) {
+/**
+ * Mini-tendencia (área + línea) estilo "Aurora Ledger": la tendencia es paisaje.
+ * Línea con acento eléctrico + nodo final con halo. Se estira al ancho del contenedor.
+ */
+function Sparkline({ values, color, accent, height = 56 }: { values: number[]; color: string; accent?: string; height?: number }) {
   if (!values || values.length < 2) return null;
-  const W = 100, H = 36, P = 3;
+  const W = 100, H = 36, P = 4;
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
@@ -107,24 +110,29 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   }));
   const line = monotonePath(pts);
   const area = `${line} L${W},${H} L0,${H} Z`;
+  const stroke = accent ?? color;
+  const end = pts[pts.length - 1];
   return (
-    <Svg width="100%" height={56} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+    <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
       <Defs>
         <SvgGradient id="spk" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={color} stopOpacity={0.26} />
-          <Stop offset="1" stopColor={color} stopOpacity={0} />
+          <Stop offset="0" stopColor={stroke} stopOpacity={0.32} />
+          <Stop offset="1" stopColor={stroke} stopOpacity={0} />
         </SvgGradient>
       </Defs>
       <Path d={area} fill="url(#spk)" />
       <Path
         d={line}
         fill="none"
-        stroke={color}
-        strokeWidth={2}
+        stroke={stroke}
+        strokeWidth={2.4}
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
       />
+      {/* Nodo final con halo — el "ahora" */}
+      <Circle cx={end.x} cy={end.y} r={5.5} fill={stroke} opacity={0.22} vectorEffect="non-scaling-stroke" />
+      <Circle cx={end.x} cy={end.y} r={2.6} fill="#FFFFFF" vectorEffect="non-scaling-stroke" />
     </Svg>
   );
 }
@@ -150,6 +158,9 @@ export default function BalanceCard({
   const { colors, isDark, cardGlass, cardGradientBorder } = useTheme();
   const useGlass = pro && cardGlass;
   const useBorder = pro && cardGradientBorder;
+  // Héroe "Aurora Ledger": el balance premium vive directo sobre el fondo, sin
+  // chrome de tarjeta, salvo que el usuario elija vidrio o borde con gradiente.
+  const heroBare = pro && !useGlass && !useBorder;
   const [pickerOpen, setPickerOpen] = useState(false);
 
   // Detalle colapsable (premium): contraído por defecto.
@@ -234,13 +245,18 @@ export default function BalanceCard({
       <ActivityIndicator size="small" color={colors.primary} />
     </View>
   ) : (() => {
+    const amountColor = hidden ? colors.textTertiary : isPositive ? colors.primary : colors.expense;
     const amountStyle = [
       styles.balanceAmount,
       proStyle && styles.balanceAmountPro,
       {
-        color: hidden ? colors.textTertiary : isPositive ? colors.primary : colors.expense,
-        letterSpacing: hidden ? 4 : proStyle ? -1 : -0.5,
+        color: amountColor,
+        letterSpacing: hidden ? 4 : proStyle ? -1.5 : -0.5,
       },
+      // Glow solo en tema oscuro: en claro genera un halo turbio ("recuadro").
+      proStyle && !hidden && isDark && (Platform.OS === 'web'
+        ? ({ textShadow: `0 0 38px ${amountColor}80` } as any)
+        : { textShadowColor: amountColor + '80', textShadowRadius: 24, textShadowOffset: { width: 0, height: 0 } }),
     ];
     if (hidden) {
       return (
@@ -324,17 +340,18 @@ export default function BalanceCard({
       style={[
         styles.card,
         useBorder && { marginBottom: 0 },
+        heroBare && styles.heroBare,
         {
-          backgroundColor: useGlass ? (isDark ? 'rgba(30,48,53,0.45)' : 'rgba(255,255,255,0.45)') : colors.surfaceElevated,
-          borderColor: pro ? (isDark ? colors.primary + '22' : colors.border) : colors.primary + '2E',
-          ...(Platform.OS !== 'web' && {
+          backgroundColor: heroBare ? 'transparent' : useGlass ? (isDark ? 'rgba(30,48,53,0.45)' : 'rgba(255,255,255,0.45)') : colors.surfaceElevated,
+          borderColor: heroBare ? 'transparent' : pro ? (isDark ? colors.primary + '22' : colors.border) : colors.primary + '2E',
+          ...(!heroBare && Platform.OS !== 'web' && {
             shadowColor: pro ? (isDark ? '#000000' : '#10282E') : (isDark ? colors.primary : '#000000'),
             shadowOffset: { width: 0, height: pro ? 16 : 4 },
             shadowOpacity: pro ? (isDark ? 0.5 : 0.16) : (isDark ? 0.40 : 0.07),
             shadowRadius: pro ? (isDark ? 34 : 26) : (isDark ? 24 : 8),
             elevation: pro ? 14 : (isDark ? 12 : 4),
           }),
-          ...(Platform.OS === 'web' && {
+          ...(!heroBare && Platform.OS === 'web' && {
             boxShadow: pro
               ? (isDark ? '0 18px 36px -16px rgba(0,0,0,0.6)' : '0 16px 30px -14px rgba(16,40,46,0.20)')
               : (isDark ? `0 8px 32px 0 ${colors.primary}38` : '0 4px 12px 0 rgba(0,0,0,0.08)'),
@@ -350,13 +367,17 @@ export default function BalanceCard({
         <ProSheen trigger={`${displayBalance}-${loading}`} color={isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,160,180,0.12)'} />
       )}
 
-      <View
-        style={[styles.innerHighlight, { borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.55)' }]}
-        pointerEvents="none"
-      />
-      <View style={[styles.accentBlob, { backgroundColor: isDark ? colors.primary + '18' : colors.primaryLight }]} pointerEvents="none" />
-      <View style={[styles.accentBlobSecondary, { backgroundColor: isDark ? colors.primary + '10' : colors.primaryLight }]} pointerEvents="none" />
-      <View style={[styles.topAccentBar, { backgroundColor: colors.primary }]} pointerEvents="none" />
+      {!heroBare && (
+        <>
+          <View
+            style={[styles.innerHighlight, { borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.55)' }]}
+            pointerEvents="none"
+          />
+          <View style={[styles.accentBlob, { backgroundColor: isDark ? colors.primary + '18' : colors.primaryLight }]} pointerEvents="none" />
+          <View style={[styles.accentBlobSecondary, { backgroundColor: isDark ? colors.primary + '10' : colors.primaryLight }]} pointerEvents="none" />
+          <View style={[styles.topAccentBar, { backgroundColor: colors.primary }]} pointerEvents="none" />
+        </>
+      )}
 
       {pro ? (
         /* ============ PREMIUM ============ */
@@ -378,7 +399,7 @@ export default function BalanceCard({
           {/* Mini-tendencia (sparkline) */}
           {!hidden && !loading && sparkline && sparkline.length >= 2 && (
             <View style={styles.sparkWrap}>
-              <Sparkline values={sparkline} color={colors.primary} />
+              <Sparkline values={sparkline} color={colors.primary} accent={colors.primary} height={78} />
             </View>
           )}
 
@@ -457,6 +478,7 @@ export default function BalanceCard({
 
 const styles = StyleSheet.create({
   borderWrap: { marginBottom: 20 },
+  heroBare: { paddingHorizontal: 10, paddingTop: 6, borderWidth: 0 },
   card: {
     borderRadius: 28,
     borderWidth: 1.5,
@@ -502,7 +524,7 @@ const styles = StyleSheet.create({
   healthDot: { width: 6, height: 6, borderRadius: 3 },
 
   balanceAmount: { fontSize: 40, fontFamily: Fonts.extraBold, marginBottom: 16, includeFontPadding: false, minHeight: 52, textAlign: 'center' },
-  balanceAmountPro: { fontSize: 44, fontVariant: ['tabular-nums'] },
+  balanceAmountPro: { fontSize: 56, lineHeight: 60, fontFamily: Fonts.display, fontVariant: ['tabular-nums'], marginBottom: 14 },
   amountLoader: { minHeight: 52, marginBottom: 16, alignItems: 'center', justifyContent: 'center' },
   netFlowRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 14, marginTop: -4 },
   flowChip: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 20 },

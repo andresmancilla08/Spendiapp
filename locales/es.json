@@ -188,7 +188,11 @@
       "noData": "Sin datos suficientes",
       "subtitleBelow": "Vas {{pct}}% por debajo de tu gasto del mes pasado 🎯",
       "subtitleAbove": "Llevas {{pct}}% más de gasto que el mes pasado",
-      "subtitleOnPar": "Vas a la par del mes pasado"
+      "subtitleOnPar": "Vas a la par del mes pasado",
+      "monthInPhrase": "Tu mes en una frase",
+      "insightSpendLess": "Gastaste {{pct}}% menos que el mes pasado. Buen ritmo.",
+      "insightSpendMore": "Gastaste {{pct}}% más que el mes pasado. Cuida el ritmo.",
+      "insightNoPrev": "Este es tu punto de partida. El mes que viene podrás compararte."
     },
     "firestoreTitle": "Configura Firestore",
     "firestoreSubtitle": "Actualiza las reglas de seguridad en Firebase Console.",
