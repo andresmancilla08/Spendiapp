@@ -1304,7 +1304,11 @@
     "budgetCard": {
       "title": "Monthly budget",
       "description": "Set spending limits by category and stay in control"
-    }
+    },
+    "groupMoney": "Your money",
+    "groupShared": "Shared",
+    "pageDesc2": "Your financial toolbox",
+    "open": "Open"
   },
   "goals": {
     "title": "My Goals",
