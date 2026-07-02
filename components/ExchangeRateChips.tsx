@@ -13,9 +13,12 @@ import { useTheme } from '../context/ThemeContext';
 import { useExchangeRates } from '../hooks/useExchangeRates';
 import { Skeleton } from './Skeleton';
 import { Fonts } from '../config/fonts';
+import AppIcon from './AppIcon';
 
 const GREEN = '#22C55E';
 const RED = '#EF4444';
+
+const CURRENCY_FLAG: Record<'USD' | 'EUR', string> = { USD: '🇺🇸', EUR: '🇪🇺' };
 
 function formatValue(value: number): string {
   return new Intl.NumberFormat('es-CO', {
@@ -123,11 +126,11 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
 
   if (loading) {
     return (
-      <View style={[styles.wrap, { backgroundColor: colors.primary + '07' }, style]}>
+      <View style={[styles.wrap, style]}>
         <View style={styles.ratesRow}>
-          <Skeleton width={88} height={22} borderRadius={4} />
+          <Skeleton width={82} height={30} borderRadius={12} />
           <View style={styles.dotRow} />
-          <Skeleton width={88} height={22} borderRadius={4} />
+          <Skeleton width={82} height={30} borderRadius={12} />
         </View>
       </View>
     );
@@ -135,25 +138,26 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
 
   if (error) {
     return (
-      <View style={[styles.wrap, { backgroundColor: colors.primary + '07' }, style]}>
+      <View style={[styles.wrap, style]}>
         <View style={styles.ratesRow}>
-          <View style={styles.item}>
+          <View style={[styles.chip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+            <Text style={styles.flag}>{CURRENCY_FLAG.USD}</Text>
             <Text style={[styles.code, { color: colors.textTertiary }]}>USD</Text>
             <Text style={[styles.value, { color: colors.textTertiary }]}>—</Text>
           </View>
-          <View style={styles.dotRow} />
-          <View style={styles.item}>
+          <View style={[styles.chip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+            <Text style={styles.flag}>{CURRENCY_FLAG.EUR}</Text>
             <Text style={[styles.code, { color: colors.textTertiary }]}>EUR</Text>
             <Text style={[styles.value, { color: colors.textTertiary }]}>—</Text>
           </View>
+          <TouchableOpacity
+            onPress={retry}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={[styles.retryBtn, { backgroundColor: colors.primary + '18' }]}
+          >
+            <AppIcon name="refresh-outline" size={15} color={colors.primary} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          onPress={retry}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.retryBtn}
-        >
-          <Text style={[styles.retryText, { color: colors.textTertiary }]}>↺</Text>
-        </TouchableOpacity>
       </View>
     );
   }
@@ -168,16 +172,18 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
       style={[
         styles.wrap,
         style,
-        {
-          opacity: wrapOpacity,
-          backgroundColor: colors.primary + '07',
-        },
+        { opacity: wrapOpacity },
       ]}
     >
-      {/* Rates — centered con dot live entre los dos */}
+      {/* Rates — dos chips con dot "en vivo" entre ambos */}
       <View style={styles.ratesRow}>
-        <TouchableOpacity onPress={() => copyRate('USD', usd)} activeOpacity={0.7} style={styles.item}>
-          <Text style={[styles.code, { color: colors.textSecondary }]}>USD</Text>
+        <TouchableOpacity
+          onPress={() => copyRate('USD', usd)}
+          activeOpacity={0.7}
+          style={[styles.chip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+        >
+          <Text style={styles.flag}>{CURRENCY_FLAG.USD}</Text>
+          <Text style={[styles.code, { color: colors.textTertiary }]}>USD</Text>
           <RateValue value={usd} prev={prevUsd} textColor={colors.textPrimary} />
         </TouchableOpacity>
 
@@ -185,8 +191,13 @@ export default function ExchangeRateChips({ style }: ExchangeRateChipsProps) {
           {updatedAt && <LiveDot color={colors.success} />}
         </View>
 
-        <TouchableOpacity onPress={() => copyRate('EUR', eur)} activeOpacity={0.7} style={styles.item}>
-          <Text style={[styles.code, { color: colors.textSecondary }]}>EUR</Text>
+        <TouchableOpacity
+          onPress={() => copyRate('EUR', eur)}
+          activeOpacity={0.7}
+          style={[styles.chip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+        >
+          <Text style={styles.flag}>{CURRENCY_FLAG.EUR}</Text>
+          <Text style={[styles.code, { color: colors.textTertiary }]}>EUR</Text>
           <RateValue value={eur} prev={prevEur} textColor={colors.textPrimary} />
         </TouchableOpacity>
       </View>
@@ -211,31 +222,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  item: {
+  chip: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 6,
-    paddingHorizontal: 4,
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  flag: {
+    fontSize: 12,
   },
   code: {
-    fontSize: 11,
-    fontFamily: Fonts.semiBold,
-    letterSpacing: 0.5,
+    fontSize: 10,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.6,
   },
   value: {
-    fontSize: 15,
-    fontFamily: Fonts.bold,
+    fontSize: 14,
+    fontFamily: Fonts.extraBold,
+    letterSpacing: -0.2,
   },
   dot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   retryBtn: {
-    marginTop: 4,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
-  },
-  retryText: {
-    fontSize: 16,
+    justifyContent: 'center',
+    marginLeft: 4,
   },
 });

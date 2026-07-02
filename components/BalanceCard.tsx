@@ -49,6 +49,49 @@ interface BalanceCardProps {
   detailsToggleLabel?: string;
 }
 
+/**
+ * Curva monótona (Fritsch-Carlson, la misma interpolación "monotoneX" que usan
+ * D3/Victory/Recharts): pasa por todos los puntos con curvas suaves, sin el
+ * efecto "rebote" de un Catmull-Rom simple cuando hay un tramo plano seguido
+ * de una subida/bajada — importante en datos financieros para no insinuar
+ * una variación que no ocurrió.
+ */
+function monotonePath(pts: { x: number; y: number }[]): string {
+  const n = pts.length;
+  if (n < 2) return '';
+  if (n === 2) return `M${pts[0].x},${pts[0].y} L${pts[1].x},${pts[1].y}`;
+
+  const dx: number[] = [];
+  const slope: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    dx[i] = pts[i + 1].x - pts[i].x;
+    slope[i] = (pts[i + 1].y - pts[i].y) / dx[i];
+  }
+
+  const m: number[] = new Array(n);
+  m[0] = slope[0];
+  m[n - 1] = slope[n - 2];
+  for (let i = 1; i < n - 1; i++) {
+    if (slope[i - 1] * slope[i] <= 0) {
+      m[i] = 0;
+    } else {
+      const w1 = 2 * dx[i] + dx[i - 1];
+      const w2 = dx[i] + 2 * dx[i - 1];
+      m[i] = (w1 + w2) / (w1 / slope[i - 1] + w2 / slope[i]);
+    }
+  }
+
+  let d = `M${pts[0].x.toFixed(2)},${pts[0].y.toFixed(2)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const c1x = pts[i].x + dx[i] / 3;
+    const c1y = pts[i].y + (m[i] * dx[i]) / 3;
+    const c2x = pts[i + 1].x - dx[i] / 3;
+    const c2y = pts[i + 1].y - (m[i + 1] * dx[i]) / 3;
+    d += ` C${c1x.toFixed(2)},${c1y.toFixed(2)} ${c2x.toFixed(2)},${c2y.toFixed(2)} ${pts[i + 1].x.toFixed(2)},${pts[i + 1].y.toFixed(2)}`;
+  }
+  return d;
+}
+
 /** Mini-tendencia (área + línea). Se estira al ancho del contenedor. */
 function Sparkline({ values, color }: { values: number[]; color: string }) {
   if (!values || values.length < 2) return null;
@@ -56,12 +99,11 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
-  const pts = values.map((v, i) => {
-    const x = (i / (values.length - 1)) * W;
-    const y = P + (1 - (v - min) / span) * (H - 2 * P);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-  const line = 'M' + pts.join(' L');
+  const pts = values.map((v, i) => ({
+    x: (i / (values.length - 1)) * W,
+    y: P + (1 - (v - min) / span) * (H - 2 * P),
+  }));
+  const line = monotonePath(pts);
   const area = `${line} L${W},${H} L0,${H} Z`;
   return (
     <Svg width="100%" height={56} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
@@ -227,10 +269,7 @@ export default function BalanceCard({
       style={[
         styles.statsRow,
         !topBorder && { borderTopWidth: 0 },
-        {
-          backgroundColor: isDark ? colors.primary + '12' : colors.primary + '08',
-          borderTopColor: isDark ? colors.primary + '25' : colors.primary + '18',
-        },
+        { borderTopColor: isDark ? colors.primary + '20' : colors.border },
       ]}
     >
       <View style={styles.statCol}>
