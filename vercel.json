@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm run export",
   "outputDirectory": "dist",
+  "ignoreCommand": "exit 0",
   "headers": [
     {
       "source": "/((?!__/auth/).*)",
