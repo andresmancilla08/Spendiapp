@@ -404,7 +404,7 @@ export default function BalanceCard({
           {/* Detalle colapsable: ingresos/gastos + FX */}
           <TouchableOpacity
             onPress={() => setDetailOpen((o) => !o)}
-            style={[styles.detailToggle, { borderTopColor: isDark ? colors.primary + '20' : colors.border }]}
+            style={[styles.detailToggle, { borderTopColor: isDark ? colors.primary + '20' : colors.border }, heroBare && { borderTopWidth: 0 }]}
             activeOpacity={0.7}
           >
             <Text style={[styles.detailToggleText, { color: colors.textSecondary }]}>
