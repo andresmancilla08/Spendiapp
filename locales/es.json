@@ -1309,7 +1309,8 @@
     "groupMoney": "Tu dinero",
     "groupShared": "Compartido",
     "pageDesc2": "Tu caja de herramientas financiera",
-    "open": "Abrir"
+    "open": "Abrir",
+    "categoriesCount": "{{count}} categorías"
   },
   "goals": {
     "title": "Mis Metas",

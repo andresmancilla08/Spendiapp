@@ -1308,7 +1308,8 @@
     "groupMoney": "Your money",
     "groupShared": "Shared",
     "pageDesc2": "Your financial toolbox",
-    "open": "Open"
+    "open": "Open",
+    "categoriesCount": "{{count}} categories"
   },
   "goals": {
     "title": "My Goals",

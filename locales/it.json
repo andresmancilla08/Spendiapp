@@ -1308,7 +1308,8 @@
     "groupMoney": "Il tuo denaro",
     "groupShared": "Condiviso",
     "pageDesc2": "La tua cassetta degli attrezzi",
-    "open": "Apri"
+    "open": "Apri",
+    "categoriesCount": "{{count}} categorie"
   },
   "goals": {
     "title": "I miei obiettivi",
