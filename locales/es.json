@@ -176,10 +176,13 @@
       "sectionByCategory": "Gastos por categoría",
       "detailsToggle": "Ingresos y gastos",
       "savingsRate": "Tasa de ahorro",
-      "projection": "Proyección fin de mes",
-      "estimatedSpend": "gasto estimado",
+      "vsLastMonth": "Vs. mes pasado",
+      "vsLastMonthCaption": "a esta altura del mes",
       "topCategory": "Categoría top",
-      "dailyAvg": "Promedio diario",
+      "savingsStreak": "Racha de ahorro",
+      "streakValue_one": "{{count}} mes",
+      "streakValue_other": "{{count}} meses",
+      "streakGoing": "¡Vas bien! 🔥",
       "otherCategories": "Otras",
       "points": "{{value}} pts",
       "noData": "Sin datos suficientes",
@@ -352,6 +355,51 @@
     },
     "version": "Spendia v{{version}}",
     "userNameCopied": "Usuario copiado"
+  },
+  "personalization": {
+    "sectionPalette": "Paleta de colores",
+    "sectionBackground": "Fondo animado",
+    "background": {
+      "none": "Ninguno",
+      "aurora": "Aurora",
+      "particles": "Partículas",
+      "waves": "Ondas"
+    },
+    "intensity": {
+      "subtle": "Sutil",
+      "default": "Normal",
+      "intense": "Intenso"
+    },
+    "sectionCards": "Tarjetas",
+    "cardSheen": {
+      "label": "Brillo en tarjetas",
+      "sub": "Barrido de luz al cargar la app"
+    },
+    "cardGlass": {
+      "label": "Efecto vidrio esmerilado",
+      "sub": "Fondo translúcido en la tarjeta principal"
+    },
+    "sectionNumbers": "Cifras",
+    "tickerFont": {
+      "label": "Cifras estilo tícker",
+      "sub": "Tipografía monoespaciada en los montos"
+    },
+    "countUp": {
+      "label": "Animación de conteo",
+      "sub": "El balance cuenta hacia el nuevo valor"
+    },
+    "sectionCelebrations": "Celebraciones",
+    "confetti": {
+      "label": "Confeti por racha de ahorro",
+      "sub": "Una pequeña fiesta cuando sube tu racha"
+    },
+    "roadmapTitle": "Más personalización en camino",
+    "roadmapItems": [
+      "Fondo con textura de grano sutil",
+      "Borde con gradiente animado en la tarjeta principal",
+      "Temas de partículas por paleta de color",
+      "Paquete de íconos alternativo"
+    ]
   },
   "settings": {
     "title": "Configuración",

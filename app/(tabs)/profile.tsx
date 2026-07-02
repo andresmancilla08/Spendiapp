@@ -1,4 +1,4 @@
-import { type ReactNode, memo } from 'react';
+import { type ReactNode } from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Switch,
-  Dimensions,
-
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { AppIconName } from '../../components/AppIcon';
@@ -31,17 +29,14 @@ import { ThemeMode } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, changeLanguage } from '../../config/i18n';
 import AppHeader from '../../components/AppHeader';
-import AppSegmentedControl from '../../components/AppSegmentedControl';
 import { router } from 'expo-router';
 import AppDialog, { DialogType } from '../../components/AppDialog';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import { Fonts } from '../../config/fonts';
-import { getUserProfile, updateUserColorPalette } from '../../hooks/useUserProfile';
+import { getUserProfile } from '../../hooks/useUserProfile';
 import { useFriends } from '../../hooks/useFriends';
-import { PALETTES, PaletteId } from '../../config/palettes';
 import * as Clipboard from 'expo-clipboard';
-import * as Haptics from 'expo-haptics';
 import { useToast } from '../../context/ToastContext';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import appConfig from '../../app.json';
@@ -330,283 +325,6 @@ function LangModal({ visible, onClose, colors, i18n, t }: {
   );
 }
 
-// ── Palette groups ──────────────────────────────────────────────────────────
-interface PaletteGroup {
-  key: string;
-  labelKey: string;
-  ids: PaletteId[];
-}
-
-const PALETTE_GROUPS: PaletteGroup[] = [
-  {
-    key: 'classic',
-    labelKey: 'profile.palette.group.classic',
-    ids: ['deepWater', 'sunset', 'forest', 'midnight', 'rose', 'ocean', 'ember', 'lavender', 'slate', 'sakura', 'nordic', 'cottonCandy', 'peach', 'mint', 'aurora', 'mocha'],
-  },
-  {
-    key: 'pastel',
-    labelKey: 'profile.palette.group.pastel',
-    ids: ['deepWaterPastel', 'sunsetPastel', 'forestPastel', 'midnightPastel', 'rosePastel', 'oceanPastel', 'emberPastel', 'lavenderPastel', 'slatePastel', 'sakuraPastel', 'nordicPastel', 'cottonCandyPastel', 'peachPastel', 'mintPastel', 'auroraPastel', 'mochaPastel'],
-  },
-];
-
-// ── PaletteCard — 3 columnas, swatches solapados, glow, haptics ─────────────
-const CARD_W = Math.floor((Math.min(Dimensions.get('window').width, 560) - 24 - 16) / 3);
-
-const PaletteCard = memo(function PaletteCard({
-  palette, isSelected, onPress, colors, label,
-}: {
-  palette: typeof PALETTES[0];
-  isSelected: boolean;
-  onPress: () => void;
-  colors: any;
-  label: string;
-}) {
-  const scale = useRef(new Animated.Value(1)).current;
-  const badgeScale = useRef(new Animated.Value(isSelected ? 1 : 0)).current;
-  const badgeOpacity = useRef(new Animated.Value(isSelected ? 1 : 0)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.spring(badgeScale, { toValue: isSelected ? 1 : 0, damping: 10, stiffness: 400, useNativeDriver: Platform.OS !== 'web' }),
-      Animated.timing(badgeOpacity, { toValue: isSelected ? 1 : 0, duration: isSelected ? 120 : 80, useNativeDriver: Platform.OS !== 'web' }),
-    ]).start();
-  }, [isSelected]);
-
-  const handlePressIn = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Animated.spring(scale, { toValue: 0.93, damping: 18, stiffness: 400, useNativeDriver: Platform.OS !== 'web' }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scale, { toValue: 1, damping: 12, stiffness: 280, useNativeDriver: Platform.OS !== 'web' }).start();
-  };
-
-  const handlePress = () => {
-    if (!isSelected) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    onPress();
-  };
-
-  const [p1, p2, p3] = palette.previewColors;
-  const cardBg = palette.gradientLight[2];
-
-  return (
-    <Animated.View style={{ transform: [{ scale }], width: CARD_W }}>
-      <TouchableOpacity
-        onPress={handlePress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        activeOpacity={1}
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        accessibilityState={{ selected: isSelected }}
-        style={[
-          palCardStyles.card,
-          {
-            backgroundColor: cardBg,
-            borderColor: isSelected ? p1 : 'transparent',
-            shadowColor: isSelected ? p1 : '#000',
-            shadowOpacity: isSelected ? 0.32 : 0.08,
-            shadowRadius: isSelected ? 10 : 4,
-            shadowOffset: { width: 0, height: isSelected ? 4 : 2 },
-            elevation: isSelected ? 8 : 2,
-          },
-        ]}
-      >
-        {/* Swatches solapados */}
-        <View style={palCardStyles.swatchRow}>
-          <View style={[palCardStyles.swatch, { backgroundColor: p1, borderColor: cardBg, zIndex: 3 }]} />
-          <View style={[palCardStyles.swatch, palCardStyles.swatchOverlap, { backgroundColor: p2, borderColor: cardBg, zIndex: 2 }]} />
-          <View style={[palCardStyles.swatch, palCardStyles.swatchOverlap, { backgroundColor: p3, borderColor: cardBg, zIndex: 1 }]} />
-        </View>
-
-        {/* Nombre */}
-        <Text
-          style={[
-            palCardStyles.name,
-            {
-              color: isSelected ? p1 : 'rgba(30,30,30,0.85)',
-              fontFamily: isSelected ? Fonts.semiBold : Fonts.medium,
-              letterSpacing: isSelected ? 0.4 : 0.1,
-            },
-          ]}
-          numberOfLines={2}
-        >
-          {label}
-        </Text>
-
-        {/* Badge animado — siempre montado */}
-        <Animated.View
-          style={[
-            palCardStyles.checkBadge,
-            { backgroundColor: p1, transform: [{ scale: badgeScale }], opacity: badgeOpacity },
-          ]}
-        >
-          <AppIcon name="checkmark" size={9} color="#FFFFFF" />
-        </Animated.View>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-});
-
-const palCardStyles = StyleSheet.create({
-  card: {
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    gap: 8,
-    overflow: 'hidden',
-    borderWidth: 2.5,
-    minHeight: 90,
-    justifyContent: 'center',
-  },
-  swatchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  swatch: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-  },
-  swatchOverlap: {
-    marginLeft: -8,
-  },
-  name: {
-    fontSize: 10,
-    textAlign: 'center',
-    lineHeight: 13,
-  },
-  checkBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 17,
-    height: 17,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
-// ── Modal selector de paleta — tabs horizontales + grid 3 columnas ──────────
-function PaletteModal({ visible, onClose, colors, paletteId, setPaletteId, t }: {
-  visible: boolean; onClose: () => void;
-  colors: any; paletteId: PaletteId; setPaletteId: (id: PaletteId) => void; t: any;
-}) {
-  const translateY = useRef(new Animated.Value(500)).current;
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
-  const contentOpacity = useRef(new Animated.Value(1)).current;
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [displayIdx, setDisplayIdx] = useState(0);
-
-  useEffect(() => {
-    if (visible) {
-      translateY.setValue(500);
-      overlayOpacity.setValue(0);
-      Animated.parallel([
-        Animated.timing(overlayOpacity, { toValue: 1, duration: 220, useNativeDriver: Platform.OS !== 'web' }),
-        Animated.spring(translateY, { toValue: 0, damping: 22, stiffness: 210, mass: 0.9, useNativeDriver: Platform.OS !== 'web' }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.timing(overlayOpacity, { toValue: 0, duration: 180, useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(translateY, { toValue: 500, duration: 220, useNativeDriver: Platform.OS !== 'web' }),
-      ]).start();
-    }
-  }, [visible]);
-
-  const switchGroup = (idx: number) => {
-    if (idx === activeIdx) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setActiveIdx(idx);
-    Animated.timing(contentOpacity, { toValue: 0, duration: 90, useNativeDriver: Platform.OS !== 'web' }).start(() => {
-      setDisplayIdx(idx);
-      Animated.timing(contentOpacity, { toValue: 1, duration: 160, useNativeDriver: Platform.OS !== 'web' }).start();
-    });
-  };
-
-  const handleSelect = (id: PaletteId) => {
-    setPaletteId(id);
-    onClose();
-  };
-
-  const currentGroup = PALETTE_GROUPS[displayIdx];
-
-  return (
-    <Modal visible={visible} transparent animationType="none">
-      <Animated.View style={[styles.langOverlay, { opacity: overlayOpacity, backgroundColor: colors.overlay }]}>
-        <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={onClose} />
-
-        <Animated.View style={[palStyles.sheet, { backgroundColor: colors.surface, transform: [{ translateY }] }]}>
-          {/* Handle */}
-          <View style={[palStyles.handle, { backgroundColor: colors.border }]} />
-
-          {/* Header */}
-          <View style={palStyles.header}>
-            <View style={[palStyles.headerIconWrap, { backgroundColor: colors.primaryLight }]}>
-              <AppIcon name="color-palette" size={22} color={colors.primary} />
-            </View>
-            <View style={palStyles.headerText}>
-              <Text style={[palStyles.headerTitle, { color: colors.textPrimary }]}>
-                {t('profile.palette.title')}
-              </Text>
-              <Text style={[palStyles.headerSubtitle, { color: colors.textSecondary }]}>
-                {t('profile.palette.subtitle')}
-              </Text>
-            </View>
-          </View>
-
-          {/* Tab bar */}
-          <AppSegmentedControl
-            segments={PALETTE_GROUPS.map((g) => ({ key: g.key, label: t(g.labelKey) }))}
-            activeKey={PALETTE_GROUPS[activeIdx].key}
-            onChange={(key) => {
-              const idx = PALETTE_GROUPS.findIndex((g) => g.key === key);
-              if (idx !== -1) switchGroup(idx);
-            }}
-            style={palStyles.tabBarSpacing}
-          />
-
-          {/* Grid con fade al cambiar tab */}
-          <Animated.ScrollView
-            style={[palStyles.scroll, { opacity: contentOpacity }]}
-            contentContainerStyle={palStyles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={palStyles.grid}>
-              {currentGroup.ids.map((id) => {
-                const palette = PALETTES.find(p => p.id === id)!;
-                return (
-                  <PaletteCard
-                    key={id}
-                    palette={palette}
-                    isSelected={paletteId === id}
-                    onPress={() => handleSelect(id)}
-                    colors={colors}
-                    label={t(`profile.palette.${id}`)}
-                  />
-                );
-              })}
-            </View>
-          </Animated.ScrollView>
-
-          {/* Cancel */}
-          <TouchableOpacity
-            style={[palStyles.cancelBtn, { borderColor: colors.primary }]}
-            onPress={onClose}
-            activeOpacity={0.8}
-          >
-            <Text style={[palStyles.cancelText, { color: colors.primary }]}>{t('common.cancel')}</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </Animated.View>
-    </Modal>
-  );
-}
-
 // ── Estado de dialogs ───────────────────────────────────────────────────────
 interface DialogState {
   visible: boolean;
@@ -628,7 +346,7 @@ const DIALOG_CLOSED: DialogState = {
 export default function ProfileScreen() {
   const { user, setUser, isPremium } = useAuthStore();
   const { incomingRequests } = useFriends(user?.uid ?? '');
-  const { colors, themeMode, setThemeMode, isDark, paletteId, setPaletteId } = useTheme();
+  const { colors, themeMode, setThemeMode, isDark, paletteId } = useTheme();
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
   const { flags } = useFlags();
@@ -639,7 +357,6 @@ export default function ProfileScreen() {
   const [editNameLoading, setEditNameLoading] = useState(false);
   const [changePinVisible, setChangePinVisible] = useState(false);
   const [langVisible, setLangVisible] = useState(false);
-  const [paletteVisible, setPaletteVisible] = useState(false);
   const [dialog, setDialog] = useState<DialogState>(DIALOG_CLOSED);
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
   const [userName, setUserName] = useState<string>('');
@@ -935,7 +652,7 @@ export default function ProfileScreen() {
               icon="color-palette-outline"
               label={t('profile.palette.label')}
               value={t(`profile.palette.${paletteId}`)}
-              onPress={() => setPaletteVisible(true)}
+              onPress={() => router.push('/personalization')}
             />
           )}
           <OptionItem
@@ -1049,20 +766,6 @@ export default function ProfileScreen() {
         t={t}
       />
 
-      {/* Modal: Selector de paleta */}
-      <PaletteModal
-        visible={paletteVisible}
-        onClose={() => setPaletteVisible(false)}
-        colors={colors}
-        paletteId={paletteId}
-        setPaletteId={(id) => {
-          setPaletteId(id);
-          if (user?.uid) {
-            updateUserColorPalette(user.uid, id).catch(() => {});
-          }
-        }}
-        t={t}
-      />
 
       {/* Dialog: Desactivar biometría (solo nativo) */}
       {Platform.OS !== 'web' && (
@@ -1100,86 +803,6 @@ export default function ProfileScreen() {
     </ScreenTransition>
   );
 }
-
-// ── Estilos del PaletteModal ─────────────────────────────────────────────────
-const palStyles = StyleSheet.create({
-  sheet: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 36 : 24,
-    maxHeight: '78%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 20,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 18,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    marginBottom: 16,
-    paddingHorizontal: 20,
-  },
-  headerIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerText: {
-    flex: 1,
-    gap: 2,
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontFamily: Fonts.bold,
-    letterSpacing: -0.2,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    fontFamily: Fonts.regular,
-    lineHeight: 16,
-  },
-  tabBarSpacing: {
-    marginHorizontal: 16,
-    marginBottom: 14,
-  },
-  scroll: {
-    maxHeight: 360,
-  },
-  scrollContent: {
-    paddingBottom: 8,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingTop: 4,
-  },
-  cancelBtn: {
-    marginHorizontal: 20,
-    marginTop: 14,
-    paddingVertical: 15,
-    borderRadius: 50,
-    borderWidth: 1.5,
-    alignItems: 'center',
-  },
-  cancelText: {
-    fontSize: 15,
-    fontFamily: Fonts.semiBold,
-  },
-});
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },

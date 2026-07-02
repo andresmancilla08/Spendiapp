@@ -176,10 +176,13 @@
       "sectionByCategory": "Spending by category",
       "detailsToggle": "Income & expenses",
       "savingsRate": "Savings rate",
-      "projection": "End-of-month projection",
-      "estimatedSpend": "estimated spend",
+      "vsLastMonth": "Vs. last month",
+      "vsLastMonthCaption": "at this point in the month",
       "topCategory": "Top category",
-      "dailyAvg": "Daily average",
+      "savingsStreak": "Savings streak",
+      "streakValue_one": "{{count}} month",
+      "streakValue_other": "{{count}} months",
+      "streakGoing": "Keep it up! 🔥",
       "otherCategories": "Other",
       "points": "{{value}} pts",
       "noData": "Not enough data",
@@ -352,6 +355,51 @@
     },
     "version": "Spendia v{{version}}",
     "userNameCopied": "Username copied"
+  },
+  "personalization": {
+    "sectionPalette": "Color palette",
+    "sectionBackground": "Animated background",
+    "background": {
+      "none": "None",
+      "aurora": "Aurora",
+      "particles": "Particles",
+      "waves": "Waves"
+    },
+    "intensity": {
+      "subtle": "Subtle",
+      "default": "Normal",
+      "intense": "Intense"
+    },
+    "sectionCards": "Cards",
+    "cardSheen": {
+      "label": "Card shine",
+      "sub": "Light sweep when the app loads"
+    },
+    "cardGlass": {
+      "label": "Frosted glass effect",
+      "sub": "Translucent background on the main card"
+    },
+    "sectionNumbers": "Numbers",
+    "tickerFont": {
+      "label": "Ticker-style numbers",
+      "sub": "Monospaced typeface on amounts"
+    },
+    "countUp": {
+      "label": "Count-up animation",
+      "sub": "The balance counts up to the new value"
+    },
+    "sectionCelebrations": "Celebrations",
+    "confetti": {
+      "label": "Confetti on savings streak",
+      "sub": "A little celebration when your streak goes up"
+    },
+    "roadmapTitle": "More personalization coming",
+    "roadmapItems": [
+      "Subtle grain texture background",
+      "Animated gradient border on the main card",
+      "Particle themes per color palette",
+      "Alternative icon pack"
+    ]
   },
   "settings": {
     "title": "Settings",

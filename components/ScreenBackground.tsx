@@ -2,12 +2,17 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, ViewStyle, StatusBar, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import { useAuthStore } from '../store/authStore';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
+import ParticlesBackground from './ParticlesBackground';
+import WavesBackground from './WavesBackground';
 
 interface Props {
   children: React.ReactNode;
   style?: ViewStyle;
+  /** Si se pasa, fuerza Aurora a esta intensidad e ignora la preferencia del
+   * usuario (hoy solo lo usa el login, antes de que haya sesión). */
   auroraIntensity?: AuroraIntensity;
 }
 
@@ -16,9 +21,13 @@ const CONTENT_MAX_WIDTH: Record<string, number> = {
   desktop: 960,
 };
 
-export default function ScreenBackground({ children, style, auroraIntensity = 'default' }: Props) {
-  const { isDark, activePalette } = useTheme();
+export default function ScreenBackground({ children, style, auroraIntensity }: Props) {
+  const { isDark, activePalette, backgroundStyle, backgroundIntensity } = useTheme();
+  const { isPremium } = useAuthStore();
   const { breakpoint, isMobile } = useBreakpoint();
+
+  const effectiveStyle = auroraIntensity ? 'aurora' : (isPremium ? backgroundStyle : 'aurora');
+  const effectiveIntensity = auroraIntensity ?? backgroundIntensity;
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
   const statusBarColor = gradientColors[0] as string;
 
@@ -47,7 +56,9 @@ export default function ScreenBackground({ children, style, auroraIntensity = 'd
       end={{ x: 0.9, y: 1 }}
       style={[styles.gradient, style]}
     >
-      <AuroraBackground intensity={auroraIntensity} />
+      {effectiveStyle === 'aurora' && <AuroraBackground intensity={effectiveIntensity} />}
+      {effectiveStyle === 'particles' && <ParticlesBackground intensity={effectiveIntensity} />}
+      {effectiveStyle === 'waves' && <WavesBackground intensity={effectiveIntensity} />}
       {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.7)' }]} pointerEvents="none" />}
       {/* Contenido siempre encima de los blobs — centrado en tablet/desktop */}
       <View

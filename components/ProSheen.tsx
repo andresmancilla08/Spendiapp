@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { Animated, Platform, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useProMotion } from '../hooks/useProMotion';
+import { useTheme } from '../context/ThemeContext';
 
 const STRIP_W = 90;
 
@@ -24,11 +25,12 @@ export default function ProSheen({
   duration = 650,
 }: ProSheenProps) {
   const { animate } = useProMotion();
+  const { cardSheen } = useTheme();
   const x = useRef(new Animated.Value(0)).current;
   const [w, setW] = useState(0);
 
   useEffect(() => {
-    if (!animate || w === 0) return;
+    if (!animate || !cardSheen || w === 0) return;
     x.setValue(0);
     const id = Animated.timing(x, {
       toValue: 1,
@@ -39,9 +41,9 @@ export default function ProSheen({
     id.start();
     return () => id.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animate, w, trigger]);
+  }, [animate, cardSheen, w, trigger]);
 
-  if (!animate) return null;
+  if (!animate || !cardSheen) return null;
 
   return (
     <View

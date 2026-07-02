@@ -33,7 +33,8 @@ export function useMonthlyTrend(
   month: number,
   count = 6,
   enabled = true,
-): { data: MonthBucket[]; loading: boolean } {
+  dayCutoff?: number,
+): { data: MonthBucket[]; loading: boolean; prevMonthToDateExpenses: number | null } {
   const [rangeDocs, setRangeDocs] = useState<any[]>([]);
   const [fixedDocs, setFixedDocs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,5 +114,40 @@ export function useMonthlyTrend(
     return b;
   });
 
-  return { data, loading };
+  // Gasto del mes anterior acumulado hasta el mismo día del mes que se está
+  // comparando (para "comparado con el mes pasado a esta altura" — más honesto
+  // que proyectar el mes completo desde un solo día).
+  let prevMonthToDateExpenses: number | null = null;
+  if (dayCutoff != null) {
+    const prevDate = new Date(year, month - 1, 1);
+    const prevY = prevDate.getFullYear();
+    const prevM = prevDate.getMonth();
+    const hasPrevInSpan = span.some((s) => s.year === prevY && s.month === prevM);
+    if (hasPrevInSpan) {
+      let sum = 0;
+      for (const d of rangeDocs) {
+        if (d.type !== 'expense') continue;
+        const date: Date = (d.date as Timestamp).toDate();
+        if (date.getFullYear() === prevY && date.getMonth() === prevM && date.getDate() <= dayCutoff) {
+          sum += d.amount;
+        }
+      }
+      for (const d of fixedDocs) {
+        const created: Date = (d.date as Timestamp).toDate();
+        const cancelledFrom: Date | null = d.fixedCancelledFrom ? (d.fixedCancelledFrom as Timestamp).toDate() : null;
+        const skip: string[] = d.fixedSkipMonths ?? [];
+        const monthStart = new Date(prevY, prevM, 1);
+        if (created >= monthStart) continue;
+        if (cancelledFrom && monthStart >= cancelledFrom) continue;
+        if (skip.includes(`${prevY}_${prevM}`)) continue;
+        if (d.type !== 'expense') continue;
+        const daysInPrevMonth = new Date(prevY, prevM + 1, 0).getDate();
+        const day = Math.min(created.getDate(), daysInPrevMonth);
+        if (day <= dayCutoff) sum += d.amount;
+      }
+      prevMonthToDateExpenses = sum;
+    }
+  }
+
+  return { data, loading, prevMonthToDateExpenses };
 }

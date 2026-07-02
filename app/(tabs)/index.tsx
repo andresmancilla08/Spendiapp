@@ -44,6 +44,8 @@ import NotificationBell from '../../components/NotificationBell';
 import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ConfettiBurst from '../../components/ConfettiBurst';
 import { useCategories } from '../../hooks/useCategories';
 import { categoryLabel } from '../../constants/categories';
 import { categoryColor } from '../../constants/categoryColors';
@@ -196,7 +198,7 @@ export default function HomeScreen() {
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { t } = useTranslation();
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, streakConfetti } = useTheme();
   const { flags } = useFlags();
   const { hidden, toggle: toggleHidden } = useAmountsVisibility();
   const { justLoggedIn, setJustLoggedIn } = useAuthStore();
@@ -212,6 +214,7 @@ export default function HomeScreen() {
   const isPastMonth = year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth());
   const [refreshKey, setRefreshKey] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const [confettiTrigger, setConfettiTrigger] = useState(0);
   // Siempre volver al mes actual al entrar al home
   useFocusEffect(useCallback(() => {
     const n = new Date();
@@ -279,7 +282,8 @@ export default function HomeScreen() {
   );
 
   // Premium: serie de 6 meses (tendencia + comparación con mes anterior).
-  const { data: trend } = useMonthlyTrend(user?.uid ?? '', year, month, 6, isPremium);
+  const dayCutoffForTrend = isCurrentMonth ? now.getDate() : new Date(year, month + 1, 0).getDate();
+  const { data: trend, prevMonthToDateExpenses } = useMonthlyTrend(user?.uid ?? '', year, month, 6, isPremium, dayCutoffForTrend);
 
   const nameParts = user?.displayName?.split(' ') ?? ['Usuario'];
   const firstName = nameParts[0];
@@ -397,12 +401,33 @@ export default function HomeScreen() {
   const prevSavingsRate = prevBucket && prevBucket.income > 0 ? Math.round((prevBucket.balance / prevBucket.income) * 100) : null;
   const savingsDelta = prevSavingsRate != null ? savingsRate - prevSavingsRate : null;
 
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const dayOfMonth = isCurrentMonth ? today.getDate() : daysInMonth;
-  const dailyAvg = dayOfMonth > 0 ? totalExpenses / dayOfMonth : 0;
-  const projection = isCurrentMonth && dayOfMonth > 0 ? (totalExpenses / dayOfMonth) * daysInMonth : totalExpenses;
-  const prevDaily = prevBucket ? prevBucket.expenses / new Date(prevBucket.year, prevBucket.month + 1, 0).getDate() : null;
-  const dailyDelta = prevDaily && prevDaily > 0 ? Math.round(((dailyAvg - prevDaily) / prevDaily) * 100) : null;
+  // Comparado con el mes pasado A LA MISMA ALTURA (mismo día de corte) — mucho
+  // más honesto que proyectar el mes completo desde un solo día.
+  const vsLastMonthPct = prevMonthToDateExpenses && prevMonthToDateExpenses > 0
+    ? Math.round(((totalExpenses - prevMonthToDateExpenses) / prevMonthToDateExpenses) * 100)
+    : null;
+
+  // Racha de ahorro: meses consecutivos (incluyendo el actual, hasta hoy) con
+  // balance positivo, contando hacia atrás desde el mes visto en la ventana
+  // de datos ya cargada (máximo 6, no dispara una consulta nueva).
+  let savingsStreak = 0;
+  for (let i = trend.length - 1; i >= 0; i--) {
+    if (trend[i].balance > 0) savingsStreak++;
+    else break;
+  }
+
+  useEffect(() => {
+    if (!isPremium || !streakConfetti || !user?.uid || loading) return;
+    const storageKey = `@spendiapp_streak_seen_${user.uid}`;
+    AsyncStorage.getItem(storageKey).then((stored) => {
+      const seen = stored ? parseInt(stored, 10) : 0;
+      if (savingsStreak > seen) {
+        setConfettiTrigger((k) => k + 1);
+        AsyncStorage.setItem(storageKey, String(savingsStreak));
+      }
+    }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savingsStreak, isPremium, streakConfetti, user?.uid, loading]);
 
   const insights: InsightItem[] = [
     {
@@ -411,8 +436,10 @@ export default function HomeScreen() {
       tone: savingsDelta != null ? (savingsDelta >= 0 ? 'pos' : 'neg') : 'muted',
     },
     {
-      key: 'projection', icon: '📈', label: t('home.pro.projection'), value: compactCurrency(projection),
-      delta: isCurrentMonth ? t('home.pro.estimatedSpend') : undefined, tone: 'warn',
+      key: 'vsLastMonth', icon: '📊', label: t('home.pro.vsLastMonth'),
+      value: vsLastMonthPct != null ? `${vsLastMonthPct >= 0 ? '+' : ''}${vsLastMonthPct}%` : '—',
+      delta: vsLastMonthPct != null ? t('home.pro.vsLastMonthCaption') : t('home.pro.noData'),
+      tone: vsLastMonthPct != null ? (vsLastMonthPct <= 0 ? 'pos' : 'neg') : 'muted',
     },
     {
       key: 'topcat', icon: '🍽️', label: t('home.pro.topCategory'),
@@ -421,9 +448,10 @@ export default function HomeScreen() {
       tone: 'neg',
     },
     {
-      key: 'daily', icon: '📅', label: t('home.pro.dailyAvg'), value: compactCurrency(dailyAvg),
-      delta: dailyDelta != null ? `${dailyDelta <= 0 ? '▼' : '▲'} ${Math.abs(dailyDelta)}%` : undefined,
-      tone: dailyDelta != null ? (dailyDelta <= 0 ? 'pos' : 'neg') : 'muted',
+      key: 'streak', icon: '🔥', label: t('home.pro.savingsStreak'),
+      value: t('home.pro.streakValue', { count: savingsStreak }),
+      delta: savingsStreak > 0 ? t('home.pro.streakGoing') : undefined,
+      tone: savingsStreak > 0 ? 'pos' : 'muted',
     },
   ];
 
@@ -579,6 +607,7 @@ export default function HomeScreen() {
                 <ProReveal index={2}>
                   <ProSectionHeader label={t('home.pro.sectionInsights')} />
                   <InsightsGrid items={insights} />
+                  {confettiTrigger > 0 && <ConfettiBurst trigger={confettiTrigger} />}
                 </ProReveal>
 
                 {/* Gastos por categoría */}

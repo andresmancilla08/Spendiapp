@@ -176,10 +176,13 @@
       "sectionByCategory": "Spese per categoria",
       "detailsToggle": "Entrate e uscite",
       "savingsRate": "Tasso di risparmio",
-      "projection": "Proiezione fine mese",
-      "estimatedSpend": "spesa stimata",
+      "vsLastMonth": "Vs. mese scorso",
+      "vsLastMonthCaption": "a questo punto del mese",
       "topCategory": "Categoria top",
-      "dailyAvg": "Media giornaliera",
+      "savingsStreak": "Serie di risparmio",
+      "streakValue_one": "{{count}} mese",
+      "streakValue_other": "{{count}} mesi",
+      "streakGoing": "Continua così! 🔥",
       "otherCategories": "Altre",
       "points": "{{value}} pts",
       "noData": "Dati insufficienti",
@@ -352,6 +355,51 @@
     },
     "version": "Spendia v{{version}}",
     "userNameCopied": "Utente copiato"
+  },
+  "personalization": {
+    "sectionPalette": "Tavolozza colori",
+    "sectionBackground": "Sfondo animato",
+    "background": {
+      "none": "Nessuno",
+      "aurora": "Aurora",
+      "particles": "Particelle",
+      "waves": "Onde"
+    },
+    "intensity": {
+      "subtle": "Sottile",
+      "default": "Normale",
+      "intense": "Intenso"
+    },
+    "sectionCards": "Schede",
+    "cardSheen": {
+      "label": "Bagliore nelle schede",
+      "sub": "Passaggio di luce all'avvio dell'app"
+    },
+    "cardGlass": {
+      "label": "Effetto vetro smerigliato",
+      "sub": "Sfondo traslucido nella scheda principale"
+    },
+    "sectionNumbers": "Cifre",
+    "tickerFont": {
+      "label": "Cifre stile ticker",
+      "sub": "Font monospazio sugli importi"
+    },
+    "countUp": {
+      "label": "Animazione di conteggio",
+      "sub": "Il saldo conta fino al nuovo valore"
+    },
+    "sectionCelebrations": "Celebrazioni",
+    "confetti": {
+      "label": "Coriandoli per serie di risparmio",
+      "sub": "Una piccola festa quando la tua serie sale"
+    },
+    "roadmapTitle": "Altra personalizzazione in arrivo",
+    "roadmapItems": [
+      "Sfondo con texture a grana sottile",
+      "Bordo con gradiente animato nella scheda principale",
+      "Temi di particelle per tavolozza colore",
+      "Pacchetto icone alternativo"
+    ]
   },
   "settings": {
     "title": "Impostazioni",
