@@ -83,7 +83,7 @@ function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): str
 
 export default function TransactionDetailScreen() {
   const { t } = useTranslation();
-  const { colors, isDark, tickerFont } = useTheme();
+  const { colors, isDark } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -487,7 +487,7 @@ export default function TransactionDetailScreen() {
 
                 {/* Monto — protagonista */}
                 <Text
-                  style={[styles.detailAmount, { color: accentColor }, isPremium && tickerFont && { fontFamily: Fonts.monoBold }]}
+                  style={[styles.detailAmount, { color: accentColor }]}
                 >
                   {isExpense
                     ? `−${formatCurrency(transaction.amount)}`

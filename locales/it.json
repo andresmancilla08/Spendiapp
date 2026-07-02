@@ -363,7 +363,10 @@
       "none": "Nessuno",
       "aurora": "Aurora",
       "particles": "Particelle",
-      "waves": "Onde"
+      "waves": "Onde",
+      "grain": "Grana",
+      "mesh": "Mesh",
+      "bokeh": "Bokeh"
     },
     "intensity": {
       "subtle": "Sottile",
@@ -379,14 +382,15 @@
       "label": "Effetto vetro smerigliato",
       "sub": "Sfondo traslucido nella scheda principale"
     },
-    "sectionNumbers": "Cifre",
-    "tickerFont": {
-      "label": "Cifre stile ticker",
-      "sub": "Font monospazio sugli importi"
+    "cardBorder": {
+      "label": "Bordo con gradiente animato",
+      "sub": "Un anello di colore che ruota sulla scheda principale"
     },
-    "countUp": {
-      "label": "Animazione di conteggio",
-      "sub": "Il saldo conta fino al nuovo valore"
+    "sectionIcons": "Stile icone",
+    "iconStroke": {
+      "thin": "Sottile",
+      "regular": "Normale",
+      "bold": "Spesso"
     },
     "sectionCelebrations": "Celebrazioni",
     "confetti": {
@@ -395,10 +399,9 @@
     },
     "roadmapTitle": "Altra personalizzazione in arrivo",
     "roadmapItems": [
-      "Sfondo con texture a grana sottile",
-      "Bordo con gradiente animato nella scheda principale",
-      "Temi di particelle per tavolozza colore",
-      "Pacchetto icone alternativo"
+      "Suoni discreti quando registri i movimenti",
+      "Usa una tua foto come sfondo",
+      "Widget di riepilogo per la schermata home"
     ]
   },
   "settings": {

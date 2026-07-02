@@ -7,6 +7,9 @@ import { useBreakpoint } from '../hooks/useBreakpoint';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
 import ParticlesBackground from './ParticlesBackground';
 import WavesBackground from './WavesBackground';
+import GrainBackground from './GrainBackground';
+import MeshBackground from './MeshBackground';
+import BokehBackground from './BokehBackground';
 
 interface Props {
   children: React.ReactNode;
@@ -59,6 +62,9 @@ export default function ScreenBackground({ children, style, auroraIntensity }: P
       {effectiveStyle === 'aurora' && <AuroraBackground intensity={effectiveIntensity} />}
       {effectiveStyle === 'particles' && <ParticlesBackground intensity={effectiveIntensity} />}
       {effectiveStyle === 'waves' && <WavesBackground intensity={effectiveIntensity} />}
+      {effectiveStyle === 'grain' && <GrainBackground intensity={effectiveIntensity} />}
+      {effectiveStyle === 'mesh' && <MeshBackground intensity={effectiveIntensity} />}
+      {effectiveStyle === 'bokeh' && <BokehBackground intensity={effectiveIntensity} />}
       {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.7)' }]} pointerEvents="none" />}
       {/* Contenido siempre encima de los blobs — centrado en tablet/desktop */}
       <View

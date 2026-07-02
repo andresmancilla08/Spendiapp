@@ -1,15 +1,14 @@
 import { useRef, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet } from 'react-native';
+import { View, Animated, Easing, StyleSheet, Platform } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import type { AuroraIntensity } from './AuroraBackground';
 
-const MULTIPLIER: Record<AuroraIntensity, number> = {
-  intense: 1.0,
-  default: 0.7,
-  subtle: 0.35,
+// La intensidad cambia densidad, brillo y velocidad de forma perceptible.
+const CONFIG: Record<AuroraIntensity, { count: number; opacity: number; speed: number }> = {
+  subtle:  { count: 10, opacity: 0.6, speed: 1.25 },
+  default: { count: 20, opacity: 1.0, speed: 1.0 },
+  intense: { count: 34, opacity: 1.5, speed: 0.72 },
 };
-
-const COUNT = 14;
 
 interface ParticleConfig {
   left: `${number}%`;
@@ -17,6 +16,8 @@ interface ParticleConfig {
   duration: number;
   delay: number;
   baseOpacity: number;
+  sway: number;
+  color: string;
 }
 
 interface Props {
@@ -24,36 +25,43 @@ interface Props {
 }
 
 /**
- * Alternativa a AuroraBackground: partículas ascendentes (luciérnagas), no
- * morphing de blobs — para que "personalización de fondo" no sea siempre la
- * misma familia de movimiento.
+ * Luciérnagas premium: ascienden con deriva senoidal, parpadean (twinkle) y
+ * llevan un halo suave. El color se toma de la paleta activa (tema de
+ * partículas por paleta), no de un único acento.
  */
 export default function ParticlesBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
-  const m = MULTIPLIER[intensity] * (isDark ? 1.6 : 1.0);
+  const cfg = CONFIG[intensity];
+  const glow = isDark ? 1.6 : 1.0;
 
-  // Distribución uniforme determinística (phyllotaxis-like) — evita Math.random
-  // para que no "salten" de posición en cada re-render.
+  // Multicolor tomado de la paleta → cada partícula hereda un acento distinto.
+  const palette = useMemo(
+    () => [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info],
+    [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info],
+  );
+
   const particles = useMemo<ParticleConfig[]>(() => (
-    Array.from({ length: COUNT }, (_, i) => ({
+    Array.from({ length: cfg.count }, (_, i) => ({
       left: `${(i * 137.5) % 100}%` as const,
-      size: 3 + (i * 7) % 5,
-      duration: 6000 + (i % 5) * 1400,
-      delay: (i * 380) % 4000,
-      baseOpacity: 0.25 + (i % 4) * 0.08,
+      size: 2.5 + (i * 7) % 5,
+      duration: (6000 + (i % 5) * 1400) * cfg.speed,
+      delay: (i * 380) % 4200,
+      baseOpacity: (0.28 + (i % 4) * 0.08) * cfg.opacity * glow,
+      sway: 10 + (i % 3) * 9,
+      color: palette[i % palette.length],
     }))
-  ), []);
+  ), [cfg.count, cfg.speed, cfg.opacity, glow, palette]);
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {particles.map((p, i) => (
-        <Particle key={i} config={p} color={colors.primary} multiplier={m} />
+        <Particle key={`${intensity}-${i}`} config={p} />
       ))}
     </View>
   );
 }
 
-function Particle({ config, color, multiplier }: { config: ParticleConfig; color: string; multiplier: number }) {
+function Particle({ config }: { config: ParticleConfig }) {
   const anim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -69,24 +77,36 @@ function Particle({ config, color, multiplier }: { config: ParticleConfig; color
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -160] });
-  const opacity = anim.interpolate({
-    inputRange: [0, 0.15, 0.85, 1],
-    outputRange: [0, config.baseOpacity * multiplier, config.baseOpacity * multiplier, 0],
+  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -190] });
+  const translateX = anim.interpolate({
+    inputRange: [0, 0.25, 0.5, 0.75, 1],
+    outputRange: [0, config.sway, 0, -config.sway, 0],
   });
+  // Twinkle: la opacidad late mientras sube, en vez de un simple fade lineal.
+  const opacity = anim.interpolate({
+    inputRange: [0, 0.12, 0.35, 0.55, 0.78, 0.92, 1],
+    outputRange: [0, config.baseOpacity, config.baseOpacity * 0.55, config.baseOpacity, config.baseOpacity * 0.6, config.baseOpacity, 0],
+  });
+  const scale = anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.7, 1, 0.7] });
+
+  const halo = config.size * 2.4;
+  const glowStyle = Platform.OS === 'web'
+    ? ({ boxShadow: `0 0 ${halo}px ${config.color}` } as any)
+    : { shadowColor: config.color, shadowOpacity: 0.9, shadowRadius: halo, shadowOffset: { width: 0, height: 0 } };
 
   return (
     <Animated.View
       style={[
         styles.particle,
+        glowStyle,
         {
           left: config.left,
           width: config.size,
           height: config.size,
           borderRadius: config.size / 2,
-          backgroundColor: color,
+          backgroundColor: config.color,
           opacity,
-          transform: [{ translateY }],
+          transform: [{ translateY }, { translateX }, { scale }],
         },
       ]}
     />
