@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect, type ReactNode } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { useTranslation } from 'react-i18next';
 import AppIcon, { AppIconName } from '../components/AppIcon';
 import AppHeader from '../components/AppHeader';
@@ -12,7 +14,10 @@ import PaletteGrid from '../components/PaletteGrid';
 import AuroraBackground from '../components/AuroraBackground';
 import ParticlesBackground from '../components/ParticlesBackground';
 import WavesBackground from '../components/WavesBackground';
-import { useTheme, type BackgroundStyle, type AuroraIntensity } from '../context/ThemeContext';
+import GrainBackground from '../components/GrainBackground';
+import MeshBackground from '../components/MeshBackground';
+import BokehBackground from '../components/BokehBackground';
+import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { updateUserColorPalette } from '../hooks/useUserProfile';
 import { Fonts } from '../config/fonts';
@@ -86,13 +91,14 @@ function SwitchRow({ icon, label, sub, value, onValueChange, isLast }: {
   );
 }
 
-const BACKGROUND_STYLES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'waves'];
+const BACKGROUND_STYLES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh'];
 
-// ── Tarjeta de fondo con vista previa EN VIVO (renderiza el efecto real, no un mockup) ──
-function BackgroundPreviewCard({ styleKey, label, selected, onPress }: {
-  styleKey: BackgroundStyle; label: string; selected: boolean; onPress: () => void;
+// ── Tarjeta de fondo con vista previa EN VIVO (renderiza el efecto real a la
+// intensidad seleccionada, no un mockup) ──
+function BackgroundPreviewCard({ styleKey, label, selected, intensity, onPress }: {
+  styleKey: BackgroundStyle; label: string; selected: boolean; intensity: AuroraIntensity; onPress: () => void;
 }) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -105,10 +111,14 @@ function BackgroundPreviewCard({ styleKey, label, selected, onPress }: {
         },
       ]}
     >
-      <View style={[styles.bgPreviewBox, { backgroundColor: colors.background }]}>
-        {styleKey === 'aurora' && <AuroraBackground intensity="default" />}
-        {styleKey === 'particles' && <ParticlesBackground intensity="default" />}
-        {styleKey === 'waves' && <WavesBackground intensity="default" />}
+      <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
+        {/* key={intensity} → remonta el efecto al cambiar la intensidad, para que la vista previa refleje el cambio al instante */}
+        {styleKey === 'aurora' && <AuroraBackground key={intensity} intensity={intensity} />}
+        {styleKey === 'particles' && <ParticlesBackground key={intensity} intensity={intensity} />}
+        {styleKey === 'waves' && <WavesBackground key={intensity} intensity={intensity} />}
+        {styleKey === 'grain' && <GrainBackground key={intensity} intensity={intensity} />}
+        {styleKey === 'mesh' && <MeshBackground key={intensity} intensity={intensity} />}
+        {styleKey === 'bokeh' && <BokehBackground key={intensity} intensity={intensity} />}
         {styleKey === 'none' && (
           <View style={styles.bgNoneWrap}>
             <AppIcon name="close-outline" size={18} color={colors.textTertiary} />
@@ -127,6 +137,90 @@ function BackgroundPreviewCard({ styleKey, label, selected, onPress }: {
   );
 }
 
+const ICON_STROKE_OPTIONS: { key: IconStroke; labelKey: string }[] = [
+  { key: 1.5, labelKey: 'thin' },
+  { key: 2, labelKey: 'regular' },
+  { key: 2.5, labelKey: 'bold' },
+];
+
+// ── Vista previa en vivo de los efectos de tarjeta (brillo / vidrio / borde) ──
+function CardEffectPreview({ sheen, glass, border }: { sheen: boolean; glass: boolean; border: boolean }) {
+  const { colors, isDark } = useTheme();
+  const sweep = useRef(new Animated.Value(0)).current;
+  const rot = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!sheen) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(sweep, { toValue: 1, duration: 1400, easing: Easing.inOut(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
+        Animated.delay(1100),
+        Animated.timing(sweep, { toValue: 0, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [sheen, sweep]);
+
+  useEffect(() => {
+    if (!border) return;
+    const loop = Animated.loop(
+      Animated.timing(rot, { toValue: 1, duration: 5000, easing: Easing.linear, useNativeDriver: true }),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [border, rot]);
+
+  const sweepX = sweep.interpolate({ inputRange: [0, 1], outputRange: [-70, 260] });
+  const rotate = rot.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+
+  const inner = (
+    <View
+      style={[
+        styles.previewCard,
+        {
+          backgroundColor: glass
+            ? (isDark ? 'rgba(30,48,53,0.5)' : 'rgba(255,255,255,0.5)')
+            : colors.surfaceElevated,
+          borderColor: colors.primary + '2E',
+        },
+      ]}
+    >
+      {glass && <BlurView intensity={30} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />}
+      <View style={[styles.previewAccentBar, { backgroundColor: colors.primary }]} pointerEvents="none" />
+      <Text style={[styles.previewLabel, { color: colors.textTertiary }]}>BALANCE</Text>
+      <Text style={[styles.previewAmount, { color: colors.primary }]}>$ 1.284,50</Text>
+      <View style={styles.previewChips}>
+        <View style={[styles.previewChip, { backgroundColor: colors.success + '20' }]} />
+        <View style={[styles.previewChip, { backgroundColor: colors.expense + '20' }]} />
+      </View>
+      {sheen && (
+        <Animated.View pointerEvents="none" style={[styles.previewSheen, { transform: [{ translateX: sweepX }, { rotate: '18deg' }] }]}>
+          <LinearGradient
+            colors={['transparent', isDark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.9)', 'transparent']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
+      )}
+    </View>
+  );
+
+  if (!border) return <View style={styles.previewWrap}>{inner}</View>;
+
+  return (
+    <View style={styles.previewWrap}>
+      <View style={styles.previewBorderWrap}>
+        <Animated.View pointerEvents="none" style={[styles.previewBorderGrad, { transform: [{ rotate }] }]}>
+          <LinearGradient colors={[colors.primary, colors.tertiary, colors.secondary, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        </Animated.View>
+        {inner}
+      </View>
+    </View>
+  );
+}
+
 const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
 
 export default function PersonalizationScreen() {
@@ -135,8 +229,8 @@ export default function PersonalizationScreen() {
   const {
     colors, paletteId, setPaletteId,
     backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
-    cardSheen, setCardSheen, cardGlass, setCardGlass,
-    tickerFont, setTickerFont, countUpAnim, setCountUpAnim,
+    cardSheen, setCardSheen, cardGlass, setCardGlass, cardGradientBorder, setCardGradientBorder,
+    iconStroke, setIconStroke,
     streakConfetti, setStreakConfetti,
   } = useTheme();
 
@@ -165,6 +259,7 @@ export default function PersonalizationScreen() {
                     styleKey={key}
                     label={t(`personalization.background.${key}`)}
                     selected={backgroundStyle === key}
+                    intensity={backgroundIntensity}
                     onPress={() => setBackgroundStyle(key)}
                   />
                 ))}
@@ -179,7 +274,8 @@ export default function PersonalizationScreen() {
               )}
             </AccordionSection>
 
-            <AccordionSection icon="card-outline" title={t('personalization.sectionCards')}>
+            <AccordionSection icon="card-outline" title={t('personalization.sectionCards')} defaultOpen>
+              <CardEffectPreview sheen={cardSheen} glass={cardGlass} border={cardGradientBorder} />
               <View style={styles.rowsWrap}>
                 <SwitchRow
                   icon="sparkles-outline"
@@ -194,29 +290,30 @@ export default function PersonalizationScreen() {
                   sub={t('personalization.cardGlass.sub')}
                   value={cardGlass}
                   onValueChange={setCardGlass}
+                />
+                <SwitchRow
+                  icon="color-palette-outline"
+                  label={t('personalization.cardBorder.label')}
+                  sub={t('personalization.cardBorder.sub')}
+                  value={cardGradientBorder}
+                  onValueChange={setCardGradientBorder}
                   isLast
                 />
               </View>
             </AccordionSection>
 
-            <AccordionSection icon="cash-outline" title={t('personalization.sectionNumbers')}>
-              <View style={styles.rowsWrap}>
-                <SwitchRow
-                  icon="cash-outline"
-                  label={t('personalization.tickerFont.label')}
-                  sub={t('personalization.tickerFont.sub')}
-                  value={tickerFont}
-                  onValueChange={setTickerFont}
-                />
-                <SwitchRow
-                  icon="refresh-outline"
-                  label={t('personalization.countUp.label')}
-                  sub={t('personalization.countUp.sub')}
-                  value={countUpAnim}
-                  onValueChange={setCountUpAnim}
-                  isLast
-                />
+            <AccordionSection icon="options-outline" title={t('personalization.sectionIcons')}>
+              <View style={styles.iconPreviewRow}>
+                {(['home-outline', 'wallet-outline', 'card-outline', 'star-outline', 'person-outline'] as const).map((n) => (
+                  <AppIcon key={n} name={n} size={24} color={colors.primary} strokeWidth={iconStroke} />
+                ))}
               </View>
+              <AppSegmentedControl
+                segments={ICON_STROKE_OPTIONS.map((o) => ({ key: String(o.key), label: t(`personalization.iconStroke.${o.labelKey}`) }))}
+                activeKey={String(iconStroke)}
+                onChange={(key) => setIconStroke(Number(key) as IconStroke)}
+                style={styles.intensitySpacing}
+              />
             </AccordionSection>
 
             <AccordionSection icon="gift-outline" title={t('personalization.sectionCelebrations')}>
@@ -265,6 +362,18 @@ const styles = StyleSheet.create({
   bgCardLabel: { fontSize: 12, fontFamily: Fonts.semiBold },
   bgCheckBadge: { position: 'absolute', top: 6, right: 6, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   rowsWrap: { marginHorizontal: -16 },
+  // Preview en vivo de efectos de tarjeta
+  previewWrap: { alignItems: 'center', marginBottom: 14 },
+  previewBorderWrap: { width: 240, borderRadius: 22, padding: 2, overflow: 'hidden', position: 'relative' },
+  previewBorderGrad: { position: 'absolute', width: 360, height: 360, left: '50%', top: '50%', marginLeft: -180, marginTop: -180 },
+  previewCard: { width: 236, borderRadius: 20, borderWidth: 1.5, paddingVertical: 18, paddingHorizontal: 18, overflow: 'hidden', position: 'relative' },
+  previewAccentBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 3, opacity: 0.85 },
+  previewLabel: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.4, marginBottom: 4 },
+  previewAmount: { fontSize: 26, fontFamily: Fonts.extraBold, letterSpacing: -0.5 },
+  previewChips: { flexDirection: 'row', gap: 6, marginTop: 12 },
+  previewChip: { width: 52, height: 16, borderRadius: 8 },
+  previewSheen: { position: 'absolute', top: -30, bottom: -30, width: 60 },
+  iconPreviewRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 8, marginBottom: 4 },
   optionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 },
   optionIconWrap: { width: 36, height: 36, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   optionMeta: { flex: 1, gap: 2 },

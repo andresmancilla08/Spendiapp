@@ -11,12 +11,13 @@ const BG_STYLE_KEY = '@spendiapp_bg_style';
 const BG_INTENSITY_KEY = '@spendiapp_bg_intensity';
 const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
 const CARD_GLASS_KEY = '@spendiapp_card_glass';
-const TICKER_FONT_KEY = '@spendiapp_ticker_font';
-const COUNT_UP_KEY = '@spendiapp_count_up';
+const CARD_BORDER_KEY = '@spendiapp_card_border';
+const ICON_STROKE_KEY = '@spendiapp_icon_stroke';
 const STREAK_CONFETTI_KEY = '@spendiapp_streak_confetti';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves';
+export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves' | 'grain' | 'mesh' | 'bokeh';
+export type IconStroke = 1.5 | 2 | 2.5;
 export type { PaletteId, AuroraIntensity };
 
 interface ThemeContextValue {
@@ -36,10 +37,10 @@ interface ThemeContextValue {
   setCardSheen: (v: boolean) => void;
   cardGlass: boolean;
   setCardGlass: (v: boolean) => void;
-  tickerFont: boolean;
-  setTickerFont: (v: boolean) => void;
-  countUpAnim: boolean;
-  setCountUpAnim: (v: boolean) => void;
+  cardGradientBorder: boolean;
+  setCardGradientBorder: (v: boolean) => void;
+  iconStroke: IconStroke;
+  setIconStroke: (v: IconStroke) => void;
   streakConfetti: boolean;
   setStreakConfetti: (v: boolean) => void;
 }
@@ -62,10 +63,10 @@ const ThemeContext = createContext<ThemeContextValue>({
   setCardSheen: () => {},
   cardGlass: false,
   setCardGlass: () => {},
-  tickerFont: false,
-  setTickerFont: () => {},
-  countUpAnim: false,
-  setCountUpAnim: () => {},
+  cardGradientBorder: false,
+  setCardGradientBorder: () => {},
+  iconStroke: 2,
+  setIconStroke: () => {},
   streakConfetti: true,
   setStreakConfetti: () => {},
 });
@@ -78,8 +79,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [backgroundIntensity, setBackgroundIntensityState] = useState<AuroraIntensity>('default');
   const [cardSheen, setCardSheenState] = useState(true);
   const [cardGlass, setCardGlassState] = useState(false);
-  const [tickerFont, setTickerFontState] = useState(false);
-  const [countUpAnim, setCountUpAnimState] = useState(false);
+  const [cardGradientBorder, setCardGradientBorderState] = useState(false);
+  const [iconStroke, setIconStrokeState] = useState<IconStroke>(2);
   const [streakConfetti, setStreakConfettiState] = useState(true);
 
   useEffect(() => {
@@ -90,26 +91,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(BG_INTENSITY_KEY),
       AsyncStorage.getItem(CARD_SHEEN_KEY),
       AsyncStorage.getItem(CARD_GLASS_KEY),
-      AsyncStorage.getItem(TICKER_FONT_KEY),
-      AsyncStorage.getItem(COUNT_UP_KEY),
+      AsyncStorage.getItem(CARD_BORDER_KEY),
+      AsyncStorage.getItem(ICON_STROKE_KEY),
       AsyncStorage.getItem(STREAK_CONFETTI_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedSheen, storedGlass, storedTicker, storedCountUp, storedConfetti]) => {
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedSheen, storedGlass, storedBorder, storedStroke, storedConfetti]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
       if (storedPalette && PALETTE_MAP[storedPalette as PaletteId]) {
         setPaletteIdState(storedPalette as PaletteId);
       }
-      if (storedBgStyle === 'none' || storedBgStyle === 'aurora' || storedBgStyle === 'particles' || storedBgStyle === 'waves') {
-        setBackgroundStyleState(storedBgStyle);
+      if (['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh'].includes(storedBgStyle as string)) {
+        setBackgroundStyleState(storedBgStyle as BackgroundStyle);
       }
       if (storedBgIntensity === 'intense' || storedBgIntensity === 'default' || storedBgIntensity === 'subtle') {
         setBackgroundIntensityState(storedBgIntensity);
       }
       if (storedSheen != null) setCardSheenState(storedSheen === '1');
       if (storedGlass != null) setCardGlassState(storedGlass === '1');
-      if (storedTicker != null) setTickerFontState(storedTicker === '1');
-      if (storedCountUp != null) setCountUpAnimState(storedCountUp === '1');
+      if (storedBorder != null) setCardGradientBorderState(storedBorder === '1');
+      if (storedStroke === '1.5' || storedStroke === '2' || storedStroke === '2.5') setIconStrokeState(Number(storedStroke) as IconStroke);
       if (storedConfetti != null) setStreakConfettiState(storedConfetti === '1');
     }).catch(() => {});
   }, []);
@@ -144,14 +145,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(CARD_GLASS_KEY, v ? '1' : '0');
   };
 
-  const setTickerFont = async (v: boolean) => {
-    setTickerFontState(v);
-    await AsyncStorage.setItem(TICKER_FONT_KEY, v ? '1' : '0');
+  const setCardGradientBorder = async (v: boolean) => {
+    setCardGradientBorderState(v);
+    await AsyncStorage.setItem(CARD_BORDER_KEY, v ? '1' : '0');
   };
 
-  const setCountUpAnim = async (v: boolean) => {
-    setCountUpAnimState(v);
-    await AsyncStorage.setItem(COUNT_UP_KEY, v ? '1' : '0');
+  const setIconStroke = async (v: IconStroke) => {
+    setIconStrokeState(v);
+    await AsyncStorage.setItem(ICON_STROKE_KEY, String(v));
   };
 
   const setStreakConfetti = async (v: boolean) => {
@@ -170,7 +171,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       colors, isDark, themeMode, setThemeMode, paletteId, setPaletteId, activePalette,
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
       cardSheen, setCardSheen, cardGlass, setCardGlass,
-      tickerFont, setTickerFont, countUpAnim, setCountUpAnim,
+      cardGradientBorder, setCardGradientBorder, iconStroke, setIconStroke,
       streakConfetti, setStreakConfetti,
     }}>
       {children}

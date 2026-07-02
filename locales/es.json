@@ -363,7 +363,10 @@
       "none": "Ninguno",
       "aurora": "Aurora",
       "particles": "Partículas",
-      "waves": "Ondas"
+      "waves": "Ondas",
+      "grain": "Grano",
+      "mesh": "Malla",
+      "bokeh": "Bokeh"
     },
     "intensity": {
       "subtle": "Sutil",
@@ -379,14 +382,15 @@
       "label": "Efecto vidrio esmerilado",
       "sub": "Fondo translúcido en la tarjeta principal"
     },
-    "sectionNumbers": "Cifras",
-    "tickerFont": {
-      "label": "Cifras estilo tícker",
-      "sub": "Tipografía monoespaciada en los montos"
+    "cardBorder": {
+      "label": "Borde con gradiente animado",
+      "sub": "Un anillo de color que gira en la tarjeta principal"
     },
-    "countUp": {
-      "label": "Animación de conteo",
-      "sub": "El balance cuenta hacia el nuevo valor"
+    "sectionIcons": "Estilo de íconos",
+    "iconStroke": {
+      "thin": "Fino",
+      "regular": "Normal",
+      "bold": "Grueso"
     },
     "sectionCelebrations": "Celebraciones",
     "confetti": {
@@ -395,10 +399,9 @@
     },
     "roadmapTitle": "Más personalización en camino",
     "roadmapItems": [
-      "Fondo con textura de grano sutil",
-      "Borde con gradiente animado en la tarjeta principal",
-      "Temas de partículas por paleta de color",
-      "Paquete de íconos alternativo"
+      "Sonidos sutiles al registrar movimientos",
+      "Usar una foto propia como fondo",
+      "Widget de resumen para tu pantalla de inicio"
     ]
   },
   "settings": {

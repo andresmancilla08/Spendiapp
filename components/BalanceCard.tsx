@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import AppIcon from './AppIcon';
 import ProSheen from './ProSheen';
@@ -128,27 +129,34 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   );
 }
 
-/** Cuenta regresiva/ascendente del monto (premium, opcional vía countUpAnim). */
-function CountUpAmount({ value, formatCurrency, style }: { value: number; formatCurrency: (n: number) => string; style: any }) {
-  const anim = useRef(new Animated.Value(value)).current;
-  const [display, setDisplay] = useState(value);
+/** Borde con gradiente animado (premium, opcional vía cardGradientBorder). */
+function GradientBorderWrap({ colors, children }: { colors: [string, string, string, string]; children: ReactNode }) {
+  const rot = useRef(new Animated.Value(0)).current;
+  const [side, setSide] = useState(0);
 
   useEffect(() => {
-    const id = anim.addListener(({ value: v }) => setDisplay(v));
-    Animated.timing(anim, {
-      toValue: value,
-      duration: 600,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
-    }).start();
-    return () => anim.removeListener(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+    const loop = Animated.loop(
+      Animated.timing(rot, { toValue: 1, duration: 6000, easing: Easing.linear, useNativeDriver: Platform.OS !== 'web' }),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [rot]);
+
+  const rotate = rot.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
+  const sq = side * 1.5; // cuadrado que cubre las esquinas al rotar
 
   return (
-    <Text style={style} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-      {formatCurrency(Math.round(display))}
-    </Text>
+    <View style={styles.borderWrap} onLayout={(e) => { const { width, height } = e.nativeEvent.layout; const s = Math.max(width, height); if (Math.abs(s - side) > 1) setSide(s); }}>
+      {side > 0 && (
+        <Animated.View
+          pointerEvents="none"
+          style={{ position: 'absolute', width: sq, height: sq, left: '50%', top: '50%', marginLeft: -sq / 2, marginTop: -sq / 2, transform: [{ rotate }] }}
+        >
+          <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        </Animated.View>
+      )}
+      {children}
+    </View>
   );
 }
 
@@ -170,10 +178,9 @@ export default function BalanceCard({
   sparkline,
   detailsToggleLabel,
 }: BalanceCardProps) {
-  const { colors, isDark, cardGlass, tickerFont, countUpAnim } = useTheme();
+  const { colors, isDark, cardGlass, cardGradientBorder } = useTheme();
   const useGlass = pro && cardGlass;
-  const useTicker = pro && tickerFont;
-  const useCountUp = pro && countUpAnim;
+  const useBorder = pro && cardGradientBorder;
   const [pickerOpen, setPickerOpen] = useState(false);
 
   // Detalle colapsable (premium): contraído por defecto.
@@ -264,7 +271,6 @@ export default function BalanceCard({
       {
         color: hidden ? colors.textTertiary : isPositive ? colors.primary : colors.expense,
         letterSpacing: hidden ? 4 : proStyle ? -1 : -0.5,
-        ...(useTicker && { fontFamily: Fonts.monoBold }),
       },
     ];
     if (hidden) {
@@ -273,9 +279,6 @@ export default function BalanceCard({
           {HIDDEN_MASK}
         </Text>
       );
-    }
-    if (useCountUp) {
-      return <CountUpAmount value={displayBalance} formatCurrency={formatCurrency} style={amountStyle} />;
     }
     return (
       <Text style={amountStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
@@ -347,10 +350,11 @@ export default function BalanceCard({
     </TouchableOpacity>
   );
 
-  return (
+  const card = (
     <View
       style={[
         styles.card,
+        useBorder && { marginBottom: 0 },
         {
           backgroundColor: useGlass ? (isDark ? 'rgba(30,48,53,0.45)' : 'rgba(255,255,255,0.45)') : colors.surfaceElevated,
           borderColor: pro ? (isDark ? colors.primary + '22' : colors.border) : colors.primary + '2E',
@@ -465,9 +469,19 @@ export default function BalanceCard({
       )}
     </View>
   );
+
+  if (useBorder) {
+    return (
+      <GradientBorderWrap colors={[colors.primary, colors.tertiary, colors.secondary, colors.primary]}>
+        {card}
+      </GradientBorderWrap>
+    );
+  }
+  return card;
 }
 
 const styles = StyleSheet.create({
+  borderWrap: { borderRadius: 30, padding: 2, marginBottom: 20, overflow: 'hidden', position: 'relative' },
   card: {
     borderRadius: 28,
     borderWidth: 1.5,

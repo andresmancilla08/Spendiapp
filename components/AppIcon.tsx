@@ -96,6 +96,7 @@ import {
   IconTrendingUp,
 } from '@tabler/icons-react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 const ICON_MAP = {
   'add': IconPlus,
@@ -220,11 +221,13 @@ interface AppIconProps {
   size?: number;
   color?: string;
   style?: StyleProp<ViewStyle>;
+  /** Si no se pasa, usa el grosor global elegido en Personalización. */
   strokeWidth?: number;
 }
 
-export default function AppIcon({ name, size = 24, color = '#000', style, strokeWidth = 2 }: AppIconProps) {
+export default function AppIcon({ name, size = 24, color = '#000', style, strokeWidth }: AppIconProps) {
+  const { iconStroke } = useTheme();
   const Icon = ICON_MAP[name];
   if (!Icon) return null;
-  return <Icon size={size} color={color} strokeWidth={strokeWidth} style={style} />;
+  return <Icon size={size} color={color} strokeWidth={strokeWidth ?? iconStroke} style={style} />;
 }

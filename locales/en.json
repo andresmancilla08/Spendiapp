@@ -363,7 +363,10 @@
       "none": "None",
       "aurora": "Aurora",
       "particles": "Particles",
-      "waves": "Waves"
+      "waves": "Waves",
+      "grain": "Grain",
+      "mesh": "Mesh",
+      "bokeh": "Bokeh"
     },
     "intensity": {
       "subtle": "Subtle",
@@ -379,14 +382,15 @@
       "label": "Frosted glass effect",
       "sub": "Translucent background on the main card"
     },
-    "sectionNumbers": "Numbers",
-    "tickerFont": {
-      "label": "Ticker-style numbers",
-      "sub": "Monospaced typeface on amounts"
+    "cardBorder": {
+      "label": "Animated gradient border",
+      "sub": "A rotating color ring on the main card"
     },
-    "countUp": {
-      "label": "Count-up animation",
-      "sub": "The balance counts up to the new value"
+    "sectionIcons": "Icon style",
+    "iconStroke": {
+      "thin": "Thin",
+      "regular": "Regular",
+      "bold": "Bold"
     },
     "sectionCelebrations": "Celebrations",
     "confetti": {
@@ -395,10 +399,9 @@
     },
     "roadmapTitle": "More personalization coming",
     "roadmapItems": [
-      "Subtle grain texture background",
-      "Animated gradient border on the main card",
-      "Particle themes per color palette",
-      "Alternative icon pack"
+      "Subtle sounds when logging transactions",
+      "Use your own photo as background",
+      "Summary widget for your home screen"
     ]
   },
   "settings": {
