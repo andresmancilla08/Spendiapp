@@ -13,6 +13,7 @@ import { ThemeProvider, useTheme, PaletteId } from '../context/ThemeContext';
 import { PALETTE_MAP } from '../config/palettes';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
+import { DMMono_400Regular, DMMono_500Medium } from '@expo-google-fonts/dm-mono';
 import { isBiometricsAppEnrolled } from '../hooks/useBiometrics';
 import WebAppShell from '../components/WebAppShell';
 import { useTranslation } from 'react-i18next';
@@ -265,6 +266,8 @@ export default function RootLayout() {
     Montserrat_600SemiBold,
     Montserrat_700Bold,
     Montserrat_800ExtraBold,
+    DMMono_400Regular,
+    DMMono_500Medium,
   });
 
   useEffect(() => {

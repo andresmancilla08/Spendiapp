@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { BlurView } from 'expo-blur';
 import AppIcon from './AppIcon';
 import ProSheen from './ProSheen';
 import { useTheme } from '../context/ThemeContext';
@@ -127,6 +128,30 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
   );
 }
 
+/** Cuenta regresiva/ascendente del monto (premium, opcional vía countUpAnim). */
+function CountUpAmount({ value, formatCurrency, style }: { value: number; formatCurrency: (n: number) => string; style: any }) {
+  const anim = useRef(new Animated.Value(value)).current;
+  const [display, setDisplay] = useState(value);
+
+  useEffect(() => {
+    const id = anim.addListener(({ value: v }) => setDisplay(v));
+    Animated.timing(anim, {
+      toValue: value,
+      duration: 600,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+    return () => anim.removeListener(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <Text style={style} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+      {formatCurrency(Math.round(display))}
+    </Text>
+  );
+}
+
 export default function BalanceCard({
   displayBalance,
   totalIncome,
@@ -145,7 +170,10 @@ export default function BalanceCard({
   sparkline,
   detailsToggleLabel,
 }: BalanceCardProps) {
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, cardGlass, tickerFont, countUpAnim } = useTheme();
+  const useGlass = pro && cardGlass;
+  const useTicker = pro && tickerFont;
+  const useCountUp = pro && countUpAnim;
   const [pickerOpen, setPickerOpen] = useState(false);
 
   // Detalle colapsable (premium): contraído por defecto.
@@ -229,23 +257,32 @@ export default function BalanceCard({
     <View style={[styles.amountLoader, proStyle && { minHeight: 56 }]}>
       <ActivityIndicator size="small" color={colors.primary} />
     </View>
-  ) : (
-    <Text
-      style={[
-        styles.balanceAmount,
-        proStyle && styles.balanceAmountPro,
-        {
-          color: hidden ? colors.textTertiary : isPositive ? colors.primary : colors.expense,
-          letterSpacing: hidden ? 4 : proStyle ? -1 : -0.5,
-        },
-      ]}
-      numberOfLines={1}
-      adjustsFontSizeToFit
-      minimumFontScale={0.6}
-    >
-      {hidden ? HIDDEN_MASK : formatCurrency(displayBalance)}
-    </Text>
-  );
+  ) : (() => {
+    const amountStyle = [
+      styles.balanceAmount,
+      proStyle && styles.balanceAmountPro,
+      {
+        color: hidden ? colors.textTertiary : isPositive ? colors.primary : colors.expense,
+        letterSpacing: hidden ? 4 : proStyle ? -1 : -0.5,
+        ...(useTicker && { fontFamily: Fonts.monoBold }),
+      },
+    ];
+    if (hidden) {
+      return (
+        <Text style={amountStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+          {HIDDEN_MASK}
+        </Text>
+      );
+    }
+    if (useCountUp) {
+      return <CountUpAmount value={displayBalance} formatCurrency={formatCurrency} style={amountStyle} />;
+    }
+    return (
+      <Text style={amountStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+        {formatCurrency(displayBalance)}
+      </Text>
+    );
+  })();
 
   const renderNetFlow = () => netFlow && !loading && !hidden && (netFlow.incomePct !== null || netFlow.expensePct !== null) && (
     <View style={styles.netFlowRow}>
@@ -315,7 +352,7 @@ export default function BalanceCard({
       style={[
         styles.card,
         {
-          backgroundColor: colors.surfaceElevated,
+          backgroundColor: useGlass ? (isDark ? 'rgba(30,48,53,0.45)' : 'rgba(255,255,255,0.45)') : colors.surfaceElevated,
           borderColor: pro ? (isDark ? colors.primary + '22' : colors.border) : colors.primary + '2E',
           ...(Platform.OS !== 'web' && {
             shadowColor: pro ? (isDark ? '#000000' : '#10282E') : (isDark ? colors.primary : '#000000'),
@@ -332,6 +369,10 @@ export default function BalanceCard({
         },
       ]}
     >
+      {useGlass && (
+        <BlurView intensity={40} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
+      )}
+
       {pro && (
         <ProSheen trigger={`${displayBalance}-${loading}`} color={isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,160,180,0.12)'} />
       )}
