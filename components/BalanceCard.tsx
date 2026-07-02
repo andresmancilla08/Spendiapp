@@ -10,10 +10,10 @@ import {
 } from 'react-native';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
-import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import AppIcon from './AppIcon';
 import ProSheen from './ProSheen';
+import AnimatedGradientBorder from './AnimatedGradientBorder';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
@@ -126,37 +126,6 @@ function Sparkline({ values, color }: { values: number[]; color: string }) {
         vectorEffect="non-scaling-stroke"
       />
     </Svg>
-  );
-}
-
-/** Borde con gradiente animado (premium, opcional vía cardGradientBorder). */
-function GradientBorderWrap({ colors, children }: { colors: [string, string, string, string]; children: ReactNode }) {
-  const rot = useRef(new Animated.Value(0)).current;
-  const [side, setSide] = useState(0);
-
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.timing(rot, { toValue: 1, duration: 6000, easing: Easing.linear, useNativeDriver: Platform.OS !== 'web' }),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [rot]);
-
-  const rotate = rot.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
-  const sq = side * 1.5; // cuadrado que cubre las esquinas al rotar
-
-  return (
-    <View style={styles.borderWrap} onLayout={(e) => { const { width, height } = e.nativeEvent.layout; const s = Math.max(width, height); if (Math.abs(s - side) > 1) setSide(s); }}>
-      {side > 0 && (
-        <Animated.View
-          pointerEvents="none"
-          style={{ position: 'absolute', width: sq, height: sq, left: '50%', top: '50%', marginLeft: -sq / 2, marginTop: -sq / 2, transform: [{ rotate }] }}
-        >
-          <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-        </Animated.View>
-      )}
-      {children}
-    </View>
   );
 }
 
@@ -472,16 +441,22 @@ export default function BalanceCard({
 
   if (useBorder) {
     return (
-      <GradientBorderWrap colors={[colors.primary, colors.tertiary, colors.secondary, colors.primary]}>
+      <AnimatedGradientBorder
+        radius={30}
+        borderWidth={2}
+        colors={[colors.primary, colors.tertiary, colors.secondary, colors.primary]}
+        glow={colors.primary + '55'}
+        style={styles.borderWrap}
+      >
         {card}
-      </GradientBorderWrap>
+      </AnimatedGradientBorder>
     );
   }
   return card;
 }
 
 const styles = StyleSheet.create({
-  borderWrap: { borderRadius: 30, padding: 2, marginBottom: 20, overflow: 'hidden', position: 'relative' },
+  borderWrap: { marginBottom: 20 },
   card: {
     borderRadius: 28,
     borderWidth: 1.5,

@@ -17,6 +17,7 @@ import WavesBackground from '../components/WavesBackground';
 import GrainBackground from '../components/GrainBackground';
 import MeshBackground from '../components/MeshBackground';
 import BokehBackground from '../components/BokehBackground';
+import AnimatedGradientBorder from '../components/AnimatedGradientBorder';
 import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { updateUserColorPalette } from '../hooks/useUserProfile';
@@ -147,7 +148,6 @@ const ICON_STROKE_OPTIONS: { key: IconStroke; labelKey: string }[] = [
 function CardEffectPreview({ sheen, glass, border }: { sheen: boolean; glass: boolean; border: boolean }) {
   const { colors, isDark } = useTheme();
   const sweep = useRef(new Animated.Value(0)).current;
-  const rot = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!sheen) return;
@@ -162,17 +162,7 @@ function CardEffectPreview({ sheen, glass, border }: { sheen: boolean; glass: bo
     return () => loop.stop();
   }, [sheen, sweep]);
 
-  useEffect(() => {
-    if (!border) return;
-    const loop = Animated.loop(
-      Animated.timing(rot, { toValue: 1, duration: 5000, easing: Easing.linear, useNativeDriver: true }),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [border, rot]);
-
   const sweepX = sweep.interpolate({ inputRange: [0, 1], outputRange: [-70, 260] });
-  const rotate = rot.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
 
   const inner = (
     <View
@@ -211,12 +201,14 @@ function CardEffectPreview({ sheen, glass, border }: { sheen: boolean; glass: bo
 
   return (
     <View style={styles.previewWrap}>
-      <View style={styles.previewBorderWrap}>
-        <Animated.View pointerEvents="none" style={[styles.previewBorderGrad, { transform: [{ rotate }] }]}>
-          <LinearGradient colors={[colors.primary, colors.tertiary, colors.secondary, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-        </Animated.View>
+      <AnimatedGradientBorder
+        radius={22}
+        borderWidth={2}
+        colors={[colors.primary, colors.tertiary, colors.secondary, colors.primary]}
+        glow={colors.primary + '55'}
+      >
         {inner}
-      </View>
+      </AnimatedGradientBorder>
     </View>
   );
 }
@@ -364,8 +356,6 @@ const styles = StyleSheet.create({
   rowsWrap: { marginHorizontal: -16 },
   // Preview en vivo de efectos de tarjeta
   previewWrap: { alignItems: 'center', marginBottom: 14 },
-  previewBorderWrap: { width: 240, borderRadius: 22, padding: 2, overflow: 'hidden', position: 'relative' },
-  previewBorderGrad: { position: 'absolute', width: 360, height: 360, left: '50%', top: '50%', marginLeft: -180, marginTop: -180 },
   previewCard: { width: 236, borderRadius: 20, borderWidth: 1.5, paddingVertical: 18, paddingHorizontal: 18, overflow: 'hidden', position: 'relative' },
   previewAccentBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 3, opacity: 0.85 },
   previewLabel: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.4, marginBottom: 4 },
