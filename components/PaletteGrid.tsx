@@ -1,10 +1,13 @@
 import { useRef, useState, useEffect, memo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, LayoutChangeEvent } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import AppIcon from './AppIcon';
 import AppSegmentedControl from './AppSegmentedControl';
 import { Fonts } from '../config/fonts';
 import { PaletteId, PALETTES } from '../config/palettes';
+
+const COLUMNS = 3;
+const GRID_GAP = 10;
 
 // ── Palette groups ──────────────────────────────────────────────────────────
 interface PaletteGroup {
@@ -27,16 +30,15 @@ export const PALETTE_GROUPS: PaletteGroup[] = [
 ];
 
 // ── PaletteCard — 3 columnas, swatches solapados, glow, haptics ─────────────
-const CARD_W = Math.floor((Math.min(Dimensions.get('window').width, 560) - 24 - 16) / 3);
-
 export const PaletteCard = memo(function PaletteCard({
-  palette, isSelected, onPress, colors, label,
+  palette, isSelected, onPress, colors, label, cardWidth,
 }: {
   palette: typeof PALETTES[0];
   isSelected: boolean;
   onPress: () => void;
   colors: any;
   label: string;
+  cardWidth: number;
 }) {
   const scale = useRef(new Animated.Value(1)).current;
   const badgeScale = useRef(new Animated.Value(isSelected ? 1 : 0)).current;
@@ -67,7 +69,7 @@ export const PaletteCard = memo(function PaletteCard({
   const cardBg = palette.gradientLight[2];
 
   return (
-    <Animated.View style={{ transform: [{ scale }], width: CARD_W }}>
+    <Animated.View style={{ transform: [{ scale }], width: cardWidth }}>
       <TouchableOpacity
         onPress={handlePress}
         onPressIn={handlePressIn}
@@ -178,7 +180,15 @@ interface PaletteGridProps {
 export default function PaletteGrid({ colors, paletteId, setPaletteId, t }: PaletteGridProps) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [displayIdx, setDisplayIdx] = useState(0);
+  const [gridWidth, setGridWidth] = useState(0);
   const contentOpacity = useRef(new Animated.Value(1)).current;
+
+  const cardWidth = gridWidth > 0 ? (gridWidth - GRID_GAP * (COLUMNS - 1)) / COLUMNS : 0;
+
+  const onGridLayout = (e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width;
+    if (Math.abs(w - gridWidth) > 1) setGridWidth(w);
+  };
 
   const switchGroup = (idx: number) => {
     if (idx === activeIdx) return;
@@ -203,8 +213,8 @@ export default function PaletteGrid({ colors, paletteId, setPaletteId, t }: Pale
         }}
         style={styles.tabBarSpacing}
       />
-      <Animated.View style={[styles.grid, { opacity: contentOpacity }]}>
-        {currentGroup.ids.map((id) => {
+      <Animated.View onLayout={onGridLayout} style={[styles.grid, { opacity: contentOpacity }]}>
+        {gridWidth > 0 && currentGroup.ids.map((id) => {
           const palette = PALETTES.find((p) => p.id === id)!;
           return (
             <PaletteCard
@@ -214,6 +224,7 @@ export default function PaletteGrid({ colors, paletteId, setPaletteId, t }: Pale
               onPress={() => setPaletteId(id)}
               colors={colors}
               label={t(`profile.palette.${id}`)}
+              cardWidth={cardWidth}
             />
           );
         })}
