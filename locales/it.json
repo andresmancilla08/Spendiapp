@@ -1304,7 +1304,11 @@
     "budgetCard": {
       "title": "Budget mensile",
       "description": "Imposta limiti di spesa per categoria e mantieni il controllo"
-    }
+    },
+    "groupMoney": "Il tuo denaro",
+    "groupShared": "Condiviso",
+    "pageDesc2": "La tua cassetta degli attrezzi",
+    "open": "Apri"
   },
   "goals": {
     "title": "I miei obiettivi",

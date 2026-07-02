@@ -1305,7 +1305,11 @@
     "budgetCard": {
       "title": "Presupuesto mensual",
       "description": "Define límites de gasto por categoría y mantén el control"
-    }
+    },
+    "groupMoney": "Tu dinero",
+    "groupShared": "Compartido",
+    "pageDesc2": "Tu caja de herramientas financiera",
+    "open": "Abrir"
   },
   "goals": {
     "title": "Mis Metas",
