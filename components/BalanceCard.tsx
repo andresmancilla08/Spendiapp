@@ -180,7 +180,7 @@ function Sparkline({ values, color, accent, height = 56, animate = true }: { val
     // realmente continuo (mismo patrón que AuroraBackground/ParticlesBackground).
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(progress, { toValue: 1, duration: 3200, easing: Easing.linear, useNativeDriver: false }),
+        Animated.timing(progress, { toValue: 1, duration: 6500, easing: Easing.linear, useNativeDriver: false }),
         Animated.timing(progress, { toValue: 0, duration: 0, useNativeDriver: false }),
       ])
     );
