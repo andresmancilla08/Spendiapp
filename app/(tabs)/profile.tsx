@@ -14,6 +14,7 @@ import {
   Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon, { AppIconName } from '../../components/AppIcon';
 import { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
@@ -42,7 +43,48 @@ import { useFlags } from '../../context/FeatureFlagsContext';
 import appConfig from '../../app.json';
 
 
-interface OptionRow {
+// ── Icon chip con glow — firma Aurora Ledger ───────────────────────────────
+function RowIconChip({ name, color }: { name: AppIconName; color: string }) {
+  const { isDark } = useTheme();
+  return (
+    <View
+      style={[
+        styles.iconChip,
+        { backgroundColor: color + '1E' },
+        isDark && (Platform.OS === 'web'
+          ? ({ boxShadow: `0 0 18px ${color}44` } as any)
+          : { shadowColor: color, shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } }),
+      ]}
+    >
+      <AppIcon name={name} size={18} color={color} />
+    </View>
+  );
+}
+
+// ── Premium badge chip — dorado ──────────────────────────────────────────────
+function PremiumBadge() {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.premBadge, { backgroundColor: colors.warning + '22', borderColor: colors.warning + '55' }]}>
+      <AppIcon name="star" size={10} color={colors.warning} />
+      <Text style={[styles.premBadgeText, { color: colors.warning }]}>Premium</Text>
+    </View>
+  );
+}
+
+// ── Kicker de sección — uppercase + línea divisora ───────────────────────────
+function GroupHeader({ label }: { label: string }) {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.grp}>
+      <Text style={[styles.grpText, { color: colors.textTertiary }]}>{label.toUpperCase()}</Text>
+      <View style={[styles.grpLine, { backgroundColor: colors.border }]} />
+    </View>
+  );
+}
+
+// ── Fila de opción individual ────────────────────────────────────────────────
+interface OptionRowProps {
   icon: AppIconName;
   label: string;
   value?: string;
@@ -52,19 +94,13 @@ interface OptionRow {
   onPress: () => void;
 }
 
-function OptionItem({ icon, label, value, color, badge, isLast, onPress }: OptionRow) {
+function OptionItem({ icon, label, value, color, badge, isLast, onPress }: OptionRowProps) {
   const { colors } = useTheme();
   const iconColor = color ?? colors.primary;
   return (
     <>
-      <TouchableOpacity
-        style={styles.optionRow}
-        onPress={onPress}
-        activeOpacity={0.7}
-      >
-        <View style={[styles.optionIconWrap, { backgroundColor: iconColor + '18' }]}>
-          <AppIcon name={icon} size={18} color={iconColor} />
-        </View>
+      <TouchableOpacity style={styles.optionRow} onPress={onPress} activeOpacity={0.7}>
+        <RowIconChip name={icon} color={iconColor} />
         <View style={styles.optionMeta}>
           <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>{label}</Text>
           {value ? (
@@ -78,23 +114,12 @@ function OptionItem({ icon, label, value, color, badge, isLast, onPress }: Optio
             <Text style={styles.optionBadgeText}>{badge}</Text>
           </View>
         ) : null}
-        <AppIcon name="chevron-forward" size={16} color={colors.textTertiary} />
+        <AppIcon name="chevron-forward" size={14} color={colors.textTertiary} />
       </TouchableOpacity>
       {!isLast && <View style={[styles.optionDivider, { backgroundColor: colors.border }]} />}
     </>
   );
 }
-
-function SectionTitle({ label }: { label: string }) {
-  const { colors } = useTheme();
-  return (
-    <View style={styles.sectionTitleRow}>
-      <View style={[styles.sectionTitleAccent, { backgroundColor: colors.primary }]} />
-      <Text style={[styles.sectionTitleText, { color: colors.textSecondary }]}>{label}</Text>
-    </View>
-  );
-}
-
 
 // ── Modal cambiar PIN (3 pasos) ─────────────────────────────────────────────
 type PinStep = 'current' | 'new' | 'confirm';
@@ -119,12 +144,6 @@ function ChangePinModal({ visible, onClose, onSuccess }: ChangePinModalProps) {
     current: t('profile.changePin.current'),
     new: t('profile.changePin.new'),
     confirm: t('profile.changePin.confirm'),
-  };
-
-  const stepValues: Record<PinStep, string> = {
-    current: currentPin,
-    new: newPin,
-    confirm: confirmPin,
   };
 
   const handleReset = () => {
@@ -199,15 +218,11 @@ function ChangePinModal({ visible, onClose, onSuccess }: ChangePinModalProps) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={[styles.modalCard, { backgroundColor: colors.surface }]}>
-          {/* Step indicator */}
           <View style={styles.stepRow}>
-            {(['current', 'new', 'confirm'] as PinStep[]).map((s, i) => (
+            {(['current', 'new', 'confirm'] as PinStep[]).map((s) => (
               <View
                 key={s}
-                style={[
-                  styles.stepDot,
-                  { backgroundColor: s === step ? colors.primary : colors.border },
-                ]}
+                style={[styles.stepDot, { backgroundColor: s === step ? colors.primary : colors.border }]}
               />
             ))}
           </View>
@@ -375,6 +390,7 @@ export default function ProfileScreen() {
       .catch(() => {});
     return () => { cancelled = true; };
   }, [user?.uid]);
+
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [biometricToggleDialog, setBiometricToggleDialog] = useState(false);
 
@@ -444,7 +460,6 @@ export default function ProfileScreen() {
     }
   };
 
-
   const handleBiometricToggle = async (value: boolean) => {
     if (value) {
       try {
@@ -499,6 +514,50 @@ export default function ProfileScreen() {
     }
   };
 
+  // Shadow dinámico para el hero card (no puede ir en StyleSheet por deps isDark/isPremium)
+  const heroCardShadow = Platform.OS === 'web'
+    ? ({
+        boxShadow: isPremium
+          ? (isDark
+              ? `0 8px 40px -8px ${colors.warning}35, 0 2px 12px -4px ${colors.primary}20`
+              : `0 6px 28px -6px ${colors.warning}28, 0 2px 10px -4px rgba(0,0,0,0.08)`)
+          : (isDark
+              ? `0 4px 24px -6px ${colors.primary}30`
+              : `0 4px 18px -4px rgba(0,0,0,0.09)`),
+      } as any)
+    : {
+        shadowColor: isPremium ? colors.warning : colors.primary,
+        shadowOpacity: isPremium ? (isDark ? 0.22 : 0.14) : (isDark ? 0.14 : 0.07),
+        shadowRadius: isPremium ? 24 : 16,
+        shadowOffset: { width: 0, height: isPremium ? 8 : 4 },
+        elevation: isPremium ? 6 : 3,
+      };
+
+  // Shadow para option cards
+  const cardShadow = Platform.OS === 'web'
+    ? ({ boxShadow: isDark ? `0 2px 14px -4px ${colors.primary}22` : `0 2px 10px -3px rgba(0,0,0,0.06)` } as any)
+    : {
+        shadowColor: colors.primary,
+        shadowOpacity: isDark ? 0.10 : 0.05,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 2,
+      };
+
+  // Glow en nombre (solo dark, solo premium)
+  const nameGlow = isPremium && isDark
+    ? (Platform.OS === 'web'
+        ? ({ textShadow: `0 0 34px ${colors.warning}60` } as any)
+        : { textShadowColor: colors.warning + '60', textShadowRadius: 22, textShadowOffset: { width: 0, height: 0 } })
+    : undefined;
+
+  // Glow del ring del avatar (solo dark, solo premium)
+  const ringGlow = isPremium && isDark
+    ? (Platform.OS === 'web'
+        ? ({ boxShadow: `0 0 28px ${colors.warning}50` } as any)
+        : { shadowColor: colors.warning, shadowOpacity: 0.4, shadowRadius: 18, shadowOffset: { width: 0, height: 0 } })
+    : undefined;
+
   return (
     <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
@@ -507,31 +566,73 @@ export default function ProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Profile Hero Card */}
-        <View style={[styles.profileCard, { backgroundColor: colors.surface }]}>
-          {/* Tinted band at top */}
-          <View style={[styles.profileBand, { backgroundColor: colors.primaryLight }]} />
+        {/* ── Hero card de perfil ─────────────────────────────────────── */}
+        <View style={[
+          styles.profileCard,
+          {
+            backgroundColor: colors.surface,
+            borderColor: isPremium ? colors.warning + '30' : colors.primary + '20',
+          },
+          heroCardShadow,
+        ]}>
+          {/* Gradiente de fondo — corner approach (seguro con overflow:hidden) */}
+          <LinearGradient
+            colors={isPremium
+              ? [colors.warning + (isDark ? '28' : '1A'), colors.primary + (isDark ? '18' : '0E'), 'transparent']
+              : [colors.primary + (isDark ? '28' : '1C'), colors.tertiary + (isDark ? '12' : '08'), 'transparent']}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
 
-          {/* Avatar with surface ring */}
-          <View style={[styles.avatarRingOuter, { borderColor: isPremium ? colors.warning : colors.surface, backgroundColor: colors.surface }]}>
-            {photoUrl ? (
-              <Image source={{ uri: photoUrl }} style={styles.avatar} />
-            ) : (
-              <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
-                <AppIcon name="person" size={42} color={colors.primary} />
-              </View>
-            )}
+          {/* Avatar + halo */}
+          <View style={styles.avatarSection}>
+            {/* Halo blob — sin blur, solo tinte circular (evita bug overflow:hidden en web) */}
+            <View style={[styles.avatarHalo, {
+              backgroundColor: isPremium
+                ? colors.warning + (isDark ? '1E' : '10')
+                : colors.primary + (isDark ? '18' : '0C'),
+            }]} />
+
+            {/* Ring del avatar */}
+            <View style={[
+              styles.avatarRing,
+              {
+                borderColor: isPremium ? colors.warning : colors.primary + '55',
+                backgroundColor: colors.surface,
+              },
+              ringGlow,
+            ]}>
+              {photoUrl ? (
+                <Image source={{ uri: photoUrl }} style={styles.avatar} />
+              ) : (
+                <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
+                  <AppIcon name="person" size={42} color={colors.primary} />
+                </View>
+              )}
+            </View>
           </View>
 
-          {/* Name & email */}
-          <Text style={[styles.profileName, { color: colors.textPrimary }]}>{profileDisplayName}</Text>
+          {/* Nombre */}
+          <Text
+            style={[
+              styles.profileName,
+              { color: colors.textPrimary, fontFamily: isPremium ? Fonts.display : Fonts.bold },
+              nameGlow,
+            ]}
+          >
+            {profileDisplayName}
+          </Text>
+
+          {/* Email */}
           <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
 
-          {/* Chips row */}
+          {/* Chips */}
           <View style={styles.profileChipsRow}>
+            {isPremium && <PremiumBadge />}
             {userName ? (
               <TouchableOpacity
-                style={[styles.userNameChip, { backgroundColor: colors.primaryLight, borderColor: colors.primary }]}
+                style={[styles.userNameChip, { backgroundColor: colors.primaryLight, borderColor: colors.primary + '50' }]}
                 activeOpacity={0.7}
                 onPress={async () => {
                   await Clipboard.setStringAsync(userName);
@@ -543,30 +644,16 @@ export default function ProfileScreen() {
                 <AppIcon name="copy-outline" size={12} color={colors.primary} style={{ marginLeft: 4 }} />
               </TouchableOpacity>
             ) : null}
-            <View style={[styles.providerBadge, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, borderWidth: 1 }]}>
+            <View style={[styles.providerBadge, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <AppIcon name={isGoogleUser ? 'logo-google' : 'mail-outline'} size={12} color={colors.textSecondary} />
               <Text style={[styles.providerText, { color: colors.textSecondary }]}>
                 {isGoogleUser ? t('profile.providerGoogle') : t('profile.providerEmail')}
               </Text>
             </View>
-            {isPremium && (
-              <View style={{
-                flexDirection: 'row', alignItems: 'center', gap: 5,
-                backgroundColor: colors.warning + '20',
-                borderWidth: 1, borderColor: colors.warning + '66',
-                borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5,
-                shadowColor: colors.warning, shadowOpacity: 0.2, shadowRadius: 6, elevation: 2,
-              }}>
-                <AppIcon name="star" size={12} color={colors.warning} />
-                <Text style={{ fontFamily: Fonts.semiBold, fontSize: 12, color: colors.warning, letterSpacing: 0.8 }}>
-                  PRO
-                </Text>
-              </View>
-            )}
           </View>
         </View>
 
-        {/* Premium Banner — solo para usuarios free */}
+        {/* ── Premium Banner — solo usuarios free ────────────────────── */}
         {!isPremium && (
           <TouchableOpacity
             style={[styles.premiumBanner, { backgroundColor: colors.warning + '15', borderColor: colors.warning + '40' }]}
@@ -590,11 +677,11 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         )}
 
-        {/* SOCIAL */}
+        {/* ── SOCIAL ─────────────────────────────────────────────────── */}
         {flags.friendsEnabled && (
           <>
-            <SectionTitle label={t('profile.friends.section')} />
-            <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+            <GroupHeader label={t('profile.friends.section')} />
+            <View style={[styles.optionCard, { backgroundColor: colors.surface, borderColor: colors.primary + '24' }, cardShadow]}>
               <OptionItem
                 icon="people-outline"
                 label={t('profile.friends.label')}
@@ -606,9 +693,9 @@ export default function ProfileScreen() {
           </>
         )}
 
-        {/* CUENTA */}
-        <SectionTitle label={t('profile.sections.account')} />
-        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+        {/* ── CUENTA ─────────────────────────────────────────────────── */}
+        <GroupHeader label={t('profile.sections.account')} />
+        <View style={[styles.optionCard, { backgroundColor: colors.surface, borderColor: colors.primary + '24' }, cardShadow]}>
           <OptionItem
             icon="person-outline"
             label={t('profile.editName.label')}
@@ -636,9 +723,9 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {/* PREFERENCIAS */}
-        <SectionTitle label={t('profile.sections.preferences')} />
-        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+        {/* ── PREFERENCIAS ───────────────────────────────────────────── */}
+        <GroupHeader label={t('profile.sections.preferences')} />
+        <View style={[styles.optionCard, { backgroundColor: colors.surface, borderColor: colors.primary + '24' }, cardShadow]}>
           {isPremium && (
             <OptionItem
               icon={isDark ? 'moon-outline' : 'sunny-outline'}
@@ -664,11 +751,11 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {/* MIS TARJETAS */}
+        {/* ── MIS TARJETAS ───────────────────────────────────────────── */}
         {flags.cardsEnabled && (
           <>
-            <SectionTitle label={t('profile.cards.section')} />
-            <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+            <GroupHeader label={t('profile.cards.section')} />
+            <View style={[styles.optionCard, { backgroundColor: colors.surface, borderColor: colors.primary + '24' }, cardShadow]}>
               <OptionItem
                 icon="card-outline"
                 label={t('profile.cards.label')}
@@ -679,20 +766,18 @@ export default function ProfileScreen() {
           </>
         )}
 
-        {/* SEGURIDAD — Biometría (solo nativo) */}
+        {/* ── SEGURIDAD — biometría (solo nativo) ────────────────────── */}
         {Platform.OS !== 'web' && (
           <>
-            <SectionTitle label={t('profile.security')} />
-            <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+            <GroupHeader label={t('profile.security')} />
+            <View style={[styles.optionCard, { backgroundColor: colors.surface, borderColor: colors.primary + '24' }, cardShadow]}>
               <View style={[styles.optionRow, { opacity: biometricsAvailable ? 1 : 0.4 }]}>
-                <View style={[styles.optionIconWrap, { backgroundColor: colors.primaryLight }]}>
-                  <AppIcon name="finger-print" size={18} color={colors.primary} />
-                </View>
+                <RowIconChip name="finger-print" color={colors.primary} />
                 <View style={styles.optionMeta}>
                   <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
                     {t('profile.biometric.label')}
                   </Text>
-                  <Text style={[styles.optionSub, { color: colors.textSecondary }]}>
+                  <Text style={[styles.optionValue, { color: colors.textSecondary }]}>
                     {biometricsAvailable
                       ? t('profile.biometric.subtitle')
                       : t('profile.biometric.unavailable')}
@@ -710,9 +795,9 @@ export default function ProfileScreen() {
           </>
         )}
 
-        {/* SOPORTE */}
-        <SectionTitle label={t('profile.sections.support')} />
-        <View style={[styles.optionCard, { backgroundColor: colors.surface }]}>
+        {/* ── SOPORTE ────────────────────────────────────────────────── */}
+        <GroupHeader label={t('profile.sections.support')} />
+        <View style={[styles.optionCard, { backgroundColor: colors.surface, borderColor: colors.primary + '24' }, cardShadow]}>
           <OptionItem
             icon="help-circle-outline"
             label={t('profile.faq.label')}
@@ -721,6 +806,7 @@ export default function ProfileScreen() {
           />
         </View>
 
+        {/* ── Cerrar sesión ───────────────────────────────────────────── */}
         <TouchableOpacity
           style={[styles.signOutButton, { backgroundColor: colors.errorLight, borderColor: colors.error + '30', borderWidth: 1 }]}
           onPress={handleSignOut}
@@ -766,7 +852,6 @@ export default function ProfileScreen() {
         t={t}
       />
 
-
       {/* Dialog: Desactivar biometría (solo nativo) */}
       {Platform.OS !== 'web' && (
         <AppDialog
@@ -806,123 +891,277 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: Platform.OS === 'web' ? 120 : 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  scroll: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: Platform.OS === 'web' ? 120 : 40,
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
+  },
 
-  // ChangePinModal
-  modalOverlay: { flex: 1, justifyContent: 'flex-end' },
-  modalCard: { borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 24, paddingTop: 28, paddingBottom: 40, gap: 16 },
-  modalTitle: { fontSize: 18, fontFamily: Fonts.bold, textAlign: 'center' },
-  modalInput: { borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14, fontSize: 20, letterSpacing: 8, textAlign: 'center', fontFamily: Fonts.regular },
-  modalButtons: { flexDirection: 'row', gap: 12 },
-  modalBtn: { flex: 1, height: 52, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
-  modalBtnText: { fontSize: 15, fontFamily: Fonts.semiBold },
+  // ── Icon chip ─────────────────────────────────────────────────────────────
+  iconChip: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
-  // Profile hero card
+  // ── Premium badge ─────────────────────────────────────────────────────────
+  premBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  premBadgeText: { fontSize: 11, fontFamily: Fonts.bold },
+
+  // ── Group header ──────────────────────────────────────────────────────────
+  grp: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 8,
+    marginBottom: 10,
+    paddingHorizontal: 2,
+  },
+  grpText: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.6 },
+  grpLine: { flex: 1, height: 1 },
+
+  // ── Profile hero card ─────────────────────────────────────────────────────
   profileCard: {
     borderRadius: 24,
-    alignItems: 'center',
-    marginBottom: 28,
+    borderWidth: 1,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    position: 'relative',
+    marginBottom: 20,
     paddingBottom: 24,
+    alignItems: 'center',
   },
-  profileBand: {
+  avatarSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
+    marginBottom: 4,
+    position: 'relative',
+  },
+  // Halo circular detrás del avatar: sin blur, solo color translúcido (seguro en overflow:hidden)
+  avatarHalo: {
     position: 'absolute',
-    top: 0, left: 0, right: 0,
-    height: 90,
+    width: 136,
+    height: 136,
+    borderRadius: 68,
   },
-  avatarRingOuter: {
-    width: 104, height: 104, borderRadius: 52,
-    borderWidth: 4,
-    marginTop: 38,
-    marginBottom: 14,
-    alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 5,
+  avatarRing: {
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatar: { width: 96, height: 96, borderRadius: 48 },
-  avatarFallback: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center' },
-  profileName: { fontSize: 22, fontFamily: Fonts.bold, textAlign: 'center', paddingHorizontal: 16 },
-  profileEmail: { fontSize: 13, fontFamily: Fonts.regular, marginTop: 2 },
+  avatarFallback: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileName: {
+    fontSize: 22,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    marginTop: 14,
+    includeFontPadding: false,
+  },
+  profileEmail: {
+    fontSize: 13,
+    fontFamily: Fonts.regular,
+    marginTop: 4,
+    textAlign: 'center',
+  },
   profileChipsRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    marginTop: 12, flexWrap: 'wrap', justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     paddingHorizontal: 16,
   },
   userNameChip: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 12, paddingVertical: 5,
-    borderRadius: 20, borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   userNameChipAt: { fontSize: 13, fontFamily: Fonts.bold },
   userNameChipText: { fontSize: 13, fontFamily: Fonts.semiBold },
-  providerBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
+  providerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
   providerText: { fontSize: 12, fontFamily: Fonts.semiBold },
 
-  // Section titles
-  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, marginLeft: 2, marginTop: 4 },
-  sectionTitleAccent: { width: 3, height: 14, borderRadius: 2 },
-  sectionTitleText: { fontSize: 12, fontFamily: Fonts.bold, letterSpacing: 0.4 },
-
-  // Option cards & rows
+  // ── Option card (glass) ───────────────────────────────────────────────────
   optionCard: {
     borderRadius: 20,
-    marginBottom: 24,
+    borderWidth: 1,
+    marginBottom: 4,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
   },
-  optionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 16, gap: 12 },
-  optionIconWrap: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: 12,
+  },
   optionMeta: { flex: 1, gap: 2 },
   optionLabel: { fontSize: 14, fontFamily: Fonts.medium },
   optionValue: { fontSize: 12, fontFamily: Fonts.regular },
-  optionBadge: { minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' },
+  optionBadge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   optionBadgeText: { color: '#fff', fontSize: 11, fontFamily: Fonts.bold },
-  optionSub: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 1 },
   optionDivider: { height: StyleSheet.hairlineWidth, marginLeft: 68 },
 
-  premiumBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 20, padding: 16, borderWidth: 1, marginBottom: 24 },
-  premiumBannerIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  // ── Premium upgrade banner (free) ─────────────────────────────────────────
+  premiumBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    marginBottom: 20,
+  },
+  premiumBannerIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   premiumBannerContent: { flex: 1, gap: 3 },
   premiumBannerTitle: { fontSize: 15, fontFamily: Fonts.bold },
   premiumBannerSub: { fontSize: 12, fontFamily: Fonts.regular, lineHeight: 17 },
-  premiumBannerChevron: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  signOutButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16, borderRadius: 50, marginBottom: 20 },
+  premiumBannerChevron: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ── Cerrar sesión ─────────────────────────────────────────────────────────
+  signOutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: 50,
+    marginTop: 16,
+    marginBottom: 20,
+  },
   signOutText: { fontSize: 15, fontFamily: Fonts.bold },
+
+  // ── Versión ───────────────────────────────────────────────────────────────
   version: { textAlign: 'center', fontSize: 12, fontFamily: Fonts.regular },
 
-  // Language modal
+  // ── ChangePinModal ────────────────────────────────────────────────────────
+  modalOverlay: { flex: 1, justifyContent: 'flex-end' },
+  modalCard: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 40,
+    gap: 16,
+  },
+  modalTitle: { fontSize: 18, fontFamily: Fonts.bold, textAlign: 'center' },
+  modalInput: {
+    borderWidth: 1.5,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 20,
+    letterSpacing: 8,
+    textAlign: 'center',
+    fontFamily: Fonts.regular,
+  },
+  modalButtons: { flexDirection: 'row', gap: 12 },
+  modalBtn: {
+    flex: 1,
+    height: 52,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalBtnText: { fontSize: 15, fontFamily: Fonts.semiBold },
+
+  // ── LangModal ─────────────────────────────────────────────────────────────
   langOverlay: { flex: 1, justifyContent: 'flex-end' },
-  langSheet: { borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, paddingBottom: 40, alignItems: 'center', gap: 8 },
+  langSheet: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+    paddingBottom: 40,
+    alignItems: 'center',
+    gap: 8,
+  },
   langHandle: { width: 40, height: 4, borderRadius: 2, marginBottom: 8 },
-  langIconWrap: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  langIconWrap: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
   langTitle: { fontSize: 18, fontFamily: Fonts.bold },
   langSubtitle: { fontSize: 13, fontFamily: Fonts.regular, textAlign: 'center', marginBottom: 8 },
   langOptions: { width: '100%', gap: 10, marginBottom: 8 },
-  langOption: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 16, borderWidth: 1.5 },
+  langOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+  },
   langFlag: { fontSize: 24 },
   langName: { flex: 1, fontSize: 15, fontFamily: Fonts.semiBold },
-  langCancelBtn: { width: '100%', paddingVertical: 16, borderRadius: 50, borderWidth: 1.5, alignItems: 'center', marginTop: 4 },
+  langCancelBtn: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 50,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    marginTop: 4,
+  },
   langCancelText: { fontSize: 15, fontFamily: Fonts.semiBold },
 
-
-  // Palette modal (estilos legacy eliminados — ver palStyles y palCardStyles)
-
-  cardTypeBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
-  cardTypeBadgeText: { fontSize: 11, fontFamily: Fonts.semiBold },
-
-  // PIN steps
+  // ── PIN steps ─────────────────────────────────────────────────────────────
   stepRow: { flexDirection: 'row', justifyContent: 'center', gap: 8 },
   stepDot: { width: 8, height: 8, borderRadius: 4 },
   errorText: { fontSize: 13, fontFamily: Fonts.regular, textAlign: 'center', marginTop: -8 },
