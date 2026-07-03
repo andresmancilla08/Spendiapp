@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   healthDot: { width: 6, height: 6, borderRadius: 3 },
 
   balanceAmount: { fontSize: 40, fontFamily: Fonts.extraBold, marginBottom: 16, includeFontPadding: false, minHeight: 52, textAlign: 'center' },
-  balanceAmountPro: { fontSize: 56, lineHeight: 60, fontFamily: Fonts.display, fontVariant: ['tabular-nums'], marginBottom: 14 },
+  balanceAmountPro: { fontSize: 44, lineHeight: 48, fontFamily: Fonts.extraBold, fontVariant: ['tabular-nums'], marginBottom: 14 },
   amountLoader: { minHeight: 52, marginBottom: 16, alignItems: 'center', justifyContent: 'center' },
   netFlowRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 14, marginTop: -4 },
   flowChip: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 20 },

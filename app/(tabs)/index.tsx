@@ -798,9 +798,8 @@ const styles = StyleSheet.create({
 
   greeting: { marginBottom: 16 },
   headerGreet: { flex: 1, paddingRight: 12 },
-  headerName: { fontSize: 21, lineHeight: 25, fontFamily: Fonts.display, letterSpacing: -0.3, marginTop: 2 },
+  headerName: { fontSize: 19, lineHeight: 23, fontFamily: Fonts.extraBold, letterSpacing: -0.2, marginTop: 2 },
   greetingKicker: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.6, textTransform: 'uppercase' },
-  greetingHi: { fontSize: 28, lineHeight: 32, fontFamily: Fonts.display, letterSpacing: -0.5, marginBottom: 8 },
   greetingSubRow: {
     flexDirection: 'row',
     alignItems: 'center',
