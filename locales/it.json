@@ -165,7 +165,7 @@
     "subtitleStart": "Inizia a registrare le tue spese",
     "subtitleDefault": "Riepilogo del mese",
     "pillSpent": "{{percent}}% speso",
-    "balanceLabel": "SALDO TOTALE",
+    "balanceLabel": "SALDO DEL MESE",
     "balanceBadge": "Questo mese",
     "incomeLabel": "ENTRATE",
     "expensesLabel": "SPESE",

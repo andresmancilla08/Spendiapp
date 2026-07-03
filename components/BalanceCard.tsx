@@ -148,10 +148,11 @@ export default function BalanceCard({
   detailsToggleLabel,
 }: BalanceCardProps) {
   const { colors, isDark, cardGlass } = useTheme();
-  const useGlass = pro && cardGlass;
-  // Héroe "Aurora Ledger": el balance premium vive directo sobre el fondo, sin
-  // chrome de tarjeta, salvo que el usuario elija vidrio esmerilado.
-  const heroBare = pro && !useGlass;
+  const useGlass = false; // el héroe premium ya no usa caja de vidrio (rompía el diseño Aurora Ledger)
+  void cardGlass;
+  // Héroe "Aurora Ledger": el balance premium SIEMPRE vive directo sobre el
+  // fondo, sin chrome de tarjeta (como el mockup aprobado).
+  const heroBare = pro;
   const [pickerOpen, setPickerOpen] = useState(false);
 
   // Detalle colapsable (premium): contraído por defecto.

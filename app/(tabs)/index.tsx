@@ -478,11 +478,13 @@ export default function HomeScreen() {
       <WhatsNew visible={showWhatsNew} onDismiss={handleDismissWhatsNew} />
       <ScreenBackground>
 
-      {/* Header */}
+      {/* Header — saludo integrado (Aurora Ledger) */}
       <View style={styles.header}>
-        <View style={styles.headerBrand}>
-          <Image source={require('../../assets/logo-transparent.png')} style={styles.headerLogo} resizeMode="contain" />
-          <Text style={[styles.headerTitle, { color: colors.primary }]}>Spendia</Text>
+        <View style={styles.headerGreet}>
+          <Text style={[styles.greetingKicker, { color: colors.textTertiary }]} numberOfLines={1}>{t(kickerKey)}</Text>
+          <Text style={[styles.headerName, { color: colors.textPrimary }]} numberOfLines={1}>
+            {t('home.greetingName', { name: firstName })}
+          </Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           {user?.uid && flags.notificationsEnabled && <NotificationBell uid={user.uid} />}
@@ -529,18 +531,13 @@ export default function HomeScreen() {
           />
         }
       >
-        {/* Greeting */}
+        {/* Subtítulo contextual (el nombre/saludo vive en el header) */}
         {loading || refreshing ? (
           <View style={styles.greeting}>
-            <Skeleton width={180} height={22} borderRadius={8} />
-            <Skeleton width={130} height={13} borderRadius={6} style={{ marginTop: 8 } as any} />
+            <Skeleton width={220} height={14} borderRadius={6} />
           </View>
         ) : (
           <ProReveal index={0} style={styles.greeting}>
-            <Text style={[styles.greetingKicker, { color: colors.textTertiary }]}>{t(kickerKey)}</Text>
-            <Text style={[styles.greetingHi, { color: colors.textPrimary }]}>
-              {t('home.greetingName', { name: firstName })}
-            </Text>
             <View style={styles.greetingSubRow}>
               <Text style={[styles.greetingSubtitle, { color: colors.textSecondary }]}>
                 {premiumSubtitle
@@ -799,8 +796,10 @@ const styles = StyleSheet.create({
 
   scroll: { paddingHorizontal: 20, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
-  greeting: { marginBottom: 20 },
-  greetingKicker: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.6, textTransform: 'uppercase', marginBottom: 5 },
+  greeting: { marginBottom: 16 },
+  headerGreet: { flex: 1, paddingRight: 12 },
+  headerName: { fontSize: 21, lineHeight: 25, fontFamily: Fonts.display, letterSpacing: -0.3, marginTop: 2 },
+  greetingKicker: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.6, textTransform: 'uppercase' },
   greetingHi: { fontSize: 28, lineHeight: 32, fontFamily: Fonts.display, letterSpacing: -0.5, marginBottom: 8 },
   greetingSubRow: {
     flexDirection: 'row',

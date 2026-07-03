@@ -165,7 +165,7 @@
     "subtitleStart": "Comienza a registrar tus gastos",
     "subtitleDefault": "Resumen del mes",
     "pillSpent": "{{percent}}% gastado",
-    "balanceLabel": "BALANCE TOTAL",
+    "balanceLabel": "BALANCE DEL MES",
     "balanceBadge": "Este mes",
     "incomeLabel": "INGRESOS",
     "expensesLabel": "GASTOS",

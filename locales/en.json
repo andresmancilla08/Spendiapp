@@ -165,7 +165,7 @@
     "subtitleStart": "Start recording your expenses",
     "subtitleDefault": "Monthly summary",
     "pillSpent": "{{percent}}% spent",
-    "balanceLabel": "TOTAL BALANCE",
+    "balanceLabel": "MONTH BALANCE",
     "balanceBadge": "This month",
     "incomeLabel": "INCOME",
     "expensesLabel": "EXPENSES",
