@@ -11,7 +11,7 @@ import {
 import { useState, useEffect, useRef, useMemo, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import AppIcon from './AppIcon';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { useProMotion } from '../hooks/useProMotion';
 import { Fonts } from '../config/fonts';
 
@@ -148,15 +148,83 @@ function sampleCurve(pts: { x: number; y: number }[], totalSamples: number) {
   return out;
 }
 
+const CHART_GOLD_ACCENT = '#F5C542';
+
+/** Resuelve el color de acento del gráfico según la preferencia del usuario. */
+export function resolveChartAccent(accent: ChartAccent, colors: { primary: string; success: string; expense: string }, values: number[]): string {
+  if (accent === 'success') return colors.success;
+  if (accent === 'gold') return CHART_GOLD_ACCENT;
+  if (accent === 'signed') {
+    if (values.length >= 2 && values[values.length - 1] < values[0]) return colors.expense;
+    return colors.success;
+  }
+  return colors.primary;
+}
+
+/** Gráfico de barras (chartType='bars'): Views nativas — nunca sufre la deformación del viewBox del SVG. */
+function BarsChart({ values, color, height, animate }: { values: number[]; color: string; height: number; animate: boolean }) {
+  const growAnim = useRef(new Animated.Value(animate ? 0 : 1)).current;
+  const [t, setT] = useState(animate ? 0 : 1);
+
+  const { targets } = useMemo(() => {
+    const max = Math.max(...values, 1);
+    const min = Math.min(0, ...values);
+    const span = max - min || 1;
+    return { targets: values.map((v) => 6 + ((v - min) / span) * (height - 10)) };
+  }, [values, height]);
+
+  useEffect(() => {
+    if (!animate) { setT(1); return; }
+    setT(0);
+    growAnim.setValue(0);
+    const id = growAnim.addListener(({ value: v }) => setT(v));
+    Animated.timing(growAnim, { toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+    return () => growAnim.removeListener(id);
+  }, [animate, growAnim, values]);
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height, paddingHorizontal: 2 }}>
+      {values.map((v, i) => {
+        const isLast = i === values.length - 1;
+        return (
+          <View
+            key={i}
+            style={{
+              width: `${Math.min(90 / values.length, 13)}%`,
+              height: Math.max(targets[i] * t, 3),
+              borderRadius: 5,
+              backgroundColor: isLast ? '#FFFFFF' : color,
+              opacity: isLast ? 1 : 0.82,
+            }}
+          />
+        );
+      })}
+    </View>
+  );
+}
+
+interface SparklineProps {
+  values: number[];
+  color: string;
+  accent?: string;
+  height?: number;
+  animate?: boolean;
+  duration?: number;
+  chartType?: ChartType;
+  animStyle?: ChartAnimStyle;
+}
+
 /**
- * Mini-tendencia (área + línea) estilo "Aurora Ledger": la tendencia es paisaje.
- * "Pulso": un punto de luz recorre la curva del mes en bucle constante, como un
- * latido/ECG financiero — el resto del gráfico queda en reposo. Respeta
- * reduce-motion (animate=false → sin el pulso, solo la línea).
+ * Mini-tendencia estilo "Aurora Ledger": la tendencia es paisaje. Soporta 4
+ * tipos (línea/barras/área/puntos) × 4 animaciones (pulso/trazo vivo/marea/
+ * ninguna) — elegibles en Personalización. Respeta reduce-motion
+ * (animate=false → siempre estático, cualquiera sea el estilo).
  */
-export function Sparkline({ values, color, accent, height = 56, animate = true, duration = 6500 }: { values: number[]; color: string; accent?: string; height?: number; animate?: boolean; duration?: number }) {
+export function Sparkline({ values, color, accent, height = 56, animate = true, duration = 6500, chartType = 'line', animStyle = 'pulse' }: SparklineProps) {
   const W = 100, H = 36, P = 4;
   const [boxW, setBoxW] = useState(0);
+  const stroke = accent ?? color;
+
   const pts = useMemo(() => {
     if (!values || values.length < 2) return [];
     const min = Math.min(...values);
@@ -169,17 +237,18 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
   }, [values]);
 
   const samples = useMemo(() => (pts.length >= 2 ? sampleCurve(pts, 40) : []), [pts]);
-  const progress = useRef(new Animated.Value(0)).current;
+  const approxLen = useMemo(() => {
+    let len = 0;
+    for (let i = 1; i < samples.length; i++) len += Math.hypot(samples[i].x - samples[i - 1].x, samples[i].y - samples[i - 1].y);
+    return len;
+  }, [samples]);
 
+  // ── Pulso: cometa nativo (View, no SVG — evita el óvalo y el warning de RN Web) ──
+  const pulseActive = animate && animStyle === 'pulse' && chartType !== 'bars';
+  const progress = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    if (!animate || samples.length < 2) return;
+    if (!pulseActive || samples.length < 2) return;
     progress.setValue(0);
-    // Animated.loop repite el MISMO timing sin resetear el valor: tras llegar a
-    // 1, la siguiente vuelta anima de 1→1 (sin movimiento). El segundo timing
-    // de duración 0 fuerza el reset a 0 entre vueltas, para que sea un bucle
-    // realmente continuo (mismo patrón que AuroraBackground/ParticlesBackground).
-    // Easing.out: late "latido" real — sale rápido y frena al llegar al final
-    // de la línea (quad, no cubic: frenado más corto, no se arrastra al final).
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(progress, { toValue: 1, duration, easing: Easing.out(Easing.quad), useNativeDriver: false }),
@@ -188,24 +257,75 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
     );
     loop.start();
     return () => loop.stop();
-  }, [animate, samples, progress, duration]);
+  }, [pulseActive, samples, progress, duration]);
 
+  // ── Trazo vivo: revela el trazo (o el área, si no hay línea) en bucle + halo al final ──
+  const drawActive = animate && animStyle === 'draw' && chartType !== 'bars';
+  const drawAnim = useRef(new Animated.Value(0)).current;
+  const drawHalo = useRef(new Animated.Value(0)).current;
+  const [drawT, setDrawT] = useState(1);
+  useEffect(() => {
+    if (!drawActive) { setDrawT(1); return; }
+    setDrawT(0);
+    drawAnim.setValue(0);
+    const id = drawAnim.addListener(({ value: v }) => setDrawT(v));
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(drawAnim, { toValue: 1, duration: Math.max(1100, duration * 0.35), easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+        Animated.delay(Math.max(900, duration * 0.35)),
+        Animated.timing(drawAnim, { toValue: 0, duration: 0, useNativeDriver: false }),
+      ])
+    );
+    const haloLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(drawHalo, { toValue: 1, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(drawHalo, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+      ])
+    );
+    loop.start();
+    haloLoop.start();
+    return () => { loop.stop(); haloLoop.stop(); drawAnim.removeListener(id); };
+  }, [drawActive, drawAnim, drawHalo, duration]);
+
+  // ── Marea: el área y la línea respiran juntas, sin desplazamiento ──
+  const tideActive = animate && animStyle === 'tide' && chartType !== 'bars';
+  const tideAnim = useRef(new Animated.Value(0)).current;
+  const [tideT, setTideT] = useState(0);
+  useEffect(() => {
+    if (!tideActive) { setTideT(0); return; }
+    tideAnim.setValue(0);
+    const id = tideAnim.addListener(({ value: v }) => setTideT(v));
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(tideAnim, { toValue: 1, duration: Math.max(1400, duration * 0.4), easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(tideAnim, { toValue: 0, duration: Math.max(1400, duration * 0.4), easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+      ])
+    );
+    loop.start();
+    return () => { loop.stop(); tideAnim.removeListener(id); };
+  }, [tideActive, tideAnim, duration]);
+
+  if (chartType === 'bars') {
+    return <BarsChart values={values} color={stroke} height={height} animate={animate && animStyle !== 'none'} />;
+  }
   if (pts.length < 2) return null;
+
   const line = monotonePath(pts);
   const area = `${line} L${W},${H} L0,${H} Z`;
-  const stroke = accent ?? color;
+  const showLine = chartType !== 'area';
+  const showDots = chartType === 'dots';
+  const end = samples.length ? samples[samples.length - 1] : pts[pts.length - 1];
 
-  // El punto animado vive FUERA del SVG, como View nativa en píxeles reales:
-  // el viewBox usa preserveAspectRatio="none" (deforma X e Y por separado para
-  // que la curva llene el ancho), así que un círculo DENTRO del SVG saldría
-  // ovalado. Con onLayout convertimos las muestras de la curva a coordenadas
-  // de píxel reales y animamos una View circular normal (siempre redonda).
-  const inputRange = samples.map((_, i) => i / (samples.length - 1));
-  const cometLeft = progress.interpolate({ inputRange, outputRange: samples.map((p) => (p.x / W) * boxW) });
-  const cometTop = progress.interpolate({ inputRange, outputRange: samples.map((p) => (p.y / H) * height) });
-  // RN no tiene blur nativo en View: simulamos el resplandor difuso con 3
-  // anillos concéntricos de opacidad decreciente + sombra, en vez de un punto
-  // plano de opacidad única.
+  const areaOpacity = tideActive ? 0.55 + tideT * 0.65 : (drawActive && chartType === 'area') ? 0.2 + drawT * 0.8 : 1;
+  const glowOpacity = (tideActive ? 0.12 + tideT * 0.14 : 0.2) * (showDots ? 0.55 : 1);
+  const lineOpacity = showDots ? 0.5 : 1;
+
+  // El punto animado (pulso) y el halo de "trazo vivo" viven FUERA del SVG,
+  // como Views nativas: el viewBox usa preserveAspectRatio="none" (deforma X e
+  // Y por separado), así que un círculo DENTRO del SVG saldría ovalado.
+  const inputRange = samples.length ? samples.map((_, i) => i / (samples.length - 1)) : [0, 1];
+  const cometLeft = progress.interpolate({ inputRange, outputRange: samples.length ? samples.map((p) => (p.x / W) * boxW) : [0, 0] });
+  const cometTop = progress.interpolate({ inputRange, outputRange: samples.length ? samples.map((p) => (p.y / H) * height) : [0, 0] });
   const glowShadow = Platform.OS === 'web' ? ({ boxShadow: `0 0 10px ${stroke}` } as any) : { shadowColor: stroke, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } };
   const cometCenter = (size: number) => ({ left: Animated.subtract(cometLeft, size / 2), top: Animated.subtract(cometTop, size / 2) });
 
@@ -214,24 +334,64 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
       <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
         <Defs>
           <SvgGradient id="spk" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={stroke} stopOpacity={0.18} />
-            <Stop offset="0.75" stopColor={stroke} stopOpacity={0.03} />
+            <Stop offset="0" stopColor={stroke} stopOpacity={chartType === 'area' ? 0.4 : 0.18} />
+            <Stop offset="0.75" stopColor={stroke} stopOpacity={chartType === 'area' ? 0.1 : 0.03} />
             <Stop offset="1" stopColor={stroke} stopOpacity={0} />
           </SvgGradient>
         </Defs>
-        <Path d={area} fill="url(#spk)" />
-        {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
-        <Path d={line} fill="none" stroke={stroke} strokeWidth={6} strokeOpacity={0.2} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        {/* Línea nítida */}
-        <Path d={line} fill="none" stroke={stroke} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <Path d={area} fill="url(#spk)" opacity={areaOpacity} />
+        {showLine && (
+          <>
+            {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
+            <Path d={line} fill="none" stroke={stroke} strokeWidth={6} strokeOpacity={glowOpacity} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+            {/* Línea nítida — strokeDasharray/offset revela el trazo en "Trazo vivo" (longitud aproximada por muestreo, sin filtros ni AnimatedComponent) */}
+            <Path
+              d={line} fill="none" stroke={stroke}
+              strokeWidth={showDots ? 1.6 : 2.4} strokeOpacity={lineOpacity}
+              strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"
+              strokeDasharray={drawActive ? approxLen : undefined}
+              strokeDashoffset={drawActive ? approxLen * (1 - drawT) : undefined}
+            />
+          </>
+        )}
       </Svg>
 
-      {animate && samples.length >= 2 && boxW > 0 && (
+      {/* Puntos por dato (chartType='dots') — Views nativas, nunca ovaladas */}
+      {showDots && boxW > 0 && pts.map((p, i) => {
+        const isLast = i === pts.length - 1;
+        return (
+          <View
+            key={i}
+            pointerEvents="none"
+            style={{
+              position: 'absolute', width: isLast ? 7 : 5.5, height: isLast ? 7 : 5.5, borderRadius: 4,
+              backgroundColor: isLast ? '#FFFFFF' : stroke, opacity: isLast ? 1 : 0.85,
+              left: (p.x / W) * boxW - (isLast ? 3.5 : 2.75), top: (p.y / H) * height - (isLast ? 3.5 : 2.75),
+            }}
+          />
+        );
+      })}
+
+      {/* Pulso: cometa con estela de glow de 3 capas */}
+      {pulseActive && samples.length >= 2 && boxW > 0 && (
         <>
           <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 26, height: 26, borderRadius: 13, backgroundColor: stroke, opacity: 0.12 }, cometCenter(26)]} />
           <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 17, height: 17, borderRadius: 8.5, backgroundColor: stroke, opacity: 0.28 }, cometCenter(17)]} />
           <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 7.5, height: 7.5, borderRadius: 3.75, backgroundColor: '#FFFFFF' }, glowShadow, cometCenter(7.5)]} />
         </>
+      )}
+
+      {/* Trazo vivo: halo respirando en el punto de hoy */}
+      {drawActive && boxW > 0 && (
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: 'absolute', width: 16, height: 16, borderRadius: 8, backgroundColor: stroke,
+            left: (end.x / W) * boxW - 8, top: (end.y / H) * height - 8,
+            opacity: drawHalo.interpolate({ inputRange: [0, 1], outputRange: [0.16, 0.4] }),
+            transform: [{ scale: drawHalo.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.3] }) }],
+          }}
+        />
       )}
     </View>
   );
@@ -255,9 +415,10 @@ export default function BalanceCard({
   sparkline,
   detailsToggleLabel,
 }: BalanceCardProps) {
-  const { colors, isDark, chartPulse, chartSpeed } = useTheme();
+  const { colors, isDark, chartType, chartAnimStyle, chartSpeed, chartAccent } = useTheme();
   const { animate: motionEnabled } = useProMotion();
-  const pulseDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
+  const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
+  const resolvedChartColor = sparkline ? resolveChartAccent(chartAccent, colors, sparkline) : colors.primary;
   // Héroe "Aurora Ledger": el balance premium SIEMPRE vive directo sobre el
   // fondo, sin chrome de tarjeta (como el mockup aprobado).
   const heroBare = pro;
@@ -495,7 +656,16 @@ export default function BalanceCard({
           {/* Mini-tendencia (sparkline) */}
           {!hidden && !loading && sparkline && sparkline.length >= 2 && (
             <View style={[styles.sparkWrap, heroBare && styles.sparkWrapHero]}>
-              <Sparkline values={sparkline} color={colors.primary} accent={colors.primary} height={78} animate={motionEnabled && chartPulse} duration={pulseDuration} />
+              <Sparkline
+                values={sparkline}
+                color={resolvedChartColor}
+                accent={resolvedChartColor}
+                height={78}
+                animate={motionEnabled && chartAnimStyle !== 'none'}
+                duration={chartDuration}
+                chartType={chartType}
+                animStyle={chartAnimStyle}
+              />
             </View>
           )}
 
