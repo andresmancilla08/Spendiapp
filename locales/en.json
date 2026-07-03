@@ -388,10 +388,6 @@
       "sub": "Light sweep when the app loads"
     },
     "sectionChart": "Balance chart",
-    "chartPulse": {
-      "label": "Animated pulse",
-      "sub": "A point of light travels along the month trend"
-    },
     "chartSpeed": {
       "slow": "Slow",
       "normal": "Normal",
@@ -413,7 +409,28 @@
       "Subtle sounds when logging transactions",
       "Use your own photo as background",
       "Summary widget for your home screen"
-    ]
+    ],
+    "chartTypeLabel": "Chart type",
+    "chartType": {
+      "line": "Line",
+      "bars": "Bars",
+      "area": "Solid area",
+      "dots": "Dots"
+    },
+    "chartAnimLabel": "Animation",
+    "chartAnim": {
+      "pulse": "Pulse",
+      "draw": "Live trace",
+      "tide": "Tide",
+      "none": "None"
+    },
+    "chartAccentLabel": "Accent color",
+    "chartAccent": {
+      "theme": "Theme",
+      "success": "Success green",
+      "gold": "Gold",
+      "signed": "Dynamic"
+    }
   },
   "settings": {
     "title": "Settings",

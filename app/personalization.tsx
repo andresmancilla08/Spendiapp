@@ -16,10 +16,10 @@ import WavesBackground from '../components/WavesBackground';
 import GrainBackground from '../components/GrainBackground';
 import MeshBackground from '../components/MeshBackground';
 import BokehBackground from '../components/BokehBackground';
-import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke, type ChartSpeed } from '../context/ThemeContext';
+import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { updateUserColorPalette } from '../hooks/useUserProfile';
-import { Sparkline } from '../components/BalanceCard';
+import { Sparkline, resolveChartAccent } from '../components/BalanceCard';
 import { Fonts } from '../config/fonts';
 
 // ── Acordeón — cada sección se expande/contrae de forma independiente ───────
@@ -215,6 +215,92 @@ function CardEffectPreview({ sheen }: { sheen: boolean }) {
 const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
 const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
+const CHART_TYPES: ChartType[] = ['line', 'bars', 'area', 'dots'];
+const CHART_ANIM_STYLES: ChartAnimStyle[] = ['pulse', 'draw', 'tide', 'none'];
+const CHART_ACCENTS: ChartAccent[] = ['theme', 'success', 'gold', 'signed'];
+
+// ── Tarjeta de tipo de gráfico — vista previa EN VIVO con la animación y color actuales ──
+function ChartTypeCard({ type, label, selected, animStyle, color, onPress }: {
+  type: ChartType; label: string; selected: boolean; animStyle: ChartAnimStyle; color: string; onPress: () => void;
+}) {
+  const { colors, isDark } = useTheme();
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
+      style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
+    >
+      <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
+        <Sparkline
+          key={`${type}-${animStyle}`}
+          values={CHART_PREVIEW_VALUES}
+          color={color}
+          accent={color}
+          height={64}
+          animate={animStyle !== 'none'}
+          duration={4200}
+          chartType={type}
+          animStyle={animStyle}
+        />
+      </View>
+      <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{label}</Text>
+      {selected && (
+        <View style={[styles.bgCheckBadge, { backgroundColor: colors.primary }]}>
+          <AppIcon name="checkmark" size={9} color="#FFFFFF" />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+// ── Tarjeta de estilo de animación — vista previa EN VIVO con el tipo de gráfico actual ──
+function ChartAnimCard({ anim, label, selected, chartType, color, onPress }: {
+  anim: ChartAnimStyle; label: string; selected: boolean; chartType: ChartType; color: string; onPress: () => void;
+}) {
+  const { colors, isDark } = useTheme();
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
+      style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
+    >
+      <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
+        <Sparkline
+          key={`${chartType}-${anim}`}
+          values={CHART_PREVIEW_VALUES}
+          color={color}
+          accent={color}
+          height={64}
+          animate={anim !== 'none'}
+          duration={4200}
+          chartType={chartType}
+          animStyle={anim}
+        />
+      </View>
+      <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{label}</Text>
+      {selected && (
+        <View style={[styles.bgCheckBadge, { backgroundColor: colors.primary }]}>
+          <AppIcon name="checkmark" size={9} color="#FFFFFF" />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+// ── Swatch de color de acento ──
+function AccentSwatch({ accent, label, selected, swatchColor, onPress }: {
+  accent: ChartAccent; label: string; selected: boolean; swatchColor: string; onPress: () => void;
+}) {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.accentSwatchWrap}>
+      <View style={[styles.accentSwatch, { backgroundColor: swatchColor, borderColor: selected ? colors.textPrimary : 'transparent' }]}>
+        {selected && <AppIcon name="checkmark" size={13} color="#FFFFFF" />}
+      </View>
+      <Text style={[styles.accentSwatchLabel, { color: selected ? colors.textPrimary : colors.textTertiary }]} numberOfLines={1}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
 
 export default function PersonalizationScreen() {
   const { t } = useTranslation();
@@ -225,9 +311,11 @@ export default function PersonalizationScreen() {
     cardSheen, setCardSheen,
     iconStroke, setIconStroke,
     streakConfetti, setStreakConfetti,
-    chartPulse, setChartPulse, chartSpeed, setChartSpeed,
+    chartType, setChartType, chartAnimStyle, setChartAnimStyle,
+    chartSpeed, setChartSpeed, chartAccent, setChartAccent,
   } = useTheme();
-  const pulseDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
+  const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
+  const chartPreviewColor = resolveChartAccent(chartAccent, colors, CHART_PREVIEW_VALUES);
 
   const handleSetPaletteId = (id: typeof paletteId) => {
     setPaletteId(id);
@@ -286,26 +374,48 @@ export default function PersonalizationScreen() {
             <AccordionSection icon="trending-up-outline" title={t('personalization.sectionChart')}>
               <View style={styles.chartPreviewWrap}>
                 <Sparkline
-                  key={`${chartPulse}-${chartSpeed}`}
+                  key={`${chartType}-${chartAnimStyle}-${chartSpeed}-${chartAccent}`}
                   values={CHART_PREVIEW_VALUES}
-                  color={colors.primary}
-                  accent={colors.primary}
+                  color={chartPreviewColor}
+                  accent={chartPreviewColor}
                   height={64}
-                  animate={chartPulse}
-                  duration={pulseDuration}
+                  animate={chartAnimStyle !== 'none'}
+                  duration={chartDuration}
+                  chartType={chartType}
+                  animStyle={chartAnimStyle}
                 />
               </View>
-              <View style={styles.rowsWrap}>
-                <SwitchRow
-                  icon="trending-up-outline"
-                  label={t('personalization.chartPulse.label')}
-                  sub={t('personalization.chartPulse.sub')}
-                  value={chartPulse}
-                  onValueChange={setChartPulse}
-                  isLast
-                />
+
+              <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartTypeLabel')}</Text>
+              <View style={styles.bgGrid}>
+                {CHART_TYPES.map((type) => (
+                  <ChartTypeCard
+                    key={type}
+                    type={type}
+                    label={t(`personalization.chartType.${type}`)}
+                    selected={chartType === type}
+                    animStyle={chartAnimStyle}
+                    color={chartPreviewColor}
+                    onPress={() => setChartType(type)}
+                  />
+                ))}
               </View>
-              {chartPulse && (
+
+              <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartAnimLabel')}</Text>
+              <View style={styles.bgGrid}>
+                {CHART_ANIM_STYLES.map((anim) => (
+                  <ChartAnimCard
+                    key={anim}
+                    anim={anim}
+                    label={t(`personalization.chartAnim.${anim}`)}
+                    selected={chartAnimStyle === anim}
+                    chartType={chartType}
+                    color={chartPreviewColor}
+                    onPress={() => setChartAnimStyle(anim)}
+                  />
+                ))}
+              </View>
+              {chartAnimStyle !== 'none' && (
                 <AppSegmentedControl
                   segments={CHART_SPEED_OPTIONS.map((s) => ({ key: s, label: t(`personalization.chartSpeed.${s}`) }))}
                   activeKey={chartSpeed}
@@ -313,6 +423,20 @@ export default function PersonalizationScreen() {
                   style={styles.intensitySpacing}
                 />
               )}
+
+              <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartAccentLabel')}</Text>
+              <View style={styles.accentRow}>
+                {CHART_ACCENTS.map((a) => (
+                  <AccentSwatch
+                    key={a}
+                    accent={a}
+                    label={t(`personalization.chartAccent.${a}`)}
+                    selected={chartAccent === a}
+                    swatchColor={resolveChartAccent(a, colors, CHART_PREVIEW_VALUES)}
+                    onPress={() => setChartAccent(a)}
+                  />
+                ))}
+              </View>
             </AccordionSection>
 
             <AccordionSection icon="options-outline" title={t('personalization.sectionIcons')}>
@@ -378,6 +502,11 @@ const styles = StyleSheet.create({
   // Preview en vivo de efectos de tarjeta — réplica de "Gastos por categoría"
   previewWrap: { alignItems: 'center', marginBottom: 14 },
   chartPreviewWrap: { marginBottom: 14, paddingHorizontal: 4 },
+  chartGroupLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1.2, textTransform: 'uppercase', marginTop: 4, marginBottom: 8 },
+  accentRow: { flexDirection: 'row', gap: 14, marginTop: 2 },
+  accentSwatchWrap: { alignItems: 'center', gap: 5 },
+  accentSwatch: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
+  accentSwatchLabel: { fontSize: 10, fontFamily: Fonts.medium },
   previewCard: { width: '100%', maxWidth: 320, borderRadius: 22, borderWidth: 1, paddingVertical: 18, paddingHorizontal: 18, overflow: 'hidden', position: 'relative' },
   previewLabel: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.4 },
   previewCatRow: { marginBottom: 12 },

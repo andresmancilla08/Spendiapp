@@ -388,10 +388,6 @@
       "sub": "Barrido de luz al cargar la app"
     },
     "sectionChart": "Gráfico del balance",
-    "chartPulse": {
-      "label": "Pulso animado",
-      "sub": "Un punto de luz recorre la tendencia del mes"
-    },
     "chartSpeed": {
       "slow": "Lenta",
       "normal": "Normal",
@@ -413,7 +409,28 @@
       "Sonidos sutiles al registrar movimientos",
       "Usar una foto propia como fondo",
       "Widget de resumen para tu pantalla de inicio"
-    ]
+    ],
+    "chartTypeLabel": "Tipo de gráfico",
+    "chartType": {
+      "line": "Línea",
+      "bars": "Barras",
+      "area": "Área sólida",
+      "dots": "Puntos"
+    },
+    "chartAnimLabel": "Animación",
+    "chartAnim": {
+      "pulse": "Pulso",
+      "draw": "Trazo vivo",
+      "tide": "Marea",
+      "none": "Ninguna"
+    },
+    "chartAccentLabel": "Color de acento",
+    "chartAccent": {
+      "theme": "Del tema",
+      "success": "Verde éxito",
+      "gold": "Dorado",
+      "signed": "Dinámico"
+    }
   },
   "settings": {
     "title": "Configuración",

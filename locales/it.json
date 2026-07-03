@@ -388,10 +388,6 @@
       "sub": "Passaggio di luce all'avvio dell'app"
     },
     "sectionChart": "Grafico del saldo",
-    "chartPulse": {
-      "label": "Impulso animato",
-      "sub": "Un punto di luce percorre la tendenza del mese"
-    },
     "chartSpeed": {
       "slow": "Lenta",
       "normal": "Normale",
@@ -413,7 +409,28 @@
       "Suoni discreti quando registri i movimenti",
       "Usa una tua foto come sfondo",
       "Widget di riepilogo per la schermata home"
-    ]
+    ],
+    "chartTypeLabel": "Tipo di grafico",
+    "chartType": {
+      "line": "Linea",
+      "bars": "Barre",
+      "area": "Area piena",
+      "dots": "Punti"
+    },
+    "chartAnimLabel": "Animazione",
+    "chartAnim": {
+      "pulse": "Impulso",
+      "draw": "Traccia viva",
+      "tide": "Marea",
+      "none": "Nessuna"
+    },
+    "chartAccentLabel": "Colore accento",
+    "chartAccent": {
+      "theme": "Del tema",
+      "success": "Verde successo",
+      "gold": "Oro",
+      "signed": "Dinamico"
+    }
   },
   "settings": {
     "title": "Impostazioni",
