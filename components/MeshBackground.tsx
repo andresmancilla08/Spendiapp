@@ -25,7 +25,7 @@ export default function MeshBackground({ intensity = 'default' }: Props) {
     { color: colors.info,      top: '68%',  left: '40%',  size: 380, base: 0.20, dur: 23000 },
   ]), [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info]);
 
-  const blur = Platform.OS === 'web' ? ({ filter: `blur(${isDark ? 60 : 48}px)` } as any) : {};
+  const blur = Platform.OS === 'web' ? ({ filter: `blur(${isDark ? 28 : 22}px)` } as any) : {};
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">

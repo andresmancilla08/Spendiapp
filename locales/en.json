@@ -387,10 +387,6 @@
       "label": "Card shine",
       "sub": "Light sweep when the app loads"
     },
-    "cardGlass": {
-      "label": "Frosted glass effect",
-      "sub": "Translucent background on the main card"
-    },
     "sectionIcons": "Icon style",
     "iconStroke": {
       "thin": "Thin",

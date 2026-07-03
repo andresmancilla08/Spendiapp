@@ -73,7 +73,7 @@ function OrbView({ orb, dark }: { orb: Orb; dark: boolean }) {
   });
 
   const blur = Platform.OS === 'web'
-    ? ({ filter: `blur(${orb.size * 0.14}px)` } as any)
+    ? ({ filter: `blur(${Math.round(orb.size * 0.09)}px)` } as any)
     : {};
 
   return (

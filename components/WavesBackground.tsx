@@ -1,5 +1,5 @@
 import { useRef, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet, Dimensions } from 'react-native';
+import { View, Animated, Easing, StyleSheet, Dimensions, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import type { AuroraIntensity } from './AuroraBackground';
@@ -65,6 +65,7 @@ function Band({ band, width, opacityMul, ampMul }: {
     <Animated.View
       style={[
         styles.wave,
+        Platform.OS === 'web' ? ({ filter: 'blur(9px)' } as any) : {},
         { top: band.top as any, height: band.height, opacity: Math.min(band.opacity * opacityMul, 0.6), transform: [{ translateX: tx }, { translateY: ty }, { rotate: `${band.rotate}deg` }] },
       ]}
     >

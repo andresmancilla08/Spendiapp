@@ -83,7 +83,7 @@ export default function AuroraBackground({ intensity = 'default' }: Props) {
 
   const blobColors = isDark ? activePalette.auroraBlobs.dark : activePalette.auroraBlobs.light;
 
-  const webBlur = Platform.OS === 'web' ? ({ filter: `blur(${isDark ? 10 : 4}px)` } as any) : {};
+  const webBlur = Platform.OS === 'web' ? ({ filter: `blur(${isDark ? 7 : 3}px)` } as any) : {};
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">

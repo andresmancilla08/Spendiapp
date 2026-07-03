@@ -387,10 +387,6 @@
       "label": "Brillo en tarjetas",
       "sub": "Barrido de luz al cargar la app"
     },
-    "cardGlass": {
-      "label": "Efecto vidrio esmerilado",
-      "sub": "Fondo translúcido en la tarjeta principal"
-    },
     "sectionIcons": "Estilo de íconos",
     "iconStroke": {
       "thin": "Fino",
