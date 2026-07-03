@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
   summaryCard: { borderRadius: 20, padding: 20, marginBottom: 20, flexDirection: 'row', alignItems: 'center', gap: 16 },
   donutWrapper: { position: 'relative', width: 130, height: 130 },
   donutCenter: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
-  donutPercent: { fontSize: 30, fontFamily: Fonts.display, letterSpacing: -0.5 },
+  donutPercent: { fontSize: 26, fontFamily: Fonts.extraBold, letterSpacing: -0.5 },
   donutLabel: { fontSize: 10, fontFamily: Fonts.regular, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
   summaryStats: { flex: 1 },
   statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 7 },

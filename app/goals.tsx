@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
   gsCard: { borderRadius: 20, padding: 18, marginBottom: 16 },
   gsHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   gsTitle: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1 },
-  gsPct: { fontSize: 24, fontFamily: Fonts.display, letterSpacing: -0.5 },
+  gsPct: { fontSize: 22, fontFamily: Fonts.extraBold, letterSpacing: -0.5 },
   gsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
   gsLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.6, textTransform: 'uppercase' },
   gsValue: { fontSize: 15, fontFamily: Fonts.extraBold, letterSpacing: -0.3, marginTop: 3 },

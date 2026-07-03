@@ -1047,7 +1047,7 @@ const styles = StyleSheet.create({
   },
   detailAmount: {
     fontSize: 46,
-    fontFamily: Fonts.display,
+    fontFamily: Fonts.extraBold,
     fontVariant: ['tabular-nums'],
     letterSpacing: -1.2,
     includeFontPadding: false,

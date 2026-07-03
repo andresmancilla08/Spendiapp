@@ -617,7 +617,7 @@ export default function ProfileScreen() {
           <Text
             style={[
               styles.profileName,
-              { color: colors.textPrimary, fontFamily: isPremium ? Fonts.display : Fonts.bold },
+              { color: colors.textPrimary, fontFamily: isPremium ? Fonts.extraBold : Fonts.bold },
               nameGlow,
             ]}
           >
