@@ -425,11 +425,17 @@
       "none": "None"
     },
     "chartAccentLabel": "Accent color",
+    "chartAccentHint": "Dynamic options change on their own: green if your balance is up this month, red if it's down.",
     "chartAccent": {
       "theme": "Theme",
+      "secondary": "Secondary",
       "success": "Success green",
-      "gold": "Gold",
-      "signed": "Dynamic"
+      "gold": "Tertiary",
+      "duoSuccess": "Theme/Success",
+      "duoTertiary": "Theme/Tertiary",
+      "signed": "Dynamic",
+      "signedLine": "Dynamic line",
+      "signedFill": "Dynamic content"
     }
   },
   "settings": {
@@ -1176,47 +1182,29 @@
       "item2": "The bottom sheet only takes up as much space as its visible fields require",
       "item3": "Everything visible at a glance when editing — no scrolling needed"
     },
-    "uiPolish": {
-      "title": "Design improvements and fixes",
-      "item1": "New fully rounded tab selector applied across the entire app",
-      "item2": "Palettes reorganized into 2 groups (Classic / Pastel) with correctly translated names",
-      "item3": "Fix: group expense screen no longer gets stuck on loading"
+    "accentSelector": {
+      "title": "New accent color selector",
+      "item1": "Redesigned icon: the ring is the line, the disc is the content — just like your real chart",
+      "item2": "Symmetric, tidy grid no matter how many options you have",
+      "item3": "More combinations derived from your active palette — always true to your theme"
     },
-    "premiumDashboard": {
-      "title": "Renewed premium dashboard",
-      "item1": "Balance with month navigation and a 6-month mini trend",
-      "item2": "Month insights: savings rate, projection and top category",
-      "item3": "Spending by category and end-of-month budget projection"
+    "dynamicColors": {
+      "title": "Colors that react to your balance",
+      "item1": "\"Dynamic line\" and \"Dynamic content\": switch on their own between green and red based on whether your balance is up or down",
+      "item2": "Smooth transition between colors — no abrupt jumps",
+      "item3": "Works the same in the Personalization preview and the real Home chart"
     },
-    "hideAmounts": {
-      "title": "Hide your amounts with a tap",
-      "item1": "Tap the eye icon on the home screen to hide all amounts at once",
-      "item2": "Perfect for checking the app in public without exposing your finances",
-      "item3": "Your preference is saved automatically between sessions"
+    "personalizationAccordion": {
+      "title": "Tidier Personalization",
+      "item1": "No section opens on its own when you enter Personalization",
+      "item2": "Opening one section automatically closes the previous one",
+      "item3": "Easier to navigate between Palette, Background, Cards, and Chart"
     },
-    "premiumExperience": {
-      "title": "Tailored views for Premium",
-      "item1": "Premium users get an exclusive navbar design with a subtle breathing animation",
-      "item2": "Special welcome screen when activating Premium with direct access to key features",
-      "item3": "PRO badge visible on your profile to identify your account at a glance"
-    },
-    "premiumWelcome": {
-      "title": "Renewed Premium experience",
-      "item1": "Exclusive welcome screen when activating Premium with direct access to all your features",
-      "item2": "Special gradient navbar that sets your premium account apart",
-      "item3": "Unlock Spendia's full potential: advanced budgets, reports and more"
-    },
-    "otpPinReset": {
-      "title": "Recover your PIN by email",
-      "item1": "Forgot your PIN? Request a verification code sent directly to your email",
-      "item2": "Secure 6-digit code with themed design and automatic expiration",
-      "item3": "Your account stays protected throughout the entire recovery process"
-    },
-    "animatedSplash": {
-      "title": "New animated loading screen",
-      "item1": "Splash screen with professional animation: glow, shimmer and smooth spring physics",
-      "item2": "The Spendia logo comes to life with light effects on every app launch",
-      "item3": "Fluid transition from the splash screen to sign in"
+    "solidAreaFix": {
+      "title": "\"Solid area\" chart fixed",
+      "item1": "The fill no longer disappears or looks nearly transparent",
+      "item2": "No hard edges or cuts — the gradient fades smoothly",
+      "item3": "Looks consistent in light and dark mode"
     }
   },
   "incomeClaim": {

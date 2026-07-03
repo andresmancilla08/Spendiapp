@@ -148,17 +148,23 @@ function sampleCurve(pts: { x: number; y: number }[], totalSamples: number) {
   return out;
 }
 
-const CHART_GOLD_ACCENT = '#F5C542';
-
-/** Resuelve el color de acento del gráfico según la preferencia del usuario. */
-export function resolveChartAccent(accent: ChartAccent, colors: { primary: string; success: string; expense: string }, values: number[]): string {
+/** Resuelve el color de acento del gráfico según la preferencia del usuario — siempre derivado de la paleta activa, nunca un hex fijo. */
+export function resolveChartAccent(accent: ChartAccent, colors: { primary: string; secondary: string; success: string; expense: string; tertiary: string }, values: number[]): string {
+  if (accent === 'secondary') return colors.secondary;
   if (accent === 'success') return colors.success;
-  if (accent === 'gold') return CHART_GOLD_ACCENT;
-  if (accent === 'signed') {
+  if (accent === 'gold') return colors.tertiary;
+  if (accent === 'signed' || accent === 'signedLine' || accent === 'signedFill') {
     if (values.length >= 2 && values[values.length - 1] < values[0]) return colors.expense;
     return colors.success;
   }
   return colors.primary;
+}
+
+/** Segundo color para los acentos "bicolor" (línea en degradado) — undefined para los acentos de un solo color. */
+export function resolveChartAccent2(accent: ChartAccent, colors: { success: string; tertiary: string }): string | undefined {
+  if (accent === 'duoSuccess') return colors.success;
+  if (accent === 'duoTertiary') return colors.tertiary;
+  return undefined;
 }
 
 /** Gráfico de barras (chartType='bars'): Views nativas — nunca sufre la deformación del viewBox del SVG. */
@@ -207,23 +213,32 @@ interface SparklineProps {
   values: number[];
   color: string;
   accent?: string;
+  accent2?: string;
   height?: number;
   animate?: boolean;
   duration?: number;
   chartType?: ChartType;
   animStyle?: ChartAnimStyle;
+  renderFill?: boolean;
+  renderStroke?: boolean;
 }
 
 /**
  * Mini-tendencia estilo "Aurora Ledger": la tendencia es paisaje. Soporta 4
  * tipos (línea/barras/área/puntos) × 4 animaciones (pulso/trazo vivo/marea/
  * ninguna) — elegibles en Personalización. Respeta reduce-motion
- * (animate=false → siempre estático, cualquiera sea el estilo).
+ * (animate=false → siempre estático, cualquiera sea el estilo). Con `accent2`,
+ * el relleno/contenido del área usa ese color mientras la línea/borde se queda
+ * en `accent` — dos colores con roles distintos, no un degradado entre ambos.
+ * `renderFill`/`renderStroke` (default true) permiten dibujar solo un canal —
+ * usado para componer capas de cruce de color parciales (línea dinámica con
+ * contenido fijo, o viceversa) sin duplicar el canal que debe quedar estático.
  */
-export function Sparkline({ values, color, accent, height = 56, animate = true, duration = 6500, chartType = 'line', animStyle = 'pulse' }: SparklineProps) {
+export function Sparkline({ values, color, accent, accent2, height = 56, animate = true, duration = 6500, chartType = 'line', animStyle = 'pulse', renderFill = true, renderStroke = true }: SparklineProps) {
   const W = 100, H = 36, P = 4;
   const [boxW, setBoxW] = useState(0);
   const stroke = accent ?? color;
+  const fillColor = accent2 ?? stroke;
 
   const pts = useMemo(() => {
     if (!values || values.length < 2) return [];
@@ -306,6 +321,9 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
   }, [tideActive, tideAnim, duration]);
 
   if (chartType === 'bars') {
+    // Las barras no tienen un canal de "contenido" separado — viven en el canal
+    // de línea/trazo; si esa capa no debe dibujar el canal de línea, no hay nada que mostrar aquí.
+    if (!renderStroke) return null;
     return <BarsChart values={values} color={stroke} height={height} animate={animate && animStyle !== 'none'} />;
   }
   if (pts.length < 2) return null;
@@ -319,6 +337,12 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
   const areaOpacity = tideActive ? 0.55 + tideT * 0.65 : (drawActive && chartType === 'area') ? 0.2 + drawT * 0.8 : 1;
   const glowOpacity = (tideActive ? 0.12 + tideT * 0.14 : 0.2) * (showDots ? 0.55 : 1);
   const lineOpacity = showDots ? 0.5 : 1;
+  // El contenido/relleno es solo un fondo sutil bajo la línea en tipos que no son
+  // "área" — pero si esta capa no dibuja línea (renderStroke=false, p.ej. la mitad
+  // "contenido" de un cruce de color), el relleno ES la única señal visible: debe
+  // verse tan claro como en "área", sin importar el chartType, o el cambio de color
+  // pasa inadvertido (Personalización → "Contenido dinámico").
+  const fillIsHero = chartType === 'area' || !renderStroke;
 
   // El punto animado (pulso) y el halo de "trazo vivo" viven FUERA del SVG,
   // como Views nativas: el viewBox usa preserveAspectRatio="none" (deforma X e
@@ -334,13 +358,13 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
       <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
         <Defs>
           <SvgGradient id="spk" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={stroke} stopOpacity={chartType === 'area' ? 0.4 : 0.18} />
-            <Stop offset="0.75" stopColor={stroke} stopOpacity={chartType === 'area' ? 0.1 : 0.03} />
-            <Stop offset="1" stopColor={stroke} stopOpacity={0} />
+            <Stop offset="0" stopColor={fillColor} stopOpacity={fillIsHero ? 0.65 : 0.18} />
+            <Stop offset="0.6" stopColor={fillColor} stopOpacity={fillIsHero ? 0.32 : 0.03} />
+            <Stop offset="1" stopColor={fillColor} stopOpacity={0} />
           </SvgGradient>
         </Defs>
-        <Path d={area} fill="url(#spk)" opacity={areaOpacity} />
-        {showLine && (
+        {renderFill && <Path d={area} fill="url(#spk)" opacity={areaOpacity} />}
+        {renderStroke && showLine && (
           <>
             {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
             <Path d={line} fill="none" stroke={stroke} strokeWidth={6} strokeOpacity={glowOpacity} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
@@ -354,10 +378,20 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
             />
           </>
         )}
+        {renderStroke && chartType === 'area' && (
+          /* Borde superior fino — sin él, el área queda sin contorno definido y "no aplica nada" al ojo */
+          <Path
+            d={line} fill="none" stroke={stroke}
+            strokeWidth={1.4} strokeOpacity={0.9}
+            strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"
+            strokeDasharray={drawActive ? approxLen : undefined}
+            strokeDashoffset={drawActive ? approxLen * (1 - drawT) : undefined}
+          />
+        )}
       </Svg>
 
       {/* Puntos por dato (chartType='dots') — Views nativas, nunca ovaladas */}
-      {showDots && boxW > 0 && pts.map((p, i) => {
+      {renderStroke && showDots && boxW > 0 && pts.map((p, i) => {
         const isLast = i === pts.length - 1;
         return (
           <View
@@ -373,7 +407,7 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
       })}
 
       {/* Pulso: cometa con estela de glow de 3 capas */}
-      {pulseActive && samples.length >= 2 && boxW > 0 && (
+      {renderStroke && pulseActive && samples.length >= 2 && boxW > 0 && (
         <>
           <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 26, height: 26, borderRadius: 13, backgroundColor: stroke, opacity: 0.12 }, cometCenter(26)]} />
           <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 17, height: 17, borderRadius: 8.5, backgroundColor: stroke, opacity: 0.28 }, cometCenter(17)]} />
@@ -382,7 +416,7 @@ export function Sparkline({ values, color, accent, height = 56, animate = true, 
       )}
 
       {/* Trazo vivo: halo respirando en el punto de hoy */}
-      {drawActive && boxW > 0 && (
+      {renderStroke && drawActive && boxW > 0 && (
         <Animated.View
           pointerEvents="none"
           style={{
@@ -419,6 +453,27 @@ export default function BalanceCard({
   const { animate: motionEnabled } = useProMotion();
   const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
   const resolvedChartColor = sparkline ? resolveChartAccent(chartAccent, colors, sparkline) : colors.primary;
+  const resolvedChartColor2 = resolveChartAccent2(chartAccent, colors);
+
+  // Familia "dinámica": el color real cambia entre verde/rojo según la tendencia
+  // del mes — completo ('signed'), solo la línea/barras ('signedLine') o solo el
+  // contenido ('signedFill'). Al pasar de un mes a otro con tendencia distinta,
+  // cruza (dissolve) en vez de saltar de golpe — mismo efecto que Personalización.
+  const isSignedFamily = chartAccent === 'signed' || chartAccent === 'signedLine' || chartAccent === 'signedFill';
+  // "Barras" no tiene canal de contenido separado — un modo parcial no tendría
+  // nada que mostrar en ese canal y el gráfico se vería congelado.
+  const signedMode: 'both' | 'line' | 'fill' = chartType === 'bars' ? 'both' : chartAccent === 'signedLine' ? 'line' : chartAccent === 'signedFill' ? 'fill' : 'both';
+  const isTrendUp = !sparkline || sparkline.length < 2 || sparkline[sparkline.length - 1] >= sparkline[0];
+  const signedFade = useRef(new Animated.Value(isTrendUp ? 1 : 0)).current;
+  useEffect(() => {
+    if (!isSignedFamily) return;
+    Animated.timing(signedFade, {
+      toValue: isTrendUp ? 1 : 0,
+      duration: 1200,
+      easing: Easing.inOut(Easing.sin),
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
+  }, [isSignedFamily, isTrendUp, signedFade]);
   // Héroe "Aurora Ledger": el balance premium SIEMPRE vive directo sobre el
   // fondo, sin chrome de tarjeta (como el mockup aprobado).
   const heroBare = pro;
@@ -656,16 +711,66 @@ export default function BalanceCard({
           {/* Mini-tendencia (sparkline) */}
           {!hidden && !loading && sparkline && sparkline.length >= 2 && (
             <View style={[styles.sparkWrap, heroBare && styles.sparkWrapHero]}>
-              <Sparkline
-                values={sparkline}
-                color={resolvedChartColor}
-                accent={resolvedChartColor}
-                height={78}
-                animate={motionEnabled && chartAnimStyle !== 'none'}
-                duration={chartDuration}
-                chartType={chartType}
-                animStyle={chartAnimStyle}
-              />
+              {isSignedFamily ? (
+                <View style={{ width: '100%', height: 78 }}>
+                  {signedMode !== 'both' && (
+                    <View style={StyleSheet.absoluteFill}>
+                      <Sparkline
+                        values={sparkline}
+                        color={colors.primary}
+                        accent={colors.primary}
+                        height={78}
+                        animate={motionEnabled && chartAnimStyle !== 'none'}
+                        duration={chartDuration}
+                        chartType={chartType}
+                        animStyle={chartAnimStyle}
+                        renderFill={signedMode === 'line'}
+                        renderStroke={signedMode === 'fill'}
+                      />
+                    </View>
+                  )}
+                  <Animated.View style={[StyleSheet.absoluteFill, { opacity: signedFade }]}>
+                    <Sparkline
+                      values={sparkline}
+                      color={colors.success}
+                      accent={colors.success}
+                      height={78}
+                      animate={motionEnabled && chartAnimStyle !== 'none'}
+                      duration={chartDuration}
+                      chartType={chartType}
+                      animStyle={chartAnimStyle}
+                      renderFill={signedMode !== 'line'}
+                      renderStroke={signedMode !== 'fill'}
+                    />
+                  </Animated.View>
+                  <Animated.View style={[StyleSheet.absoluteFill, { opacity: signedFade.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}>
+                    <Sparkline
+                      values={sparkline}
+                      color={colors.expense}
+                      accent={colors.expense}
+                      height={78}
+                      animate={motionEnabled && chartAnimStyle !== 'none'}
+                      duration={chartDuration}
+                      chartType={chartType}
+                      animStyle={chartAnimStyle}
+                      renderFill={signedMode !== 'line'}
+                      renderStroke={signedMode !== 'fill'}
+                    />
+                  </Animated.View>
+                </View>
+              ) : (
+                <Sparkline
+                  values={sparkline}
+                  color={resolvedChartColor}
+                  accent={resolvedChartColor}
+                  accent2={resolvedChartColor2}
+                  height={78}
+                  animate={motionEnabled && chartAnimStyle !== 'none'}
+                  duration={chartDuration}
+                  chartType={chartType}
+                  animStyle={chartAnimStyle}
+                />
+              )}
             </View>
           )}
 

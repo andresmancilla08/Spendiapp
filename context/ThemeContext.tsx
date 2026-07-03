@@ -23,7 +23,8 @@ export type IconStroke = 1.5 | 2 | 2.5;
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type ChartType = 'line' | 'bars' | 'area' | 'dots';
 export type ChartAnimStyle = 'pulse' | 'draw' | 'tide' | 'none';
-export type ChartAccent = 'theme' | 'success' | 'gold' | 'signed';
+export type ChartAccent = 'theme' | 'secondary' | 'success' | 'gold' | 'signed' | 'signedLine' | 'signedFill' | 'duoSuccess' | 'duoTertiary';
+const CHART_ACCENT_VALUES: ChartAccent[] = ['theme', 'secondary', 'success', 'gold', 'signed', 'signedLine', 'signedFill', 'duoSuccess', 'duoTertiary'];
 export type { PaletteId, AuroraIntensity };
 
 interface ThemeContextValue {
@@ -131,7 +132,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (storedChartType === 'line' || storedChartType === 'bars' || storedChartType === 'area' || storedChartType === 'dots') setChartTypeState(storedChartType);
       if (storedChartAnim === 'pulse' || storedChartAnim === 'draw' || storedChartAnim === 'tide' || storedChartAnim === 'none') setChartAnimStyleState(storedChartAnim);
       if (storedChartSpeed === 'slow' || storedChartSpeed === 'normal' || storedChartSpeed === 'fast') setChartSpeedState(storedChartSpeed);
-      if (storedChartAccent === 'theme' || storedChartAccent === 'success' || storedChartAccent === 'gold' || storedChartAccent === 'signed') setChartAccentState(storedChartAccent);
+      if (CHART_ACCENT_VALUES.includes(storedChartAccent as ChartAccent)) setChartAccentState(storedChartAccent as ChartAccent);
     }).catch(() => {});
   }, []);
 
