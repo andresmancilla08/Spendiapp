@@ -174,8 +174,15 @@ function Sparkline({ values, color, accent, height = 56, animate = true }: { val
   useEffect(() => {
     if (!animate || samples.length < 2) return;
     progress.setValue(0);
+    // Animated.loop repite el MISMO timing sin resetear el valor: tras llegar a
+    // 1, la siguiente vuelta anima de 1→1 (sin movimiento). El segundo timing
+    // de duración 0 fuerza el reset a 0 entre vueltas, para que sea un bucle
+    // realmente continuo (mismo patrón que AuroraBackground/ParticlesBackground).
     const loop = Animated.loop(
-      Animated.timing(progress, { toValue: 1, duration: 3200, easing: Easing.linear, useNativeDriver: false })
+      Animated.sequence([
+        Animated.timing(progress, { toValue: 1, duration: 3200, easing: Easing.linear, useNativeDriver: false }),
+        Animated.timing(progress, { toValue: 0, duration: 0, useNativeDriver: false }),
+      ])
     );
     loop.start();
     return () => loop.stop();
