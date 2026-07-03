@@ -485,9 +485,15 @@ export default function TransactionDetailScreen() {
                   </Text>
                 </View>
 
-                {/* Monto — protagonista */}
+                {/* Monto — protagonista (héroe Aurora Ledger: serif + glow en oscuro) */}
                 <Text
-                  style={[styles.detailAmount, { color: accentColor }]}
+                  style={[
+                    styles.detailAmount,
+                    { color: accentColor },
+                    isDark && (Platform.OS === 'web'
+                      ? ({ textShadow: `0 0 34px ${accentColor}80` } as any)
+                      : { textShadowColor: accentColor + '80', textShadowRadius: 22, textShadowOffset: { width: 0, height: 0 } }),
+                  ]}
                 >
                   {isExpense
                     ? `−${formatCurrency(transaction.amount)}`
@@ -1040,9 +1046,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   detailAmount: {
-    fontSize: 40,
-    fontFamily: Fonts.extraBold,
-    letterSpacing: -1,
+    fontSize: 46,
+    fontFamily: Fonts.display,
+    fontVariant: ['tabular-nums'],
+    letterSpacing: -1.2,
     includeFontPadding: false,
   },
   detailDescription: {
