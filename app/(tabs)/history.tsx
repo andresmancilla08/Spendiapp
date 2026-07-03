@@ -129,6 +129,23 @@ function getActualId(transaction: Transaction): string {
   return transaction.id;
 }
 
+// ── TxIconChip (Aurora Ledger — glow por categoría) ─────────────────────────
+
+function TxIconChip({ emoji, tint }: { emoji: string; tint: string }) {
+  return (
+    <View
+      style={[
+        { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint + '1E' },
+        Platform.OS === 'web'
+          ? ({ boxShadow: `0 0 14px ${tint}44` } as any)
+          : { shadowColor: tint, shadowOpacity: 0.4, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } },
+      ]}
+    >
+      <Text style={{ fontSize: 18 }}>{emoji}</Text>
+    </View>
+  );
+}
+
 // ── Transaction Row ──────────────────────────────────────────────────────────
 
 interface TransactionRowProps {
@@ -241,7 +258,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   const deleteOpacity = swipeX.interpolate({ inputRange: [0, ACTION_WIDTH], outputRange: [0, 1], extrapolate: 'clamp' });
 
   const rowBg = isPaid ? colors.primaryLight : colors.surface;
-  const amountColor = isExpense ? (isPaid ? colors.primaryDark : colors.error) : colors.secondary;
+  const amountColor = isExpense ? (isPaid ? colors.primary : colors.expense) : colors.secondary;
 
   return (
     <View
@@ -298,9 +315,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
           activeOpacity={0.7}
           style={[styles.txRow, { backgroundColor: rowBg }]}
         >
-          <View style={[styles.txIconWrap, { backgroundColor: colors.backgroundSecondary }]}>
-            <Text style={styles.txIconText}>{cat.icon}</Text>
-          </View>
+          <TxIconChip emoji={cat.icon} tint={cat.color} />
           <View style={styles.txMeta}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
               <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
