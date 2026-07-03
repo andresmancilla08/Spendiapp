@@ -206,7 +206,12 @@
       "descPart2": " para abrir Spendia sin necesidad de escribir nada.",
       "activate": "Activar",
       "notNow": "Ahora no"
-    }
+    },
+    "kickerMorning": "☀️ Buenos días",
+    "kickerAfternoon": "🌤️ Buenas tardes",
+    "kickerEvening": "🌙 Buenas noches",
+    "kickerNight": "🌙 Buenas noches",
+    "greetingName": "Hola, {{name}}"
   },
   "profile": {
     "title": "Perfil",
