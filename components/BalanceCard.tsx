@@ -154,7 +154,7 @@ function sampleCurve(pts: { x: number; y: number }[], totalSamples: number) {
  * latido/ECG financiero — el resto del gráfico queda en reposo. Respeta
  * reduce-motion (animate=false → sin el pulso, solo la línea).
  */
-function Sparkline({ values, color, accent, height = 56, animate = true }: { values: number[]; color: string; accent?: string; height?: number; animate?: boolean }) {
+export function Sparkline({ values, color, accent, height = 56, animate = true, duration = 6500 }: { values: number[]; color: string; accent?: string; height?: number; animate?: boolean; duration?: number }) {
   const W = 100, H = 36, P = 4;
   const [boxW, setBoxW] = useState(0);
   const pts = useMemo(() => {
@@ -178,15 +178,17 @@ function Sparkline({ values, color, accent, height = 56, animate = true }: { val
     // 1, la siguiente vuelta anima de 1→1 (sin movimiento). El segundo timing
     // de duración 0 fuerza el reset a 0 entre vueltas, para que sea un bucle
     // realmente continuo (mismo patrón que AuroraBackground/ParticlesBackground).
+    // Easing.out: late "latido" real — sale rápido y frena al llegar al final
+    // de la línea (quad, no cubic: frenado más corto, no se arrastra al final).
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(progress, { toValue: 1, duration: 6500, easing: Easing.linear, useNativeDriver: false }),
+        Animated.timing(progress, { toValue: 1, duration, easing: Easing.out(Easing.quad), useNativeDriver: false }),
         Animated.timing(progress, { toValue: 0, duration: 0, useNativeDriver: false }),
       ])
     );
     loop.start();
     return () => loop.stop();
-  }, [animate, samples, progress]);
+  }, [animate, samples, progress, duration]);
 
   if (pts.length < 2) return null;
   const line = monotonePath(pts);
@@ -253,8 +255,9 @@ export default function BalanceCard({
   sparkline,
   detailsToggleLabel,
 }: BalanceCardProps) {
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, chartPulse, chartSpeed } = useTheme();
   const { animate: motionEnabled } = useProMotion();
+  const pulseDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
   // Héroe "Aurora Ledger": el balance premium SIEMPRE vive directo sobre el
   // fondo, sin chrome de tarjeta (como el mockup aprobado).
   const heroBare = pro;
@@ -492,7 +495,7 @@ export default function BalanceCard({
           {/* Mini-tendencia (sparkline) */}
           {!hidden && !loading && sparkline && sparkline.length >= 2 && (
             <View style={[styles.sparkWrap, heroBare && styles.sparkWrapHero]}>
-              <Sparkline values={sparkline} color={colors.primary} accent={colors.primary} height={78} animate={motionEnabled} />
+              <Sparkline values={sparkline} color={colors.primary} accent={colors.primary} height={78} animate={motionEnabled && chartPulse} duration={pulseDuration} />
             </View>
           )}
 

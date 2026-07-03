@@ -387,6 +387,16 @@
       "label": "Card shine",
       "sub": "Light sweep when the app loads"
     },
+    "sectionChart": "Balance chart",
+    "chartPulse": {
+      "label": "Animated pulse",
+      "sub": "A point of light travels along the month trend"
+    },
+    "chartSpeed": {
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast"
+    },
     "sectionIcons": "Icon style",
     "iconStroke": {
       "thin": "Thin",

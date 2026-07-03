@@ -16,9 +16,10 @@ import WavesBackground from '../components/WavesBackground';
 import GrainBackground from '../components/GrainBackground';
 import MeshBackground from '../components/MeshBackground';
 import BokehBackground from '../components/BokehBackground';
-import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke } from '../context/ThemeContext';
+import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke, type ChartSpeed } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { updateUserColorPalette } from '../hooks/useUserProfile';
+import { Sparkline } from '../components/BalanceCard';
 import { Fonts } from '../config/fonts';
 
 // ── Acordeón — cada sección se expande/contrae de forma independiente ───────
@@ -142,7 +143,9 @@ const ICON_STROKE_OPTIONS: { key: IconStroke; labelKey: string }[] = [
   { key: 2.5, labelKey: 'bold' },
 ];
 
-// ── Vista previa en vivo del brillo (barrido de luz) en tarjetas ──
+// ── Vista previa en vivo del brillo (barrido de luz) — réplica fiel de la
+// tarjeta real que lo recibe hoy en Home: "Gastos por categoría" (el balance
+// premium ya no tiene caja, así que ya no es el ejemplo correcto). ──
 function CardEffectPreview({ sheen }: { sheen: boolean }) {
   const { colors, isDark } = useTheme();
   const sweep = useRef(new Animated.Value(0)).current;
@@ -161,25 +164,42 @@ function CardEffectPreview({ sheen }: { sheen: boolean }) {
   }, [sheen, sweep]);
 
   const sweepX = sweep.interpolate({ inputRange: [0, 1], outputRange: [-70, 260] });
+  const rows: { label: string; pct: number; color: string }[] = [
+    { label: 'Alimentación', pct: 62, color: colors.primary },
+    { label: 'Transporte', pct: 34, color: colors.tertiary },
+  ];
 
   const inner = (
     <View
       style={[
         styles.previewCard,
-        { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '2E' },
+        { backgroundColor: colors.surface, borderColor: isDark ? colors.primary + '20' : colors.border },
       ]}
     >
-      <View style={[styles.previewAccentBar, { backgroundColor: colors.primary }]} pointerEvents="none" />
-      <Text style={[styles.previewLabel, { color: colors.textTertiary }]}>BALANCE</Text>
-      <Text style={[styles.previewAmount, { color: colors.primary }]}>$ 1.284,50</Text>
-      <View style={styles.previewChips}>
-        <View style={[styles.previewChip, { backgroundColor: colors.success + '20' }]} />
-        <View style={[styles.previewChip, { backgroundColor: colors.expense + '20' }]} />
-      </View>
+      <LinearGradient
+        colors={[colors.primary + '16', 'transparent', colors.primary + '0A']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+      <Text style={[styles.previewLabel, { color: colors.textTertiary, marginBottom: 12 }]}>GASTOS POR CATEGORÍA</Text>
+      {rows.map((r) => (
+        <View key={r.label} style={styles.previewCatRow}>
+          <View style={styles.previewCatTop}>
+            <View style={[styles.previewDot, { backgroundColor: r.color }]} />
+            <Text style={[styles.previewCatLabel, { color: colors.textPrimary }]}>{r.label}</Text>
+            <Text style={[styles.previewCatPct, { color: colors.textTertiary }]}>{r.pct}%</Text>
+          </View>
+          <View style={[styles.previewTrack, { backgroundColor: colors.border }]}>
+            <View style={[styles.previewFill, { width: `${r.pct}%`, backgroundColor: r.color }]} />
+          </View>
+        </View>
+      ))}
       {sheen && (
         <Animated.View pointerEvents="none" style={[styles.previewSheen, { transform: [{ translateX: sweepX }, { rotate: '18deg' }] }]}>
           <LinearGradient
-            colors={['transparent', isDark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.9)', 'transparent']}
+            colors={['transparent', isDark ? 'rgba(255,255,255,0.20)' : colors.primary + '38', 'transparent']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={StyleSheet.absoluteFill}
@@ -193,6 +213,8 @@ function CardEffectPreview({ sheen }: { sheen: boolean }) {
 }
 
 const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
+const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
+const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
 
 export default function PersonalizationScreen() {
   const { t } = useTranslation();
@@ -203,7 +225,9 @@ export default function PersonalizationScreen() {
     cardSheen, setCardSheen,
     iconStroke, setIconStroke,
     streakConfetti, setStreakConfetti,
+    chartPulse, setChartPulse, chartSpeed, setChartSpeed,
   } = useTheme();
+  const pulseDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
 
   const handleSetPaletteId = (id: typeof paletteId) => {
     setPaletteId(id);
@@ -257,6 +281,38 @@ export default function PersonalizationScreen() {
                   isLast
                 />
               </View>
+            </AccordionSection>
+
+            <AccordionSection icon="trending-up-outline" title={t('personalization.sectionChart')}>
+              <View style={styles.chartPreviewWrap}>
+                <Sparkline
+                  key={`${chartPulse}-${chartSpeed}`}
+                  values={CHART_PREVIEW_VALUES}
+                  color={colors.primary}
+                  accent={colors.primary}
+                  height={64}
+                  animate={chartPulse}
+                  duration={pulseDuration}
+                />
+              </View>
+              <View style={styles.rowsWrap}>
+                <SwitchRow
+                  icon="trending-up-outline"
+                  label={t('personalization.chartPulse.label')}
+                  sub={t('personalization.chartPulse.sub')}
+                  value={chartPulse}
+                  onValueChange={setChartPulse}
+                  isLast
+                />
+              </View>
+              {chartPulse && (
+                <AppSegmentedControl
+                  segments={CHART_SPEED_OPTIONS.map((s) => ({ key: s, label: t(`personalization.chartSpeed.${s}`) }))}
+                  activeKey={chartSpeed}
+                  onChange={(key) => setChartSpeed(key as ChartSpeed)}
+                  style={styles.intensitySpacing}
+                />
+              )}
             </AccordionSection>
 
             <AccordionSection icon="options-outline" title={t('personalization.sectionIcons')}>
@@ -319,14 +375,18 @@ const styles = StyleSheet.create({
   bgCardLabel: { fontSize: 12, fontFamily: Fonts.semiBold },
   bgCheckBadge: { position: 'absolute', top: 6, right: 6, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   rowsWrap: { marginHorizontal: -16 },
-  // Preview en vivo de efectos de tarjeta
+  // Preview en vivo de efectos de tarjeta — réplica de "Gastos por categoría"
   previewWrap: { alignItems: 'center', marginBottom: 14 },
-  previewCard: { width: 236, borderRadius: 20, borderWidth: 1.5, paddingVertical: 18, paddingHorizontal: 18, overflow: 'hidden', position: 'relative' },
-  previewAccentBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 3, opacity: 0.85 },
-  previewLabel: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.4, marginBottom: 4 },
-  previewAmount: { fontSize: 26, fontFamily: Fonts.extraBold, letterSpacing: -0.5 },
-  previewChips: { flexDirection: 'row', gap: 6, marginTop: 12 },
-  previewChip: { width: 52, height: 16, borderRadius: 8 },
+  chartPreviewWrap: { marginBottom: 14, paddingHorizontal: 4 },
+  previewCard: { width: '100%', maxWidth: 320, borderRadius: 22, borderWidth: 1, paddingVertical: 18, paddingHorizontal: 18, overflow: 'hidden', position: 'relative' },
+  previewLabel: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.4 },
+  previewCatRow: { marginBottom: 12 },
+  previewCatTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  previewDot: { width: 8, height: 8, borderRadius: 3 },
+  previewCatLabel: { flex: 1, fontSize: 13, fontFamily: Fonts.semiBold },
+  previewCatPct: { fontSize: 12, fontFamily: Fonts.semiBold },
+  previewTrack: { height: 6, borderRadius: 3, overflow: 'hidden' },
+  previewFill: { height: '100%', borderRadius: 3 },
   previewSheen: { position: 'absolute', top: -30, bottom: -30, width: 60 },
   iconPreviewRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 8, marginBottom: 4 },
   optionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 },

@@ -387,6 +387,16 @@
       "label": "Bagliore nelle schede",
       "sub": "Passaggio di luce all'avvio dell'app"
     },
+    "sectionChart": "Grafico del saldo",
+    "chartPulse": {
+      "label": "Impulso animato",
+      "sub": "Un punto di luce percorre la tendenza del mese"
+    },
+    "chartSpeed": {
+      "slow": "Lenta",
+      "normal": "Normale",
+      "fast": "Veloce"
+    },
     "sectionIcons": "Stile icone",
     "iconStroke": {
       "thin": "Sottile",
