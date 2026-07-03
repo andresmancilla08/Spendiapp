@@ -11,7 +11,6 @@ const BG_STYLE_KEY = '@spendiapp_bg_style';
 const BG_INTENSITY_KEY = '@spendiapp_bg_intensity';
 const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
 const CARD_GLASS_KEY = '@spendiapp_card_glass';
-const CARD_BORDER_KEY = '@spendiapp_card_border';
 const ICON_STROKE_KEY = '@spendiapp_icon_stroke';
 const STREAK_CONFETTI_KEY = '@spendiapp_streak_confetti';
 
@@ -37,8 +36,6 @@ interface ThemeContextValue {
   setCardSheen: (v: boolean) => void;
   cardGlass: boolean;
   setCardGlass: (v: boolean) => void;
-  cardGradientBorder: boolean;
-  setCardGradientBorder: (v: boolean) => void;
   iconStroke: IconStroke;
   setIconStroke: (v: IconStroke) => void;
   streakConfetti: boolean;
@@ -63,8 +60,6 @@ const ThemeContext = createContext<ThemeContextValue>({
   setCardSheen: () => {},
   cardGlass: false,
   setCardGlass: () => {},
-  cardGradientBorder: false,
-  setCardGradientBorder: () => {},
   iconStroke: 2,
   setIconStroke: () => {},
   streakConfetti: true,
@@ -79,7 +74,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [backgroundIntensity, setBackgroundIntensityState] = useState<AuroraIntensity>('default');
   const [cardSheen, setCardSheenState] = useState(true);
   const [cardGlass, setCardGlassState] = useState(false);
-  const [cardGradientBorder, setCardGradientBorderState] = useState(false);
   const [iconStroke, setIconStrokeState] = useState<IconStroke>(2);
   const [streakConfetti, setStreakConfettiState] = useState(true);
 
@@ -91,10 +85,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(BG_INTENSITY_KEY),
       AsyncStorage.getItem(CARD_SHEEN_KEY),
       AsyncStorage.getItem(CARD_GLASS_KEY),
-      AsyncStorage.getItem(CARD_BORDER_KEY),
       AsyncStorage.getItem(ICON_STROKE_KEY),
       AsyncStorage.getItem(STREAK_CONFETTI_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedSheen, storedGlass, storedBorder, storedStroke, storedConfetti]) => {
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedSheen, storedGlass, storedStroke, storedConfetti]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
@@ -109,7 +102,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
       if (storedSheen != null) setCardSheenState(storedSheen === '1');
       if (storedGlass != null) setCardGlassState(storedGlass === '1');
-      if (storedBorder != null) setCardGradientBorderState(storedBorder === '1');
       if (storedStroke === '1.5' || storedStroke === '2' || storedStroke === '2.5') setIconStrokeState(Number(storedStroke) as IconStroke);
       if (storedConfetti != null) setStreakConfettiState(storedConfetti === '1');
     }).catch(() => {});
@@ -145,11 +137,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(CARD_GLASS_KEY, v ? '1' : '0');
   };
 
-  const setCardGradientBorder = async (v: boolean) => {
-    setCardGradientBorderState(v);
-    await AsyncStorage.setItem(CARD_BORDER_KEY, v ? '1' : '0');
-  };
-
   const setIconStroke = async (v: IconStroke) => {
     setIconStrokeState(v);
     await AsyncStorage.setItem(ICON_STROKE_KEY, String(v));
@@ -171,7 +158,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       colors, isDark, themeMode, setThemeMode, paletteId, setPaletteId, activePalette,
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
       cardSheen, setCardSheen, cardGlass, setCardGlass,
-      cardGradientBorder, setCardGradientBorder, iconStroke, setIconStroke,
+      iconStroke, setIconStroke,
       streakConfetti, setStreakConfetti,
     }}>
       {children}

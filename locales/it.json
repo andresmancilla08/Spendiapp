@@ -391,10 +391,6 @@
       "label": "Effetto vetro smerigliato",
       "sub": "Sfondo traslucido nella scheda principale"
     },
-    "cardBorder": {
-      "label": "Bordo con gradiente animato",
-      "sub": "Un anello di colore che ruota sulla scheda principale"
-    },
     "sectionIcons": "Stile icone",
     "iconStroke": {
       "thin": "Sottile",

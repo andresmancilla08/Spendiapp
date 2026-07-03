@@ -391,10 +391,6 @@
       "label": "Frosted glass effect",
       "sub": "Translucent background on the main card"
     },
-    "cardBorder": {
-      "label": "Animated gradient border",
-      "sub": "A rotating color ring on the main card"
-    },
     "sectionIcons": "Icon style",
     "iconStroke": {
       "thin": "Thin",
