@@ -240,9 +240,9 @@ export default function BalanceCard({
     // Tamaño dinámico: en web adjustsFontSizeToFit no funciona → el serif grande
     // se truncaba ("$2.650.0..."). Escalamos por longitud para que SIEMPRE quepa.
     const amtLen = (hidden ? HIDDEN_MASK : formatCurrency(displayBalance)).length;
-    const baseSize = amtLen <= 9 ? 56 : amtLen <= 12 ? 47 : amtLen <= 15 ? 38 : 31;
+    const baseSize = amtLen <= 10 ? 44 : amtLen <= 13 ? 37 : amtLen <= 16 ? 31 : 26;
     // El vidrio esmerilado deja la tarjeta más angosta → reducimos un poco para no truncar.
-    const proSize = useGlass ? Math.round(baseSize * 0.82) : baseSize;
+    const proSize = useGlass ? Math.round(baseSize * 0.85) : baseSize;
     const amountStyle = [
       styles.balanceAmount,
       proStyle && styles.balanceAmountPro,
