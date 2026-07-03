@@ -2,7 +2,6 @@ import { useRef, useState, useEffect, type ReactNode } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { useTranslation } from 'react-i18next';
 import AppIcon, { AppIconName } from '../components/AppIcon';
 import AppHeader from '../components/AppHeader';
@@ -143,8 +142,8 @@ const ICON_STROKE_OPTIONS: { key: IconStroke; labelKey: string }[] = [
   { key: 2.5, labelKey: 'bold' },
 ];
 
-// ── Vista previa en vivo de los efectos de tarjeta (brillo / vidrio / borde) ──
-function CardEffectPreview({ sheen, glass }: { sheen: boolean; glass: boolean }) {
+// ── Vista previa en vivo del brillo (barrido de luz) en tarjetas ──
+function CardEffectPreview({ sheen }: { sheen: boolean }) {
   const { colors, isDark } = useTheme();
   const sweep = useRef(new Animated.Value(0)).current;
 
@@ -167,15 +166,9 @@ function CardEffectPreview({ sheen, glass }: { sheen: boolean; glass: boolean })
     <View
       style={[
         styles.previewCard,
-        {
-          backgroundColor: glass
-            ? (isDark ? 'rgba(30,48,53,0.5)' : 'rgba(255,255,255,0.5)')
-            : colors.surfaceElevated,
-          borderColor: colors.primary + '2E',
-        },
+        { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '2E' },
       ]}
     >
-      {glass && <BlurView intensity={30} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />}
       <View style={[styles.previewAccentBar, { backgroundColor: colors.primary }]} pointerEvents="none" />
       <Text style={[styles.previewLabel, { color: colors.textTertiary }]}>BALANCE</Text>
       <Text style={[styles.previewAmount, { color: colors.primary }]}>$ 1.284,50</Text>
@@ -207,7 +200,7 @@ export default function PersonalizationScreen() {
   const {
     colors, paletteId, setPaletteId,
     backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
-    cardSheen, setCardSheen, cardGlass, setCardGlass,
+    cardSheen, setCardSheen,
     iconStroke, setIconStroke,
     streakConfetti, setStreakConfetti,
   } = useTheme();
@@ -253,7 +246,7 @@ export default function PersonalizationScreen() {
             </AccordionSection>
 
             <AccordionSection icon="card-outline" title={t('personalization.sectionCards')} defaultOpen>
-              <CardEffectPreview sheen={cardSheen} glass={cardGlass} />
+              <CardEffectPreview sheen={cardSheen} />
               <View style={styles.rowsWrap}>
                 <SwitchRow
                   icon="sparkles-outline"
@@ -261,13 +254,6 @@ export default function PersonalizationScreen() {
                   sub={t('personalization.cardSheen.sub')}
                   value={cardSheen}
                   onValueChange={setCardSheen}
-                />
-                <SwitchRow
-                  icon="diamond-outline"
-                  label={t('personalization.cardGlass.label')}
-                  sub={t('personalization.cardGlass.sub')}
-                  value={cardGlass}
-                  onValueChange={setCardGlass}
                   isLast
                 />
               </View>

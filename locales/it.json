@@ -387,10 +387,6 @@
       "label": "Bagliore nelle schede",
       "sub": "Passaggio di luce all'avvio dell'app"
     },
-    "cardGlass": {
-      "label": "Effetto vetro smerigliato",
-      "sub": "Sfondo traslucido nella scheda principale"
-    },
     "sectionIcons": "Stile icone",
     "iconStroke": {
       "thin": "Sottile",

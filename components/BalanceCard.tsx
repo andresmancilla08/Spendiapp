@@ -10,9 +10,7 @@ import {
 } from 'react-native';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
-import { BlurView } from 'expo-blur';
 import AppIcon from './AppIcon';
-import ProSheen from './ProSheen';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
@@ -147,9 +145,7 @@ export default function BalanceCard({
   sparkline,
   detailsToggleLabel,
 }: BalanceCardProps) {
-  const { colors, isDark, cardGlass } = useTheme();
-  const useGlass = false; // el héroe premium ya no usa caja de vidrio (rompía el diseño Aurora Ledger)
-  void cardGlass;
+  const { colors, isDark } = useTheme();
   // Héroe "Aurora Ledger": el balance premium SIEMPRE vive directo sobre el
   // fondo, sin chrome de tarjeta (como el mockup aprobado).
   const heroBare = pro;
@@ -241,9 +237,7 @@ export default function BalanceCard({
     // Tamaño dinámico: en web adjustsFontSizeToFit no funciona → el serif grande
     // se truncaba ("$2.650.0..."). Escalamos por longitud para que SIEMPRE quepa.
     const amtLen = (hidden ? HIDDEN_MASK : formatCurrency(displayBalance)).length;
-    const baseSize = amtLen <= 10 ? 44 : amtLen <= 13 ? 37 : amtLen <= 16 ? 31 : 26;
-    // El vidrio esmerilado deja la tarjeta más angosta → reducimos un poco para no truncar.
-    const proSize = useGlass ? Math.round(baseSize * 0.85) : baseSize;
+    const proSize = amtLen <= 10 ? 44 : amtLen <= 13 ? 37 : amtLen <= 16 ? 31 : 26;
     const amountStyle = [
       styles.balanceAmount,
       proStyle && styles.balanceAmountPro,
@@ -340,7 +334,7 @@ export default function BalanceCard({
         styles.card,
         heroBare && styles.heroBare,
         {
-          backgroundColor: heroBare ? 'transparent' : useGlass ? (isDark ? 'rgba(30,48,53,0.45)' : 'rgba(255,255,255,0.45)') : colors.surfaceElevated,
+          backgroundColor: heroBare ? 'transparent' : colors.surfaceElevated,
           borderColor: heroBare ? 'transparent' : pro ? (isDark ? colors.primary + '22' : colors.border) : colors.primary + '2E',
           ...(!heroBare && Platform.OS !== 'web' && {
             shadowColor: pro ? (isDark ? '#000000' : '#10282E') : (isDark ? colors.primary : '#000000'),
@@ -357,14 +351,6 @@ export default function BalanceCard({
         },
       ]}
     >
-      {useGlass && (
-        <BlurView intensity={40} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
-      )}
-
-      {pro && !heroBare && (
-        <ProSheen trigger={`${displayBalance}-${loading}`} color={isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,160,180,0.12)'} />
-      )}
-
       {!heroBare && (
         <>
           <View

@@ -56,7 +56,7 @@ export default function GrainBackground({ intensity = 'default' }: Props) {
   const ty1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 26, 0] });
   const tx2 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [30, -30, 30] });
 
-  const softBlur = Platform.OS === 'web' ? ({ filter: 'blur(50px)' } as any) : {};
+  const softBlur = Platform.OS === 'web' ? ({ filter: 'blur(26px)' } as any) : {};
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
