@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon, { AppIconName } from '../AppIcon';
 import { useTheme } from '../../context/ThemeContext';
@@ -24,12 +24,11 @@ export default function InsightBanner({ kicker, sentence, chip }: Props) {
   return (
     <View style={[styles.wrap, { borderColor: colors.primary + '2A' }]}>
       <LinearGradient
-        colors={[colors.primary + (isDark ? '26' : '18'), colors.tertiary + '0D', 'transparent']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        colors={[colors.primary + (isDark ? '30' : '22'), colors.tertiary + '10', 'transparent']}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 0, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      <View style={[styles.glow, Platform.OS === 'web' ? ({ filter: 'blur(30px)' } as any) : {}, { backgroundColor: colors.primary + '40' }]} pointerEvents="none" />
       <View style={styles.row}>
         <View style={[styles.kickDot, { backgroundColor: colors.tertiary }]} />
         <Text style={[styles.kicker, { color: colors.tertiary }]}>{kicker}</Text>
@@ -47,7 +46,6 @@ export default function InsightBanner({ kicker, sentence, chip }: Props) {
 
 const styles = StyleSheet.create({
   wrap: { borderRadius: 22, borderWidth: 1, padding: 18, overflow: 'hidden', position: 'relative', marginBottom: 4 },
-  glow: { position: 'absolute', width: 150, height: 150, borderRadius: 75, top: -66, right: -40 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   kickDot: { width: 6, height: 6, borderRadius: 3 },
   kicker: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1.8, textTransform: 'uppercase' },

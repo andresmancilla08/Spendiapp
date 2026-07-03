@@ -51,11 +51,10 @@ function FeaturedTool({ emoji, title, description, ctaLabel, onPress, colors, is
   return (
     <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={[styles.feat, { borderColor: (premiumLocked ? GOLD : colors.primary) + '33', opacity: disabled ? 0.55 : 1 }]}>
       <LinearGradient
-        colors={[colors.primary + (isDark ? '26' : '1C'), colors.tertiary + '0D', 'transparent']}
-        start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+        colors={[colors.primary + (isDark ? '30' : '24'), colors.tertiary + '10', 'transparent']}
+        start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      <View style={[styles.featGlow, Platform.OS === 'web' ? ({ filter: 'blur(26px)' } as any) : {}, { backgroundColor: colors.primary + '40' }]} pointerEvents="none" />
       <View style={styles.featTopRow}>
         <IconChip emoji={emoji} size={48} colors={colors} locked={premiumLocked} />
         {premiumLocked && <PremiumBadge />}
@@ -227,7 +226,6 @@ const styles = StyleSheet.create({
 
   // Featured
   feat: { borderRadius: 24, borderWidth: 1, padding: 18, overflow: 'hidden', position: 'relative', marginBottom: 8 },
-  featGlow: { position: 'absolute', width: 180, height: 180, borderRadius: 90, top: -84, right: -50 },
   featTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   featTitle: { fontSize: 19, fontFamily: Fonts.bold, marginTop: 14 },
   featDesc: { fontSize: 13, fontFamily: Fonts.regular, lineHeight: 19, marginTop: 4 },
