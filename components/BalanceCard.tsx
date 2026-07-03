@@ -8,11 +8,14 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import { useState, useEffect, useRef, type ReactNode } from 'react';
-import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { useState, useEffect, useRef, useMemo, type ReactNode } from 'react';
+import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Circle } from 'react-native-svg';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { useProMotion } from '../hooks/useProMotion';
 import { Fonts } from '../config/fonts';
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const HIDDEN_MASK = '••••••';
 
@@ -91,24 +94,103 @@ function monotonePath(pts: { x: number; y: number }[]): string {
   return d;
 }
 
+/** Construye los segmentos cúbicos monótonos (mismas curvas que monotonePath). */
+function buildMonotoneSegments(pts: { x: number; y: number }[]) {
+  const n = pts.length;
+  if (n < 2) return [];
+  if (n === 2) return [{ p0: pts[0], c1: pts[0], c2: pts[1], p1: pts[1] }];
+
+  const dx: number[] = [];
+  const slope: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    dx[i] = pts[i + 1].x - pts[i].x;
+    slope[i] = (pts[i + 1].y - pts[i].y) / dx[i];
+  }
+  const m: number[] = new Array(n);
+  m[0] = slope[0];
+  m[n - 1] = slope[n - 2];
+  for (let i = 1; i < n - 1; i++) {
+    if (slope[i - 1] * slope[i] <= 0) m[i] = 0;
+    else {
+      const w1 = 2 * dx[i] + dx[i - 1];
+      const w2 = dx[i] + 2 * dx[i - 1];
+      m[i] = (w1 + w2) / (w1 / slope[i - 1] + w2 / slope[i]);
+    }
+  }
+  const segs = [];
+  for (let i = 0; i < n - 1; i++) {
+    const c1x = pts[i].x + dx[i] / 3;
+    const c1y = pts[i].y + (m[i] * dx[i]) / 3;
+    const c2x = pts[i + 1].x - dx[i] / 3;
+    const c2y = pts[i + 1].y - (m[i + 1] * dx[i]) / 3;
+    segs.push({ p0: pts[i], c1: { x: c1x, y: c1y }, c2: { x: c2x, y: c2y }, p1: pts[i + 1] });
+  }
+  return segs;
+}
+
+function cubicAt(seg: ReturnType<typeof buildMonotoneSegments>[number], t: number) {
+  const mt = 1 - t;
+  return {
+    x: mt * mt * mt * seg.p0.x + 3 * mt * mt * t * seg.c1.x + 3 * mt * t * t * seg.c2.x + t * t * t * seg.p1.x,
+    y: mt * mt * mt * seg.p0.y + 3 * mt * mt * t * seg.c1.y + 3 * mt * t * t * seg.c2.y + t * t * t * seg.p1.y,
+  };
+}
+
+/** Muestrea N puntos a lo largo de la misma curva que dibuja la línea — para animar un punto sobre ella. */
+function sampleCurve(pts: { x: number; y: number }[], totalSamples: number) {
+  const segs = buildMonotoneSegments(pts);
+  if (!segs.length) return pts;
+  const S = segs.length;
+  const out: { x: number; y: number }[] = [];
+  for (let i = 0; i < totalSamples; i++) {
+    const g = (i / (totalSamples - 1)) * S;
+    const segIndex = Math.min(S - 1, Math.floor(g));
+    out.push(cubicAt(segs[segIndex], g - segIndex));
+  }
+  return out;
+}
+
 /**
  * Mini-tendencia (área + línea) estilo "Aurora Ledger": la tendencia es paisaje.
- * Línea con acento eléctrico + nodo final con halo. Se estira al ancho del contenedor.
+ * "Pulso": un punto de luz recorre la curva del mes en bucle constante, como un
+ * latido/ECG financiero — el resto del gráfico queda en reposo. Respeta
+ * reduce-motion (animate=false → sin el pulso, solo la línea).
  */
-function Sparkline({ values, color, accent, height = 56 }: { values: number[]; color: string; accent?: string; height?: number }) {
-  if (!values || values.length < 2) return null;
+function Sparkline({ values, color, accent, height = 56, animate = true }: { values: number[]; color: string; accent?: string; height?: number; animate?: boolean }) {
   const W = 100, H = 36, P = 4;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || 1;
-  const pts = values.map((v, i) => ({
-    x: (i / (values.length - 1)) * W,
-    y: P + (1 - (v - min) / span) * (H - 2 * P),
-  }));
+  const pts = useMemo(() => {
+    if (!values || values.length < 2) return [];
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const span = max - min || 1;
+    return values.map((v, i) => ({
+      x: (i / (values.length - 1)) * W,
+      y: P + (1 - (v - min) / span) * (H - 2 * P),
+    }));
+  }, [values]);
+
+  const samples = useMemo(() => (pts.length >= 2 ? sampleCurve(pts, 40) : []), [pts]);
+  const progress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!animate || samples.length < 2) return;
+    progress.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(progress, { toValue: 1, duration: 3200, easing: Easing.linear, useNativeDriver: false })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [animate, samples, progress]);
+
+  if (pts.length < 2) return null;
   const line = monotonePath(pts);
   const area = `${line} L${W},${H} L0,${H} Z`;
   const stroke = accent ?? color;
-  const end = pts[pts.length - 1];
+
+  const inputRange = samples.map((_, i) => i / (samples.length - 1));
+  const cometX = progress.interpolate({ inputRange, outputRange: samples.map((p) => p.x) });
+  const cometY = progress.interpolate({ inputRange, outputRange: samples.map((p) => p.y) });
+
   return (
     <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
       <Defs>
@@ -123,6 +205,13 @@ function Sparkline({ values, color, accent, height = 56 }: { values: number[]; c
       <Path d={line} fill="none" stroke={stroke} strokeWidth={6} strokeOpacity={0.2} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       {/* Línea nítida */}
       <Path d={line} fill="none" stroke={stroke} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+
+      {animate && samples.length >= 2 && (
+        <>
+          <AnimatedCircle cx={cometX} cy={cometY} r={9} fill={stroke} opacity={0.25} />
+          <AnimatedCircle cx={cometX} cy={cometY} r={4.5} fill="#FFFFFF" />
+        </>
+      )}
     </Svg>
   );
 }
@@ -146,6 +235,7 @@ export default function BalanceCard({
   detailsToggleLabel,
 }: BalanceCardProps) {
   const { colors, isDark } = useTheme();
+  const { animate: motionEnabled } = useProMotion();
   // Héroe "Aurora Ledger": el balance premium SIEMPRE vive directo sobre el
   // fondo, sin chrome de tarjeta (como el mockup aprobado).
   const heroBare = pro;
@@ -383,7 +473,7 @@ export default function BalanceCard({
           {/* Mini-tendencia (sparkline) */}
           {!hidden && !loading && sparkline && sparkline.length >= 2 && (
             <View style={[styles.sparkWrap, heroBare && styles.sparkWrapHero]}>
-              <Sparkline values={sparkline} color={colors.primary} accent={colors.primary} height={78} />
+              <Sparkline values={sparkline} color={colors.primary} accent={colors.primary} height={78} animate={motionEnabled} />
             </View>
           )}
 
