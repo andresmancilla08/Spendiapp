@@ -9,13 +9,11 @@ import {
   Easing,
 } from 'react-native';
 import { useState, useEffect, useRef, useMemo, type ReactNode } from 'react';
-import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Circle } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useProMotion } from '../hooks/useProMotion';
 import { Fonts } from '../config/fonts';
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const HIDDEN_MASK = '••••••';
 
@@ -158,6 +156,7 @@ function sampleCurve(pts: { x: number; y: number }[], totalSamples: number) {
  */
 function Sparkline({ values, color, accent, height = 56, animate = true }: { values: number[]; color: string; accent?: string; height?: number; animate?: boolean }) {
   const W = 100, H = 36, P = 4;
+  const [boxW, setBoxW] = useState(0);
   const pts = useMemo(() => {
     if (!values || values.length < 2) return [];
     const min = Math.min(...values);
@@ -187,32 +186,40 @@ function Sparkline({ values, color, accent, height = 56, animate = true }: { val
   const area = `${line} L${W},${H} L0,${H} Z`;
   const stroke = accent ?? color;
 
+  // El punto animado vive FUERA del SVG, como View nativa en píxeles reales:
+  // el viewBox usa preserveAspectRatio="none" (deforma X e Y por separado para
+  // que la curva llene el ancho), así que un círculo DENTRO del SVG saldría
+  // ovalado. Con onLayout convertimos las muestras de la curva a coordenadas
+  // de píxel reales y animamos una View circular normal (siempre redonda).
   const inputRange = samples.map((_, i) => i / (samples.length - 1));
-  const cometX = progress.interpolate({ inputRange, outputRange: samples.map((p) => p.x) });
-  const cometY = progress.interpolate({ inputRange, outputRange: samples.map((p) => p.y) });
+  const cometLeft = progress.interpolate({ inputRange, outputRange: samples.map((p) => (p.x / W) * boxW) });
+  const cometTop = progress.interpolate({ inputRange, outputRange: samples.map((p) => (p.y / H) * height) });
+  const glowShadow = Platform.OS === 'web' ? ({ boxShadow: `0 0 6px ${stroke}` } as any) : { shadowColor: stroke, shadowOpacity: 0.9, shadowRadius: 4, shadowOffset: { width: 0, height: 0 } };
 
   return (
-    <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
-      <Defs>
-        <SvgGradient id="spk" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={stroke} stopOpacity={0.18} />
-          <Stop offset="0.75" stopColor={stroke} stopOpacity={0.03} />
-          <Stop offset="1" stopColor={stroke} stopOpacity={0} />
-        </SvgGradient>
-      </Defs>
-      <Path d={area} fill="url(#spk)" />
-      {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
-      <Path d={line} fill="none" stroke={stroke} strokeWidth={6} strokeOpacity={0.2} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-      {/* Línea nítida */}
-      <Path d={line} fill="none" stroke={stroke} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+    <View style={{ width: '100%', height }} onLayout={(e) => setBoxW(e.nativeEvent.layout.width)}>
+      <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+        <Defs>
+          <SvgGradient id="spk" x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor={stroke} stopOpacity={0.18} />
+            <Stop offset="0.75" stopColor={stroke} stopOpacity={0.03} />
+            <Stop offset="1" stopColor={stroke} stopOpacity={0} />
+          </SvgGradient>
+        </Defs>
+        <Path d={area} fill="url(#spk)" />
+        {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
+        <Path d={line} fill="none" stroke={stroke} strokeWidth={6} strokeOpacity={0.2} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        {/* Línea nítida */}
+        <Path d={line} fill="none" stroke={stroke} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      </Svg>
 
-      {animate && samples.length >= 2 && (
+      {animate && samples.length >= 2 && boxW > 0 && (
         <>
-          <AnimatedCircle cx={cometX} cy={cometY} r={9} fill={stroke} opacity={0.25} />
-          <AnimatedCircle cx={cometX} cy={cometY} r={4.5} fill="#FFFFFF" />
+          <Animated.View pointerEvents="none" style={{ position: 'absolute', width: 14, height: 14, borderRadius: 7, backgroundColor: stroke, opacity: 0.25, left: Animated.subtract(cometLeft, 7), top: Animated.subtract(cometTop, 7) }} />
+          <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 6, height: 6, borderRadius: 3, backgroundColor: '#FFFFFF', left: Animated.subtract(cometLeft, 3), top: Animated.subtract(cometTop, 3) }, glowShadow]} />
         </>
       )}
-    </Svg>
+    </View>
   );
 }
 
