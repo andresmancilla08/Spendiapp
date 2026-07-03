@@ -13,7 +13,6 @@ import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-nati
 import { BlurView } from 'expo-blur';
 import AppIcon from './AppIcon';
 import ProSheen from './ProSheen';
-import AnimatedGradientBorder from './AnimatedGradientBorder';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 
@@ -148,12 +147,11 @@ export default function BalanceCard({
   sparkline,
   detailsToggleLabel,
 }: BalanceCardProps) {
-  const { colors, isDark, cardGlass, cardGradientBorder } = useTheme();
+  const { colors, isDark, cardGlass } = useTheme();
   const useGlass = pro && cardGlass;
-  const useBorder = pro && cardGradientBorder;
   // Héroe "Aurora Ledger": el balance premium vive directo sobre el fondo, sin
-  // chrome de tarjeta, salvo que el usuario elija vidrio o borde con gradiente.
-  const heroBare = pro && !useGlass && !useBorder;
+  // chrome de tarjeta, salvo que el usuario elija vidrio esmerilado.
+  const heroBare = pro && !useGlass;
   const [pickerOpen, setPickerOpen] = useState(false);
 
   // Detalle colapsable (premium): contraído por defecto.
@@ -239,9 +237,14 @@ export default function BalanceCard({
     </View>
   ) : (() => {
     const amountColor = hidden ? colors.textTertiary : isPositive ? colors.primary : colors.expense;
+    // Tamaño dinámico: en web adjustsFontSizeToFit no funciona → el serif grande
+    // se truncaba ("$2.650.0..."). Escalamos por longitud para que SIEMPRE quepa.
+    const amtLen = (hidden ? HIDDEN_MASK : formatCurrency(displayBalance)).length;
+    const proSize = amtLen <= 9 ? 46 : amtLen <= 12 ? 39 : amtLen <= 15 ? 32 : 27;
     const amountStyle = [
       styles.balanceAmount,
       proStyle && styles.balanceAmountPro,
+      proStyle && { fontSize: proSize, lineHeight: Math.round(proSize * 1.08) },
       {
         color: amountColor,
         letterSpacing: hidden ? 4 : proStyle ? -1.5 : -0.5,
@@ -332,7 +335,6 @@ export default function BalanceCard({
     <View
       style={[
         styles.card,
-        useBorder && { marginBottom: 0 },
         heroBare && styles.heroBare,
         {
           backgroundColor: heroBare ? 'transparent' : useGlass ? (isDark ? 'rgba(30,48,53,0.45)' : 'rgba(255,255,255,0.45)') : colors.surfaceElevated,
@@ -453,24 +455,10 @@ export default function BalanceCard({
     </View>
   );
 
-  if (useBorder) {
-    return (
-      <AnimatedGradientBorder
-        radius={30}
-        borderWidth={2}
-        colors={[colors.primary, colors.tertiary, colors.secondary, colors.primary]}
-        glow={colors.primary + '55'}
-        style={styles.borderWrap}
-      >
-        {card}
-      </AnimatedGradientBorder>
-    );
-  }
   return card;
 }
 
 const styles = StyleSheet.create({
-  borderWrap: { marginBottom: 20 },
   heroBare: { paddingHorizontal: 10, paddingTop: 6, borderWidth: 0, overflow: 'visible' },
   sparkWrapHero: { marginHorizontal: -30 },
   card: {

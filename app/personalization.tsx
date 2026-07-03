@@ -17,7 +17,6 @@ import WavesBackground from '../components/WavesBackground';
 import GrainBackground from '../components/GrainBackground';
 import MeshBackground from '../components/MeshBackground';
 import BokehBackground from '../components/BokehBackground';
-import AnimatedGradientBorder from '../components/AnimatedGradientBorder';
 import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { updateUserColorPalette } from '../hooks/useUserProfile';
@@ -145,7 +144,7 @@ const ICON_STROKE_OPTIONS: { key: IconStroke; labelKey: string }[] = [
 ];
 
 // ── Vista previa en vivo de los efectos de tarjeta (brillo / vidrio / borde) ──
-function CardEffectPreview({ sheen, glass, border }: { sheen: boolean; glass: boolean; border: boolean }) {
+function CardEffectPreview({ sheen, glass }: { sheen: boolean; glass: boolean }) {
   const { colors, isDark } = useTheme();
   const sweep = useRef(new Animated.Value(0)).current;
 
@@ -197,20 +196,7 @@ function CardEffectPreview({ sheen, glass, border }: { sheen: boolean; glass: bo
     </View>
   );
 
-  if (!border) return <View style={styles.previewWrap}>{inner}</View>;
-
-  return (
-    <View style={styles.previewWrap}>
-      <AnimatedGradientBorder
-        radius={22}
-        borderWidth={2}
-        colors={[colors.primary, colors.tertiary, colors.secondary, colors.primary]}
-        glow={colors.primary + '55'}
-      >
-        {inner}
-      </AnimatedGradientBorder>
-    </View>
-  );
+  return <View style={styles.previewWrap}>{inner}</View>;
 }
 
 const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
@@ -221,7 +207,7 @@ export default function PersonalizationScreen() {
   const {
     colors, paletteId, setPaletteId,
     backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
-    cardSheen, setCardSheen, cardGlass, setCardGlass, cardGradientBorder, setCardGradientBorder,
+    cardSheen, setCardSheen, cardGlass, setCardGlass,
     iconStroke, setIconStroke,
     streakConfetti, setStreakConfetti,
   } = useTheme();
@@ -267,7 +253,7 @@ export default function PersonalizationScreen() {
             </AccordionSection>
 
             <AccordionSection icon="card-outline" title={t('personalization.sectionCards')} defaultOpen>
-              <CardEffectPreview sheen={cardSheen} glass={cardGlass} border={cardGradientBorder} />
+              <CardEffectPreview sheen={cardSheen} glass={cardGlass} />
               <View style={styles.rowsWrap}>
                 <SwitchRow
                   icon="sparkles-outline"
@@ -282,13 +268,6 @@ export default function PersonalizationScreen() {
                   sub={t('personalization.cardGlass.sub')}
                   value={cardGlass}
                   onValueChange={setCardGlass}
-                />
-                <SwitchRow
-                  icon="color-palette-outline"
-                  label={t('personalization.cardBorder.label')}
-                  sub={t('personalization.cardBorder.sub')}
-                  value={cardGradientBorder}
-                  onValueChange={setCardGradientBorder}
                   isLast
                 />
               </View>

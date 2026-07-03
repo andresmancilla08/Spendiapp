@@ -391,10 +391,6 @@
       "label": "Efecto vidrio esmerilado",
       "sub": "Fondo translúcido en la tarjeta principal"
     },
-    "cardBorder": {
-      "label": "Borde con gradiente animado",
-      "sub": "Un anillo de color que gira en la tarjeta principal"
-    },
     "sectionIcons": "Estilo de íconos",
     "iconStroke": {
       "thin": "Fino",
