@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Animated,
   Easing,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -55,7 +56,7 @@ function formatCurrencyInput(raw: string): string {
   return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(parseInt(digits, 10));
 }
 
-function DonutChart({ percent, color, size = 140 }: { percent: number; color: string; size?: number }) {
+function DonutChart({ percent, color, size = 140, trackColor = '#E5E7EB' }: { percent: number; color: string; size?: number; trackColor?: string }) {
   const radius = (size - 24) / 2;
   const circumference = 2 * Math.PI * radius;
   const clampedPercent = Math.min(percent, 100);
@@ -63,7 +64,7 @@ function DonutChart({ percent, color, size = 140 }: { percent: number; color: st
 
   return (
     <Svg width={size} height={size}>
-      <Circle cx={size / 2} cy={size / 2} r={radius} stroke="#E5E7EB" strokeWidth={12} fill="none" />
+      <Circle cx={size / 2} cy={size / 2} r={radius} stroke={trackColor} strokeWidth={12} fill="none" />
       <Circle
         cx={size / 2} cy={size / 2} r={radius}
         stroke={color} strokeWidth={12} fill="none"
@@ -75,7 +76,7 @@ function DonutChart({ percent, color, size = 140 }: { percent: number; color: st
   );
 }
 
-function ProgressBar({ percent, color }: { percent: number; color: string }) {
+function ProgressBar({ percent, color, trackColor }: { percent: number; color: string; trackColor?: string }) {
   const clamped = Math.min(percent, 100);
   const anim = useRef(new Animated.Value(0)).current;
 
@@ -91,7 +92,7 @@ function ProgressBar({ percent, color }: { percent: number; color: string }) {
   const width = anim.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] });
 
   return (
-    <View style={progressStyles.track}>
+    <View style={[progressStyles.track, trackColor ? { backgroundColor: trackColor } : null]}>
       <Animated.View style={[progressStyles.fill, { width, backgroundColor: color }]} />
     </View>
   );
@@ -111,9 +112,13 @@ function progressColor(percent: number, successColor: string, errorColor: string
 
 export default function BudgetScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { flags } = useFlags();
   const { user, isPremium } = useAuthStore();
+  const trackColor = isDark ? colors.textPrimary + '1A' : colors.border;
+  const chipGlow = (tint: string) => (Platform.OS === 'web'
+    ? ({ boxShadow: `0 0 16px ${tint}44` } as any)
+    : { shadowColor: tint, shadowOpacity: 0.4, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } });
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -305,7 +310,7 @@ export default function BudgetScreen() {
               style={[styles.summaryCard, { borderColor: `${colors.primary}28`, borderWidth: 1 }]}
             >
               <View style={styles.donutWrapper}>
-                <DonutChart percent={overallPercent} color={donutColor} size={130} />
+                <DonutChart percent={overallPercent} color={donutColor} size={130} trackColor={trackColor} />
                 <View style={styles.donutCenter}>
                   <Text style={[styles.donutPercent, { color: donutColor }]}>{Math.round(overallPercent)}%</Text>
                   <Text style={[styles.donutLabel, { color: colors.textSecondary }]}>{t('budget.spentLabel')}</Text>
@@ -367,7 +372,7 @@ export default function BudgetScreen() {
                 <View style={styles.budgetRowInner}>
                   <View style={styles.budgetRowTop}>
                     <View style={styles.catInfo}>
-                      <View style={[styles.catIconWrap, { backgroundColor: `${color}18` }]}>
+                      <View style={[styles.catIconWrap, { backgroundColor: `${color}1E` }, chipGlow(color)]}>
                         <Text style={styles.catIcon}>{b.categoryIcon}</Text>
                       </View>
                       <View>
@@ -382,7 +387,7 @@ export default function BudgetScreen() {
                       <Text style={[styles.limitAmt, { color: colors.textTertiary }]}>{' / '}{formatCurrency(b.limitAmount)}</Text>
                     </View>
                   </View>
-                  <ProgressBar percent={pct} color={color} />
+                  <ProgressBar percent={pct} color={color} trackColor={trackColor} />
                 </View>
               </PressableScale>
             );
@@ -540,7 +545,7 @@ const styles = StyleSheet.create({
   summaryCard: { borderRadius: 20, padding: 20, marginBottom: 20, flexDirection: 'row', alignItems: 'center', gap: 16 },
   donutWrapper: { position: 'relative', width: 130, height: 130 },
   donutCenter: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
-  donutPercent: { fontSize: 24, fontFamily: Fonts.extraBold },
+  donutPercent: { fontSize: 30, fontFamily: Fonts.display, letterSpacing: -0.5 },
   donutLabel: { fontSize: 10, fontFamily: Fonts.regular, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
   summaryStats: { flex: 1 },
   statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 7 },
