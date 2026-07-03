@@ -387,6 +387,16 @@
       "label": "Brillo en tarjetas",
       "sub": "Barrido de luz al cargar la app"
     },
+    "sectionChart": "Gráfico del balance",
+    "chartPulse": {
+      "label": "Pulso animado",
+      "sub": "Un punto de luz recorre la tendencia del mes"
+    },
+    "chartSpeed": {
+      "slow": "Lenta",
+      "normal": "Normal",
+      "fast": "Rápida"
+    },
     "sectionIcons": "Estilo de íconos",
     "iconStroke": {
       "thin": "Fino",

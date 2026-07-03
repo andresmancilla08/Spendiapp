@@ -12,10 +12,13 @@ const BG_INTENSITY_KEY = '@spendiapp_bg_intensity';
 const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
 const ICON_STROKE_KEY = '@spendiapp_icon_stroke';
 const STREAK_CONFETTI_KEY = '@spendiapp_streak_confetti';
+const CHART_PULSE_KEY = '@spendiapp_chart_pulse';
+const CHART_SPEED_KEY = '@spendiapp_chart_speed';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves' | 'grain' | 'mesh' | 'bokeh';
 export type IconStroke = 1.5 | 2 | 2.5;
+export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type { PaletteId, AuroraIntensity };
 
 interface ThemeContextValue {
@@ -37,6 +40,10 @@ interface ThemeContextValue {
   setIconStroke: (v: IconStroke) => void;
   streakConfetti: boolean;
   setStreakConfetti: (v: boolean) => void;
+  chartPulse: boolean;
+  setChartPulse: (v: boolean) => void;
+  chartSpeed: ChartSpeed;
+  setChartSpeed: (v: ChartSpeed) => void;
 }
 
 const defaultPalette = PALETTE_MAP['deepWater'];
@@ -59,6 +66,10 @@ const ThemeContext = createContext<ThemeContextValue>({
   setIconStroke: () => {},
   streakConfetti: true,
   setStreakConfetti: () => {},
+  chartPulse: true,
+  setChartPulse: () => {},
+  chartSpeed: 'slow',
+  setChartSpeed: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -70,6 +81,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [cardSheen, setCardSheenState] = useState(true);
   const [iconStroke, setIconStrokeState] = useState<IconStroke>(2);
   const [streakConfetti, setStreakConfettiState] = useState(true);
+  const [chartPulse, setChartPulseState] = useState(true);
+  const [chartSpeed, setChartSpeedState] = useState<ChartSpeed>('slow');
 
   useEffect(() => {
     Promise.all([
@@ -80,7 +93,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(CARD_SHEEN_KEY),
       AsyncStorage.getItem(ICON_STROKE_KEY),
       AsyncStorage.getItem(STREAK_CONFETTI_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedSheen, storedStroke, storedConfetti]) => {
+      AsyncStorage.getItem(CHART_PULSE_KEY),
+      AsyncStorage.getItem(CHART_SPEED_KEY),
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedSheen, storedStroke, storedConfetti, storedChartPulse, storedChartSpeed]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
@@ -96,6 +111,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (storedSheen != null) setCardSheenState(storedSheen === '1');
       if (storedStroke === '1.5' || storedStroke === '2' || storedStroke === '2.5') setIconStrokeState(Number(storedStroke) as IconStroke);
       if (storedConfetti != null) setStreakConfettiState(storedConfetti === '1');
+      if (storedChartPulse != null) setChartPulseState(storedChartPulse === '1');
+      if (storedChartSpeed === 'slow' || storedChartSpeed === 'normal' || storedChartSpeed === 'fast') setChartSpeedState(storedChartSpeed);
     }).catch(() => {});
   }, []);
 
@@ -134,6 +151,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(STREAK_CONFETTI_KEY, v ? '1' : '0');
   };
 
+  const setChartPulse = async (v: boolean) => {
+    setChartPulseState(v);
+    await AsyncStorage.setItem(CHART_PULSE_KEY, v ? '1' : '0');
+  };
+
+  const setChartSpeed = async (v: ChartSpeed) => {
+    setChartSpeedState(v);
+    await AsyncStorage.setItem(CHART_SPEED_KEY, v);
+  };
+
   const isDark =
     themeMode === 'dark' || (themeMode === 'system' && systemScheme === 'dark');
 
@@ -147,6 +174,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       cardSheen, setCardSheen,
       iconStroke, setIconStroke,
       streakConfetti, setStreakConfetti,
+      chartPulse, setChartPulse, chartSpeed, setChartSpeed,
     }}>
       {children}
     </ThemeContext.Provider>
