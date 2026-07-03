@@ -201,7 +201,11 @@ function Sparkline({ values, color, accent, height = 56, animate = true }: { val
   const inputRange = samples.map((_, i) => i / (samples.length - 1));
   const cometLeft = progress.interpolate({ inputRange, outputRange: samples.map((p) => (p.x / W) * boxW) });
   const cometTop = progress.interpolate({ inputRange, outputRange: samples.map((p) => (p.y / H) * height) });
-  const glowShadow = Platform.OS === 'web' ? ({ boxShadow: `0 0 6px ${stroke}` } as any) : { shadowColor: stroke, shadowOpacity: 0.9, shadowRadius: 4, shadowOffset: { width: 0, height: 0 } };
+  // RN no tiene blur nativo en View: simulamos el resplandor difuso con 3
+  // anillos concéntricos de opacidad decreciente + sombra, en vez de un punto
+  // plano de opacidad única.
+  const glowShadow = Platform.OS === 'web' ? ({ boxShadow: `0 0 10px ${stroke}` } as any) : { shadowColor: stroke, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } };
+  const cometCenter = (size: number) => ({ left: Animated.subtract(cometLeft, size / 2), top: Animated.subtract(cometTop, size / 2) });
 
   return (
     <View style={{ width: '100%', height }} onLayout={(e) => setBoxW(e.nativeEvent.layout.width)}>
@@ -222,8 +226,9 @@ function Sparkline({ values, color, accent, height = 56, animate = true }: { val
 
       {animate && samples.length >= 2 && boxW > 0 && (
         <>
-          <Animated.View pointerEvents="none" style={{ position: 'absolute', width: 14, height: 14, borderRadius: 7, backgroundColor: stroke, opacity: 0.25, left: Animated.subtract(cometLeft, 7), top: Animated.subtract(cometTop, 7) }} />
-          <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 6, height: 6, borderRadius: 3, backgroundColor: '#FFFFFF', left: Animated.subtract(cometLeft, 3), top: Animated.subtract(cometTop, 3) }, glowShadow]} />
+          <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 26, height: 26, borderRadius: 13, backgroundColor: stroke, opacity: 0.12 }, cometCenter(26)]} />
+          <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 17, height: 17, borderRadius: 8.5, backgroundColor: stroke, opacity: 0.28 }, cometCenter(17)]} />
+          <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 7.5, height: 7.5, borderRadius: 3.75, backgroundColor: '#FFFFFF' }, glowShadow, cometCenter(7.5)]} />
         </>
       )}
     </View>
