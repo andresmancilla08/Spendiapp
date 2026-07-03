@@ -206,7 +206,12 @@
       "descPart2": " to open Spendia without typing anything.",
       "activate": "Enable",
       "notNow": "Not now"
-    }
+    },
+    "kickerMorning": "☀️ Good morning",
+    "kickerAfternoon": "🌤️ Good afternoon",
+    "kickerEvening": "🌙 Good evening",
+    "kickerNight": "🌙 Good evening",
+    "greetingName": "Hi, {{name}}"
   },
   "profile": {
     "title": "Profile",

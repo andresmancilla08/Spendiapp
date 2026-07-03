@@ -326,6 +326,12 @@ export default function HomeScreen() {
     : hour >= 12 && hour < 18 ? 'home.greetingAfternoon'
     : hour >= 18 && hour < 22 ? 'home.greetingEvening'
     : 'home.greetingNight';
+  // Kicker editorial de hora (sin nombre) para el encabezado premium.
+  const kickerKey =
+    hour >= 6 && hour < 12 ? 'home.kickerMorning'
+    : hour >= 12 && hour < 18 ? 'home.kickerAfternoon'
+    : hour >= 18 && hour < 22 ? 'home.kickerEvening'
+    : 'home.kickerNight';
 
   // Gasto de hoy
   const today = new Date();
@@ -531,8 +537,9 @@ export default function HomeScreen() {
           </View>
         ) : (
           <ProReveal index={0} style={styles.greeting}>
+            <Text style={[styles.greetingKicker, { color: colors.textTertiary }]}>{t(kickerKey)}</Text>
             <Text style={[styles.greetingHi, { color: colors.textPrimary }]}>
-              {t(greetingKey, { name: firstName })}
+              {t('home.greetingName', { name: firstName })}
             </Text>
             <View style={styles.greetingSubRow}>
               <Text style={[styles.greetingSubtitle, { color: colors.textSecondary }]}>
@@ -542,8 +549,8 @@ export default function HomeScreen() {
                     : t('home.subtitleSpentToday', { amount: formatCurrency(todaySpent) }))}
               </Text>
               {pillVisible && (
-                <View style={[styles.pill, { backgroundColor: pillColor + '20' }]}>
-                  <AppIcon name={pillIcon} size={11} color={pillColor} />
+                <View style={[styles.pill, { backgroundColor: pillColor + '1A', borderWidth: 1, borderColor: pillColor + '2E' }]}>
+                  <AppIcon name={pillIcon} size={12} color={pillColor} />
                   <Text style={[styles.pillText, { color: pillColor }]}>
                     {t('home.pillSpent', { percent: pillPercent })}
                   </Text>
@@ -793,7 +800,8 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
   greeting: { marginBottom: 20 },
-  greetingHi: { fontSize: 22, fontFamily: Fonts.bold, marginBottom: 4 },
+  greetingKicker: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.6, textTransform: 'uppercase', marginBottom: 5 },
+  greetingHi: { fontSize: 28, lineHeight: 32, fontFamily: Fonts.display, letterSpacing: -0.5, marginBottom: 8 },
   greetingSubRow: {
     flexDirection: 'row',
     alignItems: 'center',
