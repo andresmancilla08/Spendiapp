@@ -425,11 +425,17 @@
       "none": "Nessuna"
     },
     "chartAccentLabel": "Colore accento",
+    "chartAccentHint": "Le opzioni dinamiche cambiano da sole: verde se il saldo sale questo mese, rosso se scende.",
     "chartAccent": {
       "theme": "Del tema",
+      "secondary": "Secondario",
       "success": "Verde successo",
-      "gold": "Oro",
-      "signed": "Dinamico"
+      "gold": "Terziario",
+      "duoSuccess": "Tema/Successo",
+      "duoTertiary": "Tema/Terziario",
+      "signed": "Dinamico",
+      "signedLine": "Linea dinamica",
+      "signedFill": "Contenuto dinamico"
     }
   },
   "settings": {
@@ -1176,47 +1182,29 @@
       "item2": "Il pannello inferiore occupa solo lo spazio necessario per i campi visibili",
       "item3": "Tutto visibile a colpo d'occhio durante la modifica, senza dover scorrere"
     },
-    "uiPolish": {
-      "title": "Miglioramenti di design e correzioni",
-      "item1": "Nuovo selettore tab con bordi completamente arrotondati in tutta l'app",
-      "item2": "Tavolozze riorganizzate in 2 gruppi (Classiche / Pastello) con nomi tradotti correttamente",
-      "item3": "Correzione: la schermata delle spese di gruppo non rimane più bloccata in caricamento"
+    "accentSelector": {
+      "title": "Nuovo selettore di colore accento",
+      "item1": "Icona ridisegnata: l'anello è la linea, il disco è il contenuto — come nel tuo grafico reale",
+      "item2": "Griglia simmetrica e ordinata, indipendentemente dal numero di opzioni disponibili",
+      "item3": "Più combinazioni derivate dalla tua palette attiva — sempre fedeli al tuo tema"
     },
-    "premiumDashboard": {
-      "title": "Dashboard premium rinnovata",
-      "item1": "Saldo con navigazione per mese e mini-trend degli ultimi 6 mesi",
-      "item2": "Analisi del mese: tasso di risparmio, proiezione e categoria top",
-      "item3": "Spese per categoria e proiezione del budget al ritmo attuale"
+    "dynamicColors": {
+      "title": "Colori che reagiscono al tuo saldo",
+      "item1": "\"Linea dinamica\" e \"Contenuto dinamico\": cambiano da soli tra verde e rosso in base a se il saldo sale o scende",
+      "item2": "Transizione fluida tra i colori — nessun salto brusco",
+      "item3": "Funziona sia nell'anteprima di Personalizzazione sia nel grafico reale della Home"
     },
-    "hideAmounts": {
-      "title": "Nascondi gli importi con un tocco",
-      "item1": "Tocca l'icona dell'occhio nella schermata principale per nascondere tutti gli importi",
-      "item2": "Ideale per controllare l'app in pubblico senza esporre le tue finanze",
-      "item3": "La tua preferenza viene salvata automaticamente tra le sessioni"
+    "personalizationAccordion": {
+      "title": "Personalizzazione più ordinata",
+      "item1": "Nessuna sezione si apre da sola entrando in Personalizzazione",
+      "item2": "Aprire una sezione chiude automaticamente quella precedente",
+      "item3": "Più facile navigare tra Palette, Sfondo, Carte e Grafico"
     },
-    "premiumExperience": {
-      "title": "Viste personalizzate per Premium",
-      "item1": "Gli utenti Premium hanno una navbar esclusiva con animazione di respirazione sottile",
-      "item2": "Schermata di benvenuto speciale all'attivazione Premium con accesso diretto alle funzioni chiave",
-      "item3": "Badge PRO visibile nel profilo per identificare il tuo account in ogni momento"
-    },
-    "premiumWelcome": {
-      "title": "Esperienza Premium rinnovata",
-      "item1": "Schermata di benvenuto esclusiva all'attivazione Premium con accesso diretto a tutte le funzioni",
-      "item2": "Navbar con gradiente speciale che distingue il tuo account premium",
-      "item3": "Sblocca tutto il potenziale di Spendia: budget avanzati, report e molto altro"
-    },
-    "otpPinReset": {
-      "title": "Recupera il tuo PIN via email",
-      "item1": "Hai dimenticato il PIN? Richiedi un codice di verifica direttamente alla tua email",
-      "item2": "Codice sicuro a 6 cifre con design tematico e scadenza automatica",
-      "item3": "Il tuo account rimane protetto durante tutto il processo di recupero"
-    },
-    "animatedSplash": {
-      "title": "Nuova schermata di caricamento animata",
-      "item1": "Splash screen con animazione professionale: glow, shimmer e fisica a molla fluida",
-      "item2": "Il logo di Spendia prende vita con effetti luminosi ad ogni avvio",
-      "item3": "Transizione fluida dalla schermata iniziale al login"
+    "solidAreaFix": {
+      "title": "Grafico \"Area solida\" corretto",
+      "item1": "Il riempimento non scompare più né appare quasi trasparente",
+      "item2": "Nessun bordo netto o taglio — il degradé si dissolve in modo fluido",
+      "item3": "Appare coerente in modalità chiara e scura"
     }
   },
   "incomeClaim": {

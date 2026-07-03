@@ -38,46 +38,28 @@ interface Feature {
 // Catálogo curado de funcionalidades principales de la app — sin duplicados ni versiones.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'wallet-outline',
+    icon: 'color-palette-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.premiumDashboard.title',
-    items: ['whatsNew.premiumDashboard.item1', 'whatsNew.premiumDashboard.item2', 'whatsNew.premiumDashboard.item3'],
+    titleKey: 'whatsNew.accentSelector.title',
+    items: ['whatsNew.accentSelector.item1', 'whatsNew.accentSelector.item2', 'whatsNew.accentSelector.item3'],
   },
   {
-    icon: 'eye-off-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.hideAmounts.title',
-    items: ['whatsNew.hideAmounts.item1', 'whatsNew.hideAmounts.item2', 'whatsNew.hideAmounts.item3'],
-  },
-  {
-    icon: 'diamond-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.premiumExperience.title',
-    items: ['whatsNew.premiumExperience.item1', 'whatsNew.premiumExperience.item2', 'whatsNew.premiumExperience.item3'],
-  },
-  {
-    icon: 'star-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.premiumWelcome.title',
-    items: ['whatsNew.premiumWelcome.item1', 'whatsNew.premiumWelcome.item2', 'whatsNew.premiumWelcome.item3'],
-  },
-  {
-    icon: 'mail-outline',
+    icon: 'trending-up-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.otpPinReset.title',
-    items: ['whatsNew.otpPinReset.item1', 'whatsNew.otpPinReset.item2', 'whatsNew.otpPinReset.item3'],
+    titleKey: 'whatsNew.dynamicColors.title',
+    items: ['whatsNew.dynamicColors.item1', 'whatsNew.dynamicColors.item2', 'whatsNew.dynamicColors.item3'],
   },
   {
-    icon: 'flash-outline',
+    icon: 'options-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.animatedSplash.title',
-    items: ['whatsNew.animatedSplash.item1', 'whatsNew.animatedSplash.item2', 'whatsNew.animatedSplash.item3'],
+    titleKey: 'whatsNew.personalizationAccordion.title',
+    items: ['whatsNew.personalizationAccordion.item1', 'whatsNew.personalizationAccordion.item2', 'whatsNew.personalizationAccordion.item3'],
   },
   {
-    icon: 'sparkles-outline',
+    icon: 'contrast-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.uiPolish.title',
-    items: ['whatsNew.uiPolish.item1', 'whatsNew.uiPolish.item2', 'whatsNew.uiPolish.item3'],
+    titleKey: 'whatsNew.solidAreaFix.title',
+    items: ['whatsNew.solidAreaFix.item1', 'whatsNew.solidAreaFix.item2', 'whatsNew.solidAreaFix.item3'],
   },
 ];
 

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, type ReactNode } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 import AppIcon, { AppIconName } from '../components/AppIcon';
 import AppHeader from '../components/AppHeader';
@@ -19,17 +20,16 @@ import BokehBackground from '../components/BokehBackground';
 import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { updateUserColorPalette } from '../hooks/useUserProfile';
-import { Sparkline, resolveChartAccent } from '../components/BalanceCard';
+import { Sparkline, resolveChartAccent, resolveChartAccent2 } from '../components/BalanceCard';
 import { Fonts } from '../config/fonts';
 
-// ── Acordeón — cada sección se expande/contrae de forma independiente ───────
-function AccordionSection({ icon, title, defaultOpen, children }: {
-  icon: AppIconName; title: string; defaultOpen?: boolean; children: ReactNode;
+// ── Acordeón — exclusivo: abrir una sección cierra la anterior; ninguna abierta al entrar ──
+function AccordionSection({ id, icon, title, open, onToggle, children }: {
+  id: string; icon: AppIconName; title: string; open: boolean; onToggle: (id: string) => void; children: ReactNode;
 }) {
   const { colors } = useTheme();
-  const [open, setOpen] = useState(!!defaultOpen);
   const [contentH, setContentH] = useState(0);
-  const anim = useRef(new Animated.Value(defaultOpen ? 1 : 0)).current;
+  const anim = useRef(new Animated.Value(open ? 1 : 0)).current;
 
   useEffect(() => {
     Animated.timing(anim, {
@@ -44,7 +44,7 @@ function AccordionSection({ icon, title, defaultOpen, children }: {
     <View style={[styles.accordion, { backgroundColor: colors.surface }]}>
       <TouchableOpacity
         style={styles.accordionHeader}
-        onPress={() => setOpen((o) => !o)}
+        onPress={() => onToggle(id)}
         activeOpacity={0.7}
       >
         <View style={[styles.accordionIconWrap, { backgroundColor: colors.primary + '18' }]}>
@@ -217,11 +217,93 @@ const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
 const CHART_TYPES: ChartType[] = ['line', 'bars', 'area', 'dots'];
 const CHART_ANIM_STYLES: ChartAnimStyle[] = ['pulse', 'draw', 'tide', 'none'];
-const CHART_ACCENTS: ChartAccent[] = ['theme', 'success', 'gold', 'signed'];
+// Orden candidato — algunas paletas definen "secondary" igual a "success" (p.ej.
+// deepWater), así que la lista real se deduplica por color en tiempo de render;
+// "success" va antes que "secondary" para que gane el nombre más reconocible si chocan.
+const CHART_ACCENT_CANDIDATES: ChartAccent[] = ['theme', 'success', 'secondary', 'gold', 'duoSuccess', 'duoTertiary', 'signed', 'signedLine', 'signedFill'];
+const SIGNED_FAMILY: ChartAccent[] = ['signed', 'signedLine', 'signedFill'];
+
+// ── Colores del swatch (anillo=línea, disco=contenido) — refleja EXACTAMENTE
+// cómo se pinta el gráfico real para ese acento, no una convención aparte ──
+function getSwatchColors(accent: ChartAccent, colors: { primary: string; secondary: string; success: string; expense: string; tertiary: string }) {
+  if (accent === 'signed') return { lineColor: colors.success, lineColor2: colors.expense, fillColor: colors.success, fillColor2: colors.expense };
+  if (accent === 'signedLine') return { lineColor: colors.success, lineColor2: colors.expense, fillColor: colors.primary };
+  if (accent === 'signedFill') return { lineColor: colors.primary, fillColor: colors.success, fillColor2: colors.expense };
+  const lineColor = resolveChartAccent(accent, colors, CHART_PREVIEW_VALUES);
+  const fillColor = resolveChartAccent2(accent, colors) ?? lineColor;
+  return { lineColor, fillColor };
+}
+
+// ── Gráfico con cruce (dissolve) de color — misma forma en ambas capas, solo la
+// opacidad de cada color se cruza. Usado en toda vista previa cuando el acento
+// es "Dinámico", para que el efecto suave sea consistente en toda la pantalla ──
+// `mode`: 'both' = todo el gráfico cruza color (Dinámico); 'line' = solo la
+// línea/barras cruza, el contenido queda fijo en `staticColor` (Línea dinámica);
+// 'fill' = solo el contenido cruza, la línea queda fija (Contenido dinámico).
+type SignedCrossfade = { fade: Animated.Value; upColor: string; downColor: string; mode?: 'both' | 'line' | 'fill'; staticColor?: string };
+
+function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade }: {
+  chartType: ChartType; animStyle: ChartAnimStyle; height: number; duration: number; crossfade: SignedCrossfade;
+}) {
+  // "Barras" no tiene canal de contenido separado — vive todo en el canal de
+  // línea/trazo, así que un modo parcial ('line'/'fill') no tiene nada que mostrar
+  // en ese canal y el gráfico se ve congelado. Forzamos cruce completo en ese caso.
+  const mode = chartType === 'bars' ? 'both' : (crossfade.mode ?? 'both');
+  const dynamicRenderFill = mode !== 'line';
+  const dynamicRenderStroke = mode !== 'fill';
+  return (
+    <View style={{ width: '100%', height }}>
+      {mode !== 'both' && crossfade.staticColor && (
+        <View style={StyleSheet.absoluteFill}>
+          <Sparkline
+            values={CHART_PREVIEW_VALUES}
+            color={crossfade.staticColor}
+            accent={crossfade.staticColor}
+            height={height}
+            animate={animStyle !== 'none'}
+            duration={duration}
+            chartType={chartType}
+            animStyle={animStyle}
+            renderFill={mode === 'line'}
+            renderStroke={mode === 'fill'}
+          />
+        </View>
+      )}
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: crossfade.fade }]}>
+        <Sparkline
+          values={CHART_PREVIEW_VALUES}
+          color={crossfade.upColor}
+          accent={crossfade.upColor}
+          height={height}
+          animate={animStyle !== 'none'}
+          duration={duration}
+          chartType={chartType}
+          animStyle={animStyle}
+          renderFill={dynamicRenderFill}
+          renderStroke={dynamicRenderStroke}
+        />
+      </Animated.View>
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: crossfade.fade.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]}>
+        <Sparkline
+          values={CHART_PREVIEW_VALUES}
+          color={crossfade.downColor}
+          accent={crossfade.downColor}
+          height={height}
+          animate={animStyle !== 'none'}
+          duration={duration}
+          chartType={chartType}
+          animStyle={animStyle}
+          renderFill={dynamicRenderFill}
+          renderStroke={dynamicRenderStroke}
+        />
+      </Animated.View>
+    </View>
+  );
+}
 
 // ── Tarjeta de tipo de gráfico — vista previa EN VIVO con la animación y color actuales ──
-function ChartTypeCard({ type, label, selected, animStyle, color, onPress }: {
-  type: ChartType; label: string; selected: boolean; animStyle: ChartAnimStyle; color: string; onPress: () => void;
+function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossfade, onPress }: {
+  type: ChartType; label: string; selected: boolean; animStyle: ChartAnimStyle; color: string; color2?: string; crossfade?: SignedCrossfade; onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -231,17 +313,22 @@ function ChartTypeCard({ type, label, selected, animStyle, color, onPress }: {
       style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
     >
       <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
-        <Sparkline
-          key={`${type}-${animStyle}`}
-          values={CHART_PREVIEW_VALUES}
-          color={color}
-          accent={color}
-          height={64}
-          animate={animStyle !== 'none'}
-          duration={4200}
-          chartType={type}
-          animStyle={animStyle}
-        />
+        {crossfade ? (
+          <CrossfadeSparkline chartType={type} animStyle={animStyle} height={64} duration={4200} crossfade={crossfade} />
+        ) : (
+          <Sparkline
+            key={`${type}-${animStyle}`}
+            values={CHART_PREVIEW_VALUES}
+            color={color}
+            accent={color}
+            accent2={color2}
+            height={64}
+            animate={animStyle !== 'none'}
+            duration={4200}
+            chartType={type}
+            animStyle={animStyle}
+          />
+        )}
       </View>
       <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{label}</Text>
       {selected && (
@@ -254,8 +341,8 @@ function ChartTypeCard({ type, label, selected, animStyle, color, onPress }: {
 }
 
 // ── Tarjeta de estilo de animación — vista previa EN VIVO con el tipo de gráfico actual ──
-function ChartAnimCard({ anim, label, selected, chartType, color, onPress }: {
-  anim: ChartAnimStyle; label: string; selected: boolean; chartType: ChartType; color: string; onPress: () => void;
+function ChartAnimCard({ anim, label, selected, chartType, color, color2, crossfade, onPress }: {
+  anim: ChartAnimStyle; label: string; selected: boolean; chartType: ChartType; color: string; color2?: string; crossfade?: SignedCrossfade; onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -265,17 +352,22 @@ function ChartAnimCard({ anim, label, selected, chartType, color, onPress }: {
       style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
     >
       <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
-        <Sparkline
-          key={`${chartType}-${anim}`}
-          values={CHART_PREVIEW_VALUES}
-          color={color}
-          accent={color}
-          height={64}
-          animate={anim !== 'none'}
-          duration={4200}
-          chartType={chartType}
-          animStyle={anim}
-        />
+        {crossfade ? (
+          <CrossfadeSparkline chartType={chartType} animStyle={anim} height={64} duration={4200} crossfade={crossfade} />
+        ) : (
+          <Sparkline
+            key={`${chartType}-${anim}`}
+            values={CHART_PREVIEW_VALUES}
+            color={color}
+            accent={color}
+            accent2={color2}
+            height={64}
+            animate={anim !== 'none'}
+            duration={4200}
+            chartType={chartType}
+            animStyle={anim}
+          />
+        )}
       </View>
       <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{label}</Text>
       {selected && (
@@ -287,17 +379,63 @@ function ChartAnimCard({ anim, label, selected, chartType, color, onPress }: {
   );
 }
 
-// ── Swatch de color de acento ──
-function AccentSwatch({ accent, label, selected, swatchColor, onPress }: {
-  accent: ChartAccent; label: string; selected: boolean; swatchColor: string; onPress: () => void;
+// ── Swatch de color de acento — el ANILLO representa la línea/barras y el
+// DISCO interior el contenido/relleno, igual que en el gráfico real. Cada canal
+// puede ser sólido (color fijo) o partido en dos mitades con flechas ▲▼ (cambia
+// según la tendencia). Así "Línea dinámica" (anillo partido, disco sólido) y
+// "Contenido dinámico" (disco partido, anillo sólido) se distinguen a simple
+// vista entre sí y de "Dinámico" (ambos partidos) ──
+const SWATCH_SIZE = 38;
+function SwatchHalf({ id, colorA, colorB }: { id: string; colorA: string; colorB?: string }) {
+  if (!colorB) return null;
+  return (
+    <SvgGradient id={id} x1="0" y1="0" x2="1" y2="0">
+      <Stop offset="0" stopColor={colorA} />
+      <Stop offset="0.5" stopColor={colorA} />
+      <Stop offset="0.5" stopColor={colorB} />
+      <Stop offset="1" stopColor={colorB} />
+    </SvgGradient>
+  );
+}
+
+function AccentSwatch({ label, selected, lineColor, lineColor2, fillColor, fillColor2, onPress }: {
+  label: string; selected: boolean; lineColor: string; lineColor2?: string; fillColor: string; fillColor2?: string; onPress: () => void;
 }) {
   const { colors } = useTheme();
+  const lineSplit = !!lineColor2;
+  const fillSplit = !!fillColor2;
+  const isDynamic = lineSplit || fillSplit;
+  const c = SWATCH_SIZE / 2;
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.accentSwatchWrap}>
-      <View style={[styles.accentSwatch, { backgroundColor: swatchColor, borderColor: selected ? colors.textPrimary : 'transparent' }]}>
-        {selected && <AppIcon name="checkmark" size={13} color="#FFFFFF" />}
+      <View style={[styles.accentSwatch, { borderColor: selected ? colors.textPrimary : 'transparent' }]}>
+        <Svg width={SWATCH_SIZE} height={SWATCH_SIZE} viewBox={`0 0 ${SWATCH_SIZE} ${SWATCH_SIZE}`}>
+          <Defs>
+            <SwatchHalf id="ringGrad" colorA={lineColor} colorB={lineColor2} />
+            <SwatchHalf id="fillGrad" colorA={fillColor} colorB={fillColor2} />
+          </Defs>
+          <Circle cx={c} cy={c} r={c - 2.5} fill="none" stroke={lineSplit ? 'url(#ringGrad)' : lineColor} strokeWidth={4} />
+          <Circle cx={c} cy={c} r={c - 8} fill={fillSplit ? 'url(#fillGrad)' : fillColor} />
+        </Svg>
+        {isDynamic && !selected && (
+          <>
+            {/* Respaldo oscuro semitransparente — garantiza contraste de la flecha sin importar
+                qué color de línea/relleno le toque debajo (ej. cian claro de "Del tema") */}
+            <View style={[styles.accentSwatchArrowBadge, { left: 2, top: 3 }]}>
+              <AppIcon name="trending-up" size={8} color="#FFFFFF" />
+            </View>
+            <View style={[styles.accentSwatchArrowBadge, { right: 2, bottom: 3 }]}>
+              <AppIcon name="trending-down" size={8} color="#FFFFFF" />
+            </View>
+          </>
+        )}
+        {selected && (
+          <View style={styles.accentSwatchCheck}>
+            <AppIcon name="checkmark" size={12} color="#FFFFFF" />
+          </View>
+        )}
       </View>
-      <Text style={[styles.accentSwatchLabel, { color: selected ? colors.textPrimary : colors.textTertiary }]} numberOfLines={1}>{label}</Text>
+      <Text style={[styles.accentSwatchLabel, { color: selected ? colors.textPrimary : colors.textTertiary }]} numberOfLines={2}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -315,7 +453,60 @@ export default function PersonalizationScreen() {
     chartSpeed, setChartSpeed, chartAccent, setChartAccent,
   } = useTheme();
   const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
+
+  // "Dinámico" no es una mezcla — es un color ÚNICO que cambia según la tendencia
+  // real (verde si sube, rojo si baja). Para que se note en toda vista previa (no
+  // solo en el swatch), alternamos entre ambos casos cada pocos segundos mientras
+  // está seleccionado. `signedFade` cruza (dissolve) suavemente entre ambos casos
+  // en vez de saltar de un color al otro de golpe — compartido por el preview
+  // grande y las tarjetas de tipo/animación.
+  const signedFade = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    if (!SIGNED_FAMILY.includes(chartAccent)) return;
+    signedFade.setValue(1);
+    let up = true;
+    const id = setInterval(() => {
+      up = !up;
+      Animated.timing(signedFade, {
+        toValue: up ? 1 : 0,
+        duration: 2000,
+        easing: Easing.inOut(Easing.sin),
+        useNativeDriver: Platform.OS !== 'web',
+      }).start();
+    }, 60000);
+    return () => clearInterval(id);
+  }, [chartAccent, signedFade]);
+
   const chartPreviewColor = resolveChartAccent(chartAccent, colors, CHART_PREVIEW_VALUES);
+  const chartPreviewColor2 = resolveChartAccent2(chartAccent, colors);
+  // Crossfade compartido por toda vista previa cuando el acento activo es de la
+  // familia "dinámica" — el modo (qué canal cruza) depende de cuál esté elegido.
+  const signedCrossfade: SignedCrossfade = {
+    fade: signedFade,
+    upColor: colors.success,
+    downColor: colors.expense,
+    mode: chartAccent === 'signedLine' ? 'line' : chartAccent === 'signedFill' ? 'fill' : 'both',
+    staticColor: colors.primary,
+  };
+
+  // Oculta opciones que en la paleta activa resuelven al mismo color (par) que
+  // otra ya listada (p.ej. "Secundario" == "Verde éxito" en deepWater), y los
+  // bicolores sin contraste real (color1 === color2 en esa paleta).
+  const seenAccentKeys = new Set<string>();
+  const chartAccentOptions = CHART_ACCENT_CANDIDATES.filter((a) => {
+    if (SIGNED_FAMILY.includes(a)) return true;
+    const hex1 = resolveChartAccent(a, colors, CHART_PREVIEW_VALUES).toLowerCase();
+    const hex2 = resolveChartAccent2(a, colors)?.toLowerCase();
+    if (hex2 && hex2 === hex1) return false;
+    const key = `${hex1}|${hex2 ?? ''}`;
+    if (seenAccentKeys.has(key)) return false;
+    seenAccentKeys.add(key);
+    return true;
+  });
+
+  // Ninguna sección abierta al entrar; abrir una cierra la que estuviera abierta.
+  const [openSection, setOpenSection] = useState<string | null>(null);
+  const toggleSection = (id: string) => setOpenSection((cur) => (cur === id ? null : id));
 
   const handleSetPaletteId = (id: typeof paletteId) => {
     setPaletteId(id);
@@ -330,11 +521,11 @@ export default function PersonalizationScreen() {
           <PageTitle title={t('profile.palette.title')} description={t('profile.palette.subtitle')} />
 
           <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-            <AccordionSection icon="color-palette-outline" title={t('personalization.sectionPalette')}>
+            <AccordionSection id="palette" icon="color-palette-outline" title={t('personalization.sectionPalette')} open={openSection === 'palette'} onToggle={toggleSection}>
               <PaletteGrid colors={colors} paletteId={paletteId} setPaletteId={handleSetPaletteId} t={t} />
             </AccordionSection>
 
-            <AccordionSection icon="image-outline" title={t('personalization.sectionBackground')}>
+            <AccordionSection id="background" icon="image-outline" title={t('personalization.sectionBackground')} open={openSection === 'background'} onToggle={toggleSection}>
               <View style={styles.bgGrid}>
                 {BACKGROUND_STYLES.map((key) => (
                   <BackgroundPreviewCard
@@ -357,7 +548,7 @@ export default function PersonalizationScreen() {
               )}
             </AccordionSection>
 
-            <AccordionSection icon="card-outline" title={t('personalization.sectionCards')} defaultOpen>
+            <AccordionSection id="cards" icon="card-outline" title={t('personalization.sectionCards')} open={openSection === 'cards'} onToggle={toggleSection}>
               <CardEffectPreview sheen={cardSheen} />
               <View style={styles.rowsWrap}>
                 <SwitchRow
@@ -371,19 +562,30 @@ export default function PersonalizationScreen() {
               </View>
             </AccordionSection>
 
-            <AccordionSection icon="trending-up-outline" title={t('personalization.sectionChart')}>
+            <AccordionSection id="chart" icon="trending-up-outline" title={t('personalization.sectionChart')} open={openSection === 'chart'} onToggle={toggleSection}>
               <View style={styles.chartPreviewWrap}>
-                <Sparkline
-                  key={`${chartType}-${chartAnimStyle}-${chartSpeed}-${chartAccent}`}
-                  values={CHART_PREVIEW_VALUES}
-                  color={chartPreviewColor}
-                  accent={chartPreviewColor}
-                  height={64}
-                  animate={chartAnimStyle !== 'none'}
-                  duration={chartDuration}
-                  chartType={chartType}
-                  animStyle={chartAnimStyle}
-                />
+                {SIGNED_FAMILY.includes(chartAccent) ? (
+                  <CrossfadeSparkline
+                    chartType={chartType}
+                    animStyle={chartAnimStyle}
+                    height={64}
+                    duration={chartDuration}
+                    crossfade={signedCrossfade}
+                  />
+                ) : (
+                  <Sparkline
+                    key={`${chartType}-${chartAnimStyle}-${chartSpeed}-${chartAccent}`}
+                    values={CHART_PREVIEW_VALUES}
+                    color={chartPreviewColor}
+                    accent={chartPreviewColor}
+                    accent2={chartPreviewColor2}
+                    height={64}
+                    animate={chartAnimStyle !== 'none'}
+                    duration={chartDuration}
+                    chartType={chartType}
+                    animStyle={chartAnimStyle}
+                  />
+                )}
               </View>
 
               <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartTypeLabel')}</Text>
@@ -396,6 +598,8 @@ export default function PersonalizationScreen() {
                     selected={chartType === type}
                     animStyle={chartAnimStyle}
                     color={chartPreviewColor}
+                    color2={chartPreviewColor2}
+                    crossfade={SIGNED_FAMILY.includes(chartAccent) ? signedCrossfade : undefined}
                     onPress={() => setChartType(type)}
                   />
                 ))}
@@ -411,6 +615,8 @@ export default function PersonalizationScreen() {
                     selected={chartAnimStyle === anim}
                     chartType={chartType}
                     color={chartPreviewColor}
+                    color2={chartPreviewColor2}
+                    crossfade={SIGNED_FAMILY.includes(chartAccent) ? signedCrossfade : undefined}
                     onPress={() => setChartAnimStyle(anim)}
                   />
                 ))}
@@ -424,22 +630,28 @@ export default function PersonalizationScreen() {
                 />
               )}
 
-              <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartAccentLabel')}</Text>
+              <Text style={[styles.chartGroupLabel, styles.chartAccentLabelSpacing, { color: colors.textTertiary }]}>{t('personalization.chartAccentLabel')}</Text>
+              <Text style={[styles.chartAccentHint, { color: colors.textTertiary }]}>{t('personalization.chartAccentHint')}</Text>
               <View style={styles.accentRow}>
-                {CHART_ACCENTS.map((a) => (
-                  <AccentSwatch
-                    key={a}
-                    accent={a}
-                    label={t(`personalization.chartAccent.${a}`)}
-                    selected={chartAccent === a}
-                    swatchColor={resolveChartAccent(a, colors, CHART_PREVIEW_VALUES)}
-                    onPress={() => setChartAccent(a)}
-                  />
-                ))}
+                {chartAccentOptions.map((a) => {
+                  const sw = getSwatchColors(a, colors);
+                  return (
+                    <AccentSwatch
+                      key={a}
+                      label={t(`personalization.chartAccent.${a}`)}
+                      selected={chartAccent === a}
+                      lineColor={sw.lineColor}
+                      lineColor2={sw.lineColor2}
+                      fillColor={sw.fillColor}
+                      fillColor2={sw.fillColor2}
+                      onPress={() => setChartAccent(a)}
+                    />
+                  );
+                })}
               </View>
             </AccordionSection>
 
-            <AccordionSection icon="options-outline" title={t('personalization.sectionIcons')}>
+            <AccordionSection id="icons" icon="options-outline" title={t('personalization.sectionIcons')} open={openSection === 'icons'} onToggle={toggleSection}>
               <View style={styles.iconPreviewRow}>
                 {(['home-outline', 'wallet-outline', 'card-outline', 'star-outline', 'person-outline'] as const).map((n) => (
                   <AppIcon key={n} name={n} size={24} color={colors.primary} strokeWidth={iconStroke} />
@@ -453,7 +665,7 @@ export default function PersonalizationScreen() {
               />
             </AccordionSection>
 
-            <AccordionSection icon="gift-outline" title={t('personalization.sectionCelebrations')}>
+            <AccordionSection id="celebrations" icon="gift-outline" title={t('personalization.sectionCelebrations')} open={openSection === 'celebrations'} onToggle={toggleSection}>
               <View style={styles.rowsWrap}>
                 <SwitchRow
                   icon="gift-outline"
@@ -466,7 +678,7 @@ export default function PersonalizationScreen() {
               </View>
             </AccordionSection>
 
-            <AccordionSection icon="flag-outline" title={t('personalization.roadmapTitle')}>
+            <AccordionSection id="roadmap" icon="flag-outline" title={t('personalization.roadmapTitle')} open={openSection === 'roadmap'} onToggle={toggleSection}>
               <View style={styles.roadmapWrap}>
                 {(t('personalization.roadmapItems', { returnObjects: true }) as string[]).map((item, i) => (
                   <View key={i} style={styles.roadmapRow}>
@@ -502,11 +714,16 @@ const styles = StyleSheet.create({
   // Preview en vivo de efectos de tarjeta — réplica de "Gastos por categoría"
   previewWrap: { alignItems: 'center', marginBottom: 14 },
   chartPreviewWrap: { marginBottom: 14, paddingHorizontal: 4 },
+  chartCrossfadeWrap: { width: '100%', height: 64 },
   chartGroupLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1.2, textTransform: 'uppercase', marginTop: 4, marginBottom: 8 },
-  accentRow: { flexDirection: 'row', gap: 14, marginTop: 2 },
-  accentSwatchWrap: { alignItems: 'center', gap: 5 },
-  accentSwatch: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
-  accentSwatchLabel: { fontSize: 10, fontFamily: Fonts.medium },
+  chartAccentLabelSpacing: { marginTop: 22 },
+  chartAccentHint: { fontSize: 11, fontFamily: Fonts.regular, marginTop: 0, marginBottom: 14, lineHeight: 16 },
+  accentRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  accentSwatchWrap: { width: '25%', alignItems: 'center', gap: 5, paddingVertical: 6 },
+  accentSwatch: { width: SWATCH_SIZE, height: SWATCH_SIZE, borderRadius: SWATCH_SIZE / 2, alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
+  accentSwatchCheck: { position: 'absolute', width: 17, height: 17, borderRadius: 8.5, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
+  accentSwatchArrowBadge: { position: 'absolute', width: 13, height: 13, borderRadius: 6.5, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
+  accentSwatchLabel: { fontSize: 10, fontFamily: Fonts.medium, textAlign: 'center' },
   previewCard: { width: '100%', maxWidth: 320, borderRadius: 22, borderWidth: 1, paddingVertical: 18, paddingHorizontal: 18, overflow: 'hidden', position: 'relative' },
   previewLabel: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.4 },
   previewCatRow: { marginBottom: 12 },
