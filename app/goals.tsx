@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -45,10 +46,10 @@ function formatCurrencyInput(raw: string): string {
   return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(parseInt(digits, 10));
 }
 
-function ProgressBar({ percent, color }: { percent: number; color: string }) {
+function ProgressBar({ percent, color, trackColor }: { percent: number; color: string; trackColor?: string }) {
   const clamped = Math.min(Math.max(percent, 0), 100);
   return (
-    <View style={progressStyles.track}>
+    <View style={[progressStyles.track, trackColor ? { backgroundColor: trackColor } : null]}>
       <View style={[progressStyles.fill, { width: `${clamped}%` as any, backgroundColor: color }]} />
     </View>
   );
@@ -62,12 +63,14 @@ const progressStyles = StyleSheet.create({
 function GoalCard({
   goal,
   colors,
+  isDark,
   t,
   onContribute,
   onDelete,
 }: {
   goal: Goal;
   colors: any;
+  isDark: boolean;
   t: any;
   onContribute?: () => void;
   onDelete: () => void;
@@ -75,6 +78,10 @@ function GoalCard({
   const pct = goal.targetAmount > 0 ? (goal.savedAmount / goal.targetAmount) * 100 : 0;
   const isCompleted = goal.status === 'completed';
   const accentColor = isCompleted ? colors.success : colors.primary;
+  const trackColor = isDark ? colors.textPrimary + '1A' : colors.border;
+  const glow = Platform.OS === 'web'
+    ? ({ boxShadow: `0 0 16px ${accentColor}44` } as any)
+    : { shadowColor: accentColor, shadowOpacity: 0.4, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } };
 
   return (
     <TouchableOpacity
@@ -86,7 +93,7 @@ function GoalCard({
       <View style={[styles.goalAccent, { backgroundColor: accentColor }]} />
       <View style={styles.goalInner}>
         <View style={styles.goalTop}>
-          <View style={[styles.goalEmojiWrap, { backgroundColor: `${accentColor}18` }]}>
+          <View style={[styles.goalEmojiWrap, { backgroundColor: `${accentColor}1E` }, glow]}>
             <Text style={styles.goalEmoji}>{goal.emoji}</Text>
           </View>
           <View style={styles.goalMeta}>
@@ -106,7 +113,7 @@ function GoalCard({
             </Text>
           </View>
         </View>
-        <ProgressBar percent={pct} color={accentColor} />
+        <ProgressBar percent={pct} color={accentColor} trackColor={trackColor} />
         {isCompleted && goal.completedAt && (
           <Text style={[styles.completedDate, { color: colors.textTertiary }]}>
             {goal.completedAt.toDate().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -119,9 +126,10 @@ function GoalCard({
 
 export default function GoalsScreen() {
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { user, isPremium } = useAuthStore();
   const { showToast } = useToast();
+  const trackColor = isDark ? colors.textPrimary + '1A' : colors.border;
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
   const { goals, loading, addGoal, addContribution, deleteGoal } = useGoals(user?.uid ?? '');
@@ -321,7 +329,7 @@ export default function GoalsScreen() {
                     </Text>
                     <Text style={[styles.gsPct, { color: colors.primary }]}>{Math.round(goalsSummary.pct)}%</Text>
                   </View>
-                  <ProgressBar percent={goalsSummary.pct} color={colors.primary} />
+                  <ProgressBar percent={goalsSummary.pct} color={colors.primary} trackColor={trackColor} />
                   <View style={styles.gsRow}>
                     <View>
                       <Text style={[styles.gsLabel, { color: colors.textTertiary }]}>{t('goals.summarySaved')}</Text>
@@ -341,6 +349,7 @@ export default function GoalsScreen() {
                   key={goal.id}
                   goal={goal}
                   colors={colors}
+                  isDark={isDark}
                   t={t}
                   onContribute={goal.status === 'active' ? () => openContribute(goal) : undefined}
                   onDelete={() => openDelete(goal)}
@@ -586,7 +595,7 @@ const styles = StyleSheet.create({
   gsCard: { borderRadius: 20, padding: 18, marginBottom: 16 },
   gsHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   gsTitle: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1 },
-  gsPct: { fontSize: 18, fontFamily: Fonts.extraBold, letterSpacing: -0.5 },
+  gsPct: { fontSize: 24, fontFamily: Fonts.display, letterSpacing: -0.5 },
   gsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
   gsLabel: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.6, textTransform: 'uppercase' },
   gsValue: { fontSize: 15, fontFamily: Fonts.extraBold, letterSpacing: -0.3, marginTop: 3 },
