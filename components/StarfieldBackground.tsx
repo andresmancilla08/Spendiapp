@@ -56,7 +56,7 @@ export default function StarfieldBackground({ intensity = 'default', speed = 1 }
       size: 1.4 + (i * 3) % 3 * 0.8,
       dur: 1800 + (i % 6) * 700,
       delay: (i * 260) % 3000,
-      base: Math.min((0.35 + (i % 4) * 0.14) * cfg.opacity * (isDark ? 1.15 : 0.85), 0.95),
+      base: Math.min((0.35 + (i % 4) * 0.14) * cfg.opacity * 1.15, 0.95),
       // Dark: luz neutra con acento de paleta cada 5ª estrella. Light: todas
       // con el primario (el gris neutro se lee como polvo, no como cielo).
       color: isDark ? (i % 5 === 0 ? colors.primary : '#E7ECFF') : colors.primary,

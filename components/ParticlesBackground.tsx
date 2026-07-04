@@ -34,7 +34,7 @@ interface Props {
 export default function ParticlesBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-  const glow = isDark ? 1.3 : 1.0;
+  const glow = isDark ? 1.3 : 1.35;
   const { height: windowHeight } = useWindowDimensions();
   // Mide su propio contenedor: las partículas ascienden hasta la MITAD de la
   // vista (no solo un tramo fijo del borde inferior), y en previews pequeños

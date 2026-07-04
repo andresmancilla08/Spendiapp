@@ -20,7 +20,7 @@ interface Props {
  */
 export default function MeshBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
-  const m = CONFIG[intensity] * (isDark ? 1.3 : 1.0);
+  const m = CONFIG[intensity] * (isDark ? 1.3 : 1.45);
 
   const fields = useMemo(() => ([
     { color: colors.primary,   top: '-15%', left: '-20%', size: 460, base: 0.34, dur: 9000 },

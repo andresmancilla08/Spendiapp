@@ -25,7 +25,7 @@ interface Props {
 export default function WavesBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-  const glow = isDark ? 1.3 : 1.0;
+  const glow = isDark ? 1.3 : 1.4;
   const { width: windowWidth } = useWindowDimensions();
   // Mide su propio contenedor: en previews la banda ondula dentro de la
   // tarjeta; en el fondo global sigue al viewport tras un resize.

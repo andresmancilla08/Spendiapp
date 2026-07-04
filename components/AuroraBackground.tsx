@@ -21,7 +21,8 @@ export default function AuroraBackground({ intensity = 'default', speed = 1 }: P
   const { isDark, activePalette } = useTheme();
   // En dark el scrim del fondo va DEBAJO de los efectos (AppBackground), así
   // que el multiplicador solo compensa el menor contraste, no un overlay.
-  const m = MULTIPLIER[intensity] * (isDark ? 1.35 : 1.0);
+  // En light las opacidades base (lightOp) son muy tímidas → boost mayor.
+  const m = MULTIPLIER[intensity] * (isDark ? 1.35 : 1.7);
 
   const b1 = useRef(new Animated.Value(0.00)).current;
   const b2 = useRef(new Animated.Value(0.33)).current;
