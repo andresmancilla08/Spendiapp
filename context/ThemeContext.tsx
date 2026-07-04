@@ -7,6 +7,9 @@ import type { AuroraIntensity } from '../components/AuroraBackground';
 
 const THEME_KEY = '@spendiapp_theme';
 const PALETTE_KEY = '@spendiapp_palette';
+/** Epoch ms de la última escritura LOCAL de personalización — el arranque solo
+ * aplica lo de Firestore si es más reciente (evita pisar elecciones frescas). */
+export const PERSONALIZATION_SYNCED_AT_KEY = '@spendiapp_personalization_synced_at';
 const BG_STYLE_KEY = '@spendiapp_bg_style'; // legado — migra a light/dark
 const BG_STYLE_LIGHT_KEY = '@spendiapp_bg_style_light';
 const BG_STYLE_DARK_KEY = '@spendiapp_bg_style_dark';

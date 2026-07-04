@@ -12,6 +12,8 @@ export interface UserProfile {
   /** Preferencias de personalización premium — espejo de ThemeContext; viaja
    * con la cuenta para sobrevivir reinstalaciones y cambios de dispositivo. */
   personalization?: {
+    /** Epoch ms de la última escritura — resuelve conflictos local vs remoto. */
+    updatedAt?: number;
     /** Legado: preferencia única previa a light/dark — se usa como fallback. */
     backgroundStyle?: string;
     backgroundStyleLight?: string;
