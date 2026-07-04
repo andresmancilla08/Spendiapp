@@ -47,7 +47,7 @@ export default function BokehBackground({ intensity = 'default', speed = 1 }: Pr
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {orbs.map((o, i) => (
-        <OrbView key={`${intensity}-${speed}-${i}`} orb={o} dark={isDark} />
+        <OrbView key={i} orb={o} dark={isDark} />
       ))}
     </View>
   );
@@ -66,8 +66,9 @@ function OrbView({ orb, dark }: { orb: Orb; dark: boolean }) {
     );
     loop.start();
     return () => loop.stop();
+    // Reinicia in-place al cambiar velocidad/intensidad (duración/delay nuevos)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [orb.dur, orb.delay]);
 
   const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [40, -260] });
   const translateX = anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, orb.drift, 0] });

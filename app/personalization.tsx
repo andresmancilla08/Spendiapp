@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, type ReactNode } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
@@ -98,6 +99,9 @@ function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, on
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.85}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected }}
       style={[
         styles.bgCard,
         {
@@ -107,13 +111,13 @@ function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, on
       ]}
     >
       <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
-        {/* key → remonta el efecto al cambiar intensidad/velocidad, para que la vista previa refleje el cambio al instante */}
+        {/* Los efectos reinician sus loops in-place al cambiar intensidad/velocidad — sin remount */}
         {styleKey === 'none' ? (
           <View style={styles.bgNoneWrap}>
             <AppIcon name="close-outline" size={18} color={colors.textTertiary} />
           </View>
         ) : (
-          <BackgroundEffect key={`${intensity}-${speed}`} styleKey={styleKey} intensity={intensity} speed={speed} />
+          <BackgroundEffect styleKey={styleKey} intensity={intensity} speed={speed} />
         )}
       </View>
       <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
@@ -302,6 +306,9 @@ function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossf
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.85}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected }}
       style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
     >
       <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
@@ -341,6 +348,9 @@ function ChartAnimCard({ anim, label, selected, chartType, color, color2, crossf
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.85}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected }}
       style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
     >
       <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
@@ -434,7 +444,13 @@ function AccentSwatch({ label, selected, lineColor, lineColor2, fillColor, fillC
 
 export default function PersonalizationScreen() {
   const { t } = useTranslation();
-  const { user } = useAuthStore();
+  const { user, isPremium } = useAuthStore();
+
+  // La entrada visible ya está gateada en el perfil, pero la ruta es alcanzable
+  // por URL directa (PWA): un free vería opciones que nunca se aplican.
+  useEffect(() => {
+    if (!isPremium) router.replace('/upgrade' as Parameters<typeof router.replace>[0]);
+  }, [isPremium]);
   const {
     colors, paletteId, setPaletteId,
     backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
@@ -535,6 +551,25 @@ export default function PersonalizationScreen() {
             </AccordionSection>
 
             <AccordionSection id="background" icon="image-outline" title={t('personalization.sectionBackground')} open={openSection === 'background'} onToggle={toggleSection}>
+              {/* Controles globales ANTES de la grilla: afectan a todos los
+                  previews y así se descubren sin scrollear 6 filas de tarjetas */}
+              {backgroundStyle !== 'none' && (
+                <>
+                  <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.bgIntensityLabel')}</Text>
+                  <AppSegmentedControl
+                    segments={INTENSITY_OPTIONS.map((i) => ({ key: i, label: t(`personalization.intensity.${i}`) }))}
+                    activeKey={backgroundIntensity}
+                    onChange={(key) => setBackgroundIntensity(key as AuroraIntensity)}
+                  />
+                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgSpeedLabel')}</Text>
+                  <AppSegmentedControl
+                    segments={BG_SPEED_OPTIONS.map((s) => ({ key: s, label: t(`personalization.bgSpeed.${s}`) }))}
+                    activeKey={backgroundSpeed}
+                    onChange={(key) => setBackgroundSpeed(key as BackgroundSpeed)}
+                    style={styles.bgGridSpacing}
+                  />
+                </>
+              )}
               <View style={styles.bgGrid}>
                 {BACKGROUND_STYLES.map((key) => (
                   <BackgroundPreviewCard
@@ -548,22 +583,6 @@ export default function PersonalizationScreen() {
                   />
                 ))}
               </View>
-              {backgroundStyle !== 'none' && (
-                <>
-                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgIntensityLabel')}</Text>
-                  <AppSegmentedControl
-                    segments={INTENSITY_OPTIONS.map((i) => ({ key: i, label: t(`personalization.intensity.${i}`) }))}
-                    activeKey={backgroundIntensity}
-                    onChange={(key) => setBackgroundIntensity(key as AuroraIntensity)}
-                  />
-                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgSpeedLabel')}</Text>
-                  <AppSegmentedControl
-                    segments={BG_SPEED_OPTIONS.map((s) => ({ key: s, label: t(`personalization.bgSpeed.${s}`) }))}
-                    activeKey={backgroundSpeed}
-                    onChange={(key) => setBackgroundSpeed(key as BackgroundSpeed)}
-                  />
-                </>
-              )}
             </AccordionSection>
 
             <AccordionSection id="cards" icon="card-outline" title={t('personalization.sectionCards')} open={openSection === 'cards'} onToggle={toggleSection}>
@@ -723,8 +742,10 @@ const styles = StyleSheet.create({
   accordionContent: { paddingHorizontal: 16, paddingBottom: 16 },
   intensitySpacing: { marginTop: 10 },
   bgControlLabel: { marginTop: 14 },
+  bgGridSpacing: { marginBottom: 16 },
   bgGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  bgCard: { width: '47%', flexGrow: 1, borderRadius: 16, borderWidth: 2, padding: 8, alignItems: 'center' },
+  // flexGrow 0: con 11 tarjetas, la impar final NO debe estirarse a ancho completo
+  bgCard: { width: '47%', flexGrow: 0, borderRadius: 16, borderWidth: 2, padding: 8, alignItems: 'center' },
   bgPreviewBox: { width: '100%', height: 64, borderRadius: 10, overflow: 'hidden', position: 'relative', marginBottom: 8 },
   bgNoneWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   bgCardLabel: { fontSize: 12, fontFamily: Fonts.semiBold },

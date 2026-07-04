@@ -383,7 +383,7 @@
     },
     "intensity": {
       "subtle": "Sottile",
-      "default": "Normale",
+      "default": "Media",
       "intense": "Intenso"
     },
     "sectionCards": "Schede",

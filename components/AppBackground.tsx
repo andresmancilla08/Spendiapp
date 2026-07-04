@@ -3,6 +3,7 @@ import { View, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme, BACKGROUND_SPEED_FACTOR, type BackgroundStyle } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
+import { useProMotion } from '../hooks/useProMotion';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
 import ParticlesBackground from './ParticlesBackground';
 import WavesBackground from './WavesBackground';
@@ -13,6 +14,20 @@ import FlowBackground from './FlowBackground';
 import StarfieldBackground from './StarfieldBackground';
 import RaysBackground from './RaysBackground';
 import ConstellationBackground from './ConstellationBackground';
+
+/** Scrim que oscurece el gradiente base en modo oscuro. Va SIEMPRE debajo de
+ * los efectos — compartido con el fondo local del login (ScreenBackground). */
+export const DARK_SCRIM = 'rgba(0,0,0,0.7)';
+const DARK_SCRIM_FACTOR = 0.3; // luz restante bajo el scrim (1 - 0.7)
+
+/** Oscurece un color #RRGGBB multiplicando sus canales — para que el
+ * theme-color del navegador coincida con el fondo real bajo el scrim. */
+function darkenHex(hex: string, factor: number): string {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return hex;
+  const n = parseInt(hex.slice(1), 16);
+  const ch = (c: number) => Math.round(c * factor).toString(16).padStart(2, '0');
+  return `#${ch((n >> 16) & 255)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
+}
 
 /** Renderiza el efecto animado correspondiente a un estilo de fondo.
  * Compartido por el fondo global (AppBackground) y las vistas previas de
@@ -48,12 +63,17 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
 export default function AppBackground() {
   const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed } = useTheme();
   const { isPremium } = useAuthStore();
+  const { reduceMotion } = useProMotion();
 
   // Gate premium: usuarios free siempre ven Aurora (el efecto de la marca).
   const effectiveStyle: BackgroundStyle = isPremium ? backgroundStyle : 'aurora';
   const speedFactor = BACKGROUND_SPEED_FACTOR[backgroundSpeed];
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
-  const statusBarColor = gradientColors[0] as string;
+  // En dark, el chrome del navegador debe coincidir con el fondo YA oscurecido
+  // por el scrim, no con el gradiente crudo.
+  const statusBarColor = isDark
+    ? darkenHex(gradientColors[0] as string, DARK_SCRIM_FACTOR)
+    : (gradientColors[0] as string);
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -68,15 +88,22 @@ export default function AppBackground() {
   }, [statusBarColor]);
 
   return (
-    <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFillObject, styles.clip]} pointerEvents="none">
       <LinearGradient
         colors={gradientColors}
         start={{ x: 0.1, y: 0 }}
         end={{ x: 0.9, y: 1 }}
         style={StyleSheet.absoluteFillObject}
       />
-      {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.7)' }]} />}
-      <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
+      {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
+      {/* Reduce-motion: solo el gradiente estático — sin animación permanente */}
+      {!reduceMotion && (
+        <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
+      )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  clip: { overflow: 'hidden' },
+});

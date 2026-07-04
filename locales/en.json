@@ -383,7 +383,7 @@
     },
     "intensity": {
       "subtle": "Subtle",
-      "default": "Normal",
+      "default": "Medium",
       "intense": "Intense"
     },
     "sectionCards": "Cards",
