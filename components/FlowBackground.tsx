@@ -34,9 +34,9 @@ export default function FlowBackground({ intensity = 'default', speed = 1 }: Pro
   const width = ownWidth || windowWidth;
 
   const sheets = useMemo(() => ([
-    { colorA: colors.primary,   colorB: colors.tertiary, rotate: -16, top: '-14%', height: '70%', base: 0.16, dur: 18000, dir: 1,  phase: 0 },
-    { colorA: colors.secondary, colorB: colors.info,     rotate: 11,  top: '28%',  height: '64%', base: 0.13, dur: 24000, dir: -1, phase: 0.38 },
-    { colorA: colors.success,   colorB: colors.primary,  rotate: -7,  top: '58%',  height: '60%', base: 0.11, dur: 30000, dir: 1,  phase: 0.71 },
+    { colorA: colors.primary,   colorB: colors.tertiary, rotate: -16, top: '-14%', height: '70%', base: 0.16, dur: 12000, dir: 1,  phase: 0 },
+    { colorA: colors.secondary, colorB: colors.info,     rotate: 11,  top: '28%',  height: '64%', base: 0.13, dur: 16000, dir: -1, phase: 0.38 },
+    { colorA: colors.success,   colorB: colors.primary,  rotate: -7,  top: '58%',  height: '60%', base: 0.11, dur: 20000, dir: 1,  phase: 0.71 },
   ]), [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info]);
 
   return (

@@ -27,11 +27,11 @@ export default function RaysBackground({ intensity = 'default', speed = 1 }: Pro
   const glow = isDark ? 1.25 : 1.0;
 
   const rays = useMemo(() => ([
-    { color: colors.primary,   left: '8%',  width: 130, rotate: -14, base: 0.20, dur: 17000, sway: 26, phase: 0 },
-    { color: colors.secondary, left: '34%', width: 90,  rotate: -6,  base: 0.15, dur: 21000, sway: 18, phase: 0.42 },
-    { color: colors.tertiary,  left: '58%', width: 150, rotate: 8,   base: 0.17, dur: 19000, sway: 30, phase: 0.21 },
-    { color: colors.info,      left: '80%', width: 100, rotate: 15,  base: 0.13, dur: 23000, sway: 20, phase: 0.63 },
-    { color: colors.success,   left: '22%', width: 70,  rotate: 3,   base: 0.11, dur: 25000, sway: 14, phase: 0.84 },
+    { color: colors.primary,   left: '8%',  width: 130, rotate: -14, base: 0.20, dur: 10000, sway: 52, phase: 0 },
+    { color: colors.secondary, left: '34%', width: 90,  rotate: -6,  base: 0.15, dur: 13000, sway: 38, phase: 0.42 },
+    { color: colors.tertiary,  left: '58%', width: 150, rotate: 8,   base: 0.17, dur: 11500, sway: 60, phase: 0.21 },
+    { color: colors.info,      left: '80%', width: 100, rotate: 15,  base: 0.13, dur: 14500, sway: 42, phase: 0.63 },
+    { color: colors.success,   left: '22%', width: 70,  rotate: 3,   base: 0.11, dur: 16000, sway: 30, phase: 0.84 },
   ].slice(0, cfg.count)), [colors.primary, colors.secondary, colors.tertiary, colors.info, colors.success, cfg.count]);
 
   return (
@@ -53,7 +53,7 @@ function Ray({ ray, opacityMul, speed }: {
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-ray.sway, ray.sway, -ray.sway] });
   const opacity = v.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [ray.base * opacityMul * 0.6, Math.min(ray.base * opacityMul * 1.25, 0.5), ray.base * opacityMul * 0.6],
+    outputRange: [ray.base * opacityMul * 0.4, Math.min(ray.base * opacityMul * 1.35, 0.5), ray.base * opacityMul * 0.4],
   });
 
   return (

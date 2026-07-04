@@ -54,10 +54,10 @@ export default function ConstellationBackground({ intensity = 'default', speed =
         points,
         accent: ci % 3 === 0 ? colors.primary : starColor,
         base: (0.5 + (ci % 3) * 0.12) * cfg.opacity * (isDark ? 1.25 : 1.0),
-        dur: 9000 + ci * 2600,
+        dur: 6500 + ci * 1800,
         phase: (ci * 0.37) % 1,
-        driftX: (ci % 2 === 0 ? 1 : -1) * (8 + (ci % 3) * 5),
-        driftY: (ci % 3 === 0 ? -1 : 1) * (6 + (ci % 2) * 5),
+        driftX: (ci % 2 === 0 ? 1 : -1) * (18 + (ci % 3) * 8),
+        driftY: (ci % 3 === 0 ? -1 : 1) * (14 + (ci % 2) * 8),
       };
     })
   ), [cfg.clusters, cfg.opacity, colors.primary, starColor, isDark]);
@@ -83,7 +83,7 @@ function Cluster({ cluster, lineColor, speed }: {
 
   const opacity = v.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [cluster.base * 0.45, Math.min(cluster.base, 0.85), cluster.base * 0.45],
+    outputRange: [cluster.base * 0.3, Math.min(cluster.base, 0.85), cluster.base * 0.3],
   });
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, cluster.driftX, 0] });
   const ty = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, cluster.driftY, 0] });

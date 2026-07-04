@@ -39,12 +39,12 @@ export default function GrainBackground({ intensity = 'default', speed = 1 }: Pr
   useEffect(() => {
     const g = Animated.loop(
       Animated.sequence([
-        Animated.timing(grainAnim, { toValue: 1, duration: 2600 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-        Animated.timing(grainAnim, { toValue: 0, duration: 2600 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(grainAnim, { toValue: 1, duration: 1800 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(grainAnim, { toValue: 0, duration: 1800 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
       ])
     );
     const w = Animated.loop(
-      Animated.timing(washAnim, { toValue: 1, duration: 20000 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+      Animated.timing(washAnim, { toValue: 1, duration: 11000 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
     );
     g.start();
     w.start();
@@ -53,12 +53,12 @@ export default function GrainBackground({ intensity = 'default', speed = 1 }: Pr
   }, [speed]);
 
   const grainBase = (isDark ? 0.14 : 0.09) * cfg.grain;
-  const grainOpacity = grainAnim.interpolate({ inputRange: [0, 1], outputRange: [grainBase * 0.7, grainBase] });
+  const grainOpacity = grainAnim.interpolate({ inputRange: [0, 1], outputRange: [grainBase * 0.45, grainBase] });
   const washMul = (isDark ? 1.35 : 1.0) * cfg.wash;
 
-  const tx1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-30, 30, -30] });
-  const ty1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 26, 0] });
-  const tx2 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [30, -30, 30] });
+  const tx1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-52, 52, -52] });
+  const ty1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 42, 0] });
+  const tx2 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [52, -52, 52] });
 
   const softBlur = Platform.OS === 'web' ? ({ filter: 'blur(26px)' } as any) : {};
 

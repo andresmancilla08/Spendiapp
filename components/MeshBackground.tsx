@@ -23,11 +23,11 @@ export default function MeshBackground({ intensity = 'default', speed = 1 }: Pro
   const m = CONFIG[intensity] * (isDark ? 1.3 : 1.0);
 
   const fields = useMemo(() => ([
-    { color: colors.primary,   top: '-15%', left: '-20%', size: 460, base: 0.34, dur: 15000 },
-    { color: colors.secondary, top: '35%',  left: '45%',  size: 420, base: 0.28, dur: 18500 },
-    { color: colors.tertiary,  top: '5%',   left: '55%',  size: 360, base: 0.24, dur: 21000 },
-    { color: colors.success,   top: '55%',  left: '-10%', size: 400, base: 0.22, dur: 17000 },
-    { color: colors.info,      top: '68%',  left: '40%',  size: 380, base: 0.20, dur: 23000 },
+    { color: colors.primary,   top: '-15%', left: '-20%', size: 460, base: 0.34, dur: 9000 },
+    { color: colors.secondary, top: '35%',  left: '45%',  size: 420, base: 0.28, dur: 11500 },
+    { color: colors.tertiary,  top: '5%',   left: '55%',  size: 360, base: 0.24, dur: 13000 },
+    { color: colors.success,   top: '55%',  left: '-10%', size: 400, base: 0.22, dur: 10000 },
+    { color: colors.info,      top: '68%',  left: '40%',  size: 380, base: 0.20, dur: 14000 },
   ]), [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info]);
 
   const blur = Platform.OS === 'web' ? ({ filter: `blur(${isDark ? 28 : 22}px)` } as any) : {};
@@ -50,9 +50,9 @@ function Field({ field, opacityMul, blurStyle, phase, speed }: {
   usePhasedLoop(v, field.dur * speed, (phase * 0.21) % 1);
 
   const dir = phase % 2 === 0 ? 1 : -1;
-  const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 40 * dir, 0] });
-  const ty = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, -34 * dir, 0] });
-  const scale = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 1.18, 1] });
+  const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 64 * dir, 0] });
+  const ty = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, -52 * dir, 0] });
+  const scale = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 1.28, 1] });
   const opacity = v.interpolate({
     inputRange: [0, 0.5, 1],
     outputRange: [field.base * opacityMul, field.base * opacityMul * 1.4, field.base * opacityMul],
