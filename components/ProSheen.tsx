@@ -49,7 +49,8 @@ export default function ProSheen({
     <View
       pointerEvents="none"
       style={StyleSheet.absoluteFill}
-      onLayout={(e) => setW(e.nativeEvent.layout.width)}
+      // Solo el primer layout: un resize en desktop no debe re-disparar el barrido
+      onLayout={(e) => { if (w === 0) setW(e.nativeEvent.layout.width); }}
     >
       {w > 0 && (
         <Animated.View

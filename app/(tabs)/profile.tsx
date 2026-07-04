@@ -34,6 +34,7 @@ import { router } from 'expo-router';
 import AppDialog, { DialogType } from '../../components/AppDialog';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
+import ProSheen from '../../components/ProSheen';
 import { Fonts } from '../../config/fonts';
 import { getUserProfile } from '../../hooks/useUserProfile';
 import { useFriends } from '../../hooks/useFriends';
@@ -585,47 +586,62 @@ export default function ProfileScreen() {
             style={StyleSheet.absoluteFill}
           />
 
-          {/* Avatar + halo */}
-          <View style={styles.avatarSection}>
-            {/* Halo blob — sin blur, solo tinte circular (evita bug overflow:hidden en web) */}
-            <View style={[styles.avatarHalo, {
-              backgroundColor: isPremium
-                ? colors.warning + (isDark ? '1E' : '10')
-                : colors.primary + (isDark ? '18' : '0C'),
-            }]} />
+          {/* Fila principal: avatar a la izquierda, identidad a la derecha —
+              compacto, sin el aire muerto del layout centrado anterior */}
+          <View style={styles.profileTopRow}>
+            <View style={styles.avatarSection}>
+              {/* Halo blob — sin blur, solo tinte circular (evita bug overflow:hidden en web) */}
+              <View style={[styles.avatarHalo, {
+                backgroundColor: isPremium
+                  ? colors.warning + (isDark ? '1E' : '10')
+                  : colors.primary + (isDark ? '18' : '0C'),
+              }]} />
 
-            {/* Ring del avatar */}
-            <View style={[
-              styles.avatarRing,
-              {
-                borderColor: isPremium ? colors.warning : colors.primary + '55',
-                backgroundColor: colors.surface,
-              },
-              ringGlow,
-            ]}>
-              {photoUrl ? (
-                <Image source={{ uri: photoUrl }} style={styles.avatar} />
-              ) : (
-                <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
-                  <AppIcon name="person" size={42} color={colors.primary} />
+              {/* Ring del avatar */}
+              <View style={[
+                styles.avatarRing,
+                {
+                  borderColor: isPremium ? colors.warning : colors.primary + '55',
+                  backgroundColor: colors.surface,
+                },
+                ringGlow,
+              ]}>
+                {photoUrl ? (
+                  <Image source={{ uri: photoUrl }} style={styles.avatar} />
+                ) : (
+                  <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
+                    <AppIcon name="person" size={30} color={colors.primary} />
+                  </View>
+                )}
+              </View>
+
+              {/* Estrella premium anclada al avatar */}
+              {isPremium && (
+                <View style={[styles.avatarStar, { backgroundColor: colors.warning, borderColor: colors.surface }]}>
+                  <AppIcon name="star" size={10} color="#FFFFFF" />
                 </View>
               )}
             </View>
+
+            <View style={styles.profileMeta}>
+              <Text
+                style={[
+                  styles.profileName,
+                  { color: colors.textPrimary, fontFamily: isPremium ? Fonts.extraBold : Fonts.bold },
+                  nameGlow,
+                ]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {profileDisplayName}
+              </Text>
+              {user?.email ? (
+                <Text style={[styles.profileEmail, { color: colors.textSecondary }]} numberOfLines={1} ellipsizeMode="tail">
+                  {user.email}
+                </Text>
+              ) : null}
+            </View>
           </View>
-
-          {/* Nombre */}
-          <Text
-            style={[
-              styles.profileName,
-              { color: colors.textPrimary, fontFamily: isPremium ? Fonts.extraBold : Fonts.bold },
-              nameGlow,
-            ]}
-          >
-            {profileDisplayName}
-          </Text>
-
-          {/* Email */}
-          <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
 
           {/* Chips */}
           <View style={styles.profileChipsRow}>
@@ -651,6 +667,9 @@ export default function ProfileScreen() {
               </Text>
             </View>
           </View>
+
+          {/* Barrido de luz premium (gated también por reduce-motion / sheen off) */}
+          {isPremium && <ProSheen color={colors.warning + '30'} />}
         </View>
 
         {/* ── Premium Banner — solo usuarios free ────────────────────── */}
@@ -933,67 +952,78 @@ const styles = StyleSheet.create({
   grpText: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.6 },
   grpLine: { flex: 1, height: 1 },
 
-  // ── Profile hero card ─────────────────────────────────────────────────────
+  // ── Profile hero card — horizontal compacto: avatar izq + identidad der ──
   profileCard: {
     borderRadius: 24,
     borderWidth: 1,
     overflow: 'hidden',
     position: 'relative',
     marginBottom: 20,
-    paddingBottom: 24,
+    padding: 16,
+  },
+  profileTopRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 14,
   },
   avatarSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 30,
-    marginBottom: 4,
     position: 'relative',
   },
   // Halo circular detrás del avatar: sin blur, solo color translúcido (seguro en overflow:hidden)
   avatarHalo: {
     position: 'absolute',
-    width: 136,
-    height: 136,
-    borderRadius: 68,
+    top: -8,
+    left: -8,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
   },
   avatarRing: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    borderWidth: 3,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatar: { width: 96, height: 96, borderRadius: 48 },
+  avatar: { width: 60, height: 60, borderRadius: 30 },
   avatarFallback: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  avatarStar: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileMeta: {
+    flex: 1,
+    minWidth: 0,
   },
   profileName: {
-    fontSize: 22,
-    textAlign: 'center',
-    paddingHorizontal: 20,
-    marginTop: 14,
+    fontSize: 19,
     includeFontPadding: false,
   },
   profileEmail: {
-    fontSize: 13,
+    fontSize: 12.5,
     fontFamily: Fonts.regular,
-    marginTop: 4,
-    textAlign: 'center',
+    marginTop: 2,
   },
   profileChipsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 12,
+    marginTop: 14,
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
   },
   userNameChip: {
     flexDirection: 'row',
