@@ -1216,6 +1216,17 @@
       "item1": "The fill no longer disappears or looks nearly transparent",
       "item2": "No hard edges or cuts — the gradient fades smoothly",
       "item3": "Looks consistent in light and dark mode"
+    },
+    "animatedBackgrounds": {
+      "title": "Premium animated backgrounds",
+      "item1": "4 new effects: Silk, Starfield, Light rays & Constellations",
+      "item2": "Speed control and backgrounds that finally shine in dark mode",
+      "item3": "No more flicker between screens — one continuous background"
+    },
+    "profileCard": {
+      "title": "Refreshed profile",
+      "item1": "Compact card with avatar, golden badge and premium light sweep",
+      "item2": "Your @username and sign-in method always visible"
     }
   },
   "incomeClaim": {

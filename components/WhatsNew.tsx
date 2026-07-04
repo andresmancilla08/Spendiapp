@@ -38,6 +38,18 @@ interface Feature {
 // Catálogo curado de funcionalidades principales de la app — sin duplicados ni versiones.
 const APP_FEATURES: Feature[] = [
   {
+    icon: 'image-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.animatedBackgrounds.title',
+    items: ['whatsNew.animatedBackgrounds.item1', 'whatsNew.animatedBackgrounds.item2', 'whatsNew.animatedBackgrounds.item3'],
+  },
+  {
+    icon: 'person-circle-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.profileCard.title',
+    items: ['whatsNew.profileCard.item1', 'whatsNew.profileCard.item2'],
+  },
+  {
     icon: 'color-palette-outline',
     colorKey: 'primary',
     titleKey: 'whatsNew.accentSelector.title',
@@ -48,18 +60,6 @@ const APP_FEATURES: Feature[] = [
     colorKey: 'success',
     titleKey: 'whatsNew.dynamicColors.title',
     items: ['whatsNew.dynamicColors.item1', 'whatsNew.dynamicColors.item2', 'whatsNew.dynamicColors.item3'],
-  },
-  {
-    icon: 'options-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.personalizationAccordion.title',
-    items: ['whatsNew.personalizationAccordion.item1', 'whatsNew.personalizationAccordion.item2', 'whatsNew.personalizationAccordion.item3'],
-  },
-  {
-    icon: 'contrast-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.solidAreaFix.title',
-    items: ['whatsNew.solidAreaFix.item1', 'whatsNew.solidAreaFix.item2', 'whatsNew.solidAreaFix.item3'],
   },
 ];
 

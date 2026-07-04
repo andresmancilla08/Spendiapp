@@ -1217,6 +1217,17 @@
       "item1": "El relleno ya no desaparece ni se ve casi transparente",
       "item2": "Sin bordes duros ni cortes — el degradado se desvanece suave",
       "item3": "Se ve consistente en modo claro y oscuro"
+    },
+    "animatedBackgrounds": {
+      "title": "Fondos animados premium",
+      "item1": "4 efectos nuevos: Seda, Estrellas, Haces de luz y Constelaciones",
+      "item2": "Control de velocidad y fondos que por fin se ven en modo oscuro",
+      "item3": "El fondo ya no parpadea al navegar: es continuo en toda la app"
+    },
+    "profileCard": {
+      "title": "Perfil renovado",
+      "item1": "Tarjeta compacta con avatar, insignia dorada y barrido de luz premium",
+      "item2": "Tu @usuario y método de acceso siempre a la vista"
     }
   },
   "incomeClaim": {
