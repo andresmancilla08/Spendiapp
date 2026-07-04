@@ -1232,6 +1232,11 @@
       "title": "Refreshed profile",
       "item1": "Compact card with avatar, golden badge and premium light sweep",
       "item2": "Your @username and sign-in method always visible"
+    },
+    "perModeBackground": {
+      "title": "A different background per mode",
+      "item1": "Pick one animated effect for light and another for dark",
+      "item2": "Backgrounds now look better in light mode"
     }
   },
   "incomeClaim": {

@@ -1232,6 +1232,11 @@
       "title": "Profilo rinnovato",
       "item1": "Scheda compatta con avatar, badge dorato e bagliore premium",
       "item2": "Il tuo @username e metodo di accesso sempre visibili"
+    },
+    "perModeBackground": {
+      "title": "Uno sfondo diverso per ogni modalità",
+      "item1": "Scegli un effetto animato per la modalità chiara e uno per la scura",
+      "item2": "Gli sfondi ora si vedono meglio in modalità chiara"
     }
   },
   "incomeClaim": {
