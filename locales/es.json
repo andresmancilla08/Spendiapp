@@ -1233,6 +1233,11 @@
       "title": "Perfil renovado",
       "item1": "Tarjeta compacta con avatar, insignia dorada y barrido de luz premium",
       "item2": "Tu @usuario y método de acceso siempre a la vista"
+    },
+    "perModeBackground": {
+      "title": "Un fondo distinto para cada modo",
+      "item1": "Elige un efecto animado para claro y otro para oscuro",
+      "item2": "Los fondos ahora se ven mejor en modo claro"
     }
   },
   "incomeClaim": {

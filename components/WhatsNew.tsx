@@ -44,6 +44,12 @@ const APP_FEATURES: Feature[] = [
     items: ['whatsNew.animatedBackgrounds.item1', 'whatsNew.animatedBackgrounds.item2', 'whatsNew.animatedBackgrounds.item3'],
   },
   {
+    icon: 'contrast-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.perModeBackground.title',
+    items: ['whatsNew.perModeBackground.item1', 'whatsNew.perModeBackground.item2'],
+  },
+  {
     icon: 'person-circle-outline',
     colorKey: 'success',
     titleKey: 'whatsNew.profileCard.title',
