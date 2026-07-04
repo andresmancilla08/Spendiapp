@@ -53,7 +53,7 @@ export default function ConstellationBackground({ intensity = 'default', speed =
         ...slot,
         points,
         accent: ci % 3 === 0 ? colors.primary : starColor,
-        base: (0.5 + (ci % 3) * 0.12) * cfg.opacity * (isDark ? 1.25 : 1.0),
+        base: (0.5 + (ci % 3) * 0.12) * cfg.opacity * (isDark ? 1.25 : 1.2),
         dur: 6500 + ci * 1800,
         phase: (ci * 0.37) % 1,
         driftX: (ci % 2 === 0 ? 1 : -1) * (18 + (ci % 3) * 8),

@@ -25,7 +25,7 @@ interface Orb { left: `${number}%`; size: number; color: string; dur: number; de
 export default function BokehBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-  const glow = isDark ? 1.25 : 1.0;
+  const glow = isDark ? 1.25 : 1.35;
   const { height: windowHeight } = useWindowDimensions();
   // Igual que Partículas: los orbes flotan hasta la MITAD de la vista, no solo
   // un tramo fijo del borde inferior; en previews el recorrido escala igual.

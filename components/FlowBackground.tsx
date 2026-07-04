@@ -26,7 +26,7 @@ interface Props {
 export default function FlowBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-  const glow = isDark ? 1.3 : 1.0;
+  const glow = isDark ? 1.3 : 1.45;
   const { width: windowWidth } = useWindowDimensions();
   // Mide su propio contenedor: en previews de 64px la corriente debe viajar
   // dentro de la tarjeta, no cientos de px del ancho de la ventana.

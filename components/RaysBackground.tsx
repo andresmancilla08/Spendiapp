@@ -24,7 +24,7 @@ interface Props {
 export default function RaysBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-  const glow = isDark ? 1.25 : 1.0;
+  const glow = isDark ? 1.25 : 1.4;
 
   const rays = useMemo(() => ([
     { color: colors.primary,   left: '8%',  width: 130, rotate: -14, base: 0.20, dur: 10000, sway: 52, phase: 0 },

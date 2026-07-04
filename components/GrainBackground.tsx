@@ -52,9 +52,9 @@ export default function GrainBackground({ intensity = 'default', speed = 1 }: Pr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [speed]);
 
-  const grainBase = (isDark ? 0.14 : 0.09) * cfg.grain;
+  const grainBase = (isDark ? 0.14 : 0.13) * cfg.grain;
   const grainOpacity = grainAnim.interpolate({ inputRange: [0, 1], outputRange: [grainBase * 0.45, grainBase] });
-  const washMul = (isDark ? 1.35 : 1.0) * cfg.wash;
+  const washMul = (isDark ? 1.35 : 1.4) * cfg.wash;
 
   const tx1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-52, 52, -52] });
   const ty1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 42, 0] });
