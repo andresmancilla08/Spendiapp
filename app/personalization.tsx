@@ -452,8 +452,9 @@ export default function PersonalizationScreen() {
     if (!isPremium) router.replace('/upgrade' as Parameters<typeof router.replace>[0]);
   }, [isPremium]);
   const {
-    colors, paletteId, setPaletteId,
-    backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
+    colors, isDark, paletteId, setPaletteId,
+    backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
+    backgroundIntensity, setBackgroundIntensity,
     backgroundSpeed, setBackgroundSpeed,
     cardSheen, setCardSheen,
     iconStroke, setIconStroke,
@@ -513,6 +514,11 @@ export default function PersonalizationScreen() {
     return true;
   });
 
+  // Modo cuyo fondo se está editando — permite un efecto distinto para claro y
+  // oscuro. Por defecto, el modo activo ahora mismo.
+  const [bgTarget, setBgTarget] = useState<'light' | 'dark'>(isDark ? 'dark' : 'light');
+  const targetBgStyle = bgTarget === 'dark' ? backgroundStyleDark : backgroundStyleLight;
+
   // Ninguna sección abierta al entrar; abrir una cierra la que estuviera abierta.
   const [openSection, setOpenSection] = useState<string | null>(null);
   const toggleSection = (id: string) => setOpenSection((cur) => (cur === id ? null : id));
@@ -530,13 +536,13 @@ export default function PersonalizationScreen() {
     if (!user?.uid) return;
     const timer = setTimeout(() => {
       updateUserPersonalization(user.uid, {
-        backgroundStyle, backgroundIntensity, backgroundSpeed,
+        backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed,
         cardSheen, iconStroke, streakConfetti,
         chartType, chartAnimStyle, chartSpeed, chartAccent,
       }).catch(() => {});
     }, 800);
     return () => clearTimeout(timer);
-  }, [user?.uid, backgroundStyle, backgroundIntensity, backgroundSpeed, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent]);
+  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent]);
 
   return (
     <ScreenTransition>
@@ -551,9 +557,20 @@ export default function PersonalizationScreen() {
             </AccordionSection>
 
             <AccordionSection id="background" icon="image-outline" title={t('personalization.sectionBackground')} open={openSection === 'background'} onToggle={toggleSection}>
+              {/* Un fondo por modo: elige cuál estás editando */}
+              <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.bgTargetLabel')}</Text>
+              <AppSegmentedControl
+                segments={[
+                  { key: 'light', label: t('personalization.bgTarget.light') },
+                  { key: 'dark', label: t('personalization.bgTarget.dark') },
+                ]}
+                activeKey={bgTarget}
+                onChange={(key) => setBgTarget(key as 'light' | 'dark')}
+                style={styles.bgGridSpacing}
+              />
               {/* Controles globales ANTES de la grilla: afectan a todos los
                   previews y así se descubren sin scrollear 6 filas de tarjetas */}
-              {backgroundStyle !== 'none' && (
+              {targetBgStyle !== 'none' && (
                 <>
                   <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.bgIntensityLabel')}</Text>
                   <AppSegmentedControl
@@ -576,10 +593,10 @@ export default function PersonalizationScreen() {
                     key={key}
                     styleKey={key}
                     label={t(`personalization.background.${key}`)}
-                    selected={backgroundStyle === key}
+                    selected={targetBgStyle === key}
                     intensity={backgroundIntensity}
                     speed={BACKGROUND_SPEED_FACTOR[backgroundSpeed]}
-                    onPress={() => setBackgroundStyle(key)}
+                    onPress={() => setBackgroundStyleFor(bgTarget, key)}
                   />
                 ))}
               </View>

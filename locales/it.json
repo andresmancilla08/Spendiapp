@@ -447,6 +447,11 @@
       "slow": "Lenta",
       "normal": "Normale",
       "fast": "Veloce"
+    },
+    "bgTargetLabel": "Scegli lo sfondo per",
+    "bgTarget": {
+      "light": "Modalità chiara",
+      "dark": "Modalità scura"
     }
   },
   "settings": {
