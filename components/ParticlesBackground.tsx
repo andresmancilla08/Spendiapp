@@ -1,5 +1,5 @@
-import { useRef, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet, Platform } from 'react-native';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import { View, Animated, Easing, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import type { AuroraIntensity } from './AuroraBackground';
 
@@ -35,6 +35,12 @@ export default function ParticlesBackground({ intensity = 'default', speed = 1 }
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const glow = isDark ? 1.3 : 1.0;
+  const { height: windowHeight } = useWindowDimensions();
+  // Mide su propio contenedor: las partículas ascienden hasta la MITAD de la
+  // vista (no solo un tramo fijo del borde inferior), y en previews pequeños
+  // el recorrido escala igual.
+  const [ownHeight, setOwnHeight] = useState(0);
+  const travel = (ownHeight || windowHeight) * 0.55;
 
   // Multicolor tomado de la paleta → cada partícula hereda un acento distinto.
   const palette = useMemo(
@@ -42,28 +48,36 @@ export default function ParticlesBackground({ intensity = 'default', speed = 1 }
     [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info],
   );
 
+  // El recorrido antes era fijo (190px); al subir hasta media pantalla la
+  // duración escala con la distancia para mantener la misma velocidad percibida.
+  const durScale = Math.max(1, travel / 190);
+
   const particles = useMemo<ParticleConfig[]>(() => (
     Array.from({ length: cfg.count }, (_, i) => ({
       left: `${(i * 137.5) % 100}%` as const,
       size: 2.5 + (i * 7) % 5,
-      duration: (6000 + (i % 5) * 1400) * cfg.speed * speed,
+      duration: (6000 + (i % 5) * 1400) * cfg.speed * speed * durScale,
       delay: (i * 380) % 4200,
       baseOpacity: Math.min((0.28 + (i % 4) * 0.08) * cfg.opacity * glow, 0.95),
       sway: 10 + (i % 3) * 9,
       color: palette[i % palette.length],
     }))
-  ), [cfg.count, cfg.speed, cfg.opacity, glow, palette, speed]);
+  ), [cfg.count, cfg.speed, cfg.opacity, glow, palette, speed, durScale]);
 
   return (
-    <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+    <View
+      style={StyleSheet.absoluteFillObject}
+      pointerEvents="none"
+      onLayout={(e) => { const h = e.nativeEvent.layout.height; if (h && Math.abs(h - ownHeight) > 1) setOwnHeight(h); }}
+    >
       {particles.map((p, i) => (
-        <Particle key={i} config={p} />
+        <Particle key={i} config={p} travel={travel} />
       ))}
     </View>
   );
 }
 
-function Particle({ config }: { config: ParticleConfig }) {
+function Particle({ config, travel }: { config: ParticleConfig; travel: number }) {
   const anim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -80,7 +94,7 @@ function Particle({ config }: { config: ParticleConfig }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.duration, config.delay]);
 
-  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -190] });
+  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -travel] });
   const translateX = anim.interpolate({
     inputRange: [0, 0.25, 0.5, 0.75, 1],
     outputRange: [0, config.sway, 0, -config.sway, 0],
