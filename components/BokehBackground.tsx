@@ -1,5 +1,5 @@
-import { useRef, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet, Platform } from 'react-native';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import { View, Animated, Easing, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import type { AuroraIntensity } from './AuroraBackground';
 
@@ -26,6 +26,13 @@ export default function BokehBackground({ intensity = 'default', speed = 1 }: Pr
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const glow = isDark ? 1.25 : 1.0;
+  const { height: windowHeight } = useWindowDimensions();
+  // Igual que Partículas: los orbes flotan hasta la MITAD de la vista, no solo
+  // un tramo fijo del borde inferior; en previews el recorrido escala igual.
+  const [ownHeight, setOwnHeight] = useState(0);
+  const travel = (ownHeight || windowHeight) * 0.55;
+  // Recorrido original ~300px; la duración escala para conservar velocidad.
+  const durScale = Math.max(1, travel / 300);
 
   const palette = useMemo(
     () => [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info],
@@ -37,23 +44,27 @@ export default function BokehBackground({ intensity = 'default', speed = 1 }: Pr
       left: `${(i * 137.5) % 100}%` as const,
       size: 46 + (i * 23) % 90,
       color: palette[i % palette.length],
-      dur: (14000 + (i % 6) * 2600) * speed,
+      dur: (14000 + (i % 6) * 2600) * speed * durScale,
       delay: (i * 900) % 7000,
       base: (0.10 + (i % 3) * 0.05) * cfg.opacity * glow,
       drift: (i % 2 === 0 ? 1 : -1) * (24 + (i % 3) * 16),
     }))
-  ), [cfg.count, cfg.opacity, glow, palette, speed]);
+  ), [cfg.count, cfg.opacity, glow, palette, speed, durScale]);
 
   return (
-    <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+    <View
+      style={StyleSheet.absoluteFillObject}
+      pointerEvents="none"
+      onLayout={(e) => { const h = e.nativeEvent.layout.height; if (h && Math.abs(h - ownHeight) > 1) setOwnHeight(h); }}
+    >
       {orbs.map((o, i) => (
-        <OrbView key={i} orb={o} dark={isDark} />
+        <OrbView key={i} orb={o} dark={isDark} travel={travel} />
       ))}
     </View>
   );
 }
 
-function OrbView({ orb, dark }: { orb: Orb; dark: boolean }) {
+function OrbView({ orb, dark, travel }: { orb: Orb; dark: boolean; travel: number }) {
   const anim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -70,7 +81,7 @@ function OrbView({ orb, dark }: { orb: Orb; dark: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orb.dur, orb.delay]);
 
-  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [40, -260] });
+  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [40, -travel] });
   const translateX = anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, orb.drift, 0] });
   const opacity = anim.interpolate({
     inputRange: [0, 0.18, 0.5, 0.82, 1],

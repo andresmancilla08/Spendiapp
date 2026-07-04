@@ -35,6 +35,20 @@ export default function StarfieldBackground({ intensity = 'default', speed = 1 }
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
 
+  // Deriva global del cielo: además del titileo por estrella, todo el campo
+  // se desplaza suavemente — garantiza movimiento perceptible siempre.
+  const drift = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.timing(drift, { toValue: 1, duration: 14000 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+    );
+    loop.start();
+    return () => loop.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [speed]);
+  const driftX = drift.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 14, 0] });
+  const driftY = drift.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, -10, 0] });
+
   const stars = useMemo<StarConfig[]>(() => (
     Array.from({ length: cfg.count }, (_, i) => ({
       left: `${(i * 137.508) % 100}%` as const,
@@ -51,9 +65,11 @@ export default function StarfieldBackground({ intensity = 'default', speed = 1 }
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-      {stars.map((s, i) => (
-        <Star key={`${intensity}-${i}`} config={s} speed={speed} />
-      ))}
+      <Animated.View style={[StyleSheet.absoluteFillObject, { transform: [{ translateX: driftX }, { translateY: driftY }] }]}>
+        {stars.map((s, i) => (
+          <Star key={`${intensity}-${i}`} config={s} speed={speed} />
+        ))}
+      </Animated.View>
       {cfg.shooting && <ShootingStar color={isDark ? '#FFFFFF' : colors.primary} speed={speed} />}
     </View>
   );
