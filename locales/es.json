@@ -447,6 +447,11 @@
       "slow": "Lenta",
       "normal": "Normal",
       "fast": "Rápida"
+    },
+    "bgTargetLabel": "Elegir fondo para",
+    "bgTarget": {
+      "light": "Modo claro",
+      "dark": "Modo oscuro"
     }
   },
   "settings": {

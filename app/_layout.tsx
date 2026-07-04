@@ -28,7 +28,7 @@ import { FeatureFlagsProvider, useFlags } from '../context/FeatureFlagsContext';
 function PaletteLoader() {
   const { user } = useAuthStore();
   const {
-    setPaletteId, setBackgroundStyle, setBackgroundIntensity, setBackgroundSpeed,
+    setPaletteId, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundSpeed,
     setCardSheen, setIconStroke, setStreakConfetti,
     setChartType, setChartAnimStyle, setChartSpeed, setChartAccent,
   } = useTheme();
@@ -44,7 +44,15 @@ function PaletteLoader() {
         // (AsyncStorage) porque es lo último que el usuario guardó con sesión.
         const p = profile?.personalization;
         if (!p) return;
-        if (BACKGROUND_STYLE_VALUES.includes(p.backgroundStyle as BackgroundStyle)) setBackgroundStyle(p.backgroundStyle as BackgroundStyle);
+        // Fondo por modo — el campo legado (backgroundStyle único) siembra ambos.
+        const legacyBg = BACKGROUND_STYLE_VALUES.includes(p.backgroundStyle as BackgroundStyle)
+          ? (p.backgroundStyle as BackgroundStyle) : null;
+        const bgLight = BACKGROUND_STYLE_VALUES.includes(p.backgroundStyleLight as BackgroundStyle)
+          ? (p.backgroundStyleLight as BackgroundStyle) : legacyBg;
+        const bgDark = BACKGROUND_STYLE_VALUES.includes(p.backgroundStyleDark as BackgroundStyle)
+          ? (p.backgroundStyleDark as BackgroundStyle) : legacyBg;
+        if (bgLight) setBackgroundStyleFor('light', bgLight);
+        if (bgDark) setBackgroundStyleFor('dark', bgDark);
         if (['subtle', 'default', 'intense'].includes(p.backgroundIntensity as string)) setBackgroundIntensity(p.backgroundIntensity as AuroraIntensity);
         if (['slow', 'normal', 'fast'].includes(p.backgroundSpeed as string)) setBackgroundSpeed(p.backgroundSpeed as BackgroundSpeed);
         if (typeof p.cardSheen === 'boolean') setCardSheen(p.cardSheen);

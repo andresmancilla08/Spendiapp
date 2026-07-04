@@ -7,7 +7,9 @@ import type { AuroraIntensity } from '../components/AuroraBackground';
 
 const THEME_KEY = '@spendiapp_theme';
 const PALETTE_KEY = '@spendiapp_palette';
-const BG_STYLE_KEY = '@spendiapp_bg_style';
+const BG_STYLE_KEY = '@spendiapp_bg_style'; // legado — migra a light/dark
+const BG_STYLE_LIGHT_KEY = '@spendiapp_bg_style_light';
+const BG_STYLE_DARK_KEY = '@spendiapp_bg_style_dark';
 const BG_INTENSITY_KEY = '@spendiapp_bg_intensity';
 const BG_SPEED_KEY = '@spendiapp_bg_speed';
 const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
@@ -41,8 +43,14 @@ interface ThemeContextValue {
   setPaletteId: (id: PaletteId) => void;
   activePalette: PaletteDefinition;
   // Efectos visuales premium — personalización más allá del color.
+  /** Fondo del modo ACTIVO (derivado de light/dark según el tema actual). */
   backgroundStyle: BackgroundStyle;
+  /** Asigna el fondo del modo activo (compat). */
   setBackgroundStyle: (style: BackgroundStyle) => void;
+  backgroundStyleLight: BackgroundStyle;
+  backgroundStyleDark: BackgroundStyle;
+  /** Asigna el fondo de un modo concreto — permite un efecto distinto en claro y oscuro. */
+  setBackgroundStyleFor: (mode: 'light' | 'dark', style: BackgroundStyle) => void;
   backgroundIntensity: AuroraIntensity;
   setBackgroundIntensity: (intensity: AuroraIntensity) => void;
   backgroundSpeed: BackgroundSpeed;
@@ -75,6 +83,9 @@ const ThemeContext = createContext<ThemeContextValue>({
   activePalette: defaultPalette,
   backgroundStyle: 'aurora',
   setBackgroundStyle: () => {},
+  backgroundStyleLight: 'aurora',
+  backgroundStyleDark: 'aurora',
+  setBackgroundStyleFor: () => {},
   backgroundIntensity: 'default',
   setBackgroundIntensity: () => {},
   backgroundSpeed: 'normal',
@@ -99,7 +110,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
   const [paletteId, setPaletteIdState] = useState<PaletteId>('deepWater');
-  const [backgroundStyle, setBackgroundStyleState] = useState<BackgroundStyle>('aurora');
+  const [backgroundStyleLight, setBackgroundStyleLightState] = useState<BackgroundStyle>('aurora');
+  const [backgroundStyleDark, setBackgroundStyleDarkState] = useState<BackgroundStyle>('aurora');
   const [backgroundIntensity, setBackgroundIntensityState] = useState<AuroraIntensity>('default');
   const [backgroundSpeed, setBackgroundSpeedState] = useState<BackgroundSpeed>('normal');
   const [cardSheen, setCardSheenState] = useState(true);
@@ -115,6 +127,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(THEME_KEY),
       AsyncStorage.getItem(PALETTE_KEY),
       AsyncStorage.getItem(BG_STYLE_KEY),
+      AsyncStorage.getItem(BG_STYLE_LIGHT_KEY),
+      AsyncStorage.getItem(BG_STYLE_DARK_KEY),
       AsyncStorage.getItem(BG_INTENSITY_KEY),
       AsyncStorage.getItem(BG_SPEED_KEY),
       AsyncStorage.getItem(CARD_SHEEN_KEY),
@@ -124,15 +138,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(CHART_ANIM_KEY),
       AsyncStorage.getItem(CHART_SPEED_KEY),
       AsyncStorage.getItem(CHART_ACCENT_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedBgSpeed, storedSheen, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent]) => {
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBgSpeed, storedSheen, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
       if (storedPalette && PALETTE_MAP[storedPalette as PaletteId]) {
         setPaletteIdState(storedPalette as PaletteId);
       }
-      if (BACKGROUND_STYLE_VALUES.includes(storedBgStyle as BackgroundStyle)) {
-        setBackgroundStyleState(storedBgStyle as BackgroundStyle);
+      // Migración: la preferencia única legada siembra ambos modos si aún no
+      // tienen valor propio.
+      const legacy = BACKGROUND_STYLE_VALUES.includes(storedBgStyle as BackgroundStyle)
+        ? (storedBgStyle as BackgroundStyle) : null;
+      if (BACKGROUND_STYLE_VALUES.includes(storedBgLight as BackgroundStyle)) {
+        setBackgroundStyleLightState(storedBgLight as BackgroundStyle);
+      } else if (legacy) {
+        setBackgroundStyleLightState(legacy);
+      }
+      if (BACKGROUND_STYLE_VALUES.includes(storedBgDark as BackgroundStyle)) {
+        setBackgroundStyleDarkState(storedBgDark as BackgroundStyle);
+      } else if (legacy) {
+        setBackgroundStyleDarkState(legacy);
       }
       if (storedBgIntensity === 'intense' || storedBgIntensity === 'default' || storedBgIntensity === 'subtle') {
         setBackgroundIntensityState(storedBgIntensity);
@@ -160,9 +185,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(PALETTE_KEY, id);
   };
 
-  const setBackgroundStyle = async (style: BackgroundStyle) => {
-    setBackgroundStyleState(style);
-    await AsyncStorage.setItem(BG_STYLE_KEY, style);
+  const setBackgroundStyleFor = async (mode: 'light' | 'dark', style: BackgroundStyle) => {
+    if (mode === 'dark') {
+      setBackgroundStyleDarkState(style);
+      await AsyncStorage.setItem(BG_STYLE_DARK_KEY, style);
+    } else {
+      setBackgroundStyleLightState(style);
+      await AsyncStorage.setItem(BG_STYLE_LIGHT_KEY, style);
+    }
   };
 
   const setBackgroundIntensity = async (intensity: AuroraIntensity) => {
@@ -213,6 +243,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const isDark =
     themeMode === 'dark' || (themeMode === 'system' && systemScheme === 'dark');
 
+  // Fondo del modo activo + setter compat que escribe sobre el modo actual.
+  const backgroundStyle = isDark ? backgroundStyleDark : backgroundStyleLight;
+  const setBackgroundStyle = (style: BackgroundStyle) =>
+    setBackgroundStyleFor(isDark ? 'dark' : 'light', style);
+
   const activePalette = PALETTE_MAP[paletteId];
   const colors = isDark ? activePalette.colors.dark : activePalette.colors.light;
 
@@ -220,6 +255,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     <ThemeContext.Provider value={{
       colors, isDark, themeMode, setThemeMode, paletteId, setPaletteId, activePalette,
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
+      backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
       backgroundSpeed, setBackgroundSpeed,
       cardSheen, setCardSheen,
       iconStroke, setIconStroke,
