@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Platform, View } from 'react-native';
 import { Stack, router, usePathname } from 'expo-router';
+import { ThemeProvider as NavigationThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { onAuthStateChanged, signOut } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
 import { getRedirectResult } from 'firebase/auth';
@@ -61,16 +62,26 @@ function PaletteLoader() {
 }
 
 function ThemedStack() {
+  const { isDark } = useTheme();
+  // El fondo real es AppBackground, global y persistente detrás del Stack.
+  // No basta contentStyle: el <Background> de react-navigation pinta
+  // colors.background del THEME de navegación en cada pantalla — hay que
+  // hacerlo transparente también, o tapa el fondo global con gris plano.
+  const base = isDark ? DarkTheme : DefaultTheme;
+  const navTheme = {
+    ...base,
+    colors: { ...base.colors, background: 'transparent' },
+  };
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        animation: 'none',
-        // Transparente: el fondo real es AppBackground, global y persistente
-        // detrás del Stack — así los efectos no se reinician al navegar.
-        contentStyle: { backgroundColor: 'transparent' },
-      }}
-    />
+    <NavigationThemeProvider value={navTheme}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: 'none',
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
+      />
+    </NavigationThemeProvider>
   );
 }
 
