@@ -1216,6 +1216,17 @@
       "item1": "Il riempimento non scompare più né appare quasi trasparente",
       "item2": "Nessun bordo netto o taglio — il degradé si dissolve in modo fluido",
       "item3": "Appare coerente in modalità chiara e scura"
+    },
+    "animatedBackgrounds": {
+      "title": "Sfondi animati premium",
+      "item1": "4 nuovi effetti: Seta, Cielo stellato, Raggi di luce e Costellazioni",
+      "item2": "Controllo velocità e sfondi finalmente visibili in modalità scura",
+      "item3": "Niente più sfarfallio tra le schermate: sfondo continuo in tutta l’app"
+    },
+    "profileCard": {
+      "title": "Profilo rinnovato",
+      "item1": "Scheda compatta con avatar, badge dorato e bagliore premium",
+      "item2": "Il tuo @username e metodo di accesso sempre visibili"
     }
   },
   "incomeClaim": {
