@@ -14,7 +14,7 @@
 - **Causa real:** los previews renderizan el efecto REAL (fidelidad > coste); decisión consciente.
 - **Solución (si duele):** renderizar estático todo salvo la tarjeta seleccionada/visible.
 
-### Personalización: sync Firestore es last-write-wins
-- **Síntoma:** prefs guardadas desde otro dispositivo pueden pisarse si se edita con datos locales viejos.
-- **Causa real:** el useEffect de sync en personalization.tsx escribe el mapa completo (debounce 800ms); la hidratación local y la de Firestore corren en paralelo.
-- **Solución (si duele):** sincronizar desde los handlers de interacción, no desde useEffect.
+### Personalización: sync Firestore es last-write-wins POR TIMESTAMP (resuelto)
+- **Síntoma histórico:** las prefs de gráfico/fondo "no se aplicaban" — cada recarga las revertía.
+- **Causa real:** el debounce de 800ms se cancelaba al desmontar (últimos cambios nunca se escribían) y PaletteLoader aplicaba el doc remoto viejo encima de lo local fresco.
+- **Solución aplicada (be63871):** cada escritura lleva `updatedAt` + flush al desmontar; el arranque solo aplica lo remoto si `remoteTs > localTs` (clave local `@spendiapp_personalization_synced_at`).
