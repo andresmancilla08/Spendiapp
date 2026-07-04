@@ -10,7 +10,8 @@ import { auth, db } from '../config/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
-import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent } from '../context/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent } from '../context/ThemeContext';
 import { PALETTE_MAP } from '../config/palettes';
 import AppBackground from '../components/AppBackground';
 import { ToastProvider } from '../context/ToastContext';
@@ -35,15 +36,20 @@ function PaletteLoader() {
 
   useEffect(() => {
     if (!user?.uid) return;
-    getUserProfile(user.uid)
-      .then((profile) => {
+    Promise.all([getUserProfile(user.uid), AsyncStorage.getItem(PERSONALIZATION_SYNCED_AT_KEY)])
+      .then(([profile, localTsRaw]) => {
         if (profile?.colorPalette && PALETTE_MAP[profile.colorPalette as PaletteId]) {
           setPaletteId(profile.colorPalette as PaletteId);
         }
-        // Personalización premium sincronizada con la cuenta — pisa lo local
-        // (AsyncStorage) porque es lo último que el usuario guardó con sesión.
         const p = profile?.personalization;
         if (!p) return;
+        // Solo aplicar lo remoto si es MÁS RECIENTE que la última escritura
+        // local — si este dispositivo tiene elecciones frescas, no se pisan.
+        // (Doc remoto sin updatedAt = legado: solo se usa si aquí nunca se
+        // personalizó nada.)
+        const localTs = localTsRaw ? Number(localTsRaw) : 0;
+        const remoteTs = typeof p.updatedAt === 'number' ? p.updatedAt : 0;
+        if (localTs && remoteTs <= localTs) return;
         // Fondo por modo — el campo legado (backgroundStyle único) siembra ambos.
         const legacyBg = BACKGROUND_STYLE_VALUES.includes(p.backgroundStyle as BackgroundStyle)
           ? (p.backgroundStyle as BackgroundStyle) : null;

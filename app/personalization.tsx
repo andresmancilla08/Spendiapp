@@ -13,7 +13,8 @@ import ScreenTransition from '../components/ScreenTransition';
 import AppSegmentedControl from '../components/AppSegmentedControl';
 import PaletteGrid from '../components/PaletteGrid';
 import { BackgroundEffect } from '../components/AppBackground';
-import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, type BackgroundStyle, type BackgroundSpeed, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { updateUserColorPalette, updateUserPersonalization } from '../hooks/useUserProfile';
 import { Sparkline, resolveChartAccent, resolveChartAccent2 } from '../components/BalanceCard';
@@ -530,19 +531,38 @@ export default function PersonalizationScreen() {
 
   // Sync a Firestore (debounced): toda la personalización viaja con la cuenta,
   // no solo la paleta — sobrevive reinstalaciones y cambios de dispositivo.
+  // Con `updatedAt`: el arranque solo aplica lo remoto si es MÁS RECIENTE que
+  // lo local (antes, un doc viejo pisaba las elecciones frescas del usuario y
+  // parecía que la personalización "no se aplicaba").
+  const prefsRef = useRef<Parameters<typeof updateUserPersonalization>[1] | null>(null);
+  prefsRef.current = {
+    backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed,
+    cardSheen, iconStroke, streakConfetti,
+    chartType, chartAnimStyle, chartSpeed, chartAccent,
+  };
+  const dirtyRef = useRef(false);
   const isFirstSync = useRef(true);
+  const syncNow = (uid: string) => {
+    dirtyRef.current = false;
+    const now = Date.now();
+    AsyncStorage.setItem(PERSONALIZATION_SYNCED_AT_KEY, String(now)).catch(() => {});
+    updateUserPersonalization(uid, { ...prefsRef.current!, updatedAt: now }).catch(() => {});
+  };
   useEffect(() => {
     if (isFirstSync.current) { isFirstSync.current = false; return; }
     if (!user?.uid) return;
-    const timer = setTimeout(() => {
-      updateUserPersonalization(user.uid, {
-        backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed,
-        cardSheen, iconStroke, streakConfetti,
-        chartType, chartAnimStyle, chartSpeed, chartAccent,
-      }).catch(() => {});
-    }, 800);
+    dirtyRef.current = true;
+    const timer = setTimeout(() => syncNow(user.uid), 800);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent]);
+  // Flush al desmontar: antes el debounce pendiente se CANCELABA al salir de la
+  // pantalla y los últimos cambios nunca llegaban a Firestore.
+  useEffect(() => () => {
+    const uid = useAuthStore.getState().user?.uid;
+    if (dirtyRef.current && uid) syncNow(uid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <ScreenTransition>
