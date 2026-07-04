@@ -375,7 +375,11 @@
       "waves": "Ondas",
       "grain": "Grano",
       "mesh": "Malla",
-      "bokeh": "Bokeh"
+      "bokeh": "Bokeh",
+      "flow": "Seda",
+      "starfield": "Estrellas",
+      "rays": "Haces de luz",
+      "constellation": "Constelaciones"
     },
     "intensity": {
       "subtle": "Sutil",
@@ -436,6 +440,13 @@
       "signed": "Dinámico",
       "signedLine": "Línea dinámica",
       "signedFill": "Contenido dinámico"
+    },
+    "bgIntensityLabel": "Intensidad",
+    "bgSpeedLabel": "Velocidad",
+    "bgSpeed": {
+      "slow": "Lenta",
+      "normal": "Normal",
+      "fast": "Rápida"
     }
   },
   "settings": {

@@ -11,15 +11,10 @@ import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition from '../components/ScreenTransition';
 import AppSegmentedControl from '../components/AppSegmentedControl';
 import PaletteGrid from '../components/PaletteGrid';
-import AuroraBackground from '../components/AuroraBackground';
-import ParticlesBackground from '../components/ParticlesBackground';
-import WavesBackground from '../components/WavesBackground';
-import GrainBackground from '../components/GrainBackground';
-import MeshBackground from '../components/MeshBackground';
-import BokehBackground from '../components/BokehBackground';
-import { useTheme, type BackgroundStyle, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
+import { BackgroundEffect } from '../components/AppBackground';
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, type BackgroundStyle, type BackgroundSpeed, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
-import { updateUserColorPalette } from '../hooks/useUserProfile';
+import { updateUserColorPalette, updateUserPersonalization } from '../hooks/useUserProfile';
 import { Sparkline, resolveChartAccent, resolveChartAccent2 } from '../components/BalanceCard';
 import { Fonts } from '../config/fonts';
 
@@ -91,12 +86,12 @@ function SwitchRow({ icon, label, sub, value, onValueChange, isLast }: {
   );
 }
 
-const BACKGROUND_STYLES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh'];
+const BACKGROUND_STYLES: BackgroundStyle[] = BACKGROUND_STYLE_VALUES;
 
 // ── Tarjeta de fondo con vista previa EN VIVO (renderiza el efecto real a la
-// intensidad seleccionada, no un mockup) ──
-function BackgroundPreviewCard({ styleKey, label, selected, intensity, onPress }: {
-  styleKey: BackgroundStyle; label: string; selected: boolean; intensity: AuroraIntensity; onPress: () => void;
+// intensidad y velocidad seleccionadas, no un mockup) ──
+function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, onPress }: {
+  styleKey: BackgroundStyle; label: string; selected: boolean; intensity: AuroraIntensity; speed: number; onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -112,17 +107,13 @@ function BackgroundPreviewCard({ styleKey, label, selected, intensity, onPress }
       ]}
     >
       <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
-        {/* key={intensity} → remonta el efecto al cambiar la intensidad, para que la vista previa refleje el cambio al instante */}
-        {styleKey === 'aurora' && <AuroraBackground key={intensity} intensity={intensity} />}
-        {styleKey === 'particles' && <ParticlesBackground key={intensity} intensity={intensity} />}
-        {styleKey === 'waves' && <WavesBackground key={intensity} intensity={intensity} />}
-        {styleKey === 'grain' && <GrainBackground key={intensity} intensity={intensity} />}
-        {styleKey === 'mesh' && <MeshBackground key={intensity} intensity={intensity} />}
-        {styleKey === 'bokeh' && <BokehBackground key={intensity} intensity={intensity} />}
-        {styleKey === 'none' && (
+        {/* key → remonta el efecto al cambiar intensidad/velocidad, para que la vista previa refleje el cambio al instante */}
+        {styleKey === 'none' ? (
           <View style={styles.bgNoneWrap}>
             <AppIcon name="close-outline" size={18} color={colors.textTertiary} />
           </View>
+        ) : (
+          <BackgroundEffect key={`${intensity}-${speed}`} styleKey={styleKey} intensity={intensity} speed={speed} />
         )}
       </View>
       <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
@@ -213,6 +204,7 @@ function CardEffectPreview({ sheen }: { sheen: boolean }) {
 }
 
 const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
+const BG_SPEED_OPTIONS: BackgroundSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
 const CHART_TYPES: ChartType[] = ['line', 'bars', 'area', 'dots'];
@@ -446,6 +438,7 @@ export default function PersonalizationScreen() {
   const {
     colors, paletteId, setPaletteId,
     backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
+    backgroundSpeed, setBackgroundSpeed,
     cardSheen, setCardSheen,
     iconStroke, setIconStroke,
     streakConfetti, setStreakConfetti,
@@ -473,7 +466,7 @@ export default function PersonalizationScreen() {
         easing: Easing.inOut(Easing.sin),
         useNativeDriver: Platform.OS !== 'web',
       }).start();
-    }, 60000);
+    }, 6000);
     return () => clearInterval(id);
   }, [chartAccent, signedFade]);
 
@@ -513,6 +506,22 @@ export default function PersonalizationScreen() {
     if (user?.uid) updateUserColorPalette(user.uid, id).catch(() => {});
   };
 
+  // Sync a Firestore (debounced): toda la personalización viaja con la cuenta,
+  // no solo la paleta — sobrevive reinstalaciones y cambios de dispositivo.
+  const isFirstSync = useRef(true);
+  useEffect(() => {
+    if (isFirstSync.current) { isFirstSync.current = false; return; }
+    if (!user?.uid) return;
+    const timer = setTimeout(() => {
+      updateUserPersonalization(user.uid, {
+        backgroundStyle, backgroundIntensity, backgroundSpeed,
+        cardSheen, iconStroke, streakConfetti,
+        chartType, chartAnimStyle, chartSpeed, chartAccent,
+      }).catch(() => {});
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [user?.uid, backgroundStyle, backgroundIntensity, backgroundSpeed, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent]);
+
   return (
     <ScreenTransition>
       <SafeAreaView style={styles.safe}>
@@ -534,17 +543,26 @@ export default function PersonalizationScreen() {
                     label={t(`personalization.background.${key}`)}
                     selected={backgroundStyle === key}
                     intensity={backgroundIntensity}
+                    speed={BACKGROUND_SPEED_FACTOR[backgroundSpeed]}
                     onPress={() => setBackgroundStyle(key)}
                   />
                 ))}
               </View>
               {backgroundStyle !== 'none' && (
-                <AppSegmentedControl
-                  segments={INTENSITY_OPTIONS.map((i) => ({ key: i, label: t(`personalization.intensity.${i}`) }))}
-                  activeKey={backgroundIntensity}
-                  onChange={(key) => setBackgroundIntensity(key as AuroraIntensity)}
-                  style={styles.intensitySpacing}
-                />
+                <>
+                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgIntensityLabel')}</Text>
+                  <AppSegmentedControl
+                    segments={INTENSITY_OPTIONS.map((i) => ({ key: i, label: t(`personalization.intensity.${i}`) }))}
+                    activeKey={backgroundIntensity}
+                    onChange={(key) => setBackgroundIntensity(key as AuroraIntensity)}
+                  />
+                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgSpeedLabel')}</Text>
+                  <AppSegmentedControl
+                    segments={BG_SPEED_OPTIONS.map((s) => ({ key: s, label: t(`personalization.bgSpeed.${s}`) }))}
+                    activeKey={backgroundSpeed}
+                    onChange={(key) => setBackgroundSpeed(key as BackgroundSpeed)}
+                  />
+                </>
               )}
             </AccordionSection>
 
@@ -704,6 +722,7 @@ const styles = StyleSheet.create({
   accordionTitle: { flex: 1, fontSize: 14, fontFamily: Fonts.semiBold },
   accordionContent: { paddingHorizontal: 16, paddingBottom: 16 },
   intensitySpacing: { marginTop: 10 },
+  bgControlLabel: { marginTop: 14 },
   bgGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   bgCard: { width: '47%', flexGrow: 1, borderRadius: 16, borderWidth: 2, padding: 8, alignItems: 'center' },
   bgPreviewBox: { width: '100%', height: 64, borderRadius: 10, overflow: 'hidden', position: 'relative', marginBottom: 8 },

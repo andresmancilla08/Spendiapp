@@ -13,11 +13,15 @@ const MULTIPLIER: Record<AuroraIntensity, number> = {
 
 interface Props {
   intensity?: AuroraIntensity;
+  /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
+  speed?: number;
 }
 
-export default function AuroraBackground({ intensity = 'default' }: Props) {
+export default function AuroraBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, activePalette } = useTheme();
-  const m = MULTIPLIER[intensity] * (isDark ? 2.4 : 1.0);
+  // En dark el scrim del fondo va DEBAJO de los efectos (AppBackground), así
+  // que el multiplicador solo compensa el menor contraste, no un overlay.
+  const m = MULTIPLIER[intensity] * (isDark ? 1.35 : 1.0);
 
   const b1 = useRef(new Animated.Value(0.00)).current;
   const b2 = useRef(new Animated.Value(0.33)).current;
@@ -30,7 +34,7 @@ export default function AuroraBackground({ intensity = 'default' }: Props) {
     const loop = (v: Animated.Value, dur: number, offset: number) => {
       v.setValue(offset);
       Animated.loop(
-        Animated.timing(v, { toValue: offset + 1, duration: dur, useNativeDriver: false, easing: Easing.linear }),
+        Animated.timing(v, { toValue: offset + 1, duration: dur * speed, useNativeDriver: false, easing: Easing.linear }),
       ).start();
     };
     loop(b1,  9000, 0.00);
@@ -43,7 +47,8 @@ export default function AuroraBackground({ intensity = 'default' }: Props) {
       b1.stopAnimation(); b2.stopAnimation(); b3.stopAnimation();
       b4.stopAnimation(); b5.stopAnimation(); b6.stopAnimation();
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [speed]);
 
   // Blob 1 — grande, top-left
   const op1      = b1.interpolate({ inputRange: [0, 0.5, 1],              outputRange: [0.28 * m, 0.55 * m, 0.28 * m], extrapolate: 'clamp' });

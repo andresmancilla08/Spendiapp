@@ -109,6 +109,14 @@ export async function updateUserColorPalette(uid: string, paletteId: string): Pr
   await updateDoc(doc(db, 'users', uid), { colorPalette: paletteId });
 }
 
+/** Sincroniza las preferencias de personalización premium con la cuenta. */
+export async function updateUserPersonalization(
+  uid: string,
+  prefs: NonNullable<UserProfile['personalization']>,
+): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { personalization: prefs });
+}
+
 /** Marca si el usuario ya vio la pantalla de novedades. */
 export async function setWhatsNewSeen(uid: string, version: string): Promise<void> {
   await updateDoc(doc(db, 'users', uid), { whatsNewSeen: version });
