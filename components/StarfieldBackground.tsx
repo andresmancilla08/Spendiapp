@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { View, Animated, Easing, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
@@ -42,11 +42,12 @@ export default function StarfieldBackground({ intensity = 'default', speed = 1 }
       size: 1.4 + (i * 3) % 3 * 0.8,
       dur: 1800 + (i % 6) * 700,
       delay: (i * 260) % 3000,
-      base: (0.35 + (i % 4) * 0.14) * cfg.opacity * (isDark ? 1.15 : 0.85),
-      // Cada 5ª estrella toma un acento de la paleta; el resto, luz neutra.
-      color: i % 5 === 0 ? colors.primary : (isDark ? '#E7ECFF' : colors.textSecondary),
+      base: Math.min((0.35 + (i % 4) * 0.14) * cfg.opacity * (isDark ? 1.15 : 0.85), 0.95),
+      // Dark: luz neutra con acento de paleta cada 5ª estrella. Light: todas
+      // con el primario (el gris neutro se lee como polvo, no como cielo).
+      color: isDark ? (i % 5 === 0 ? colors.primary : '#E7ECFF') : colors.primary,
     }))
-  ), [cfg.count, cfg.opacity, isDark, colors.primary, colors.textSecondary]);
+  ), [cfg.count, cfg.opacity, isDark, colors.primary]);
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
@@ -101,28 +102,36 @@ function Star({ config, speed }: { config: StarConfig; speed: number }) {
   );
 }
 
+// Trayectorias deterministas que rotan por ciclo — una fugaz siempre igual se
+// percibe como GIF en loop; tres rutas con delays distintos devuelven la magia.
+const SHOOTING_PATHS = [
+  { top: '14%', left: '6%',  angle: '29deg',  dx: 340,  dy: 190, delay: 5200 },
+  { top: '32%', left: '72%', angle: '152deg', dx: -300, dy: 165, delay: 8600 },
+  { top: '6%',  left: '44%', angle: '58deg',  dx: 190,  dy: 300, delay: 6800 },
+];
+
 function ShootingStar({ color, speed }: { color: string; speed: number }) {
   const anim = useRef(new Animated.Value(0)).current;
+  const [cycle, setCycle] = useState(0);
+  const path = SHOOTING_PATHS[cycle % SHOOTING_PATHS.length];
 
   useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.delay(6500 * speed),
-        Animated.timing(anim, { toValue: 1, duration: 900, easing: Easing.out(Easing.quad), useNativeDriver: false }),
-        Animated.timing(anim, { toValue: 0, duration: 0, useNativeDriver: false }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
+    anim.setValue(0);
+    const seq = Animated.sequence([
+      Animated.delay(path.delay * speed),
+      Animated.timing(anim, { toValue: 1, duration: 900 * speed, easing: Easing.out(Easing.quad), useNativeDriver: false }),
+    ]);
+    seq.start(({ finished }) => { if (finished) setCycle((c) => c + 1); });
+    return () => seq.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speed]);
+  }, [cycle, speed]);
 
-  const tx = anim.interpolate({ inputRange: [0, 1], outputRange: [0, 340] });
-  const ty = anim.interpolate({ inputRange: [0, 1], outputRange: [0, 190] });
+  const tx = anim.interpolate({ inputRange: [0, 1], outputRange: [0, path.dx] });
+  const ty = anim.interpolate({ inputRange: [0, 1], outputRange: [0, path.dy] });
   const opacity = anim.interpolate({ inputRange: [0, 0.12, 0.75, 1], outputRange: [0, 0.9, 0.5, 0] });
 
   return (
-    <Animated.View style={[styles.shooting, { opacity, transform: [{ translateX: tx }, { translateY: ty }, { rotate: '29deg' }] }]}>
+    <Animated.View style={[styles.shooting, { top: path.top as any, left: path.left as any, opacity, transform: [{ translateX: tx }, { translateY: ty }, { rotate: path.angle }] }]}>
       <LinearGradient
         colors={['transparent', color]}
         start={{ x: 0, y: 0.5 }}
@@ -135,5 +144,5 @@ function ShootingStar({ color, speed }: { color: string; speed: number }) {
 
 const styles = StyleSheet.create({
   star: { position: 'absolute' },
-  shooting: { position: 'absolute', top: '14%', left: '6%', width: 72, height: 2, borderRadius: 1, overflow: 'hidden' },
+  shooting: { position: 'absolute', width: 72, height: 2, borderRadius: 1, overflow: 'hidden' },
 });

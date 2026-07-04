@@ -1,7 +1,8 @@
-import { useRef, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet } from 'react-native';
+import { useRef, useMemo } from 'react';
+import { View, Animated, StyleSheet } from 'react-native';
 import Svg, { Circle, Line } from 'react-native-svg';
 import { useTheme } from '../context/ThemeContext';
+import { usePhasedLoop } from '../hooks/usePhasedLoop';
 import type { AuroraIntensity } from './AuroraBackground';
 
 const CONFIG: Record<AuroraIntensity, { clusters: number; opacity: number }> = {
@@ -16,7 +17,7 @@ const CLUSTER_SLOTS = [
   { left: '4%',  top: '6%' },
   { left: '58%', top: '16%' },
   { left: '14%', top: '46%' },
-  { left: '62%', top: '58%' },
+  { left: '74%', top: '58%' },
   { left: '36%', top: '28%' },
   { left: '28%', top: '74%' },
 ];
@@ -38,22 +39,28 @@ export default function ConstellationBackground({ intensity = 'default', speed =
 
   const clusters = useMemo(() => (
     CLUSTER_SLOTS.slice(0, cfg.clusters).map((slot, ci) => {
-      const points = Array.from({ length: 4 + (ci % 2) }, (_, i) => ({
+      const raw = Array.from({ length: 4 + (ci % 2) }, (_, i) => ({
         x: 14 + ((ci * 53 + i * 137.5) % (CLUSTER_SIZE - 28)),
         y: 14 + ((ci * 91 + i * 73.1) % (CLUSTER_SIZE - 28)),
         r: 1.6 + ((ci + i) % 3) * 0.7,
       }));
+      // Ordenar por ángulo respecto al centroide: la cadena de líneas forma un
+      // polígono abierto en vez de un garabato que se auto-cruza.
+      const cx = raw.reduce((s, p) => s + p.x, 0) / raw.length;
+      const cy = raw.reduce((s, p) => s + p.y, 0) / raw.length;
+      const points = [...raw].sort((a, b) => Math.atan2(a.y - cy, a.x - cx) - Math.atan2(b.y - cy, b.x - cx));
       return {
         ...slot,
         points,
         accent: ci % 3 === 0 ? colors.primary : starColor,
-        base: (0.5 + (ci % 3) * 0.12) * cfg.opacity,
+        base: (0.5 + (ci % 3) * 0.12) * cfg.opacity * (isDark ? 1.25 : 1.0),
         dur: 9000 + ci * 2600,
+        phase: (ci * 0.37) % 1,
         driftX: (ci % 2 === 0 ? 1 : -1) * (8 + (ci % 3) * 5),
         driftY: (ci % 3 === 0 ? -1 : 1) * (6 + (ci % 2) * 5),
       };
     })
-  ), [cfg.clusters, cfg.opacity, colors.primary, starColor]);
+  ), [cfg.clusters, cfg.opacity, colors.primary, starColor, isDark]);
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
@@ -66,22 +73,13 @@ export default function ConstellationBackground({ intensity = 'default', speed =
 
 function Cluster({ cluster, lineColor, speed }: {
   cluster: {
-    left: string; top: string; base: number; dur: number; driftX: number; driftY: number;
+    left: string; top: string; base: number; dur: number; phase: number; driftX: number; driftY: number;
     accent: string; points: { x: number; y: number; r: number }[];
   };
   lineColor: string; speed: number;
 }) {
   const v = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    v.setValue(0);
-    const loop = Animated.loop(
-      Animated.timing(v, { toValue: 1, duration: cluster.dur * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-    );
-    loop.start();
-    return () => loop.stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speed]);
+  usePhasedLoop(v, cluster.dur * speed, cluster.phase);
 
   const opacity = v.interpolate({
     inputRange: [0, 0.5, 1],

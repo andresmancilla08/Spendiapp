@@ -1,7 +1,8 @@
-import { useRef, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet, Platform } from 'react-native';
+import { useRef, useMemo } from 'react';
+import { View, Animated, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import { usePhasedLoop } from '../hooks/usePhasedLoop';
 import type { AuroraIntensity } from './AuroraBackground';
 
 const CONFIG: Record<AuroraIntensity, number> = { subtle: 0.45, default: 1.0, intense: 1.5 };
@@ -45,16 +46,8 @@ function Field({ field, opacityMul, blurStyle, phase, speed }: {
   opacityMul: number; blurStyle: object; phase: number; speed: number;
 }) {
   const v = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    v.setValue(0);
-    const loop = Animated.loop(
-      Animated.timing(v, { toValue: 1, duration: field.dur * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-    );
-    loop.start();
-    return () => loop.stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speed]);
+  // Cada campo arranca en una fase distinta — sin esto los 5 respiran al unísono.
+  usePhasedLoop(v, field.dur * speed, (phase * 0.21) % 1);
 
   const dir = phase % 2 === 0 ? 1 : -1;
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 40 * dir, 0] });

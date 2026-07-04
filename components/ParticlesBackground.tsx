@@ -48,7 +48,7 @@ export default function ParticlesBackground({ intensity = 'default', speed = 1 }
       size: 2.5 + (i * 7) % 5,
       duration: (6000 + (i % 5) * 1400) * cfg.speed * speed,
       delay: (i * 380) % 4200,
-      baseOpacity: (0.28 + (i % 4) * 0.08) * cfg.opacity * glow,
+      baseOpacity: Math.min((0.28 + (i % 4) * 0.08) * cfg.opacity * glow, 0.95),
       sway: 10 + (i % 3) * 9,
       color: palette[i % palette.length],
     }))
@@ -57,7 +57,7 @@ export default function ParticlesBackground({ intensity = 'default', speed = 1 }
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {particles.map((p, i) => (
-        <Particle key={`${intensity}-${speed}-${i}`} config={p} />
+        <Particle key={i} config={p} />
       ))}
     </View>
   );
@@ -76,8 +76,9 @@ function Particle({ config }: { config: ParticleConfig }) {
     );
     loop.start();
     return () => loop.stop();
+    // Reinicia in-place al cambiar velocidad/intensidad (duración/delay nuevos)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [config.duration, config.delay]);
 
   const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -190] });
   const translateX = anim.interpolate({

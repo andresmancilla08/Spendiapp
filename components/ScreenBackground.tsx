@@ -3,6 +3,8 @@ import { View, StyleSheet, ViewStyle, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import { useProMotion } from '../hooks/useProMotion';
+import { DARK_SCRIM } from './AppBackground';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
 
 interface Props {
@@ -23,6 +25,7 @@ const CONTENT_MAX_WIDTH: Record<string, number> = {
 export default function ScreenBackground({ children, style, auroraIntensity }: Props) {
   const { isDark, activePalette } = useTheme();
   const { breakpoint, isMobile } = useBreakpoint();
+  const { reduceMotion } = useProMotion();
 
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
 
@@ -56,8 +59,8 @@ export default function ScreenBackground({ children, style, auroraIntensity }: P
           style={[styles.fill, style]}
         >
           {/* Mismo orden de capas que AppBackground: scrim debajo del efecto */}
-          {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.7)' }]} pointerEvents="none" />}
-          <AuroraBackground intensity={auroraIntensity} />
+          {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} pointerEvents="none" />}
+          {!reduceMotion && <AuroraBackground intensity={auroraIntensity} />}
           {content}
         </LinearGradient>
       ) : (

@@ -1,7 +1,8 @@
-import { useRef, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet, Platform } from 'react-native';
+import { useRef, useMemo } from 'react';
+import { View, Animated, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import { usePhasedLoop } from '../hooks/usePhasedLoop';
 import type { AuroraIntensity } from './AuroraBackground';
 
 const CONFIG: Record<AuroraIntensity, { opacity: number; count: number }> = {
@@ -26,11 +27,11 @@ export default function RaysBackground({ intensity = 'default', speed = 1 }: Pro
   const glow = isDark ? 1.25 : 1.0;
 
   const rays = useMemo(() => ([
-    { color: colors.primary,   left: '8%',  width: 130, rotate: -14, base: 0.20, dur: 17000, sway: 26 },
-    { color: colors.secondary, left: '34%', width: 90,  rotate: -6,  base: 0.15, dur: 21000, sway: 18 },
-    { color: colors.tertiary,  left: '58%', width: 150, rotate: 8,   base: 0.17, dur: 19000, sway: 30 },
-    { color: colors.info,      left: '80%', width: 100, rotate: 15,  base: 0.13, dur: 23000, sway: 20 },
-    { color: colors.success,   left: '22%', width: 70,  rotate: 3,   base: 0.11, dur: 25000, sway: 14 },
+    { color: colors.primary,   left: '8%',  width: 130, rotate: -14, base: 0.20, dur: 17000, sway: 26, phase: 0 },
+    { color: colors.secondary, left: '34%', width: 90,  rotate: -6,  base: 0.15, dur: 21000, sway: 18, phase: 0.42 },
+    { color: colors.tertiary,  left: '58%', width: 150, rotate: 8,   base: 0.17, dur: 19000, sway: 30, phase: 0.21 },
+    { color: colors.info,      left: '80%', width: 100, rotate: 15,  base: 0.13, dur: 23000, sway: 20, phase: 0.63 },
+    { color: colors.success,   left: '22%', width: 70,  rotate: 3,   base: 0.11, dur: 25000, sway: 14, phase: 0.84 },
   ].slice(0, cfg.count)), [colors.primary, colors.secondary, colors.tertiary, colors.info, colors.success, cfg.count]);
 
   return (
@@ -43,20 +44,11 @@ export default function RaysBackground({ intensity = 'default', speed = 1 }: Pro
 }
 
 function Ray({ ray, opacityMul, speed }: {
-  ray: { color: string; left: string; width: number; rotate: number; base: number; dur: number; sway: number };
+  ray: { color: string; left: string; width: number; rotate: number; base: number; dur: number; sway: number; phase: number };
   opacityMul: number; speed: number;
 }) {
   const v = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    v.setValue(0);
-    const loop = Animated.loop(
-      Animated.timing(v, { toValue: 1, duration: ray.dur * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-    );
-    loop.start();
-    return () => loop.stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speed]);
+  usePhasedLoop(v, ray.dur * speed, ray.phase);
 
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-ray.sway, ray.sway, -ray.sway] });
   const opacity = v.interpolate({
