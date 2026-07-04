@@ -8,7 +8,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import { useState, useEffect, useRef, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useRef, useMemo, useId, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import AppIcon from './AppIcon';
 import { useTheme, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
@@ -239,6 +239,13 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   const [boxW, setBoxW] = useState(0);
   const stroke = accent ?? color;
   const fillColor = accent2 ?? stroke;
+  // ID de gradiente único por instancia — en web los ids de SVG son globales al
+  // documento, y con muchos Sparkline simultáneos (previews de personalización,
+  // capas de crossfade) un id fijo hacía que todos referenciaran el gradiente
+  // de la PRIMERA instancia montada, mostrando el color/relleno equivocado.
+  // Se sanea (sin ':') porque algunos motores SVG resuelven url(#id) como si
+  // fuera un selector CSS, donde ':' tiene significado especial (pseudo-clases).
+  const gradientId = `spk-${useId().replace(/:/g, '')}`;
 
   const pts = useMemo(() => {
     if (!values || values.length < 2) return [];
@@ -357,13 +364,13 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
     <View style={{ width: '100%', height }} onLayout={(e) => setBoxW(e.nativeEvent.layout.width)}>
       <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
         <Defs>
-          <SvgGradient id="spk" x1="0" y1="0" x2="0" y2="1">
+          <SvgGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={fillColor} stopOpacity={fillIsHero ? 0.65 : 0.18} />
             <Stop offset="0.6" stopColor={fillColor} stopOpacity={fillIsHero ? 0.32 : 0.03} />
             <Stop offset="1" stopColor={fillColor} stopOpacity={0} />
           </SvgGradient>
         </Defs>
-        {renderFill && <Path d={area} fill="url(#spk)" opacity={areaOpacity} />}
+        {renderFill && <Path d={area} fill={`url(#${gradientId})`} opacity={areaOpacity} />}
         {renderStroke && showLine && (
           <>
             {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}

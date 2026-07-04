@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, type ReactNode } from 'react';
+import { useRef, useState, useEffect, useId, type ReactNode } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -409,16 +409,25 @@ function AccentSwatch({ label, selected, lineColor, lineColor2, fillColor, fillC
   const fillSplit = !!fillColor2;
   const isDynamic = lineSplit || fillSplit;
   const c = SWATCH_SIZE / 2;
+  // IDs de gradiente únicos por instancia — en web los ids de SVG son globales
+  // al documento; con 9 swatches simultáneos, ids fijos hacían que todos los
+  // bicolores ("Dinámico", "Línea dinámica", "Contenido dinámico") mostraran
+  // el gradiente de la PRIMERA instancia montada en vez del suyo propio.
+  // Se sanea (sin ':') porque algunos motores SVG resuelven url(#id) como si
+  // fuera un selector CSS, donde ':' tiene significado especial (pseudo-clases).
+  const uid = useId().replace(/:/g, '');
+  const ringGradId = `ringGrad-${uid}`;
+  const fillGradId = `fillGrad-${uid}`;
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.accentSwatchWrap}>
       <View style={[styles.accentSwatch, { borderColor: selected ? colors.textPrimary : 'transparent' }]}>
         <Svg width={SWATCH_SIZE} height={SWATCH_SIZE} viewBox={`0 0 ${SWATCH_SIZE} ${SWATCH_SIZE}`}>
           <Defs>
-            <SwatchHalf id="ringGrad" colorA={lineColor} colorB={lineColor2} />
-            <SwatchHalf id="fillGrad" colorA={fillColor} colorB={fillColor2} />
+            <SwatchHalf id={ringGradId} colorA={lineColor} colorB={lineColor2} />
+            <SwatchHalf id={fillGradId} colorA={fillColor} colorB={fillColor2} />
           </Defs>
-          <Circle cx={c} cy={c} r={c - 2.5} fill="none" stroke={lineSplit ? 'url(#ringGrad)' : lineColor} strokeWidth={4} />
-          <Circle cx={c} cy={c} r={c - 8} fill={fillSplit ? 'url(#fillGrad)' : fillColor} />
+          <Circle cx={c} cy={c} r={c - 2.5} fill="none" stroke={lineSplit ? `url(#${ringGradId})` : lineColor} strokeWidth={4} />
+          <Circle cx={c} cy={c} r={c - 8} fill={fillSplit ? `url(#${fillGradId})` : fillColor} />
         </Svg>
         {isDynamic && !selected && (
           <>
