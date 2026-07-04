@@ -19,13 +19,17 @@ const NOISE_SVG =
   "<rect width='100%' height='100%' filter='url(#n)'/></svg>";
 const NOISE_URI = `url("data:image/svg+xml,${encodeURIComponent(NOISE_SVG)}")`;
 
-interface Props { intensity?: AuroraIntensity }
+interface Props {
+  intensity?: AuroraIntensity;
+  /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
+  speed?: number;
+}
 
 /**
  * Fondo con textura de grano sutil sobre un wash de color de la paleta que
  * deriva lento. El grano (ruido SVG) late apenas para no quedar estático.
  */
-export default function GrainBackground({ intensity = 'default' }: Props) {
+export default function GrainBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
 
@@ -35,22 +39,22 @@ export default function GrainBackground({ intensity = 'default' }: Props) {
   useEffect(() => {
     const g = Animated.loop(
       Animated.sequence([
-        Animated.timing(grainAnim, { toValue: 1, duration: 2600, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-        Animated.timing(grainAnim, { toValue: 0, duration: 2600, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(grainAnim, { toValue: 1, duration: 2600 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(grainAnim, { toValue: 0, duration: 2600 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
       ])
     );
     const w = Animated.loop(
-      Animated.timing(washAnim, { toValue: 1, duration: 20000, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+      Animated.timing(washAnim, { toValue: 1, duration: 20000 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
     );
     g.start();
     w.start();
     return () => { g.stop(); w.stop(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [speed]);
 
   const grainBase = (isDark ? 0.14 : 0.09) * cfg.grain;
   const grainOpacity = grainAnim.interpolate({ inputRange: [0, 1], outputRange: [grainBase * 0.7, grainBase] });
-  const washMul = (isDark ? 1.7 : 1.0) * cfg.wash;
+  const washMul = (isDark ? 1.35 : 1.0) * cfg.wash;
 
   const tx1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-30, 30, -30] });
   const ty1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 26, 0] });

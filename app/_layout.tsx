@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { Stack, router, usePathname } from 'expo-router';
 import { onAuthStateChanged, signOut } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
@@ -9,8 +9,9 @@ import { auth, db } from '../config/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
-import { ThemeProvider, useTheme, PaletteId } from '../context/ThemeContext';
+import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent } from '../context/ThemeContext';
 import { PALETTE_MAP } from '../config/palettes';
+import AppBackground from '../components/AppBackground';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import { DMMono_400Regular, DMMono_500Medium } from '@expo-google-fonts/dm-mono';
@@ -25,7 +26,11 @@ import { FeatureFlagsProvider, useFlags } from '../context/FeatureFlagsContext';
 
 function PaletteLoader() {
   const { user } = useAuthStore();
-  const { setPaletteId } = useTheme();
+  const {
+    setPaletteId, setBackgroundStyle, setBackgroundIntensity, setBackgroundSpeed,
+    setCardSheen, setIconStroke, setStreakConfetti,
+    setChartType, setChartAnimStyle, setChartSpeed, setChartAccent,
+  } = useTheme();
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -34,6 +39,20 @@ function PaletteLoader() {
         if (profile?.colorPalette && PALETTE_MAP[profile.colorPalette as PaletteId]) {
           setPaletteId(profile.colorPalette as PaletteId);
         }
+        // Personalización premium sincronizada con la cuenta — pisa lo local
+        // (AsyncStorage) porque es lo último que el usuario guardó con sesión.
+        const p = profile?.personalization;
+        if (!p) return;
+        if (BACKGROUND_STYLE_VALUES.includes(p.backgroundStyle as BackgroundStyle)) setBackgroundStyle(p.backgroundStyle as BackgroundStyle);
+        if (['subtle', 'default', 'intense'].includes(p.backgroundIntensity as string)) setBackgroundIntensity(p.backgroundIntensity as AuroraIntensity);
+        if (['slow', 'normal', 'fast'].includes(p.backgroundSpeed as string)) setBackgroundSpeed(p.backgroundSpeed as BackgroundSpeed);
+        if (typeof p.cardSheen === 'boolean') setCardSheen(p.cardSheen);
+        if (p.iconStroke === 1.5 || p.iconStroke === 2 || p.iconStroke === 2.5) setIconStroke(p.iconStroke as IconStroke);
+        if (typeof p.streakConfetti === 'boolean') setStreakConfetti(p.streakConfetti);
+        if (['line', 'bars', 'area', 'dots'].includes(p.chartType as string)) setChartType(p.chartType as ChartType);
+        if (['pulse', 'draw', 'tide', 'none'].includes(p.chartAnimStyle as string)) setChartAnimStyle(p.chartAnimStyle as ChartAnimStyle);
+        if (['slow', 'normal', 'fast'].includes(p.chartSpeed as string)) setChartSpeed(p.chartSpeed as ChartSpeed);
+        if (typeof p.chartAccent === 'string') setChartAccent(p.chartAccent as ChartAccent);
       })
       .catch(() => {});
   }, [user?.uid]);
@@ -42,13 +61,14 @@ function PaletteLoader() {
 }
 
 function ThemedStack() {
-  const { colors } = useTheme();
   return (
     <Stack
       screenOptions={{
         headerShown: false,
         animation: 'none',
-        contentStyle: { backgroundColor: colors.background },
+        // Transparente: el fondo real es AppBackground, global y persistente
+        // detrás del Stack — así los efectos no se reinician al navegar.
+        contentStyle: { backgroundColor: 'transparent' },
       }}
     />
   );
@@ -345,7 +365,10 @@ export default function RootLayout() {
           <AppGuard i18nReady={i18nReady} fontsLoaded={!!fontsLoaded} />
           <WebAppShell>
             <PaletteLoader />
-            <ThemedStack />
+            <View style={{ flex: 1 }}>
+              <AppBackground />
+              <ThemedStack />
+            </View>
           </WebAppShell>
           <ConsentGuard consentRequired={consentRequired} onAccept={handleConsentAccept} />
         </FeatureFlagsProvider>

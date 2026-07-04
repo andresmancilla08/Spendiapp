@@ -9,6 +9,20 @@ export interface UserProfile {
   createdAt: Timestamp;
   whatsNewSeen?: boolean | string;
   colorPalette?: string;
+  /** Preferencias de personalización premium — espejo de ThemeContext; viaja
+   * con la cuenta para sobrevivir reinstalaciones y cambios de dispositivo. */
+  personalization?: {
+    backgroundStyle?: string;
+    backgroundIntensity?: string;
+    backgroundSpeed?: string;
+    cardSheen?: boolean;
+    iconStroke?: number;
+    streakConfetti?: boolean;
+    chartType?: string;
+    chartAnimStyle?: string;
+    chartSpeed?: string;
+    chartAccent?: string;
+  };
   isBlocked?: boolean;
   blockedReason?: string;
   blockedUntil?: Timestamp;

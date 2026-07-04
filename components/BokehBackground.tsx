@@ -9,7 +9,11 @@ const CONFIG: Record<AuroraIntensity, { count: number; opacity: number }> = {
   intense: { count: 18, opacity: 1.45 },
 };
 
-interface Props { intensity?: AuroraIntensity }
+interface Props {
+  intensity?: AuroraIntensity;
+  /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
+  speed?: number;
+}
 
 interface Orb { left: `${number}%`; size: number; color: string; dur: number; delay: number; base: number; drift: number }
 
@@ -18,10 +22,10 @@ interface Orb { left: `${number}%`; size: number; color: string; dur: number; de
  * arriba y derivan lento, con parpadeo suave. Distinto de Partículas (puntos
  * pequeños y nítidos): aquí prima la profundidad de campo.
  */
-export default function BokehBackground({ intensity = 'default' }: Props) {
+export default function BokehBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-  const glow = isDark ? 1.5 : 1.0;
+  const glow = isDark ? 1.25 : 1.0;
 
   const palette = useMemo(
     () => [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info],
@@ -33,17 +37,17 @@ export default function BokehBackground({ intensity = 'default' }: Props) {
       left: `${(i * 137.5) % 100}%` as const,
       size: 46 + (i * 23) % 90,
       color: palette[i % palette.length],
-      dur: 14000 + (i % 6) * 2600,
+      dur: (14000 + (i % 6) * 2600) * speed,
       delay: (i * 900) % 7000,
       base: (0.10 + (i % 3) * 0.05) * cfg.opacity * glow,
       drift: (i % 2 === 0 ? 1 : -1) * (24 + (i % 3) * 16),
     }))
-  ), [cfg.count, cfg.opacity, glow, palette]);
+  ), [cfg.count, cfg.opacity, glow, palette, speed]);
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {orbs.map((o, i) => (
-        <OrbView key={`${intensity}-${i}`} orb={o} dark={isDark} />
+        <OrbView key={`${intensity}-${speed}-${i}`} orb={o} dark={isDark} />
       ))}
     </View>
   );

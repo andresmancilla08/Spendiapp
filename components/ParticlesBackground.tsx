@@ -22,6 +22,8 @@ interface ParticleConfig {
 
 interface Props {
   intensity?: AuroraIntensity;
+  /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
+  speed?: number;
 }
 
 /**
@@ -29,10 +31,10 @@ interface Props {
  * llevan un halo suave. El color se toma de la paleta activa (tema de
  * partículas por paleta), no de un único acento.
  */
-export default function ParticlesBackground({ intensity = 'default' }: Props) {
+export default function ParticlesBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-  const glow = isDark ? 1.6 : 1.0;
+  const glow = isDark ? 1.3 : 1.0;
 
   // Multicolor tomado de la paleta → cada partícula hereda un acento distinto.
   const palette = useMemo(
@@ -44,18 +46,18 @@ export default function ParticlesBackground({ intensity = 'default' }: Props) {
     Array.from({ length: cfg.count }, (_, i) => ({
       left: `${(i * 137.5) % 100}%` as const,
       size: 2.5 + (i * 7) % 5,
-      duration: (6000 + (i % 5) * 1400) * cfg.speed,
+      duration: (6000 + (i % 5) * 1400) * cfg.speed * speed,
       delay: (i * 380) % 4200,
       baseOpacity: (0.28 + (i % 4) * 0.08) * cfg.opacity * glow,
       sway: 10 + (i % 3) * 9,
       color: palette[i % palette.length],
     }))
-  ), [cfg.count, cfg.speed, cfg.opacity, glow, palette]);
+  ), [cfg.count, cfg.speed, cfg.opacity, glow, palette, speed]);
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {particles.map((p, i) => (
-        <Particle key={`${intensity}-${i}`} config={p} />
+        <Particle key={`${intensity}-${speed}-${i}`} config={p} />
       ))}
     </View>
   );

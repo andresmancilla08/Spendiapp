@@ -12,6 +12,8 @@ const CONFIG: Record<AuroraIntensity, { opacity: number; amp: number }> = {
 
 interface Props {
   intensity?: AuroraIntensity;
+  /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
+  speed?: number;
 }
 
 /**
@@ -19,10 +21,10 @@ interface Props {
  * verticalmente. Cuatro capas de distinto color de la paleta y velocidad crean
  * un lenguaje visual propio, distinto de blobs y partículas.
  */
-export default function WavesBackground({ intensity = 'default' }: Props) {
+export default function WavesBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-  const glow = isDark ? 1.7 : 1.0;
+  const glow = isDark ? 1.3 : 1.0;
   const { width } = Dimensions.get('window');
 
   const bands = useMemo(() => ([
@@ -35,27 +37,27 @@ export default function WavesBackground({ intensity = 'default' }: Props) {
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {bands.map((b, i) => (
-        <Band key={i} band={b} width={width} opacityMul={cfg.opacity * glow} ampMul={cfg.amp} />
+        <Band key={i} band={b} width={width} opacityMul={cfg.opacity * glow} ampMul={cfg.amp} speed={speed} />
       ))}
     </View>
   );
 }
 
-function Band({ band, width, opacityMul, ampMul }: {
+function Band({ band, width, opacityMul, ampMul, speed }: {
   band: { top: string; color: string; rotate: number; height: number; opacity: number; dur: number; dir: number; bob: number };
-  width: number; opacityMul: number; ampMul: number;
+  width: number; opacityMul: number; ampMul: number; speed: number;
 }) {
   const v = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     v.setValue(0);
     const loop = Animated.loop(
-      Animated.timing(v, { toValue: 1, duration: band.dur, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+      Animated.timing(v, { toValue: 1, duration: band.dur * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
     );
     loop.start();
     return () => loop.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [speed]);
 
   const shift = width * 0.32 * ampMul * band.dir;
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-shift, shift, -shift] });

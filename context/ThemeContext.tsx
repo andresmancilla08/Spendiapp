@@ -9,6 +9,7 @@ const THEME_KEY = '@spendiapp_theme';
 const PALETTE_KEY = '@spendiapp_palette';
 const BG_STYLE_KEY = '@spendiapp_bg_style';
 const BG_INTENSITY_KEY = '@spendiapp_bg_intensity';
+const BG_SPEED_KEY = '@spendiapp_bg_speed';
 const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
 const ICON_STROKE_KEY = '@spendiapp_icon_stroke';
 const STREAK_CONFETTI_KEY = '@spendiapp_streak_confetti';
@@ -18,7 +19,11 @@ const CHART_SPEED_KEY = '@spendiapp_chart_speed';
 const CHART_ACCENT_KEY = '@spendiapp_chart_accent';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves' | 'grain' | 'mesh' | 'bokeh';
+export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves' | 'grain' | 'mesh' | 'bokeh' | 'flow' | 'starfield' | 'rays' | 'constellation';
+export const BACKGROUND_STYLE_VALUES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh', 'flow', 'starfield', 'rays', 'constellation'];
+export type BackgroundSpeed = 'slow' | 'normal' | 'fast';
+/** Multiplicador de duración de las animaciones de fondo por velocidad. */
+export const BACKGROUND_SPEED_FACTOR: Record<BackgroundSpeed, number> = { slow: 1.6, normal: 1, fast: 0.62 };
 export type IconStroke = 1.5 | 2 | 2.5;
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type ChartType = 'line' | 'bars' | 'area' | 'dots';
@@ -40,6 +45,8 @@ interface ThemeContextValue {
   setBackgroundStyle: (style: BackgroundStyle) => void;
   backgroundIntensity: AuroraIntensity;
   setBackgroundIntensity: (intensity: AuroraIntensity) => void;
+  backgroundSpeed: BackgroundSpeed;
+  setBackgroundSpeed: (speed: BackgroundSpeed) => void;
   cardSheen: boolean;
   setCardSheen: (v: boolean) => void;
   iconStroke: IconStroke;
@@ -70,6 +77,8 @@ const ThemeContext = createContext<ThemeContextValue>({
   setBackgroundStyle: () => {},
   backgroundIntensity: 'default',
   setBackgroundIntensity: () => {},
+  backgroundSpeed: 'normal',
+  setBackgroundSpeed: () => {},
   cardSheen: true,
   setCardSheen: () => {},
   iconStroke: 2,
@@ -92,6 +101,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [paletteId, setPaletteIdState] = useState<PaletteId>('deepWater');
   const [backgroundStyle, setBackgroundStyleState] = useState<BackgroundStyle>('aurora');
   const [backgroundIntensity, setBackgroundIntensityState] = useState<AuroraIntensity>('default');
+  const [backgroundSpeed, setBackgroundSpeedState] = useState<BackgroundSpeed>('normal');
   const [cardSheen, setCardSheenState] = useState(true);
   const [iconStroke, setIconStrokeState] = useState<IconStroke>(2);
   const [streakConfetti, setStreakConfettiState] = useState(true);
@@ -106,6 +116,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(PALETTE_KEY),
       AsyncStorage.getItem(BG_STYLE_KEY),
       AsyncStorage.getItem(BG_INTENSITY_KEY),
+      AsyncStorage.getItem(BG_SPEED_KEY),
       AsyncStorage.getItem(CARD_SHEEN_KEY),
       AsyncStorage.getItem(ICON_STROKE_KEY),
       AsyncStorage.getItem(STREAK_CONFETTI_KEY),
@@ -113,18 +124,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(CHART_ANIM_KEY),
       AsyncStorage.getItem(CHART_SPEED_KEY),
       AsyncStorage.getItem(CHART_ACCENT_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedSheen, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent]) => {
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgIntensity, storedBgSpeed, storedSheen, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
       if (storedPalette && PALETTE_MAP[storedPalette as PaletteId]) {
         setPaletteIdState(storedPalette as PaletteId);
       }
-      if (['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh'].includes(storedBgStyle as string)) {
+      if (BACKGROUND_STYLE_VALUES.includes(storedBgStyle as BackgroundStyle)) {
         setBackgroundStyleState(storedBgStyle as BackgroundStyle);
       }
       if (storedBgIntensity === 'intense' || storedBgIntensity === 'default' || storedBgIntensity === 'subtle') {
         setBackgroundIntensityState(storedBgIntensity);
+      }
+      if (storedBgSpeed === 'slow' || storedBgSpeed === 'normal' || storedBgSpeed === 'fast') {
+        setBackgroundSpeedState(storedBgSpeed);
       }
       if (storedSheen != null) setCardSheenState(storedSheen === '1');
       if (storedStroke === '1.5' || storedStroke === '2' || storedStroke === '2.5') setIconStrokeState(Number(storedStroke) as IconStroke);
@@ -154,6 +168,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setBackgroundIntensity = async (intensity: AuroraIntensity) => {
     setBackgroundIntensityState(intensity);
     await AsyncStorage.setItem(BG_INTENSITY_KEY, intensity);
+  };
+
+  const setBackgroundSpeed = async (speed: BackgroundSpeed) => {
+    setBackgroundSpeedState(speed);
+    await AsyncStorage.setItem(BG_SPEED_KEY, speed);
   };
 
   const setCardSheen = async (v: boolean) => {
@@ -201,6 +220,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     <ThemeContext.Provider value={{
       colors, isDark, themeMode, setThemeMode, paletteId, setPaletteId, activePalette,
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
+      backgroundSpeed, setBackgroundSpeed,
       cardSheen, setCardSheen,
       iconStroke, setIconStroke,
       streakConfetti, setStreakConfetti,
