@@ -572,7 +572,7 @@ export default function BalanceCard({
     // Tamaño dinámico: en web adjustsFontSizeToFit no funciona → el serif grande
     // se truncaba ("$2.650.0..."). Escalamos por longitud para que SIEMPRE quepa.
     const amtLen = (hidden ? HIDDEN_MASK : formatCurrency(displayBalance)).length;
-    const proSize = amtLen <= 10 ? 44 : amtLen <= 13 ? 37 : amtLen <= 16 ? 31 : 26;
+    const proSize = amtLen <= 10 ? 54 : amtLen <= 13 ? 46 : amtLen <= 16 ? 37 : 30;
     const amountStyle = [
       styles.balanceAmount,
       proStyle && styles.balanceAmountPro,
