@@ -29,6 +29,7 @@ import ProCardFx from '../../components/ProCardFx';
 import { useMonthlyTrend } from '../../hooks/useMonthlyTrend';
 import InsightsGrid, { InsightItem } from '../../components/premium/InsightsGrid';
 import InsightBanner from '../../components/premium/InsightBanner';
+import { useAiInsight, type InsightInput } from '../../hooks/useAiInsight';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
@@ -472,6 +473,30 @@ export default function HomeScreen() {
       }
     : { sentence: t('home.pro.insightNoPrev'), chip: undefined };
 
+  // Insight IA (Gemini, server-side). Cae al template de arriba si falla/offline/sin key.
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const aiInsightInput: InsightInput = {
+    monthLabel: `${MONTHS[month] ?? ''} ${year}`,
+    dayOfMonth: isCurrentMonth ? now.getDate() : daysInMonth,
+    daysInMonth,
+    income: totalIncome,
+    expenses: totalExpenses,
+    balance,
+    prevMonthExpenses: prevBucket ? prevBucket.expenses : null,
+    prevMonthToDateExpenses: prevMonthToDateExpenses ?? null,
+    savingsRate: totalIncome > 0 ? savingsRate : null,
+    topCategories: donutSegments
+      .filter((s) => s.key !== '__rest')
+      .map((s) => ({ label: s.label, amount: s.amount })),
+  };
+  const aiInsight = useAiInsight({
+    enabled: isPremium && isCurrentMonth,
+    uid: user?.uid,
+    year,
+    month,
+    input: aiInsightInput,
+  });
+
   return (
     <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
@@ -618,7 +643,7 @@ export default function HomeScreen() {
               <>
                 {/* Insights del mes */}
                 <ProReveal index={2}>
-                  <InsightBanner kicker={t('home.pro.monthInPhrase')} sentence={insightBanner.sentence} chip={insightBanner.chip} />
+                  <InsightBanner kicker={t('home.pro.monthInPhrase')} sentence={aiInsight?.sentence ?? insightBanner.sentence} chip={aiInsight?.chip ?? insightBanner.chip} />
                   <View style={{ height: 14 }} />
                   <ProSectionHeader label={t('home.pro.sectionInsights')} />
                   <InsightsGrid items={insights} />
