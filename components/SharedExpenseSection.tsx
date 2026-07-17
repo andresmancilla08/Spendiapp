@@ -8,8 +8,8 @@ import { useTheme } from '../context/ThemeContext';
 import AppSegmentedControl from './AppSegmentedControl';
 import { Fonts } from '../config/fonts';
 import { useFriends } from '../hooks/useFriends';
-import { getUserProfile } from '../hooks/useUserProfile';
-import type { UserProfile } from '../types/friend';
+import { getPublicProfile } from '../hooks/useUserProfile';
+import type { PublicProfile } from '../types/friend';
 import type { SharedParticipant } from '../types/sharedTransaction';
 import { calcEqualPercentages, calcSharedAmount } from '../utils/sharedCalc';
 
@@ -46,7 +46,7 @@ export default function SharedExpenseSection({
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
   const { acceptedFriends, loading: friendsLoading } = useFriends(userId);
-  const [friendProfiles, setFriendProfiles] = useState<UserProfile[]>([]);
+  const [friendProfiles, setFriendProfiles] = useState<PublicProfile[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(false);
   const [splitType, setSplitType]   = useState<SplitType>('equal');
   const [addMode, setAddMode]       = useState<AddMode>('friends');
@@ -60,10 +60,10 @@ export default function SharedExpenseSection({
     setProfilesLoading(true);
     async function load() {
       try {
-        const profiles: UserProfile[] = [];
+        const profiles: PublicProfile[] = [];
         for (const f of acceptedFriends) {
           const friendUid = f.fromId === userId ? f.toId : f.fromId;
-          const profile = await getUserProfile(friendUid);
+          const profile = await getPublicProfile(friendUid);
           if (profile) profiles.push(profile);
         }
         setFriendProfiles(profiles);
@@ -89,7 +89,7 @@ export default function SharedExpenseSection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [participants.length, splitType]);
 
-  const toggleFriend = (profile: UserProfile) => {
+  const toggleFriend = (profile: PublicProfile) => {
     const exists = participants.find((p) => p.uid === profile.uid);
     if (exists) {
       onParticipantsChange(participants.filter((p) => p.uid !== profile.uid));

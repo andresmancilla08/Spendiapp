@@ -14,8 +14,8 @@ import {
   useFriends, sendFriendRequest, acceptFriendRequest,
   rejectFriendRequest, cancelFriendRequest, removeFriend,
 } from '../hooks/useFriends';
-import { getUserProfile, searchUserByUserName } from '../hooks/useUserProfile';
-import { UserProfile, Friendship } from '../types/friend';
+import { getUserProfile, getPublicProfile, searchUserByUserName } from '../hooks/useUserProfile';
+import { UserProfile, PublicProfile, Friendship } from '../types/friend';
 import { useLocalSearchParams, router } from 'expo-router';
 import AppHeader from '../components/AppHeader';
 import AppSegmentedControl from '../components/AppSegmentedControl';
@@ -33,7 +33,7 @@ type TFunc = ReturnType<typeof useTranslation>['t'];
 interface FriendsTabProps {
   friends: Friendship[];
   uid: string;
-  profileCache: Record<string, UserProfile>;
+  profileCache: Record<string, PublicProfile>;
   actionLoading: string | null;
   onRemove: (f: Friendship) => void;
   colors: Colors;
@@ -44,7 +44,7 @@ interface RequestsTabProps {
   incoming: Friendship[];
   outgoing: Friendship[];
   uid: string;
-  profileCache: Record<string, UserProfile>;
+  profileCache: Record<string, PublicProfile>;
   actionLoading: string | null;
   onAccept: (f: Friendship) => Promise<void>;
   onReject: (f: Friendship) => Promise<void>;
@@ -98,7 +98,7 @@ export default function FriendsScreen() {
   const [tab, setTab] = useState<Tab>(tabParam === 'requests' ? 'requests' : 'friends');
   const [searchText, setSearchText] = useState('');
   const [searching, setSearching] = useState(false);
-  const [searchResult, setSearchResult] = useState<UserProfile | null | 'not_found'>(null);
+  const [searchResult, setSearchResult] = useState<PublicProfile | null | 'not_found'>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const [myProfile, setMyProfile] = useState<UserProfile | null>(null);
@@ -113,13 +113,13 @@ export default function FriendsScreen() {
     visible: false, friendship: null,
   });
 
-  const [profileCache, setProfileCache] = useState<Record<string, UserProfile>>({});
+  const [profileCache, setProfileCache] = useState<Record<string, PublicProfile>>({});
   const loadingUids = useRef<Set<string>>(new Set());
 
   const loadProfile = useCallback(async (targetUid: string) => {
     if (loadingUids.current.has(targetUid)) return;
     loadingUids.current.add(targetUid);
-    const profile = await getUserProfile(targetUid);
+    const profile = await getPublicProfile(targetUid);
     if (profile) {
       setProfileCache((prev) => ({ ...prev, [targetUid]: profile }));
     }
@@ -152,7 +152,7 @@ export default function FriendsScreen() {
     return all.find((f) => f.fromId === targetUid || f.toId === targetUid) ?? null;
   };
 
-  const handleSendRequest = async (target: UserProfile) => {
+  const handleSendRequest = async (target: PublicProfile) => {
     if (!myProfile) return;
     setActionLoading(target.uid);
     try {
@@ -326,7 +326,7 @@ export default function FriendsScreen() {
                     ) : (
                       <TouchableOpacity
                         style={[styles.addBtn, { backgroundColor: colors.primary }]}
-                        onPress={() => handleSendRequest(searchResult as UserProfile)}
+                        onPress={() => handleSendRequest(searchResult as PublicProfile)}
                         activeOpacity={0.8}
                         disabled={actionLoading === searchResult.uid}
                       >

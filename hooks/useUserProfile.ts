@@ -1,9 +1,9 @@
 import {
-  doc, getDoc, setDoc, updateDoc, query, collection, where, getDocs,
+  doc, getDoc, setDoc, updateDoc, query, collection, where, getDocs, limit,
   serverTimestamp, deleteDoc, arrayUnion, addDoc, Timestamp,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { UserProfile } from '../types/friend';
+import { UserProfile, PublicProfile } from '../types/friend';
 import { generateUserName } from '../utils/generateUserName';
 
 /** Detecta userNames que son solo iniciales mayúsculas con sufijo numérico opcional
@@ -33,6 +33,10 @@ export async function createUserProfile(
     if (needsUpdate) {
       const newUserName = await generateUniqueUserName(displayName);
       await updateDoc(userRef, { displayName, fullName: displayName, userName: newUserName, photoURL });
+      await syncPublicProfile(uid, { userName: newUserName, displayName, photoURL });
+    } else {
+      // Backfill/refresco del perfil público en cada login (sin trigger de Functions).
+      await syncPublicProfile(uid, { userName: data.userName, displayName: data.displayName, photoURL: data.photoURL ?? null });
     }
     // Intentar vincular gastos externos pendientes (no crítico)
     if (email) claimExternalLinks(email, uid).catch(() => {});
@@ -49,6 +53,7 @@ export async function createUserProfile(
     createdAt: serverTimestamp(),
     whatsNewSeen: false,
   });
+  await syncPublicProfile(uid, { userName, displayName, photoURL });
 
   // Nuevo usuario: vincular gastos externos donde aparezca este email
   if (email) claimExternalLinks(email, uid).catch(() => {});
@@ -99,9 +104,25 @@ async function generateUniqueUserName(name: string): Promise<string> {
 }
 
 async function userNameExists(userName: string): Promise<boolean> {
-  const q = query(collection(db, 'users'), where('userName', '==', userName));
+  const q = query(collection(db, 'publicProfiles'), where('userName', '==', userName), limit(1));
   const snap = await getDocs(q);
   return !snap.empty;
+}
+
+/** Espeja los campos públicos del perfil en la colección `publicProfiles`,
+ *  la única legible por otros usuarios. Se invoca en cada login (backfill). */
+export async function syncPublicProfile(
+  uid: string,
+  p: { userName: string; displayName: string; photoURL: string | null },
+): Promise<void> {
+  await setDoc(doc(db, 'publicProfiles', uid), { uid, ...p }, { merge: true });
+}
+
+/** Obtiene el perfil PÚBLICO de otro usuario por UID (sin PII sensible). */
+export async function getPublicProfile(uid: string): Promise<PublicProfile | null> {
+  const snap = await getDoc(doc(db, 'publicProfiles', uid));
+  if (!snap.exists()) return null;
+  return snap.data() as PublicProfile;
 }
 
 /** Guarda la paleta de colores elegida por el usuario. */
@@ -134,10 +155,10 @@ export async function updateAppVersion(uid: string, version: string): Promise<vo
   await updateDoc(doc(db, 'users', uid), { appVersion: version });
 }
 
-/** Busca un perfil por userName exacto (case-sensitive). */
-export async function searchUserByUserName(userName: string): Promise<UserProfile | null> {
-  const q = query(collection(db, 'users'), where('userName', '==', userName));
+/** Busca un perfil PÚBLICO por userName exacto (case-sensitive). */
+export async function searchUserByUserName(userName: string): Promise<PublicProfile | null> {
+  const q = query(collection(db, 'publicProfiles'), where('userName', '==', userName), limit(1));
   const snap = await getDocs(q);
   if (snap.empty) return null;
-  return snap.docs[0].data() as UserProfile;
+  return snap.docs[0].data() as PublicProfile;
 }

@@ -45,7 +45,7 @@ import { getUserProfile } from '../hooks/useUserProfile';
 import SharedExpenseSection from '../components/SharedExpenseSection';
 import SentIncomeSection from '../components/SentIncomeSection';
 import type { SharedParticipant } from '../types/sharedTransaction';
-import type { UserProfile } from '../types/friend';
+import type { PublicProfile } from '../types/friend';
 import ScreenTransition from '../components/ScreenTransition';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
@@ -160,7 +160,7 @@ export default function AddTransactionScreen() {
   const { createSharedTransaction } = useSharedTransactions();
   // Sent income state
   const [isSentIncome, setIsSentIncome] = useState(false);
-  const [sentIncomeRecipient, setSentIncomeRecipient] = useState<UserProfile | null>(null);
+  const [sentIncomeRecipient, setSentIncomeRecipient] = useState<PublicProfile | null>(null);
   const { createSentIncome } = useSentIncome();
 
   // Load owner's userName from Firestore

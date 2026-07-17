@@ -52,7 +52,7 @@ function generateOtp() {
 }
 // ── OTP PIN Reset ────────────────────────────────────────────────────────────
 exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async (request) => {
-    var _a, _b, _c;
+    var _a, _b, _c, _d, _e;
     const { email } = request.data;
     if (!email)
         throw new https_1.HttpsError('invalid-argument', 'Email requerido');
@@ -73,8 +73,19 @@ exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async
         return { success: true, message: 'Si el email está registrado con PIN, recibirás un código.' };
     }
     const uid = userRecord.uid;
+    // [M-4] Rate limit: mín. 60s entre envíos por cuenta para evitar
+    // email bombing / abuso de cuota de Resend.
+    const existing = await db.collection('pin_resets').doc(uid).get();
+    if (existing.exists) {
+        const prev = existing.data();
+        const last = (_b = (_a = prev.createdAt) === null || _a === void 0 ? void 0 : _a.toMillis()) !== null && _b !== void 0 ? _b : 0;
+        if (Date.now() - last < 60 * 1000) {
+            // Respuesta genérica: no revelar que hay una solicitud activa.
+            return { success: true, message: 'Si el email está registrado con PIN, recibirás un código.' };
+        }
+    }
     const userDoc = await db.collection('users').doc(uid).get();
-    const paletteId = ((_a = userDoc.data()) === null || _a === void 0 ? void 0 : _a.colorPalette) || 'deepWater';
+    const paletteId = ((_c = userDoc.data()) === null || _c === void 0 ? void 0 : _c.colorPalette) || 'deepWater';
     const palette = (0, paletteColors_1.getPaletteColors)(paletteId);
     const otp = generateOtp();
     const expiresAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 10 * 60 * 1000));
@@ -98,12 +109,12 @@ exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async
             console.error('Resend returned error:', JSON.stringify(result.error));
             throw new https_1.HttpsError('internal', `Resend error: ${result.error.message}`);
         }
-        console.log('Resend sent OK, id:', (_b = result.data) === null || _b === void 0 ? void 0 : _b.id);
+        console.log('Resend sent OK, id:', (_d = result.data) === null || _d === void 0 ? void 0 : _d.id);
     }
     catch (err) {
         if (err === null || err === void 0 ? void 0 : err.httpErrorCode)
             throw err; // re-throw HttpsError
-        console.error('Resend exception:', (_c = err === null || err === void 0 ? void 0 : err.message) !== null && _c !== void 0 ? _c : String(err));
+        console.error('Resend exception:', (_e = err === null || err === void 0 ? void 0 : err.message) !== null && _e !== void 0 ? _e : String(err));
         throw new https_1.HttpsError('internal', 'Error enviando email');
     }
     return { success: true };
