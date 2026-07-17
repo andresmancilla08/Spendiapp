@@ -24,6 +24,7 @@ import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import type { TransactionType } from '../types/transaction';
 import { categorizeLocal, categorizeRemote } from '../utils/categorize';
+import { scanReceipt } from '../utils/scanReceipt';
 import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -93,6 +94,7 @@ export default function AddTransactionScreen() {
 
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
+  const [scanning, setScanning] = useState(false);
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
   const [category, setCategory] = useState('');
@@ -259,6 +261,29 @@ export default function AddTransactionScreen() {
     }, 600);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [description]);
+
+  const handleScanReceipt = async () => {
+    if (scanning) return;
+    setScanning(true);
+    const res = await scanReceipt();
+    setScanning(false); // siempre resetea, incluso si el usuario canceló el selector
+    if (res.status === 'cancelled') return;
+    if (res.status === 'failed') { showToast(t('addTransaction.scanFailed'), 'error'); return; }
+    const r = res.data;
+    if (r.amount > 0) setAmount(String(r.amount));
+    if (r.merchant) setDescription(r.merchant);
+    if (r.category) setCategory(r.category);
+    if (r.date) {
+      const d = new Date(`${r.date}T12:00:00`);
+      if (!isNaN(d.getTime())) {
+        setSelectedDate(d);
+        setPickerYear(d.getFullYear());
+        setPickerMonth(d.getMonth());
+        setPickerDay(d.getDate());
+      }
+    }
+    showToast(t('addTransaction.scanDone'), 'success');
+  };
 
   const resetNewCatForm = () => {
     setShowNewCatForm(false);
@@ -557,6 +582,28 @@ export default function AddTransactionScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
+
+            {/* Escanear recibo (OCR) — solo web PWA */}
+            {Platform.OS === 'web' && (
+              <TouchableOpacity
+                onPress={handleScanReceipt}
+                disabled={scanning}
+                activeOpacity={0.85}
+                style={{
+                  flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  paddingVertical: 12, borderRadius: 14, marginBottom: 16,
+                  backgroundColor: colors.primaryLight, borderWidth: 1, borderColor: colors.primary + '33',
+                  opacity: scanning ? 0.7 : 1,
+                }}
+              >
+                {scanning
+                  ? <ActivityIndicator size="small" color={colors.primary} />
+                  : <AppIcon name="receipt-outline" size={18} color={colors.primary} />}
+                <Text style={{ color: colors.primary, fontFamily: Fonts.bold, fontSize: 14 }}>
+                  {scanning ? t('addTransaction.scanning') : t('addTransaction.scanReceipt')}
+                </Text>
+              </TouchableOpacity>
+            )}
 
             {/* Amount input */}
             <View style={styles.amountRow}>
