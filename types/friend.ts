@@ -1,5 +1,15 @@
 import { Timestamp } from 'firebase/firestore';
 
+/** Perfil público mínimo — único dato de un usuario legible por otros.
+ *  Se espeja en la colección `publicProfiles` (ver useUserProfile). No contiene
+ *  PII sensible (fullName, premium, personalización) que sí vive en `users`. */
+export interface PublicProfile {
+  uid: string;
+  userName: string;
+  displayName: string;
+  photoURL: string | null;
+}
+
 export interface UserProfile {
   uid: string;
   displayName: string;

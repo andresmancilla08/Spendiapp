@@ -24,8 +24,8 @@ import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { useFriends } from '../hooks/useFriends';
 import { useTransactions } from '../hooks/useTransactions';
-import { getUserProfile } from '../hooks/useUserProfile';
-import { UserProfile } from '../types/friend';
+import { getPublicProfile } from '../hooks/useUserProfile';
+import { PublicProfile } from '../types/friend';
 import { generateFriendReportImage, FriendReportImageData, FriendReportImageLabels, FriendReportImageResult } from '../utils/generateFriendReportImage';
 import { migrateIncomeClaims } from '../utils/migrateIncomeClaims';
 
@@ -86,11 +86,11 @@ export default function FriendReportScreen() {
     }
     let cancelled = false;
     setFriendsLoading(true);
-    Promise.all(uids.map((uid) => getUserProfile(uid))).then((profiles) => {
+    Promise.all(uids.map((uid) => getPublicProfile(uid))).then((profiles) => {
       if (!cancelled) {
         setFriendOptions(
           profiles
-            .filter((p): p is UserProfile => p !== null)
+            .filter((p): p is PublicProfile => p !== null)
             .map((p) => ({ uid: p.uid, displayName: p.displayName, userName: p.userName }))
         );
         setFriendsLoading(false);

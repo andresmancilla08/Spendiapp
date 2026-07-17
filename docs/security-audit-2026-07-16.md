@@ -101,13 +101,20 @@ Guardado en texto plano; mitigado porque la colección es Admin-SDK-only y expir
 ---
 
 ## Checklist de remediación (prioridad)
-- [ ] [A-1] Habilitar Firebase App Check + `enforceAppCheck` en onCall
-- [ ] [A-2] Regla `pendingExternalLinks`: exigir `token.email == email` en create/update
-- [ ] [M-1] Restringir `users get` / mover PII a subcolección privada (GDPR — validar con Sergio)
-- [ ] [M-2] `sharedTransactions`: bloquear cambio de `ownerUid`/`participantUids` salvo owner
+- [~] [A-1] Descartado por decisión (2026-07-16): no se implementa App Check
+- [x] [A-2] `pendingExternalLinks` exige `token.email == email` — **desplegado a prod**
+- [x] [M-1] PII de `users` movida a colección `publicProfiles`; `users` get/list solo self — **desplegado a prod** (ver nota de transición)
+- [x] [M-2] `sharedTransactions`: `ownerUid` inmutable salvo owner — **desplegado a prod** (bloqueo de `participantUids` pendiente, requiere Function)
 - [ ] [M-3] Notificaciones sensibles vía Function + rate limit
-- [ ] [M-4] Rate limit en `sendPinResetOtp`
+- [~] [M-4] Rate limit en `sendPinResetOtp` — **código aplicado**, deploy BLOQUEADO por billing (plan Spark → Secret Manager 403)
 - [ ] [M-5] Evaluar PIN 6 dígitos + lockout por dispositivo
 - [ ] [B-1] `npm audit fix` (deps de build)
 - [ ] [B-2] Acotar campos mutables en `transactions`
 - [ ] [B-3] Hashear OTP en reposo
+
+### Nota de transición M-1
+`publicProfiles` se puebla en cada login (`createUserProfile` → `syncPublicProfile`), sin
+Cloud Function de backfill (bloqueada por billing). Los usuarios existentes que aún no
+han vuelto a entrar no tendrán doc público: sus tarjetas de amigo mostrarán `…` hasta su
+próximo login (los consumidores ya son null-safe). Ídem la unicidad de `userName`: puede
+haber una colisión transitoria hasta que todos migren. Se auto-sana con el uso normal.

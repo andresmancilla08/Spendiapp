@@ -8,15 +8,15 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useFriends } from '../hooks/useFriends';
-import { getUserProfile } from '../hooks/useUserProfile';
-import type { UserProfile } from '../types/friend';
+import { getPublicProfile } from '../hooks/useUserProfile';
+import type { PublicProfile } from '../types/friend';
 
 interface Props {
   userId: string;
   isSentIncome: boolean;
   onIsSentIncomeChange: (v: boolean) => void;
-  recipient: UserProfile | null;
-  onRecipientChange: (p: UserProfile | null) => void;
+  recipient: PublicProfile | null;
+  onRecipientChange: (p: PublicProfile | null) => void;
 }
 
 export default function SentIncomeSection({
@@ -29,7 +29,7 @@ export default function SentIncomeSection({
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { acceptedFriends, loading: friendsLoading } = useFriends(userId);
-  const [friendProfiles, setFriendProfiles] = useState<UserProfile[]>([]);
+  const [friendProfiles, setFriendProfiles] = useState<PublicProfile[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(false);
 
   useEffect(() => {
@@ -38,10 +38,10 @@ export default function SentIncomeSection({
     setProfilesLoading(true);
     async function load() {
       try {
-        const profiles: UserProfile[] = [];
+        const profiles: PublicProfile[] = [];
         for (const f of acceptedFriends) {
           const friendUid = f.fromId === userId ? f.toId : f.fromId;
-          const profile = await getUserProfile(friendUid);
+          const profile = await getPublicProfile(friendUid);
           if (profile) profiles.push(profile);
         }
         setFriendProfiles(profiles);
@@ -56,7 +56,7 @@ export default function SentIncomeSection({
 
   const isLoading = friendsLoading || profilesLoading;
 
-  const toggleRecipient = (profile: UserProfile) => {
+  const toggleRecipient = (profile: PublicProfile) => {
     if (recipient?.uid === profile.uid) {
       onRecipientChange(null);
     } else {

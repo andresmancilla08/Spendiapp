@@ -46,13 +46,25 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
 
-    // Perfil público: get individual libre (búsqueda por userName via get),
-    // list restringido a 10 docs max; solo el propio usuario puede escribir campos no sensibles
+    // [M-1] Doc de usuario = PII (fullName, premium, personalización): SOLO el
+    // propio dueño lo lee/lista. Los datos visibles por otros viven en /publicProfiles.
     match /users/{userId} {
-      allow get: if request.auth != null;
-      allow list: if request.auth != null && request.query.limit <= 10;
+      allow get: if request.auth != null && request.auth.uid == userId;
+      allow list: if false;
       allow create: if request.auth != null && request.auth.uid == userId;
       allow update: if request.auth != null && request.auth.uid == userId && noSensitiveFieldsModified();
+      allow delete: if false;
+    }
+
+    // [M-1] Perfil público mínimo (userName/displayName/photoURL) — legible por
+    // cualquier autenticado; solo el dueño lo escribe y solo esos 4 campos.
+    match /publicProfiles/{userId} {
+      allow get: if request.auth != null;
+      allow list: if request.auth != null && request.query.limit <= 10;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.keys().hasOnly(['uid', 'userName', 'displayName', 'photoURL']);
       allow delete: if false;
     }
 
