@@ -1,4 +1,18 @@
 {
+  "recurring": {
+    "title": "Recurring",
+    "pageDesc": "Your subscriptions and charges that repeat every month",
+    "monthlyTotalLabel": "MONTHLY RECURRING SPEND",
+    "monthlyTotalSub": "Estimated total of your active subscriptions",
+    "itemCharges": "{{count}} charges · {{months}} months",
+    "lastCharge": "Last charge {{days}} days ago",
+    "lastToday": "Last charge today",
+    "staleBadge": "No charge in 45+ days · still active?",
+    "perMonth": "/mo",
+    "empty": "No recurring charges detected yet",
+    "emptySub": "Once you have at least 3 similar charges across different months, they'll show up here automatically",
+    "footnote": "Detected from your last 6 months. Amounts are an estimate (median of each charge)."
+  },
   "login": {
     "title": "Spendia",
     "subtitle": "Your money, always in control",
@@ -1328,6 +1342,10 @@
     "goalsCard": {
       "title": "Savings Goals",
       "description": "Save for what matters most"
+    },
+    "recurringCard": {
+      "title": "Recurring",
+      "description": "Spot your subscriptions and monthly spend"
     },
     "categoriesCard": {
       "title": "My categories",
