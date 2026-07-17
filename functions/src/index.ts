@@ -42,6 +42,18 @@ export const sendPinResetOtp = onCall({ secrets: [resendApiKey] }, async (reques
 
   const uid = userRecord.uid;
 
+  // [M-4] Rate limit: mín. 60s entre envíos por cuenta para evitar
+  // email bombing / abuso de cuota de Resend.
+  const existing = await db.collection('pin_resets').doc(uid).get();
+  if (existing.exists) {
+    const prev = existing.data()!;
+    const last = (prev.createdAt as admin.firestore.Timestamp | undefined)?.toMillis() ?? 0;
+    if (Date.now() - last < 60 * 1000) {
+      // Respuesta genérica: no revelar que hay una solicitud activa.
+      return { success: true, message: 'Si el email está registrado con PIN, recibirás un código.' };
+    }
+  }
+
   const userDoc = await db.collection('users').doc(uid).get();
   const paletteId = (userDoc.data()?.colorPalette as string) || 'deepWater';
   const palette = getPaletteColors(paletteId);
