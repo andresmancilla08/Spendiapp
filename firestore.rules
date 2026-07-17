@@ -99,9 +99,16 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.auth.uid == request.resource.data.ownerUid;
 
-      // Cualquier participante puede actualizar o eliminar
-      allow update, delete: if request.auth != null
+      // Cualquier participante puede eliminar
+      allow delete: if request.auth != null
         && request.auth.uid in resource.data.participantUids;
+
+      // Actualizar: participante, pero [M-2] el ownerUid es inmutable
+      // (solo el propio owner puede reasignarlo) para evitar secuestro del grupo.
+      allow update: if request.auth != null
+        && request.auth.uid in resource.data.participantUids
+        && (request.resource.data.ownerUid == resource.data.ownerUid
+            || request.auth.uid == resource.data.ownerUid);
     }
 
     match /goals/{goalId} {
@@ -117,13 +124,17 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
-    // pendingExternalLinks: ownership por email del token, campos permitidos restringidos
+    // pendingExternalLinks: ownership por email del token, campos permitidos restringidos.
+    // [A-2] create/update exigen que el email del doc sea el del token del llamante,
+    // para impedir inyección de links en la cuenta pendiente de otra persona.
     match /pendingExternalLinks/{email} {
       allow read: if request.auth != null && request.auth.token.email == email;
       allow create: if request.auth != null
+        && request.auth.token.email == email
         && request.resource.data.keys().hasOnly(['links', 'email', 'createdAt'])
         && request.resource.data.links is list;
       allow update: if request.auth != null
+        && request.auth.token.email == email
         && request.resource.data.email == resource.data.email;
       allow delete: if false;
     }
