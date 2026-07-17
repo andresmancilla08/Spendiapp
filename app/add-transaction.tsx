@@ -23,7 +23,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import type { TransactionType } from '../types/transaction';
-import { categorizeLocal, categorizeWithGemini } from '../utils/categorize';
+import { categorizeLocal, categorizeRemote } from '../utils/categorize';
 import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -241,17 +241,15 @@ export default function AddTransactionScreen() {
         }
         return;
       }
-      if (GEMINI_KEY) {
-        setIsAiLoading(true);
-        const ai = await categorizeWithGemini(description, GEMINI_KEY);
-        setIsAiLoading(false);
-        if (ai) {
-          setSuggestedCategories([ai]);
-          if (category === '' || suggestedCategories.includes(category)) {
-            setCategory(ai);
-          }
-          return;
+      setIsAiLoading(true);
+      const ai = await categorizeRemote(description);
+      setIsAiLoading(false);
+      if (ai) {
+        setSuggestedCategories([ai]);
+        if (category === '' || suggestedCategories.includes(category)) {
+          setCategory(ai);
         }
+        return;
       }
       // Nada reconocido → preseleccionar "Otro"
       setSuggestedCategories([]);

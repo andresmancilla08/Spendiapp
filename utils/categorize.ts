@@ -75,6 +75,26 @@ export function categorizeLocal(description: string): string[] {
   return matches;
 }
 
+const VALID_CATEGORIES = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary', 'other'];
+
+/** Categorización IA vía server (api/categorize.js). La key vive en el servidor,
+ *  nunca en el cliente. Devuelve null si falla/offline → el caller usa "other". */
+export async function categorizeRemote(description: string): Promise<string | null> {
+  try {
+    const r = await fetch('https://spendia.co/api/categorize', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ description }),
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    return typeof data?.category === 'string' && VALID_CATEGORIES.includes(data.category) ? data.category : null;
+  } catch {
+    return null;
+  }
+}
+
+/** @deprecated Usa categorizeRemote (server-side). Exponer la key en el cliente es un riesgo. */
 export async function categorizeWithGemini(description: string, apiKey: string): Promise<string | null> {
   const VALID = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary', 'other'];
   const prompt = `Clasifica este gasto o ingreso en UNA de estas categorías exactas: food, transport, health, entertainment, shopping, home, salary, other. Responde ÚNICAMENTE con la palabra de la categoría en inglés, sin explicación ni puntuación. Gasto/ingreso: "${description}"`;
