@@ -38,6 +38,24 @@ interface Feature {
 // Catálogo curado de funcionalidades principales de la app — sin duplicados ni versiones.
 const APP_FEATURES: Feature[] = [
   {
+    icon: 'sparkles-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.aiInsight.title',
+    items: ['whatsNew.aiInsight.item1', 'whatsNew.aiInsight.item2'],
+  },
+  {
+    icon: 'repeat',
+    colorKey: 'success',
+    titleKey: 'whatsNew.recurring.title',
+    items: ['whatsNew.recurring.item1', 'whatsNew.recurring.item2'],
+  },
+  {
+    icon: 'receipt-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.scanReceipt.title',
+    items: ['whatsNew.scanReceipt.item1', 'whatsNew.scanReceipt.item2'],
+  },
+  {
     icon: 'image-outline',
     colorKey: 'primary',
     titleKey: 'whatsNew.animatedBackgrounds.title',

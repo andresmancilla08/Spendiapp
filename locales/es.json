@@ -1241,6 +1241,21 @@
       "item2": "Sin bordes duros ni cortes — el degradado se desvanece suave",
       "item3": "Se ve consistente en modo claro y oscuro"
     },
+    "aiInsight": {
+      "title": "Tu mes en una frase, con IA",
+      "item1": "Un análisis inteligente de tu mes, no una plantilla",
+      "item2": "Proyección de fin de mes y alertas de sobre-gasto"
+    },
+    "recurring": {
+      "title": "Recurrentes y suscripciones",
+      "item1": "Detectamos los cargos que se repiten cada mes",
+      "item2": "Mira cuánto pagas en suscripciones de un vistazo"
+    },
+    "scanReceipt": {
+      "title": "Escanea tus recibos",
+      "item1": "Toma una foto y llenamos monto, comercio y categoría",
+      "item2": "Menos escribir, más rápido registrar"
+    },
     "animatedBackgrounds": {
       "title": "Fondos animados premium",
       "item1": "4 efectos nuevos: Seda, Estrellas, Haces de luz y Constelaciones",

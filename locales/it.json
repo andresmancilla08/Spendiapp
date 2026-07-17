@@ -1240,6 +1240,21 @@
       "item2": "Nessun bordo netto o taglio — il degradé si dissolve in modo fluido",
       "item3": "Appare coerente in modalità chiara e scura"
     },
+    "aiInsight": {
+      "title": "Il tuo mese in una frase, con IA",
+      "item1": "Un'analisi intelligente del mese, non un modello",
+      "item2": "Previsione di fine mese e avvisi di spesa eccessiva"
+    },
+    "recurring": {
+      "title": "Ricorrenti e abbonamenti",
+      "item1": "Rileviamo gli addebiti che si ripetono ogni mese",
+      "item2": "Vedi quanto spendi in abbonamenti in un colpo d'occhio"
+    },
+    "scanReceipt": {
+      "title": "Scansiona le ricevute",
+      "item1": "Scatta una foto e compiliamo importo, negozio e categoria",
+      "item2": "Meno digitazione, registrazione più veloce"
+    },
     "animatedBackgrounds": {
       "title": "Sfondi animati premium",
       "item1": "4 nuovi effetti: Seta, Cielo stellato, Raggi di luce e Costellazioni",
