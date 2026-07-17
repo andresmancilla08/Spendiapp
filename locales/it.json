@@ -1,4 +1,18 @@
 {
+  "recurring": {
+    "title": "Ricorrenti",
+    "pageDesc": "I tuoi abbonamenti e addebiti che si ripetono ogni mese",
+    "monthlyTotalLabel": "SPESA RICORRENTE MENSILE",
+    "monthlyTotalSub": "Totale stimato dei tuoi abbonamenti attivi",
+    "itemCharges": "{{count}} addebiti · {{months}} mesi",
+    "lastCharge": "Ultimo addebito {{days}} giorni fa",
+    "lastToday": "Ultimo addebito oggi",
+    "staleBadge": "Nessun addebito da oltre 45 giorni · ancora attivo?",
+    "perMonth": "/mese",
+    "empty": "Nessun addebito ricorrente rilevato",
+    "emptySub": "Quando avrai almeno 3 addebiti simili in mesi diversi, appariranno qui automaticamente",
+    "footnote": "Rilevato dagli ultimi 6 mesi. Gli importi sono una stima (mediana di ogni addebito)."
+  },
   "login": {
     "title": "Spendia",
     "subtitle": "Il tuo denaro, sempre sotto controllo",
@@ -1328,6 +1342,10 @@
     "goalsCard": {
       "title": "Obiettivi di risparmio",
       "description": "Risparmia per ciò che conta di più"
+    },
+    "recurringCard": {
+      "title": "Ricorrenti",
+      "description": "Scopri i tuoi abbonamenti e quanto spendi al mese"
     },
     "categoriesCard": {
       "title": "Le mie categorie",

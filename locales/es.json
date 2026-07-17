@@ -1,4 +1,18 @@
 {
+  "recurring": {
+    "title": "Recurrentes",
+    "pageDesc": "Tus suscripciones y cargos que se repiten cada mes",
+    "monthlyTotalLabel": "GASTO RECURRENTE MENSUAL",
+    "monthlyTotalSub": "Suma estimada de tus suscripciones activas",
+    "itemCharges": "{{count}} cargos · {{months}} meses",
+    "lastCharge": "Último cargo hace {{days}} días",
+    "lastToday": "Último cargo hoy",
+    "staleBadge": "Sin cargos hace más de 45 días · ¿sigue activa?",
+    "perMonth": "/mes",
+    "empty": "Aún no detectamos cargos recurrentes",
+    "emptySub": "Cuando tengas al menos 3 cargos parecidos en meses distintos, aparecerán aquí automáticamente",
+    "footnote": "Detectado de tus últimos 6 meses. Los montos son un estimado (mediana de cada cargo)."
+  },
   "login": {
     "title": "Spendia",
     "subtitle": "Tu dinero, siempre bajo control",
@@ -1329,6 +1343,10 @@
     "goalsCard": {
       "title": "Metas de ahorro",
       "description": "Ahorra para lo que más importa"
+    },
+    "recurringCard": {
+      "title": "Recurrentes",
+      "description": "Detecta tus suscripciones y cuánto pagas al mes"
     },
     "categoriesCard": {
       "title": "Mis categorías",

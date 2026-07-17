@@ -164,6 +164,13 @@ export default function ToolsScreen() {
                 colors={colors} isDark={isDark}
               />
               <ToolTile
+                emoji="🔁"
+                title={t('tools.recurringCard.title')}
+                description={t('tools.recurringCard.description')}
+                onPress={() => router.push('/recurring')}
+                colors={colors} isDark={isDark}
+              />
+              <ToolTile
                 emoji="📂"
                 title={t('tools.categoriesCard.title')}
                 description={t('tools.categoriesCard.description')}
