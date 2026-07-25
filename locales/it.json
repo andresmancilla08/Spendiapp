@@ -1650,5 +1650,13 @@
   },
   "announcement": {
     "viewCta": "Vedi"
+  },
+  "legal": {
+    "title": {
+      "privacy": "Informativa sulla privacy",
+      "terms": "Termini e condizioni"
+    },
+    "lastUpdated": "Ultimo aggiornamento",
+    "spanishOnlyNotice": "Questo documento è attualmente disponibile solo in spagnolo. È in corso una traduzione professionale."
   }
 }

@@ -208,7 +208,7 @@ export default function ForgotPinOtpScreen() {
                           backgroundColor: colors.inputBackground,
                           color: colors.textPrimary,
                         }]}
-                        placeholder="tu@email.com"
+                        placeholder={t('loginEmail.emailPlaceholder')}
                         placeholderTextColor={colors.textTertiary}
                         keyboardType="email-address"
                         autoCapitalize="none"
