@@ -65,7 +65,7 @@ function formatCurrency(amount: number): string {
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('es-CO', {
+  return date.toLocaleTimeString(localeFor(), {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -326,7 +326,7 @@ export default function TransactionDetailScreen() {
   const card = transaction.cardId ? cardsMap[transaction.cardId] : null;
   const isLoading = deleteLoading || duplicateLoading;
 
-  const formattedDate = transaction.date.toLocaleDateString('es-CO', {
+  const formattedDate = transaction.date.toLocaleDateString(localeFor(), {
     weekday: 'long',
     year: 'numeric',
     month: 'long',

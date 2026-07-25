@@ -116,7 +116,7 @@ function GoalCard({
         <ProgressBar percent={pct} color={accentColor} trackColor={trackColor} />
         {isCompleted && goal.completedAt && (
           <Text style={[styles.completedDate, { color: colors.textTertiary }]}>
-            {goal.completedAt.toDate().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}
+            {goal.completedAt.toDate().toLocaleDateString(localeFor(), { day: 'numeric', month: 'long', year: 'numeric' })}
           </Text>
         )}
       </View>

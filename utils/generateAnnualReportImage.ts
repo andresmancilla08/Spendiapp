@@ -71,7 +71,7 @@ const fmtCOP = (n: number) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(Math.abs(n));
 
 const fmtDate = (d: Date) =>
-  d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
+  d.toLocaleDateString(localeFor(), { day: '2-digit', month: 'short' });
 
 function hexToRgb(hex: string): [number, number, number] {
   return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];

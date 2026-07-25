@@ -48,7 +48,7 @@ function formatCOP(amount: number): string {
 }
 
 function formatShortDate(date: Date): string {
-  return date.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
+  return date.toLocaleDateString(localeFor(), { day: '2-digit', month: 'short' });
 }
 
 function fill(doc: jsPDF, c: RGB)   { doc.setFillColor(c[0], c[1], c[2]); }

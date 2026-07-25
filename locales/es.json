@@ -151,7 +151,8 @@
       "title": "Función temporalmente pausada",
       "description": "Esta función está en pausa. Nuestro equipo está trabajando en mejoras. ¡Vuelve pronto!",
       "close": "Entendido"
-    }
+    },
+    "genericError": "Algo salió mal. Inténtalo de nuevo."
   },
   "tabBar": {
     "home": "Inicio",
@@ -590,6 +591,10 @@
         "Salario mensual",
         "Comisión",
         "Freelance"
+      ],
+      "other": [
+        "Otro",
+        "Varios"
       ]
     },
     "errors": {
@@ -1000,7 +1005,8 @@
     "goal_monthly_reminder": "Recuerda agregar a tus {{count}} metas activas este mes 🎯",
     "sent_income": "{{name}} te envió un ingreso: {{description}}",
     "sent_income_deleted": "{{name}} eliminó el ingreso enviado: {{description}}",
-    "income_claim_added": "{{fromDisplayName}} registró que te debe: {{description}}"
+    "income_claim_added": "{{fromDisplayName}} registró que te debe: {{description}}",
+    "external_participant_joined": "{{participantDisplayName}} se unió a tu gasto compartido: {{description}}"
   },
   "whatsNew": {
     "version": "Novedades · v{{version}}",
@@ -1634,6 +1640,8 @@
     "feature3Label": "Metas"
   },
   "exchangeRate": {
-    "updatedAt": "Act. {{time}}"
+    "updatedAt": "Act. {{time}}",
+    "errorShort": "Sin datos de tasas",
+    "live": "En tiempo real"
   }
 }

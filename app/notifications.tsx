@@ -95,6 +95,11 @@ function NotifItem({
       description: (notif.data as any).description,
       amount: (notif.data as any).amount,
     };
+  } else if (notif.type === 'external_participant_joined') {
+    translationParams = {
+      participantDisplayName: (notif.data as any).participantDisplayName,
+      description: (notif.data as any).description,
+    };
   } else {
     translationParams = {
       name: (notif.data as any).fromDisplayName ?? (notif.data as any).fromUserName,

@@ -17,7 +17,8 @@ import {
   InputAccessoryView,
   Switch,
 } from 'react-native';
-import { useRef, useEffect, useState, useCallback, type ElementRef } from 'react';
+import { useMemo, useRef, useEffect, useState, useCallback, type ElementRef } from 'react';
+import { getMonthNames, formatDate } from '../utils/dateLocale';
 import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { addDoc, collection, Timestamp, writeBatch, doc } from 'firebase/firestore';
@@ -53,20 +54,8 @@ interface Props {
   onSaved: () => void;
 }
 
-const MONTHS_ES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
-
-function formatDisplayDate(date: Date): string {
-  const months = [
-    'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-    'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
-  ];
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  return `${day} ${month} ${year}`;
+function formatDisplayDate(date: Date, lang?: string): string {
+  return formatDate(date, { day: 'numeric', month: 'short', year: 'numeric' }, lang);
 }
 
 function isToday(date: Date): boolean {
@@ -79,7 +68,8 @@ function isToday(date: Date): boolean {
 }
 
 export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const MONTHS = useMemo(() => getMonthNames(i18n.language), [i18n.language]);
   const { colors } = useTheme();
   const { user } = useAuthStore();
   const { showToast } = useToast();
@@ -435,8 +425,8 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
   const dateDisplayText = isToday(selectedDate)
-    ? `${t('addTransaction.today')}, ${formatDisplayDate(selectedDate)}`
-    : formatDisplayDate(selectedDate);
+    ? `${t('addTransaction.today')}, ${formatDisplayDate(selectedDate, i18n.language)}`
+    : formatDisplayDate(selectedDate, i18n.language);
 
   const nowForPicker = new Date();
 
@@ -852,7 +842,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
                           <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
-                            {MONTHS_ES[pickerMonth].toUpperCase()} {pickerYear}
+                            {MONTHS[pickerMonth].toUpperCase()} {pickerYear}
                           </Text>
                           <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
                         </TouchableOpacity>
@@ -924,7 +914,7 @@ export function AddTransactionModal({ visible, onClose, onSaved }: Props): JSX.E
 
                       {/* 3×4 month grid */}
                       <View style={styles.monthGrid}>
-                        {MONTHS_ES.map((name, idx) => {
+                        {MONTHS.map((name, idx) => {
                           const isSelectedMonth = idx === pickerMonth;
                           return (
                             <TouchableOpacity

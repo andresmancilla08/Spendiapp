@@ -16,7 +16,8 @@ import {
   FlatList,
   Switch,
 } from 'react-native';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
+import { getMonthNames, formatDate } from '../utils/dateLocale';
 import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { updateDoc, doc, Timestamp } from 'firebase/firestore';
@@ -48,14 +49,8 @@ const CATEGORY_META: Record<string, { icon: string; color: string }> = {
 const EXPENSE_CATEGORIES = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'other'];
 const INCOME_CATEGORIES  = ['salary', 'other'];
 
-const MONTHS_ES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
-
-function formatDisplayDate(date: Date): string {
-  const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+function formatDisplayDate(date: Date, lang?: string): string {
+  return formatDate(date, { day: 'numeric', month: 'short', year: 'numeric' }, lang);
 }
 
 function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): string {
@@ -67,7 +62,8 @@ function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): str
 const MIN_YEAR = 2020;
 
 export default function EditTransactionSheet({ visible, transaction, onClose, onActionDone }: EditTransactionSheetProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const MONTHS = useMemo(() => getMonthNames(i18n.language), [i18n.language]);
   const { colors } = useTheme();
   const { height: screenHeight } = useWindowDimensions();
   const SHEET_HEIGHT = Math.round(screenHeight * 0.88);
@@ -188,7 +184,7 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
   const parsedAmount = parseFloat(editAmount.replace(',', '.'));
   const isSaveDisabled = editLoading || isNaN(parsedAmount) || parsedAmount <= 0 || editCategory === '';
 
-  const dateDisplayText = formatDisplayDate(selectedDate);
+  const dateDisplayText = formatDisplayDate(selectedDate, i18n.language);
 
   return (
     <Modal visible={visible} transparent animationType="none" statusBarTranslucent onRequestClose={handleClose}>
@@ -261,7 +257,7 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
                           </TouchableOpacity>
                           <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
                             <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
-                              {MONTHS_ES[pickerMonth].toUpperCase()} {pickerYear}
+                              {MONTHS[pickerMonth].toUpperCase()} {pickerYear}
                             </Text>
                             <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
                           </TouchableOpacity>
@@ -320,7 +316,7 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
                         </View>
 
                         <View style={styles.monthGrid}>
-                          {MONTHS_ES.map((name, idx) => {
+                          {MONTHS.map((name, idx) => {
                             const isSelectedMonth = idx === pickerMonth;
                             return (
                               <TouchableOpacity
