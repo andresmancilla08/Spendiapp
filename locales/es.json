@@ -600,7 +600,9 @@
     "errors": {
       "saveFailed": "No se pudo guardar. Intenta de nuevo."
     },
-    "cutoffAdjusted": "Fecha ajustada al 1 del mes siguiente por la fecha de corte (día {{day}})"
+    "cutoffAdjusted": "Fecha ajustada al 1 del mes siguiente por la fecha de corte (día {{day}})",
+    "collapse": "Colapsar",
+    "newCategory": "Nueva"
   },
   "editTransaction": {
     "title": "Editar movimiento",
@@ -880,7 +882,9 @@
     "saveError": "No se pudo agregar la tarjeta",
     "toastOne": "1 tarjeta agregada correctamente",
     "toastMany": "{{n}} tarjetas agregadas correctamente",
-    "deleteError": "No se pudo eliminar la tarjeta"
+    "deleteError": "No se pudo eliminar la tarjeta",
+    "addCard": "Agregar tarjeta",
+    "skipForNow": "Omitir por ahora"
   },
   "cardsScreen": {
     "title": "Mis tarjetas",
@@ -1643,5 +1647,8 @@
     "updatedAt": "Act. {{time}}",
     "errorShort": "Sin datos de tasas",
     "live": "En tiempo real"
+  },
+  "announcement": {
+    "viewCta": "Ver"
   }
 }

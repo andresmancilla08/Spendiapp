@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
@@ -13,6 +14,7 @@ const TYPE_CONFIG = {
 export default function AnnouncementBanner() {
   const announcement = useAnnouncement();
   const { colors } = useTheme();
+  const { t } = useTranslation();
 
   if (!announcement) return null;
 
@@ -24,7 +26,7 @@ export default function AnnouncementBanner() {
       <Text style={[styles.msg, { color: colors.textPrimary, flex: 1 }]}>{announcement.message}</Text>
       {announcement.cta && (
         <TouchableOpacity onPress={() => Linking.openURL(announcement.cta!)} activeOpacity={0.8}>
-          <Text style={[styles.cta, { color: config.color }]}>Ver →</Text>
+          <Text style={[styles.cta, { color: config.color }]}>{t('announcement.viewCta')} →</Text>
         </TouchableOpacity>
       )}
     </View>

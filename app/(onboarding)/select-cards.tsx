@@ -226,7 +226,7 @@ export default function SelectCardsScreen() {
                             >
                               {formSaving
                                 ? <ActivityIndicator color="#FFFFFF" size="small" />
-                                : <Text style={styles.addBtnText}>Agregar tarjeta</Text>
+                                : <Text style={styles.addBtnText}>{t('selectCards.addCard')}</Text>
                               }
                             </TouchableOpacity>
                           </View>
@@ -257,7 +257,7 @@ export default function SelectCardsScreen() {
             onPress={handleSkip}
             activeOpacity={0.7}
           >
-            <Text style={[styles.skipText, { color: colors.primary }]}>Omitir por ahora</Text>
+            <Text style={[styles.skipText, { color: colors.primary }]}>{t('selectCards.skipForNow')}</Text>
           </TouchableOpacity>
         </View>
 
