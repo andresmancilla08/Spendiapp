@@ -119,9 +119,16 @@ export default function FriendsScreen() {
   const loadProfile = useCallback(async (targetUid: string) => {
     if (loadingUids.current.has(targetUid)) return;
     loadingUids.current.add(targetUid);
-    const profile = await getPublicProfile(targetUid);
-    if (profile) {
-      setProfileCache((prev) => ({ ...prev, [targetUid]: profile }));
+    try {
+      const profile = await getPublicProfile(targetUid);
+      if (profile) {
+        setProfileCache((prev) => ({ ...prev, [targetUid]: profile }));
+      } else {
+        // Sin publicProfile todavía (backfill/trigger pendiente): permitir reintento.
+        loadingUids.current.delete(targetUid);
+      }
+    } catch {
+      loadingUids.current.delete(targetUid);
     }
   }, []);
 

@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import { randomInt } from 'crypto';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
+import { onDocumentUpdated, onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { defineSecret } from 'firebase-functions/params';
 import { Resend } from 'resend';
 import { getPaletteColors } from './paletteColors';
@@ -197,6 +197,81 @@ export const cleanupOrphanAccounts = onCall(async (request) => {
 
   console.log(`Cleanup complete: deleted ${orphans.length} orphan auth accounts`, orphans);
   return { deleted: orphans.length, uids: orphans };
+});
+
+// ── Perfiles públicos (espejo de users) ────────────────────────────────────────
+
+// Campos públicos legibles por otros usuarios. Mantenerlos sincronizados aquí,
+// server-side, es la fuente de verdad: el cliente ya no depende de que el amigo
+// inicie sesión para que su publicProfile exista.
+function pickPublicFields(u: FirebaseFirestore.DocumentData) {
+  return {
+    userName: u.userName ?? null,
+    displayName: u.displayName ?? null,
+    photoURL: u.photoURL ?? null,
+  };
+}
+
+// Espeja users/{uid} → publicProfiles/{uid} en cada escritura del doc de usuario.
+// Sin este trigger, un contacto que no vuelva a loguearse nunca aparece en la app.
+export const mirrorPublicProfile = onDocumentWritten('users/{userId}', async (event) => {
+  const userId = event.params.userId;
+  const after = event.data?.after?.data();
+  const pubRef = db.collection('publicProfiles').doc(userId);
+
+  // Usuario eliminado → limpiar el espejo.
+  if (!after) {
+    await pubRef.delete().catch(() => {});
+    return;
+  }
+
+  const before = event.data?.before?.data();
+  const nextPub = pickPublicFields(after);
+
+  // Evitar escrituras redundantes si los campos públicos no cambiaron.
+  if (
+    before &&
+    (before.userName ?? null) === nextPub.userName &&
+    (before.displayName ?? null) === nextPub.displayName &&
+    (before.photoURL ?? null) === nextPub.photoURL
+  ) {
+    return;
+  }
+
+  await pubRef.set({ uid: userId, ...nextPub }, { merge: true });
+});
+
+// Backfill one-time: rellena publicProfiles para todos los usuarios existentes.
+// Solo admin. Ejecutar una vez tras desplegar; el trigger mantiene el resto.
+export const backfillPublicProfiles = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Se requiere autenticación');
+
+  const callerDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!callerDoc.exists || !callerDoc.data()?.isAdmin) {
+    throw new HttpsError('permission-denied', 'Solo administradores pueden ejecutar esta función');
+  }
+
+  const users = await db.collection('users').get();
+  let written = 0;
+  let batch = db.batch();
+  let ops = 0;
+
+  for (const d of users.docs) {
+    const u = d.data();
+    if (!u.userName && !u.displayName) continue; // doc sin identidad todavía
+    batch.set(
+      db.collection('publicProfiles').doc(d.id),
+      { uid: d.id, ...pickPublicFields(u) },
+      { merge: true },
+    );
+    written++;
+    ops++;
+    if (ops >= 400) { await batch.commit(); batch = db.batch(); ops = 0; }
+  }
+  if (ops > 0) await batch.commit();
+
+  console.log(`backfillPublicProfiles: ${written}/${users.size} perfiles espejados`);
+  return { written, total: users.size };
 });
 
 // ── Honeypot Functions ────────────────────────────────────────────────────────

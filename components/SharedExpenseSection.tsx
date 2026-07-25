@@ -7,8 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import AppSegmentedControl from './AppSegmentedControl';
 import { Fonts } from '../config/fonts';
-import { useFriends } from '../hooks/useFriends';
-import { getPublicProfile } from '../hooks/useUserProfile';
+import { useFriendProfiles } from '../hooks/useFriendProfiles';
 import type { PublicProfile } from '../types/friend';
 import type { SharedParticipant } from '../types/sharedTransaction';
 import { calcEqualPercentages, calcSharedAmount } from '../utils/sharedCalc';
@@ -45,38 +44,12 @@ export default function SharedExpenseSection({
 }: Props) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
-  const { acceptedFriends, loading: friendsLoading } = useFriends(userId);
-  const [friendProfiles, setFriendProfiles] = useState<PublicProfile[]>([]);
-  const [profilesLoading, setProfilesLoading] = useState(false);
+  const { profiles: friendProfiles, loading: friendsIsLoading } = useFriendProfiles(userId);
   const [splitType, setSplitType]   = useState<SplitType>('equal');
   const [addMode, setAddMode]       = useState<AddMode>('friends');
   const [extName, setExtName]       = useState('');
   const [extEmail, setExtEmail]     = useState('');
   const [emailError, setEmailError] = useState('');
-
-  useEffect(() => {
-    if (friendsLoading) return;
-    if (acceptedFriends.length === 0) return;
-    setProfilesLoading(true);
-    async function load() {
-      try {
-        const profiles: PublicProfile[] = [];
-        for (const f of acceptedFriends) {
-          const friendUid = f.fromId === userId ? f.toId : f.fromId;
-          const profile = await getPublicProfile(friendUid);
-          if (profile) profiles.push(profile);
-        }
-        setFriendProfiles(profiles);
-      } catch (err) {
-        console.error('[SharedExpenseSection] error loading friend profiles:', err);
-      } finally {
-        setProfilesLoading(false);
-      }
-    }
-    load();
-  }, [acceptedFriends, userId, friendsLoading]);
-
-  const friendsIsLoading = friendsLoading || profilesLoading;
 
   useEffect(() => {
     if (splitType !== 'equal') return;

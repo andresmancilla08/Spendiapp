@@ -2,13 +2,11 @@
 import {
   View, Text, StyleSheet, TouchableOpacity, Switch, ActivityIndicator,
 } from 'react-native';
-import { useState, useEffect } from 'react';
 import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
-import { useFriends } from '../hooks/useFriends';
-import { getPublicProfile } from '../hooks/useUserProfile';
+import { useFriendProfiles } from '../hooks/useFriendProfiles';
 import type { PublicProfile } from '../types/friend';
 
 interface Props {
@@ -28,33 +26,7 @@ export default function SentIncomeSection({
 }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const { acceptedFriends, loading: friendsLoading } = useFriends(userId);
-  const [friendProfiles, setFriendProfiles] = useState<PublicProfile[]>([]);
-  const [profilesLoading, setProfilesLoading] = useState(false);
-
-  useEffect(() => {
-    if (friendsLoading) return;
-    if (acceptedFriends.length === 0) return;
-    setProfilesLoading(true);
-    async function load() {
-      try {
-        const profiles: PublicProfile[] = [];
-        for (const f of acceptedFriends) {
-          const friendUid = f.fromId === userId ? f.toId : f.fromId;
-          const profile = await getPublicProfile(friendUid);
-          if (profile) profiles.push(profile);
-        }
-        setFriendProfiles(profiles);
-      } catch (err) {
-        console.error('[SentIncomeSection] error loading friend profiles:', err);
-      } finally {
-        setProfilesLoading(false);
-      }
-    }
-    load();
-  }, [acceptedFriends, userId, friendsLoading]);
-
-  const isLoading = friendsLoading || profilesLoading;
+  const { profiles: friendProfiles, loading: isLoading } = useFriendProfiles(userId);
 
   const toggleRecipient = (profile: PublicProfile) => {
     if (recipient?.uid === profile.uid) {
