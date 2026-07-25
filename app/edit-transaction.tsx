@@ -11,7 +11,8 @@ import {
   FlatList,
   Switch,
 } from 'react-native';
-import { useRef, useEffect, useState, type ElementRef } from 'react';
+import { useMemo, useRef, useEffect, useState, type ElementRef } from 'react';
+import { getMonthNames, formatDate } from '../utils/dateLocale';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
@@ -43,14 +44,8 @@ import { calcSharedAmount, calcEqualPercentages } from '../utils/sharedCalc';
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
 const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 
-const MONTHS_ES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
-
-function formatDisplayDate(date: Date): string {
-  const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+function formatDisplayDate(date: Date, lang?: string): string {
+  return formatDate(date, { day: 'numeric', month: 'short', year: 'numeric' }, lang);
 }
 
 function isToday(date: Date): boolean {
@@ -71,7 +66,8 @@ function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): str
 const MIN_YEAR = 2020;
 
 export default function EditTransactionScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const MONTHS = useMemo(() => getMonthNames(i18n.language), [i18n.language]);
   const { colors } = useTheme();
   const { user } = useAuthStore();
   const { showToast } = useToast();
@@ -301,8 +297,8 @@ export default function EditTransactionScreen() {
   const isSaveDisabled = !isAmountValid || category === '' || description.trim() === '' || loading || !sharedPctValid;
 
   const dateDisplayText = isToday(selectedDate)
-    ? `${t('addTransaction.today')}, ${formatDisplayDate(selectedDate)}`
-    : formatDisplayDate(selectedDate);
+    ? `${t('addTransaction.today')}, ${formatDisplayDate(selectedDate, i18n.language)}`
+    : formatDisplayDate(selectedDate, i18n.language);
 
   const activeCategories = filterCategories(type, customCategories)
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
@@ -805,7 +801,7 @@ export default function EditTransactionScreen() {
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
                           <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
-                            {MONTHS_ES[pickerMonth].toUpperCase()} {pickerYear}
+                            {MONTHS[pickerMonth].toUpperCase()} {pickerYear}
                           </Text>
                           <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
                         </TouchableOpacity>
@@ -862,7 +858,7 @@ export default function EditTransactionScreen() {
                         </TouchableOpacity>
                       </View>
                       <View style={styles.monthGrid}>
-                        {MONTHS_ES.map((name, idx) => {
+                        {MONTHS.map((name, idx) => {
                           const isSelectedMonth = idx === pickerMonth;
                           return (
                             <TouchableOpacity

@@ -190,7 +190,7 @@ export default function FriendReportScreen() {
       const labels: FriendReportImageLabels = {
         title: t('friendReport.pdfTitle', { name: selectedFriend.displayName }),
         generatedOn: t('friendReport.pdfGeneratedOn', {
-          date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }),
+          date: new Date().toLocaleDateString(localeFor(), { day: '2-digit', month: 'long', year: 'numeric' }),
         }),
         period: t('friendReport.pdfPeriod', { month: monthName, year }),
         sentSection: t('friendReport.sentSection'),
@@ -314,7 +314,7 @@ export default function FriendReportScreen() {
     for (const entry of allEntries) {
       const d = entry.date;
       const isoKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      const displayDate = d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long' });
+      const displayDate = d.toLocaleDateString(localeFor(), { day: 'numeric', month: 'long' });
       if (!map.has(isoKey)) map.set(isoKey, { displayDate, entries: [] });
       map.get(isoKey)!.entries.push(entry);
     }

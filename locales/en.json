@@ -151,7 +151,8 @@
       "title": "Feature temporarily paused",
       "description": "This feature is currently paused. Our team is working on improvements. Check back soon!",
       "close": "Got it"
-    }
+    },
+    "genericError": "Something went wrong. Please try again."
   },
   "tabBar": {
     "home": "HOME",
@@ -590,6 +591,10 @@
         "Monthly salary",
         "Commission",
         "Freelance"
+      ],
+      "other": [
+        "Other",
+        "Misc"
       ]
     },
     "errors": {
@@ -846,7 +851,8 @@
     "nicknameError": "Enter a name for the card",
     "saveError": "Could not add the card",
     "toastOne": "1 card added successfully",
-    "toastMany": "{{n}} cards added successfully"
+    "toastMany": "{{n}} cards added successfully",
+    "deleteError": "Couldn't delete the card"
   },
   "cardsScreen": {
     "title": "My cards",
@@ -999,7 +1005,8 @@
     "goal_monthly_reminder": "Remember to add to your {{count}} active goals this month 🎯",
     "sent_income": "{{name}} sent you income: {{description}}",
     "sent_income_deleted": "{{name}} deleted the sent income: {{description}}",
-    "income_claim_added": "{{fromDisplayName}} registered that they owe you: {{description}}"
+    "income_claim_added": "{{fromDisplayName}} registered that they owe you: {{description}}",
+    "external_participant_joined": "{{participantDisplayName}} joined your shared expense: {{description}}"
   },
   "whatsNew": {
     "version": "What's new · v{{version}}",
@@ -1633,6 +1640,8 @@
     "feature3Label": "Goals"
   },
   "exchangeRate": {
-    "updatedAt": "Upd. {{time}}"
+    "updatedAt": "Upd. {{time}}",
+    "errorShort": "No rate data",
+    "live": "Live"
   }
 }

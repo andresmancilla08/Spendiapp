@@ -68,7 +68,8 @@ export type NotificationType =
   | 'shared_delete_request'
   | 'goal_monthly_reminder'
   | 'sent_income'
-  | 'sent_income_deleted';
+  | 'sent_income_deleted'
+  | 'external_participant_joined';
 
 export interface NotificationData {
   fromUserId: string;

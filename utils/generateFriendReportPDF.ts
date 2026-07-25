@@ -51,7 +51,7 @@ function formatCOP(n: number): string {
 }
 
 function formatShortDate(d: Date): string {
-  return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
+  return d.toLocaleDateString(localeFor(), { day: '2-digit', month: 'short' });
 }
 
 async function fetchImageBase64(uri: string): Promise<string | null> {

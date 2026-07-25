@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { localeFor } from '../utils/dateLocale';
 import {
   View, Text, ScrollView, TouchableOpacity, Linking,
   StyleSheet, Animated, Easing, Platform, ActivityIndicator,
@@ -104,7 +105,7 @@ export default function PaymentQrScreen() {
       ? `${t('paymentQr.planMonthly')} – ${t('paymentQr.planMonthlyPrice')}`
       : `${t('paymentQr.planAnnual')} – ${t('paymentQr.planAnnualPrice')}`;
 
-    const dateStr = new Date().toLocaleDateString('es-CO', {
+    const dateStr = new Date().toLocaleDateString(localeFor(), {
       day: '2-digit', month: 'long', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });

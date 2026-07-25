@@ -76,7 +76,7 @@ export default function ReportsScreen() {
       const labels: AnnualReportImageLabels = {
         extractTitle: t('reports.pdfExtract', { year: selectedYear }),
         generatedOn: t('reports.pdfGeneratedOn', {
-          date: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }),
+          date: new Date().toLocaleDateString(localeFor(), { day: '2-digit', month: 'long', year: 'numeric' }),
         }),
         income: t('reports.pdfIncome'),
         expenses: t('reports.pdfExpenses'),

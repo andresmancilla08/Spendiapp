@@ -42,7 +42,7 @@ function formatRateValue(value: number): string {
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('es-CO', {
+  return date.toLocaleTimeString(localeFor(), {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,

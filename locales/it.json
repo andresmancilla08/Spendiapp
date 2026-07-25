@@ -151,7 +151,8 @@
       "title": "Funzione temporaneamente in pausa",
       "description": "Questa funzione è in pausa. Il nostro team sta lavorando a miglioramenti. Torna presto!",
       "close": "Capito"
-    }
+    },
+    "genericError": "Qualcosa è andato storto. Riprova."
   },
   "tabBar": {
     "home": "HOME",
@@ -590,6 +591,10 @@
         "Salario mensile",
         "Commissione",
         "Freelance"
+      ],
+      "other": [
+        "Altro",
+        "Varie"
       ]
     },
     "errors": {
@@ -846,7 +851,8 @@
     "nicknameError": "Inserisci un nome per la carta",
     "saveError": "Impossibile aggiungere la carta",
     "toastOne": "1 carta aggiunta con successo",
-    "toastMany": "{{n}} carte aggiunte con successo"
+    "toastMany": "{{n}} carte aggiunte con successo",
+    "deleteError": "Impossibile eliminare la carta"
   },
   "cardsScreen": {
     "title": "Le mie carte",
@@ -999,7 +1005,8 @@
     "goal_monthly_reminder": "Ricorda di aggiungere ai tuoi {{count}} obiettivi attivi questo mese 🎯",
     "sent_income": "{{name}} ti ha inviato un'entrata: {{description}}",
     "sent_income_deleted": "{{name}} ha eliminato l'entrata inviata: {{description}}",
-    "income_claim_added": "{{fromDisplayName}} ha registrato che ti deve: {{description}}"
+    "income_claim_added": "{{fromDisplayName}} ha registrato che ti deve: {{description}}",
+    "external_participant_joined": "{{participantDisplayName}} si è unito alla tua spesa condivisa: {{description}}"
   },
   "whatsNew": {
     "version": "Novità · v{{version}}",
@@ -1633,6 +1640,8 @@
     "feature3Label": "Obiettivi"
   },
   "exchangeRate": {
-    "updatedAt": "Agg. {{time}}"
+    "updatedAt": "Agg. {{time}}",
+    "errorShort": "Nessun dato sui cambi",
+    "live": "In tempo reale"
   }
 }

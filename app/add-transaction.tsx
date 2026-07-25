@@ -12,7 +12,7 @@ import {
   InputAccessoryView,
   Switch,
 } from 'react-native';
-import { useRef, useEffect, useState, type ElementRef } from 'react';
+import { useRef, useEffect, useState, useMemo, type ElementRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +24,7 @@ import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import type { TransactionType } from '../types/transaction';
 import { categorizeLocal, categorizeRemote } from '../utils/categorize';
+import { getMonthNames, formatDate } from '../utils/dateLocale';
 import { scanReceipt } from '../utils/scanReceipt';
 import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
@@ -54,20 +55,8 @@ const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment',
 const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 const AMOUNT_INPUT_ID = 'spendiapp-amount-input';
 
-const MONTHS_ES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
-
-function formatDisplayDate(date: Date): string {
-  const months = [
-    'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-    'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
-  ];
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  return `${day} ${month} ${year}`;
+function formatDisplayDate(date: Date, lang?: string): string {
+  return formatDate(date, { day: 'numeric', month: 'short', year: 'numeric' }, lang);
 }
 
 function isToday(date: Date): boolean {
@@ -80,7 +69,8 @@ function isToday(date: Date): boolean {
 }
 
 export default function AddTransactionScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const MONTHS = useMemo(() => getMonthNames(i18n.language), [i18n.language]);
   const { colors } = useTheme();
   const { user } = useAuthStore();
   const { showToast } = useToast();
@@ -518,8 +508,8 @@ export default function AddTransactionScreen() {
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
   const dateDisplayText = isToday(selectedDate)
-    ? `${t('addTransaction.today')}, ${formatDisplayDate(selectedDate)}`
-    : formatDisplayDate(selectedDate);
+    ? `${t('addTransaction.today')}, ${formatDisplayDate(selectedDate, i18n.language)}`
+    : formatDisplayDate(selectedDate, i18n.language);
 
   const nowForPicker = new Date();
 
@@ -928,7 +918,7 @@ export default function AddTransactionScreen() {
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
                           <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
-                            {MONTHS_ES[pickerMonth].toUpperCase()} {pickerYear}
+                            {MONTHS[pickerMonth].toUpperCase()} {pickerYear}
                           </Text>
                           <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
                         </TouchableOpacity>
@@ -1000,7 +990,7 @@ export default function AddTransactionScreen() {
 
                       {/* 3×4 month grid */}
                       <View style={styles.monthGrid}>
-                        {MONTHS_ES.map((name, idx) => {
+                        {MONTHS.map((name, idx) => {
                           const isSelectedMonth = idx === pickerMonth;
                           return (
                             <TouchableOpacity
