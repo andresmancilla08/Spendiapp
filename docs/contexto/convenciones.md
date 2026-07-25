@@ -11,6 +11,8 @@
 
 ## Patrones PROHIBIDOS
 - Strings hardcodeados · guardar datos sensibles fuera de secure-store.
+- **Fechas/meses hardcodeados:** prohibido arrays `['Enero',...]` o `toLocaleDateString('es-CO', ...)`. Usar SIEMPRE `utils/dateLocale.ts`: `getMonthNames(i18n.language)` para nombres de mes, `formatDate/formatTime(date, opts)` (o `localeFor()` como locale) para que la fecha siga al idioma activo (es→es-CO, en→en-US, it→it-IT). Los números (`toLocaleString('es-CO')`) se dejan en es-CO a propósito (formato COP).
+- **Paridad i18n:** toda clave nueva va a los 3 locales (es/en/it) — verificar con el script de auditoría (round-trip JSON idéntico). Claves dinámicas `t(\`x.${var}\`)` deben cubrir TODOS los valores del dominio.
 
 ## Tests
 - Hay scripts sueltos (`test_logic.js`, `test_generateUserName.ts`). TODO: no hay suite formal; validar a mano web + iOS.
