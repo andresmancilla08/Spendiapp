@@ -600,7 +600,9 @@
     "errors": {
       "saveFailed": "Impossibile salvare. Riprova."
     },
-    "cutoffAdjusted": "Data adeguata al 1° del mese successivo per la data di chiusura (giorno {{day}})"
+    "cutoffAdjusted": "Data adeguata al 1° del mese successivo per la data di chiusura (giorno {{day}})",
+    "collapse": "Comprimi",
+    "newCategory": "Nuova"
   },
   "editTransaction": {
     "title": "Modifica movimento",
@@ -852,7 +854,9 @@
     "saveError": "Impossibile aggiungere la carta",
     "toastOne": "1 carta aggiunta con successo",
     "toastMany": "{{n}} carte aggiunte con successo",
-    "deleteError": "Impossibile eliminare la carta"
+    "deleteError": "Impossibile eliminare la carta",
+    "addCard": "Aggiungi carta",
+    "skipForNow": "Salta per ora"
   },
   "cardsScreen": {
     "title": "Le mie carte",
@@ -1643,5 +1647,8 @@
     "updatedAt": "Agg. {{time}}",
     "errorShort": "Nessun dato sui cambi",
     "live": "In tempo reale"
+  },
+  "announcement": {
+    "viewCta": "Vedi"
   }
 }

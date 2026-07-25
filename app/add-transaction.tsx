@@ -682,7 +682,7 @@ export default function AddTransactionScreen() {
                   activeOpacity={0.7}
                 >
                   <AppIcon name="chevron-up" size={13} color={colors.textSecondary} />
-                  <Text style={{ fontSize: 11, fontFamily: Fonts.medium, color: colors.textSecondary }}>Colapsar</Text>
+                  <Text style={{ fontSize: 11, fontFamily: Fonts.medium, color: colors.textSecondary }}>{t('addTransaction.collapse')}</Text>
                 </TouchableOpacity>
                 <View style={styles.categoryGrid}>
                   {/* "+ Nueva" siempre primero */}
@@ -723,7 +723,7 @@ export default function AddTransactionScreen() {
                       activeOpacity={0.8}
                     >
                       <AppIcon name="add" size={16} color={colors.textSecondary} />
-                      <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>Nueva</Text>
+                      <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>{t('addTransaction.newCategory')}</Text>
                     </TouchableOpacity>
                   )}
                   {activeCategories.map((item) => {
@@ -803,7 +803,7 @@ export default function AddTransactionScreen() {
                         activeOpacity={0.8}
                       >
                         <AppIcon name="add" size={16} color={colors.textSecondary} />
-                        <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>Nueva</Text>
+                        <Text style={[styles.categoryChipLabel, { color: colors.textSecondary }]}>{t('addTransaction.newCategory')}</Text>
                       </TouchableOpacity>
                     )}
                     {activeCategories.filter((_, i) => i % 2 === 0).map((item) => {

@@ -600,7 +600,9 @@
     "errors": {
       "saveFailed": "Could not save. Please try again."
     },
-    "cutoffAdjusted": "Date adjusted to the 1st of next month due to cutoff day {{day}}"
+    "cutoffAdjusted": "Date adjusted to the 1st of next month due to cutoff day {{day}}",
+    "collapse": "Collapse",
+    "newCategory": "New"
   },
   "editTransaction": {
     "title": "Edit transaction",
@@ -852,7 +854,9 @@
     "saveError": "Could not add the card",
     "toastOne": "1 card added successfully",
     "toastMany": "{{n}} cards added successfully",
-    "deleteError": "Couldn't delete the card"
+    "deleteError": "Couldn't delete the card",
+    "addCard": "Add card",
+    "skipForNow": "Skip for now"
   },
   "cardsScreen": {
     "title": "My cards",
@@ -1643,5 +1647,8 @@
     "updatedAt": "Upd. {{time}}",
     "errorShort": "No rate data",
     "live": "Live"
+  },
+  "announcement": {
+    "viewCta": "View"
   }
 }
