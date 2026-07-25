@@ -1650,5 +1650,13 @@
   },
   "announcement": {
     "viewCta": "View"
+  },
+  "legal": {
+    "title": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions"
+    },
+    "lastUpdated": "Last updated",
+    "spanishOnlyNotice": "This document is currently available in Spanish only. A professionally translated version is pending."
   }
 }

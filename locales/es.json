@@ -1650,5 +1650,13 @@
   },
   "announcement": {
     "viewCta": "Ver"
+  },
+  "legal": {
+    "title": {
+      "privacy": "Política de Privacidad",
+      "terms": "Términos y Condiciones"
+    },
+    "lastUpdated": "Última actualización",
+    "spanishOnlyNotice": "Este documento está disponible únicamente en español. La traducción profesional está pendiente."
   }
 }

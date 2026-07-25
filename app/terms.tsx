@@ -1,5 +1,6 @@
 import { useRef, type ReactNode } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import AppIcon from '../components/AppIcon';
@@ -40,6 +41,7 @@ function Li({ children }: { children: ReactNode }) {
 
 export default function TermsScreen() {
   const { colors } = useTheme();
+  const { t, i18n } = useTranslation();
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
   const handleBack = () => {
@@ -61,8 +63,8 @@ export default function TermsScreen() {
                 <AppIcon name="arrow-back" size={22} color={colors.textPrimary} />
               </TouchableOpacity>
             <View style={styles.headerTitles}>
-              <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Términos y Condiciones</Text>
-              <Text style={[styles.headerSub, { color: colors.textTertiary }]}>Spendia · Última actualización: {LAST_UPDATED}</Text>
+              <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('legal.title.terms')}</Text>
+              <Text style={[styles.headerSub, { color: colors.textTertiary }]}>Spendia · {t('legal.lastUpdated')}: {LAST_UPDATED}</Text>
             </View>
           </View>
 
@@ -70,6 +72,13 @@ export default function TermsScreen() {
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
           >
+            {/* TODO(i18n legal): cuerpo legal solo en ES; traducción profesional pendiente (revisar con legal). */}
+            {i18n.language !== 'es' && (
+              <View style={[styles.langNotice, { backgroundColor: colors.primaryLight, borderColor: colors.primary + '40' }]}>
+                <AppIcon name="information-circle-outline" size={16} color={colors.primary} />
+                <Text style={[styles.langNoticeText, { color: colors.textSecondary }]}>{t('legal.spanishOnlyNotice')}</Text>
+              </View>
+            )}
             <Section title="1. Partes y Aceptación">
               <P>
                 Los presentes Términos y Condiciones de Uso (en adelante "Términos") regulan la relación contractual
@@ -263,6 +272,8 @@ export default function TermsScreen() {
 }
 
 const styles = StyleSheet.create({
+  langNotice: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 12, borderWidth: 1, marginBottom: 16 },
+  langNoticeText: { flex: 1, fontSize: 13, fontFamily: Fonts.regular, lineHeight: 18 },
   safe: { flex: 1 },
   header: {
     flexDirection: 'row',
