@@ -36,7 +36,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import ProSheen from '../../components/ProSheen';
 import { Fonts } from '../../config/fonts';
-import { getUserProfile } from '../../hooks/useUserProfile';
+import { getUserProfile, updateUserDisplayName } from '../../hooks/useUserProfile';
 import { useFriends } from '../../hooks/useFriends';
 import * as Clipboard from 'expo-clipboard';
 import { useToast } from '../../context/ToastContext';
@@ -451,6 +451,7 @@ export default function ProfileScreen() {
     setEditNameLoading(true);
     try {
       await updateDisplayName(trimmed);
+      if (user) await updateUserDisplayName(user.uid, trimmed);
       if (user) setUser({ ...user, displayName: trimmed });
       setEditNameVisible(false);
       showSuccess(t('profile.editName.success.title'), t('profile.editName.success.desc'));

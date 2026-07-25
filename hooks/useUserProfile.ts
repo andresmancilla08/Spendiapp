@@ -155,6 +155,20 @@ export async function updateAppVersion(uid: string, version: string): Promise<vo
   await updateDoc(doc(db, 'users', uid), { appVersion: version });
 }
 
+/** Cambia el displayName en `users` y lo espeja en `publicProfiles` (lo que ven
+ *  los amigos). Sin el trigger server-side, este espejo debe hacerse aquí o el
+ *  nombre nuevo no se propaga a los contactos hasta un relogin. */
+export async function updateUserDisplayName(uid: string, displayName: string): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { displayName });
+  const snap = await getDoc(doc(db, 'users', uid));
+  const data = snap.data() as UserProfile | undefined;
+  await syncPublicProfile(uid, {
+    userName: data?.userName ?? '',
+    displayName,
+    photoURL: data?.photoURL ?? null,
+  });
+}
+
 /** Busca un perfil PÚBLICO por userName exacto (case-sensitive). */
 export async function searchUserByUserName(userName: string): Promise<PublicProfile | null> {
   const q = query(collection(db, 'publicProfiles'), where('userName', '==', userName), limit(1));

@@ -16,13 +16,11 @@
 2. **Bump `package.json` Y `app.json` al mismo valor.**
 3. `npm run deploy` (export + `vercel --prod`). Si tocas `firestore.rules`: `firebase deploy --only firestore:rules`.
 
-## Deploy de Cloud Functions + backfill de publicProfiles (one-time)
-Necesario tras el fix de "contactos no cargan" (ver errores-conocidos). Orden:
-1. `firebase deploy --only functions` — publica el trigger `mirrorPublicProfile` y `backfillPublicProfiles`.
-2. Ejecutar el backfill UNA vez (usuario admin, `isAdmin: true`), desde consola del cliente o script:
-   ```js
-   import { getFunctions, httpsCallable } from 'firebase/functions';
-   await httpsCallable(getFunctions(), 'backfillPublicProfiles')();
-   // → { written, total }
-   ```
-3. Verificar que la colección `publicProfiles` tiene un doc por usuario. A partir de aquí el trigger lo mantiene solo.
+## Backfill de publicProfiles (contactos)
+⚠️ Proyecto en plan **Spark** → no se pueden desplegar Cloud Functions (Secret Manager 403). Por eso:
+- **En Spark (situación actual):** correr el backfill con Admin SDK + ADC (no el onCall):
+  ```bash
+  node functions/scripts/backfillPublicProfiles.js   # requiere gcloud/firebase login
+  ```
+  La sincronización continua la cubre el cliente: `updateUserDisplayName` (edición de nombre) y `syncPublicProfile` (en cada login).
+- **Si se activa Blaze:** `firebase deploy --only functions` publica el trigger `mirrorPublicProfile` (espejo automático en cada write de `users/{uid}`) y el onCall `backfillPublicProfiles`; a partir de ahí no hace falta el script ni el sync manual del cliente.
