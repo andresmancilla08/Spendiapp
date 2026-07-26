@@ -6,7 +6,7 @@
 
 **Personal finance that explains itself.** Track spending, split expenses with friends, and get your month summarized in one sentence — no spreadsheets, no manual categorizing.
 
-🌐 **[spendia.vercel.app](https://spendia.vercel.app)** · Installable PWA · EN / ES / IT
+🌐 **[spendia.co](https://spendia.co)** · Installable PWA · EN / ES / IT
 
 ---
 
