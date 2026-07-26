@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/social-preview.png" alt="Spendia — Know where your money goes." width="860">
+</p>
+
 # Spendia
 
 **Personal finance that explains itself.** Track spending, split expenses with friends, and get your month summarized in one sentence — no spreadsheets, no manual categorizing.
