@@ -50,7 +50,7 @@ import { getUserProfile } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
-import SharedExpenseChip from '../../components/SharedExpenseChip';
+import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { categoryLabel } from '../../constants/categories';
 import { categoryColor } from '../../constants/categoryColors';
@@ -124,6 +124,8 @@ function getActualId(transaction: Transaction): string {
 
 // ── TxIconChip (Aurora Ledger — glow por categoría) ─────────────────────────
 
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+
 function TxIconChip({ emoji, tint }: { emoji: string; tint: string }) {
   return (
     <View
@@ -171,9 +173,12 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   const isExpense = item.type === 'expense';
   const isPaid = item.isPaid === true;
   const card = item.cardId ? cardsMap[item.cardId] : null;
-  // El dueño del compartido puede no estar en `sharedParticipants` de docs viejos:
-  // de ahí el fallback a `sharedOwnerUserName` dentro del chip.
-  const sharedOwnerName = item.sharedParticipants?.find((p) => p.uid === item.sharedOwnerUid)?.displayName;
+  const relation = useTxRelation(item);
+  // En gastos compartidos el importe grande es TU parte; el total va como línea secundaria.
+  const shownAmount = isExpense && item.isShared && item.sharedAmount != null ? item.sharedAmount : item.amount;
+  const ofTotal = shownAmount !== item.amount
+    ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
+    : null;
   const descLabel = item.isInstallment
     ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`
     : item.description;
@@ -253,7 +258,22 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   const paidOpacity = swipeX.interpolate({ inputRange: [-ACTION_WIDTH, 0], outputRange: [1, 0], extrapolate: 'clamp' });
   const deleteOpacity = swipeX.interpolate({ inputRange: [0, ACTION_WIDTH], outputRange: [0, 1], extrapolate: 'clamp' });
 
-  const rowBg = isPaid ? colors.primaryLight : colors.surface;
+  // Marcar/desmarcar pagado tiñe la fila: 220ms al entrar, 160ms al deshacer (deshacer se siente
+  // más inmediato). `backgroundColor` nunca admite native driver, y va en su propio Animated.Value
+  // para no interferir con el del swipe.
+  const paidProgress = useRef(new Animated.Value(isPaid ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.timing(paidProgress, {
+      toValue: isPaid ? 1 : 0,
+      duration: isPaid ? 220 : 160,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [isPaid, paidProgress]);
+  const rowBg = paidProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors.surface, colors.primaryLight],
+  });
   const amountColor = isExpense ? (isPaid ? colors.primary : colors.expense) : colors.secondary;
 
   return (
@@ -300,7 +320,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
         {...panResponder.panHandlers}
         style={[{ transform: [{ translateX: swipeX }] }]}
       >
-        <TouchableOpacity
+        <AnimatedTouchable
           onPressIn={() => { hasDragged.current = false; }}
           onPress={() => {
             if (Platform.OS === 'web' && hasDragged.current) return;
@@ -309,121 +329,79 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
           onLongPress={() => onLongPress(item)}
           delayLongPress={350}
           activeOpacity={0.7}
-          style={[styles.txRow, { backgroundColor: rowBg }]}
+          style={{ backgroundColor: rowBg }}
         >
-          <TxIconChip emoji={cat.icon} tint={cat.color} />
-          <View style={styles.txMeta}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
-                {descLabel}
-              </Text>
-              {item.isFixed && (
-                <View style={[styles.fixedBadge, { backgroundColor: colors.primaryLight ?? `${colors.primary}22` }]}>
-                  <Text style={[styles.fixedBadgeText, { color: colors.primary }]}>{t('history.fixedBadge')}</Text>
-                </View>
-              )}
+          <View style={styles.txRow}>
+            <View style={styles.txIconSlot}>
+              <TxIconChip emoji={cat.icon} tint={cat.color} />
+              {relation && <TxRelationNotch relation={relation} />}
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
-              <Text style={[styles.txTime, { color: colors.textTertiary }]}>
-                {CATEGORY_LABELS[item.category] ?? customCat?.name ?? CATEGORY_LABELS.other}
-              </Text>
-              {card && (
-                <View style={[styles.txCardChip, {
-                  backgroundColor: card.type === 'credit'
-                    ? `${colors.primary}18`
-                    : `${colors.tertiary}18`,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 4,
-                }]}>
-                  <Text style={[styles.txCardChipText, {
-                    color: card.type === 'credit' ? colors.primary : colors.tertiary,
-                  }]}>
-                    {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
-                  </Text>
-                  <View style={[styles.txCardTypeBadge, {
-                    backgroundColor: card.type === 'credit'
-                      ? `${colors.primary}28`
-                      : `${colors.tertiary}28`,
-                  }]}>
-                    <Text style={[styles.txCardTypeBadgeText, {
-                      color: card.type === 'credit' ? colors.primary : colors.tertiary,
-                    }]}>
-                      {card.type === 'credit'
-                        ? t('history.detail.creditType')[0]
-                        : t('history.detail.debitType')[0]}
-                    </Text>
+            <View style={styles.txMeta}>
+              <View style={styles.txTitleRow}>
+                <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
+                  {descLabel}
+                </Text>
+                {item.isFixed && (
+                  <View style={[styles.fixedBadge, { backgroundColor: colors.primaryLight ?? `${colors.primary}22` }]}>
+                    <Text style={[styles.fixedBadgeText, { color: colors.primary }]}>{t('history.fixedBadge')}</Text>
                   </View>
-                </View>
+                )}
+              </View>
+              <View style={styles.txSubrow}>
+                <Text style={[styles.txTime, styles.txCat, { color: colors.textTertiary }]} numberOfLines={1}>
+                  {CATEGORY_LABELS[item.category] ?? customCat?.name ?? CATEGORY_LABELS.other}
+                </Text>
+                {card && (
+                  <View style={[styles.txCardChip, {
+                    backgroundColor: card.type === 'credit'
+                      ? `${colors.primary}18`
+                      : `${colors.tertiary}18`,
+                  }]}>
+                    <Text
+                      style={[styles.txCardChipText, {
+                        color: card.type === 'credit' ? colors.primary : colors.tertiary,
+                      }]}
+                      numberOfLines={1}
+                    >
+                      {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
+                    </Text>
+                    <View style={[styles.txCardTypeBadge, {
+                      backgroundColor: card.type === 'credit'
+                        ? `${colors.primary}28`
+                        : `${colors.tertiary}28`,
+                    }]}>
+                      <Text style={[styles.txCardTypeBadgeText, {
+                        color: card.type === 'credit' ? colors.primary : colors.tertiary,
+                      }]}>
+                        {card.type === 'credit'
+                          ? t('history.detail.creditType')[0]
+                          : t('history.detail.debitType')[0]}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+            </View>
+            {/* minHeight fijo: el spinner de `paidLoading` no debe encoger la columna. */}
+            <View style={[styles.txAmountCol, { minHeight: ofTotal ? 40 : 22 }]}>
+              {paidLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <>
+                  <Text style={[styles.txAmount, { color: amountColor }]} numberOfLines={1}>
+                    {`${isExpense ? '−' : '+'}${formatCurrency(shownAmount)}`}
+                  </Text>
+                  {ofTotal && (
+                    <Text style={[styles.txOf, { color: colors.textSecondary }]} numberOfLines={1}>
+                      {ofTotal}
+                    </Text>
+                  )}
+                </>
               )}
             </View>
           </View>
-          {/* Chip ingreso recibido de un amigo */}
-          {item.isSentIncome && item.sentByName ? (
-            <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
-              {paidLoading ? (
-                <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
-              ) : (
-                <Text style={[styles.txAmount, { color: amountColor }]}>
-                  {`+${formatCurrency(item.amount)}`}
-                </Text>
-              )}
-              <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.secondary}18`, borderColor: `${colors.secondary}28` }]}>
-                <AppIcon name="gift-outline" size={11} color={colors.secondary} />
-                <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]} numberOfLines={1}>
-                  {t('sentIncome.chip.sentBy', { name: item.sentByName })}
-                </Text>
-              </View>
-            </View>
-          ) : item.sentIncomeTransactionId && item.sentIncomeToName ? (
-            /* Chip gasto enviado como ingreso a un amigo */
-            <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
-              {paidLoading ? (
-                <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
-              ) : (
-                <Text style={[styles.txAmount, { color: amountColor }]}>
-                  {`−${formatCurrency(item.amount)}`}
-                </Text>
-              )}
-              <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.primary}18`, borderColor: `${colors.primary}28` }]}>
-                <AppIcon name="send-outline" size={11} color={colors.primary} />
-                <Text style={[styles.sentIncomeChipText, { color: colors.primary }]} numberOfLines={1}>
-                  {t('sentIncome.chip.sentTo', { name: item.sentIncomeToName })}
-                </Text>
-              </View>
-            </View>
-          ) : item.isShared ? (
-            /* Chip gasto/cobro compartido entre amigos */
-            <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
-              {paidLoading ? (
-                <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
-              ) : (
-                <Text style={[styles.txAmount, { color: amountColor }]}>
-                  {isExpense
-                    ? `−${formatCurrency(item.sharedAmount != null ? item.sharedAmount : item.amount)}`
-                    : `+${formatCurrency(item.amount)}`}
-                </Text>
-              )}
-              <SharedExpenseChip
-                compact
-                isOwner={item.sharedOwnerUid === item.userId}
-                ownerDisplayName={sharedOwnerName}
-                ownerUserName={item.sharedOwnerUserName}
-                participants={item.sharedParticipants}
-                currentUid={item.userId}
-                sharedType={item.sharedType}
-              />
-            </View>
-          ) : paidLoading ? (
-            <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
-          ) : (
-            <Text style={[styles.txAmount, { color: amountColor }]}>
-              {isExpense
-                ? `−${formatCurrency(item.amount)}`
-                : `+${formatCurrency(item.amount)}`}
-            </Text>
-          )}
-        </TouchableOpacity>
+          {relation && <TxRelationTier relation={relation} />}
+        </AnimatedTouchable>
       </Animated.View>
     </View>
   );
@@ -1387,27 +1365,24 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     gap: 12,
   },
-  txIconWrap: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  txIconText: { fontSize: 18 },
-  txMeta: { flex: 1 },
-  txTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
+  txIconSlot: { flexShrink: 0 },
+  txMeta: { flex: 1, minWidth: 0 },
+  txTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  txTitle: { fontSize: 14, fontFamily: Fonts.semiBold, flexShrink: 1 },
+  txSubrow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
+  // La categoría no se trunca salvo que sea larguísima; el chip de tarjeta absorbe el apretón.
+  txCat: { flexShrink: 0, maxWidth: '58%' },
   txTime: { fontSize: 12, fontFamily: Fonts.regular },
-  txAmount: { fontSize: 14, fontFamily: Fonts.bold },
-  txCardChip: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
-  txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold },
-  sentIncomeChip: {
+  txAmountCol: { flexShrink: 0, maxWidth: '46%', minWidth: 84, alignItems: 'flex-end', justifyContent: 'center' },
+  // El importe es el héroe: +2pt sobre el título y tracking negativo.
+  txAmount: { fontSize: 16, fontFamily: Fonts.bold, letterSpacing: -0.2, fontVariant: ['tabular-nums'] },
+  txOf: { fontSize: 11, fontFamily: Fonts.semiBold, marginTop: 1, fontVariant: ['tabular-nums'] },
+  txCardChip: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20,
-    borderWidth: StyleSheet.hairlineWidth,
-    maxWidth: 150, flexShrink: 1,
+    paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10,
+    flexShrink: 4,
   },
-  sentIncomeChipText: { fontSize: 11, fontFamily: Fonts.semiBold, flexShrink: 1 },
+  txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold, flexShrink: 1 },
   txCardTypeBadge: { paddingHorizontal: 4, paddingVertical: 1, borderRadius: 5 },
   txCardTypeBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
   fixedBadge: {

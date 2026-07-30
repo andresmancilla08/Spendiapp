@@ -1320,6 +1320,7 @@
       "owesYouMore": "Te deben {{name}} y {{count}} más",
       "youOwe": "Le debes a {{name}}"
     },
+    "ofTotal": "de {{amount}}",
     "appFriendsTab": "Amigos en la app",
     "externalTab": "Persona externa",
     "externalName": "Nombre completo",
