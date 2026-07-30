@@ -92,6 +92,12 @@ const APP_FEATURES: Feature[] = [
     items: ['whatsNew.txCard.item1', 'whatsNew.txCard.item2', 'whatsNew.txCard.item3'],
   },
   {
+    icon: 'person-circle-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.homeHeader.title',
+    items: ['whatsNew.homeHeader.item1', 'whatsNew.homeHeader.item2'],
+  },
+  {
     icon: 'phone-portrait-outline',
     colorKey: 'success',
     titleKey: 'whatsNew.immersiveStatusBar.title',

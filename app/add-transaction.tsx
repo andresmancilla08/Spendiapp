@@ -327,7 +327,7 @@ export default function AddTransactionScreen() {
       });
       setCategory(ref.id);
       resetNewCatForm();
-      showToast(`Categoría "${newCatName.trim()}" creada`, 'success');
+      showToast(t('categories.created', { name: newCatName.trim() }), 'success');
     } catch (err) {
       console.error('Error guardando categoría:', err);
       showToast('No se pudo guardar la categoría', 'error');

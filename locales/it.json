@@ -785,7 +785,8 @@
       "salary": "Stipendio",
       "other": "Altro"
     },
-    "pageDesc": "Organizza le tue spese per categoria"
+    "pageDesc": "Organizza le tue spese per categoria",
+    "created": "Categoria «{{name}}» creata"
   },
   "budget": {
     "title": "Budget",
@@ -1282,8 +1283,13 @@
     "txCard": {
       "title": "Ogni movimento si legge a colpo d’occhio",
       "item1": "Abbiamo ridisegnato la scheda di spese ed entrate in Home e nello Storico",
-      "item2": "L'iniziale dell'amico sta sull'icona e il suo nome completo sotto, senza tagli",
+      "item2": "L'iniziale dell'amico sta sull'icona e il suo nome completo appena sotto, senza tagli",
       "item3": "In una spesa condivisa vedi la tua parte in grande e il totale del gruppo sotto"
+    },
+    "homeHeader": {
+      "title": "La parte alta della Home, più pulita",
+      "item1": "La tua foto apre la schermata con un anello che segna quanto hai speso del mese",
+      "item2": "Scorrendo, il saluto si richiude in una barra che tiene a portata foto e mese"
     },
     "immersiveStatusBar": {
       "title": "La barra superiore ora si abbina all’app",

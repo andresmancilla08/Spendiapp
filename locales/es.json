@@ -785,7 +785,8 @@
       "salary": "Salario",
       "other": "Otro"
     },
-    "pageDesc": "Organiza tus gastos por categorías"
+    "pageDesc": "Organiza tus gastos por categorías",
+    "created": "Categoría «{{name}}» creada"
   },
   "support": {
     "title": "Buzón de sugerencias",
@@ -1282,8 +1283,13 @@
     "txCard": {
       "title": "Cada movimiento se lee de un vistazo",
       "item1": "Rediseñamos la tarjeta de gastos e ingresos en Inicio y en el Historial",
-      "item2": "La inicial del amigo va sobre el ícono y su nombre completo abajo, sin cortarse",
+      "item2": "La inicial del amigo va sobre el ícono y su nombre completo justo debajo, sin cortarse",
       "item3": "En un gasto compartido ves tu parte en grande y el total del grupo debajo"
+    },
+    "homeHeader": {
+      "title": "La parte de arriba del Inicio, más limpia",
+      "item1": "Tu foto abre la pantalla con un anillo que marca cuánto llevas gastado del mes",
+      "item2": "Al bajar, el saludo se recoge en una barra que deja tu foto y el mes a mano"
     },
     "immersiveStatusBar": {
       "title": "La barra superior ya combina con la app",
