@@ -413,7 +413,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
               )}
             </View>
           </View>
-          {relation && <TxRelationTier relation={relation} isPaid={isPaid} />}
+          {relation && <TxRelationTier relation={relation} isPaid={isPaid} indent={70} />}
         </AnimatedTouchable>
       </Animated.View>
     </View>

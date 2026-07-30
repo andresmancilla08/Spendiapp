@@ -3,14 +3,14 @@
 // Un solo sitio resuelve texto + tono + iniciales, y expone las dos piezas visuales que
 // consumen el card del home y del historial:
 //   · TxRelationNotch — inicial del amigo enganchada al ícono de categoría (identifica de un vistazo)
-//   · TxRelationTier  — franja inferior del card con el chip a ancho completo (nombre sin truncar)
+//   · TxRelationTier  — pie del card, indentado bajo el título de SU fila (pertenencia inequívoca)
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import type { Transaction } from '../types/transaction';
-import { initialsOf, readableOn, readableChipText, contrastRatio } from '../utils/txRelation';
+import { initialsOf, readableOn, contrastRatio, splitByPerson } from '../utils/txRelation';
 
 export interface TxRelation {
   label: string;
@@ -18,6 +18,8 @@ export interface TxRelation {
   tone: 'primary' | 'secondary';
   /** 1-2 iniciales del amigo, con sufijo `+n` cuando hay más participantes. */
   initials: string;
+  /** El nombre tal cual se interpoló en `label`, para poder resaltarlo. */
+  person: string;
 }
 
 /** Devuelve la relación de la transacción, o `null` si es un movimiento propio y normal. */
@@ -31,6 +33,7 @@ export function useTxRelation(item: Transaction): TxRelation | null {
       icon: 'gift-outline',
       tone: 'secondary',
       initials: initialsOf(item.sentByName),
+      person: item.sentByName,
     };
   }
 
@@ -41,6 +44,7 @@ export function useTxRelation(item: Transaction): TxRelation | null {
       icon: 'send-outline',
       tone: 'primary',
       initials: initialsOf(item.sentIncomeToName),
+      person: item.sentIncomeToName,
     };
   }
 
@@ -57,15 +61,22 @@ export function useTxRelation(item: Transaction): TxRelation | null {
     // Docs legacy sin participantes: mejor sin franja que "Compartido con —".
     if (others.length === 0) return null;
     const extra = others.length > 1 ? `+${others.length - 1}` : '';
+    const person = others.length <= 2
+      ? others.map(nameOf).join(` ${t('common.and')} `)
+      : nameOf(others[0]);
     const label = others.length <= 2
-      ? t(isClaim ? 'sharedExpense.chip.owesYou' : 'sharedExpense.chip.sharedWith', {
-          name: others.map(nameOf).join(` ${t('common.and')} `),
-        })
+      ? t(isClaim ? 'sharedExpense.chip.owesYou' : 'sharedExpense.chip.sharedWith', { name: person })
       : t(isClaim ? 'sharedExpense.chip.owesYouMore' : 'sharedExpense.chip.sharedWithMore', {
-          name: nameOf(others[0]),
+          name: person,
           count: others.length - 1,
         });
-    return { label, icon: 'people-outline', tone: 'primary', initials: initialsOf(nameOf(others[0])) + extra };
+    return {
+      label,
+      icon: 'people-outline',
+      tone: 'primary',
+      initials: initialsOf(nameOf(others[0])) + extra,
+      person,
+    };
   }
 
   // El dueño del compartido puede faltar en `sharedParticipants` de docs viejos → fallbacks.
@@ -77,6 +88,7 @@ export function useTxRelation(item: Transaction): TxRelation | null {
     icon: 'people-outline',
     tone: 'primary',
     initials: initialsOf(name),
+    person: name,
   };
 }
 
@@ -105,22 +117,39 @@ export function TxRelationNotch({ relation }: { relation: TxRelation }) {
 }
 
 /**
- * Franja inferior del card: el chip de relación con todo el ancho disponible.
+ * Pie del card: la relación como una línea indentada bajo el texto de SU fila.
+ *
+ * Sin fondo ni borde propios y alineada con el título (`indent`), para que se lea como parte
+ * del movimiento y no como una barra entre dos tarjetas — que era el problema de la franja
+ * a ancho completo.
+ *
  * `isPaid` importa para el contraste: la fila pagada tiñe el fondo con `primaryLight`.
+ * `indent` = padding del card + ancho del ícono + gap (42+12+16 en historial, 46+12+16 en home).
  */
-export function TxRelationTier({ relation, isPaid }: { relation: TxRelation; isPaid?: boolean }) {
+export function TxRelationTier({
+  relation,
+  isPaid,
+  indent = 70,
+}: {
+  relation: TxRelation;
+  isPaid?: boolean;
+  indent?: number;
+}) {
   const { colors } = useTheme();
-  const tint = relation.tone === 'primary' ? colors.primary : colors.secondary;
   const deep = relation.tone === 'primary' ? colors.primaryDark : colors.secondaryDark;
-  const textColor = readableChipText(deep, tint, isPaid ? colors.primaryLight : colors.surface, colors.textPrimary);
+  const color = readableOn(isPaid ? colors.primaryLight : colors.surface, [deep, colors.textPrimary]);
+  // El nombre, en negrita dentro de la frase.
+  const { before, name, after } = splitByPerson(relation.label, relation.person);
   return (
-    <View style={[styles.tier, { borderTopColor: colors.border, backgroundColor: `${colors.border}2E` }]}>
-      <View style={[styles.chip, { backgroundColor: `${tint}22`, borderColor: `${tint}3D` }]}>
-        <AppIcon name={relation.icon} size={12} color={tint} />
-        <Text style={[styles.chipText, { color: textColor }]} numberOfLines={1}>
-          {relation.label}
-        </Text>
-      </View>
+    <View style={[styles.tier, { paddingLeft: indent }]}>
+      <AppIcon name={relation.icon} size={12} color={color} />
+      {/* numberOfLines: un nombre de 40+ caracteres no debe saltar a una segunda línea
+          y romper la alineación con el título. */}
+      <Text style={[styles.tierText, { color }]} numberOfLines={1}>
+        {before}
+        {!!name && <Text style={styles.tierName}>{name}</Text>}
+        {after}
+      </Text>
     </View>
   );
 }
@@ -142,21 +171,11 @@ const styles = StyleSheet.create({
   tier: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 7,
-    paddingBottom: 8,
-    borderTopWidth: StyleSheet.hairlineWidth,
+    gap: 6,
+    paddingRight: 16,
+    paddingBottom: 11,
+    marginTop: -3,
   },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    borderRadius: 20,
-    paddingLeft: 7,
-    paddingRight: 9,
-    paddingVertical: 3,
-    borderWidth: StyleSheet.hairlineWidth,
-    flexShrink: 1,
-  },
-  chipText: { fontSize: 11, fontFamily: Fonts.semiBold, flexShrink: 1 },
+  tierText: { fontSize: 11.5, fontFamily: Fonts.regular, flexShrink: 1 },
+  tierName: { fontFamily: Fonts.bold },
 });
