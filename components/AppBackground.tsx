@@ -61,7 +61,7 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
  * animación (antes iba encima al 70% y los efectos casi no se veían en dark).
  */
 export default function AppBackground() {
-  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed } = useTheme();
+  const { colors, isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed } = useTheme();
   const { isPremium } = useAuthStore();
   const { reduceMotion } = useProMotion();
 
@@ -75,6 +75,13 @@ export default function AppBackground() {
     ? darkenHex(gradientColors[0] as string, DARK_SCRIM_FACTOR)
     : (gradientColors[0] as string);
 
+  // PWA iOS: con `black-translucent` la app se dibuja bajo la barra de estado y la
+  // hora va SIEMPRE en blanco. En oscuro dejamos ver el fondo real (transparent);
+  // en claro el gradiente arranca en #FFFFFF y la hora desaparecería, así que la
+  // banda se tiñe con el color de marca. No depende de `prefers-color-scheme`: el
+  // usuario puede forzar el modo dentro de la app.
+  const statusBarBandColor = isDark ? 'transparent' : colors.primaryDark;
+
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -84,8 +91,9 @@ export default function AppBackground() {
         document.head.appendChild(meta);
       }
       meta.content = statusBarColor;
+      document.documentElement.style.setProperty('--spendia-statusbar-bg', statusBarBandColor);
     }
-  }, [statusBarColor]);
+  }, [statusBarColor, statusBarBandColor]);
 
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.clip]} pointerEvents="none">
