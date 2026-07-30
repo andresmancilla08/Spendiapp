@@ -33,3 +33,8 @@
 ### `npm run typecheck` obligatorio antes de deploy — Vigente
 - **Qué:** `node --stack-size=10000 ./node_modules/typescript/lib/tsc.js --noEmit`.
 - **Por qué:** `tsc --noEmit` a secas crashea (stack overflow) en este repo, así que nadie tipaba; eso dejó pasar a producción dos `ReferenceError` por identificadores sin importar (`localeFor`, `deleteDoc`).
+
+### Categoría "segura" al escribir en la cuenta de otro usuario — Vigente
+- **Qué:** todo doc que se crea para OTRO usuario (mirror de gasto compartido, ingreso recibido) pasa la categoría por `utils/sharedCategory.categoryForOtherUser(id, type)`: si no es una de `DEFAULT_CATEGORIES`, o es por defecto pero del tipo equivocado (`food` en un ingreso), se escribe `other`. El dueño conserva su categoría original.
+- **Por qué:** las categorías personalizadas son docs privados en `categories` y las reglas solo permiten leer las propias → un id ajeno no resuelve a nada en la app del amigo y se pintaba como texto crudo. No se puede validar contra las categorías del amigo desde el cliente (ni se debe: es su dato privado), así que el criterio es "solo se propaga lo que existe para todos".
+- **Descartado:** copiar también el nombre/emoji de la categoría al mirror (duplica datos que luego se desincronizan y mete una categoría fantasma en la cuenta del amigo); crear la categoría en la cuenta del amigo (invasivo, y las reglas lo prohíben).
