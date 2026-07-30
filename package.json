@@ -1,6 +1,6 @@
 {
   "name": "spendiapp",
-  "version": "2.41.2",
+  "version": "2.42.0",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",

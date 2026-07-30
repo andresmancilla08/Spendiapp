@@ -1282,6 +1282,16 @@
       "title": "Un fondo distinto para cada modo",
       "item1": "Elige un efecto animado para claro y otro para oscuro",
       "item2": "Los fondos ahora se ven mejor en modo claro"
+    },
+    "sharedBadge": {
+      "title": "Sabes de un vistazo qué gasto es compartido",
+      "item1": "Los gastos y cobros entre amigos ahora llevan su propia etiqueta en el historial",
+      "item2": "Indica con quién lo compartes o quién te lo compartió"
+    },
+    "immersiveStatusBar": {
+      "title": "La barra superior ya combina con la app",
+      "item1": "En modo oscuro toma el fondo de la app en vez de verse blanca",
+      "item2": "En modo claro usa el color de tu paleta"
     }
   },
   "incomeClaim": {
