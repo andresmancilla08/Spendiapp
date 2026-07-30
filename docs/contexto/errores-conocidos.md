@@ -74,3 +74,13 @@
 - **Las vistas previas ignoraban reduce-motion:** animaban siempre, mientras el gráfico real del Home usa `useProMotion().animate`. Con "Reducir movimiento" activo el usuario elegía una animación que en su Home nunca se movía. Ahora las previas reciben `motion` y el demo del crossfade dinámico no arranca.
 - **Nota (por diseño, no es bug):** el acento activo ya no se oculta de la parrilla. La lista deduplica acentos que resuelven al mismo color en la paleta activa (en `deepWater`, `secondary === success`), y si el acento elegido caía en ese filtro desaparecía y ninguna opción quedaba marcada.
 - **Nota (por diseño):** los colores del donut de categorías son fijos (`constants/categoryColors.ts`) — no siguen la paleta ni el acento, a propósito, para que las categorías se distingan entre sí.
+
+## Texto sobre fondo tintado: medir, no asumir
+- **Síntoma:** un chip/badge que se lee perfecto en la paleta por defecto queda ilegible en otra (pastel), o la categoría de una fila "pagada" casi desaparece.
+- **Causa real:** dos capas. (1) Las paletas pastel tienen `primary`/`secondary` clarísimos: usarlos como color de TEXTO da 1.5-2.4:1. (2) La fila pagada del historial cambia el fondo a `primaryLight`, y ahí `textTertiary` (y en light también `textSecondary`) cae por debajo de 4.5:1 aunque sobre `surface` pasara.
+- **Solución:** `utils/txRelation.ts` → `readableOn(bg, candidates)` elige el primer candidato que llega a 4.5:1 (y el de mayor contraste si ninguno llega); `readableChipText` mezcla el tinte sobre el fondo REAL de la fila, no sobre `surface`. Para tonos medios donde ni el texto claro ni el oscuro pasan (deepWater light `secondary`), el relleno del notch cae al tono oscuro. Comprobado en `utils/txRelation.test.ts` (`npx tsx utils/txRelation.test.ts`).
+
+## En gastos compartidos a cuotas, `amount` YA es tu cuota-parte
+- **Síntoma:** "de $12.334" debajo de una cuota de "$12.333" — una etiqueta que parece el total del grupo pero es un gemelo redondeado de tu propia cuota.
+- **Causa real:** en cuotas, `useSharedTransactions` amortiza sobre la base del participante y escribe en `amount` la cuota que te toca, mientras `sharedAmount` calcula lo mismo por división plana (doble redondeo). En gastos compartidos SIN cuotas es al revés: `amount` es el total del grupo y `sharedAmount` tu parte.
+- **Solución:** el card solo usa `sharedAmount` (y solo entonces muestra "de $total") cuando `!isInstallment`. En cuotas se muestra `amount` tal cual. El total real de una compra a cuotas compartida no existe como campo hoy.

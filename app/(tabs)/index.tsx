@@ -107,9 +107,12 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
   const isExpense = item.type === 'expense';
   const card = item.cardId ? cardsMap[item.cardId] : null;
   const relation = useTxRelation(item);
-  // En gastos compartidos el importe grande es TU parte; el total va como línea secundaria.
-  const shownAmount = isExpense && item.isShared && item.sharedAmount != null ? item.sharedAmount : item.amount;
-  const ofTotal = shownAmount !== item.amount
+  // Igual que en el historial: tu parte como héroe y el total debajo, salvo en cuotas (ahí
+  // `amount` ya es la cuota que te toca).
+  const isSharedSplit = isExpense && item.isShared && !item.isInstallment
+    && item.sharedAmount != null && item.sharedAmount !== item.amount;
+  const shownAmount = isSharedSplit ? item.sharedAmount! : item.amount;
+  const ofTotal = isSharedSplit
     ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
     : null;
   const descLabel = item.isInstallment
@@ -903,7 +906,7 @@ const styles = StyleSheet.create({
   // La hora no se trunca salvo que sea larguísima; el chip de tarjeta absorbe el apretón.
   txCat: { flexShrink: 0, maxWidth: '58%' },
   txTime: { fontSize: 12, fontFamily: Fonts.regular },
-  txAmountCol: { flexShrink: 0, maxWidth: '46%', alignItems: 'flex-end', justifyContent: 'center' },
+  txAmountCol: { flexShrink: 0, maxWidth: '42%', alignItems: 'flex-end', justifyContent: 'center' },
   // El importe es el héroe: +2pt sobre el título y tracking negativo.
   txAmount: { fontSize: 16, fontFamily: Fonts.bold, letterSpacing: -0.2, fontVariant: ['tabular-nums'] },
   txOf: { fontSize: 11, fontFamily: Fonts.semiBold, marginTop: 1, fontVariant: ['tabular-nums'] },
