@@ -50,6 +50,7 @@ import { getUserProfile } from '../../hooks/useUserProfile';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
+import SharedExpenseChip from '../../components/SharedExpenseChip';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { categoryLabel } from '../../constants/categories';
 import { categoryColor } from '../../constants/categoryColors';
@@ -170,6 +171,9 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   const isExpense = item.type === 'expense';
   const isPaid = item.isPaid === true;
   const card = item.cardId ? cardsMap[item.cardId] : null;
+  // El dueño del compartido puede no estar en `sharedParticipants` de docs viejos:
+  // de ahí el fallback a `sharedOwnerUserName` dentro del chip.
+  const sharedOwnerName = item.sharedParticipants?.find((p) => p.uid === item.sharedOwnerUid)?.displayName;
   const descLabel = item.isInstallment
     ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`
     : item.description;
@@ -321,7 +325,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
               <Text style={[styles.txTime, { color: colors.textTertiary }]}>
-                {CATEGORY_LABELS[item.category] ?? customCat?.name ?? item.category}
+                {CATEGORY_LABELS[item.category] ?? customCat?.name ?? CATEGORY_LABELS.other}
               </Text>
               {card && (
                 <View style={[styles.txCardChip, {
@@ -388,12 +392,34 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                 </Text>
               </View>
             </View>
+          ) : item.isShared ? (
+            /* Chip gasto/cobro compartido entre amigos */
+            <View style={{ flex: 1, alignItems: 'flex-end', gap: 2 }}>
+              {paidLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
+              ) : (
+                <Text style={[styles.txAmount, { color: amountColor }]}>
+                  {isExpense
+                    ? `−${formatCurrency(item.sharedAmount != null ? item.sharedAmount : item.amount)}`
+                    : `+${formatCurrency(item.amount)}`}
+                </Text>
+              )}
+              <SharedExpenseChip
+                compact
+                isOwner={item.sharedOwnerUid === item.userId}
+                ownerDisplayName={sharedOwnerName}
+                ownerUserName={item.sharedOwnerUserName}
+                participants={item.sharedParticipants}
+                currentUid={item.userId}
+                sharedType={item.sharedType}
+              />
+            </View>
           ) : paidLoading ? (
             <ActivityIndicator size="small" color={colors.primary} style={{ minWidth: 60 }} />
           ) : (
             <Text style={[styles.txAmount, { color: amountColor }]}>
               {isExpense
-                ? `−${formatCurrency(item.isShared && item.sharedAmount != null ? item.sharedAmount : item.amount)}`
+                ? `−${formatCurrency(item.amount)}`
                 : `+${formatCurrency(item.amount)}`}
             </Text>
           )}
