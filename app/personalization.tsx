@@ -16,6 +16,7 @@ import { BackgroundEffect } from '../components/AppBackground';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
+import { useProMotion } from '../hooks/useProMotion';
 import { updateUserColorPalette, updateUserPersonalization } from '../hooks/useUserProfile';
 import { Sparkline, resolveChartAccent, resolveChartAccent2 } from '../components/BalanceCard';
 import { Fonts } from '../config/fonts';
@@ -239,8 +240,8 @@ function getSwatchColors(accent: ChartAccent, colors: { primary: string; seconda
 // 'fill' = solo el contenido cruza, la línea queda fija (Contenido dinámico).
 type SignedCrossfade = { fade: Animated.Value; upColor: string; downColor: string; mode?: 'both' | 'line' | 'fill'; staticColor?: string };
 
-function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade }: {
-  chartType: ChartType; animStyle: ChartAnimStyle; height: number; duration: number; crossfade: SignedCrossfade;
+function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade, motion }: {
+  chartType: ChartType; animStyle: ChartAnimStyle; height: number; duration: number; crossfade: SignedCrossfade; motion: boolean;
 }) {
   // "Barras" no tiene canal de contenido separado — vive todo en el canal de
   // línea/trazo, así que un modo parcial ('line'/'fill') no tiene nada que mostrar
@@ -257,7 +258,7 @@ function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade 
             color={crossfade.staticColor}
             accent={crossfade.staticColor}
             height={height}
-            animate={animStyle !== 'none'}
+            animate={motion && animStyle !== 'none'}
             duration={duration}
             chartType={chartType}
             animStyle={animStyle}
@@ -272,7 +273,7 @@ function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade 
           color={crossfade.upColor}
           accent={crossfade.upColor}
           height={height}
-          animate={animStyle !== 'none'}
+          animate={motion && animStyle !== 'none'}
           duration={duration}
           chartType={chartType}
           animStyle={animStyle}
@@ -286,7 +287,7 @@ function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade 
           color={crossfade.downColor}
           accent={crossfade.downColor}
           height={height}
-          animate={animStyle !== 'none'}
+          animate={motion && animStyle !== 'none'}
           duration={duration}
           chartType={chartType}
           animStyle={animStyle}
@@ -299,8 +300,8 @@ function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade 
 }
 
 // ── Tarjeta de tipo de gráfico — vista previa EN VIVO con la animación y color actuales ──
-function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossfade, onPress }: {
-  type: ChartType; label: string; selected: boolean; animStyle: ChartAnimStyle; color: string; color2?: string; crossfade?: SignedCrossfade; onPress: () => void;
+function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossfade, motion, onPress }: {
+  type: ChartType; label: string; selected: boolean; animStyle: ChartAnimStyle; color: string; color2?: string; crossfade?: SignedCrossfade; motion: boolean; onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -314,7 +315,7 @@ function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossf
     >
       <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
         {crossfade ? (
-          <CrossfadeSparkline chartType={type} animStyle={animStyle} height={64} duration={4200} crossfade={crossfade} />
+          <CrossfadeSparkline chartType={type} animStyle={animStyle} height={64} duration={4200} crossfade={crossfade} motion={motion} />
         ) : (
           <Sparkline
             key={`${type}-${animStyle}`}
@@ -323,7 +324,7 @@ function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossf
             accent={color}
             accent2={color2}
             height={64}
-            animate={animStyle !== 'none'}
+            animate={motion && animStyle !== 'none'}
             duration={4200}
             chartType={type}
             animStyle={animStyle}
@@ -341,8 +342,8 @@ function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossf
 }
 
 // ── Tarjeta de estilo de animación — vista previa EN VIVO con el tipo de gráfico actual ──
-function ChartAnimCard({ anim, label, selected, chartType, color, color2, crossfade, onPress }: {
-  anim: ChartAnimStyle; label: string; selected: boolean; chartType: ChartType; color: string; color2?: string; crossfade?: SignedCrossfade; onPress: () => void;
+function ChartAnimCard({ anim, label, selected, chartType, color, color2, crossfade, motion, onPress }: {
+  anim: ChartAnimStyle; label: string; selected: boolean; chartType: ChartType; color: string; color2?: string; crossfade?: SignedCrossfade; motion: boolean; onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -356,7 +357,7 @@ function ChartAnimCard({ anim, label, selected, chartType, color, color2, crossf
     >
       <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
         {crossfade ? (
-          <CrossfadeSparkline chartType={chartType} animStyle={anim} height={64} duration={4200} crossfade={crossfade} />
+          <CrossfadeSparkline chartType={chartType} animStyle={anim} height={64} duration={4200} crossfade={crossfade} motion={motion} />
         ) : (
           <Sparkline
             key={`${chartType}-${anim}`}
@@ -365,7 +366,7 @@ function ChartAnimCard({ anim, label, selected, chartType, color, color2, crossf
             accent={color}
             accent2={color2}
             height={64}
-            animate={anim !== 'none'}
+            animate={motion && anim !== 'none'}
             duration={4200}
             chartType={chartType}
             animStyle={anim}
@@ -473,6 +474,10 @@ export default function PersonalizationScreen() {
     chartSpeed, setChartSpeed, chartAccent, setChartAccent,
   } = useTheme();
   const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
+  // Las vistas previas respetan reduce-motion igual que el gráfico real del Home:
+  // antes animaban siempre, así que con "Reducir movimiento" activo el usuario
+  // elegía una animación que en su Home nunca se movía.
+  const { animate: motionEnabled } = useProMotion();
 
   // "Dinámico" no es una mezcla — es un color ÚNICO que cambia según la tendencia
   // real (verde si sube, rojo si baja). Para que se note en toda vista previa (no
@@ -482,7 +487,7 @@ export default function PersonalizationScreen() {
   // grande y las tarjetas de tipo/animación.
   const signedFade = useRef(new Animated.Value(1)).current;
   useEffect(() => {
-    if (!SIGNED_FAMILY.includes(chartAccent)) return;
+    if (!SIGNED_FAMILY.includes(chartAccent) || !motionEnabled) return;
     signedFade.setValue(1);
     let up = true;
     const id = setInterval(() => {
@@ -495,7 +500,7 @@ export default function PersonalizationScreen() {
       }).start();
     }, 6000);
     return () => clearInterval(id);
-  }, [chartAccent, signedFade]);
+  }, [chartAccent, signedFade, motionEnabled]);
 
   const chartPreviewColor = resolveChartAccent(chartAccent, colors, CHART_PREVIEW_VALUES);
   const chartPreviewColor2 = resolveChartAccent2(chartAccent, colors);
@@ -515,6 +520,10 @@ export default function PersonalizationScreen() {
   const seenAccentKeys = new Set<string>();
   const chartAccentOptions = CHART_ACCENT_CANDIDATES.filter((a) => {
     if (SIGNED_FAMILY.includes(a)) return true;
+    // El acento ACTIVO nunca se oculta: si se eligió con otra paleta donde sí
+    // tenía color propio, al cambiar de paleta desaparecía de la lista y ninguna
+    // opción salía marcada — parecía que la elección se había perdido.
+    if (a === chartAccent) return true;
     const hex1 = resolveChartAccent(a, colors, CHART_PREVIEW_VALUES).toLowerCase();
     const hex2 = resolveChartAccent2(a, colors)?.toLowerCase();
     if (hex2 && hex2 === hex1) return false;
@@ -654,6 +663,7 @@ export default function PersonalizationScreen() {
                     height={64}
                     duration={chartDuration}
                     crossfade={signedCrossfade}
+                    motion={motionEnabled}
                   />
                 ) : (
                   <Sparkline
@@ -663,7 +673,7 @@ export default function PersonalizationScreen() {
                     accent={chartPreviewColor}
                     accent2={chartPreviewColor2}
                     height={64}
-                    animate={chartAnimStyle !== 'none'}
+                    animate={motionEnabled && chartAnimStyle !== 'none'}
                     duration={chartDuration}
                     chartType={chartType}
                     animStyle={chartAnimStyle}
@@ -683,6 +693,7 @@ export default function PersonalizationScreen() {
                     color={chartPreviewColor}
                     color2={chartPreviewColor2}
                     crossfade={SIGNED_FAMILY.includes(chartAccent) ? signedCrossfade : undefined}
+                    motion={motionEnabled}
                     onPress={() => setChartType(type)}
                   />
                 ))}
@@ -700,6 +711,7 @@ export default function PersonalizationScreen() {
                     color={chartPreviewColor}
                     color2={chartPreviewColor2}
                     crossfade={SIGNED_FAMILY.includes(chartAccent) ? signedCrossfade : undefined}
+                    motion={motionEnabled}
                     onPress={() => setChartAnimStyle(anim)}
                   />
                 ))}

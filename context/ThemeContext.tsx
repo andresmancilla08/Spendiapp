@@ -34,7 +34,7 @@ export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type ChartType = 'line' | 'bars' | 'area' | 'dots';
 export type ChartAnimStyle = 'pulse' | 'draw' | 'tide' | 'none';
 export type ChartAccent = 'theme' | 'secondary' | 'success' | 'gold' | 'signed' | 'signedLine' | 'signedFill' | 'duoSuccess' | 'duoTertiary';
-const CHART_ACCENT_VALUES: ChartAccent[] = ['theme', 'secondary', 'success', 'gold', 'signed', 'signedLine', 'signedFill', 'duoSuccess', 'duoTertiary'];
+export const CHART_ACCENT_VALUES: ChartAccent[] = ['theme', 'secondary', 'success', 'gold', 'signed', 'signedLine', 'signedFill', 'duoSuccess', 'duoTertiary'];
 export type { PaletteId, AuroraIntensity };
 
 interface ThemeContextValue {
