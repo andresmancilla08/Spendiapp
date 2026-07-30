@@ -10,6 +10,7 @@ import {
 import { db } from '../config/firebase';
 import { Category } from '../types/category';
 import { resolveCategory } from '../constants/categories';
+import { effectiveAmount } from '../utils/sharedCalc';
 
 export interface CategorySummary {
   categoryId: string;
@@ -168,9 +169,6 @@ export async function generateReportData(
   all.sort((a, b) => a.date.getTime() - b.date.getTime());
 
   // Calcular totales
-  const effectiveAmount = (tx: RawTx) =>
-    tx.isShared && tx.sharedAmount !== undefined ? tx.sharedAmount : tx.amount;
-
   const totalIncome = all
     .filter((t) => t.type === 'income')
     .reduce((s, t) => s + effectiveAmount(t), 0);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { effectiveAmount } from '../utils/sharedCalc';
 
 export interface MonthBucket {
   year: number;
@@ -91,7 +92,7 @@ export function useMonthlyTrend(
   // 1) Transacciones reales en su mes.
   for (const d of rangeDocs) {
     const date: Date = (d.date as Timestamp).toDate();
-    add(`${date.getFullYear()}_${date.getMonth()}`, d.type, d.amount);
+    add(`${date.getFullYear()}_${date.getMonth()}`, d.type, effectiveAmount(d as any));
   }
 
   // 2) Copias virtuales de fijas para meses posteriores a su creación.
@@ -104,7 +105,7 @@ export function useMonthlyTrend(
       if (created >= monthStart) continue;                       // su mes de creación lo cuenta el paso 1
       if (cancelledFrom && monthStart >= cancelledFrom) continue;
       if (skip.includes(`${s.year}_${s.month}`)) continue;
-      add(`${s.year}_${s.month}`, d.type, d.amount);
+      add(`${s.year}_${s.month}`, d.type, effectiveAmount(d as any));
     }
   }
 
@@ -129,7 +130,7 @@ export function useMonthlyTrend(
         if (d.type !== 'expense') continue;
         const date: Date = (d.date as Timestamp).toDate();
         if (date.getFullYear() === prevY && date.getMonth() === prevM && date.getDate() <= dayCutoff) {
-          sum += d.amount;
+          sum += effectiveAmount(d as any);
         }
       }
       for (const d of fixedDocs) {
@@ -143,7 +144,7 @@ export function useMonthlyTrend(
         if (d.type !== 'expense') continue;
         const daysInPrevMonth = new Date(prevY, prevM + 1, 0).getDate();
         const day = Math.min(created.getDate(), daysInPrevMonth);
-        if (day <= dayCutoff) sum += d.amount;
+        if (day <= dayCutoff) sum += effectiveAmount(d as any);
       }
       prevMonthToDateExpenses = sum;
     }

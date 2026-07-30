@@ -52,6 +52,7 @@ import { useCategories } from '../../hooks/useCategories';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
 import { readableOn } from '../../utils/txRelation';
+import { effectiveAmount } from '../../utils/sharedCalc';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { categoryLabel } from '../../constants/categories';
 import { categoryColor } from '../../constants/categoryColors';
@@ -178,10 +179,9 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   // En gastos compartidos el importe grande es TU parte y el total va como línea secundaria.
   // En cuotas NO: ahí `amount` ya es la cuota que te toca (amortizada), y `sharedAmount` sería
   // un gemelo redondeado de esa misma cuota, no el total del grupo.
-  const isSharedSplit = isExpense && item.isShared && !item.isInstallment
-    && item.sharedAmount != null && item.sharedAmount !== item.amount;
-  const shownAmount = isSharedSplit ? item.sharedAmount! : item.amount;
-  const ofTotal = isSharedSplit
+  // Misma función que usan el balance y los agregados: la fila y el total nunca se contradicen.
+  const shownAmount = effectiveAmount(item);
+  const ofTotal = shownAmount !== item.amount
     ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
     : null;
   const descLabel = item.isInstallment

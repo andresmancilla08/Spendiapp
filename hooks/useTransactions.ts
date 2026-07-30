@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Transaction } from '../types/transaction';
+import { effectiveAmount } from '../utils/sharedCalc';
 
 interface UseTransactionsResult {
   transactions: Transaction[];
@@ -201,8 +202,10 @@ export function useTransactions(userId: string, year: number, month: number, ref
     (a, b) => b.date.getTime() - a.date.getTime()
   );
 
-  const totalIncome   = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  // `effectiveAmount`: en un gasto compartido cuenta TU parte, no el total del grupo — si no,
+  // el balance no cuadra con lo que muestra cada fila.
+  const totalIncome   = transactions.filter(t => t.type === 'income').reduce((s, t) => s + effectiveAmount(t), 0);
+  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + effectiveAmount(t), 0);
   const balance       = totalIncome - totalExpenses;
 
   return { transactions, totalIncome, totalExpenses, balance, loading, error };

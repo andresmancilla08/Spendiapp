@@ -16,6 +16,7 @@ import { categoryLabel } from '../constants/categories';
 import { categoryColor } from '../constants/categoryColors';
 import CategoryBars, { CategorySegment } from '../components/premium/CategoryBars';
 import { Fonts } from '../config/fonts';
+import { effectiveAmount } from '../utils/sharedCalc';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('es-CO', {
@@ -43,7 +44,7 @@ export default function CategoryDetailScreen() {
     transactions.forEach((tx) => {
       if (tx.type !== 'expense') return;
       const entry = byCat[tx.category] ?? { amount: 0, count: 0 };
-      entry.amount += tx.amount;
+      entry.amount += effectiveAmount(tx);
       entry.count += 1;
       byCat[tx.category] = entry;
     });
