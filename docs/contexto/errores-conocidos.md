@@ -25,3 +25,23 @@
 - **Síntoma histórico:** las prefs de gráfico/fondo "no se aplicaban" — cada recarga las revertía.
 - **Causa real:** el debounce de 800ms se cancelaba al desmontar (últimos cambios nunca se escribían) y PaletteLoader aplicaba el doc remoto viejo encima de lo local fresco.
 - **Solución aplicada (be63871):** cada escritura lleva `updatedAt` + flush al desmontar; el arranque solo aplica lo remoto si `remoteTs > localTs` (clave local `@spendiapp_personalization_synced_at`).
+
+### `localeFor is not defined` — pantallas y reportes crasheaban (resuelto)
+- **Síntoma:** al abrir el **detalle de una transacción** la pantalla se caía; el **reporte entre amigos** se caía al seleccionar un amigo o al generar; ídem la fecha de meta cumplida y los 4 generadores de PDF/imagen. Se atribuyó al fix de contactos porque salió justo después (v2.41.1 → v2.41.2).
+- **Causa real:** el commit de i18n `5fd0c74` introdujo llamadas a `localeFor()` en 10 archivos **sin importar la función** de `utils/dateLocale` → `ReferenceError` en runtime. El bundler no falla: solo revienta al ejecutar.
+- **Por qué no lo cazó TypeScript:** `npx tsc --noEmit` **crashea** en este repo con `RangeError: Maximum call stack size exceeded`. Hay que correrlo con más pila.
+- **Solución (2026-07-29):** imports añadidos + `npm run typecheck` (`node --stack-size=10000 ./node_modules/typescript/lib/tsc.js --noEmit`). **Correr `npm run typecheck` antes de cada deploy**: los 3 errores restantes (`JSX` namespace ×2, `getReactNativePersistence`) son preexistentes y esperados.
+
+### Editar un gasto compartido fallaba con "no se pudo guardar" (resuelto)
+- **Síntoma:** el dueño edita un gasto compartido (monto/fecha/categoría/participantes) y sale error de guardado; nada se actualiza, ni su propia copia.
+- **Causa real:** `edit-transaction` propaga los cambios a los mirrors de todos los participantes en un `writeBatch`, pero `firestore.rules` solo permitía `write` sobre `transactions` cuando `resource.data.userId == auth.uid`. El mirror del amigo pertenece al amigo → regla denegada → el batch entero se rechaza (atómico).
+- **Solución (2026-07-29):** regla `allow update` para el dueño del compartido (`resource.data.isShared && resource.data.sharedOwnerUid == auth.uid`), con `userId` y `sharedOwnerUid` inmutables. Desplegada a prod.
+
+### Borrar un gasto compartido lanzaba `deleteDoc is not defined` (resuelto)
+- **Causa real:** `hooks/useSharedTransactions.ts` usaba `deleteDoc` sin importarlo desde `firebase/firestore` (desde `841e2c1`). Mismo patrón que `localeFor`.
+- **Solución (2026-07-29):** import añadido. Lo detecta `npm run typecheck`.
+
+### Notificaciones sin traducción / sin icono (resuelto)
+- **Síntoma:** `sent_income_delete_request` (pedir borrar un ingreso recibido) se mostraba como la clave cruda; `external_participant_joined` nunca llegaba.
+- **Causa real:** el primero no existía en `NotificationType`, ni en los mapas de icono/color/ruta, ni en `locales/*.json`. El segundo lo denegaban las reglas: el tipo no estaba en la lista permitida y su `data` no traía `fromUserId` (la regla exige `data.fromUserId == auth.uid`), lo que además abortaba el `deleteDoc` del `pendingExternalLinks` → se reprocesaba en cada login.
+- **Solución (2026-07-29):** tipo, mapas, rutas y claves es/en/it añadidos; `fromUserId` en el payload; tipo permitido en reglas; el `addDoc` va en try/catch para no bloquear la limpieza del link.

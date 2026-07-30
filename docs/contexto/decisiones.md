@@ -24,3 +24,12 @@
 - **Por qué:** montar el fondo por pantalla reiniciaba todas las animaciones al navegar (parpadeo/intermitencia). Además el scrim dark (`DARK_SCRIM`, rgba(0,0,0,0.7)) va DEBAJO de los efectos — encima los aplastaba y en dark no se veían.
 - **INVARIANTE:** si algún día se agrega `presentation: 'modal'` o animaciones de transición al Stack, la pantalla anterior se verá a través del contenido transparente — habrá que dar fondo opaco a esa pantalla puntual.
 - **Descartado:** fondo por pantalla (intermitencia), efectos encima del contenido (ensucian texto).
+
+### El dueño de un gasto compartido puede actualizar los mirrors — Vigente
+- **Qué:** `firestore.rules` permite `update` sobre `transactions` al dueño del compartido (`isShared && sharedOwnerUid == auth.uid`), con `userId` y `sharedOwnerUid` inmutables.
+- **Por qué:** editar un gasto compartido propaga a la copia de cada participante en un solo batch; sin esta regla el batch entero se denegaba. No amplía el privilegio real: el dueño ya podía crear y borrar esos mirrors.
+- **Descartado:** Cloud Function con Admin SDK para la propagación (más latencia y coste para una operación que las reglas ya pueden acotar); limitar los campos editables en la regla (se puede endurecer si algún día el owner deja de ser de confianza).
+
+### `npm run typecheck` obligatorio antes de deploy — Vigente
+- **Qué:** `node --stack-size=10000 ./node_modules/typescript/lib/tsc.js --noEmit`.
+- **Por qué:** `tsc --noEmit` a secas crashea (stack overflow) en este repo, así que nadie tipaba; eso dejó pasar a producción dos `ReferenceError` por identificadores sin importar (`localeFor`, `deleteDoc`).
