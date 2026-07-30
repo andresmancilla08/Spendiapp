@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { useGoals } from '../hooks/useGoals';
+import { localeFor } from '../utils/dateLocale';
 import { Goal } from '../types/goal';
 import AppDialog from '../components/AppDialog';
 import { EmojiPicker } from '../components/EmojiPicker';

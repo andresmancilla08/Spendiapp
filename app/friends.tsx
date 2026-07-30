@@ -393,7 +393,7 @@ export default function FriendsScreen() {
                     removeDialog.friendship.fromId === uid
                       ? removeDialog.friendship.toId
                       : removeDialog.friendship.fromId
-                  ]?.userName ?? '...'
+                  ]?.userName || '...'
                 }${t('friends.remove.dialogDescAfter')}`
               : ''
           }
@@ -437,13 +437,13 @@ function FriendsTab({ friends, uid, profileCache, actionLoading, onRemove, color
               i < friends.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
             ]}
           >
-            <Avatar name={profile?.displayName} colors={colors} />
+            <Avatar name={profile?.displayName || profile?.userName} colors={colors} />
             <View style={{ flex: 1 }}>
               <Text style={[styles.friendName, { color: colors.textPrimary }]}>
-                {profile?.displayName ?? '...'}
+                {profile?.displayName || profile?.userName || '...'}
               </Text>
               <Text style={[styles.friendUserName, { color: colors.textTertiary }]}>
-                @{profile?.userName ?? '...'}
+                @{profile?.userName || '...'}
               </Text>
             </View>
             <TouchableOpacity
@@ -487,10 +487,10 @@ function RequestsTab({ incoming, outgoing, uid, profileCache, actionLoading, onA
                   i < incoming.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
                 ]}
               >
-                <Avatar name={profile?.displayName} colors={colors} />
+                <Avatar name={profile?.displayName || profile?.userName} colors={colors} />
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.friendName, { color: colors.textPrimary }]}>{profile?.displayName ?? '...'}</Text>
-                  <Text style={[styles.friendUserName, { color: colors.textTertiary }]}>@{profile?.userName ?? '...'}</Text>
+                  <Text style={[styles.friendName, { color: colors.textPrimary }]}>{profile?.displayName || profile?.userName || '...'}</Text>
+                  <Text style={[styles.friendUserName, { color: colors.textTertiary }]}>@{profile?.userName || '...'}</Text>
                 </View>
                 <View style={styles.requestActions}>
                   <TouchableOpacity
@@ -539,10 +539,10 @@ function RequestsTab({ incoming, outgoing, uid, profileCache, actionLoading, onA
                   i < outgoing.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
                 ]}
               >
-                <Avatar name={profile?.displayName} colors={colors} />
+                <Avatar name={profile?.displayName || profile?.userName} colors={colors} />
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.friendName, { color: colors.textPrimary }]}>{profile?.displayName ?? '...'}</Text>
-                  <Text style={[styles.friendUserName, { color: colors.textTertiary }]}>@{profile?.userName ?? '...'}</Text>
+                  <Text style={[styles.friendName, { color: colors.textPrimary }]}>{profile?.displayName || profile?.userName || '...'}</Text>
+                  <Text style={[styles.friendUserName, { color: colors.textTertiary }]}>@{profile?.userName || '...'}</Text>
                 </View>
                 <TouchableOpacity
                   style={[styles.cancelBtn, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}

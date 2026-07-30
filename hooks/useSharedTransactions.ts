@@ -7,6 +7,7 @@ import {
   getDoc,
   setDoc,
   arrayUnion,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { SharedParticipant, MirrorRef, SharedTransaction } from '../types/sharedTransaction';

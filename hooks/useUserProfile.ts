@@ -74,19 +74,26 @@ async function claimExternalLinks(email: string, uid: string): Promise<void> {
     await updateDoc(doc(db, 'sharedTransactions', link.sharedId), {
       participantUids: arrayUnion(uid),
     });
-    // Notificar al dueño del gasto
-    await addDoc(collection(db, 'notifications'), {
-      toUserId: link.ownerUid,
-      type: 'external_participant_joined',
-      data: {
-        participantUid: uid,
-        participantDisplayName: link.displayName,
-        sharedId: link.sharedId,
-        description: link.description,
-      },
-      read: false,
-      createdAt: Timestamp.fromDate(new Date()),
-    });
+    // Notificar al dueño del gasto. `fromUserId` es obligatorio: la regla de
+    // Firestore exige que coincida con el uid del llamante. No crítico: si falla
+    // seguimos limpiando el link para no reprocesarlo en cada login.
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        toUserId: link.ownerUid,
+        type: 'external_participant_joined',
+        data: {
+          fromUserId: uid,
+          participantUid: uid,
+          participantDisplayName: link.displayName,
+          sharedId: link.sharedId,
+          description: link.description,
+        },
+        read: false,
+        createdAt: Timestamp.fromDate(new Date()),
+      });
+    } catch {
+      // notificación no crítica
+    }
   }
 
   // Limpiar el pendingLink — ya fue reclamado

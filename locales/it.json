@@ -1009,6 +1009,7 @@
     "goal_monthly_reminder": "Ricorda di aggiungere ai tuoi {{count}} obiettivi attivi questo mese 🎯",
     "sent_income": "{{name}} ti ha inviato un'entrata: {{description}}",
     "sent_income_deleted": "{{name}} ha eliminato l'entrata inviata: {{description}}",
+    "sent_income_delete_request": "{{fromDisplayName}} richiede di eliminare l’entrata inviata: {{description}}",
     "income_claim_added": "{{fromDisplayName}} ha registrato che ti deve: {{description}}",
     "external_participant_joined": "{{participantDisplayName}} si è unito alla tua spesa condivisa: {{description}}"
   },

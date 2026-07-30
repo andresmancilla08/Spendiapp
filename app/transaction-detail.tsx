@@ -40,6 +40,7 @@ import { useSharedTransactions } from '../hooks/useSharedTransactions';
 import { useSentIncome } from '../hooks/useSentIncome';
 import { useHistoryStore } from '../store/historyStore';
 import { useCategories } from '../hooks/useCategories';
+import { localeFor } from '../utils/dateLocale';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -62,14 +63,6 @@ function formatCurrency(amount: number): string {
     currency: 'COP',
     minimumFractionDigits: 0,
   }).format(amount);
-}
-
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString(localeFor(), {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
 }
 
 function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): string {
@@ -332,9 +325,6 @@ export default function TransactionDetailScreen() {
     month: 'long',
     day: 'numeric',
   });
-  // formatTime is defined but we keep it for potential future use
-  void formatTime;
-
   const installmentPct = transaction.isInstallment && transaction.installmentTotal
     ? (transaction.installmentNumber ?? 0) / transaction.installmentTotal
     : 0;
@@ -346,7 +336,12 @@ export default function TransactionDetailScreen() {
   const ownerParticipant = transaction.sharedParticipants?.find(
     (p) => p.uid === transaction.sharedOwnerUid,
   );
-  const ownerDisplayName = ownerParticipant?.displayName ?? transaction.sharedOwnerUserName ?? '';
+  // `||` y no `??`: un displayName vacío (perfil público aún sin espejar) debe
+  // caer al userName del dueño, no quedarse en blanco.
+  const ownerDisplayName = ownerParticipant?.displayName
+    || ownerParticipant?.userName
+    || transaction.sharedOwnerUserName
+    || '';
   const sharedOthers = (transaction.sharedParticipants ?? []).filter(
     (p) => p.uid !== currentUserUid,
   );
@@ -354,7 +349,7 @@ export default function TransactionDetailScreen() {
     ? sharedOthers.length === 0
       ? '—'
       : sharedOthers
-          .map((p) => p.displayName || p.userName)
+          .map((p) => p.displayName || p.userName || '…')
           .join(sharedOthers.length === 2 ? ` ${t('common.and')} ` : ', ')
     : ownerDisplayName;
 

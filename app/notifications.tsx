@@ -39,6 +39,8 @@ const NOTIF_ICONS: Record<NotificationType, AppIconName> = {
   goal_monthly_reminder: 'flag-outline',
   sent_income: 'send-outline',
   sent_income_deleted: 'close-circle-outline',
+  sent_income_delete_request: 'mail-outline',
+  external_participant_joined: 'person-add-outline',
 };
 
 // Each notification type gets a distinct color accent
@@ -53,6 +55,8 @@ const NOTIF_COLORS: Record<NotificationType, 'primary' | 'success'> = {
   goal_monthly_reminder: 'primary',
   sent_income: 'success',
   sent_income_deleted: 'primary',
+  sent_income_delete_request: 'primary',
+  external_participant_joined: 'success',
 };
 
 function getNotificationRoute(notif: NotificationDoc): string | null {
@@ -68,6 +72,8 @@ function getNotificationRoute(notif: NotificationDoc): string | null {
     case 'shared_delete_request':
     case 'sent_income':
     case 'sent_income_deleted':
+    case 'sent_income_delete_request':
+    case 'external_participant_joined':
       return '/(tabs)/history';
     case 'goal_monthly_reminder':
       return '/goals';

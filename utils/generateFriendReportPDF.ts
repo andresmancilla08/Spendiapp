@@ -2,6 +2,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Transaction } from '../types/transaction';
+import { localeFor } from './dateLocale';
 
 export interface FriendReportData {
   myName: string;
