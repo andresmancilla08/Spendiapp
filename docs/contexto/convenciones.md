@@ -7,6 +7,8 @@
 - **i18n total:** todo texto visible usa `t()`. Datos en el idioma activo.
 - Animaciones rápidas (≤150ms). Botones pill, colores primario/secundario coherentes (ver patrón global de UI).
 - Confirmaciones con AppDialog; toasts post-acción. Validar UI con el equipo visual.
+- **Card de transacción (home + historial) — 3 zonas fijas:** (1) fila principal `icono[+notch de relación] · título[+Fijo] / categoría[+chip de tarjeta] · columna de importe[+ "de $total"]`; (2) franja inferior (`TxRelationTier`) a ancho completo SOLO si la transacción tiene relación social. La columna de importe nunca lleva `flex: 1` ni chips: si compite con la meta, el nombre del amigo se trunca (fue el bug de v2.42.0). Toda la relación social se resuelve en `components/TxRelation.tsx` (`useTxRelation`), nunca inline por pantalla.
+- **Color de texto sobre tinte:** en chips/badges tintados no asumir que `primary`/`primaryDark` se lee — las paletas pastel dan 1.5:1. Medir y caer a `textPrimary` (patrón `readableOn` en `components/TxRelation.tsx`).
 - Seguridad: secure-store para datos sensibles; biometría para acceso.
 
 ## Patrones PROHIBIDOS

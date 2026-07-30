@@ -14,6 +14,7 @@ import * as Haptics from 'expo-haptics';
 import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../../components/AppIcon';
+import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from 'react';
 import { router, useFocusEffect } from 'expo-router';
@@ -105,77 +106,72 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
   const cat = CATEGORY_META[item.category] ?? (customCat ? { icon: customCat.icon, color: '#737879', bg: '#F3F4F6', darkBg: '#252830' } : CATEGORY_META.other);
   const isExpense = item.type === 'expense';
   const card = item.cardId ? cardsMap[item.cardId] : null;
+  const relation = useTxRelation(item);
+  // En gastos compartidos el importe grande es TU parte; el total va como línea secundaria.
+  const shownAmount = isExpense && item.isShared && item.sharedAmount != null ? item.sharedAmount : item.amount;
+  const ofTotal = shownAmount !== item.amount
+    ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
+    : null;
   const descLabel = item.isInstallment
     ? `${item.description} (Cuota ${item.installmentNumber}/${item.installmentTotal})`
     : item.description;
 
   return (
     <TouchableOpacity
-      style={[
-        styles.txRow,
-        !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
-      ]}
+      style={!isLast && { borderBottomWidth: 1, borderBottomColor: colors.border }}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={[styles.txIconWrap, { backgroundColor: isDark ? cat.darkBg : cat.bg }]}>
-        <Text style={styles.txIconText}>{cat.icon}</Text>
-      </View>
-      <View style={styles.txMeta}>
-        <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
-          {descLabel}
-        </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <Text style={[styles.txTime, { color: colors.textTertiary }]}>{timeAgo(item.date)}</Text>
-          {card && (
-            <View style={[
-              styles.txCardChip,
-              { backgroundColor: card.type === 'credit' ? colors.primaryLight : `${colors.tertiary}18` },
-            ]}>
-              <Text style={[styles.txCardChipText, { color: card.type === 'credit' ? colors.primary : colors.tertiary }]}>
-                {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
-              </Text>
+      <View style={styles.txRow}>
+        <View style={styles.txIconSlot}>
+          <View style={[styles.txIconWrap, { backgroundColor: isDark ? cat.darkBg : cat.bg }]}>
+            <Text style={styles.txIconText}>{cat.icon}</Text>
+          </View>
+          {relation && <TxRelationNotch relation={relation} />}
+        </View>
+        <View style={styles.txMeta}>
+          <Text style={[styles.txTitle, { color: colors.textPrimary }]} numberOfLines={1}>
+            {descLabel}
+          </Text>
+          <View style={styles.txSubrow}>
+            <Text style={[styles.txTime, styles.txCat, { color: colors.textTertiary }]} numberOfLines={1}>
+              {timeAgo(item.date)}
+            </Text>
+            {card && (
               <View style={[
-                styles.txCardTypeBadge,
-                { backgroundColor: card.type === 'credit' ? `${colors.primary}28` : `${colors.tertiary}28` },
+                styles.txCardChip,
+                { backgroundColor: card.type === 'credit' ? colors.primaryLight : `${colors.tertiary}18` },
               ]}>
-                <Text style={[styles.txCardTypeBadgeText, { color: card.type === 'credit' ? colors.primary : colors.tertiary }]}>
-                  {card.type === 'credit' ? 'C' : 'D'}
+                <Text
+                  style={[styles.txCardChipText, { color: card.type === 'credit' ? colors.primary : colors.tertiary }]}
+                  numberOfLines={1}
+                >
+                  {card.nickname ? `${card.bankName} · ${card.nickname}` : card.bankName}
                 </Text>
+                <View style={[
+                  styles.txCardTypeBadge,
+                  { backgroundColor: card.type === 'credit' ? `${colors.primary}28` : `${colors.tertiary}28` },
+                ]}>
+                  <Text style={[styles.txCardTypeBadgeText, { color: card.type === 'credit' ? colors.primary : colors.tertiary }]}>
+                    {card.type === 'credit' ? 'C' : 'D'}
+                  </Text>
+                </View>
               </View>
-            </View>
+            )}
+          </View>
+        </View>
+        <View style={styles.txAmountCol}>
+          <Text style={[styles.txAmount, { color: isExpense ? colors.error : colors.secondary }]} numberOfLines={1}>
+            {`${isExpense ? '−' : '+'}${formatCurrency(shownAmount)}`}
+          </Text>
+          {ofTotal && (
+            <Text style={[styles.txOf, { color: colors.textSecondary }]} numberOfLines={1}>
+              {ofTotal}
+            </Text>
           )}
         </View>
       </View>
-      {item.isSentIncome && item.sentByName ? (
-        <View style={{ alignItems: 'flex-end', gap: 2 }}>
-          <Text style={[styles.txAmount, { color: colors.secondary }]}>
-            {`+${formatCurrency(item.amount)}`}
-          </Text>
-          <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.secondary}18`, borderColor: `${colors.secondary}28` }]}>
-            <AppIcon name="gift-outline" size={11} color={colors.secondary} />
-            <Text style={[styles.sentIncomeChipText, { color: colors.secondary }]} numberOfLines={1}>
-              {t('sentIncome.chip.sentBy', { name: item.sentByName })}
-            </Text>
-          </View>
-        </View>
-      ) : item.sentIncomeTransactionId && item.sentIncomeToName ? (
-        <View style={{ alignItems: 'flex-end', gap: 2 }}>
-          <Text style={[styles.txAmount, { color: colors.error }]}>
-            {`−${formatCurrency(item.amount)}`}
-          </Text>
-          <View style={[styles.sentIncomeChip, { backgroundColor: `${colors.primary}18`, borderColor: `${colors.primary}28` }]}>
-            <AppIcon name="send-outline" size={11} color={colors.primary} />
-            <Text style={[styles.sentIncomeChipText, { color: colors.primary }]} numberOfLines={1}>
-              {t('sentIncome.chip.sentTo', { name: item.sentIncomeToName })}
-            </Text>
-          </View>
-        </View>
-      ) : (
-        <Text style={[styles.txAmount, { color: isExpense ? colors.error : colors.secondary }]}>
-          {isExpense ? `−${formatCurrency(item.amount)}` : `+${formatCurrency(item.amount)}`}
-        </Text>
-      )}
+      {relation && <TxRelationTier relation={relation} />}
     </TouchableOpacity>
   );
 }
@@ -898,18 +894,23 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     gap: 12,
   },
+  txIconSlot: { flexShrink: 0 },
   txIconWrap: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   txIconText: { fontSize: 20 },
-  txMeta: { flex: 1 },
-  txTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
+  txMeta: { flex: 1, minWidth: 0 },
+  txTitle: { fontSize: 14, fontFamily: Fonts.semiBold },
+  txSubrow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
+  // La hora no se trunca salvo que sea larguísima; el chip de tarjeta absorbe el apretón.
+  txCat: { flexShrink: 0, maxWidth: '58%' },
   txTime: { fontSize: 12, fontFamily: Fonts.regular },
-  txAmount: { fontSize: 14, fontFamily: Fonts.bold },
-  txCardChip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10 },
-  txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold },
+  txAmountCol: { flexShrink: 0, maxWidth: '46%', alignItems: 'flex-end', justifyContent: 'center' },
+  // El importe es el héroe: +2pt sobre el título y tracking negativo.
+  txAmount: { fontSize: 16, fontFamily: Fonts.bold, letterSpacing: -0.2, fontVariant: ['tabular-nums'] },
+  txOf: { fontSize: 11, fontFamily: Fonts.semiBold, marginTop: 1, fontVariant: ['tabular-nums'] },
+  txCardChip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, flexShrink: 4 },
+  txCardChipText: { fontSize: 10, fontFamily: Fonts.semiBold, flexShrink: 1 },
   txCardTypeBadge: { paddingHorizontal: 4, paddingVertical: 1, borderRadius: 5 },
   txCardTypeBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
-  sentIncomeChip: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20, borderWidth: 1 },
-  sentIncomeChipText: { fontSize: 10, fontFamily: Fonts.semiBold, maxWidth: 110 },
 
   // Empty
   emptyState: { alignItems: 'center', padding: 36 },
