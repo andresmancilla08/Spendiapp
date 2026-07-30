@@ -55,3 +55,11 @@
 - **Síntoma:** tras editar un "te debe", la copia del amigo pasaba de egreso a ingreso y su balance quedaba al revés.
 - **Causa real:** la propagación de `edit-transaction` escribía el `type` del dueño en TODOS los mirrors, sin replicar la inversión que sí hace `createSharedTransaction` (`income_claim` → el no-owner es `expense`).
 - **Solución (2026-07-29):** el mirror ajeno de un `income_claim` se fuerza a `expense` al editar.
+
+### Barra de estado blanca en la PWA de iOS (resuelto)
+- **Síntoma:** en la app instalada en iOS, la franja superior (hora/batería) se veía **blanca** aunque la app estuviera en modo oscuro.
+- **Causa real:** `AppBackground` ya actualizaba `theme-color` dinámicamente, pero **iOS ignora `theme-color` en apps instaladas**: ahí manda `apple-mobile-web-app-status-bar-style`, que estaba en `default` (= barra blanca fija). Ese meta se lee al arrancar y solo acepta 3 valores; no se puede cambiar por modo en caliente.
+- **Solución (2026-07-29):** `black-translucent` en `+html.tsx` **y** en `scripts/patch-html.js` → la webview se extiende bajo la barra y la pinta `AppBackground` (con `viewport-fit=cover`, ya presente, y las `SafeAreaView` de cada pantalla desplazando el contenido). Contrapartida: la hora va **siempre en blanco**, así que en modo claro (todos los `gradientLight` arrancan en `#FFFFFF`) la banda se tiñe con `colors.primaryDark` vía `body::before` + la variable CSS `--spendia-statusbar-bg` que escribe `AppBackground`.
+- **OJO al probar:** iOS cachea el `<head>` de la app instalada. Tras el deploy hay que **cerrar la app del todo** (swipe) y reabrir; si no cambia, **borrarla de la pantalla de inicio y volver a instalarla**.
+- **Invariante:** toda pantalla nueva debe usar `SafeAreaView` (o `insets.top`) en la raíz. Sin eso su contenido queda **debajo de la hora**. Auditado 2026-07-29: solo `app/index.tsx` no lo usa, y es un placeholder vacío.
+- **Nota:** `+html.tsx` NO se emite en el export estático (solo aplica en `expo start --web`); lo que se publica lo inyecta `scripts/patch-html.js`. Cualquier tag de `<head>` hay que tocarlo en **los dos** archivos.
