@@ -45,3 +45,13 @@
 - **Síntoma:** `sent_income_delete_request` (pedir borrar un ingreso recibido) se mostraba como la clave cruda; `external_participant_joined` nunca llegaba.
 - **Causa real:** el primero no existía en `NotificationType`, ni en los mapas de icono/color/ruta, ni en `locales/*.json`. El segundo lo denegaban las reglas: el tipo no estaba en la lista permitida y su `data` no traía `fromUserId` (la regla exige `data.fromUserId == auth.uid`), lo que además abortaba el `deleteDoc` del `pendingExternalLinks` → se reprocesaba en cada login.
 - **Solución (2026-07-29):** tipo, mapas, rutas y claves es/en/it añadidos; `fromUserId` en el payload; tipo permitido en reglas; el `addDoc` va en try/catch para no bloquear la limpieza del link.
+
+### La categoría del amigo salía como un id crudo (resuelto)
+- **Síntoma:** en un gasto compartido o un ingreso enviado, el amigo veía como categoría algo tipo `aB3xKq9ZmN0pQrSt`.
+- **Causa real:** se copiaba tal cual la categoría del dueño al doc del amigo. Si era personalizada, el amigo no tiene ese doc en `categories` (son privados) → el label caía al id.
+- **Solución (2026-07-29):** `categoryForOtherUser()` en los 3 puntos de escritura (`createSharedTransaction`, `createSentIncome`, propagación de `edit-transaction`) + `categoryLabel()` y las filas de historial/detalle ahora muestran "Otro" localizado en vez del id (cubre los mirrors ya escritos, que no se migran).
+
+### Editar un cobro compartido (income_claim) invertía el tipo del amigo (resuelto)
+- **Síntoma:** tras editar un "te debe", la copia del amigo pasaba de egreso a ingreso y su balance quedaba al revés.
+- **Causa real:** la propagación de `edit-transaction` escribía el `type` del dueño en TODOS los mirrors, sin replicar la inversión que sí hace `createSharedTransaction` (`income_claim` → el no-owner es `expense`).
+- **Solución (2026-07-29):** el mirror ajeno de un `income_claim` se fuerza a `expense` al editar.
