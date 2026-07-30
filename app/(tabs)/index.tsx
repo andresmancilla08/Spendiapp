@@ -174,7 +174,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
           )}
         </View>
       </View>
-      {relation && <TxRelationTier relation={relation} />}
+      {relation && <TxRelationTier relation={relation} indent={74} />}
     </TouchableOpacity>
   );
 }

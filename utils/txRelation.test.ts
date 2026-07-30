@@ -3,7 +3,7 @@
  * (o `node --experimental-strip-types utils/txRelation.test.ts`).
  */
 import assert from 'node:assert/strict';
-import { initialsOf, readableOn, readableChipText, contrastRatio, tintedChipBg } from './txRelation';
+import { initialsOf, readableOn, contrastRatio, splitByPerson } from './txRelation';
 
 // ── initialsOf ───────────────────────────────────────────────────────────────
 assert.equal(initialsOf('Andrés Mancilla'), 'AM');
@@ -26,25 +26,24 @@ assert.equal(readableOn('#00897B', ['#FFFFFF', '#FFFFFF', '#1A2428']), '#FFFFFF'
 // Hex inválido → último candidato, sin excepción.
 assert.equal(readableOn('rgba(0,0,0,0.5)', ['#F472B6', '#1E1028']), '#1E1028');
 
-// ── readableChipText ─────────────────────────────────────────────────────────
-// cottonCandy dark, chip primary: el tinte oscuro sí se lee sobre el fondo mezclado.
-assert.equal(readableChipText('#F472B6', '#F9A8D4', '#221530', '#F5EEF8'), '#F472B6');
-// cottonCandy light: primaryDark sobre el chip da ~2.4:1 → textPrimary.
-assert.equal(readableChipText('#F472B6', '#F9A8D4', '#FFFFFF', '#1E1028'), '#1E1028');
-// Lo que devuelva se lee sobre el chip real, también en fila pagada (fondo `primaryLight`).
-const CASES: Array<{ rowBg: string; fallback: string }> = [
-  { rowBg: '#221530', fallback: '#F5EEF8' }, // cottonCandy dark · surface
-  { rowBg: '#4A1035', fallback: '#F5EEF8' }, // cottonCandy dark · pagada
-  { rowBg: '#FFFFFF', fallback: '#1E1028' }, // cottonCandy light · surface
-  { rowBg: '#FCE7F3', fallback: '#1E1028' }, // cottonCandy light · pagada
-  { rowBg: '#162428', fallback: '#EEF6F8' }, // deepWater dark · surface
-  { rowBg: '#003840', fallback: '#EEF6F8' }, // deepWater dark · pagada
+// ── Color del pie de relación (texto directo sobre el fondo de la fila) ─────
+// cottonCandy dark: el tono oscuro se lee sobre surface.
+assert.equal(readableOn('#221530', ['#F472B6', '#F5EEF8']), '#F472B6');
+// cottonCandy light: #F472B6 sobre blanco da 3.1:1 → cae a textPrimary.
+assert.equal(readableOn('#FFFFFF', ['#F472B6', '#1E1028']), '#1E1028');
+// Lo que devuelva se lee, también en fila pagada (fondo `primaryLight`).
+const ROWS: Array<{ bg: string; deep: string; fallback: string }> = [
+  { bg: '#FFFFFF', deep: '#005F56', fallback: '#1A2428' }, // deepWater light · surface
+  { bg: '#E0F7FA', deep: '#005F56', fallback: '#1A2428' }, // deepWater light · pagada
+  { bg: '#162428', deep: '#00897B', fallback: '#EEF6F8' }, // deepWater dark · surface
+  { bg: '#003840', deep: '#00897B', fallback: '#EEF6F8' }, // deepWater dark · pagada
+  { bg: '#221530', deep: '#F472B6', fallback: '#F5EEF8' }, // cottonCandy dark · surface
+  { bg: '#FCE7F3', deep: '#F472B6', fallback: '#1E1028' }, // cottonCandy light · pagada
 ];
-for (const { rowBg, fallback } of CASES) {
-  const picked = readableChipText('#F472B6', '#F9A8D4', rowBg, fallback);
-  const chipBg = tintedChipBg('#F9A8D4', rowBg)!;
-  const ratio = contrastRatio(picked, chipBg);
-  assert.ok(ratio >= 4.5, `chip ilegible sobre ${rowBg}: ${picked} da ${ratio.toFixed(2)}:1`);
+for (const { bg, deep, fallback } of ROWS) {
+  const picked = readableOn(bg, [deep, fallback]);
+  const ratio = contrastRatio(picked, bg);
+  assert.ok(ratio >= 4.5, `pie ilegible sobre ${bg}: ${picked} da ${ratio.toFixed(2)}:1`);
 }
 
 // ── Notch: el relleno cae al tono oscuro cuando el tono medio no admite texto legible ──────
@@ -61,4 +60,27 @@ for (const [tint, deep, surface, textPrimary] of [
   assert.ok(ratio >= 4.5, `notch ilegible con tinte ${tint}: ${ratio.toFixed(2)}:1`);
 }
 
-console.log('✓ utils/txRelation: initialsOf, readableOn y readableChipText OK');
+// ── splitByPerson ───────────────────────────────────────────────────────────
+// Nombre al final.
+assert.deepEqual(splitByPerson('Enviado por María Victoria', 'María Victoria'),
+  { before: 'Enviado por ', name: 'María Victoria', after: '' });
+// Nombre en medio (el caso de "y N más").
+assert.deepEqual(splitByPerson('Compartido con Andrés y 2 más', 'Andrés'),
+  { before: 'Compartido con ', name: 'Andrés', after: ' y 2 más' });
+// Nombre ausente o vacío: frase intacta y sin nombre → el render no lo duplica.
+assert.deepEqual(splitByPerson('Compartido con —', 'Beatriz'),
+  { before: 'Compartido con —', name: '', after: '' });
+assert.deepEqual(splitByPerson('Compartido', ''),
+  { before: 'Compartido', name: '', after: '' });
+// Reconstrucción exacta en todos los casos (nunca se pierde ni se duplica texto).
+for (const [label, person] of [
+  ['Enviado por Ana', 'Ana'],
+  ['Compartido con Ana y 3 más', 'Ana'],
+  ['Le debes a Ana Ana', 'Ana'],
+  ['Sin nombre', 'Ana'],
+] as Array<[string, string]>) {
+  const { before, name, after } = splitByPerson(label, person);
+  assert.equal(before + name + after, label, `reconstrucción rota para "${label}"`);
+}
+
+console.log('✓ utils/txRelation: initialsOf, readableOn y splitByPerson OK');

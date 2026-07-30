@@ -17,10 +17,8 @@ export function initialsOf(name: string): string {
 
 // ── Contraste ────────────────────────────────────────────────────────────────
 // Las paletas pastel (cottonCandy, sakura, peach…) tienen `primary` clarísimo: usarlo como color
-// de texto sobre un chip tintado da ratios de 1.5:1. Se mide y se elige el candidato legible.
+// de texto da ratios de 1.5:1. Se mide y se elige el candidato legible.
 // ponytail: math WCAG mínima, sin dependencias.
-
-export const CHIP_ALPHA = 0.13;
 
 function rgbOf(hex: string): [number, number, number] | null {
   const m = /^#([0-9a-f]{6})$/i.exec(hex.trim());
@@ -66,18 +64,14 @@ export function readableOn(bg: string, candidates: string[]): string {
   return best;
 }
 
-/** Mezcla `tint` al 13% sobre `rowBg` (el fondo REAL de la fila) y devuelve el hex resultante. */
-export function tintedChipBg(tint: string, rowBg: string): string | null {
-  const over = rgbOf(tint);
-  const base = rgbOf(rowBg);
-  if (!over || !base) return null;
-  const blended = base.map((c, i) => Math.round(c * (1 - CHIP_ALPHA) + over[i] * CHIP_ALPHA));
-  return `#${blended.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
-}
-
-/** Color de texto legible para un chip tintado sobre el fondo real de la fila. */
-export function readableChipText(tintCandidate: string, tint: string, rowBg: string, fallback: string): string {
-  const bg = tintedChipBg(tint, rowBg);
-  if (!bg) return fallback;
-  return readableOn(bg, [tintCandidate, fallback]);
+/**
+ * Parte `label` para poder resaltar `person` dentro de la frase.
+ * Busca el nombre exacto en vez de asumir que va al final: en "Compartido con X y 2 más" va
+ * en medio. Si no aparece (traducción sin interpolar, nombre vacío), devuelve la frase intacta
+ * y `name` vacío — nunca duplica el nombre.
+ */
+export function splitByPerson(label: string, person: string): { before: string; name: string; after: string } {
+  const at = person ? label.indexOf(person) : -1;
+  if (at < 0) return { before: label, name: '', after: '' };
+  return { before: label.slice(0, at), name: person, after: label.slice(at + person.length) };
 }
