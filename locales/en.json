@@ -785,7 +785,8 @@
       "salary": "Salary",
       "other": "Other"
     },
-    "pageDesc": "Organize your expenses by category"
+    "pageDesc": "Organize your expenses by category",
+    "created": "Category “{{name}}” created"
   },
   "budget": {
     "title": "Budget",
@@ -1282,8 +1283,13 @@
     "txCard": {
       "title": "Every movement reads at a glance",
       "item1": "We redesigned the expense and income card on Home and History",
-      "item2": "Your friend's initial sits on the icon and their full name below, never cut off",
+      "item2": "Your friend's initial sits on the icon and their full name right below, never cut off",
       "item3": "On a shared expense you see your share large and the group total below"
+    },
+    "homeHeader": {
+      "title": "A cleaner top of Home",
+      "item1": "Your photo opens the screen with a ring showing how much of the month you have spent",
+      "item2": "As you scroll, the greeting folds into a bar that keeps your photo and the month handy"
     },
     "immersiveStatusBar": {
       "title": "The top bar now matches the app",

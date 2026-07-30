@@ -265,7 +265,7 @@ export default function EditTransactionScreen() {
       });
       setCategory(ref.id);
       resetNewCatForm();
-      showToast(`Categoría "${newCatName.trim()}" creada`, 'success');
+      showToast(t('categories.created', { name: newCatName.trim() }), 'success');
     } catch {
       showToast(t('editTransaction.saveCategoryError'), 'error');
       setNewCatSaving(false);
