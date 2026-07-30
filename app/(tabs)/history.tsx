@@ -81,14 +81,6 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString(localeFor(), {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
-}
-
 interface DayGroup {
   dateKey: string;
   label: string;

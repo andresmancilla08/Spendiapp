@@ -1009,6 +1009,7 @@
     "goal_monthly_reminder": "Recuerda agregar a tus {{count}} metas activas este mes 🎯",
     "sent_income": "{{name}} te envió un ingreso: {{description}}",
     "sent_income_deleted": "{{name}} eliminó el ingreso enviado: {{description}}",
+    "sent_income_delete_request": "{{fromDisplayName}} solicita eliminar el ingreso enviado: {{description}}",
     "income_claim_added": "{{fromDisplayName}} registró que te debe: {{description}}",
     "external_participant_joined": "{{participantDisplayName}} se unió a tu gasto compartido: {{description}}"
   },

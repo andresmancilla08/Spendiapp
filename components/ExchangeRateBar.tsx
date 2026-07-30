@@ -20,6 +20,7 @@ import {
   Platform,
 } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { localeFor } from '../utils/dateLocale';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import AppIcon from './AppIcon';

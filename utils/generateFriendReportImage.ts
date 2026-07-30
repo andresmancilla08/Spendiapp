@@ -1,5 +1,6 @@
 // utils/generateFriendReportImage.ts
 import { Transaction } from '../types/transaction';
+import { localeFor } from './dateLocale';
 
 export interface FriendReportImageData {
   myName: string;

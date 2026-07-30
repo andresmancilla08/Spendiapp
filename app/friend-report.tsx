@@ -22,12 +22,11 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import AppHeader from '../components/AppHeader';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
-import { useFriends } from '../hooks/useFriends';
+import { useFriendProfiles } from '../hooks/useFriendProfiles';
 import { useTransactions } from '../hooks/useTransactions';
-import { getPublicProfile } from '../hooks/useUserProfile';
-import { PublicProfile } from '../types/friend';
 import { generateFriendReportImage, FriendReportImageData, FriendReportImageLabels, FriendReportImageResult } from '../utils/generateFriendReportImage';
 import { migrateIncomeClaims } from '../utils/migrateIncomeClaims';
+import { localeFor } from '../utils/dateLocale';
 
 // Resolve logo URI — Expo returns a string on web, a number on native
 const _logoMod = require('../assets/logo.png');
@@ -54,13 +53,13 @@ export default function FriendReportScreen() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
   const [selectedFriendUid, setSelectedFriendUid] = useState<string | null>(null);
-  const [friendOptions, setFriendOptions] = useState<FriendOption[]>([]);
-  const [friendsLoading, setFriendsLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [previewPages, setPreviewPages] = useState<(FriendReportImageResult & { url: string })[]>([]);
   const [previewVisible, setPreviewVisible] = useState(false);
 
-  const { acceptedFriends, loading: friendshipsLoading } = useFriends(user?.uid ?? '');
+  // Mismo cargador que los selectores de gasto compartido / ingreso enviado:
+  // paralelo, resiliente (no descarta amigos sin publicProfile) y sin loading pegado.
+  const { profiles: friendProfiles, loading: friendsLoading } = useFriendProfiles(user?.uid ?? '');
   const { transactions, loading: txLoading } = useTransactions(user?.uid ?? '', year, month);
 
   // Fix old income_claim transactions that were saved with wrong sharedType/sharedAmount
@@ -68,39 +67,14 @@ export default function FriendReportScreen() {
     if (user?.uid) migrateIncomeClaims(user.uid);
   }, [user?.uid]);
 
-  // Stable string of UIDs to avoid re-running on every Firestore snapshot
-  const friendUids = useMemo(
-    () => acceptedFriends.map((f) => (f.fromId === user?.uid ? f.toId : f.fromId)).join(','),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [acceptedFriends.map((f) => f.id).join(','), user?.uid]
+  const friendOptions: FriendOption[] = useMemo(
+    () => friendProfiles.map((p) => ({
+      uid: p.uid,
+      displayName: p.displayName || p.userName || '…',
+      userName: p.userName,
+    })),
+    [friendProfiles],
   );
-
-  // Load friend profiles only when UIDs actually change
-  useEffect(() => {
-    if (friendshipsLoading) return;
-    const uids = friendUids ? friendUids.split(',').filter(Boolean) : [];
-    if (uids.length === 0) {
-      setFriendOptions([]);
-      setFriendsLoading(false);
-      return;
-    }
-    let cancelled = false;
-    setFriendsLoading(true);
-    Promise.all(uids.map((uid) => getPublicProfile(uid))).then((profiles) => {
-      if (!cancelled) {
-        setFriendOptions(
-          profiles
-            .filter((p): p is PublicProfile => p !== null)
-            .map((p) => ({ uid: p.uid, displayName: p.displayName, userName: p.userName }))
-        );
-        setFriendsLoading(false);
-      }
-    }).catch((err) => {
-      console.error('[friend-report] error loading friend profiles:', err);
-      if (!cancelled) setFriendsLoading(false);
-    });
-    return () => { cancelled = true; };
-  }, [friendUids, friendshipsLoading]);
 
   const resetSelection = () => {
     setSelectedFriendUid(null);
@@ -272,7 +246,7 @@ export default function FriendReportScreen() {
     transitionRef.current?.animateOut(() => router.back());
   };
 
-  const isLoading = friendshipsLoading || friendsLoading;
+  const isLoading = friendsLoading;
   const canGenerate = !!selectedFriendUid && hasTransactions && !generating && !txLoading;
 
   const totalSent = sentToFriend.reduce((s, t) => s + t.amount, 0);

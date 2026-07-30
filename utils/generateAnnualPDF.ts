@@ -2,6 +2,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ReportData } from '../hooks/useReportGenerator';
+import { localeFor } from './dateLocale';
 
 export interface PdfLabels {
   extractTitle: string;

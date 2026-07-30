@@ -29,6 +29,14 @@ service cloud.firestore {
         (resource.data.isSentIncome == true &&
          resource.data.sentByUid == request.auth.uid)
       );
+      // El dueño de un gasto compartido edita los mirrors de los participantes
+      // (edit-transaction propaga monto/fecha/categoría a todos). No puede
+      // reasignar el dueño del mirror ni cambiar de quién es la transacción.
+      allow update: if request.auth != null
+        && resource.data.isShared == true
+        && resource.data.sharedOwnerUid == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.sharedOwnerUid == resource.data.sharedOwnerUid;
     }
 
     match /cards/{docId} {
@@ -96,7 +104,8 @@ service cloud.firestore {
           'income_claim_added',
           'sent_income', 'sent_income_deleted',
           'shared_delete_request',
-          'sent_income_delete_request'
+          'sent_income_delete_request',
+          'external_participant_joined'
         ]
         && request.resource.data.toUserId is string
         && request.resource.data.data.fromUserId == request.auth.uid;

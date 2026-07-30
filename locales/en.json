@@ -1009,6 +1009,7 @@
     "goal_monthly_reminder": "Remember to add to your {{count}} active goals this month 🎯",
     "sent_income": "{{name}} sent you income: {{description}}",
     "sent_income_deleted": "{{name}} deleted the sent income: {{description}}",
+    "sent_income_delete_request": "{{fromDisplayName}} requests to delete the sent income: {{description}}",
     "income_claim_added": "{{fromDisplayName}} registered that they owe you: {{description}}",
     "external_participant_joined": "{{participantDisplayName}} joined your shared expense: {{description}}"
   },

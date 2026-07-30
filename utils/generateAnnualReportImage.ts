@@ -1,5 +1,6 @@
 // utils/generateAnnualReportImage.ts
 import { ReportData } from '../hooks/useReportGenerator';
+import { localeFor } from './dateLocale';
 
 export interface AnnualReportImageLabels {
   extractTitle: string;

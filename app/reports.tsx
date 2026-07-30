@@ -23,6 +23,7 @@ import AppHeader from '../components/AppHeader';
 import ScreenBackground from '../components/ScreenBackground';
 import ReportYearPicker from '../components/ReportYearPicker';
 import { getAvailableYears, generateReportData } from '../hooks/useReportGenerator';
+import { localeFor } from '../utils/dateLocale';
 import { generateAnnualReportImage, AnnualReportImageLabels, AnnualReportImageResult } from '../utils/generateAnnualReportImage';
 import { useCategories } from '../hooks/useCategories';
 import { useToast } from '../context/ToastContext';
