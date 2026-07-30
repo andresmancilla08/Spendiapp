@@ -13,6 +13,7 @@ import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-nati
 import AppIcon from './AppIcon';
 import { useTheme, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { useProMotion } from '../hooks/useProMotion';
+import { isTrendUp } from '../utils/chartTrend';
 import { Fonts } from '../config/fonts';
 
 const HIDDEN_MASK = '••••••';
@@ -154,8 +155,7 @@ export function resolveChartAccent(accent: ChartAccent, colors: { primary: strin
   if (accent === 'success') return colors.success;
   if (accent === 'gold') return colors.tertiary;
   if (accent === 'signed' || accent === 'signedLine' || accent === 'signedFill') {
-    if (values.length >= 2 && values[values.length - 1] < values[0]) return colors.expense;
-    return colors.success;
+    return isTrendUp(values) ? colors.success : colors.expense;
   }
   return colors.primary;
 }
@@ -470,17 +470,19 @@ export default function BalanceCard({
   // "Barras" no tiene canal de contenido separado — un modo parcial no tendría
   // nada que mostrar en ese canal y el gráfico se vería congelado.
   const signedMode: 'both' | 'line' | 'fill' = chartType === 'bars' ? 'both' : chartAccent === 'signedLine' ? 'line' : chartAccent === 'signedFill' ? 'fill' : 'both';
-  const isTrendUp = !sparkline || sparkline.length < 2 || sparkline[sparkline.length - 1] >= sparkline[0];
-  const signedFade = useRef(new Animated.Value(isTrendUp ? 1 : 0)).current;
+  // Misma regla que el color (mes vs mes anterior) — si divergen, el gráfico
+  // cruza hacia el color contrario al que resolvió el acento.
+  const trendUp = isTrendUp(sparkline);
+  const signedFade = useRef(new Animated.Value(trendUp ? 1 : 0)).current;
   useEffect(() => {
     if (!isSignedFamily) return;
     Animated.timing(signedFade, {
-      toValue: isTrendUp ? 1 : 0,
+      toValue: trendUp ? 1 : 0,
       duration: 1200,
       easing: Easing.inOut(Easing.sin),
       useNativeDriver: Platform.OS !== 'web',
     }).start();
-  }, [isSignedFamily, isTrendUp, signedFade]);
+  }, [isSignedFamily, trendUp, signedFade]);
   // Héroe "Aurora Ledger": el balance premium SIEMPRE vive directo sobre el
   // fondo, sin chrome de tarjeta (como el mockup aprobado).
   const heroBare = pro;

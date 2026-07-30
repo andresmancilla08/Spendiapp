@@ -63,3 +63,14 @@
 - **OJO al probar:** iOS cachea el `<head>` de la app instalada. Tras el deploy hay que **cerrar la app del todo** (swipe) y reabrir; si no cambia, **borrarla de la pantalla de inicio y volver a instalarla**.
 - **Invariante:** toda pantalla nueva debe usar `SafeAreaView` (o `insets.top`) en la raíz. Sin eso su contenido queda **debajo de la hora**. Auditado 2026-07-29: solo `app/index.tsx` no lo usa, y es un placeholder vacío.
 - **Nota:** `+html.tsx` NO se emite en el export estático (solo aplica en `expo start --web`); lo que se publica lo inyecta `scripts/patch-html.js`. Cualquier tag de `<head>` hay que tocarlo en **los dos** archivos.
+
+### Acentos "dinámicos" del gráfico: casi siempre verdes (resuelto)
+- **Síntoma:** con "Dinámico" / "Línea dinámica" / "Contenido dinámico" el gráfico del Home no cambiaba de color aunque el mes fuera malo. En Personalización sí se veía cambiar (verde↔rojo).
+- **Causa real:** la regla comparaba `values[último] < values[0]`, o sea el mes mostrado contra el **primer mes de la serie (6 meses atrás)** — no contra el mes anterior, que es lo que promete el texto de la sección ("verde si tu balance sube este mes, rojo si baja"). Consecuencias: en una cuenta nueva `values[0]` vale 0, así que cualquier balance ≥ 0 daba verde para siempre; y un mes que se hundía después de cinco buenos también daba verde. Solo una caída sostenida de 6 meses lo ponía rojo. En Personalización no se notaba porque la vista previa **finge** el cambio alternando cada 6s.
+- **Solución (2026-07-29):** `utils/chartTrend.isTrendUp()` — mes mostrado vs mes anterior, fuente única para el color (`resolveChartAccent`) y para el crossfade de `BalanceCard`. Módulo sin imports de React Native para poder testearlo: `npx tsx utils/chartTrend.test.ts`.
+
+### Otros dos hallazgos de Personalización (resueltos el mismo día)
+- **`chartAccent` remoto sin validar** (`app/_layout.tsx`): era la única pref que se aplicaba sin comprobar contra su lista de valores. Un acento viejo o retirado entraba al contexto y `resolveChartAccent` caía a `colors.primary` → "el acento elegido no se aplica". Ahora valida contra `CHART_ACCENT_VALUES` como sus hermanas.
+- **Las vistas previas ignoraban reduce-motion:** animaban siempre, mientras el gráfico real del Home usa `useProMotion().animate`. Con "Reducir movimiento" activo el usuario elegía una animación que en su Home nunca se movía. Ahora las previas reciben `motion` y el demo del crossfade dinámico no arranca.
+- **Nota (por diseño, no es bug):** el acento activo ya no se oculta de la parrilla. La lista deduplica acentos que resuelven al mismo color en la paleta activa (en `deepWater`, `secondary === success`), y si el acento elegido caía en ese filtro desaparecía y ninguna opción quedaba marcada.
+- **Nota (por diseño):** los colores del donut de categorías son fijos (`constants/categoryColors.ts`) — no siguen la paleta ni el acento, a propósito, para que las categorías se distingan entre sí.

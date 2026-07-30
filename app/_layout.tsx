@@ -11,7 +11,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent } from '../context/ThemeContext';
+import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent } from '../context/ThemeContext';
 import { PALETTE_MAP } from '../config/palettes';
 import AppBackground from '../components/AppBackground';
 import { ToastProvider } from '../context/ToastContext';
@@ -67,7 +67,10 @@ function PaletteLoader() {
         if (['line', 'bars', 'area', 'dots'].includes(p.chartType as string)) setChartType(p.chartType as ChartType);
         if (['pulse', 'draw', 'tide', 'none'].includes(p.chartAnimStyle as string)) setChartAnimStyle(p.chartAnimStyle as ChartAnimStyle);
         if (['slow', 'normal', 'fast'].includes(p.chartSpeed as string)) setChartSpeed(p.chartSpeed as ChartSpeed);
-        if (typeof p.chartAccent === 'string') setChartAccent(p.chartAccent as ChartAccent);
+        // Validado como sus hermanos: un acento remoto viejo o retirado se
+        // colaba en el contexto y `resolveChartAccent` caía al color del tema —
+        // se veía como "el acento elegido no se aplica".
+        if (CHART_ACCENT_VALUES.includes(p.chartAccent as ChartAccent)) setChartAccent(p.chartAccent as ChartAccent);
       })
       .catch(() => {});
   }, [user?.uid]);
