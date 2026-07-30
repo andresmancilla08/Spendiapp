@@ -21,9 +21,13 @@ export default function Root({ children }: PropsWithChildren) {
         <meta property="og:url" content="https://spendia.co" />
         <meta property="og:type" content="website" />
 
-        {/* PWA: iOS Safari */}
+        {/* PWA: iOS Safari.
+            `black-translucent`: la webview se extiende BAJO la barra de estado, así
+            el fondo de la app (AppBackground) la pinta y deja de verse blanca. iOS
+            ignora `theme-color` en apps instaladas, este meta es el único control.
+            Contrapartida: la hora va siempre en blanco → ver `body::before` abajo. */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Spendia" />
 
         {/* Web App Manifest (PWA installability) */}
@@ -66,6 +70,21 @@ export default function Root({ children }: PropsWithChildren) {
           input:focus-visible, textarea:focus-visible, select:focus-visible, [contenteditable]:focus-visible {
             outline: none !important;
             box-shadow: none !important;
+          }
+          /* Banda de la barra de estado en PWA iOS. Con black-translucent la hora
+             va siempre en blanco: en modo claro el fondo es #FFFFFF y no se leería,
+             así que AppBackground tiñe esta banda (transparent en oscuro, para que
+             se vea el fondo real). Alto 0 fuera de standalone. */
+          body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: env(safe-area-inset-top, 0px);
+            background: var(--spendia-statusbar-bg, transparent);
+            pointer-events: none;
+            z-index: 2147483000;
           }
           #spendia-landing {
             transition: opacity 0.35s ease;

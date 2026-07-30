@@ -20,9 +20,10 @@ const pwaTags = `
   <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json" />
 
-  <!-- iOS PWA -->
+  <!-- iOS PWA. black-translucent = la webview se extiende bajo la barra de estado
+       (iOS ignora theme-color en apps instaladas). La banda se tiñe en body::before. -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Spendia" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
@@ -53,6 +54,18 @@ const pwaTags = `
     }
     input, textarea, select, [contenteditable] {
       -webkit-appearance: none;
+    }
+    /* Banda de la barra de estado (PWA iOS con black-translucent): la hora va
+       siempre en blanco, así que en modo claro hay que teñir la banda.
+       AppBackground escribe --spendia-statusbar-bg segun el modo activo. */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: env(safe-area-inset-top, 0px);
+      background: var(--spendia-statusbar-bg, transparent);
+      pointer-events: none;
+      z-index: 2147483000;
     }
   </style>
 `;
