@@ -15,6 +15,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../../components/AppIcon';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
+import { effectiveAmount } from '../../utils/sharedCalc';
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from 'react';
 import { router, useFocusEffect } from 'expo-router';
@@ -109,10 +110,9 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
   const relation = useTxRelation(item);
   // Igual que en el historial: tu parte como héroe y el total debajo, salvo en cuotas (ahí
   // `amount` ya es la cuota que te toca).
-  const isSharedSplit = isExpense && item.isShared && !item.isInstallment
-    && item.sharedAmount != null && item.sharedAmount !== item.amount;
-  const shownAmount = isSharedSplit ? item.sharedAmount! : item.amount;
-  const ofTotal = isSharedSplit
+  // Misma función que usan el balance y los agregados: la fila y el total nunca se contradicen.
+  const shownAmount = effectiveAmount(item);
+  const ofTotal = shownAmount !== item.amount
     ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
     : null;
   const descLabel = item.isInstallment
@@ -345,7 +345,7 @@ export default function HomeScreen() {
         d.getFullYear() === today.getFullYear()
       );
     })
-    .reduce((sum, tx) => sum + tx.amount, 0);
+    .reduce((sum, tx) => sum + effectiveAmount(tx), 0);
 
   const expenseRatio = totalIncome > 0 ? totalExpenses / totalIncome : 0;
 
@@ -391,7 +391,7 @@ export default function HomeScreen() {
 
   const byCat: Record<string, number> = {};
   transactions.forEach((tx) => {
-    if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
+    if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + effectiveAmount(tx);
   });
   const sortedCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
   const donutSegments: CategorySegment[] = sortedCats.slice(0, 3).map(([key, amount], i) => ({

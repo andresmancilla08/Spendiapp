@@ -30,6 +30,7 @@ import { Fonts } from '../../config/fonts';
 import { useToast } from '../../context/ToastContext';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useFlags } from '../../context/FeatureFlagsContext';
+import { effectiveAmount } from '../../utils/sharedCalc';
 
 
 const DEFAULT_EXPENSE_CATEGORIES = [
@@ -132,7 +133,7 @@ export default function BudgetScreen() {
     const map: Record<string, number> = {};
     for (const tx of transactions) {
       if (tx.type === 'expense') {
-        map[tx.category] = (map[tx.category] ?? 0) + tx.amount;
+        map[tx.category] = (map[tx.category] ?? 0) + effectiveAmount(tx);
       }
     }
     return map;

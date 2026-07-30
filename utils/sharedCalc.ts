@@ -33,3 +33,26 @@ export function calcEqualPercentages(count: number): number[] {
     i === count - 1 ? base + remainder : base,
   );
 }
+
+/**
+ * Importe que esta transacción representa PARA EL USUARIO dueño del doc.
+ *
+ * En un gasto compartido sin cuotas, `amount` es el total del grupo y `sharedAmount` la parte
+ * de este usuario: todo agregado propio (balance, tendencia, categorías, reportes) debe usar
+ * `sharedAmount`, o la fila y el balance cuentan cosas distintas.
+ *
+ * En cuotas es al revés: `amount` ya es la cuota amortizada sobre la base de este participante,
+ * y `sharedAmount` sería un gemelo redondeado de esa misma cuota (división plana) — usarlo
+ * introduce un error de redondeo en la última cuota.
+ *
+ * En `income_claim` ambos campos valen lo mismo, así que el resultado no cambia.
+ */
+export function effectiveAmount(tx: {
+  amount: number;
+  isShared?: boolean;
+  isInstallment?: boolean;
+  sharedAmount?: number | null;
+}): number {
+  if (tx.isShared && !tx.isInstallment && tx.sharedAmount != null) return tx.sharedAmount;
+  return tx.amount;
+}

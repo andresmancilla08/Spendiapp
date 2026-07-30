@@ -41,6 +41,7 @@ import { useSentIncome } from '../hooks/useSentIncome';
 import { useHistoryStore } from '../store/historyStore';
 import { useCategories } from '../hooks/useCategories';
 import { localeFor } from '../utils/dateLocale';
+import { effectiveAmount } from '../utils/sharedCalc';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -490,10 +491,16 @@ export default function TransactionDetailScreen() {
                       : { textShadowColor: accentColor + '80', textShadowRadius: 22, textShadowOffset: { width: 0, height: 0 } }),
                   ]}
                 >
-                  {isExpense
-                    ? `−${formatCurrency(transaction.amount)}`
-                    : `+${formatCurrency(transaction.amount)}`}
+                  {`${isExpense ? '−' : '+'}${formatCurrency(effectiveAmount(transaction))}`}
                 </Text>
+
+                {/* En un gasto compartido el héroe es TU parte: el total del grupo va debajo,
+                    igual que en la fila del home y del historial. */}
+                {effectiveAmount(transaction) !== transaction.amount && (
+                  <Text style={[styles.detailAmountTotal, { color: colors.textSecondary }]}>
+                    {t('sharedExpense.ofTotal', { amount: formatCurrency(transaction.amount) })}
+                  </Text>
+                )}
 
                 {/* Descripción */}
                 <Text
@@ -1046,6 +1053,14 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     letterSpacing: -1.2,
     includeFontPadding: false,
+  },
+  detailAmountTotal: {
+    fontSize: 14,
+    fontFamily: Fonts.semiBold,
+    fontVariant: ['tabular-nums'],
+    textAlign: 'center',
+    marginTop: -2,
+    marginBottom: 2,
   },
   detailDescription: {
     fontSize: 15,
