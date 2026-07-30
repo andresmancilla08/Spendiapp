@@ -51,6 +51,7 @@ import ScreenTransition from '../../components/ScreenTransition';
 import { useCategories } from '../../hooks/useCategories';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
+import { readableOn } from '../../utils/txRelation';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { categoryLabel } from '../../constants/categories';
 import { categoryColor } from '../../constants/categoryColors';
@@ -174,9 +175,13 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   const isPaid = item.isPaid === true;
   const card = item.cardId ? cardsMap[item.cardId] : null;
   const relation = useTxRelation(item);
-  // En gastos compartidos el importe grande es TU parte; el total va como línea secundaria.
-  const shownAmount = isExpense && item.isShared && item.sharedAmount != null ? item.sharedAmount : item.amount;
-  const ofTotal = shownAmount !== item.amount
+  // En gastos compartidos el importe grande es TU parte y el total va como línea secundaria.
+  // En cuotas NO: ahí `amount` ya es la cuota que te toca (amortizada), y `sharedAmount` sería
+  // un gemelo redondeado de esa misma cuota, no el total del grupo.
+  const isSharedSplit = isExpense && item.isShared && !item.isInstallment
+    && item.sharedAmount != null && item.sharedAmount !== item.amount;
+  const shownAmount = isSharedSplit ? item.sharedAmount! : item.amount;
+  const ofTotal = isSharedSplit
     ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
     : null;
   const descLabel = item.isInstallment
@@ -275,6 +280,11 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
     outputRange: [colors.surface, colors.primaryLight],
   });
   const amountColor = isExpense ? (isPaid ? colors.primary : colors.expense) : colors.secondary;
+  // La fila pagada se tiñe con `primaryLight` y ahí `textTertiary` cae por debajo de 4.5:1
+  // (y en las paletas light, también `textSecondary`): que el helper elija por paleta.
+  const mutedColor = isPaid
+    ? readableOn(colors.primaryLight, [colors.textSecondary, colors.textPrimary])
+    : colors.textTertiary;
 
   return (
     <View
@@ -348,7 +358,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                 )}
               </View>
               <View style={styles.txSubrow}>
-                <Text style={[styles.txTime, styles.txCat, { color: colors.textTertiary }]} numberOfLines={1}>
+                <Text style={[styles.txTime, styles.txCat, { color: mutedColor }]} numberOfLines={1}>
                   {CATEGORY_LABELS[item.category] ?? customCat?.name ?? CATEGORY_LABELS.other}
                 </Text>
                 {card && (
@@ -392,7 +402,10 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                     {`${isExpense ? '−' : '+'}${formatCurrency(shownAmount)}`}
                   </Text>
                   {ofTotal && (
-                    <Text style={[styles.txOf, { color: colors.textSecondary }]} numberOfLines={1}>
+                    <Text
+                      style={[styles.txOf, { color: isPaid ? colors.textPrimary : colors.textSecondary }]}
+                      numberOfLines={1}
+                    >
                       {ofTotal}
                     </Text>
                   )}
@@ -400,7 +413,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
               )}
             </View>
           </View>
-          {relation && <TxRelationTier relation={relation} />}
+          {relation && <TxRelationTier relation={relation} isPaid={isPaid} />}
         </AnimatedTouchable>
       </Animated.View>
     </View>
@@ -1373,7 +1386,7 @@ const styles = StyleSheet.create({
   // La categoría no se trunca salvo que sea larguísima; el chip de tarjeta absorbe el apretón.
   txCat: { flexShrink: 0, maxWidth: '58%' },
   txTime: { fontSize: 12, fontFamily: Fonts.regular },
-  txAmountCol: { flexShrink: 0, maxWidth: '46%', minWidth: 84, alignItems: 'flex-end', justifyContent: 'center' },
+  txAmountCol: { flexShrink: 0, maxWidth: '42%', minWidth: 84, alignItems: 'flex-end', justifyContent: 'center' },
   // El importe es el héroe: +2pt sobre el título y tracking negativo.
   txAmount: { fontSize: 16, fontFamily: Fonts.bold, letterSpacing: -0.2, fontVariant: ['tabular-nums'] },
   txOf: { fontSize: 11, fontFamily: Fonts.semiBold, marginTop: 1, fontVariant: ['tabular-nums'] },

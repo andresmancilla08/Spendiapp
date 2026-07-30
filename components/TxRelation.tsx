@@ -10,7 +10,7 @@ import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import type { Transaction } from '../types/transaction';
-import type { AppColors } from '../config/colors';
+import { initialsOf, readableOn, readableChipText, contrastRatio } from '../utils/txRelation';
 
 export interface TxRelation {
   label: string;
@@ -18,14 +18,6 @@ export interface TxRelation {
   tone: 'primary' | 'secondary';
   /** 1-2 iniciales del amigo, con sufijo `+n` cuando hay más participantes. */
   initials: string;
-}
-
-function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '·';
-  const first = parts[0][0] ?? '';
-  const second = parts.length > 1 ? (parts[1][0] ?? '') : '';
-  return (first + second).toUpperCase();
 }
 
 /** Devuelve la relación de la transacción, o `null` si es un movimiento propio y normal. */
@@ -62,14 +54,8 @@ export function useTxRelation(item: Transaction): TxRelation | null {
 
   if (isOwner) {
     const others = participants.filter((p) => p.uid !== item.userId);
-    if (others.length === 0) {
-      return {
-        label: t(isClaim ? 'sharedExpense.chip.owesYou' : 'sharedExpense.chip.sharedWith', { name: '—' }),
-        icon: 'people-outline',
-        tone: 'primary',
-        initials: '·',
-      };
-    }
+    // Docs legacy sin participantes: mejor sin franja que "Compartido con —".
+    if (others.length === 0) return null;
     const extra = others.length > 1 ? `+${others.length - 1}` : '';
     const label = others.length <= 2
       ? t(isClaim ? 'sharedExpense.chip.owesYou' : 'sharedExpense.chip.sharedWith', {
@@ -94,56 +80,6 @@ export function useTxRelation(item: Transaction): TxRelation | null {
   };
 }
 
-// ── Contraste ────────────────────────────────────────────────────────────────
-// Las paletas pastel (cottonCandy, sakura, peach…) tienen `primary` clarísimo: usarlo como
-// color de texto sobre el chip da ratios de 1.5:1. Se mide y, si no llega a 4.5:1, se cae a
-// `textPrimary`, que siempre se lee.
-// ponytail: math WCAG mínima aquí mismo; si algún día hace falta en más sitios, se extrae a utils.
-const CHIP_ALPHA = 0.13;
-
-function rgbOf(hex: string): [number, number, number] | null {
-  const m = /^#([0-9a-f]{6})$/i.exec(hex.trim());
-  if (!m) return null;
-  const n = parseInt(m[1], 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-function relLuminance([r, g, b]: [number, number, number]): number {
-  const lin = [r, g, b].map((c) => {
-    const s = c / 255;
-    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
-  });
-  return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
-}
-
-function contrast(a: [number, number, number], b: [number, number, number]): number {
-  const la = relLuminance(a);
-  const lb = relLuminance(b);
-  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
-}
-
-/** Primer candidato que se lee sobre `bg` (≥4.5:1); si ninguno llega, el último. */
-function readableOn(bg: string, candidates: string[]): string {
-  const bgRgb = rgbOf(bg);
-  const last = candidates[candidates.length - 1];
-  if (!bgRgb) return last;
-  for (const c of candidates) {
-    const rgb = rgbOf(c);
-    if (rgb && contrast(rgb, bgRgb) >= 4.5) return c;
-  }
-  return last;
-}
-
-/** Color de texto legible para un chip tintado sobre `surface`. */
-function readableChipText(tintCandidate: string, tint: string, colors: AppColors): string {
-  const over = rgbOf(tint);
-  const surface = rgbOf(colors.surface);
-  if (!over || !surface) return colors.textPrimary;
-  const blended = surface.map((c, i) => Math.round(c * (1 - CHIP_ALPHA) + over[i] * CHIP_ALPHA));
-  const hex = `#${blended.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
-  return readableOn(hex, [tintCandidate, colors.textPrimary]);
-}
-
 // ── Piezas visuales ──────────────────────────────────────────────────────────
 
 /**
@@ -154,24 +90,29 @@ function readableChipText(tintCandidate: string, tint: string, colors: AppColors
 export function TxRelationNotch({ relation }: { relation: TxRelation }) {
   const { colors } = useTheme();
   const tint = relation.tone === 'primary' ? colors.primary : colors.secondary;
+  const deep = relation.tone === 'primary' ? colors.primaryDark : colors.secondaryDark;
+  // Hay tonos medios (p.ej. deepWater light secondary) donde ni el texto claro ni el oscuro
+  // llegan a 4.5:1 sobre el tono: en ese caso el relleno pasa al tono oscuro, que sí admite texto.
+  const textCandidates = [colors.surface, colors.textPrimary];
+  const fill = contrastRatio(readableOn(tint, textCandidates), tint) >= 4.5 ? tint : deep;
   return (
-    <View style={[styles.notch, { backgroundColor: tint, borderColor: colors.surface }]}>
-      <Text
-        style={[styles.notchText, { color: readableOn(tint, [colors.surface, colors.textInverse, colors.textPrimary]) }]}
-        numberOfLines={1}
-      >
+    <View style={[styles.notch, { backgroundColor: fill, borderColor: colors.surface }]}>
+      <Text style={[styles.notchText, { color: readableOn(fill, textCandidates) }]} numberOfLines={1}>
         {relation.initials}
       </Text>
     </View>
   );
 }
 
-/** Franja inferior del card: el chip de relación con todo el ancho disponible. */
-export function TxRelationTier({ relation }: { relation: TxRelation }) {
+/**
+ * Franja inferior del card: el chip de relación con todo el ancho disponible.
+ * `isPaid` importa para el contraste: la fila pagada tiñe el fondo con `primaryLight`.
+ */
+export function TxRelationTier({ relation, isPaid }: { relation: TxRelation; isPaid?: boolean }) {
   const { colors } = useTheme();
   const tint = relation.tone === 'primary' ? colors.primary : colors.secondary;
   const deep = relation.tone === 'primary' ? colors.primaryDark : colors.secondaryDark;
-  const textColor = readableChipText(deep, tint, colors);
+  const textColor = readableChipText(deep, tint, isPaid ? colors.primaryLight : colors.surface, colors.textPrimary);
   return (
     <View style={[styles.tier, { borderTopColor: colors.border, backgroundColor: `${colors.border}2E` }]}>
       <View style={[styles.chip, { backgroundColor: `${tint}22`, borderColor: `${tint}3D` }]}>
