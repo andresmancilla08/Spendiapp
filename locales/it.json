@@ -1283,10 +1283,11 @@
       "item1": "Scegli un effetto animato per la modalità chiara e uno per la scura",
       "item2": "Gli sfondi ora si vedono meglio in modalità chiara"
     },
-    "sharedBadge": {
-      "title": "Riconosci a colpo d’occhio le spese condivise",
-      "item1": "Spese e crediti tra amici hanno ora la loro etichetta nello storico",
-      "item2": "Mostra con chi le condividi o chi le ha condivise con te"
+    "txCard": {
+      "title": "Ogni movimento si legge a colpo d’occhio",
+      "item1": "Abbiamo ridisegnato la scheda di spese ed entrate in Home e nello Storico",
+      "item2": "L'iniziale dell'amico sta sull'icona e il suo nome completo sotto, senza tagli",
+      "item3": "In una spesa condivisa vedi la tua parte in grande e il totale del gruppo sotto"
     },
     "immersiveStatusBar": {
       "title": "La barra superiore ora si abbina all’app",

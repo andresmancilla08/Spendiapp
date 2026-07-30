@@ -88,8 +88,8 @@ const APP_FEATURES: Feature[] = [
   {
     icon: 'people-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.sharedBadge.title',
-    items: ['whatsNew.sharedBadge.item1', 'whatsNew.sharedBadge.item2'],
+    titleKey: 'whatsNew.txCard.title',
+    items: ['whatsNew.txCard.item1', 'whatsNew.txCard.item2', 'whatsNew.txCard.item3'],
   },
   {
     icon: 'phone-portrait-outline',
