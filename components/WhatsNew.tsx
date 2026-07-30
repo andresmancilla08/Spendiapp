@@ -85,6 +85,18 @@ const APP_FEATURES: Feature[] = [
     titleKey: 'whatsNew.dynamicColors.title',
     items: ['whatsNew.dynamicColors.item1', 'whatsNew.dynamicColors.item2', 'whatsNew.dynamicColors.item3'],
   },
+  {
+    icon: 'people-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.sharedBadge.title',
+    items: ['whatsNew.sharedBadge.item1', 'whatsNew.sharedBadge.item2'],
+  },
+  {
+    icon: 'phone-portrait-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.immersiveStatusBar.title',
+    items: ['whatsNew.immersiveStatusBar.item1', 'whatsNew.immersiveStatusBar.item2'],
+  },
 ];
 
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {

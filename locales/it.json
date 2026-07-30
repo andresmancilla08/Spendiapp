@@ -1282,6 +1282,16 @@
       "title": "Uno sfondo diverso per ogni modalità",
       "item1": "Scegli un effetto animato per la modalità chiara e uno per la scura",
       "item2": "Gli sfondi ora si vedono meglio in modalità chiara"
+    },
+    "sharedBadge": {
+      "title": "Riconosci a colpo d’occhio le spese condivise",
+      "item1": "Spese e crediti tra amici hanno ora la loro etichetta nello storico",
+      "item2": "Mostra con chi le condividi o chi le ha condivise con te"
+    },
+    "immersiveStatusBar": {
+      "title": "La barra superiore ora si abbina all’app",
+      "item1": "In modalità scura prende lo sfondo dell’app invece di restare bianca",
+      "item2": "In modalità chiara usa il colore della tua palette"
     }
   },
   "incomeClaim": {
