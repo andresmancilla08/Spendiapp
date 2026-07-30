@@ -532,7 +532,7 @@ export default function TransactionDetailScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={{ fontSize: 14 }}>{cat.icon}</Text>
                 <Text style={[styles.detailRowValue, { color: colors.textPrimary }]}>
-                  {CATEGORY_LABELS[transaction.category] ?? customCat?.name ?? transaction.category}
+                  {CATEGORY_LABELS[transaction.category] ?? customCat?.name ?? CATEGORY_LABELS.other}
                 </Text>
               </View>
             </View>

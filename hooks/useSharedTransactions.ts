@@ -13,6 +13,7 @@ import { db } from '../config/firebase';
 import type { SharedParticipant, MirrorRef, SharedTransaction } from '../types/sharedTransaction';
 import type { TransactionType } from '../types/transaction';
 import { calcSharedAmount } from '../utils/sharedCalc';
+import { categoryForOtherUser } from '../utils/sharedCategory';
 import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
 import * as Crypto from 'expo-crypto';
 
@@ -70,6 +71,8 @@ export function useSharedTransactions() {
       const isOwner = participant.uid === ownerUid;
       // income_claim: amigos reciben egreso; expense_share: todos el mismo tipo
       const docType = isIncomeClaim && !isOwner ? 'expense' : baseDoc.type;
+      // El amigo no tiene mis categorías personalizadas: su copia va a `other`.
+      const docCategory = isOwner ? baseDoc.category : categoryForOtherUser(baseDoc.category, docType);
 
       const sharedFields = {
         isShared: true,
@@ -99,6 +102,7 @@ export function useSharedTransactions() {
             userId: participant.uid,
             ...baseDocWithoutCard,
             type: docType,
+            category: docCategory,
             ...(isOwner && cardId ? { cardId } : {}),
             amount: amt,
             date: Timestamp.fromDate(dates[i]),
@@ -122,6 +126,7 @@ export function useSharedTransactions() {
           userId: participant.uid,
           ...baseDocWithoutCard,
           type: docType,
+          category: docCategory,
           ...(isOwner && cardId ? { cardId } : {}),
           amount,
           date: Timestamp.fromDate(selectedDate),

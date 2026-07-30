@@ -32,7 +32,10 @@ export function categoryLabel(
 ): string {
   const def = DEFAULT_CATEGORIES.find((c) => c.id === id);
   if (def) return t(`categories.names.${id}`, { defaultValue: def.name });
-  return customCategories.find((c) => c.id === id)?.name ?? id;
+  // Id desconocido (categoría personalizada de OTRO usuario en un mirror viejo,
+  // o borrada): mostrar "Otro" localizado, nunca el id crudo.
+  return customCategories.find((c) => c.id === id)?.name
+    ?? t('categories.names.other', { defaultValue: 'Otro' });
 }
 
 export function resolveCategory(

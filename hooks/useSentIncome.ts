@@ -6,6 +6,7 @@ import {
   addDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { categoryForOtherUser } from '../utils/sharedCategory';
 
 interface CreateSentIncomeParams {
   senderUid: string;
@@ -46,12 +47,13 @@ export function useSentIncome() {
       sentIncomeTransactionId: incomeRef.id,
     });
 
-    // Ingreso del destinatario
+    // Ingreso del destinatario. La categoría no puede ser una personalizada mía
+    // (no existe en su cuenta) ni una de gasto: cae a `other`.
     batch.set(incomeRef, {
       userId: recipientUid,
       type: 'income',
       amount,
-      category,
+      category: categoryForOtherUser(category, 'income'),
       description,
       date: Timestamp.fromDate(date),
       createdAt: Timestamp.fromDate(now),

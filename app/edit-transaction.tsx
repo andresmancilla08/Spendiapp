@@ -40,6 +40,7 @@ import { suggestEmojiLocal, suggestEmojiWithGemini } from '../utils/suggestEmoji
 import { EmojiPicker } from '../components/EmojiPicker';
 import type { SharedParticipant, SharedTransaction } from '../types/sharedTransaction';
 import { calcSharedAmount, calcEqualPercentages } from '../utils/sharedCalc';
+import { categoryForOtherUser } from '../utils/sharedCategory';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
 const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
@@ -314,15 +315,21 @@ export default function EditTransactionScreen() {
         if (!coordSnap.exists()) throw new Error('coordination doc missing');
         const coordData = coordSnap.data() as SharedTransaction;
         const batch = writeBatch(db);
+        const isIncomeClaim = transaction.sharedType === 'income_claim';
         for (const mirrorRef of coordData.mirrorRefs) {
           const participant = sharedEditParticipants.find((p) => p.uid === mirrorRef.uid);
           if (!participant) continue;
           const newSharedAmount = calcSharedAmount(parsedAmount, 0, 1, participant.percentage);
+          const isMine = mirrorRef.uid === user.uid;
+          // income_claim: la copia del amigo sigue siendo un egreso, no se invierte.
+          const mirrorType = isIncomeClaim && !isMine ? 'expense' : type;
+          // El amigo no tiene mis categorías personalizadas: su copia va a `other`.
+          const mirrorCategory = isMine ? category : categoryForOtherUser(category, mirrorType);
           batch.update(doc(db, 'transactions', mirrorRef.transactionId), {
-            type,
+            type: mirrorType,
             description: description.trim(),
             amount: parsedAmount,
-            category,
+            category: mirrorCategory,
             date: Timestamp.fromDate(selectedDate),
             isFixed,
             sharedParticipants: sharedEditParticipants,
