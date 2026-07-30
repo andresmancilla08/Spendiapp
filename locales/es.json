@@ -1283,10 +1283,11 @@
       "item1": "Elige un efecto animado para claro y otro para oscuro",
       "item2": "Los fondos ahora se ven mejor en modo claro"
     },
-    "sharedBadge": {
-      "title": "Sabes de un vistazo qué gasto es compartido",
-      "item1": "Los gastos y cobros entre amigos ahora llevan su propia etiqueta en el historial",
-      "item2": "Indica con quién lo compartes o quién te lo compartió"
+    "txCard": {
+      "title": "Cada movimiento se lee de un vistazo",
+      "item1": "Rediseñamos la tarjeta de gastos e ingresos en Inicio y en el Historial",
+      "item2": "La inicial del amigo va sobre el ícono y su nombre completo abajo, sin cortarse",
+      "item3": "En un gasto compartido ves tu parte en grande y el total del grupo debajo"
     },
     "immersiveStatusBar": {
       "title": "La barra superior ya combina con la app",

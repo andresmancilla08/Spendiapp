@@ -1283,10 +1283,11 @@
       "item1": "Pick one animated effect for light and another for dark",
       "item2": "Backgrounds now look better in light mode"
     },
-    "sharedBadge": {
-      "title": "Spot shared expenses at a glance",
-      "item1": "Expenses and claims between friends now have their own tag in your history",
-      "item2": "It shows who you shared it with, or who shared it with you"
+    "txCard": {
+      "title": "Every movement reads at a glance",
+      "item1": "We redesigned the expense and income card on Home and History",
+      "item2": "Your friend's initial sits on the icon and their full name below, never cut off",
+      "item3": "On a shared expense you see your share large and the group total below"
     },
     "immersiveStatusBar": {
       "title": "The top bar now matches the app",
