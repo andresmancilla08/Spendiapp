@@ -15,6 +15,8 @@ import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../../components/AppIcon';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
+import HomeHeader from '../../components/HomeHeader';
+import { useProMotion } from '../../hooks/useProMotion';
 import { effectiveAmount } from '../../utils/sharedCalc';
 import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from 'react';
@@ -194,6 +196,8 @@ function ProSectionHeader({ label, right }: { label: string; right?: ReactNode }
 
 export default function HomeScreen() {
   const { user, isPremium } = useAuthStore();
+  const { reduceMotion } = useProMotion();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const { categories } = useCategories(user?.uid ?? '');
   const customCatMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
@@ -318,20 +322,6 @@ export default function HomeScreen() {
     });
     router.push('/transaction-detail');
   }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, user?.displayName]);
-
-  // Greeting contextual por hora
-  const hour = new Date().getHours();
-  const greetingKey =
-    hour >= 6 && hour < 12 ? 'home.greetingMorning'
-    : hour >= 12 && hour < 18 ? 'home.greetingAfternoon'
-    : hour >= 18 && hour < 22 ? 'home.greetingEvening'
-    : 'home.greetingNight';
-  // Kicker editorial de hora (sin nombre) para el encabezado premium.
-  const kickerKey =
-    hour >= 6 && hour < 12 ? 'home.kickerMorning'
-    : hour >= 12 && hour < 18 ? 'home.kickerAfternoon'
-    : hour >= 18 && hour < 22 ? 'home.kickerEvening'
-    : 'home.kickerNight';
 
   // Gasto de hoy
   const today = new Date();
@@ -502,50 +492,46 @@ export default function HomeScreen() {
       <WhatsNew visible={showWhatsNew} onDismiss={handleDismissWhatsNew} />
       <ScreenBackground>
 
-      {/* Header — saludo integrado (Aurora Ledger) */}
-      <View style={styles.header}>
-        <View style={styles.headerGreet}>
-          <Text style={[styles.greetingKicker, { color: colors.textTertiary }]} numberOfLines={1}>{t(kickerKey)}</Text>
-          <Text style={[styles.headerName, { color: colors.textPrimary }]} numberOfLines={1}>
-            {t('home.greetingName', { name: firstName })}
-          </Text>
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          {user?.uid && flags.notificationsEnabled && <NotificationBell uid={user.uid} />}
-          <View style={{ position: 'relative' }}>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
-              {photoUrl && !avatarError ? (
-                <Image
-                  source={{ uri: photoUrl }}
-                  style={styles.avatar}
-                  onError={() => setAvatarError(true)}
-                />
-              ) : (
-                <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight, borderWidth: 1.5, borderColor: colors.primary + '40' }]}>
-                  <AppIcon name="person" size={18} color={colors.primary} />
-                </View>
-              )}
-            </TouchableOpacity>
-            {isPremium && (
-              <View style={{
-                position: 'absolute', bottom: 0, right: 0,
-                width: 14, height: 14, borderRadius: 7,
-                backgroundColor: colors.warning,
-                borderWidth: 1.5, borderColor: colors.surface,
-                alignItems: 'center', justifyContent: 'center',
-              }}>
-                <AppIcon name="star" size={7} color="#FFF" />
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
+      {/* Header — avatar con el anillo del mes a la izquierda; se contrae al bajar */}
+      <HomeHeader
+        firstName={t('home.greetingName', { name: firstName })}
+        photoUrl={photoUrl}
+        avatarError={avatarError}
+        onAvatarError={() => setAvatarError(true)}
+        isPremium={isPremium}
+        bell={user?.uid && flags.notificationsEnabled ? <NotificationBell uid={user.uid} /> : undefined}
+        percent={pillVisible ? pillPercent : null}
+        percentColor={pillColor}
+        daysLeft={isCurrentMonth ? Math.max(0, daysInMonth - now.getDate()) : null}
+        monthShort={(MONTHS[month] ?? '').slice(0, 3)}
+        fallbackContext={
+          premiumSubtitle
+            ?? (subtitleKey
+              ? t(subtitleKey)
+              : t('home.subtitleSpentToday', { amount: formatCurrency(todaySpent) }))
+        }
+        contextFor={(percent, daysLeft) =>
+          daysLeft == null ? t('home.headerContextNoDays', { percent })
+          : daysLeft <= 0 ? t('home.headerContextLastDay', { percent })
+          : daysLeft === 1 ? t('home.headerContextOneDay', { percent })
+          : t('home.headerContext', { percent, days: daysLeft })
+        }
+        loading={loading || refreshing}
+        scrollY={scrollY}
+        collapsible={!reduceMotion}
+        onPressProfile={() => router.push('/(tabs)/profile')}
+      />
 
       <AnnouncementBanner />
 
-      <ScrollView
+      <Animated.ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
+        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -555,32 +541,6 @@ export default function HomeScreen() {
           />
         }
       >
-        {/* Subtítulo contextual (el nombre/saludo vive en el header) */}
-        {loading || refreshing ? (
-          <View style={styles.greeting}>
-            <Skeleton width={220} height={14} borderRadius={6} />
-          </View>
-        ) : (
-          <ProReveal index={0} style={styles.greeting}>
-            <View style={styles.greetingSubRow}>
-              <Text style={[styles.greetingSubtitle, { color: colors.textSecondary }]}>
-                {premiumSubtitle
-                  ?? (subtitleKey
-                    ? t(subtitleKey)
-                    : t('home.subtitleSpentToday', { amount: formatCurrency(todaySpent) }))}
-              </Text>
-              {pillVisible && (
-                <View style={[styles.pill, { backgroundColor: pillColor + '1A', borderWidth: 1, borderColor: pillColor + '2E' }]}>
-                  <AppIcon name={pillIcon} size={12} color={pillColor} />
-                  <Text style={[styles.pillText, { color: pillColor }]}>
-                    {t('home.pillSpent', { percent: pillPercent })}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </ProReveal>
-        )}
-
         {/* PWA Install Banner */}
         {Platform.OS === 'web' && !loading && !refreshing && <PwaInstallBanner />}
 
@@ -762,7 +722,7 @@ export default function HomeScreen() {
             </ProReveal>
           </>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* FAB */}
       <TouchableOpacity
@@ -805,41 +765,14 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
 
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-  },
   headerBrand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   headerLogo: { width: 32, height: 32, alignSelf: 'center' },
   headerTitle: { fontSize: 22, fontFamily: Fonts.extraBold, lineHeight: 28, includeFontPadding: false },
-  avatar: { width: 42, height: 42, borderRadius: 21 },
-  avatarFallback: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
 
-  scroll: { paddingHorizontal: 20, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  // paddingTop: el subtítulo que abría el scroll ya no existe (su contexto vive en el header),
+  // así que el aire hasta el card de balance lo pone el propio scroll.
+  scroll: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
-  greeting: { marginBottom: 16 },
-  headerGreet: { flex: 1, paddingRight: 12 },
-  headerName: { fontSize: 19, lineHeight: 23, fontFamily: Fonts.extraBold, letterSpacing: -0.2, marginTop: 2 },
-  greetingKicker: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.6, textTransform: 'uppercase' },
-  greetingSubRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  greetingSubtitle: { fontSize: 13, fontFamily: Fonts.regular },
-  pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 20,
-  },
-  pillText: { fontSize: 11, fontFamily: Fonts.semiBold },
 
   // Summary
   summaryRow: { flexDirection: 'row', gap: 12, marginBottom: 28 },
