@@ -23,6 +23,7 @@ const pwaTags = `
   <!-- iOS PWA. black-translucent = la webview se extiende bajo la barra de estado
        (iOS ignora theme-color en apps instaladas). La banda se tiñe en body::before. -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Spendia" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -54,6 +55,25 @@ const pwaTags = `
     }
     input, textarea, select, [contenteditable] {
       -webkit-appearance: none;
+    }
+    /* Alto REAL del viewport en PWA instalada. El reset de Expo deja
+       html/body/#root en height:100%, que en iOS standalone resuelve al viewport
+       SIN safe areas → sobraba el inset superior (~47pt) o el del home indicator
+       (~34pt) y se veía el canvas blanco del navegador. 100dvh sigue el viewport
+       dinámico; las declaraciones previas son el fallback. El canvas se pinta con
+       el fondo real de la app (--spendia-app-bg, lo escribe AppBackground). */
+    html, body {
+      height: 100%;
+      height: -webkit-fill-available;
+      height: 100dvh;
+      background: var(--spendia-app-bg, #0D1A1C);
+      overscroll-behavior: none;
+    }
+    #root {
+      height: 100%;
+      height: -webkit-fill-available;
+      height: 100dvh;
+      min-height: 100dvh;
     }
     /* Banda de la barra de estado (PWA iOS con black-translucent): la hora va
        siempre en blanco, así que en modo claro hay que teñir la banda.

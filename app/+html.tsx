@@ -27,6 +27,7 @@ export default function Root({ children }: PropsWithChildren) {
             ignora `theme-color` en apps instaladas, este meta es el único control.
             Contrapartida: la hora va siempre en blanco → ver `body::before` abajo. */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Spendia" />
 
@@ -60,6 +61,29 @@ export default function Root({ children }: PropsWithChildren) {
         <style>{`
           * {
             -webkit-tap-highlight-color: transparent;
+          }
+          /* Alto REAL del viewport en PWA instalada. El reset de Expo deja
+             html/body/#root en height:100%, que en iOS standalone resuelve al
+             viewport SIN safe areas → sobraba el inset superior (~47pt) o el
+             del home indicator (~34pt) y se veía el canvas blanco del navegador.
+             100dvh sigue el viewport dinámico (iOS 15.4+/Chrome 108+); las dos
+             declaraciones previas son el fallback para versiones viejas.
+             Además el canvas se pinta con el fondo real de la app
+             (--spendia-app-bg, lo escribe AppBackground según modo/paleta):
+             cualquier píxel que quede al descubierto es del color de la app,
+             nunca blanco. */
+          html, body {
+            height: 100%;
+            height: -webkit-fill-available;
+            height: 100dvh;
+            background: var(--spendia-app-bg, #0D1A1C);
+            overscroll-behavior: none;
+          }
+          #root {
+            height: 100%;
+            height: -webkit-fill-available;
+            height: 100dvh;
+            min-height: 100dvh;
           }
           input, textarea, select, [contenteditable] {
             outline: none !important;

@@ -773,7 +773,10 @@ const styles = StyleSheet.create({
 
 
   // Summary
-  summaryRow: { flexDirection: 'row', gap: 12, marginBottom: 28 },
+  // Ritmo vertical del scroll: el aire lo pone SIEMPRE el marginTop del bloque
+  // siguiente (los márgenes no colapsan en RN). Así ningún bloque queda pegado
+  // al anterior cuando el de en medio no se renderiza (p.ej. sin categorías).
+  summaryRow: { flexDirection: 'row', gap: 12 },
   summaryCard: {
     flex: 1,
     borderRadius: 24,
@@ -799,6 +802,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: 24,
     marginBottom: 12,
   },
   sectionTitle: { fontSize: 18, fontFamily: Fonts.bold },
@@ -814,7 +818,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1,
     padding: 18,
-    marginBottom: 16,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -876,7 +879,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderRadius: 12,
     padding: 14,
-    marginBottom: 24,
+    marginTop: 24,
   },
   noCardsBannerTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 2 },
   noCardsBannerSub: { fontSize: 12, fontFamily: Fonts.regular, lineHeight: 17 },

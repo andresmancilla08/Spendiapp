@@ -92,6 +92,10 @@ export default function AppBackground() {
       }
       meta.content = statusBarColor;
       document.documentElement.style.setProperty('--spendia-statusbar-bg', statusBarBandColor);
+      // Canvas del navegador (html/body) con el fondo REAL de la app: si algún
+      // píxel del viewport queda fuera del #root (safe areas en PWA, rubber
+      // band), sale del color de la app y no blanco.
+      document.documentElement.style.setProperty('--spendia-app-bg', statusBarColor);
     }
   }, [statusBarColor, statusBarBandColor]);
 
