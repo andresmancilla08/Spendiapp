@@ -84,3 +84,21 @@
 - **Síntoma:** "de $12.334" debajo de una cuota de "$12.333" — una etiqueta que parece el total del grupo pero es un gemelo redondeado de tu propia cuota.
 - **Causa real:** en cuotas, `useSharedTransactions` amortiza sobre la base del participante y escribe en `amount` la cuota que te toca, mientras `sharedAmount` calcula lo mismo por división plana (doble redondeo). En gastos compartidos SIN cuotas es al revés: `amount` es el total del grupo y `sharedAmount` tu parte.
 - **Solución:** el card solo usa `sharedAmount` (y solo entonces muestra "de $total") cuando `!isInstallment`. En cuotas se muestra `amount` tal cual. El total real de una compra a cuotas compartida no existe como campo hoy.
+
+### El detalle afirmaba datos del mes antes de tenerlos (resuelto)
+- **Síntoma:** al abrir el detalle, durante un instante decía «es tu único movimiento de Comida en julio» y «Comida · 0% del mes» aunque hubiera diez.
+- **Causa real:** los módulos de contexto, categoría y otros-movimientos se calculan con `useTransactions(uid, viewYear, viewMonth)`, que empieza con la lista vacía. Con lista vacía, `catCount` es 0 y el porcentaje 0.
+- **Solución:** todo módulo que dependa del mes está detrás de `!monthLoading`, y el porcentaje de la tesela de categoría solo se pinta si `monthTotal > 0`. Regla general: **ninguna frase con un número se muestra antes de tener el número**.
+
+### `addMonths` devolvía el día 1 y «próxima cuota» mentía (resuelto)
+- **Síntoma:** en una compra a cuotas del día 22, el pie del héroe decía «PRÓXIMA 1 ago».
+- **Causa real:** `addMonths` normaliza al primer día del mes (lo que necesitan los chips de mes) y se estaba reutilizando para calcular la fecha de la próxima cuota.
+- **Solución:** `utils/detailFacts.nextMonthSameDay()` conserva el día y lo recorta si no existe (31 ene → 28 feb). Cubierto en `npx tsx utils/detailFacts.test.ts`.
+
+### En un compartido A CUOTAS no existe el total del grupo
+- **A propósito:** el detalle de un gasto compartido dice «tu parte de $X» solo cuando NO es a cuotas. En cuotas, `amount` ya es tu cuota (ver la nota de `sharedCalc`) y el total real de la compra del grupo no existe como campo, así que el subtítulo pasa a «Cuota 3 de 12 · entre 3 personas». Si algún día se guarda ese total, ahí es donde se muestra.
+
+### Claves i18n huérfanas: ahora hay un chequeo
+- **Síntoma histórico:** una clave inexistente se pinta cruda en pantalla y nadie lo nota (el bundler no falla).
+- **Herramienta:** `node scripts/check-i18n-keys.js [ruta]` extrae cada `t('...')` de `app/` y `components/` y verifica que exista en es/en/it (entendiendo las formas plurales `_one`/`_other`), y que los tres idiomas tengan el mismo juego de claves. Correrlo antes de cada deploy junto con `npm run typecheck`.
+- **Ojo con `count`:** pasarle `count` a `t()` activa la pluralización de i18next y busca `clave_one`/`clave_other`. Si el número es solo un dato (personas, movimientos), el marcador se llama `n`/`people`; si el plural importa de verdad, se crean las dos formas en los tres idiomas.

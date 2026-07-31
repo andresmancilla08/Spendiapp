@@ -103,6 +103,12 @@ const APP_FEATURES: Feature[] = [
     titleKey: 'whatsNew.immersiveStatusBar.title',
     items: ['whatsNew.immersiveStatusBar.item1', 'whatsNew.immersiveStatusBar.item2'],
   },
+  {
+    icon: 'document-text-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.txDetail.title',
+    items: ['whatsNew.txDetail.item1', 'whatsNew.txDetail.item2', 'whatsNew.txDetail.item3'],
+  },
 ];
 
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
