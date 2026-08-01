@@ -68,3 +68,20 @@
 - **Por qué:** con hex fijos el rediseño se leía en `deepWater` oscuro y se rompía en el resto. Medido: `expense` sobre superficie clara 2,78:1, blanco sobre el cian de marca 2,30:1, la lima de la nota 1,70:1, y en las paletas pastel la barra de progreso quedaba en 1,04:1 sobre su carril (invisible). Son 32 paletas × 2 modos: mantener excepciones a mano no es viable.
 - **Verificación:** `npx tsx utils/detailInk.test.ts` recorre las 32 paletas en ambos modos y mide 1088 pares texto/fondo. Es un gate: si una tinta baja del mínimo, falla.
 - **Pendiente de decisión del usuario:** `onPrimary` es `#FFFFFF` en toda la app y sobre el cian de marca da 2,30:1 (dark) y 2,74:1 (light) — afecta a cualquier botón primario y al **FAB del home**, que como ícono tampoco llega a 3:1. En el detalle ya se corrige localmente con `inkOnFill`; llevarlo a la paleta global es un cambio visible de marca y no se aplicó sin luz verde.
+
+### `accentInk`: el color de marca solo se usa como texto si se lee — Vigente
+- **Qué:** `utils/contrast.accentInk(colors, tone, bg)` devuelve el token de la paleta (`primary`, `tertiary`, `success`, `warning`…) cuando alcanza 4.5:1 sobre el fondo indicado; si no, baja a la variante `*Dark` del mismo tono y, en último término, a `textSecondary`. Se usa para TEXTO e iconos pequeños. Fondos, barras, gráficos y cifras héroe siguen con el token crudo.
+- **Por qué:** medido sobre las 31 paletas (`config/palettes.ts`), en modo claro `tertiary` falla en 31/31 y `primary` en 27/31 al usarse como texto sobre `surface` — las pastel bajan a 1.1:1. En oscuro no hay problema (mínimo 5.52:1). Mantener excepciones por paleta no es viable.
+- **Token añadido:** `warningDark` (`#B45309` claro / `#F59E0B` oscuro) para que el dorado de Premium siga siendo dorado y legible en vez de caer a gris.
+- **Relación con `detailInk`:** `utils/detailInk` es el mismo principio aplicado al detalle de movimiento (escalera de oscurecimiento conservando el tono). `accentInk` es la versión simple para el resto de la app: elige entre tokens que ya existen, no genera colores nuevos.
+- **Estado de la migración:** aplicado en home, historial, perfil, tarjetas, herramientas, presupuesto e InsightBanner. La lista de puntos pendientes está en `docs/auditoria-visual-2026-08-01.md`.
+
+### La zona segura de iOS es neutra, no de marca — Vigente
+- **Qué:** con `apple-mobile-web-app-status-bar-style: black-translucent`, la franja de la barra de estado (`body::before`, alto `env(safe-area-inset-top)`) se pinta blanca en modo claro y negra en oscuro. Lo escribe `AppBackground` en `--spendia-statusbar-bg`.
+- **Por qué:** antes se teñía con `colors.primaryDark`, así que cada paleta metía una banda de color sobre el reloj del sistema. Neutro funciona igual en las 31 paletas y no compite con el contenido.
+- **Ojo:** el CSS que llega a producción es el de `scripts/patch-html.js`, no el de `app/+html.tsx` (ese solo aplica a `expo start`). Todo cambio de `<head>` o de CSS global hay que hacerlo en LOS DOS.
+
+### SEO: la ficha de búsqueda se arma en el post-build — Vigente
+- **Qué:** `scripts/patch-html.js` escribe título y descripción con intención de búsqueda, canonical, `robots`, Open Graph completo, Twitter card y JSON-LD `SoftwareApplication`, y sustituye el `<noscript>` de Expo por una descripción real del producto. En `public/`: `robots.txt`, `sitemap.xml`, `og-image.png` (1200×630) e iconos 192/512 reales.
+- **Por qué:** Expo escribía el título y la descripción de `app.json` (pensados para la ficha de la app) y ningún metadato social; el manifest declaraba 192/512 apuntando al PNG de 1024.
+- **Descartado:** renderizado estático de `/privacy` y `/terms` (la app es SPA; el rewrite manda todo a `index.html`) y un landing pre-hidratación en el build — el `spendiaReady` que debía ocultarlo no lo emite nadie, así que solo habría añadido 6 s de pantalla de marca.

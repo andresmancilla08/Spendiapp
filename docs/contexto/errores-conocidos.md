@@ -102,3 +102,19 @@
 - **Síntoma histórico:** una clave inexistente se pinta cruda en pantalla y nadie lo nota (el bundler no falla).
 - **Herramienta:** `node scripts/check-i18n-keys.js [ruta]` extrae cada `t('...')` de `app/` y `components/` y verifica que exista en es/en/it (entendiendo las formas plurales `_one`/`_other`), y que los tres idiomas tengan el mismo juego de claves. Correrlo antes de cada deploy junto con `npm run typecheck`.
 - **Ojo con `count`:** pasarle `count` a `t()` activa la pluralización de i18next y busca `clave_one`/`clave_other`. Si el número es solo un dato (personas, movimientos), el marcador se llama `n`/`people`; si el plural importa de verdad, se crean las dos formas en los tres idiomas.
+
+### `adjustsFontSizeToFit` no hace nada en web (recurrente)
+- **Síntoma:** cifras largas truncadas ("−$1.234.567..." ) en la ficha héroe del detalle y en el balance.
+- **Causa real:** react-native-web no implementa `adjustsFontSizeToFit`/`minimumFontScale`. Spendiapp es PWA web, así que la propiedad es decorativa.
+- **Solución:** escalar por longitud del string (`amountLabel.length <= 12 ? 40 : …`), como ya hacía `components/BalanceCard.tsx`. Aplicado en `app/transaction-detail.tsx`. Quedan pendientes `figValue` del mismo archivo y `summaryCardValue` del home.
+
+### En PWA iOS standalone, `100dvh` se queda corto (resuelto)
+- **Síntoma:** en algunos iPhone, una franja del color del canvas debajo de la tab bar — blanca y muy visible en modo claro.
+- **Causa real:** `#root` medía `100dvh`, que en standalone excluye el inset del home indicator en varios modelos, así que el root no cubría el viewport.
+- **Solución:** `#root { position: fixed; inset: 0; height: auto }` en `scripts/patch-html.js` (y espejado en `app/+html.tsx`). No depende de la medida del viewport.
+
+### El `<head>` de producción NO sale de `app/+html.tsx`
+- **A propósito (y trampa habitual):** el export estático de Expo ignora `+html.tsx`; lo que se despliega lo genera `scripts/patch-html.js`. Si un meta, un estilo global o el `<noscript>` no aparecen en producción, es que se tocó solo el `.tsx`.
+
+### Los `.test.ts` de `utils/` no corren con Jest
+- **A propósito:** son scripts con `assert`, se ejecutan con `npx tsx utils/<archivo>.test.ts`. El repo no tiene runner de Jest configurado; lanzar `npx jest` falla con "must contain at least one test" y no significa que algo esté roto.
