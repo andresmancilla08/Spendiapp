@@ -82,7 +82,7 @@ export default function Root({ children }: PropsWithChildren) {
           /* El root SIEMPRE cubre el viewport real. En PWA iOS standalone
              100dvh/100vh se quedan cortos (excluyen el inset del home indicator
              en algunos modelos) y sobraba una franja del canvas bajo la tab bar.
-             `fixed; inset:0` con viewport-fit=cover no depende de esa medida. */
+             fixed + inset:0 con viewport-fit=cover no depende de esa medida. */
           #root {
             position: fixed;
             inset: 0;
