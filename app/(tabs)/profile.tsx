@@ -20,6 +20,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import { signOut, updateDisplayName, changePin } from '../../hooks/useAuth';
 import {
   isBiometricsAvailable,
@@ -67,8 +68,8 @@ function PremiumBadge() {
   const { colors } = useTheme();
   return (
     <View style={[styles.premBadge, { backgroundColor: colors.warning + '22', borderColor: colors.warning + '55' }]}>
-      <AppIcon name="star" size={10} color={colors.warning} />
-      <Text style={[styles.premBadgeText, { color: colors.warning }]}>Premium</Text>
+      <AppIcon name="star" size={10} color={accentInk(colors, 'warning', colors.warningLight)} />
+      <Text style={[styles.premBadgeText, { color: accentInk(colors, 'warning', colors.warningLight) }]}>Premium</Text>
     </View>
   );
 }
@@ -656,9 +657,9 @@ export default function ProfileScreen() {
                   showToast(t('profile.userNameCopied'), 'success');
                 }}
               >
-                <Text style={[styles.userNameChipAt, { color: colors.primary }]}>@</Text>
-                <Text style={[styles.userNameChipText, { color: colors.primary }]}>{userName}</Text>
-                <AppIcon name="copy-outline" size={12} color={colors.primary} style={{ marginLeft: 4 }} />
+                <Text style={[styles.userNameChipAt, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>@</Text>
+                <Text style={[styles.userNameChipText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>{userName}</Text>
+                <AppIcon name="copy-outline" size={12} color={accentInk(colors, 'primary', colors.primaryLight)} style={{ marginLeft: 4 }} />
               </TouchableOpacity>
             ) : null}
             <View style={[styles.providerBadge, { backgroundColor: colors.surface, borderColor: colors.border }]}>

@@ -657,7 +657,8 @@
       "scopeConfirmFixed_fromNow": "Il fisso verrà cancellato da questo mese. I mesi precedenti non sono interessati.",
       "scopeConfirmFixed_all": "Il fisso verrà eliminato permanentemente da tutti i mesi.",
       "scopeConfirmInstallment_single": "Solo questa rata verrà eliminata. Le altre rimangono.",
-      "scopeConfirmInstallment_fromNow": "Questa rata e tutte quelle seguenti dello stesso gruppo verranno eliminate."
+      "scopeConfirmInstallment_fromNow": "Questa rata e tutte quelle seguenti dello stesso gruppo verranno eliminate.",
+      "duplicateError": "Impossibile duplicare. Riprova."
     },
     "months": [
       "Gen",
@@ -1070,7 +1071,11 @@
       "justNow": "Adesso",
       "minutesAgo": "{{n}} min fa",
       "hoursAgo": "{{n}}h fa",
-      "daysAgo": "{{n}}g fa"
+      "daysAgo": "{{n}}g fa",
+      "today": "Oggi",
+      "tomorrow": "Domani",
+      "inDays": "Tra {{n}} giorni",
+      "yesterday": "Ieri"
     },
     "pageDesc": "Rimani aggiornato con le ultime novità",
     "delete": "Elimina notifica",

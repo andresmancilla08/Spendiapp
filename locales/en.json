@@ -657,7 +657,8 @@
       "scopeConfirmFixed_fromNow": "The recurring will be cancelled from this month. Previous months are not affected.",
       "scopeConfirmFixed_all": "The recurring will be permanently deleted from all months.",
       "scopeConfirmInstallment_single": "Only this installment will be deleted. Others remain.",
-      "scopeConfirmInstallment_fromNow": "This installment and all following ones in this group will be deleted."
+      "scopeConfirmInstallment_fromNow": "This installment and all following ones in this group will be deleted.",
+      "duplicateError": "Couldn't duplicate. Try again."
     },
     "months": [
       "Jan",
@@ -1070,7 +1071,11 @@
       "justNow": "Just now",
       "minutesAgo": "{{n}} min ago",
       "hoursAgo": "{{n}}h ago",
-      "daysAgo": "{{n}}d ago"
+      "daysAgo": "{{n}}d ago",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "inDays": "In {{n}} days",
+      "yesterday": "Yesterday"
     },
     "pageDesc": "Stay up to date with the latest updates",
     "delete": "Delete notification",

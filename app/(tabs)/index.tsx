@@ -17,10 +17,12 @@ import HomeHeader from '../../components/HomeHeader';
 import { useProMotion } from '../../hooks/useProMotion';
 import { effectiveAmount } from '../../utils/sharedCalc';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from 'react';
 import { router, useFocusEffect } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import { useToast } from '../../context/ToastContext';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useCards } from '../../hooks/useCards';
@@ -79,19 +81,21 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function timeAgo(date: Date): string {
+// Las etiquetas viven en `notifications.timeAgo` — mismo juego de claves que usa
+// app/notifications.tsx, no se duplican por pantalla.
+function timeAgo(date: Date, t: TFunction): string {
   const diff = Math.floor((Date.now() - date.getTime()) / 1000 / 60);
   if (diff < 0) {
     const days = Math.floor(-diff / 1440);
-    if (days === 0) return 'Hoy';
-    if (days === 1) return 'Mañana';
-    return `En ${days} días`;
+    if (days === 0) return t('notifications.timeAgo.today');
+    if (days === 1) return t('notifications.timeAgo.tomorrow');
+    return t('notifications.timeAgo.inDays', { n: days });
   }
-  if (diff === 0) return 'Ahora';
-  if (diff < 60) return `Hace ${diff} min`;
-  if (diff < 1440) return `Hace ${Math.floor(diff / 60)} h`;
-  if (diff < 2880) return 'Ayer';
-  return `Hace ${Math.floor(diff / 1440)} días`;
+  if (diff === 0) return t('notifications.timeAgo.justNow');
+  if (diff < 60) return t('notifications.timeAgo.minutesAgo', { n: diff });
+  if (diff < 1440) return t('notifications.timeAgo.hoursAgo', { n: Math.floor(diff / 60) });
+  if (diff < 2880) return t('notifications.timeAgo.yesterday');
+  return t('notifications.timeAgo.daysAgo', { n: Math.floor(diff / 1440) });
 }
 
 function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
@@ -116,7 +120,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
     ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
     : null;
   const descLabel = item.isInstallment
-    ? `${item.description} (Cuota ${item.installmentNumber}/${item.installmentTotal})`
+    ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`
     : item.description;
 
   return (
@@ -138,7 +142,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
           </Text>
           <View style={styles.txSubrow}>
             <Text style={[styles.txTime, styles.txCat, { color: colors.textTertiary }]} numberOfLines={1}>
-              {timeAgo(item.date)}
+              {timeAgo(item.date, t)}
             </Text>
             {card && (
               <View style={[
@@ -616,8 +620,9 @@ export default function HomeScreen() {
                         <TouchableOpacity
                           onPress={() => router.push({ pathname: '/category-detail', params: { year: String(year), month: String(month) } })}
                           activeOpacity={0.7}
+                          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                         >
-                          <Text style={[styles.sectionLink, { color: colors.primary }]}>{t('home.seeAll')}</Text>
+                          <Text style={[styles.sectionLink, { color: accentInk(colors, 'primary') }]}>{t('home.seeAll')}</Text>
                         </TouchableOpacity>
                       }
                     />
@@ -687,8 +692,8 @@ export default function HomeScreen() {
             <ProReveal index={5}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('home.recentActivity')}</Text>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/history')} activeOpacity={0.7}>
-                <Text style={[styles.sectionLink, { color: colors.primary }]}>{t('home.seeAll')}</Text>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/history')} activeOpacity={0.7} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+                <Text style={[styles.sectionLink, { color: accentInk(colors, 'primary') }]}>{t('home.seeAll')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -726,6 +731,8 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={[styles.fab, { backgroundColor: colors.primary }]}
         activeOpacity={0.78}
+        accessibilityRole="button"
+        accessibilityLabel={t('addTransaction.title')}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           router.push('/add-transaction');

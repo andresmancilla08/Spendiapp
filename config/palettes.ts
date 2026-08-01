@@ -22,7 +22,7 @@ export interface PaletteDefinition {
 
 const FIXED_LIGHT = {
   error: '#EF4444', errorLight: '#FEE2E2',
-  warning: '#F59E0B', warningLight: '#FEF3C7',
+  warning: '#F59E0B', warningLight: '#FEF3C7', warningDark: '#B45309',
   expense: '#FF6B6B', expenseLight: '#FFF0F0',
   achievement: '#F59E0B',
   overlay: 'rgba(0,0,0,0.45)', overlayLight: 'rgba(0,0,0,0.3)',
@@ -31,7 +31,7 @@ const FIXED_LIGHT = {
 
 const FIXED_DARK = {
   error: '#F87171', errorLight: '#3D1515',
-  warning: '#FBBF24', warningLight: '#2D1F00',
+  warning: '#FBBF24', warningLight: '#2D1F00', warningDark: '#F59E0B',
   expense: '#FF8E8E', expenseLight: '#3D1515',
   achievement: '#FBBF24',
   overlay: 'rgba(0,0,0,0.65)', overlayLight: 'rgba(0,0,0,0.5)',

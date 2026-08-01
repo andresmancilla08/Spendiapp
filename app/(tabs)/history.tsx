@@ -52,6 +52,7 @@ import { useCategories } from '../../hooks/useCategories';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
 import { readableOn } from '../../utils/txRelation';
+import { accentInk } from '../../utils/contrast';
 import { effectiveAmount } from '../../utils/sharedCalc';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { categoryLabel } from '../../constants/categories';
@@ -353,7 +354,7 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
                 </Text>
                 {item.isFixed && (
                   <View style={[styles.fixedBadge, { backgroundColor: colors.primaryLight ?? `${colors.primary}22` }]}>
-                    <Text style={[styles.fixedBadgeText, { color: colors.primary }]}>{t('history.fixedBadge')}</Text>
+                    <Text style={[styles.fixedBadgeText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>{t('history.fixedBadge')}</Text>
                   </View>
                 )}
               </View>
@@ -813,7 +814,7 @@ export default function HistoryScreen() {
                   <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
                     {t('history.incomeLabel')}:
                   </Text>
-                  <Text style={[styles.summaryValue, { color: colors.secondary }]}>
+                  <Text style={[styles.summaryValue, { color: accentInk(colors, 'secondary', colors.surface) }]}>
                     {formatCurrency(totalIncome)}
                   </Text>
                 </TouchableOpacity>
@@ -850,7 +851,7 @@ export default function HistoryScreen() {
                         onPress={() => router.push({ pathname: '/category-detail', params: { year: String(year), month: String(month) } })}
                         activeOpacity={0.7}
                       >
-                        <Text style={[styles.summaryCatSeeAll, { color: colors.primary }]}>{t('home.seeAll')}</Text>
+                        <Text style={[styles.summaryCatSeeAll, { color: accentInk(colors, 'primary', colors.surface) }]}>{t('home.seeAll')}</Text>
                       </TouchableOpacity>
                     </View>
                     <CategoryBars
@@ -940,7 +941,7 @@ export default function HistoryScreen() {
         >
           {/* Compartido */}
           <View style={styles.filterSection}>
-            <Text style={[styles.filterSectionLabel, { color: colors.primary }]}>
+            <Text style={[styles.filterSectionLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
               {t('history.filters.shareLabel').toUpperCase()}
             </Text>
             <View style={styles.filterSectionOptions}>

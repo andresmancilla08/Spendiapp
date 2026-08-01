@@ -49,6 +49,26 @@ export function readableOn(bg: string, candidates: string[]): string {
   return best;
 }
 
+type AccentTone = 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'info';
+
+/**
+ * Tinta de acento que SE LEE. Usa el token de la paleta si llega a 4.5:1 sobre `bg`;
+ * si no (27 de las 31 paletas fallan en modo claro: los pastel bajan a ~1.2:1), cae a
+ * la variante oscura del mismo tono y, en última instancia, al texto secundario.
+ *
+ * Para TEXTO e iconos pequeños. Fondos, barras y gráficos siguen usando el token crudo.
+ */
+export function accentInk(
+  colors: Record<string, string | undefined>,
+  tone: AccentTone,
+  bg?: string,
+): string {
+  const background = bg ?? colors.background ?? '#FFFFFF';
+  const candidates = [colors[tone], colors[`${tone}Dark`], colors.textSecondary, colors.textPrimary]
+    .filter((c): c is string => typeof c === 'string');
+  return readableOn(background, candidates);
+}
+
 /**
  * Parte `label` para poder resaltar `person` dentro de la frase.
  * Busca el nombre exacto en vez de asumir que va al final: en "Compartido con X y 2 más" va

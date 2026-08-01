@@ -41,7 +41,7 @@ export default function InsightBanner({ kicker, sentence, chip }: Props) {
       />
       <View style={styles.row}>
         <View style={[styles.kickDot, { backgroundColor: kickerColor }]} />
-        <Text style={[styles.kicker, { color: kickerColor }]}>{kicker}</Text>
+        <Text style={[styles.kicker, { color: kickerColor }]} numberOfLines={1}>{kicker}</Text>
       </View>
       <Text style={[styles.sentence, { color: colors.textPrimary }]}>{sentence}</Text>
       {chip && (
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   wrap: { borderRadius: 22, borderWidth: 1, padding: 18, overflow: 'hidden', position: 'relative', marginBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   kickDot: { width: 6, height: 6, borderRadius: 3 },
-  kicker: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1.8, textTransform: 'uppercase' },
+  kicker: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1.8, textTransform: 'uppercase', flexShrink: 1 },
   sentence: { fontSize: 16, lineHeight: 22, fontFamily: Fonts.bold, marginTop: 10 },
   chip: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, marginTop: 12 },
   chipText: { fontSize: 11, fontFamily: Fonts.bold },

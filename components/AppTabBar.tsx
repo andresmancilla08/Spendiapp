@@ -117,7 +117,9 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               style={styles.tab}
               onPress={onPress}
               activeOpacity={0.85}
-              accessibilityRole="button"
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isFocused }}
+              accessibilityLabel={tabLabels[route.name]}
             >
               <View style={styles.iconArea}>
                 {/* Active pill with cyan glow */}

@@ -19,6 +19,7 @@ import PressableScale from '../../components/PressableScale';
 import Svg, { Circle } from 'react-native-svg';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import { useBudgets } from '../../hooks/useBudgets';
 import { useTransactions } from '../../hooks/useTransactions';
 import { Budget } from '../../types/budget';
@@ -409,8 +410,8 @@ export default function BudgetScreen() {
                   </View>
                   <Text style={[styles.catName, { color: colors.textSecondary }]}>{cat.name}</Text>
                   <View style={[styles.addChip, { backgroundColor: colors.primaryLight }]}>
-                    <AppIcon name="add" size={13} color={colors.primary} />
-                    <Text style={[styles.addChipText, { color: colors.primary }]}>{t('budget.addLimit')}</Text>
+                    <AppIcon name="add" size={13} color={accentInk(colors, 'primary', colors.primaryLight)} />
+                    <Text style={[styles.addChipText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>{t('budget.addLimit')}</Text>
                   </View>
                 </PressableScale>
               ))}

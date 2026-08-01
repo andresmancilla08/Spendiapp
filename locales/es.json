@@ -657,7 +657,8 @@
       "scopeConfirmFixed_fromNow": "El movimiento fijo se cancelará a partir de este mes. Los meses anteriores no se afectan.",
       "scopeConfirmFixed_all": "El movimiento fijo se eliminará de todos los meses permanentemente.",
       "scopeConfirmInstallment_single": "Solo se eliminará esta cuota. Las demás permanecen.",
-      "scopeConfirmInstallment_fromNow": "Se eliminarán esta cuota y todas las siguientes del mismo grupo."
+      "scopeConfirmInstallment_fromNow": "Se eliminarán esta cuota y todas las siguientes del mismo grupo.",
+      "duplicateError": "No se pudo duplicar. Intenta de nuevo."
     },
     "months": [
       "Ene",
@@ -1070,7 +1071,11 @@
       "justNow": "Ahora mismo",
       "minutesAgo": "Hace {{n}} min",
       "hoursAgo": "Hace {{n}} h",
-      "daysAgo": "Hace {{n}} d"
+      "daysAgo": "Hace {{n}} d",
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "inDays": "En {{n}} días",
+      "yesterday": "Ayer"
     },
     "pageDesc": "Mantente al día con las novedades",
     "delete": "Eliminar notificación",

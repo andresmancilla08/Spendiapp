@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
 import { useAuthStore } from '../store/authStore';
 import { Fonts } from '../config/fonts';
@@ -104,7 +105,7 @@ export default function CardsScreen() {
                   <View style={styles.badgeRow}>
                     {card.nickname ? (
                       <View style={[styles.badge, { backgroundColor: colors.primaryLight }]}>
-                        <Text style={[styles.badgeText, { color: colors.primary }]}>
+                        <Text style={[styles.badgeText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>
                           {card.nickname}
                         </Text>
                       </View>
@@ -122,8 +123,8 @@ export default function CardsScreen() {
                     </View>
                     {card.isDefault && (
                       <View style={[styles.badge, { backgroundColor: `${colors.primary}18` }]}>
-                        <AppIcon name="star" size={9} color={colors.primary} style={{ marginRight: 3 }} />
-                        <Text style={[styles.badgeText, { color: colors.primary }]}>
+                        <AppIcon name="star" size={9} color={accentInk(colors, 'primary', colors.primaryLight)} style={{ marginRight: 3 }} />
+                        <Text style={[styles.badgeText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>
                           {t('cardsScreen.defaultBadge')}
                         </Text>
                       </View>

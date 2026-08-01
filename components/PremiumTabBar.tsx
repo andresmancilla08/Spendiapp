@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import AppIcon, { AppIconName } from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { useProMotion } from '../hooks/useProMotion';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
 import { useBreakpoint } from '../hooks/useBreakpoint';
@@ -28,6 +29,7 @@ const PRESS  = { damping: 15, stiffness: 500, mass: 0.8,  useNativeDriver: Platf
 
 export default function PremiumTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { colors, isDark } = useTheme();
+  const { reduceMotion } = useProMotion();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { isMobile, isDesktop } = useBreakpoint();
@@ -49,6 +51,8 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
 
   // Breathe loop — continuous, very subtle
   useEffect(() => {
+    // El latido es decorativo: con reduce-motion no arranca (a11y).
+    if (reduceMotion) return;
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(breatheAnim, {
@@ -67,7 +71,7 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
     );
     loop.start();
     return () => loop.stop();
-  }, []);
+  }, [reduceMotion]);
 
   // Tab transition animations
   useEffect(() => {
@@ -135,7 +139,9 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
               onPressIn={onPressIn}
               onPressOut={onPressOut}
               activeOpacity={1}
-              accessibilityRole="button"
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isFocused }}
+              accessibilityLabel={tabLabels[route.name]}
             >
               <Animated.View style={[styles.tabInner, { transform: [{ scale: pressScale[allIdx] }] }]}>
                 {/* Icon area with glow bloom */}

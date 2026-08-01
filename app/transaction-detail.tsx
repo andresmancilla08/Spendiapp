@@ -281,8 +281,9 @@ export default function TransactionDetailScreen() {
       router.back();
     } catch {
       setDuplicateLoading(false);
+      showToast(t('history.edit.duplicateError'), 'error');
     }
-  }, [transaction, setLastAction, router]);
+  }, [transaction, setLastAction, router, showToast, t]);
 
   const handleDeletePress = useCallback(() => {
     if (!transaction) return;
@@ -735,14 +736,20 @@ export default function TransactionDetailScreen() {
                 <Text style={[styles.kicker, { color: accent }]} numberOfLines={1}>{kicker}</Text>
               </View>
 
-              <Text
-                style={[styles.amount, { color: accent }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.6}
-              >
-                {`${isExpense ? '−' : '+'}${formatCurrency(mine)}`}
-              </Text>
+              {/* adjustsFontSizeToFit no funciona en web (mismo caso que BalanceCard):
+                  la cifra se escala por longitud para que SIEMPRE quepa. */}
+              {(() => {
+                const amountLabel = `${isExpense ? '−' : '+'}${formatCurrency(mine)}`;
+                const size = amountLabel.length <= 12 ? 40 : amountLabel.length <= 15 ? 34 : amountLabel.length <= 18 ? 29 : 25;
+                return (
+                  <Text
+                    style={[styles.amount, { color: accent, fontSize: size, lineHeight: Math.round(size * 1.12) }]}
+                    numberOfLines={1}
+                  >
+                    {amountLabel}
+                  </Text>
+                );
+              })()}
 
               <Text style={[styles.subline, { color: ink.soft }]}>{subline}</Text>
 
@@ -1135,7 +1142,11 @@ export default function TransactionDetailScreen() {
             // ponytail: btnRow para que flex:1 + height 52 del botón apliquen en eje horizontal
             <View style={styles.btnRow}>
               <TouchableOpacity
-                style={[styles.btn, { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.primary }]}
+                style={[
+                  styles.btn,
+                  { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.primary },
+                  isLoading && styles.btnDisabled,
+                ]}
                 onPress={() => setDeleteStep('confirm')}
                 disabled={isLoading}
                 activeOpacity={0.8}

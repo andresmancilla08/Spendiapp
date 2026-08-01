@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import { useAuthStore } from '../../store/authStore';
 import { useCategories } from '../../hooks/useCategories';
@@ -101,7 +102,7 @@ function ToolTile({ emoji, title, description, metric, onPress, colors, isDark, 
       </View>
       <Text style={[styles.tileTitle, { color: colors.textPrimary }]}>{title}</Text>
       <Text style={[styles.tileDesc, { color: colors.textTertiary }]} numberOfLines={2}>{description}</Text>
-      {metric && <Text style={[styles.tileMetric, { color: colors.primary }]}>{metric}</Text>}
+      {metric && <Text style={[styles.tileMetric, { color: accentInk(colors, 'primary', colors.surface) }]}>{metric}</Text>}
     </TouchableOpacity>
   );
 }
