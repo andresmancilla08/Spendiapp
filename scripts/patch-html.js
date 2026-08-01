@@ -15,8 +15,56 @@ if (!fs.existsSync(htmlPath)) {
 
 let html = fs.readFileSync(htmlPath, 'utf8');
 
+const TITLE = 'Spendia — Control de gastos personales y cuentas compartidas';
+const DESCRIPTION =
+  'Registra ingresos y gastos, divide cuentas con amigos, controla gastos fijos y cuotas, ' +
+  'y visualiza tus finanzas con informes claros. Gratis, desde el móvil o el navegador.';
+const ORIGIN = 'https://spendia.co';
+
 // Tags a inyectar justo antes de </head>
 const pwaTags = `
+  <!-- SEO -->
+  <link rel="canonical" href="${ORIGIN}/" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="author" content="Spendia" />
+
+  <!-- Open Graph -->
+  <meta property="og:site_name" content="Spendia" />
+  <meta property="og:title" content="${TITLE}" />
+  <meta property="og:description" content="${DESCRIPTION}" />
+  <meta property="og:url" content="${ORIGIN}/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_CO" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:locale:alternate" content="it_IT" />
+  <meta property="og:image" content="${ORIGIN}/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Spendia — controla tus gastos y haz crecer tu dinero" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${TITLE}" />
+  <meta name="twitter:description" content="${DESCRIPTION}" />
+  <meta name="twitter:image" content="${ORIGIN}/og-image.png" />
+
+  <!-- Datos estructurados: la ficha de la app en resultados de búsqueda -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Spendia",
+    "url": "${ORIGIN}/",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "description": "${DESCRIPTION}",
+    "inLanguage": ["es", "en", "it"],
+    "image": "${ORIGIN}/og-image.png",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "COP" },
+    "publisher": { "@type": "Organization", "name": "Spendia", "url": "${ORIGIN}/", "logo": "${ORIGIN}/icon-512.png" }
+  }
+  </script>
+
   <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json" />
 
@@ -79,6 +127,17 @@ const pwaTags = `
       inset: 0;
       height: auto;
     }
+    /* Zona segura superior en PWA iOS: banda neutra (blanca en claro, negra en
+       oscuro). AppBackground escribe --spendia-statusbar-bg segun el modo. */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: env(safe-area-inset-top, 0px);
+      background: var(--spendia-statusbar-bg, transparent);
+      pointer-events: none;
+      z-index: 2147483000;
+    }
   </style>
 `;
 
@@ -87,6 +146,11 @@ html = html.replace(
   /<meta name="viewport"[^>]*>/,
   '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />'
 );
+
+// Título y descripción con intención de búsqueda — Expo escribe los de app.json,
+// pensados para la ficha de la app, no para resultados de búsqueda.
+html = html.replace(/<title>[^<]*<\/title>/, `<title>${TITLE}</title>`);
+html = html.replace(/<meta name="description"[^>]*>/, `<meta name="description" content="${DESCRIPTION}">`);
 
 // Inyectar tags antes de </head> (solo si aún no están)
 if (!html.includes('rel="manifest"')) {

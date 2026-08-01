@@ -84,12 +84,16 @@ export default function AppBackground() {
         document.head.appendChild(meta);
       }
       meta.content = statusBarColor;
+      // Zona segura superior (PWA iOS, black-translucent): banda neutra —blanca en
+      // claro, negra en oscuro— en vez de un color de marca. Funciona igual en las
+      // 31 paletas y no compite con el contenido.
+      document.documentElement.style.setProperty('--spendia-statusbar-bg', isDark ? '#000000' : '#FFFFFF');
       // Canvas del navegador (html/body) con el fondo REAL de la app: si algún
       // píxel del viewport queda fuera del #root (rubber band), sale del color
       // de la app y no blanco.
       document.documentElement.style.setProperty('--spendia-app-bg', statusBarColor);
     }
-  }, [statusBarColor]);
+  }, [statusBarColor, isDark]);
 
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.clip]} pointerEvents="none">

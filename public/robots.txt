@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /__/auth/
+
+Sitemap: https://spendia.co/sitemap.xml

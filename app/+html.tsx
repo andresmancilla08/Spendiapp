@@ -98,6 +98,20 @@ export default function Root({ children }: PropsWithChildren) {
             outline: none !important;
             box-shadow: none !important;
           }
+          /* Zona segura superior en PWA iOS: banda neutra (blanca en claro, negra
+             en oscuro). AppBackground escribe la variable según el modo activo.
+             Alto 0 fuera de standalone. */
+          body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: env(safe-area-inset-top, 0px);
+            background: var(--spendia-statusbar-bg, transparent);
+            pointer-events: none;
+            z-index: 2147483000;
+          }
           #spendia-landing {
             transition: opacity 0.35s ease;
           }

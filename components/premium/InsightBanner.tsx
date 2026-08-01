@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon, { AppIconName } from '../AppIcon';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
+import { readableOn } from '../../utils/contrast';
 
 interface Props {
   kicker: string;
@@ -21,6 +22,15 @@ export default function InsightBanner({ kicker, sentence, chip }: Props) {
     ? chip.tone === 'pos' ? colors.success : chip.tone === 'neg' ? colors.expense : colors.textTertiary
     : colors.textTertiary;
 
+  // El kicker respeta la paleta mientras se lea: en las pastel, `tertiary` sobre
+  // fondo claro cae a ~1.2:1. readableOn baja al primer candidato con 4.5:1.
+  const kickerColor = readableOn(colors.background, [
+    colors.tertiary,
+    colors.tertiaryDark,
+    colors.secondaryDark,
+    colors.textSecondary,
+  ]);
+
   return (
     <View style={[styles.wrap, { borderColor: colors.primary + '2A' }]}>
       <LinearGradient
@@ -30,8 +40,8 @@ export default function InsightBanner({ kicker, sentence, chip }: Props) {
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.row}>
-        <View style={[styles.kickDot, { backgroundColor: colors.tertiary }]} />
-        <Text style={[styles.kicker, { color: colors.tertiary }]}>{kicker}</Text>
+        <View style={[styles.kickDot, { backgroundColor: kickerColor }]} />
+        <Text style={[styles.kicker, { color: kickerColor }]}>{kicker}</Text>
       </View>
       <Text style={[styles.sentence, { color: colors.textPrimary }]}>{sentence}</Text>
       {chip && (
