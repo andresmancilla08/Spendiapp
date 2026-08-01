@@ -1132,17 +1132,20 @@ export default function TransactionDetailScreen() {
               </View>
             </View>
           ) : !canModify ? (
-            <TouchableOpacity
-              style={[styles.btn, { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.primary }]}
-              onPress={() => setDeleteStep('confirm')}
-              disabled={isLoading}
-              activeOpacity={0.8}
-            >
-              <AppIcon name="mail-outline" size={18} color={ink.secondaryLabel} />
-              <Text style={[styles.btnText, { color: ink.secondaryLabel }]}>
-                {t('sharedExpense.deleteRequestButton')}
-              </Text>
-            </TouchableOpacity>
+            // ponytail: btnRow para que flex:1 + height 52 del botón apliquen en eje horizontal
+            <View style={styles.btnRow}>
+              <TouchableOpacity
+                style={[styles.btn, { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.primary }]}
+                onPress={() => setDeleteStep('confirm')}
+                disabled={isLoading}
+                activeOpacity={0.8}
+              >
+                <AppIcon name="mail-outline" size={18} color={ink.secondaryLabel} />
+                <Text style={[styles.btnText, { color: ink.secondaryLabel }]}>
+                  {t('sharedExpense.deleteRequestButton')}
+                </Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <View style={styles.btnRow}>
               <TouchableOpacity
@@ -1185,11 +1188,7 @@ export default function TransactionDetailScreen() {
               >
                 {deleteLoading
                   ? <ActivityIndicator size="small" color={inkOn(ink.dangerSoft, colors.error)} />
-                  : <AppIcon
-                      name={transaction.isFixed ? 'stop-circle-outline' : 'trash-outline'}
-                      size={20}
-                      color={inkOn(ink.dangerSoft, colors.error)}
-                    />}
+                  : <AppIcon name="trash-outline" size={20} color={inkOn(ink.dangerSoft, colors.error)} />}
               </TouchableOpacity>
             </View>
           )}
