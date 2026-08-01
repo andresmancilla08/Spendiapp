@@ -8,7 +8,7 @@
 // El colapso se ata al scroll con `transform`/`opacity` (lo único que corre en el hilo nativo:
 // `height` no). Con reduce-motion activo no se colapsa — se queda expandido, sin movimiento y
 // sin perder información.
-import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, Easing, Platform } from 'react-native';
 import { useEffect, useState, type ReactNode } from 'react';
 import Svg, { Circle } from 'react-native-svg';
 import AppIcon from './AppIcon';
@@ -19,8 +19,20 @@ import { readableOn } from '../utils/contrast';
 /** Alto del bloque: avatar de 46 + 12 de padding arriba y abajo. */
 export const HOME_HEADER_HEIGHT = 70;
 
-const FADE_OUT_AT = 44;   // el saludo se ha ido
-const FADE_IN_FROM = 24;  // la barra compacta empieza a entrar
+// Un ÚNICO progreso 0→1 gobierna las dos capas: la que sale vale `1 - p` y la que entra
+// vale `p`, así que la suma es siempre 1 y nunca hay un tramo con las dos a medio gas
+// (el fallo del crossfade anterior: rangos distintos y solapados dejaban un hueco hacia
+// la mitad del scroll en el que no se leía bien ninguna de las dos).
+const COLLAPSE_FROM = 10;
+const COLLAPSE_TO = 78;
+
+// Histéresis del cambio de capa activa: con un único umbral, un scroll que temblaba
+// alrededor de él encendía y apagaba `pointerEvents` en bucle.
+const COMPACT_ON = 56;
+const COMPACT_OFF = 28;
+
+// Misma curva que el resto de la app para entradas/salidas.
+const EASE = Easing.inOut(Easing.cubic);
 
 interface Props {
   firstName: string;
@@ -75,27 +87,42 @@ export default function HomeHeader({
       return;
     }
     const id = scrollY.addListener(({ value }) => {
-      const next = value > FADE_OUT_AT;
-      setCompact((prev) => (prev === next ? prev : next));
+      setCompact((prev) => {
+        if (!prev && value > COMPACT_ON) return true;
+        if (prev && value < COMPACT_OFF) return false;
+        return prev;
+      });
     });
     return () => scrollY.removeListener(id);
   }, [collapsible, scrollY]);
 
+  // p: 0 = saludo completo · 1 = barra compacta. La curva vive aquí y solo aquí.
+  const progress = scrollY.interpolate({
+    inputRange: [COLLAPSE_FROM, COLLAPSE_TO],
+    outputRange: [0, 1],
+    easing: EASE,
+    extrapolate: 'clamp',
+  });
+
+  // El desplazamiento y la escala acompañan al desvanecido: sin ellos el avatar salta de
+  // 56 a 40 px entre capas y el ojo lee un corte aunque la opacidad sea gradual.
   const expandedStyle = collapsible
     ? {
-        opacity: scrollY.interpolate({ inputRange: [0, FADE_OUT_AT], outputRange: [1, 0], extrapolate: 'clamp' }),
-        transform: [{
-          translateY: scrollY.interpolate({ inputRange: [0, FADE_OUT_AT], outputRange: [0, -8], extrapolate: 'clamp' }),
-        }],
+        opacity: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+        transform: [
+          { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) },
+          { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0.96] }) },
+        ],
       }
     : undefined;
 
   const compactStyle = collapsible
     ? {
-        opacity: scrollY.interpolate({ inputRange: [FADE_IN_FROM, 64], outputRange: [0, 1], extrapolate: 'clamp' }),
-        transform: [{
-          translateY: scrollY.interpolate({ inputRange: [FADE_IN_FROM, 64], outputRange: [8, 0], extrapolate: 'clamp' }),
-        }],
+        opacity: progress,
+        transform: [
+          { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) },
+          { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) },
+        ],
       }
     : { opacity: 0 };
 
