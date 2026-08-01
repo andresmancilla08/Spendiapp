@@ -152,7 +152,8 @@
       "description": "This feature is currently paused. Our team is working on improvements. Check back soon!",
       "close": "Got it"
     },
-    "genericError": "Something went wrong. Please try again."
+    "genericError": "Something went wrong. Please try again.",
+    "user": "User"
   },
   "tabBar": {
     "home": "HOME",
@@ -805,7 +806,9 @@
       "notShared": "Not shared",
       "pending": "Pending",
       "paidTab": "Paid"
-    }
+    },
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month"
   },
   "categoryDetail": {
     "title": "Spending by category",
@@ -1668,7 +1671,59 @@
     "sharedTheyOweSection": "SHARED THEY OWE",
     "totalShared": "Total shared",
     "totalSharedIOwe": "Shared I owe",
-    "totalSharedTheyOwe": "Shared they owe"
+    "totalSharedTheyOwe": "Shared they owe",
+    "faceToFace": {
+      "resultOf": "{{month}} result",
+      "you": "You",
+      "theyOwe": "{{name}} owes you",
+      "youOwe": "You owe {{name}}",
+      "settled": "You and {{name}} are settled",
+      "oneTransfer": "One transfer and you are settled",
+      "favourMine": "In your favour",
+      "favourTheirs": "In {{name}}'s favour",
+      "sharedSection": "Shared expenses",
+      "transfersSection": "Transfers",
+      "monthTotal": "Month total",
+      "movementsTitle": "All {{count}} movements, each on its side",
+      "socialStat": "You paid {{paid}} of the {{total}} times",
+      "tiltMine": "Tips your way",
+      "tiltTheirs": "Tips towards {{name}}",
+      "tiltEven": "Balanced",
+      "sent": "Sent",
+      "received": "Received"
+    },
+    "share": {
+      "openSheet": "Share face to face",
+      "whereTitle": "Where is it going?",
+      "whereSub": "Same month, three different pieces",
+      "previewCta": "Preview {{name}}",
+      "previewTitle": "Preview",
+      "shareCta": "Share {{name}}",
+      "download": "Save image",
+      "generating": "Drawing the document…",
+      "errorTitle": "Couldn't generate the image",
+      "errorText": "This can happen if the browser ran out of memory. Try again.",
+      "retry": "Try again",
+      "realSize": "Actual size · {{w}} × {{h}} px",
+      "page": "Page {{n}} of {{total}}",
+      "chatSim": "How it lands in the chat",
+      "storyNotice": "It saves or shares through the system sheet: posting to stories has to be done from Instagram.",
+      "imageAlt": "Report with {{name}} for {{period}}",
+      "format": {
+        "chat": {
+          "name": "Card",
+          "where": "WhatsApp"
+        },
+        "story": {
+          "name": "Story",
+          "where": "Instagram"
+        },
+        "sheet": {
+          "name": "Sheet",
+          "where": "Review"
+        }
+      }
+    }
   },
   "maintenance": {
     "title": "Under Maintenance",

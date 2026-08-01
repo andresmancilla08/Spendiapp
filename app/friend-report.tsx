@@ -1,15 +1,14 @@
 // app/friend-report.tsx
-import { useState, useEffect, useRef, useMemo } from 'react';
+// Reporte entre dos amigos, dirección "Cara a cara": la pareja es el sujeto —dos
+// identidades con color propio, una balanza que se inclina y un veredicto que
+// domina— y el detalle vive a los lados de un eje. Al compartir se elige primero
+// el formato (chat, story u hoja) y se previsualiza la pieza real.
+//
+// Todo el cálculo vive en `utils/friendReportModel`, que es el mismo modelo que
+// alimenta al generador de imagen: pantalla y documento no pueden discrepar.
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-  Modal,
-  Image,
-  useWindowDimensions,
+  View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
@@ -25,15 +24,21 @@ import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { useFriendProfiles } from '../hooks/useFriendProfiles';
 import { useTransactions } from '../hooks/useTransactions';
-import { generateFriendReportImage, FriendReportImageData, FriendReportImageLabels, FriendReportImageResult } from '../utils/generateFriendReportImage';
 import { migrateIncomeClaims } from '../utils/migrateIncomeClaims';
-import { localeFor } from '../utils/dateLocale';
+import { localeFor, getMonthNames } from '../utils/dateLocale';
+import { buildFriendReport, initialOf, scaleTilt } from '../utils/friendReportModel';
+import {
+  generateFriendReportImage, type ReportFormat, type FriendReportImageResult,
+  type FriendReportImageLabels,
+} from '../utils/generateFriendReportImage';
+import {
+  People, Verdict, FacingBar, EntryRow, Legend, SocialStat, sideColors,
+} from '../components/friendReport/FaceToFace';
+import { FormatSheet, PreviewModal } from '../components/friendReport/SharePreview';
 
-// Resolve logo URI — Expo returns a string on web, a number on native
 const _logoMod = require('../assets/logo.png');
 const LOGO_URI: string | undefined =
-  typeof _logoMod === 'string' ? _logoMod :
-  (_logoMod as any)?.uri ?? (_logoMod as any)?.default ?? undefined;
+  typeof _logoMod === 'string' ? _logoMod : (_logoMod as any)?.uri ?? (_logoMod as any)?.default ?? undefined;
 
 interface FriendOption {
   uid: string;
@@ -42,31 +47,37 @@ interface FriendOption {
 }
 
 export default function FriendReportScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const transitionRef = useRef<ScreenTransitionRef>(null);
-  const { width: screenWidth } = useWindowDimensions();
 
   const now = new Date();
-  const MONTHS = t('history.months', { returnObjects: true }) as string[];
-
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
   const [selectedFriendUid, setSelectedFriendUid] = useState<string | null>(null);
-  const [generating, setGenerating] = useState(false);
-  const [previewPages, setPreviewPages] = useState<(FriendReportImageResult & { url: string })[]>([]);
-  const [previewVisible, setPreviewVisible] = useState(false);
 
-  // Mismo cargador que los selectores de gasto compartido / ingreso enviado:
-  // paralelo, resiliente (no descarta amigos sin publicProfile) y sin loading pegado.
+  // Compartir
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [format, setFormat] = useState<ReportFormat>('chat');
+  const [pages, setPages] = useState<(FriendReportImageResult & { url: string })[]>([]);
+  const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState(false);
+
   const { profiles: friendProfiles, loading: friendsLoading } = useFriendProfiles(user?.uid ?? '');
   const { transactions, loading: txLoading } = useTransactions(user?.uid ?? '', year, month);
 
-  // Fix old income_claim transactions that were saved with wrong sharedType/sharedAmount
   useEffect(() => {
     if (user?.uid) migrateIncomeClaims(user.uid);
   }, [user?.uid]);
+
+  const releasePages = useCallback((list: { url: string }[]) => {
+    list.forEach((p) => { try { URL.revokeObjectURL(p.url); } catch { /* noop */ } });
+  }, []);
+
+  // Sin esto se fugan los object URLs al salir de la pantalla con una vista previa abierta.
+  useEffect(() => () => releasePages(pages), [pages, releasePages]);
 
   const friendOptions: FriendOption[] = useMemo(
     () => friendProfiles.map((p) => ({
@@ -79,142 +90,131 @@ export default function FriendReportScreen() {
 
   const resetSelection = () => {
     setSelectedFriendUid(null);
+    setSheetVisible(false);
     setPreviewVisible(false);
-    previewPages.forEach((p) => URL.revokeObjectURL(p.url));
-    setPreviewPages([]);
+    releasePages(pages);
+    setPages([]);
   };
 
-  // Month navigation
   const goToPrevMonth = () => {
     resetSelection();
-    if (month === 0) {
-      setMonth(11);
-      setYear((y) => y - 1);
-    } else {
-      setMonth((m) => m - 1);
-    }
+    if (month === 0) { setMonth(11); setYear((y) => y - 1); } else setMonth((m) => m - 1);
   };
-
   const MAX_YEAR = now.getFullYear() + 2;
   const goToNextMonth = () => {
     resetSelection();
     if (month === 11) {
       if (year >= MAX_YEAR) return;
-      setMonth(0);
-      setYear((y) => y + 1);
-    } else {
-      setMonth((m) => m + 1);
-    }
+      setMonth(0); setYear((y) => y + 1);
+    } else setMonth((m) => m + 1);
   };
-
-  // Filter transactions for selected friend
-  const sentToFriend = selectedFriendUid
-    ? transactions.filter(
-        (tx) => tx.sentIncomeTransactionId && tx.sentIncomeToUid === selectedFriendUid
-      )
-    : [];
-
-  const receivedFromFriend = selectedFriendUid
-    ? transactions.filter(
-        (tx) => tx.isSentIncome && tx.sentByUid === selectedFriendUid
-      )
-    : [];
-
-  const sharedWithFriend = selectedFriendUid
-    ? transactions.filter(
-        (tx) => tx.isShared && tx.sharedParticipants?.some((p) => p.uid === selectedFriendUid)
-      )
-    : [];
-
-  // Friend paid → I owe them; I paid → they owe me
-  const sharedIOwe = sharedWithFriend.filter((tx) => tx.sharedOwnerUid === selectedFriendUid);
-  const sharedTheyOwe = sharedWithFriend.filter((tx) => tx.sharedOwnerUid === user?.uid);
-
-  const hasTransactions = sentToFriend.length > 0 || receivedFromFriend.length > 0 || sharedWithFriend.length > 0;
 
   const selectedFriend = friendOptions.find((f) => f.uid === selectedFriendUid);
 
-  const handleGeneratePreview = async () => {
-    if (!selectedFriend || !user) return;
+  // ── Modelo ───────────────────────────────────────────────────────────────
+  const model = useMemo(() => {
+    if (!selectedFriendUid || !selectedFriend || !user) return null;
+    return buildFriendReport({
+      myName: user.displayName ?? user.email ?? t('common.user'),
+      myUid: user.uid,
+      friendName: selectedFriend.displayName,
+      friendUserName: selectedFriend.userName,
+      friendUid: selectedFriendUid,
+      month, year,
+      sentToFriend: transactions.filter((tx) => tx.sentIncomeTransactionId && tx.sentIncomeToUid === selectedFriendUid),
+      receivedFromFriend: transactions.filter((tx) => tx.isSentIncome && tx.sentByUid === selectedFriendUid),
+      sharedIOwe: transactions.filter((tx) => tx.isShared && tx.sharedOwnerUid === selectedFriendUid
+        && tx.sharedParticipants?.some((p) => p.uid === selectedFriendUid)),
+      sharedTheyOwe: transactions.filter((tx) => tx.isShared && tx.sharedOwnerUid === user.uid
+        && tx.sharedParticipants?.some((p) => p.uid === selectedFriendUid)),
+    });
+  }, [selectedFriendUid, selectedFriend, user, transactions, month, year, t]);
+
+  const monthNames = getMonthNames();
+  const monthLabel = monthNames[month];
+  const hasMovements = !!model && model.movementCount > 0;
+
+  const verdictText = useMemo(() => {
+    if (!model || !selectedFriend) return '';
+    if (model.net === 0) return t('friendReport.faceToFace.settled', { name: selectedFriend.displayName });
+    return model.net > 0
+      ? t('friendReport.faceToFace.theyOwe', { name: selectedFriend.displayName.split(' ')[0] })
+      : t('friendReport.faceToFace.youOwe', { name: selectedFriend.displayName.split(' ')[0] });
+  }, [model, selectedFriend, t]);
+
+  const labels: FriendReportImageLabels | null = useMemo(() => {
+    if (!model || !selectedFriend) return null;
+    const tilt = scaleTilt(model.totals);
+    return {
+      verdict: verdictText,
+      verdictHint: model.net === 0 ? '' : t('friendReport.faceToFace.oneTransfer'),
+      resultOf: t('friendReport.faceToFace.resultOf', { month: monthLabel }),
+      period: `${monthLabel} ${year}`,
+      you: t('friendReport.faceToFace.you'),
+      favourMine: t('friendReport.faceToFace.favourMine'),
+      favourTheirs: t('friendReport.faceToFace.favourTheirs', { name: selectedFriend.displayName.split(' ')[0] }),
+      sharedSection: t('friendReport.faceToFace.sharedSection'),
+      transfersSection: t('friendReport.faceToFace.transfersSection'),
+      monthTotal: t('friendReport.faceToFace.monthTotal'),
+      movementsTitle: t('friendReport.faceToFace.movementsTitle', { count: model.movementCount }),
+      socialStat: t('friendReport.faceToFace.socialStat', { paid: model.paidByMe, total: model.movementCount }),
+      tiltMine: t('friendReport.faceToFace.tiltMine'),
+      tiltTheirs: t('friendReport.faceToFace.tiltTheirs', { name: selectedFriend.displayName.split(' ')[0] }),
+      tiltEven: t('friendReport.faceToFace.tiltEven'),
+      sent: t('friendReport.faceToFace.sent'),
+      received: t('friendReport.faceToFace.received'),
+      footer: `${model.myName} ↔ ${model.friendName} · ${monthLabel} ${year}`,
+      page: t('friendReport.share.page', { n: 1, total: 1 }),
+      // el tilt se recalcula dentro del generador; aquí solo se elige la etiqueta
+      ...(tilt === 0 ? {} : {}),
+    };
+  }, [model, selectedFriend, verdictText, monthLabel, year, t]);
+
+  // ── Generación ───────────────────────────────────────────────────────────
+  const generate = useCallback(async (fmt: ReportFormat) => {
+    if (!model || !labels) return;
     setGenerating(true);
+    setGenError(false);
     try {
-      // Pre-compute amounts for shared sections
-      // income_claim → always full tx.amount; expense_share → friend's percentage portion
-      const isIncomeClaim = (tx: { sharedType?: string; type: string }) =>
-        tx.sharedType === 'income_claim' || tx.type === 'income';
-
-      const processedSharedTheyOwe = sharedTheyOwe.map((tx) => {
-        if (isIncomeClaim(tx)) return { ...tx, sharedAmount: tx.amount };
-        const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriend.uid);
-        return { ...tx, sharedAmount: fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0) };
-      });
-
-      const processedSharedIOwe = sharedIOwe.map((tx) => {
-        if (tx.sharedType === 'income_claim') return { ...tx, sharedAmount: tx.amount };
-        return tx;
-      });
-
-      const reportData: FriendReportImageData = {
-        myName: user.displayName ?? user.email ?? 'Usuario',
-        friendName: selectedFriend.displayName,
-        month, year, sentToFriend, receivedFromFriend,
-        sharedIOwe: processedSharedIOwe, sharedTheyOwe: processedSharedTheyOwe,
-        logoUri: LOGO_URI,
-      };
-      const monthName = MONTHS[month];
-      const labels: FriendReportImageLabels = {
-        title: t('friendReport.pdfTitle', { name: selectedFriend.displayName }),
-        generatedOn: t('friendReport.pdfGeneratedOn', {
-          date: new Date().toLocaleDateString(localeFor(), { day: '2-digit', month: 'long', year: 'numeric' }),
-        }),
-        period: t('friendReport.pdfPeriod', { month: monthName, year }),
-        sentSection: t('friendReport.sentSection'),
-        receivedSection: t('friendReport.receivedSection'),
-        sharedSection: t('friendReport.sharedSection'),
-        sharedTheyOweSection: t('friendReport.sharedTheyOweSection'),
-        totalSent: t('friendReport.totalSent'),
-        totalReceived: t('friendReport.totalReceived'),
-        totalSharedIOwe: t('friendReport.totalSharedIOwe'),
-        totalSharedTheyOwe: t('friendReport.totalSharedTheyOwe'),
-        netBalance: t('friendReport.netBalance'),
-        dateCol: t('friendReport.pdfDateCol'),
-        descCol: t('friendReport.pdfDescCol'),
-        amountCol: t('friendReport.pdfAmountCol'),
-        footer: t('friendReport.pdfFooter'),
-        noTransactions: t('friendReport.noTransactions'),
-        iOwe: t('friendReport.iOwe'),
-        theyOwe: t('friendReport.theyOwe'),
-        balanceTitle: net === 0
-          ? t('friendReport.settled', { name: selectedFriend.displayName })
-          : net > 0
-            ? t('friendReport.theyOweYou', { name: selectedFriend.displayName, myName: user.displayName ?? user.email ?? 'Yo' })
-            : t('friendReport.youOwe', { name: selectedFriend.displayName, myName: user.displayName ?? user.email ?? 'Yo' }),
-      };
-      const results = await generateFriendReportImage(reportData, labels);
-      previewPages.forEach((p) => URL.revokeObjectURL(p.url));
-      const pages = results.map((r) => ({ ...r, url: URL.createObjectURL(r.blob) }));
-      setPreviewPages(pages);
-      setPreviewVisible(true);
+      const results = await generateFriendReportImage(
+        model,
+        { ...labels, page: t('friendReport.share.page', { n: 1, total: 1 }) },
+        { format: fmt, logoUri: LOGO_URI },
+      );
+      releasePages(pages);
+      setPages(results.map((r) => ({ ...r, url: URL.createObjectURL(r.blob) })));
     } catch (e) {
-      console.error('[FriendReport] image error:', e);
+      console.error('[FriendReport] no se pudo generar la imagen:', e);
+      releasePages(pages);
+      setPages([]);
+      setGenError(true);
     } finally {
       setGenerating(false);
     }
+  }, [model, labels, pages, releasePages, t]);
+
+  const handlePreview = async () => {
+    setSheetVisible(false);
+    setPreviewVisible(true);
+    await generate(format);
   };
 
-  const handleClosePreview = () => {
-    setPreviewVisible(false);
+  const handleChangeFormat = async (next: ReportFormat) => {
+    if (next === format) return;
+    setFormat(next);
+    await generate(next);
   };
+
+  const fileBase = () =>
+    `spendia-${selectedFriend?.displayName.replace(/\s+/g, '-').toLowerCase() ?? 'reporte'}-${month + 1}-${year}-${format}`;
 
   const handleDownload = () => {
-    if (!previewPages.length || !selectedFriend) return;
-    previewPages.forEach((page, idx) => {
-      const suffix = previewPages.length > 1 ? `-p${idx + 1}` : '';
-      const filename = `reporte-${selectedFriend.displayName}-${month + 1}-${year}${suffix}.png`;
+    pages.forEach((page, idx) => {
+      const suffix = pages.length > 1 ? `-p${idx + 1}` : '';
       try {
         const a = document.createElement('a');
         a.href = page.url;
-        a.download = filename;
+        a.download = `${fileBase()}${suffix}.png`;
         document.body.appendChild(a);
         a.click();
         setTimeout(() => document.body.removeChild(a), 100);
@@ -225,83 +225,33 @@ export default function FriendReportScreen() {
   };
 
   const handleShare = async () => {
-    if (!previewPages.length || !selectedFriend) return;
+    if (!pages.length) return;
     try {
-      const files = await Promise.all(
-        previewPages.map(async (page, idx) => {
-          const res = await fetch(page.url);
-          const blob = await res.blob();
-          const suffix = previewPages.length > 1 ? `-p${idx + 1}` : '';
-          return new File([blob], `reporte-${selectedFriend.displayName}${suffix}.png`, { type: 'image/png' });
-        })
-      );
-      if (navigator.share && navigator.canShare({ files })) {
-        await navigator.share({ files, title: t('friendReport.pdfTitle', { name: selectedFriend.displayName }) });
+      const files = await Promise.all(pages.map(async (page, idx) => {
+        const res = await fetch(page.url);
+        const blob = await res.blob();
+        const suffix = pages.length > 1 ? `-p${idx + 1}` : '';
+        return new File([blob], `${fileBase()}${suffix}.png`, { type: 'image/png' });
+      }));
+      if (navigator.share && navigator.canShare?.({ files })) {
+        await navigator.share({ files, title: verdictText });
         return;
       }
-    } catch { /* fallback */ }
+    } catch { /* la hoja nativa no está disponible o el usuario canceló */ }
     handleDownload();
   };
 
-  const handleBack = () => {
-    transitionRef.current?.animateOut(() => router.back());
-  };
+  const handleBack = () => transitionRef.current?.animateOut(() => router.back());
 
-  const isLoading = friendsLoading;
-  const canGenerate = !!selectedFriendUid && hasTransactions && !generating && !txLoading;
-
-  const totalSent = sentToFriend.reduce((s, t) => s + t.amount, 0);
-  const totalReceived = receivedFromFriend.reduce((s, t) => s + t.amount, 0);
-  const totalSharedIOwe = sharedIOwe.reduce((s, t) => {
-    // income_claim: friend owes the full amount — never divide by percentage
-    if (t.sharedType === 'income_claim') return s + t.amount;
-    return s + (t.sharedAmount ?? t.amount);
-  }, 0);
-  const totalSharedTheyOwe = sharedTheyOwe.reduce((s, t) => {
-    // owner's tx type === 'income' → always income_claim, even if sharedType was stored wrong
-    if (t.sharedType === 'income_claim' || t.type === 'income') return s + t.amount;
-    const fp = t.sharedParticipants?.find((p) => p.uid === selectedFriendUid!);
-    return s + (fp ? Math.round(t.amount * fp.percentage / 100) : (t.sharedAmount ?? 0));
-  }, 0);
-  const net = (totalReceived + totalSharedTheyOwe) - (totalSent + totalSharedIOwe);
-
-  const allEntries = useMemo(() => {
-    if (!selectedFriendUid) return [];
-    type EKind = 'sent' | 'received' | 'shared_i_owe' | 'shared_they_owe';
-    const entries: Array<{ id: string; date: Date; description: string; displayAmount: number; isPositive: boolean; kind: EKind }> = [];
-    sentToFriend.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.amount, isPositive: false, kind: 'sent' }));
-    receivedFromFriend.forEach((tx) => entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: tx.amount, isPositive: true, kind: 'received' }));
-    sharedIOwe.forEach((tx) => {
-      const displayAmount = tx.sharedType === 'income_claim' ? tx.amount : (tx.sharedAmount ?? tx.amount);
-      entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount, isPositive: false, kind: 'shared_i_owe' });
-    });
-    sharedTheyOwe.forEach((tx) => {
-      const amt = (tx.sharedType === 'income_claim' || tx.type === 'income')
-        ? tx.amount
-        : (() => { const fp = tx.sharedParticipants?.find((p) => p.uid === selectedFriendUid); return fp ? Math.round(tx.amount * fp.percentage / 100) : (tx.sharedAmount ?? 0); })();
-      entries.push({ id: tx.id, date: tx.date, description: tx.description, displayAmount: amt, isPositive: true, kind: 'shared_they_owe' });
-    });
-    return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [sentToFriend, receivedFromFriend, sharedIOwe, sharedTheyOwe, selectedFriendUid]);
-
-  const allDateGroups = useMemo(() => {
-    const map = new Map<string, { displayDate: string; entries: typeof allEntries }>();
-    for (const entry of allEntries) {
-      const d = entry.date;
-      const isoKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      const displayDate = d.toLocaleDateString(localeFor(), { day: 'numeric', month: 'long' });
-      if (!map.has(isoKey)) map.set(isoKey, { displayDate, entries: [] });
-      map.get(isoKey)!.entries.push(entry);
-    }
-    return Array.from(map.values());
-  }, [allEntries]);
-
-  const formatCOP = (n: number) =>
-    new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0,
-    }).format(Math.abs(n));
+  const c = sideColors(isDark);
+  const tiltValue = model ? scaleTilt(model.totals) : 0;
+  const tiltLabel = !model || !selectedFriend
+    ? ''
+    : tiltValue === 0
+      ? t('friendReport.faceToFace.tiltEven')
+      : tiltValue < 0
+        ? t('friendReport.faceToFace.tiltMine')
+        : t('friendReport.faceToFace.tiltTheirs', { name: selectedFriend.displayName.split(' ')[0] });
 
   return (
     <ScreenTransition ref={transitionRef}>
@@ -309,595 +259,221 @@ export default function FriendReportScreen() {
         <SafeAreaView style={styles.safe}>
           <AppHeader onBack={handleBack} />
 
-          <ScrollView
-            contentContainerStyle={styles.content}
-            showsVerticalScrollIndicator={false}
-          >
-            <PageTitle
-              title={t('friendReport.title')}
-              description={t('friendReport.pageDesc')}
-            />
+          <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+            <PageTitle title={t('friendReport.title')} description={t('friendReport.pageDesc')} />
 
-            {/* Month/Year selector */}
+            {/* Mes */}
             <View style={[styles.monthNav, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <TouchableOpacity onPress={goToPrevMonth} style={styles.monthNavBtn} activeOpacity={0.7}>
+              <TouchableOpacity onPress={goToPrevMonth} style={styles.monthBtn} activeOpacity={0.7}
+                accessibilityRole="button" accessibilityLabel={t('history.prevMonth')}>
                 <AppIcon name="chevron-back" size={20} color={colors.primary} />
               </TouchableOpacity>
-              <Text style={[styles.monthNavLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
-                {MONTHS[month].toUpperCase()} {year}
+              <Text style={[styles.monthLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
+                {monthLabel.toUpperCase()} {year}
               </Text>
-              <TouchableOpacity onPress={goToNextMonth} style={styles.monthNavBtn} activeOpacity={0.7}>
+              <TouchableOpacity onPress={goToNextMonth} style={styles.monthBtn} activeOpacity={0.7}
+                accessibilityRole="button" accessibilityLabel={t('history.nextMonth')}>
                 <AppIcon name="chevron-forward" size={20} color={colors.primary} />
               </TouchableOpacity>
             </View>
 
-            {/* Friends section */}
-            <View style={styles.section}>
-              <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-                {t('friendReport.selectFriend')}
-              </Text>
+            {/* Amigos */}
+            <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
+              {t('friendReport.selectFriend')}
+            </Text>
 
-              {isLoading ? (
-                <ActivityIndicator color={colors.primary} style={{ marginTop: 16 }} />
-              ) : friendOptions.length === 0 ? (
-                <View style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <AppIcon name="people-outline" size={36} color={colors.textTertiary} />
-                  <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
-                    {t('friendReport.noFriends')}
-                  </Text>
-                  <Text style={[styles.emptyDesc, { color: colors.textSecondary }]}>
-                    {t('friendReport.noFriendsDesc')}
-                  </Text>
-                </View>
-              ) : (
-                <View style={[styles.friendList, { borderColor: colors.border }]}>
-                  {friendOptions.map((friend, index) => {
-                    const active = selectedFriendUid === friend.uid;
-                    const initial = friend.displayName.charAt(0).toUpperCase();
-                    const isLast = index === friendOptions.length - 1;
-                    return (
-                      <TouchableOpacity
-                        key={friend.uid}
-                        style={[
-                          styles.friendRow,
-                          { backgroundColor: active ? `${colors.primary}10` : colors.surface },
-                          !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
-                        ]}
-                        onPress={() => setSelectedFriendUid(active ? null : friend.uid)}
-                        activeOpacity={0.7}
-                      >
-                        <View style={[styles.friendAvatar, { backgroundColor: active ? colors.primary : `${colors.primary}20` }]}>
-                          <Text style={[styles.friendAvatarText, { color: active ? '#fff' : colors.primary }]}>
-                            {initial}
-                          </Text>
-                        </View>
-                        <Text style={[styles.friendName, { color: colors.textPrimary, fontFamily: active ? Fonts.semiBold : Fonts.regular }]} numberOfLines={1}>
-                          {friend.displayName}
-                        </Text>
-                        {active
-                          ? <AppIcon name="checkmark-circle" size={20} color={colors.primary} />
-                          : <AppIcon name="chevron-forward" size={16} color={colors.textTertiary} />
-                        }
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              )}
-            </View>
-
-            {/* Transactions summary */}
-            {selectedFriendUid && (
-              <View style={styles.section}>
-                {txLoading ? (
-                  <ActivityIndicator color={colors.primary} />
-                ) : !hasTransactions ? (
-                  <View style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <AppIcon name="document-outline" size={32} color={colors.textTertiary} />
-                    <Text style={[styles.emptyDesc, { color: colors.textSecondary }]}>
-                      {t('friendReport.noTransactions')}
-                    </Text>
-                  </View>
-                ) : (
-                  <View style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    {/* Unified date-grouped movements */}
-                    {allDateGroups.map(({ displayDate, entries: dayEntries }) => (
-                      <View key={displayDate}>
-                        <View style={styles.dateChipRow}>
-                          <View style={[styles.dateChipLine, { backgroundColor: colors.border }]} />
-                          <Text style={[styles.dateChip, { color: colors.textTertiary }]}>{displayDate}</Text>
-                          <View style={[styles.dateChipLine, { backgroundColor: colors.border }]} />
-                        </View>
-                        {dayEntries.map((entry) => {
-                          const entryColor = entry.isPositive ? (colors.secondary ?? '#00897B') : (colors.error ?? '#E53935');
-                          return (
-                            <View key={entry.id} style={styles.txRow}>
-                              <View style={[styles.entryDot, { backgroundColor: `${entryColor}20` }]}>
-                                <AppIcon
-                                  name={entry.isPositive ? 'arrow-down-outline' : 'arrow-up-outline'}
-                                  size={11}
-                                  color={entryColor}
-                                />
-                              </View>
-                              <Text style={[styles.txDesc, { color: colors.textPrimary }]} numberOfLines={1}>
-                                {entry.description}
-                              </Text>
-                              <Text style={[styles.txAmount, { color: entryColor }]}>
-                                {entry.isPositive ? '+' : '−'}{formatCOP(entry.displayAmount)}
-                              </Text>
-                            </View>
-                          );
-                        })}
-                      </View>
-                    ))}
-
-                    {/* Totals divider */}
-                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                    {totalSent > 0 && (
-                      <View style={styles.totalRow}>
-                        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-                          {t('friendReport.totalSent')}
-                        </Text>
-                        <Text style={[styles.totalValue, { color: colors.error ?? '#E53935' }]}>
-                          −{formatCOP(totalSent)}
+            {friendsLoading ? (
+              <ActivityIndicator color={colors.primary} style={{ marginTop: 16 }} />
+            ) : friendOptions.length === 0 ? (
+              <View style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                <AppIcon name="people-outline" size={34} color={colors.textTertiary} />
+                <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('friendReport.noFriends')}</Text>
+                <Text style={[styles.emptyDesc, { color: colors.textSecondary }]}>{t('friendReport.noFriendsDesc')}</Text>
+              </View>
+            ) : (
+              <View style={styles.friendRow}>
+                {friendOptions.map((friend) => {
+                  const active = selectedFriendUid === friend.uid;
+                  return (
+                    <TouchableOpacity
+                      key={friend.uid}
+                      onPress={() => setSelectedFriendUid(active ? null : friend.uid)}
+                      activeOpacity={0.8}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: active }}
+                      style={[styles.friendChip, {
+                        backgroundColor: active ? `${colors.primary}14` : colors.surface,
+                        borderColor: active ? colors.primary : colors.border,
+                      }]}
+                    >
+                      <View style={[styles.friendAvatar, { backgroundColor: active ? c.theirsFill : `${colors.primary}20` }]}>
+                        <Text style={[styles.friendInitial, { color: active ? '#1E2200' : accentInk(colors, 'primary', colors.surface) }]}>
+                          {initialOf(friend.displayName)}
                         </Text>
                       </View>
-                    )}
-                    {totalReceived > 0 && (
-                      <View style={styles.totalRow}>
-                        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-                          {t('friendReport.totalReceived')}
-                        </Text>
-                        <Text style={[styles.totalValue, { color: accentInk(colors, 'secondary', colors.surface) }]}>
-                          +{formatCOP(totalReceived)}
-                        </Text>
-                      </View>
-                    )}
-                    {totalSharedIOwe > 0 && (
-                      <View style={styles.totalRow}>
-                        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-                          {t('friendReport.totalSharedIOwe')}
-                        </Text>
-                        <Text style={[styles.totalValue, { color: colors.error ?? '#E53935' }]}>
-                          −{formatCOP(totalSharedIOwe)}
-                        </Text>
-                      </View>
-                    )}
-                    {totalSharedTheyOwe > 0 && (
-                      <View style={styles.totalRow}>
-                        <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-                          {t('friendReport.totalSharedTheyOwe')}
-                        </Text>
-                        <Text style={[styles.totalValue, { color: accentInk(colors, 'secondary', colors.surface) }]}>
-                          +{formatCOP(totalSharedTheyOwe)}
-                        </Text>
-                      </View>
-                    )}
-                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                    {/* Balance callout */}
-                    {net === 0 ? (
-                      <View style={[styles.balanceCallout, { backgroundColor: `${colors.primary}12`, borderColor: `${colors.primary}25` }]}>
-                        <AppIcon name="checkmark-circle" size={18} color={colors.primary} />
-                        <Text style={[styles.balanceCalloutText, { color: accentInk(colors, 'primary', colors.surface) }]}>
-                          {t('friendReport.settled', { name: selectedFriend?.displayName })}
-                        </Text>
-                      </View>
-                    ) : net > 0 ? (
-                      <View style={[styles.balanceCallout, { backgroundColor: `${colors.secondary}12`, borderColor: `${colors.secondary}25` }]}>
-                        <AppIcon name="arrow-down-circle" size={18} color={colors.secondary} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={[styles.balanceCalloutLabel, { color: accentInk(colors, 'secondary', colors.surface) }]}>
-                            {t('friendReport.theyOweYou', { name: selectedFriend?.displayName, myName: user?.displayName ?? user?.email ?? 'Yo' })}
-                          </Text>
-                          <Text style={[styles.balanceCalloutAmount, { color: accentInk(colors, 'secondary', colors.surface) }]}>
-                            {formatCOP(net)}
-                          </Text>
-                        </View>
-                      </View>
-                    ) : (
-                      <View style={[styles.balanceCallout, { backgroundColor: `${colors.error}10`, borderColor: `${colors.error}22` }]}>
-                        <AppIcon name="arrow-up-circle" size={18} color={colors.error} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={[styles.balanceCalloutLabel, { color: colors.error }]}>
-                            {t('friendReport.youOwe', { name: selectedFriend?.displayName, myName: user?.displayName ?? user?.email ?? 'Yo' })}
-                          </Text>
-                          <Text style={[styles.balanceCalloutAmount, { color: colors.error }]}>
-                            {formatCOP(-net)}
-                          </Text>
-                        </View>
-                      </View>
-                    )}
-                  </View>
-                )}
+                      <Text style={[styles.friendName, {
+                        color: colors.textPrimary,
+                        fontFamily: active ? Fonts.bold : Fonts.regular,
+                      }]} numberOfLines={1}>
+                        {friend.displayName.split(' ')[0]}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             )}
 
+            {/* Cara a cara */}
+            {selectedFriendUid && (
+              txLoading ? (
+                <ActivityIndicator color={colors.primary} style={{ marginTop: 28 }} />
+              ) : !hasMovements || !model ? (
+                <View style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <AppIcon name="document-outline" size={30} color={colors.textTertiary} />
+                  <Text style={[styles.emptyDesc, { color: colors.textSecondary }]}>{t('friendReport.noTransactions')}</Text>
+                </View>
+              ) : (
+                <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  <People model={model} isDark={isDark} tiltLabel={tiltLabel} youLabel={t('friendReport.faceToFace.you')} />
+                  <Verdict
+                    model={model}
+                    isDark={isDark}
+                    kicker={t('friendReport.faceToFace.resultOf', { month: monthLabel })}
+                    verdict={verdictText}
+                    hint={model.net === 0 ? undefined : t('friendReport.faceToFace.oneTransfer')}
+                  />
+
+                  <Legend
+                    mineLabel={t('friendReport.faceToFace.favourMine')}
+                    theirsLabel={t('friendReport.faceToFace.favourTheirs', { name: selectedFriend!.displayName.split(' ')[0] })}
+                    isDark={isDark}
+                  />
+                  <FacingBar
+                    title={t('friendReport.faceToFace.sharedSection')}
+                    mine={model.totals.sharedTheyOwe}
+                    theirs={model.totals.sharedIOwe}
+                    isDark={isDark}
+                  />
+                  <FacingBar
+                    title={t('friendReport.faceToFace.transfersSection')}
+                    mine={model.totals.received}
+                    theirs={model.totals.sent}
+                    isDark={isDark}
+                  />
+                  <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                  <FacingBar
+                    title={t('friendReport.faceToFace.monthTotal')}
+                    mine={model.totals.mine}
+                    theirs={model.totals.theirs}
+                    isDark={isDark}
+                  />
+
+                  <SocialStat label={t('friendReport.faceToFace.socialStat', {
+                    paid: model.paidByMe, total: model.movementCount,
+                  })} />
+
+                  <Text style={[styles.entriesTitle, { color: colors.textTertiary }]}>
+                    {t('friendReport.faceToFace.movementsTitle', { count: model.movementCount }).toUpperCase()}
+                  </Text>
+                  <View style={styles.entries}>
+                    {model.entries.map((entry) => (
+                      <EntryRow
+                        key={entry.id}
+                        entry={entry}
+                        isDark={isDark}
+                        sentLabel={t('friendReport.faceToFace.sent')}
+                        receivedLabel={t('friendReport.faceToFace.received')}
+                        dateLabel={entry.date.toLocaleDateString(localeFor(), { day: 'numeric', month: 'short' })}
+                      />
+                    ))}
+                  </View>
+                </View>
+              )
+            )}
           </ScrollView>
 
-          {/* Preview button — fixed footer */}
-          <View style={[styles.generateFooter, { borderTopColor: colors.border }]}>
+          {/* Compartir */}
+          <View style={[styles.footer, { borderTopColor: colors.border }]}>
             <TouchableOpacity
-              style={[
-                styles.generateBtn,
-                { backgroundColor: colors.primary },
-                !canGenerate && styles.btnDisabled,
-              ]}
-              onPress={handleGeneratePreview}
-              disabled={!canGenerate}
-              activeOpacity={0.8}
+              style={[styles.shareBtn, { backgroundColor: colors.primary }, !hasMovements && styles.disabled]}
+              onPress={() => setSheetVisible(true)}
+              disabled={!hasMovements}
+              activeOpacity={0.85}
+              accessibilityRole="button"
             >
-              {generating ? (
-                <>
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                  <Text style={styles.generateBtnText}>{t('friendReport.generatingPreview')}</Text>
-                </>
-              ) : (
-                <>
-                  <AppIcon name="eye-outline" size={20} color="#FFFFFF" />
-                  <Text style={styles.generateBtnText}>{t('friendReport.previewBtn')}</Text>
-                </>
-              )}
+              <AppIcon name="share-outline" size={20} color={colors.onPrimary} />
+              <Text style={[styles.shareText, { color: colors.onPrimary }]}>
+                {t('friendReport.share.openSheet')}
+              </Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
 
-        {/* Image preview modal */}
-        <Modal
-          visible={previewVisible}
-          transparent={false}
-          animationType="slide"
-          onRequestClose={handleClosePreview}
-          statusBarTranslucent
-        >
-          <SafeAreaView style={[styles.previewSafe, { backgroundColor: colors.background ?? colors.surface }]}>
-            {/* Header */}
-            <View style={[styles.previewHeader, { borderBottomColor: colors.border }]}>
-              <TouchableOpacity onPress={handleClosePreview} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <AppIcon name="chevron-down" size={24} color={colors.textSecondary} />
-              </TouchableOpacity>
-              <View style={{ alignItems: 'center' }}>
-                <Text style={[styles.previewTitle, { color: colors.textPrimary }]}>
-                  {t('friendReport.previewTitle')}
-                </Text>
-                {previewPages.length > 1 && (
-                  <Text style={[styles.previewPageCount, { color: colors.textTertiary }]}>
-                    {previewPages.length} {t('friendReport.pages')}
-                  </Text>
-                )}
-              </View>
-              <View style={{ width: 24 }} />
-            </View>
+        <FormatSheet
+          visible={sheetVisible}
+          selected={format}
+          onSelect={setFormat}
+          onPreview={handlePreview}
+          onClose={() => setSheetVisible(false)}
+          entryCount={model?.movementCount ?? 7}
+          busy={generating}
+        />
 
-            {/* All pages stacked in scroll */}
-            <ScrollView
-              style={styles.previewScroll}
-              contentContainerStyle={styles.previewScrollContent}
-              showsVerticalScrollIndicator={false}
-              bounces
-            >
-              {previewPages.map((page, idx) => {
-                const imgW = Math.min(screenWidth, 960);
-                return (
-                  <View key={idx} style={[styles.previewPageWrapper, { width: imgW }]}>
-                    {previewPages.length > 1 && (
-                      <View style={[styles.previewPageBadge, { backgroundColor: colors.primary }]}>
-                        <Text style={styles.previewPageBadgeText}>
-                          {idx + 1} / {previewPages.length}
-                        </Text>
-                      </View>
-                    )}
-                    <Image
-                      source={{ uri: page.url }}
-                      style={{
-                        width: imgW,
-                        height: imgW * (page.height / page.width),
-                      }}
-                      resizeMode="contain"
-                    />
-                  </View>
-                );
-              })}
-            </ScrollView>
-
-            {/* Actions */}
-            <View style={[styles.previewActions, { borderTopColor: colors.border }]}>
-              <TouchableOpacity
-                style={[styles.previewActionBtn, { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 }]}
-                onPress={handleDownload}
-                activeOpacity={0.8}
-              >
-                <AppIcon name="download-outline" size={18} color={colors.primary} />
-                <Text style={[styles.previewActionText, { color: accentInk(colors, 'primary', colors.surface) }]}>
-                  {t('friendReport.downloadBtn')}
-                  {previewPages.length > 1 ? ` (${previewPages.length})` : ''}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.previewActionBtn, { backgroundColor: colors.primary }]}
-                onPress={handleShare}
-                activeOpacity={0.8}
-              >
-                <AppIcon name="share-outline" size={18} color="#fff" />
-                <Text style={[styles.previewActionText, { color: '#fff' }]}>
-                  {t('friendReport.shareBtn')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
-        </Modal>
+        {previewVisible && (
+          <PreviewModal
+            visible={previewVisible}
+            format={format}
+            onChangeFormat={handleChangeFormat}
+            pages={pages}
+            loading={generating}
+            error={genError}
+            friendName={selectedFriend?.displayName ?? ''}
+            periodLabel={`${monthLabel} ${year}`}
+            verdictLabel={verdictText}
+            amountLabel={new Intl.NumberFormat('es-CO', {
+              style: 'currency', currency: 'COP', minimumFractionDigits: 0,
+            }).format(Math.abs(model?.net ?? 0))}
+            entryCount={model?.movementCount ?? 7}
+            onShare={handleShare}
+            onDownload={handleDownload}
+            onRetry={() => generate(format)}
+            onClose={() => setPreviewVisible(false)}
+          />
+        )}
       </ScreenBackground>
     </ScreenTransition>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  content: {
-    paddingTop: 16,
-    paddingBottom: 24,
-    gap: 20,
-    width: '100%',
-    maxWidth: 768,
-    alignSelf: 'center',
-  },
+  safe: { flex: 1 },
+  content: { paddingHorizontal: 20, paddingBottom: 28, width: '100%', maxWidth: 768, alignSelf: 'center' },
+
   monthNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingVertical: 4,
-    paddingHorizontal: 4,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderRadius: 16, borderWidth: 1, paddingHorizontal: 6, height: 48, marginTop: 8,
   },
-  monthNavBtn: {
-    padding: 8,
-  },
-  monthNavLabel: {
-    fontFamily: Fonts.bold,
-    fontSize: 14,
-    letterSpacing: 0.5,
-  },
-  section: {
-    paddingHorizontal: 20,
-    gap: 10,
-  },
-  sectionLabel: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 13,
-  },
-  friendList: {
-    borderWidth: 1,
-    borderRadius: 14,
-    overflow: 'hidden',
-  },
-  friendRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    gap: 12,
-  },
-  friendAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  friendAvatarText: {
-    fontSize: 15,
-    fontFamily: Fonts.bold,
-  },
-  friendName: {
-    flex: 1,
-    fontSize: 14,
-  },
-  emptyBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-    borderRadius: 14,
-    borderWidth: 1,
-    gap: 8,
-  },
-  emptyTitle: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  emptyDesc: {
-    fontFamily: Fonts.regular,
-    fontSize: 13,
-    textAlign: 'center',
-  },
-  summaryCard: {
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: 16,
-    gap: 6,
-  },
-  txSectionLabel: {
-    fontFamily: Fonts.bold,
-    fontSize: 11,
-    letterSpacing: 0.5,
-    marginTop: 4,
-    marginBottom: 2,
-  },
-  txRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  txDate: {
-    fontFamily: Fonts.regular,
-    fontSize: 12,
-    width: 52,
-  },
-  txDesc: {
-    fontFamily: Fonts.regular,
-    fontSize: 13,
-    flex: 1,
-  },
-  txAmount: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 13,
-  },
-  divider: {
-    height: 1,
-    marginVertical: 4,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  totalLabel: {
-    fontFamily: Fonts.regular,
-    fontSize: 13,
-  },
-  totalValue: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 13,
-  },
-  netValue: {
-    fontFamily: Fonts.bold,
-    fontSize: 14,
-  },
-  balanceCallout: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginTop: 4,
-  },
-  balanceCalloutText: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 14,
-    flex: 1,
-  },
-  balanceCalloutLabel: {
-    fontFamily: Fonts.regular,
-    fontSize: 12,
-  },
-  balanceCalloutAmount: {
-    fontFamily: Fonts.bold,
-    fontSize: 18,
-    marginTop: 2,
-  },
-  generateFooter: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 8,
-    borderTopWidth: 1,
-  },
-  generateBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 15,
-    borderRadius: 14,
-  },
-  btnDisabled: {
-    opacity: 0.5,
-  },
-  generateBtnText: {
-    fontFamily: Fonts.bold,
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  previewSafe: {
-    flex: 1,
-  },
-  previewHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-  },
-  previewTitle: {
-    fontFamily: Fonts.bold,
-    fontSize: 16,
-  },
-  previewPageCount: {
-    fontFamily: Fonts.regular,
-    fontSize: 11,
-    marginTop: 2,
-  },
-  previewPageWrapper: {
-    width: '100%',
-    position: 'relative',
-    marginBottom: 12,
-  },
-  previewPageBadge: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  previewPageBadgeText: {
-    fontFamily: Fonts.bold,
-    fontSize: 11,
-    color: '#FFFFFF',
-  },
-  previewScroll: {
-    flex: 1,
-  },
-  previewScrollContent: {
-    alignItems: 'center',
-    paddingBottom: 8,
-  },
-  previewActions: {
-    flexDirection: 'row',
-    gap: 10,
-    padding: 16,
-    borderTopWidth: 1,
-  },
-  previewActionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 15,
-    borderRadius: 14,
-  },
-  previewActionText: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 14,
-  },
-  dateChipRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 8,
-    marginBottom: 2,
-  },
-  dateChipLine: {
-    flex: 1,
-    height: 1,
-  },
-  dateChip: {
-    fontFamily: Fonts.semiBold,
-    fontSize: 11,
-    letterSpacing: 0.3,
-  },
-  entryDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
+  monthBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  monthLabel: { fontSize: 13.5, fontFamily: Fonts.bold, letterSpacing: 1.2 },
+
+  sectionLabel: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.2, textTransform: 'uppercase', marginTop: 22, marginBottom: 10 },
+  friendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  friendChip: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 50, borderWidth: 1.5, paddingLeft: 5, paddingRight: 14, height: 44 },
+  friendAvatar: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  friendInitial: { fontSize: 13, fontFamily: Fonts.bold },
+  friendName: { fontSize: 13.5, maxWidth: 120 },
+
+  emptyBox: { borderRadius: 18, borderWidth: 1, padding: 26, alignItems: 'center', gap: 8, marginTop: 20 },
+  emptyTitle: { fontSize: 14.5, fontFamily: Fonts.bold },
+  emptyDesc: { fontSize: 12.5, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 18 },
+
+  card: { borderRadius: 22, borderWidth: 1, padding: 18, marginTop: 20 },
+  divider: { height: 1, marginTop: 16 },
+  entriesTitle: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.3, textAlign: 'center', marginTop: 22 },
+  entries: { marginTop: 10 },
+
+  footer: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 6, borderTopWidth: 1, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  shareBtn: { height: 52, borderRadius: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9 },
+  shareText: { fontSize: 14.5, fontFamily: Fonts.bold },
+  disabled: { opacity: 0.45 },
 });

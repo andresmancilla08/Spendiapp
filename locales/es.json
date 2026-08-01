@@ -152,7 +152,8 @@
       "description": "Esta función está en pausa. Nuestro equipo está trabajando en mejoras. ¡Vuelve pronto!",
       "close": "Entendido"
     },
-    "genericError": "Algo salió mal. Inténtalo de nuevo."
+    "genericError": "Algo salió mal. Inténtalo de nuevo.",
+    "user": "Usuario"
   },
   "tabBar": {
     "home": "Inicio",
@@ -805,7 +806,9 @@
       "notShared": "No compartido",
       "pending": "Pendientes",
       "paidTab": "Pagados"
-    }
+    },
+    "prevMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente"
   },
   "categoryDetail": {
     "title": "Gastos por categoría",
@@ -1668,7 +1671,59 @@
     "sharedTheyOweSection": "COMPARTIDO QUE ME DEBEN",
     "totalShared": "Total compartido",
     "totalSharedIOwe": "Compartido que debo",
-    "totalSharedTheyOwe": "Compartido que me deben"
+    "totalSharedTheyOwe": "Compartido que me deben",
+    "faceToFace": {
+      "resultOf": "Resultado de {{month}}",
+      "you": "Tú",
+      "theyOwe": "{{name}} te debe",
+      "youOwe": "Le debes a {{name}}",
+      "settled": "Con {{name}} están saldados",
+      "oneTransfer": "Una sola transferencia y quedan saldados",
+      "favourMine": "A tu favor",
+      "favourTheirs": "A favor de {{name}}",
+      "sharedSection": "Gastos compartidos",
+      "transfersSection": "Transferencias",
+      "monthTotal": "Total del mes",
+      "movementsTitle": "Los {{count}} movimientos, cada uno de su lado",
+      "socialStat": "Pagaste tú {{paid}} de las {{total}} veces",
+      "tiltMine": "Cae de tu lado",
+      "tiltTheirs": "Cae del lado de {{name}}",
+      "tiltEven": "En equilibrio",
+      "sent": "Enviado",
+      "received": "Recibido"
+    },
+    "share": {
+      "openSheet": "Compartir cara a cara",
+      "whereTitle": "¿Para dónde va?",
+      "whereSub": "El mismo mes, tres piezas distintas",
+      "previewCta": "Previsualizar {{name}}",
+      "previewTitle": "Previsualización",
+      "shareCta": "Compartir {{name}}",
+      "download": "Guardar imagen",
+      "generating": "Dibujando el documento…",
+      "errorTitle": "No se pudo generar la imagen",
+      "errorText": "Puede pasar si el navegador se quedó sin memoria. Inténtalo otra vez.",
+      "retry": "Reintentar",
+      "realSize": "Tamaño real · {{w}} × {{h}} px",
+      "page": "Página {{n}} de {{total}}",
+      "chatSim": "Así llega al chat",
+      "storyNotice": "Se guarda o se comparte con la hoja del sistema: publicar en historias hay que hacerlo desde Instagram.",
+      "imageAlt": "Reporte con {{name}} de {{period}}",
+      "format": {
+        "chat": {
+          "name": "Tarjeta",
+          "where": "WhatsApp"
+        },
+        "story": {
+          "name": "Story",
+          "where": "Instagram"
+        },
+        "sheet": {
+          "name": "Hoja",
+          "where": "Revisar"
+        }
+      }
+    }
   },
   "maintenance": {
     "title": "En mantenimiento",
