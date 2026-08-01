@@ -157,5 +157,32 @@ if (!html.includes('rel="manifest"')) {
   html = html.replace('</head>', pwaTags + '</head>');
 }
 
+// El <noscript> de Expo ("You need to enable JavaScript") es lo único que ven los
+// bots que no ejecutan JS. Se sustituye por la descripción real del producto:
+// no afecta a ningún usuario con JS y da contenido indexable a esos rastreadores.
+html = html.replace(
+  /<noscript>[\s\S]*?<\/noscript>/,
+  `<noscript>
+      <main style="font-family:system-ui,-apple-system,sans-serif;max-width:640px;margin:56px auto;padding:0 24px;color:#1A2428">
+        <h1 style="font-size:32px;margin:0 0 8px">Spendia</h1>
+        <p style="font-size:18px;color:#00838F;margin:0 0 24px">${TITLE}</p>
+        <p style="font-size:16px;line-height:1.65;margin:0 0 20px">${DESCRIPTION}</p>
+        <h2 style="font-size:20px;margin:0 0 8px">Qué puedes hacer con Spendia</h2>
+        <ul style="font-size:16px;line-height:1.8;margin:0 0 24px;padding-left:20px">
+          <li>Registrar ingresos y gastos y categorizarlos en segundos.</li>
+          <li>Dividir gastos compartidos con amigos y liquidar cuentas.</li>
+          <li>Controlar gastos fijos, cuotas y tarjetas.</li>
+          <li>Ver informes mensuales y anuales con gráficas claras.</li>
+          <li>Instalarla como app (PWA) en iOS y Android, sin tiendas.</li>
+        </ul>
+        <p style="font-size:15px">
+          <a href="/privacy" style="color:#00838F;margin-right:20px">Política de privacidad</a>
+          <a href="/terms" style="color:#00838F">Términos y condiciones</a>
+        </p>
+        <p style="font-size:15px;color:#5A6B70;margin-top:24px">Activa JavaScript para usar la aplicación.</p>
+      </main>
+    </noscript>`
+);
+
 fs.writeFileSync(htmlPath, html, 'utf8');
 console.log('[patch-html] dist/index.html patched successfully.');

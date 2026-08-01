@@ -124,8 +124,9 @@ export default function Root({ children }: PropsWithChildren) {
         {children}
 
         {/* Pre-hydration landing — full-screen, visible to crawlers and brand verifiers
-            before React mounts. The 'spendiaReady' event (dispatched from _layout.tsx)
-            fades this out once the app is ready. Fallback timeout: 6s. */}
+            before React mounts. Se desvanece con el evento 'spendiaReady' si alguien
+            llega a emitirlo; hoy lo que lo cierra es el timeout de 6s. Solo aplica a
+            `expo start`: el export estático lo genera scripts/patch-html.js. */}
         <div id="spendia-landing" style={{
           position: 'fixed' as const,
           inset: 0,
