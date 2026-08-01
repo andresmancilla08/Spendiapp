@@ -36,8 +36,10 @@ import BankLogo from '../components/BankLogo';
 import { useHistoryStore } from '../store/historyStore';
 import ScreenTransition from '../components/ScreenTransition';
 import { categorizeLocal, categorizeRemote } from '../utils/categorize';
-import { suggestEmojiLocal, suggestEmojiWithGemini } from '../utils/suggestEmoji';
-import { EmojiPicker } from '../components/EmojiPicker';
+import { suggestIconLocal, suggestIconWithGemini } from '../utils/suggestIcon';
+import { FALLBACK_ICON } from '../constants/categoryIconData';
+import IconPicker from '../components/IconPicker';
+import CategoryIcon from '../components/CategoryIcon';
 import type { SharedParticipant, SharedTransaction } from '../types/sharedTransaction';
 import { calcSharedAmount, calcEqualPercentages } from '../utils/sharedCalc';
 import { categoryForOtherUser } from '../utils/sharedCategory';
@@ -102,7 +104,7 @@ export default function EditTransactionScreen() {
   const [catExpanded, setCatExpanded]             = useState(false);
   const [showNewCatForm, setShowNewCatForm]       = useState(false);
   const [newCatName, setNewCatName]               = useState('');
-  const [newCatIcon, setNewCatIcon]               = useState('📌');
+  const [newCatIcon, setNewCatIcon]               = useState(FALLBACK_ICON);
   const [newCatType, setNewCatType]               = useState<CategoryType>('expense');  // eslint-disable-line @typescript-eslint/no-unused-vars
   const [newCatSaving, setNewCatSaving]           = useState(false);
   const [showEmojiPicker, setShowEmojiPicker]     = useState(false);
@@ -154,15 +156,17 @@ export default function EditTransactionScreen() {
   useEffect(() => {
     if (userPickedEmoji) return;
     if (emojiDebounceRef.current) clearTimeout(emojiDebounceRef.current);
-    if (newCatName.trim().length < 2) { setNewCatIcon('📌'); return; }
+    if (newCatName.trim().length < 2) { setNewCatIcon(FALLBACK_ICON); return; }
     emojiDebounceRef.current = setTimeout(async () => {
-      const local = suggestEmojiLocal(newCatName);
+      const local = suggestIconLocal(newCatName);
       if (local) { setNewCatIcon(local); return; }
+      if (!GEMINI_KEY) { setNewCatIcon(FALLBACK_ICON); return; }
       if (GEMINI_KEY) {
         setEmojiSuggesting(true);
-        const ai = await suggestEmojiWithGemini(newCatName, GEMINI_KEY);
+        const ai = await suggestIconWithGemini(newCatName, GEMINI_KEY);
         setEmojiSuggesting(false);
-        if (ai) setNewCatIcon(ai);
+        // Sin coincidencia: se queda el icono de "Otro".
+        setNewCatIcon(ai ?? FALLBACK_ICON);
       }
     }, 500);
   }, [newCatName, userPickedEmoji]);
@@ -616,7 +620,7 @@ export default function EditTransactionScreen() {
                       <TouchableOpacity onPress={() => setShowEmojiPicker((v) => !v)} activeOpacity={0.8} style={styles.newCatInlineEmoji}>
                         {emojiSuggesting
                           ? <ActivityIndicator size="small" color={colors.primary} />
-                          : <Text style={{ fontSize: 18 }}>{newCatIcon}</Text>
+                          : <CategoryIcon icon={newCatIcon} size={18} />
                         }
                       </TouchableOpacity>
                       <TextInput
@@ -662,7 +666,7 @@ export default function EditTransactionScreen() {
                     return (
                       <View key={item.id} style={styles.chipWrapper}>
                         <TouchableOpacity style={chipStyle} onPress={() => setCategory(item.id)} activeOpacity={0.8}>
-                          <Text style={styles.categoryChipIcon}>{item.icon}</Text>
+                          <CategoryIcon icon={item.icon} size={15} color={isSelected ? colors.onPrimary : colors.textSecondary} />
                           <Text style={[styles.categoryChipLabel, { color: labelColor }]}>{item.name}</Text>
                         </TouchableOpacity>
                       </View>
@@ -687,7 +691,7 @@ export default function EditTransactionScreen() {
                         <TouchableOpacity onPress={() => setShowEmojiPicker((v) => !v)} activeOpacity={0.8} style={styles.newCatInlineEmoji}>
                           {emojiSuggesting
                             ? <ActivityIndicator size="small" color={colors.primary} />
-                            : <Text style={{ fontSize: 18 }}>{newCatIcon}</Text>
+                            : <CategoryIcon icon={newCatIcon} size={18} />
                           }
                         </TouchableOpacity>
                         <TextInput
@@ -735,7 +739,7 @@ export default function EditTransactionScreen() {
                       return (
                         <View key={item.id} style={styles.chipWrapper} onLayout={(e) => { chipOffsets.current[item.id] = e.nativeEvent.layout.x; }}>
                           <TouchableOpacity style={chipStyle} onPress={() => setCategory(item.id)} onLongPress={() => setCatExpanded(true)} delayLongPress={2000} activeOpacity={0.8}>
-                            <Text style={styles.categoryChipIcon}>{item.icon}</Text>
+                            <CategoryIcon icon={item.icon} size={15} color={isSelected ? colors.onPrimary : colors.textSecondary} />
                             <Text style={[styles.categoryChipLabel, { color: labelColor }]}>{item.name}</Text>
                           </TouchableOpacity>
                         </View>
@@ -756,7 +760,7 @@ export default function EditTransactionScreen() {
                       return (
                         <View key={item.id} style={styles.chipWrapper} onLayout={(e) => { chipOffsets.current[item.id] = e.nativeEvent.layout.x; }}>
                           <TouchableOpacity style={chipStyle} onPress={() => setCategory(item.id)} onLongPress={() => setCatExpanded(true)} delayLongPress={2000} activeOpacity={0.8}>
-                            <Text style={styles.categoryChipIcon}>{item.icon}</Text>
+                            <CategoryIcon icon={item.icon} size={15} color={isSelected ? colors.onPrimary : colors.textSecondary} />
                             <Text style={[styles.categoryChipLabel, { color: labelColor }]}>{item.name}</Text>
                           </TouchableOpacity>
                         </View>
@@ -770,7 +774,7 @@ export default function EditTransactionScreen() {
             {/* Emoji picker for new category */}
             {showNewCatForm && showEmojiPicker && (
               <View style={[styles.newCatEmojiPickerWrap, { backgroundColor: colors.surface, borderColor: colors.border, marginBottom: 16 }]}>
-                <EmojiPicker
+                <IconPicker
                   selected={newCatIcon}
                   onSelect={(e) => { setNewCatIcon(e); setUserPickedEmoji(true); setShowEmojiPicker(false); }}
                 />
@@ -1033,7 +1037,6 @@ const styles = StyleSheet.create({
   categoryGrid:      { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
   chipWrapper:       { alignItems: 'center' },
   categoryChip:      { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
-  categoryChipIcon:  { fontSize: 14 },
   categoryChipLabel: { fontSize: 13, fontFamily: Fonts.medium },
   // New category inline
   newCatInlineChip:  { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 6, gap: 6, minWidth: 180 },

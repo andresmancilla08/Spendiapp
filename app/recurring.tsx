@@ -10,6 +10,7 @@ import { useRecurring } from '../hooks/useRecurring';
 import { useCategories } from '../hooks/useCategories';
 import { resolveCategory, categoryLabel } from '../constants/categories';
 import AppHeader from '../components/AppHeader';
+import CategoryIcon from '../components/CategoryIcon';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -60,7 +61,7 @@ export default function RecurringScreen() {
                   return (
                     <View key={`${it.label}-${i}`} style={[styles.row, { backgroundColor: colors.surface, borderColor: it.stale ? colors.expense + '40' : colors.border }]}>
                       <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
-                        <Text style={styles.icon}>{cat.icon}</Text>
+                        <CategoryIcon icon={cat.icon} size={18} color={colors.textSecondary} />
                       </View>
                       <View style={styles.rowMid}>
                         <Text style={[styles.rowTitle, { color: colors.textPrimary }]} numberOfLines={1}>{it.label}</Text>
@@ -103,7 +104,6 @@ const styles = StyleSheet.create({
   totalSub: { fontSize: 12, fontFamily: Fonts.regular },
   row: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 16, borderWidth: 1, marginBottom: 10, gap: 12 },
   iconWrap: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  icon: { fontSize: 22 },
   rowMid: { flex: 1, gap: 2 },
   rowTitle: { fontSize: 15, fontFamily: Fonts.bold },
   rowSub: { fontSize: 12, fontFamily: Fonts.regular },

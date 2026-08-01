@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
+import CategoryIcon from '../components/CategoryIcon';
 import { useTranslation } from 'react-i18next';
 import {
   deleteDoc,
@@ -102,7 +103,7 @@ function DefaultCategoryRow({ emoji, name, type, isLast }: DefaultCategoryRowPro
       ]}
     >
       <View style={[styles.emojiCircle, { backgroundColor: colors.backgroundSecondary }]}>
-        <Text style={styles.emojiText}>{emoji}</Text>
+        <CategoryIcon icon={emoji} size={20} color={colors.textSecondary} />
       </View>
       <Text style={[styles.categoryName, { color: colors.textPrimary }]} numberOfLines={1}>
         {name}
@@ -134,7 +135,7 @@ function CustomCategoryRow({ category, isLast, onEdit, onDelete }: CustomCategor
       activeOpacity={0.7}
     >
       <View style={[styles.emojiCircle, { backgroundColor: colors.backgroundSecondary }]}>
-        <Text style={styles.emojiText}>{category.icon}</Text>
+        <CategoryIcon icon={category.icon} size={20} color={colors.textSecondary} />
       </View>
       <Text
         style={[styles.categoryName, { color: colors.textPrimary }]}
@@ -427,9 +428,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  emojiText: {
-    fontSize: 20,
   },
   categoryName: {
     flex: 1,

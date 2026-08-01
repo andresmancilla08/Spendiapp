@@ -23,12 +23,14 @@ import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import type { Category, CategoryType } from '../types/category';
-import { EmojiPicker } from './EmojiPicker';
-import { suggestEmojiLocal, suggestEmojiWithGemini } from '../utils/suggestEmoji';
+import IconPicker from './IconPicker';
+import CategoryIcon from './CategoryIcon';
+import { suggestIconLocal, suggestIconWithGemini } from '../utils/suggestIcon';
+import { FALLBACK_ICON } from '../constants/categoryIconData';
 
 const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 
-const DEFAULT_ICON = '📌';
+const DEFAULT_ICON = FALLBACK_ICON;
 
 type IconSource = 'auto' | 'manual';
 
@@ -136,7 +138,7 @@ export function CategoryFormModal({
     if (name.trim().length < 2) return;
 
     debounceRef.current = setTimeout(async () => {
-      const local = suggestEmojiLocal(name);
+      const local = suggestIconLocal(name);
       if (local !== null) {
         setIcon(local);
         setIconSource('auto');
@@ -145,12 +147,14 @@ export function CategoryFormModal({
 
       if (GEMINI_KEY) {
         setIsEmojiLoading(true);
-        const geminiEmoji = await suggestEmojiWithGemini(name, GEMINI_KEY);
+        const aiIcon = await suggestIconWithGemini(name, GEMINI_KEY);
         setIsEmojiLoading(false);
-        if (geminiEmoji !== null) {
-          setIcon(geminiEmoji);
-          setIconSource('auto');
-        }
+        // Sin coincidencia ni en palabras ni en IA: se queda el icono de "Otro".
+        setIcon(aiIcon ?? FALLBACK_ICON);
+        setIconSource('auto');
+      } else {
+        setIcon(FALLBACK_ICON);
+        setIconSource('auto');
       }
     }, 500);
 
@@ -370,7 +374,7 @@ export function CategoryFormModal({
                       { backgroundColor: colors.primaryLight },
                     ]}
                   >
-                    <Text style={styles.iconEmoji}>{icon}</Text>
+                    <CategoryIcon icon={icon} size={30} color={colors.primary} />
                   </View>
                   {isEmojiLoading && (
                     <ActivityIndicator
@@ -421,7 +425,7 @@ export function CategoryFormModal({
                       },
                     ]}
                   >
-                    <EmojiPicker selected={icon} onSelect={handleEmojiSelect} />
+                    <IconPicker selected={icon} onSelect={handleEmojiSelect} />
                   </View>
                 )}
               </View>

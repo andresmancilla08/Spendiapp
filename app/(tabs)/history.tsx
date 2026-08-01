@@ -12,6 +12,7 @@ import {
   PanResponder,
 } from 'react-native';
 import AppDialog from '../../components/AppDialog';
+import CategoryIcon from '../../components/CategoryIcon';
 import AppSegmentedControl from '../../components/AppSegmentedControl';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useFocusEffect, router } from 'expo-router';
@@ -62,14 +63,14 @@ import type { Category } from '../../types/category';
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const CATEGORY_META: Record<string, { icon: string; color: string }> = {
-  food:          { icon: '🍽️', color: '#EF4444' },
-  transport:     { icon: '🚗', color: '#F59E0B' },
-  health:        { icon: '💊', color: '#10B981' },
-  entertainment: { icon: '🎉', color: '#8B5CF6' },
-  shopping:      { icon: '🛍️', color: '#EC4899' },
-  home:          { icon: '🏡', color: '#00897B' },
-  salary:        { icon: '💰', color: '#00ACC1' },
-  other:         { icon: '📌', color: '#737879' },
+  food:          { icon: 'tools-kitchen', color: '#EF4444' },
+  transport:     { icon: 'car', color: '#F59E0B' },
+  health:        { icon: 'pill', color: '#10B981' },
+  entertainment: { icon: 'confetti', color: '#8B5CF6' },
+  shopping:      { icon: 'shopping-bag', color: '#EC4899' },
+  home:          { icon: 'home', color: '#00897B' },
+  salary:        { icon: 'cash', color: '#00ACC1' },
+  other:         { icon: 'pin', color: '#737879' },
 };
 
 const EXPENSE_CATEGORIES = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'other'];
@@ -139,7 +140,7 @@ function TxIconChip({ emoji, tint }: { emoji: string; tint: string }) {
           : { shadowColor: tint, shadowOpacity: 0.4, shadowRadius: 10, shadowOffset: { width: 0, height: 0 } },
       ]}
     >
-      <Text style={{ fontSize: 18 }}>{emoji}</Text>
+      <CategoryIcon icon={emoji} size={19} color={tint} />
     </View>
   );
 }

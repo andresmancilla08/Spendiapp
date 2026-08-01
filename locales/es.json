@@ -862,7 +862,23 @@
       "other": "Otro"
     },
     "pageDesc": "Organiza tus gastos por categorías",
-    "created": "Categoría «{{name}}» creada"
+    "created": "Categoría «{{name}}» creada",
+    "iconGroups": {
+      "food": "Comida y bebida",
+      "transport": "Transporte",
+      "health": "Salud y bienestar",
+      "fun": "Ocio",
+      "shopping": "Compras y cuidado personal",
+      "home": "Hogar",
+      "money": "Dinero",
+      "work": "Trabajo y estudio",
+      "pets": "Mascotas",
+      "travel": "Viajes",
+      "tech": "Tecnología",
+      "other": "Personal y otros"
+    },
+    "iconSearch": "Buscar icono",
+    "iconNoResults": "Ningún icono coincide"
   },
   "support": {
     "title": "Buzón de sugerencias",
@@ -1381,6 +1397,12 @@
       "item1": "Cada movimiento cuenta su historia: cuánto resta de una compra a cuotas, cuánto llevas en la categoría este mes y con qué tarjeta pagaste",
       "item2": "El plan de cuotas y la vida de un gasto fijo, mes a mes, con el día de corte de tu tarjeta",
       "item3": "Toca cualquier movimiento parecido de la lista para saltar a su detalle"
+    },
+    "categoryIcons": {
+      "title": "Iconos de categoría",
+      "item1": "Catálogo de 180 iconos agrupados por familias, con buscador.",
+      "item2": "Al escribir el nombre de la categoría, el icono se elige solo.",
+      "item3": "Tus categorías con emoji se convierten automáticamente."
     }
   },
   "incomeClaim": {

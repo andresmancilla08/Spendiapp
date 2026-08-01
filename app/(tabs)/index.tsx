@@ -8,6 +8,7 @@ import {
   Animated,
 } from 'react-native';
 import BalanceCard from '../../components/BalanceCard';
+import CategoryIcon from '../../components/CategoryIcon';
 import * as Haptics from 'expo-haptics';
 import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -63,14 +64,14 @@ import ExchangeRateChips from '../../components/ExchangeRateChips';
 
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
-  food:          { icon: '🍽️', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
-  transport:     { icon: '🚗', color: '#F59E0B', bg: '#F3F4F6', darkBg: '#252830' },
-  health:        { icon: '💊', color: '#10B981', bg: '#F3F4F6', darkBg: '#252830' },
-  entertainment: { icon: '🎉', color: '#8B5CF6', bg: '#F3F4F6', darkBg: '#252830' },
-  shopping:      { icon: '🛍️', color: '#EC4899', bg: '#F3F4F6', darkBg: '#252830' },
-  home:          { icon: '🏡', color: '#00897B', bg: '#F3F4F6', darkBg: '#252830' },
-  salary:        { icon: '💰', color: '#00ACC1', bg: '#F3F4F6', darkBg: '#252830' },
-  other:         { icon: '📌', color: '#737879', bg: '#F3F4F6', darkBg: '#252830' },
+  food:          { icon: 'tools-kitchen', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
+  transport:     { icon: 'car', color: '#F59E0B', bg: '#F3F4F6', darkBg: '#252830' },
+  health:        { icon: 'pill', color: '#10B981', bg: '#F3F4F6', darkBg: '#252830' },
+  entertainment: { icon: 'confetti', color: '#8B5CF6', bg: '#F3F4F6', darkBg: '#252830' },
+  shopping:      { icon: 'shopping-bag', color: '#EC4899', bg: '#F3F4F6', darkBg: '#252830' },
+  home:          { icon: 'home', color: '#00897B', bg: '#F3F4F6', darkBg: '#252830' },
+  salary:        { icon: 'cash', color: '#00ACC1', bg: '#F3F4F6', darkBg: '#252830' },
+  other:         { icon: 'pin', color: '#737879', bg: '#F3F4F6', darkBg: '#252830' },
 };
 
 function formatCurrency(amount: number): string {
@@ -132,7 +133,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
       <View style={styles.txRow}>
         <View style={styles.txIconSlot}>
           <View style={[styles.txIconWrap, { backgroundColor: isDark ? cat.darkBg : cat.bg }]}>
-            <Text style={styles.txIconText}>{cat.icon}</Text>
+            <CategoryIcon icon={cat.icon} size={20} color={cat.color} />
           </View>
           {relation && <TxRelationNotch relation={relation} />}
         </View>
@@ -441,7 +442,7 @@ export default function HomeScreen() {
       tone: vsLastMonthPct != null ? (vsLastMonthPct <= 0 ? 'pos' : 'neg') : 'muted',
     },
     {
-      key: 'topcat', icon: '🍽️', label: t('home.pro.topCategory'),
+      key: 'topcat', icon: 'tools-kitchen', label: t('home.pro.topCategory'),
       value: topCategory ? topCategory.label : '—',
       delta: topCategory && totalExpenses > 0 ? `${compactCurrency(topCategory.amount)} · ${Math.round((topCategory.amount / totalExpenses) * 100)}%` : undefined,
       tone: 'neg',
@@ -840,7 +841,6 @@ const styles = StyleSheet.create({
   },
   txIconSlot: { flexShrink: 0 },
   txIconWrap: { width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  txIconText: { fontSize: 20 },
   txMeta: { flex: 1, minWidth: 0 },
   txTitle: { fontSize: 14, fontFamily: Fonts.semiBold },
   txSubrow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },

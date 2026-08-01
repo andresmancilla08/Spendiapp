@@ -19,6 +19,7 @@ import {
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import { getMonthNames, formatDate } from '../utils/dateLocale';
 import AppIcon from './AppIcon';
+import CategoryIcon from './CategoryIcon';
 import { useTranslation } from 'react-i18next';
 import { updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -36,14 +37,14 @@ export interface EditTransactionSheetProps {
 }
 
 const CATEGORY_META: Record<string, { icon: string; color: string }> = {
-  food:          { icon: '🍽️', color: '#EF4444' },
-  transport:     { icon: '🚗', color: '#F59E0B' },
-  health:        { icon: '💊', color: '#10B981' },
-  entertainment: { icon: '🎉', color: '#8B5CF6' },
-  shopping:      { icon: '🛍️', color: '#EC4899' },
-  home:          { icon: '🏡', color: '#00897B' },
-  salary:        { icon: '💰', color: '#00ACC1' },
-  other:         { icon: '📌', color: '#737879' },
+  food:          { icon: 'tools-kitchen', color: '#EF4444' },
+  transport:     { icon: 'car', color: '#F59E0B' },
+  health:        { icon: 'pill', color: '#10B981' },
+  entertainment: { icon: 'confetti', color: '#8B5CF6' },
+  shopping:      { icon: 'shopping-bag', color: '#EC4899' },
+  home:          { icon: 'home', color: '#00897B' },
+  salary:        { icon: 'cash', color: '#00ACC1' },
+  other:         { icon: 'pin', color: '#737879' },
 };
 
 const EXPENSE_CATEGORIES = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'other'];
@@ -360,7 +361,7 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
                       onPress={() => setEditCategory(key)}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.chipIcon}>{meta.icon}</Text>
+                      <CategoryIcon icon={meta.icon} size={15} color={meta.color} />
                       <Text style={[styles.chipLabel, { color: isSelected ? '#FFFFFF' : colors.textSecondary }]}>
                         {CATEGORY_LABELS[key] ?? key}
                       </Text>
@@ -430,7 +431,6 @@ const styles = StyleSheet.create({
   textInput:          { fontSize: 16, fontFamily: Fonts.regular },
   categoryGrid:       { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20, marginTop: 4 },
   categoryChip:       { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
-  chipIcon:           { fontSize: 14 },
   chipLabel:          { fontSize: 13, fontFamily: Fonts.medium },
   errorText:          { fontSize: 13, fontFamily: Fonts.regular, textAlign: 'center', marginBottom: 8 },
   saveButton:         { borderRadius: 16, paddingVertical: 16, alignItems: 'center', justifyContent: 'center', marginTop: 8, marginBottom: 10 },

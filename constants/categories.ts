@@ -1,14 +1,15 @@
 import type { Category } from '../types/category';
+import { FALLBACK_ICON } from './categoryIcons';
 
 export const DEFAULT_CATEGORIES: Omit<Category, 'userId' | 'createdAt'>[] = [
-  { id: 'food',          name: 'Comida',      icon: '🍽️', type: 'expense', isDefault: true },
-  { id: 'transport',     name: 'Transporte',  icon: '🚗', type: 'expense', isDefault: true },
-  { id: 'health',        name: 'Salud',       icon: '💊', type: 'expense', isDefault: true },
-  { id: 'entertainment', name: 'Ocio',        icon: '🎉', type: 'expense', isDefault: true },
-  { id: 'shopping',      name: 'Compras',     icon: '🛍️', type: 'expense', isDefault: true },
-  { id: 'home',          name: 'Hogar',       icon: '🏡', type: 'expense', isDefault: true },
-  { id: 'salary',        name: 'Salario',     icon: '💰', type: 'income',  isDefault: true },
-  { id: 'other',         name: 'Otro',        icon: '📌', type: 'both',    isDefault: true },
+  { id: 'food',          name: 'Comida',      icon: 'tools-kitchen', type: 'expense', isDefault: true },
+  { id: 'transport',     name: 'Transporte',  icon: 'car',           type: 'expense', isDefault: true },
+  { id: 'health',        name: 'Salud',       icon: 'pill',          type: 'expense', isDefault: true },
+  { id: 'entertainment', name: 'Ocio',        icon: 'confetti',      type: 'expense', isDefault: true },
+  { id: 'shopping',      name: 'Compras',     icon: 'shopping-bag',  type: 'expense', isDefault: true },
+  { id: 'home',          name: 'Hogar',       icon: 'home',          type: 'expense', isDefault: true },
+  { id: 'salary',        name: 'Salario',     icon: 'cash',          type: 'income',  isDefault: true },
+  { id: 'other',         name: 'Otro',        icon: 'pin',           type: 'both',    isDefault: true },
 ];
 
 export function filterCategories(
@@ -46,5 +47,5 @@ export function resolveCategory(
   if (def) return { icon: def.icon, name: def.name };
   const custom = customCategories.find(c => c.id === id);
   if (custom) return { icon: custom.icon, name: custom.name };
-  return { icon: '📌', name: 'Otro' };
+  return { icon: FALLBACK_ICON, name: 'Otro' };
 }

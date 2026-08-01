@@ -862,7 +862,23 @@
       "other": "Altro"
     },
     "pageDesc": "Organizza le tue spese per categoria",
-    "created": "Categoria «{{name}}» creata"
+    "created": "Categoria «{{name}}» creata",
+    "iconGroups": {
+      "food": "Cibo e bevande",
+      "transport": "Trasporti",
+      "health": "Salute e benessere",
+      "fun": "Tempo libero",
+      "shopping": "Acquisti e cura personale",
+      "home": "Casa",
+      "money": "Denaro",
+      "work": "Lavoro e studio",
+      "pets": "Animali",
+      "travel": "Viaggi",
+      "tech": "Tecnologia",
+      "other": "Personale e altro"
+    },
+    "iconSearch": "Cerca icona",
+    "iconNoResults": "Nessuna icona corrisponde"
   },
   "budget": {
     "title": "Budget",
@@ -1381,6 +1397,12 @@
       "item1": "Ogni movimento racconta la sua storia: quanto resta di un acquisto a rate, quanto hai speso nella categoria questo mese e con quale carta hai pagato",
       "item2": "Il piano delle rate e la vita di una spesa fissa, mese per mese, con il giorno di chiusura della carta",
       "item3": "Tocca un movimento correlato nella lista per aprire il suo dettaglio"
+    },
+    "categoryIcons": {
+      "title": "Icone delle categorie",
+      "item1": "Catalogo di 180 icone raggruppate per famiglia, con ricerca.",
+      "item2": "Scrivi il nome della categoria e l'icona si sceglie da sola.",
+      "item3": "Le categorie con emoji vengono convertite automaticamente."
     }
   },
   "incomeClaim": {

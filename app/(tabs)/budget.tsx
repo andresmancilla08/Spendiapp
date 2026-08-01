@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon from '../../components/AppIcon';
+import CategoryIcon from '../../components/CategoryIcon';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import PressableScale from '../../components/PressableScale';
@@ -375,7 +376,7 @@ export default function BudgetScreen() {
                   <View style={styles.budgetRowTop}>
                     <View style={styles.catInfo}>
                       <View style={[styles.catIconWrap, { backgroundColor: `${color}1E` }, chipGlow(color)]}>
-                        <Text style={styles.catIcon}>{b.categoryIcon}</Text>
+                        <CategoryIcon icon={b.categoryIcon} size={18} color={color} />
                       </View>
                       <View>
                         <Text style={[styles.catName, { color: colors.textPrimary }]}>{b.categoryName}</Text>
@@ -406,7 +407,7 @@ export default function BudgetScreen() {
                   onPress={() => openAdd(cat)}
                 >
                   <View style={[styles.catIconWrap, { backgroundColor: colors.backgroundSecondary }]}>
-                    <Text style={styles.catIcon}>{cat.icon}</Text>
+                    <CategoryIcon icon={cat.icon} size={18} color={colors.textSecondary} />
                   </View>
                   <Text style={[styles.catName, { color: colors.textSecondary }]}>{cat.name}</Text>
                   <View style={[styles.addChip, { backgroundColor: colors.primaryLight }]}>
@@ -564,7 +565,6 @@ const styles = StyleSheet.create({
   budgetRowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   catInfo: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
   catIconWrap: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  catIcon: { fontSize: 20 },
   catName: { fontSize: 14, fontFamily: Fonts.semiBold },
   amountInfo: { flexDirection: 'row', alignItems: 'baseline' },
   spentAmt: { fontSize: 13, fontFamily: Fonts.bold },

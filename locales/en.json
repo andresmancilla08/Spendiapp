@@ -862,7 +862,23 @@
       "other": "Other"
     },
     "pageDesc": "Organize your expenses by category",
-    "created": "Category “{{name}}” created"
+    "created": "Category “{{name}}” created",
+    "iconGroups": {
+      "food": "Food & drink",
+      "transport": "Transport",
+      "health": "Health & wellness",
+      "fun": "Leisure",
+      "shopping": "Shopping & personal care",
+      "home": "Home",
+      "money": "Money",
+      "work": "Work & study",
+      "pets": "Pets",
+      "travel": "Travel",
+      "tech": "Technology",
+      "other": "Personal & other"
+    },
+    "iconSearch": "Search icon",
+    "iconNoResults": "No icon matches"
   },
   "budget": {
     "title": "Budget",
@@ -1381,6 +1397,12 @@
       "item1": "Every movement tells its story: how much is left on an installment purchase, your category total this month and which card paid",
       "item2": "The installment plan and the life of a fixed expense, month by month, with your card statement day",
       "item3": "Tap any related movement in the list to jump straight to its detail"
+    },
+    "categoryIcons": {
+      "title": "Category icons",
+      "item1": "A 180-icon catalog grouped by family, with search.",
+      "item2": "Type the category name and the icon picks itself.",
+      "item3": "Your emoji categories are converted automatically."
     }
   },
   "incomeClaim": {

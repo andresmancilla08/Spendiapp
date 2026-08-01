@@ -9,6 +9,7 @@ import {
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
+import CategoryIcon from '../components/CategoryIcon';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
@@ -51,14 +52,14 @@ import type { Transaction } from '../types/transaction';
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const CATEGORY_ICONS: Record<string, string> = {
-  food: '🍽️',
-  transport: '🚗',
-  health: '💊',
-  entertainment: '🎉',
-  shopping: '🛍️',
-  home: '🏡',
-  salary: '💰',
-  other: '📌',
+  food: 'tools-kitchen',
+  transport: 'car',
+  health: 'pill',
+  entertainment: 'confetti',
+  shopping: 'shopping-bag',
+  home: 'home',
+  salary: 'cash',
+  other: 'pin',
 };
 
 /** Máximo de chips del plan de cuotas / historial del fijo antes de resumir. */
@@ -676,7 +677,7 @@ export default function TransactionDetailScreen() {
       </Text>
     </Tile>,
     <Tile key="cat" label={t('history.detail.categoryLabel')} labelColor={ink.label} surface={surface} border={ink.border}>
-      <Text style={styles.tileEmoji}>{catIcon}</Text>
+      <View style={styles.tileIcon}><CategoryIcon icon={catIcon} size={18} color={colors.textSecondary} /></View>
       <Text style={[styles.tileSub, { color: ink.soft }]} numberOfLines={2}>
         {isClaim && !isExpense
           ? `${catName} · ${t('history.detail.catNotExpense')}`
@@ -962,7 +963,7 @@ export default function TransactionDetailScreen() {
                       ]}
                     >
                       <View style={[styles.relIcon, { backgroundColor: blend(colors.primary, surface, 0.12) }]}>
-                        <Text style={styles.relIconText}>{icon}</Text>
+                        <CategoryIcon icon={icon} size={16} color={colors.textSecondary} />
                       </View>
                       <View style={styles.relMeta}>
                         <Text style={[styles.relTitle, { color: colors.textPrimary }]} numberOfLines={1}>
@@ -1255,7 +1256,7 @@ const styles = StyleSheet.create({
   tileLabel: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.3, textTransform: 'uppercase' },
   tileBig: { fontSize: 21, fontFamily: Fonts.extraBold, letterSpacing: -0.8, marginTop: 5, fontVariant: ['tabular-nums'] },
   tileValue: { fontSize: 14, fontFamily: Fonts.bold, marginTop: 6 },
-  tileEmoji: { fontSize: 18, marginTop: 4 },
+  tileIcon: { marginTop: 5 },
   tileSub: { fontSize: 10, fontFamily: Fonts.regular, lineHeight: 14, marginTop: 3 },
 
   // Módulos anchos
@@ -1299,7 +1300,6 @@ const styles = StyleSheet.create({
   // Movimientos relacionados
   relRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9 },
   relIcon: { width: 30, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  relIconText: { fontSize: 15 },
   relMeta: { flex: 1, minWidth: 0 },
   relTitle: { fontSize: 12.5, fontFamily: Fonts.semiBold },
   relSub: { fontSize: 10.5, fontFamily: Fonts.regular, marginTop: 1 },
