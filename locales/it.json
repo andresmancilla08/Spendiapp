@@ -209,8 +209,6 @@
       "insightSpendMore": "Hai speso il {{pct}}% in più del mese scorso. Occhio al ritmo.",
       "insightNoPrev": "Questo è il tuo punto di partenza. Il mese prossimo potrai confrontarti."
     },
-    "firestoreTitle": "Configura Firestore",
-    "firestoreSubtitle": "Aggiorna le regole di sicurezza nella Firebase Console.",
     "noCardsBannerTitle": "Aggiungi le tue carte",
     "noCardsBannerSub": "Scegli quali carte usi e tieni traccia precisa di ogni spesa.",
     "transactionSaved": "Transazione salvata",
@@ -1781,5 +1779,25 @@
     },
     "lastUpdated": "Ultimo aggiornamento",
     "spanishOnlyNotice": "Questo documento è attualmente disponibile solo in spagnolo. È in corso una traduzione professionale."
+  },
+  "dataError": {
+    "offline": {
+      "title": "Nessuna connessione",
+      "subtitle": "Non siamo riusciti a caricare i movimenti. Controlla la connessione e riprova."
+    },
+    "auth": {
+      "title": "La sessione è scaduta",
+      "subtitle": "Accedi di nuovo per vedere i tuoi movimenti."
+    },
+    "setup": {
+      "title": "Ci stiamo lavorando",
+      "subtitle": "Si è verificato un problema nel leggere i dati. Lo stiamo verificando; riprova più tardi."
+    },
+    "unknown": {
+      "title": "Non siamo riusciti a caricare i dati",
+      "subtitle": "Qualcosa è andato storto leggendo i movimenti. Riprova tra poco."
+    },
+    "retry": "Riprova",
+    "signInAgain": "Accedi di nuovo"
   }
 }

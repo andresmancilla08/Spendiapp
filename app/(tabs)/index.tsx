@@ -59,6 +59,7 @@ import { categoryColor } from '../../constants/categoryColors';
 import type { Category } from '../../types/category';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import AnnouncementBanner from '../../components/AnnouncementBanner';
+import DataErrorCard from '../../components/DataErrorCard';
 import { useAmountsVisibility } from '../../hooks/useAmountsVisibility';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
 
@@ -279,7 +280,6 @@ export default function HomeScreen() {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setRefreshKey((k) => k + 1);
-    setTimeout(() => setRefreshing(false), 1200);
   }, []);
 
   const { transactions, totalIncome, totalExpenses, balance, loading, error } = useTransactions(
@@ -288,6 +288,12 @@ export default function HomeScreen() {
     month,
     refreshKey
   );
+
+  // El spinner del pull-to-refresh sigue a la carga real (onSnapshot), no a un
+  // temporizador: antes se apagaba a los 1200 ms aunque los datos no hubieran llegado.
+  useEffect(() => {
+    if (!loading) setRefreshing(false);
+  }, [loading]);
 
   // Premium: serie de 6 meses (tendencia + comparación con mes anterior).
   const dayCutoffForTrend = isCurrentMonth ? now.getDate() : new Date(year, month + 1, 0).getDate();
@@ -640,7 +646,7 @@ export default function HomeScreen() {
 
                 {/* La tendencia de 6 meses ahora vive como sparkline en el hero */}
               </>
-            ) : (
+            ) : error ? null : (
               <ProReveal index={2}>
                 <View style={styles.summaryRow}>
                   <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.primary + '28' }]}>
@@ -699,19 +705,11 @@ export default function HomeScreen() {
             </View>
 
             {error ? (
-              <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
-                <View style={styles.emptyState}>
-                  <Text style={styles.emptyIcon}>🔒</Text>
-                  <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('home.firestoreTitle')}</Text>
-                  <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
-                    {t('home.firestoreSubtitle')}
-                  </Text>
-                </View>
-              </View>
+              <DataErrorCard code={error} onRetry={onRefresh} />
             ) : recent.length === 0 ? (
               <View style={[styles.txCard, { backgroundColor: colors.surface }]}>
                 <View style={styles.emptyState}>
-                  <Text style={styles.emptyIcon}>📭</Text>
+                  <View style={styles.emptyIconWrap}><AppIcon name="inbox" size={34} color={colors.textTertiary} /></View>
                   <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('home.noTransactions')}</Text>
                   <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>{t('home.noTransactionsSub')}</Text>
                 </View>
@@ -858,7 +856,7 @@ const styles = StyleSheet.create({
 
   // Empty
   emptyState: { alignItems: 'center', padding: 36 },
-  emptyIcon: { fontSize: 36, marginBottom: 10 },
+  emptyIconWrap: { marginBottom: 10 },
   emptyTitle: { fontSize: 14, fontFamily: Fonts.semiBold, marginBottom: 4 },
   emptySubtitle: { fontSize: 12, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 18 },
 

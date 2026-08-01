@@ -209,8 +209,6 @@
       "insightSpendMore": "You spent {{pct}}% more than last month. Watch the pace.",
       "insightNoPrev": "This is your baseline. Next month you can compare."
     },
-    "firestoreTitle": "Set up Firestore",
-    "firestoreSubtitle": "Update the security rules in Firebase Console.",
     "noCardsBannerTitle": "Add your cards",
     "noCardsBannerSub": "Choose which cards you use and track every expense precisely.",
     "transactionSaved": "Transaction saved",
@@ -1781,5 +1779,25 @@
     },
     "lastUpdated": "Last updated",
     "spanishOnlyNotice": "This document is currently available in Spanish only. A professionally translated version is pending."
+  },
+  "dataError": {
+    "offline": {
+      "title": "No connection",
+      "subtitle": "We couldn't load your transactions. Check your connection and try again."
+    },
+    "auth": {
+      "title": "Your session expired",
+      "subtitle": "Sign in again to see your transactions."
+    },
+    "setup": {
+      "title": "We're on it",
+      "subtitle": "Something went wrong reading your data. We are looking into it; please try later."
+    },
+    "unknown": {
+      "title": "We couldn't load your data",
+      "subtitle": "Something failed while reading your transactions. Try again in a moment."
+    },
+    "retry": "Try again",
+    "signInAgain": "Sign in again"
   }
 }
