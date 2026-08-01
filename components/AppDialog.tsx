@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import AppIcon, { AppIconName } from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 
 
@@ -189,7 +190,7 @@ export default function AppDialog({
               onPress={onSecondary}
               activeOpacity={0.7}
             >
-              <Text style={[styles.secondaryLabel, { color: colors.primary }]}>{secondaryLabel}</Text>
+              <Text style={[styles.secondaryLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>{secondaryLabel}</Text>
             </TouchableOpacity>
           )}
         </Animated.View>

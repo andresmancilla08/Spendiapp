@@ -24,6 +24,7 @@ import { createUserProfile } from '../../hooks/useUserProfile';
 import { auth } from '../../config/firebase';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
 import AppIcon from '../../components/AppIcon';
@@ -233,14 +234,14 @@ export default function RegisterScreen() {
                 <Text style={[styles.consentText, { color: colors.textSecondary }]}>
                   {t('register.acceptPrefix')}{' '}
                   <Text
-                    style={{ color: colors.primary, fontFamily: Fonts.semiBold }}
+                    style={{ color: accentInk(colors, 'primary', colors.background), fontFamily: Fonts.semiBold }}
                     onPress={(e) => { e.stopPropagation?.(); router.push('/terms' as any); }}
                   >
                     {t('register.termsLabel')}
                   </Text>
                   {' '}{t('register.acceptAnd')}{' '}
                   <Text
-                    style={{ color: colors.primary, fontFamily: Fonts.semiBold }}
+                    style={{ color: accentInk(colors, 'primary', colors.background), fontFamily: Fonts.semiBold }}
                     onPress={(e) => { e.stopPropagation?.(); router.push('/privacy' as any); }}
                   >
                     {t('register.privacyLabel')}

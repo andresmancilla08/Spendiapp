@@ -21,6 +21,7 @@ import { addDoc, updateDoc, doc, collection, Timestamp } from 'firebase/firestor
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import type { Category, CategoryType } from '../types/category';
 import IconPicker from './IconPicker';
@@ -409,7 +410,7 @@ export function CategoryFormModal({
                     size={16}
                     color={colors.primary}
                   />
-                  <Text style={[styles.changeIconBtnText, { color: colors.primary }]}>
+                  <Text style={[styles.changeIconBtnText, { color: accentInk(colors, 'primary', colors.backgroundSecondary) }]}>
                     {t('categories.changeIcon')}
                   </Text>
                 </TouchableOpacity>

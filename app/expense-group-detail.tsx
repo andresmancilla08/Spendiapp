@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
 import { useExpenseGroups, useGroupExpenses } from '../hooks/useExpenseGroups';
 import { calculateSettlements } from '../utils/settlementCalc';
@@ -280,7 +281,7 @@ export default function ExpenseGroupDetailScreen() {
               {isSettled && (
                 <View style={[styles.settledBanner, { backgroundColor: `${colors.success}18`, borderColor: `${colors.success}35` }]}>
                   <AppIcon name="checkmark-circle" size={18} color={colors.success} />
-                  <Text style={[styles.settledBannerText, { color: colors.success }]}>
+                  <Text style={[styles.settledBannerText, { color: accentInk(colors, 'success', colors.surface) }]}>
                     {t('expenseGroups.settled')}
                   </Text>
                 </View>
@@ -438,10 +439,10 @@ export default function ExpenseGroupDetailScreen() {
                         </View>
                         <AppIcon name="arrow-forward" size={14} color={colors.textTertiary} style={styles.settlementArrow} />
                         <View style={[styles.settlementNamePill, { backgroundColor: `${colors.success}18`, borderColor: `${colors.success}30` }]}>
-                          <Text style={[styles.settlementName, { color: colors.success }]} numberOfLines={1}>{s.toName}</Text>
+                          <Text style={[styles.settlementName, { color: accentInk(colors, 'success', colors.surface) }]} numberOfLines={1}>{s.toName}</Text>
                         </View>
                         <View style={{ flex: 1 }} />
-                        <Text style={[styles.settlementAmount, { color: colors.warning }]}>
+                        <Text style={[styles.settlementAmount, { color: accentInk(colors, 'warning', colors.surface) }]}>
                           {formatCurrency(s.amount)}
                         </Text>
                       </View>
@@ -483,7 +484,7 @@ export default function ExpenseGroupDetailScreen() {
                       style={[styles.optionBtn, { backgroundColor: `${colors.success}15`, borderColor: `${colors.success}30` }]}
                     >
                       <AppIcon name="checkmark-circle-outline" size={20} color={colors.success} />
-                      <Text style={[styles.optionBtnText, { color: colors.success }]}>
+                      <Text style={[styles.optionBtnText, { color: accentInk(colors, 'success', colors.surface) }]}>
                         {t('expenseGroups.settle')}
                       </Text>
                     </TouchableOpacity>
@@ -494,7 +495,7 @@ export default function ExpenseGroupDetailScreen() {
                       style={[styles.optionBtn, { backgroundColor: `${colors.primary}15`, borderColor: `${colors.primary}30` }]}
                     >
                       <AppIcon name="refresh-circle-outline" size={20} color={colors.primary} />
-                      <Text style={[styles.optionBtnText, { color: colors.primary }]}>
+                      <Text style={[styles.optionBtnText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                         {t('expenseGroups.reopen')}
                       </Text>
                     </TouchableOpacity>

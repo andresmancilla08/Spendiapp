@@ -12,6 +12,7 @@ import {
 import AppIcon from './AppIcon';
 import { router } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
 import type { AuthMethod } from '../hooks/useConsentLogger';
@@ -106,7 +107,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
                   {t('consentModal.terms')}
                 </Text>
                 <View style={styles.docRight}>
-                  <Text style={[styles.docRead, { color: colors.primary }]}>
+                  <Text style={[styles.docRead, { color: accentInk(colors, 'primary', colors.surfaceElevated) }]}>
                     {t('consentModal.read')}
                   </Text>
                   <AppIcon name="chevron-forward" size={14} color={colors.primary} />
@@ -125,7 +126,7 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
                   {t('consentModal.privacy')}
                 </Text>
                 <View style={styles.docRight}>
-                  <Text style={[styles.docRead, { color: colors.primary }]}>
+                  <Text style={[styles.docRead, { color: accentInk(colors, 'primary', colors.surfaceElevated) }]}>
                     {t('consentModal.read')}
                   </Text>
                   <AppIcon name="chevron-forward" size={14} color={colors.primary} />

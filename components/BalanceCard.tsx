@@ -12,6 +12,7 @@ import { useState, useEffect, useRef, useMemo, useId, type ReactNode } from 'rea
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import AppIcon from './AppIcon';
 import { useTheme, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useProMotion } from '../hooks/useProMotion';
 import { isTrendUp } from '../utils/chartTrend';
 import { Fonts } from '../config/fonts';
@@ -530,7 +531,7 @@ export default function BalanceCard({
         <AppIcon name="chevron-back" size={18} color={canGoPrev ? colors.primary : colors.border} />
       </TouchableOpacity>
       <TouchableOpacity onPress={() => setPickerOpen((v) => !v)} style={styles.monthNavLabelBtn} hitSlop={{ top: 10, bottom: 10, left: 12, right: 12 }} activeOpacity={0.7}>
-        <Text style={[styles.monthNavLabel, { color: colors.primary }]}>
+        <Text style={[styles.monthNavLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
           {monthNav!.months[monthNav!.month].toUpperCase()} {monthNav!.year}
         </Text>
         <AppIcon name={pickerOpen ? 'chevron-up' : 'chevron-down'} size={13} color={colors.primary} style={{ marginLeft: 4 }} />

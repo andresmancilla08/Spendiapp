@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 
 interface PinKeypadProps {
   onComplete: (pin: string) => void;
@@ -85,9 +86,9 @@ export default function PinKeypad({
                   accessibilityLabel={isBackspace ? 'Borrar' : isConfirm ? 'Confirmar' : key}
                 >
                   {isBackspace ? (
-                    <Text style={[styles.keySpecialText, { color: colors.primary }]}>{'←'}</Text>
+                    <Text style={[styles.keySpecialText, { color: accentInk(colors, 'primary', colors.background) }]}>{'←'}</Text>
                   ) : isConfirm ? (
-                    <Text style={[styles.keySpecialText, { color: colors.primary }]}>{'✓'}</Text>
+                    <Text style={[styles.keySpecialText, { color: accentInk(colors, 'primary', colors.background) }]}>{'✓'}</Text>
                   ) : (
                     <Text style={[styles.keyText, { color: colors.textPrimary }]}>{key}</Text>
                   )}

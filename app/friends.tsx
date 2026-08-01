@@ -9,6 +9,7 @@ import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
 import {
   useFriends, sendFriendRequest, acceptFriendRequest,
@@ -61,7 +62,7 @@ function Avatar({ name, colors }: { name?: string; colors: Colors }) {
   return (
     <View style={[avatarStyles.wrap, { backgroundColor: colors.primaryLight }]}>
       {initials ? (
-        <Text style={[avatarStyles.initials, { color: colors.primary }]}>{initials}</Text>
+        <Text style={[avatarStyles.initials, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>{initials}</Text>
       ) : (
         <AppIcon name="person" size={18} color={colors.primary} />
       )}
@@ -320,7 +321,7 @@ export default function FriendsScreen() {
                     </View>
                     {isAccepted ? (
                       <View style={[styles.statusChip, { backgroundColor: colors.successLight }]}>
-                        <Text style={[styles.statusChipText, { color: colors.success }]}>{t('friends.search.alreadyFriends')}</Text>
+                        <Text style={[styles.statusChipText, { color: accentInk(colors, 'success', colors.successLight) }]}>{t('friends.search.alreadyFriends')}</Text>
                       </View>
                     ) : iSent ? (
                       <View style={[styles.statusChip, { backgroundColor: colors.surfaceSecondary }]}>

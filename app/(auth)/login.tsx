@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import AppIcon from '../../components/AppIcon';
 import { Fonts } from '../../config/fonts';
 import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
@@ -135,7 +136,7 @@ export default function LoginScreen() {
           >
             <Text style={[styles.registerLinkText, { color: colors.textSecondary }]}>
               {t('login.noAccount')}{' '}
-              <Text style={[styles.registerLinkHighlight, { color: colors.primary }]}>
+              <Text style={[styles.registerLinkHighlight, { color: accentInk(colors, 'primary', colors.background) }]}>
                 {t('login.registerLink')}
               </Text>
             </Text>
@@ -143,11 +144,11 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Link href="/privacy" style={[styles.footerLink, { color: colors.primary }]}>
+          <Link href="/privacy" style={[styles.footerLink, { color: accentInk(colors, 'primary', colors.background) }]}>
             {t('consentModal.privacy')}
           </Link>
           <Text style={[styles.footerDot, { color: colors.textTertiary }]}>·</Text>
-          <Link href="/terms" style={[styles.footerLink, { color: colors.primary }]}>
+          <Link href="/terms" style={[styles.footerLink, { color: accentInk(colors, 'primary', colors.background) }]}>
             {t('consentModal.terms')}
           </Link>
         </View>

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
 
@@ -94,7 +95,7 @@ export default function FeaturePausedSheet({
             {t('common.featurePaused.title')}
           </Text>
 
-          <Text style={[styles.featureName, { color: colors.primary }]}>
+          <Text style={[styles.featureName, { color: accentInk(colors, 'primary', colors.surface) }]}>
             {featureName}
           </Text>
 

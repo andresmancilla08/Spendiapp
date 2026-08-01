@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
 import { ReportData } from '../hooks/useReportGenerator';
@@ -115,7 +116,7 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
               activeOpacity={0.75}
             >
               <AppIcon name="share-outline" size={20} color={colors.primary} />
-              <Text style={[styles.toolbarBtnText, { color: colors.primary }]}>
+              <Text style={[styles.toolbarBtnText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                 {t('reports.share')}
               </Text>
             </TouchableOpacity>
@@ -126,7 +127,7 @@ export default function ReportViewer({ blob, data, onClose }: ReportViewerProps)
               activeOpacity={0.75}
             >
               <AppIcon name="download-outline" size={20} color={colors.primary} />
-              <Text style={[styles.toolbarBtnText, { color: colors.primary }]}>
+              <Text style={[styles.toolbarBtnText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                 {t('reports.save')}
               </Text>
             </TouchableOpacity>

@@ -20,6 +20,7 @@ import { addDoc, collection, Timestamp, writeBatch, doc } from 'firebase/firesto
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import type { TransactionType } from '../types/transaction';
@@ -593,7 +594,7 @@ export default function AddTransactionScreen() {
                 {scanning
                   ? <ActivityIndicator size="small" color={colors.primary} />
                   : <AppIcon name="receipt-outline" size={18} color={colors.primary} />}
-                <Text style={{ color: colors.primary, fontFamily: Fonts.bold, fontSize: 14 }}>
+                <Text style={{ color: accentInk(colors, 'primary', colors.surface), fontFamily: Fonts.bold, fontSize: 14 }}>
                   {scanning ? t('addTransaction.scanning') : t('addTransaction.scanReceipt')}
                 </Text>
               </TouchableOpacity>
@@ -904,7 +905,7 @@ export default function AddTransactionScreen() {
               {cutoffAdjusted && (
                 <View style={[styles.cutoffNotice, { backgroundColor: colors.primaryLight, borderTopColor: colors.border }]}>
                   <AppIcon name="information-circle" size={14} color={colors.primary} />
-                  <Text style={[styles.cutoffNoticeText, { color: colors.primary }]}>
+                  <Text style={[styles.cutoffNoticeText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>
                     {t('addTransaction.cutoffAdjusted', { day: selectedCard?.cutoffDay })}
                   </Text>
                 </View>
@@ -921,7 +922,7 @@ export default function AddTransactionScreen() {
                           <AppIcon name="chevron-back" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
-                          <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
+                          <Text style={[styles.pickerMonthLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
                             {MONTHS[pickerMonth].toUpperCase()} {pickerYear}
                           </Text>
                           <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
@@ -1036,7 +1037,7 @@ export default function AddTransactionScreen() {
                     activeOpacity={0.8}
                   >
                     <AppIcon name="card-outline" size={18} color={colors.primary} />
-                    <Text style={[styles.noCardsPromptText, { color: colors.primary }]}>
+                    <Text style={[styles.noCardsPromptText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                       {t('addTransaction.noCards')}
                     </Text>
                     <AppIcon name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />
@@ -1183,14 +1184,14 @@ export default function AddTransactionScreen() {
                       const same = first === last;
                       return (
                         <>
-                          <Text style={[styles.fixedHint, { color: colors.primary }]}>
+                          <Text style={[styles.fixedHint, { color: accentInk(colors, 'primary', colors.surface) }]}>
                             {same
                               ? t('addTransaction.installmentPreviewEqual', { count: installmentCount, amount: first.toLocaleString('es-CO') })
                               : t('addTransaction.installmentPreviewUnequal', { count: installmentCount - 1, first: first.toLocaleString('es-CO'), last: last.toLocaleString('es-CO') })}
                           </Text>
                           {withInterest && interest > 0 && (
                             <>
-                              <Text style={[styles.fixedHint, { color: colors.primary }]}>
+                              <Text style={[styles.fixedHint, { color: accentInk(colors, 'primary', colors.surface) }]}>
                                 {t('addTransaction.installmentTotal', { amount: Math.round(total).toLocaleString('es-CO') })}
                               </Text>
                               <Text style={[styles.fixedHint, { color: colors.error ?? '#EF4444' }]}>

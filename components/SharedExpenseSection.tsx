@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import AppSegmentedControl from './AppSegmentedControl';
 import { Fonts } from '../config/fonts';
 import { useFriendProfiles } from '../hooks/useFriendProfiles';
@@ -260,7 +261,7 @@ export default function SharedExpenseSection({
                   <View style={[styles.previewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <View style={styles.previewRow}>
                       <Text style={[styles.previewName, { color: colors.textPrimary }]}>{t('sharedExpense.you')}</Text>
-                      <Text style={[styles.previewAmt, { color: colors.success ?? colors.primary }]}>
+                      <Text style={[styles.previewAmt, { color: accentInk(colors, 'success', colors.surface) }]}>
                         +${amount.toLocaleString('es-CO')}
                       </Text>
                     </View>
@@ -377,7 +378,7 @@ export default function SharedExpenseSection({
                               {isOwnerRow ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`)}
                             </Text>
                           </View>
-                          <Text style={[styles.previewAmt, { color: colors.primary }]}>
+                          <Text style={[styles.previewAmt, { color: accentInk(colors, 'primary', colors.surface) }]}>
                             {installmentCount > 1
                               ? t('sharedExpense.previewInstallment', { amount: `$${formatted}`, n: installmentCount })
                               : `$${formatted}`}

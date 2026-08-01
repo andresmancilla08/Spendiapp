@@ -14,6 +14,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
 import AppIcon from '../../components/AppIcon';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import { useToast } from '../../context/ToastContext';
 import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
@@ -141,7 +142,7 @@ export default function SelectCardsScreen() {
                           <View style={styles.addedCards}>
                             {cardsForBank.map((card) => (
                               <View key={card.id} style={[styles.addedChip, { backgroundColor: colors.primaryLight }]}>
-                                <Text style={[styles.addedChipText, { color: colors.primary }]}>
+                                <Text style={[styles.addedChipText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>
                                   {card.nickname ? `${card.nickname} · ${card.type === 'credit' ? t('selectCards.credit') : t('selectCards.debit')}` : (card.type === 'credit' ? t('selectCards.credit') : t('selectCards.debit'))}
                                 </Text>
                                 <TouchableOpacity
@@ -257,7 +258,7 @@ export default function SelectCardsScreen() {
             onPress={handleSkip}
             activeOpacity={0.7}
           >
-            <Text style={[styles.skipText, { color: colors.primary }]}>{t('selectCards.skipForNow')}</Text>
+            <Text style={[styles.skipText, { color: accentInk(colors, 'primary', colors.background) }]}>{t('selectCards.skipForNow')}</Text>
           </TouchableOpacity>
         </View>
 

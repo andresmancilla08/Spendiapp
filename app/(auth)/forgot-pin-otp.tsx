@@ -20,6 +20,7 @@ import AppHeader from '../../components/AppHeader';
 import PinInput from '../../components/PinInput';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import { Fonts } from '../../config/fonts';
 import AppIcon from '../../components/AppIcon';
 import { sendOtpEmail, verifyOtp } from '../../hooks/useAuth';
@@ -233,7 +234,7 @@ export default function ForgotPinOtpScreen() {
                     <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
                       {t('forgotPinOtp.subtitle')}{' '}
                       <Text
-                        style={{ color: colors.primary, fontFamily: Fonts.semiBold }}
+                        style={{ color: accentInk(colors, 'primary', colors.background), fontFamily: Fonts.semiBold }}
                         numberOfLines={1}
                         ellipsizeMode="middle"
                       >
@@ -267,7 +268,7 @@ export default function ForgotPinOtpScreen() {
                         </Text>
                         <TouchableOpacity onPress={handleResend} activeOpacity={0.7} disabled={loading}>
                           <Text style={[styles.timerText, {
-                            color: colors.primary,
+                            color: accentInk(colors, 'primary', colors.background),
                             fontFamily: Fonts.semiBold,
                             textDecorationLine: 'underline',
                           }]}>

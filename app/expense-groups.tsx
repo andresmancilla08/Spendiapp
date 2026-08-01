@@ -26,6 +26,7 @@ import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { Fonts } from '../config/fonts';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
 import { useAuthStore } from '../store/authStore';
 
@@ -315,7 +316,7 @@ export default function ExpenseGroupsScreen() {
                       backgroundColor: `${colors.primary}10`,
                     }]}>
                       <AppIcon name="person-circle-outline" size={16} color={colors.primary} style={{ marginRight: 6 }} />
-                      <Text style={[dialogStyles.participantFixed, { color: colors.primary, fontFamily: Fonts.semiBold }]}>
+                      <Text style={[dialogStyles.participantFixed, { color: accentInk(colors, 'primary', colors.surface), fontFamily: Fonts.semiBold }]}>
                         {t('expenseGroups.createGroup.youLabel')}
                       </Text>
                     </View>
@@ -362,7 +363,7 @@ export default function ExpenseGroupsScreen() {
                       }]}
                     >
                       <AppIcon name="add" size={15} color={colors.primary} />
-                      <Text style={[dialogStyles.addParticipantText, { color: colors.primary, fontFamily: Fonts.medium }]}>
+                      <Text style={[dialogStyles.addParticipantText, { color: accentInk(colors, 'primary', colors.surface), fontFamily: Fonts.medium }]}>
                         {t('expenseGroups.createGroup.addParticipant')}
                       </Text>
                     </TouchableOpacity>

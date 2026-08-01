@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useRecurring } from '../hooks/useRecurring';
 import { useCategories } from '../hooks/useCategories';
 import { resolveCategory, categoryLabel } from '../constants/categories';
@@ -51,7 +52,7 @@ export default function RecurringScreen() {
               <>
                 <View style={[styles.totalCard, { backgroundColor: colors.primaryLight, borderColor: colors.primary + '30' }]}>
                   <Text style={[styles.totalLabel, { color: colors.textTertiary }]}>{t('recurring.monthlyTotalLabel')}</Text>
-                  <Text style={[styles.totalValue, { color: colors.primary }]}>{formatCurrency(data.monthlyTotal)}</Text>
+                  <Text style={[styles.totalValue, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>{formatCurrency(data.monthlyTotal)}</Text>
                   <Text style={[styles.totalSub, { color: colors.textSecondary }]}>{t('recurring.monthlyTotalSub')}</Text>
                 </View>
 

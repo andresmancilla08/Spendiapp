@@ -19,6 +19,7 @@ import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTr
 import PinInput from '../../components/PinInput';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
+import { accentInk } from '../../utils/contrast';
 import { Fonts } from '../../config/fonts';
 import AppIcon from '../../components/AppIcon';
 
@@ -139,7 +140,7 @@ export default function LoginEmailScreen() {
               }
             </TouchableOpacity>
             <TouchableOpacity style={styles.forgotPinButton} onPress={handleForgotPin} activeOpacity={0.7}>
-              <Text style={[styles.forgotPinText, { color: colors.primary }]}>{t('loginEmail.forgotPin')}</Text>
+              <Text style={[styles.forgotPinText, { color: accentInk(colors, 'primary', colors.background) }]}>{t('loginEmail.forgotPin')}</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>

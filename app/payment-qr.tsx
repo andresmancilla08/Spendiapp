@@ -16,6 +16,7 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import ScreenBackground from '../components/ScreenBackground';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useAuthStore } from '../store/authStore';
 import { db } from '../config/firebase';
 import { Fonts } from '../config/fonts';
@@ -228,7 +229,7 @@ export default function PaymentQrScreen() {
               }]}>
                 <View style={[styles.breBBadge, { backgroundColor: `${colors.primary}18`, borderColor: `${colors.primary}35` }]}>
                   <AppIcon name="phone-portrait-outline" size={13} color={colors.primary} />
-                  <Text style={[styles.breBBadgeText, { color: colors.primary }]}>Bre-B</Text>
+                  <Text style={[styles.breBBadgeText, { color: accentInk(colors, 'primary', colors.surface) }]}>Bre-B</Text>
                 </View>
 
                 <View style={[styles.keyRow, {
@@ -237,7 +238,7 @@ export default function PaymentQrScreen() {
                 }]}>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.keyLabel, { color: colors.textSecondary }]}>{t('paymentQr.keyLabel')}</Text>
-                    <Text style={[styles.keyValue, { color: colors.primary }]}>{LLAVE}</Text>
+                    <Text style={[styles.keyValue, { color: accentInk(colors, 'primary', colors.surface) }]}>{LLAVE}</Text>
                   </View>
                   <TouchableOpacity
                     onPress={handleCopy}

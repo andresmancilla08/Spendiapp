@@ -9,6 +9,7 @@ import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition from '../components/ScreenTransition';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useAuthStore } from '../store/authStore';
 import { useCategories } from '../hooks/useCategories';
 import { useTransactions } from '../hooks/useTransactions';
@@ -99,7 +100,7 @@ export default function CategoryDetailScreen() {
                     </Text>
                     <View style={[styles.summaryPill, { backgroundColor: colors.primary + '14' }]}>
                       <AppIcon name="pricetag-outline" size={13} color={colors.primary} />
-                      <Text style={[styles.summaryPillText, { color: colors.primary }]}>
+                      <Text style={[styles.summaryPillText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                         {t('categoryDetail.categoriesLabel')}: {segments.length}
                       </Text>
                     </View>

@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import { COLOMBIAN_BANKS, Bank } from '../config/banks';
@@ -188,7 +189,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
                 <BankLogo bankId={selectedBank.id} size={32} radius={8} />
                 <Text style={[styles.changeBankName, { color: colors.textPrimary }]}>{selectedBank.name}</Text>
                 <View style={styles.changeBankAction}>
-                  <Text style={[styles.changeBankLabel, { color: colors.primary }]}>{t('cardEditForm.changeBank')}</Text>
+                  <Text style={[styles.changeBankLabel, { color: accentInk(colors, 'primary', colors.backgroundSecondary) }]}>{t('cardEditForm.changeBank')}</Text>
                   <AppIcon name="chevron-forward" size={14} color={colors.primary} />
                 </View>
               </TouchableOpacity>

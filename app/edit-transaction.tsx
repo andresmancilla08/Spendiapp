@@ -20,6 +20,7 @@ import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc, wri
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import type { TransactionType } from '../types/transaction';
@@ -392,7 +393,7 @@ export default function EditTransactionScreen() {
             {transaction.isInstallment && (
               <View style={[styles.noticeBar, { backgroundColor: `${colors.primary}12` }]}>
                 <AppIcon name="information-circle-outline" size={15} color={colors.primary} />
-                <Text style={[styles.noticeText, { color: colors.primary }]}>
+                <Text style={[styles.noticeText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                   {t('editTransaction.installmentNotice', {
                     current: transaction.installmentNumber,
                     total: transaction.installmentTotal,
@@ -403,7 +404,7 @@ export default function EditTransactionScreen() {
             {transaction.isVirtualFixed && (
               <View style={[styles.noticeBar, { backgroundColor: `${colors.primary}12` }]}>
                 <AppIcon name="repeat" size={15} color={colors.primary} />
-                <Text style={[styles.noticeText, { color: colors.primary }]}>
+                <Text style={[styles.noticeText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                   {t('history.edit.fixedNote')}
                 </Text>
               </View>
@@ -584,7 +585,7 @@ export default function EditTransactionScreen() {
                     return (
                       <View key={p.uid} style={styles.sharedPreviewRow}>
                         <Text style={[styles.sharedPreviewName, { color: colors.textPrimary }]}>{label}</Text>
-                        <Text style={[styles.sharedPreviewAmt, { color: colors.primary }]}>
+                        <Text style={[styles.sharedPreviewAmt, { color: accentInk(colors, 'primary', colors.surface) }]}>
                           ${portionAmt.toLocaleString('es-CO')}
                         </Text>
                       </View>
@@ -811,7 +812,7 @@ export default function EditTransactionScreen() {
                           <AppIcon name="chevron-back" size={20} color={colors.textPrimary} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
-                          <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
+                          <Text style={[styles.pickerMonthLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
                             {MONTHS[pickerMonth].toUpperCase()} {pickerYear}
                           </Text>
                           <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />
@@ -909,7 +910,7 @@ export default function EditTransactionScreen() {
                     activeOpacity={0.8}
                   >
                     <AppIcon name="card-outline" size={18} color={colors.primary} />
-                    <Text style={[styles.noCardsPromptText, { color: colors.primary }]}>
+                    <Text style={[styles.noCardsPromptText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                       {t('addTransaction.noCards')}
                     </Text>
                     <AppIcon name="chevron-forward" size={14} color={colors.primary} style={{ marginLeft: 'auto' }} />

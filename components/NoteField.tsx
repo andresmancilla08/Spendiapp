@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import AppIcon from './AppIcon';
 import { Fonts } from '../config/fonts';
 
@@ -19,7 +20,7 @@ export default function NoteField({ value, onChange }: Props) {
     return (
       <TouchableOpacity onPress={() => setOpen(true)} activeOpacity={0.7} style={styles.toggle}>
         <AppIcon name="add" size={15} color={colors.primary} />
-        <Text style={[styles.toggleText, { color: colors.primary }]}>{t('addTransaction.addNote')}</Text>
+        <Text style={[styles.toggleText, { color: accentInk(colors, 'primary', colors.surface) }]}>{t('addTransaction.addNote')}</Text>
       </TouchableOpacity>
     );
   }

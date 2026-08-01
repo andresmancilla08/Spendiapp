@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import AppIcon from '../components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import ScreenBackground from '../components/ScreenBackground';
@@ -33,7 +34,7 @@ function Li({ children }: { children: ReactNode }) {
   const { colors } = useTheme();
   return (
     <View style={styles.listItem}>
-      <Text style={[styles.bullet, { color: colors.primary }]}>•</Text>
+      <Text style={[styles.bullet, { color: accentInk(colors, 'primary', colors.background) }]}>•</Text>
       <Text style={[styles.listText, { color: colors.textSecondary }]}>{children}</Text>
     </View>
   );

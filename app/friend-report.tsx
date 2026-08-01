@@ -17,6 +17,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import AppHeader from '../components/AppHeader';
@@ -322,7 +323,7 @@ export default function FriendReportScreen() {
               <TouchableOpacity onPress={goToPrevMonth} style={styles.monthNavBtn} activeOpacity={0.7}>
                 <AppIcon name="chevron-back" size={20} color={colors.primary} />
               </TouchableOpacity>
-              <Text style={[styles.monthNavLabel, { color: colors.primary }]}>
+              <Text style={[styles.monthNavLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
                 {MONTHS[month].toUpperCase()} {year}
               </Text>
               <TouchableOpacity onPress={goToNextMonth} style={styles.monthNavBtn} activeOpacity={0.7}>
@@ -446,7 +447,7 @@ export default function FriendReportScreen() {
                         <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
                           {t('friendReport.totalReceived')}
                         </Text>
-                        <Text style={[styles.totalValue, { color: colors.secondary ?? '#00897B' }]}>
+                        <Text style={[styles.totalValue, { color: accentInk(colors, 'secondary', colors.surface) }]}>
                           +{formatCOP(totalReceived)}
                         </Text>
                       </View>
@@ -466,7 +467,7 @@ export default function FriendReportScreen() {
                         <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
                           {t('friendReport.totalSharedTheyOwe')}
                         </Text>
-                        <Text style={[styles.totalValue, { color: colors.secondary ?? '#00897B' }]}>
+                        <Text style={[styles.totalValue, { color: accentInk(colors, 'secondary', colors.surface) }]}>
                           +{formatCOP(totalSharedTheyOwe)}
                         </Text>
                       </View>
@@ -476,7 +477,7 @@ export default function FriendReportScreen() {
                     {net === 0 ? (
                       <View style={[styles.balanceCallout, { backgroundColor: `${colors.primary}12`, borderColor: `${colors.primary}25` }]}>
                         <AppIcon name="checkmark-circle" size={18} color={colors.primary} />
-                        <Text style={[styles.balanceCalloutText, { color: colors.primary }]}>
+                        <Text style={[styles.balanceCalloutText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                           {t('friendReport.settled', { name: selectedFriend?.displayName })}
                         </Text>
                       </View>
@@ -484,10 +485,10 @@ export default function FriendReportScreen() {
                       <View style={[styles.balanceCallout, { backgroundColor: `${colors.secondary}12`, borderColor: `${colors.secondary}25` }]}>
                         <AppIcon name="arrow-down-circle" size={18} color={colors.secondary} />
                         <View style={{ flex: 1 }}>
-                          <Text style={[styles.balanceCalloutLabel, { color: colors.secondary }]}>
+                          <Text style={[styles.balanceCalloutLabel, { color: accentInk(colors, 'secondary', colors.surface) }]}>
                             {t('friendReport.theyOweYou', { name: selectedFriend?.displayName, myName: user?.displayName ?? user?.email ?? 'Yo' })}
                           </Text>
-                          <Text style={[styles.balanceCalloutAmount, { color: colors.secondary }]}>
+                          <Text style={[styles.balanceCalloutAmount, { color: accentInk(colors, 'secondary', colors.surface) }]}>
                             {formatCOP(net)}
                           </Text>
                         </View>
@@ -605,7 +606,7 @@ export default function FriendReportScreen() {
                 activeOpacity={0.8}
               >
                 <AppIcon name="download-outline" size={18} color={colors.primary} />
-                <Text style={[styles.previewActionText, { color: colors.primary }]}>
+                <Text style={[styles.previewActionText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                   {t('friendReport.downloadBtn')}
                   {previewPages.length > 1 ? ` (${previewPages.length})` : ''}
                 </Text>

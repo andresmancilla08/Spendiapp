@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { COLOMBIAN_BANKS, Bank } from '../config/banks';
 import { addCard } from '../hooks/useCards';
@@ -242,7 +243,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
             {nickname.trim().length > 0 && (
               <View style={styles.previewRow}>
                 <View style={[styles.previewBadge, { backgroundColor: colors.primaryLight }]}>
-                  <Text style={[styles.previewBadgeText, { color: colors.primary }]}>
+                  <Text style={[styles.previewBadgeText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>
                     {nickname.trim()}
                   </Text>
                 </View>

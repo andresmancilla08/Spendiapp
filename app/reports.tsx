@@ -17,6 +17,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import AppHeader from '../components/AppHeader';
@@ -277,7 +278,7 @@ export default function ReportsScreen() {
                 activeOpacity={0.8}
               >
                 <AppIcon name="download-outline" size={18} color={colors.primary} />
-                <Text style={[styles.previewActionText, { color: colors.primary }]}>
+                <Text style={[styles.previewActionText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                   {t('reports.save')}
                   {previewPages.length > 1 ? ` (${previewPages.length})` : ''}
                 </Text>

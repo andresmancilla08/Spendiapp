@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { AppIconName } from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
 import appConfig from '../app.json';
@@ -148,7 +149,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <View style={[styles.versionBadge, { backgroundColor: colors.primaryLight }]}>
             <View style={[styles.versionDot, { backgroundColor: colors.primary }]} />
-            <Text style={[styles.versionText, { color: colors.primary }]}>
+            <Text style={[styles.versionText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>
               {t('whatsNew.version', { version: appConfig.expo.version })}
             </Text>
           </View>

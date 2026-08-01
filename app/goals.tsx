@@ -16,6 +16,7 @@ import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useGoals } from '../hooks/useGoals';
 import { localeFor } from '../utils/dateLocale';
 import { Goal } from '../types/goal';
@@ -328,13 +329,13 @@ export default function GoalsScreen() {
                     <Text style={[styles.gsTitle, { color: colors.textSecondary }]}>
                       {t('goals.summaryTitle').toUpperCase()}
                     </Text>
-                    <Text style={[styles.gsPct, { color: colors.primary }]}>{Math.round(goalsSummary.pct)}%</Text>
+                    <Text style={[styles.gsPct, { color: accentInk(colors, 'primary', colors.surface) }]}>{Math.round(goalsSummary.pct)}%</Text>
                   </View>
                   <ProgressBar percent={goalsSummary.pct} color={colors.primary} trackColor={trackColor} />
                   <View style={styles.gsRow}>
                     <View>
                       <Text style={[styles.gsLabel, { color: colors.textTertiary }]}>{t('goals.summarySaved')}</Text>
-                      <Text style={[styles.gsValue, { color: colors.success }]}>{formatCurrency(goalsSummary.totalSaved)}</Text>
+                      <Text style={[styles.gsValue, { color: accentInk(colors, 'success', colors.surface) }]}>{formatCurrency(goalsSummary.totalSaved)}</Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                       <Text style={[styles.gsLabel, { color: colors.textTertiary }]}>{t('goals.summaryRemaining')}</Text>
@@ -483,7 +484,7 @@ export default function GoalsScreen() {
                       <Text style={{ fontFamily: Fonts.regular, fontSize: 12, color: colors.textSecondary, marginTop: 2 }}>
                         {formatCurrency(selectedGoal.savedAmount)}
                         {' '}{t('goals.of')}{' '}
-                        <Text style={{ fontFamily: Fonts.bold, color: colors.primary }}>
+                        <Text style={{ fontFamily: Fonts.bold, color: accentInk(colors, 'primary', colors.surface) }}>
                           {formatCurrency(selectedGoal.targetAmount)}
                         </Text>
                       </Text>

@@ -254,7 +254,7 @@ function ChangePinModal({ visible, onClose, onSuccess }: ChangePinModalProps) {
               onPress={handleClose}
               activeOpacity={0.8}
             >
-              <Text style={[styles.modalBtnText, { color: colors.primary }]}>{t('common.cancel')}</Text>
+              <Text style={[styles.modalBtnText, { color: accentInk(colors, 'primary', colors.surface) }]}>{t('common.cancel')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -334,7 +334,7 @@ function LangModal({ visible, onClose, colors, i18n, t }: {
             onPress={onClose}
             activeOpacity={0.8}
           >
-            <Text style={[styles.langCancelText, { color: colors.primary }]}>{t('common.cancel')}</Text>
+            <Text style={[styles.langCancelText, { color: accentInk(colors, 'primary', colors.surface) }]}>{t('common.cancel')}</Text>
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>

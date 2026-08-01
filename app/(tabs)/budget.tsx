@@ -441,7 +441,7 @@ export default function BudgetScreen() {
                     <Text style={{ fontSize: 18 }}>
                       {dialogMode === 'add' ? selectedCategory!.icon : selectedBudget!.categoryIcon}
                     </Text>
-                    <Text style={{ fontFamily: Fonts.semiBold, fontSize: 14, color: colors.primary }}>
+                    <Text style={{ fontFamily: Fonts.semiBold, fontSize: 14, color: accentInk(colors, 'primary', colors.surface) }}>
                       {dialogMode === 'add' ? selectedCategory!.name : selectedBudget!.categoryName}
                     </Text>
                   </View>

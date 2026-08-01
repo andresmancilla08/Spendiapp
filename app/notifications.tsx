@@ -8,6 +8,7 @@ import { Timestamp } from 'firebase/firestore';
 import { router } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationDoc, NotificationType } from '../types/friend';
 import AppHeader from '../components/AppHeader';
@@ -199,7 +200,7 @@ export default function NotificationsScreen() {
               style={[styles.markAllBtn, { borderColor: colors.primary + '50' }]}
             >
               <AppIcon name="checkmark-done-outline" size={14} color={colors.primary} />
-              <Text style={[styles.markAllText, { color: colors.primary }]}>
+              <Text style={[styles.markAllText, { color: accentInk(colors, 'primary', colors.background) }]}>
                 {t('notifications.markAllRead')}
               </Text>
             </TouchableOpacity>

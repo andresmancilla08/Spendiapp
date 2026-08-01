@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import { updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import type { Transaction } from '../types/transaction';
 
@@ -213,7 +214,7 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
               {transaction?.isVirtualFixed && (
                 <View style={[styles.fixedNoteBar, { backgroundColor: `${colors.primary}18` }]}>
                   <AppIcon name="repeat" size={14} color={colors.primary} />
-                  <Text style={[styles.fixedNoteText, { color: colors.primary }]}>{t('history.edit.fixedNote')}</Text>
+                  <Text style={[styles.fixedNoteText, { color: accentInk(colors, 'primary', colors.surface) }]}>{t('history.edit.fixedNote')}</Text>
                 </View>
               )}
 
@@ -257,7 +258,7 @@ export default function EditTransactionSheet({ visible, transaction, onClose, on
                             <AppIcon name="chevron-back" size={20} color={colors.textPrimary} />
                           </TouchableOpacity>
                           <TouchableOpacity onPress={() => setPickerMode('month')} activeOpacity={0.7} style={styles.pickerLabelBtn}>
-                            <Text style={[styles.pickerMonthLabel, { color: colors.primary }]}>
+                            <Text style={[styles.pickerMonthLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
                               {MONTHS[pickerMonth].toUpperCase()} {pickerYear}
                             </Text>
                             <AppIcon name="chevron-down" size={14} color={colors.primary} style={{ marginLeft: 4, marginTop: 1 }} />

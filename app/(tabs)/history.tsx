@@ -712,7 +712,7 @@ export default function HistoryScreen() {
           style={styles.monthNavLabelBtn}
           activeOpacity={0.7}
         >
-          <Text style={[styles.monthNavLabel, { color: colors.primary }]}>
+          <Text style={[styles.monthNavLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
             {MONTHS[month].toUpperCase()} {year}
           </Text>
           <AppIcon name={monthPickerOpen ? 'chevron-up' : 'chevron-down'} size={14} color={colors.primary} style={{ marginLeft: 4 }} />

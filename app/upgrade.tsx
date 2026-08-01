@@ -13,6 +13,7 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import ScreenBackground from '../components/ScreenBackground';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 
 
@@ -148,7 +149,7 @@ export default function UpgradeScreen() {
                 {/* PREMIUM badge */}
                 <View style={styles.premiumBadge}>
                   <AppIcon name="star" size={10} color={colors.warning} />
-                  <Text style={[styles.premiumBadgeText, { color: colors.warning }]}>PREMIUM</Text>
+                  <Text style={[styles.premiumBadgeText, { color: accentInk(colors, 'warning', 'rgba(245,158,11,0.18)') }]}>PREMIUM</Text>
                 </View>
 
                 {/* Star icon with glow */}
