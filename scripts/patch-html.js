@@ -21,7 +21,8 @@ const pwaTags = `
   <link rel="manifest" href="/manifest.json" />
 
   <!-- iOS PWA. black-translucent = la webview se extiende bajo la barra de estado
-       (iOS ignora theme-color en apps instaladas). La banda se tiñe en body::before. -->
+       (iOS ignora theme-color en apps instaladas), así la zona segura la pinta el
+       fondo real de la app con la paleta del usuario, sin banda de marca. -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -69,23 +70,14 @@ const pwaTags = `
       background: var(--spendia-app-bg, #0D1A1C);
       overscroll-behavior: none;
     }
+    /* El root SIEMPRE cubre el viewport real. En PWA iOS standalone 100dvh/100vh
+       se quedan cortos (excluyen el inset del home indicator en algunos modelos)
+       y sobraba una franja del canvas bajo la tab bar. fixed + inset:0 con
+       viewport-fit=cover no depende de esa medida. */
     #root {
-      height: 100%;
-      height: -webkit-fill-available;
-      height: 100dvh;
-      min-height: 100dvh;
-    }
-    /* Banda de la barra de estado (PWA iOS con black-translucent): la hora va
-       siempre en blanco, así que en modo claro hay que teñir la banda.
-       AppBackground escribe --spendia-statusbar-bg segun el modo activo. */
-    body::before {
-      content: '';
       position: fixed;
-      top: 0; left: 0; right: 0;
-      height: env(safe-area-inset-top, 0px);
-      background: var(--spendia-statusbar-bg, transparent);
-      pointer-events: none;
-      z-index: 2147483000;
+      inset: 0;
+      height: auto;
     }
   </style>
 `;

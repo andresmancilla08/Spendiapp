@@ -79,11 +79,14 @@ export default function Root({ children }: PropsWithChildren) {
             background: var(--spendia-app-bg, #0D1A1C);
             overscroll-behavior: none;
           }
+          /* El root SIEMPRE cubre el viewport real. En PWA iOS standalone
+             100dvh/100vh se quedan cortos (excluyen el inset del home indicator
+             en algunos modelos) y sobraba una franja del canvas bajo la tab bar.
+             `fixed; inset:0` con viewport-fit=cover no depende de esa medida. */
           #root {
-            height: 100%;
-            height: -webkit-fill-available;
-            height: 100dvh;
-            min-height: 100dvh;
+            position: fixed;
+            inset: 0;
+            height: auto;
           }
           input, textarea, select, [contenteditable] {
             outline: none !important;
@@ -94,21 +97,6 @@ export default function Root({ children }: PropsWithChildren) {
           input:focus-visible, textarea:focus-visible, select:focus-visible, [contenteditable]:focus-visible {
             outline: none !important;
             box-shadow: none !important;
-          }
-          /* Banda de la barra de estado en PWA iOS. Con black-translucent la hora
-             va siempre en blanco: en modo claro el fondo es #FFFFFF y no se leería,
-             así que AppBackground tiñe esta banda (transparent en oscuro, para que
-             se vea el fondo real). Alto 0 fuera de standalone. */
-          body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: env(safe-area-inset-top, 0px);
-            background: var(--spendia-statusbar-bg, transparent);
-            pointer-events: none;
-            z-index: 2147483000;
           }
           #spendia-landing {
             transition: opacity 0.35s ease;
