@@ -608,7 +608,8 @@
     "saveCategoryError": "Impossibile salvare la categoria",
     "sharedSection": "Spesa condivisa",
     "sharedOwnerNote": "Le modifiche si applicano a tutti i partecipanti",
-    "sharedParticipantNote": "Puoi modificare il tuo record senza influenzare gli altri"
+    "sharedParticipantNote": "Puoi modificare il tuo record senza influenzare gli altri",
+    "sharedInstallmentLocked": "La divisione di un acquisto a rate è stata fissata alla creazione e non si può cambiare da qui. Ogni rata mostra la parte di ciascuno."
   },
   "history": {
     "title": "Cronologia",

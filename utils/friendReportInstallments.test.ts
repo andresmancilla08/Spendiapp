@@ -226,7 +226,32 @@ function createSharedInstallments(opts: {
   );
 }
 
+
+// ── Caso 6: lo que enseña el editor al abrir una cuota compartida ─────────
+// `app/edit-transaction.tsx` mostraba la parte de cada uno con
+// `calcSharedAmount(importeEditado, 0, 1, pct)`, pero el importe editado es MI
+// cuota, no el total: en un 50/50 decía que a cada uno le tocaban 25.000.
+{
+  const docs = createSharedInstallments({
+    total: 1_000_000, installments: 10, tea: null, ownerUid: ME,
+    participants: [
+      { uid: ME, displayName: 'Yo', percentage: 50 },
+      { uid: FRIEND, displayName: 'Amigo', percentage: 50 },
+    ],
+    description: 'Nevera', startDay: 5,
+  });
+  const miCuota = docs[ME][0];
+  const miPct = 50;
+
+  const comoLoHacia = calcSharedAmount(miCuota.amount, 0, 1, 50);
+  const comoDebe = Math.round((miCuota.amount * 50) / miPct);
+
+  assert.strictEqual(comoLoHacia, 25_000, 'así se veía antes: la mitad de la mitad');
+  assert.strictEqual(comoDebe, 50_000, 'lo correcto: cada uno paga su cuota completa');
+  assert.strictEqual(comoDebe, docs[FRIEND][0].amount, 'y coincide con la cuota real del amigo');
+}
+
 console.log(
-  '✓ cuotas compartidas: 50/50, 70/30 con interés, tres personas, mes mixto y la ficha ' +
-  'del movimiento cuadran con los documentos que escribe createSharedTransaction',
+  '✓ cuotas compartidas: 50/50, 70/30 con interés, tres personas, mes mixto, la ficha del ' +
+  'movimiento y el editor cuadran con lo que escribe createSharedTransaction',
 );

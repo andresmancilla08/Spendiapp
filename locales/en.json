@@ -608,7 +608,8 @@
     "saveCategoryError": "Could not save the category",
     "sharedSection": "Shared expense",
     "sharedOwnerNote": "Changes apply to all participants",
-    "sharedParticipantNote": "You can edit your record without affecting others"
+    "sharedParticipantNote": "You can edit your record without affecting others",
+    "sharedInstallmentLocked": "The split of an instalment purchase was set when it was created and cannot be changed here. Each instalment shows what each person pays."
   },
   "history": {
     "title": "History",

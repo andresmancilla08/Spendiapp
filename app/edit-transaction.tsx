@@ -298,6 +298,8 @@ export default function EditTransactionScreen() {
 
   const isOwnerOfShared = isSharedTx && transaction?.sharedOwnerUid === user?.uid;
   const sharedTotalPct  = isSharedTx ? Math.round(sharedEditParticipants.reduce((s, p) => s + p.percentage, 0)) : 100;
+  /** Mi porcentaje del reparto: en cuotas es el divisor para deducir el de los demás. */
+  const myEditPct = sharedEditParticipants.find((p) => p.uid === user?.uid)?.percentage ?? 0;
   const sharedPctValid  = !isSharedTx || !isOwnerOfShared || sharedTotalPct === 100;
 
   const isSaveDisabled = !isAmountValid || category === '' || description.trim() === '' || loading || !sharedPctValid;
@@ -508,7 +510,7 @@ export default function EditTransactionScreen() {
                   </Text>
                 </View>
 
-                {isOwnerOfShared && (
+                {isOwnerOfShared && !transaction.isInstallment && (
                   <>
                     <View style={styles.splitRow}>
                       {(['equal', 'custom'] as const).map((s) => (
@@ -577,11 +579,21 @@ export default function EditTransactionScreen() {
                 <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginTop: isOwnerOfShared ? 8 : 0 }]}>
                   {t('sharedExpense.preview').toUpperCase()}
                 </Text>
+                {transaction.isInstallment && (
+                  <Text style={[styles.sharedLockNote, { color: colors.textSecondary }]}>
+                    {t('editTransaction.sharedInstallmentLocked')}
+                  </Text>
+                )}
                 <View style={{ gap: 8 }}>
                   {sharedEditParticipants.map((p) => {
                     const isMe = p.uid === user?.uid;
                     const label = isMe ? t('sharedExpense.you') : (p.isExternal ? p.displayName : `@${p.userName}`);
-                    const portionAmt = calcSharedAmount(parsedAmount || 0, 0, 1, p.percentage);
+                    // En cuotas el importe editado es MI cuota, ya amortizada sobre mi
+                    // porcentaje: aplicarle el del otro daba la mitad de la mitad. Se
+                    // reescala igual que en el reporte entre amigos.
+                    const portionAmt = transaction.isInstallment
+                      ? (myEditPct > 0 ? Math.round(((parsedAmount || 0) * p.percentage) / myEditPct) : 0)
+                      : calcSharedAmount(parsedAmount || 0, 0, 1, p.percentage);
                     return (
                       <View key={p.uid} style={styles.sharedPreviewRow}>
                         <Text style={[styles.sharedPreviewName, { color: colors.textPrimary }]}>{label}</Text>
@@ -1082,5 +1094,6 @@ const styles = StyleSheet.create({
   pctError:         { fontSize: 12, fontFamily: Fonts.regular, textAlign: 'center', marginTop: 2 },
   sharedPreviewRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   sharedPreviewName:{ fontSize: 14, fontFamily: Fonts.regular },
+  sharedLockNote: { fontSize: 11.5, fontFamily: Fonts.regular, lineHeight: 16, marginBottom: 10 },
   sharedPreviewAmt: { fontSize: 14, fontFamily: Fonts.bold },
 });
