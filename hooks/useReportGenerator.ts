@@ -140,6 +140,9 @@ export async function generateReportData(
       // Solo generar si la original fue creada ANTES de este mes
       if (monthStart <= originalMonthStart) continue;
 
+      // Ni los meses omitidos de uno en uno (la app sí los descuenta: useTransactions)
+      if ((d.fixedSkipMonths ?? []).includes(`${year}_${month}`)) continue;
+
       // No generar si fue cancelada a partir de este mes
       if (cancelledFrom) {
         const cancelMonthStart = new Date(
@@ -153,14 +156,18 @@ export async function generateReportData(
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const day = Math.min(originalDate.getDate(), daysInMonth);
 
+      // Se propaga el reparto: con `isShared: false` fijo, `effectiveAmount` devolvía
+      // `amount` —el total del grupo— y un arriendo compartido al 50% contaba el
+      // doble en el año que en la pantalla de inicio.
       all.push({
         date: new Date(year, month, day),
         description: d.description,
         amount: d.amount,
         type: d.type,
         category: d.category,
-        isShared: false,
-        isInstallment: false,
+        isShared: d.isShared ?? false,
+        sharedAmount: d.sharedAmount,
+        isInstallment: d.isInstallment ?? false,
       });
     }
   });
@@ -181,13 +188,17 @@ export async function generateReportData(
   const catMap = new Map<string, CategorySummary>();
   all.forEach((t) => {
     const { name } = resolveCategory(t.category, customCategories);
-    const existing = catMap.get(t.category);
+    // La clave lleva el tipo: `other` vale para gasto e ingreso, así que sin él un
+    // ingreso y un gasto de la misma categoría se sumaban en una sola fila y el
+    // resultado se pintaba con el signo del primero que llegara.
+    const key = `${t.category}-${t.type}`;
+    const existing = catMap.get(key);
     const amt = effectiveAmount(t);
     if (existing) {
       existing.count++;
       existing.total += amt;
     } else {
-      catMap.set(t.category, {
+      catMap.set(key, {
         categoryId: t.category,
         name,
         count: 1,

@@ -136,6 +136,11 @@ export function useTransactions(userId: string, year: number, month: number, ref
       const copies: Transaction[] = snap.docs
         .filter((doc) => {
           const d = doc.data();
+          // Una cuota NUNCA es una fija que se repite: tiene número, total y fin. Si
+          // un documento trae los dos flags (compartidos creados con el switch de
+          // "gasto fijo" encendido), clonarlo generaba una cuota fantasma cada mes,
+          // para siempre y con el importe equivocado.
+          if (d.isInstallment === true) return false;
           // Solo incluir si la transacción fija fue creada ANTES del mes que se visualiza
           const date: Date = (d.date as Timestamp).toDate();
           if (date >= start) return false;
@@ -167,6 +172,9 @@ export function useTransactions(userId: string, year: number, month: number, ref
             createdAt: (d.createdAt as Timestamp).toDate(),
             isFixed: true,
             isVirtualFixed: true,
+            // Se conserva para que `effectiveAmount` no confunda una cuota con un
+            // compartido normal y acabe usando el gemelo de `sharedAmount`.
+            isInstallment: d.isInstallment ?? false,
             isPaid: (d.fixedPaidMonths ?? []).includes(`${year}_${month}`),
             cardId: d.cardId,
             isShared: d.isShared ?? false,

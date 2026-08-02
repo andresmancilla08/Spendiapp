@@ -16,10 +16,9 @@ import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import { Fonts } from '../config/fonts';
+import { formatMoney } from '../utils/formatMoney';
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(n);
-}
+const formatCurrency = formatMoney;
 
 export default function RecurringScreen() {
   const { t } = useTranslation();

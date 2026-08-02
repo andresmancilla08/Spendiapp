@@ -1219,7 +1219,7 @@ export default function AddTransactionScreen() {
                 participants={sharedParticipants}
                 onParticipantsChange={setSharedParticipants}
                 amount={parsedAmount}
-                interestRate={withInterest && teaInput ? parseFloat(teaInput) : 0}
+                interestRate={installmentCount > 1 && withInterest && teaInput ? parseFloat(teaInput) : 0}
                 installmentCount={installmentCount}
                 ownerPercentage={ownerPercentage}
                 onOwnerPercentageChange={setOwnerPercentage}

@@ -28,8 +28,24 @@ assert.equal(partes.reduce((s, n) => s + n, 0), 600000);
 // ── calcSharedAmount / calcEqualPercentages (comportamiento ya existente) ────
 assert.equal(calcSharedAmount(100000, 0, 1, 50), 50000);
 assert.equal(calcSharedAmount(100000, 0, 3, 30), 10000);
-assert.deepEqual(calcEqualPercentages(3), [33, 33, 34]);
+// El punto sobrante va al PRIMERO, no al último: cargarle todo el residuo al
+// último hacía que en grupos de 6 u 8 alguien pagara hasta un 28% de más.
+assert.deepEqual(calcEqualPercentages(3), [34, 33, 33]);
 assert.equal(calcEqualPercentages(3).reduce((s, n) => s + n, 0), 100);
 assert.deepEqual(calcEqualPercentages(0), []);
+
+
+// El residuo se reparte de uno en uno: cargárselo entero al último hacía que en un
+// grupo de seis una persona pagara un 25% de más.
+for (const n of [2, 3, 4, 5, 6, 7, 8, 9, 10, 13]) {
+  const pcts = calcEqualPercentages(n);
+  assert.strictEqual(pcts.reduce((a, b) => a + b, 0), 100, `suman 100 con ${n}`);
+  assert.ok(
+    Math.max(...pcts) - Math.min(...pcts) <= 1,
+    `con ${n} personas nadie puede pagar más de un punto por encima de otro: ${pcts.join(',')}`,
+  );
+}
+assert.deepStrictEqual(calcEqualPercentages(6), [17, 17, 17, 17, 16, 16], 'seis personas');
+assert.deepStrictEqual(calcEqualPercentages(3), [34, 33, 33], 'tres personas');
 
 console.log('✓ utils/sharedCalc: effectiveAmount, calcSharedAmount y calcEqualPercentages OK');

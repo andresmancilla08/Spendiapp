@@ -86,8 +86,12 @@ export function useSharedTransactions() {
       };
 
       if (isInstallment) {
-        // Para cuotas: calcular sobre el monto proporcional al porcentaje del participante
-        const participantBaseAmount = Math.round(amount * participant.percentage / 100);
+        // Para cuotas: calcular sobre el monto proporcional al porcentaje del participante.
+        // `income_claim` se reclama entero, nunca se divide (hoy no llega aquí porque las
+        // cuotas exigen gasto, pero el contrato es ese).
+        const participantBaseAmount = isIncomeClaim
+          ? amount
+          : Math.round(amount * participant.percentage / 100);
         const amounts = calculateInstallments(
           participantBaseAmount,
           installmentCount,
@@ -107,6 +111,7 @@ export function useSharedTransactions() {
             amount: amt,
             date: Timestamp.fromDate(dates[i]),
             createdAt: Timestamp.fromDate(new Date()),
+            isFixed: false,
             installmentGroupId: groupId,
             installmentNumber: i + 1,
             installmentTotal: installmentCount,
@@ -192,7 +197,14 @@ export function useSharedTransactions() {
           fromDisplayName: ownerDisplayName,
           sharedId,
           description: baseDoc.description,
-          sharedAmount: calcSharedAmount(amount, interestRate, installmentCount, p.percentage),
+          // La misma cifra que se le escribió en su documento: `calcSharedAmount` a
+          // secas guardaba el reparto plano incluso en reclamos de ingreso (que van
+          // enteros) y en cuotas con interés (que se amortizan).
+          sharedAmount: isIncomeClaim
+            ? amount
+            : installmentCount > 1
+              ? calculateInstallments(Math.round((amount * p.percentage) / 100), installmentCount, withInterest ? teaValue : null)[0]
+              : calcSharedAmount(amount, interestRate, 1, p.percentage),
         },
         read: false,
         createdAt: Timestamp.fromDate(new Date()),

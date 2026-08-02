@@ -18,14 +18,9 @@ import { categoryColor } from '../constants/categoryColors';
 import CategoryBars, { CategorySegment } from '../components/premium/CategoryBars';
 import { Fonts } from '../config/fonts';
 import { effectiveAmount } from '../utils/sharedCalc';
+import { formatMoney } from '../utils/formatMoney';
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
+const formatCurrency = formatMoney;
 
 export default function CategoryDetailScreen() {
   const { t } = useTranslation();

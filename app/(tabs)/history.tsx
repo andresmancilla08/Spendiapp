@@ -59,6 +59,7 @@ import CategoryBars, { CategorySegment } from '../../components/premium/Category
 import { categoryLabel } from '../../constants/categories';
 import { categoryColor } from '../../constants/categoryColors';
 import type { Category } from '../../types/category';
+import { formatMoney } from '../../utils/formatMoney';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -78,13 +79,7 @@ const INCOME_CATEGORIES = ['salary', 'other'];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
+const formatCurrency = formatMoney;
 
 interface DayGroup {
   dateKey: string;

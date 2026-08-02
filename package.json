@@ -1,6 +1,6 @@
 {
   "name": "spendiapp",
-  "version": "2.47.3",
+  "version": "2.48.0",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
@@ -37,8 +37,6 @@
     "expo-web-browser": "~55.0.17",
     "firebase": "^12.11.0",
     "i18next": "^26.0.2",
-    "jspdf": "^4.2.1",
-    "jspdf-autotable": "^5.0.7",
     "lottie-react-native": "~7.3.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",

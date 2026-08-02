@@ -12,6 +12,7 @@ import { useFriendProfiles } from '../hooks/useFriendProfiles';
 import type { PublicProfile } from '../types/friend';
 import type { SharedParticipant } from '../types/sharedTransaction';
 import { calcEqualPercentages, calcSharedAmount } from '../utils/sharedCalc';
+import { calculateInstallments } from '../utils/installmentCalc';
 
 interface Props {
   userId: string;
@@ -366,7 +367,13 @@ export default function SharedExpenseSection({
                   <View style={[styles.previewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     {allParticipants.map((p) => {
                       const isOwnerRow = p.uid === userId;
-                      const monthly = calcSharedAmount(amount, interestRate, installmentCount, p.percentage);
+                      // La misma cuenta que hace `createSharedTransaction`: amortización
+                      // francesa sobre la base del participante. `calcSharedAmount` reparte
+                      // el interés a partes iguales y prometía hasta un 27% de más.
+                      const base = Math.round((amount * p.percentage) / 100);
+                      const monthly = installmentCount > 1
+                        ? calculateInstallments(base, installmentCount, interestRate || null)[0]
+                        : calcSharedAmount(amount, interestRate, 1, p.percentage);
                       const formatted = monthly.toLocaleString('es-CO');
                       return (
                         <View key={p.uid} style={styles.previewRow}>

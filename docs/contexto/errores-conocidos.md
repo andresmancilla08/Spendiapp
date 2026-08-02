@@ -126,3 +126,18 @@
 
 ### El documento y la pantalla se pintan con paletas distintas a propósito
 - **A propósito:** el documento compartido es SIEMPRE oscuro, así que usa los tonos de marca directos (`#00BCD4` / `#C0CA33`). La pantalla en modo claro los oscurece (`#00838F` / `#6B7300`) porque sobre blanco no llegan ni a 3:1. No es una divergencia: es el mismo color adaptado a su fondo.
+
+### La regla del dinero compartido (leer antes de tocar importes)
+- **Sin cuotas:** el documento de cada participante trae `amount` = TOTAL del grupo y `sharedAmount` = SU parte.
+- **A cuotas:** trae `amount` = SU cuota ya amortizada sobre su porcentaje. `sharedAmount` es un gemelo por división plana que se desvía en la cuota que absorbe el residuo.
+- **`income_claim`:** se reclama entero, nunca se divide.
+- Para "cuánto vale esto para el dueño del documento" siempre `utils/sharedCalc.effectiveAmount`. Para "cuánto le toca al otro" en cuotas hay que **reescalar por MI porcentaje** (`amount * suPct / miPct`), nunca aplicar el suyo sobre mi cuota.
+- Este malentendido apareció en seis sitios distintos (reporte entre amigos, ficha del movimiento, previo y editor de edición, desglose del historial, reporte anual). Gates: `npx tsx utils/friendReportInstallments.test.ts` y `utils/friendReportModel.test.ts`.
+
+### Una cuota nunca es un gasto fijo (resuelto)
+- **Síntoma:** un compartido a cuotas creado con el interruptor de "gasto fijo" encendido aparecía cada mes, indefinidamente, con el importe equivocado; inflaba balance, categorías, presupuestos y tendencia.
+- **Causa real:** la rama propia de `add-transaction` forzaba `isFixed: false`, la compartida dejaba pasar el valor del formulario, y la Query 2 de `useTransactions` clona como fijo todo lo que tenga `isFixed: true`.
+- **Solución:** `createSharedTransaction` fuerza `isFixed: false` en las cuotas, la Query 2 descarta `isInstallment` y `utils/migrateFixedInstallments` repara los documentos ya escritos.
+
+### Las copias virtuales de un fijo tienen que llevar su reparto
+- **A propósito:** un gasto fijo es UN documento; sus mensualidades se generan en cliente. Cada sitio que las genere debe copiar `isShared`, `sharedAmount` e `isInstallment`, o `effectiveAmount` contará el total del grupo. Le pasaba a `useReportGenerator` (el año salía al doble) y le pasaba a `useTransactions` con las cuotas.

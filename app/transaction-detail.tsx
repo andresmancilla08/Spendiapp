@@ -48,6 +48,7 @@ import { amountInk, blend, inkOn, inkOnFill } from '../utils/detailInk';
 import { addMonths, fixedTimeline, installmentPlan, nextMonthSameDay, type ChipState } from '../utils/detailFacts';
 import { categoryLabel } from '../constants/categories';
 import type { Transaction } from '../types/transaction';
+import { formatMoney } from '../utils/formatMoney';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -69,13 +70,7 @@ const MAX_RELATED = 3;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
+const formatCurrency = formatMoney;
 
 function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): string {
   if (transaction.isVirtualFixed) {

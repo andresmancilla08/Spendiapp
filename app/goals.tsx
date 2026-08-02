@@ -30,17 +30,12 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import { Fonts } from '../config/fonts';
 import { useToast } from '../context/ToastContext';
 import { router } from 'expo-router';
+import { formatMoney } from '../utils/formatMoney';
 
 type TabType = 'active' | 'completed';
 type DialogMode = 'create' | 'contribute' | 'delete' | 'completed' | null;
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(n);
-}
+const formatCurrency = formatMoney;
 
 function formatCurrencyInput(raw: string): string {
   const digits = raw.replace(/\D/g, '');

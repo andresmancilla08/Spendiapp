@@ -24,6 +24,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { accentInk } from '../../utils/contrast';
+import { migrateFixedInstallments } from '../../utils/migrateFixedInstallments';
 import { useToast } from '../../context/ToastContext';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useCards } from '../../hooks/useCards';
@@ -62,6 +63,7 @@ import AnnouncementBanner from '../../components/AnnouncementBanner';
 import DataErrorCard from '../../components/DataErrorCard';
 import { useAmountsVisibility } from '../../hooks/useAmountsVisibility';
 import ExchangeRateChips from '../../components/ExchangeRateChips';
+import { formatMoney } from '../../utils/formatMoney';
 
 
 const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
@@ -75,13 +77,7 @@ const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; d
   other:         { icon: 'pin', color: '#737879', bg: '#F3F4F6', darkBg: '#252830' },
 };
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
+const formatCurrency = formatMoney;
 
 // Las etiquetas viven en `notifications.timeAgo` — mismo juego de claves que usa
 // app/notifications.tsx, no se duplican por pantalla.
@@ -276,6 +272,16 @@ export default function HomeScreen() {
     }
     offerBiometrics();
   }, []);
+
+  // Repara los documentos que quedaron a la vez como cuota y como gasto fijo: se
+  // clonaban cada mes indefinidamente e inflaban todos los agregados. Una sola vez
+  // por dispositivo; el origen ya está corregido.
+  useEffect(() => {
+    if (!user?.uid) return;
+    migrateFixedInstallments(user.uid).then((n) => {
+      if (n > 0) console.info(`[migración] ${n} cuotas dejaron de contarse como gasto fijo`);
+    });
+  }, [user?.uid]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);

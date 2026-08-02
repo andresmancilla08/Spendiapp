@@ -33,6 +33,7 @@ import { useToast } from '../../context/ToastContext';
 import ScreenTransition from '../../components/ScreenTransition';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import { effectiveAmount } from '../../utils/sharedCalc';
+import { formatMoney } from '../../utils/formatMoney';
 
 
 const DEFAULT_EXPENSE_CATEGORIES = [
@@ -45,13 +46,7 @@ const DEFAULT_EXPENSE_CATEGORIES = [
   { id: 'other', name: 'Otro', icon: '📌' },
 ];
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(n);
-}
+const formatCurrency = formatMoney;
 
 function formatCurrencyInput(raw: string): string {
   const digits = raw.replace(/\D/g, '');

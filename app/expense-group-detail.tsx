@@ -20,7 +20,7 @@ import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
 import { useExpenseGroups, useGroupExpenses } from '../hooks/useExpenseGroups';
-import { calculateSettlements } from '../utils/settlementCalc';
+import { calculateSettlements, shareOf } from '../utils/settlementCalc';
 import { Settlement } from '../types/expenseGroup';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import AppDialog from '../components/AppDialog';
@@ -29,19 +29,14 @@ import AppSegmentedControl from '../components/AppSegmentedControl';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import { Fonts } from '../config/fonts';
+import { formatMoney } from '../utils/formatMoney';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 type TabType = 'expenses' | 'settlement';
 type DialogMode = 'addExpense' | 'deleteExpense' | 'settle' | 'reopen' | 'deleteGroup' | 'options' | null;
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-  }).format(n);
-}
+const formatCurrency = formatMoney;
 
 function formatCurrencyInput(raw: string): string {
   const digits = raw.replace(/\D/g, '');
@@ -215,11 +210,11 @@ export default function ExpenseGroupDetailScreen() {
     let totalPaid = 0;
     let yourShare = 0;
 
+    // El MISMO reparto entero que usa la liquidación: dividiendo aparte, la
+    // tarjeta decía +67 mientras las filas sumaban 66.
     for (const exp of expenses) {
-      if (exp.paidById === me.id) totalPaid += exp.amount;
-      if (exp.splitAmong.includes(me.id)) {
-        yourShare += exp.amount / exp.splitAmong.length;
-      }
+      if (exp.paidById === me.id) totalPaid += Math.round(exp.amount);
+      yourShare += shareOf(exp, me.id);
     }
 
     return {

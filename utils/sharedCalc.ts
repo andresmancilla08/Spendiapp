@@ -20,8 +20,12 @@ export function calcSharedAmount(
 }
 
 /**
- * Calcula porcentajes iguales para N participantes.
- * El último participante absorbe el residuo de redondeo para que la suma sea exactamente 100.
+ * Porcentajes iguales para N participantes, sumando exactamente 100.
+ *
+ * El residuo se reparte de uno en uno entre los primeros, NO se le carga entero al
+ * último: con seis personas, `[16,16,16,16,16,20]` hacía que una pagara un 25% de
+ * más (200.000 de un millón en vez de 166.667). Ahora el reparto más desigual
+ * posible entre dos personas es de un punto porcentual.
  *
  * @returns Array de N enteros que suma exactamente 100
  */
@@ -29,9 +33,7 @@ export function calcEqualPercentages(count: number): number[] {
   if (count <= 0) return [];
   const base = Math.floor(100 / count);
   const remainder = 100 - base * count;
-  return Array.from({ length: count }, (_, i) =>
-    i === count - 1 ? base + remainder : base,
-  );
+  return Array.from({ length: count }, (_, i) => base + (i < remainder ? 1 : 0));
 }
 
 /**
