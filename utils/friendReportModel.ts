@@ -13,6 +13,7 @@
  * `net > 0` significa que la otra persona me debe.
  */
 import type { Transaction } from '../types/transaction';
+import { effectiveAmount } from './sharedCalc';
 
 export type EntryKind = 'sent' | 'received' | 'shared_i_owe' | 'shared_they_owe';
 
@@ -83,12 +84,34 @@ function isFullClaim(tx: Transaction): boolean {
   return tx.sharedType === 'income_claim' || tx.type === 'income';
 }
 
-/** Lo que le corresponde a `friendUid` de un gasto compartido. */
-function friendPortion(tx: Transaction, friendUid: string): number {
+const pctOf = (tx: Transaction, uid: string): number | undefined =>
+  tx.sharedParticipants?.find((p) => p.uid === uid)?.percentage;
+
+/**
+ * Lo que le corresponde a `friendUid` de un gasto compartido que pagué yo.
+ *
+ * Ojo con las cuotas: `useSharedTransactions` NO guarda el total del grupo en mi
+ * documento, guarda MI cuota ya amortizada sobre mi porcentaje. Aplicarle el
+ * porcentaje del amigo daría la mitad de la mitad —en un 50/50 de un millón a
+ * diez cuotas, 25.000 en vez de 50.000—, así que hay que reescalar por el mío.
+ */
+function friendPortion(tx: Transaction, friendUid: string, myUid: string): number {
   if (isFullClaim(tx)) return tx.amount;
-  const participant = tx.sharedParticipants?.find((p) => p.uid === friendUid);
-  if (participant) return Math.round((tx.amount * participant.percentage) / 100);
-  return tx.sharedAmount ?? 0;
+  const friendPct = pctOf(tx, friendUid);
+  // Sin porcentaje del amigo no hay nada que calcular: `sharedAmount` es la parte
+  // del DUEÑO del documento, publicarla como deuda ajena sería inventarse una cifra.
+  if (friendPct == null) return 0;
+
+  if (tx.isInstallment) {
+    // Mi porcentaje puede faltar en el doc; se deduce del resto de participantes.
+    const others = (tx.sharedParticipants ?? [])
+      .filter((p) => p.uid !== myUid)
+      .reduce((acc, p) => acc + p.percentage, 0);
+    const myPct = pctOf(tx, myUid) ?? (others > 0 && others < 100 ? 100 - others : undefined);
+    if (myPct && myPct > 0) return Math.round((tx.amount * friendPct) / myPct);
+    return 0;
+  }
+  return Math.round((tx.amount * friendPct) / 100);
 }
 
 export function buildFriendReport(input: BuildFriendReportInput): FriendReportModel {
@@ -109,16 +132,18 @@ export function buildFriendReport(input: BuildFriendReportInput): FriendReportMo
     });
   }
 
-  // La otra persona pagó: lo que aparece aquí es MI parte.
+  // La otra persona pagó: lo que aparece aquí es MI parte. `effectiveAmount` ya
+  // sabe que en cuotas manda `amount` y en el resto `sharedAmount` (su gemelo
+  // redondeado por división plana introduce error en la última cuota).
   for (const tx of input.sharedIOwe) {
     const participants = tx.sharedParticipants?.length;
-    const myPart = isFullClaim(tx) ? tx.amount : (tx.sharedAmount ?? tx.amount);
+    const myPart = isFullClaim(tx) ? tx.amount : effectiveAmount(tx);
     entries.push({
       id: tx.id, date: tx.date, description: tx.description,
       amount: myPart, side: 'them', kind: 'shared_i_owe', category: tx.category,
-      percentage: participants && !isFullClaim(tx) && tx.amount > 0
-        ? Math.round((myPart / tx.amount) * 100)
-        : undefined,
+      // El porcentaje se lee del reparto guardado, no se deduce dividiendo
+      // importes: con cuotas esa división daba ~100% en todas las filas.
+      percentage: isFullClaim(tx) ? undefined : pctOf(tx, input.myUid),
       participants,
     });
   }
@@ -126,13 +151,11 @@ export function buildFriendReport(input: BuildFriendReportInput): FriendReportMo
   // Pagué yo: lo que aparece es la parte de la otra persona.
   for (const tx of input.sharedTheyOwe) {
     const participants = tx.sharedParticipants?.length;
-    const theirPart = friendPortion(tx, friendUid);
+    const theirPart = friendPortion(tx, friendUid, input.myUid);
     entries.push({
       id: tx.id, date: tx.date, description: tx.description,
       amount: theirPart, side: 'me', kind: 'shared_they_owe', category: tx.category,
-      percentage: !isFullClaim(tx)
-        ? tx.sharedParticipants?.find((p) => p.uid === friendUid)?.percentage
-        : undefined,
+      percentage: isFullClaim(tx) ? undefined : pctOf(tx, friendUid),
       participants,
     });
   }

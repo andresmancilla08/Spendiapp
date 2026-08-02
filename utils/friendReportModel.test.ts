@@ -122,6 +122,88 @@ assert.strictEqual(scaleTilt({ ...model.totals, mine: 0, theirs: 0 }), 0, 'sin m
 assert.strictEqual(initialOf('Ana Ruiz'), 'A');
 assert.strictEqual(initialOf('  '), '·');
 
+
+// ── Cuotas ────────────────────────────────────────────────────────────────
+// En un compartido a cuotas cada participante guarda SU cuota ya amortizada
+// sobre su porcentaje (hooks/useSharedTransactions.ts). Aplicar el porcentaje
+// del amigo sobre mi cuota daba la mitad de la mitad.
+const cuotaMia = tx({
+  id: 'c1', amount: 50000, date: new Date(2026, 7, 20), description: 'Nevera a 10 cuotas',
+  category: 'home', isShared: true, isInstallment: true, installmentNumber: 3, installmentTotal: 10,
+  sharedOwnerUid: ME,
+  sharedAmount: 50000,
+  sharedParticipants: [
+    { uid: ME, displayName: 'David', percentage: 50 },
+    { uid: FRIEND, displayName: 'Ana', percentage: 50 },
+  ],
+} as any);
+
+const cuotas5050 = buildFriendReport({
+  myName: 'David', myUid: ME, friendName: 'Ana', friendUid: FRIEND,
+  month: 7, year: 2026,
+  sentToFriend: [], receivedFromFriend: [], sharedIOwe: [], sharedTheyOwe: [cuotaMia],
+});
+assert.strictEqual(
+  cuotas5050.entries[0].amount, 50000,
+  'cuota 50/50: si mi cuota es 50.000, la suya también es 50.000 (no 25.000)',
+);
+assert.strictEqual(cuotas5050.entries[0].percentage, 50, 'el badge sale del reparto guardado');
+
+// Reparto desigual: yo 70 / ella 30, mi cuota 70.000 → la suya 30.000
+const cuota7030 = tx({
+  id: 'c2', amount: 70000, date: new Date(2026, 7, 19), description: 'Lavadora a cuotas',
+  category: 'home', isShared: true, isInstallment: true,
+  sharedOwnerUid: ME, sharedAmount: 70000,
+  sharedParticipants: [
+    { uid: ME, displayName: 'David', percentage: 70 },
+    { uid: FRIEND, displayName: 'Ana', percentage: 30 },
+  ],
+} as any);
+const desigual = buildFriendReport({
+  myName: 'David', myUid: ME, friendName: 'Ana', friendUid: FRIEND,
+  month: 7, year: 2026,
+  sentToFriend: [], receivedFromFriend: [], sharedIOwe: [], sharedTheyOwe: [cuota7030],
+});
+assert.strictEqual(desigual.entries[0].amount, 30000, 'cuota 70/30: su parte es 30.000');
+
+// Cuota que pagó ella: mi doc ya trae MI cuota; `sharedAmount` es el gemelo
+// redondeado y no debe usarse.
+const cuotaSuya = tx({
+  id: 'c3', amount: 33334, date: new Date(2026, 7, 18), description: 'Sofá a cuotas',
+  category: 'home', isShared: true, isInstallment: true,
+  sharedOwnerUid: FRIEND, sharedAmount: 33333,
+  sharedParticipants: [
+    { uid: FRIEND, displayName: 'Ana', percentage: 50 },
+    { uid: ME, displayName: 'David', percentage: 50 },
+  ],
+} as any);
+const mia = buildFriendReport({
+  myName: 'David', myUid: ME, friendName: 'Ana', friendUid: FRIEND,
+  month: 7, year: 2026,
+  sentToFriend: [], receivedFromFriend: [], sharedIOwe: [cuotaSuya], sharedTheyOwe: [],
+});
+assert.strictEqual(mia.entries[0].amount, 33334, 'en cuotas manda `amount`, no `sharedAmount`');
+assert.strictEqual(mia.entries[0].percentage, 50, 'el badge es MI porcentaje, no ~100%');
+
+
+// Si yo no figuro en el reparto, no se puede deducir la parte del amigo desde MI
+// cuota: antes se publicaba `sharedAmount` (mi parte) como si fuera su deuda.
+const sinMiPorcentaje = tx({
+  id: 'c4', amount: 40000, date: new Date(2026, 7, 17), description: 'Cuota sin mi reparto',
+  category: 'home', isShared: true, isInstallment: true,
+  sharedOwnerUid: ME, sharedAmount: 40000,
+  sharedParticipants: [{ uid: FRIEND, displayName: 'Ana', percentage: 60 }],
+} as any);
+const deducido = buildFriendReport({
+  myName: 'David', myUid: ME, friendName: 'Ana', friendUid: FRIEND,
+  month: 7, year: 2026,
+  sentToFriend: [], receivedFromFriend: [], sharedIOwe: [], sharedTheyOwe: [sinMiPorcentaje],
+});
+assert.strictEqual(
+  deducido.entries[0].amount, 60000,
+  'mi porcentaje se deduce del resto (100-60=40): 40.000 de mi cuota → 60.000 la suya',
+);
+
 console.log(
   `✓ friendReportModel: ${model.movementCount} movimientos, neto $ ${model.net.toLocaleString('es-CO')}, ` +
   `${model.paidByMe} de ${model.movementCount} puestos por mí`,

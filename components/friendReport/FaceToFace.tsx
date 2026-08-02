@@ -11,25 +11,31 @@ import Svg, { Line, Path, Circle } from 'react-native-svg';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
 import { accentInk } from '../../utils/contrast';
+import { formatMoney } from '../../utils/formatMoney';
 import { initialOf, scaleTilt, type FriendReportModel, type FriendReportEntry } from '../../utils/friendReportModel';
 
-/** Identidad de cada lado. En claro se oscurecen para poder usarlas como texto. */
+/**
+ * Identidad de cada lado. En claro NO valen los tonos de marca: medidos sobre
+ * `surface` (#FFFFFF en las 32 paletas) el cian da 2,74:1 y el lima 1,79:1, y
+ * contra el carril de las barras bajan a 1,8 y 1,2. Estos dos pasan 3:1 contra
+ * el carril y 4,5:1 como texto.
+ */
 export function sideColors(isDark: boolean) {
   return {
     mine: isDark ? '#00BCD4' : '#00838F',
-    theirs: isDark ? '#C0CA33' : '#7E8600',
-    mineFill: isDark ? '#00BCD4' : '#00ACC1',
-    theirsFill: isDark ? '#C0CA33' : '#C0CA33',
+    theirs: isDark ? '#C0CA33' : '#6B7300',
+    mineFill: isDark ? '#00BCD4' : '#00838F',
+    theirsFill: isDark ? '#C0CA33' : '#6B7300',
   };
 }
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })
-    .format(Math.abs(n));
+const fmt = formatMoney;
 
 // ── Balanza ────────────────────────────────────────────────────────────────
 
 export function Scale({ tilt, width = 120, isDark }: { tilt: number; width?: number; isDark: boolean }) {
+  // El SVG se declara con viewBox y ancho 100%: en el eje transversal de una
+  // columna flex el ancho fijo no encoge, y a 320px se salía 37px por cada lado.
   const c = sideColors(isDark);
   const { colors } = useTheme();
   const half = width / 2 - 6;
@@ -39,7 +45,7 @@ export function Scale({ tilt, width = 120, isDark }: { tilt: number; width?: num
   const cy = 22;
 
   return (
-    <Svg width={width} height={52}>
+    <Svg width="100%" height={52} viewBox={`0 0 ${width} 52`} preserveAspectRatio="xMidYMid meet">
       {/* mástil y base */}
       <Line x1={cx} y1={cy} x2={cx} y2={cy + 18} stroke={colors.textTertiary} strokeWidth={2} opacity={0.55} />
       <Path
@@ -80,7 +86,7 @@ export function People({
         <Text style={[styles.personMeta, { color: colors.textTertiary }]}>{youLabel}</Text>
       </View>
 
-      <View style={styles.scaleСol}>
+      <View style={styles.scaleCol}>
         <Scale tilt={scaleTilt(model.totals)} isDark={isDark} />
         <Text style={[styles.tiltLabel, { color: colors.textTertiary }]} numberOfLines={2}>
           {tiltLabel.toUpperCase()}
@@ -147,7 +153,7 @@ export function FacingBar({
             <View style={[styles.fill, { width: `${minePct}%`, backgroundColor: c.mineFill }]} />
           </View>
           <View style={[styles.track, { backgroundColor: colors.border }]}>
-            <View style={[styles.fillLeft, { width: `${theirsPct}%`, backgroundColor: c.theirsFill }]} />
+            <View style={[styles.fill, { width: `${theirsPct}%`, backgroundColor: c.theirsFill }]} />
           </View>
         </View>
         <Text style={[styles.facingValue, styles.facingValueRight, { color: colors.textPrimary }]} numberOfLines={1}>
@@ -161,8 +167,11 @@ export function FacingBar({
 // ── Movimientos a cada lado del eje ────────────────────────────────────────
 
 export function EntryRow({
-  entry, isDark, sentLabel, receivedLabel, dateLabel,
-}: { entry: FriendReportEntry; isDark: boolean; sentLabel: string; receivedLabel: string; dateLabel: string }) {
+  entry, isDark, sentLabel, receivedLabel, dateLabel, sideLabel,
+}: {
+  entry: FriendReportEntry; isDark: boolean; sentLabel: string; receivedLabel: string;
+  dateLabel: string; sideLabel: string;
+}) {
   const { colors } = useTheme();
   const c = sideColors(isDark);
   const isMine = entry.side === 'me';
@@ -172,16 +181,21 @@ export function EntryRow({
     ? `${entry.percentage}%`
     : entry.kind === 'sent' ? sentLabel : entry.kind === 'received' ? receivedLabel : '';
 
+  // La descripción ocupa su propia línea: compartiéndola con el importe le
+  // quedaban 33px a 320px de pantalla, o sea cuatro caracteres y puntos suspensivos.
   const cell = (
     <View style={[styles.entryCell, isMine ? styles.entryCellLeft : styles.entryCellRight]}>
-      <View style={[styles.entryTop, !isMine && styles.rowReverse]}>
-        <Text style={[styles.entryDesc, { color: colors.textPrimary }, !isMine && styles.textRight]} numberOfLines={1}>
-          {entry.description}
-        </Text>
-        <Text style={[styles.entryAmount, { color: colors.textPrimary }]}>{fmt(entry.amount)}</Text>
-      </View>
+      <Text
+        style={[styles.entryDesc, { color: colors.textPrimary }, !isMine && styles.textRight]}
+        numberOfLines={1}
+      >
+        {entry.description}
+      </Text>
       <View style={[styles.entryMeta, !isMine && styles.rowReverse]}>
-        <Text style={[styles.entryDate, { color: colors.textTertiary }]}>{dateLabel}</Text>
+        <Text style={[styles.entryAmount, { color: colors.textPrimary }]} numberOfLines={1}>
+          {fmt(entry.amount)}
+        </Text>
+        <Text style={[styles.entryDate, { color: colors.textTertiary }]} numberOfLines={1}>{dateLabel}</Text>
         {!!badge && (
           <View style={[styles.entryBadge, { backgroundColor: `${dot}22` }]}>
             <Text style={[styles.entryBadgeText, { color }]}>{badge}</Text>
@@ -192,7 +206,11 @@ export function EntryRow({
   );
 
   return (
-    <View style={styles.entryRow}>
+    <View
+      style={styles.entryRow}
+      accessible
+      accessibilityLabel={`${entry.description}, ${fmt(entry.amount)}, ${dateLabel}, ${sideLabel}`}
+    >
       {isMine ? cell : <View style={styles.entryCell} />}
       <View style={styles.axisSlot}>
         <View style={[styles.axisLine, { backgroundColor: colors.border }]} />
@@ -234,10 +252,10 @@ export function SocialStat({ label }: { label: string }) {
 
 const styles = StyleSheet.create({
   peopleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
-  person: { width: 92, alignItems: 'center' },
-  scaleСol: { flex: 1, alignItems: 'center' },
-  avatar: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontSize: 26, fontFamily: Fonts.extraBold },
+  person: { flex: 1, minWidth: 72, maxWidth: 112, alignItems: 'center' },
+  scaleCol: { flex: 1.1, minWidth: 84, alignItems: 'center' },
+  avatar: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 21, fontFamily: Fonts.extraBold },
   personName: { fontSize: 13, fontFamily: Fonts.bold, marginTop: 8, textAlign: 'center' },
   personMeta: { fontSize: 10.5, fontFamily: Fonts.regular, marginTop: 2 },
   tiltLabel: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.2, textAlign: 'center', marginTop: 2 },
@@ -256,24 +274,22 @@ const styles = StyleSheet.create({
   facing: { marginTop: 14 },
   facingTitle: { fontSize: 8.5, fontFamily: Fonts.bold, letterSpacing: 1.2, textAlign: 'center' },
   facingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 7 },
-  facingValue: { width: 88, fontSize: 11.5, fontFamily: Fonts.bold, fontVariant: ['tabular-nums'] },
+  facingValue: { flexShrink: 1, minWidth: 62, fontSize: 11.5, fontFamily: Fonts.bold, fontVariant: ['tabular-nums'] },
   facingValueRight: { textAlign: 'right' },
-  facingTracks: { flex: 1, flexDirection: 'row', gap: 6 },
+  facingTracks: { flex: 1, minWidth: 72, flexDirection: 'row', gap: 6 },
   track: { flex: 1, height: 9, borderRadius: 5, overflow: 'hidden' },
   trackLeft: { alignItems: 'flex-end' },
   fill: { height: 9, borderRadius: 5 },
-  fillLeft: { height: 9, borderRadius: 5 },
 
   entryRow: { flexDirection: 'row', alignItems: 'stretch', minHeight: 44 },
   entryCell: { flex: 1, minWidth: 0, paddingVertical: 5 },
   entryCellLeft: { paddingRight: 10 },
   entryCellRight: { paddingLeft: 10 },
-  entryTop: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
   rowReverse: { flexDirection: 'row-reverse' },
   textRight: { textAlign: 'right' },
-  entryDesc: { flex: 1, minWidth: 0, fontSize: 12.5, fontFamily: Fonts.semiBold },
-  entryAmount: { fontSize: 12.5, fontFamily: Fonts.bold, fontVariant: ['tabular-nums'] },
-  entryMeta: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 3 },
+  entryDesc: { fontSize: 12.5, fontFamily: Fonts.semiBold },
+  entryAmount: { fontSize: 12.5, fontFamily: Fonts.bold, fontVariant: ['tabular-nums'], flexShrink: 1 },
+  entryMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3, flexWrap: 'wrap' },
   entryDate: { fontSize: 10, fontFamily: Fonts.regular },
   entryBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
   entryBadgeText: { fontSize: 9, fontFamily: Fonts.bold },

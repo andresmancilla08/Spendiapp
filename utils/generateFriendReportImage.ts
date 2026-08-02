@@ -16,6 +16,8 @@
 import type { FriendReportModel, FriendReportEntry } from './friendReportModel';
 import { initialOf, scaleTilt } from './friendReportModel';
 import { localeFor } from './dateLocale';
+import { Fonts } from '../config/fonts';
+import { formatMoney } from './formatMoney';
 
 export type ReportFormat = 'chat' | 'story' | 'sheet';
 
@@ -33,6 +35,8 @@ export interface FriendReportImageLabels {
   transfersSection: string;  // "Transferencias"
   monthTotal: string;        // "Total del mes"
   movementsTitle: string;    // "Los 7 movimientos, cada uno de su lado"
+  /** Título de las páginas 2+: habla solo de las filas de esa página. */
+  movementsContinued: (n: number) => string;
   socialStat: string;        // "Pagaste tú 4 de las 7 veces"
   tiltMine: string;          // "Cae de tu lado"
   tiltTheirs: string;        // "Cae del lado de Ana"
@@ -40,7 +44,8 @@ export interface FriendReportImageLabels {
   sent: string;              // "Enviado"
   received: string;          // "Recibido"
   footer: string;            // "David Osorio ↔ Ana Ruiz · agosto 2026"
-  page: string;              // "Página {n} de {total}" ya interpolado por el llamador
+  /** Se llama por página: el texto interpolado una sola vez decía "1 de 1" en todas. */
+  pageLabel: (n: number, total: number) => string;
 }
 
 export interface FriendReportImageOptions {
@@ -76,6 +81,8 @@ const ROWS_PER_PAGE = 9;
 const BG        = '#0B1618';
 const PANEL     = '#101E22';
 const HAIRLINE  = '#22353A';
+/** Carriles, ejes y mástil: portan significado, así que necesitan 3:1 (WCAG 1.4.11). */
+const GRAPHIC   = '#5C686B';
 const INK       = '#EEF6F8';
 const INK_SOFT  = '#9EABAF';
 const INK_DIM   = '#7E9198';
@@ -85,16 +92,30 @@ const MINE_DEEP = '#00838F';
 const ON_MINE   = '#04252B';
 const ON_THEIRS = '#1E2200';
 
-const FONT_STACK = 'Montserrat, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
-const MONO_STACK = 'ui-monospace, SFMono-Regular, Menlo, "Roboto Mono", monospace';
+/**
+ * `expo-font` registra una familia POR PESO con el nombre de la clave
+ * (`Montserrat_700Bold`), no una familia "Montserrat" con pesos. Pedir
+ * `700 13px Montserrat` cae a Helvetica sin avisar — el mismo fallo que tenía
+ * el generador anterior con Inter. Aquí se elige la familia por peso.
+ */
+const FAMILY: Record<number, string> = {
+  400: Fonts.regular,
+  500: Fonts.medium,
+  600: Fonts.semiBold,
+  650: Fonts.semiBold,
+  700: Fonts.bold,
+  800: Fonts.extraBold,
+};
+const FALLBACK = '"SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif';
+const MONO_FALLBACK = 'ui-monospace, SFMono-Regular, Menlo, "Roboto Mono", monospace';
 
 const font = (weight: number, size: number, mono = false) =>
-  `${weight} ${size}px ${mono ? MONO_STACK : FONT_STACK}`;
+  mono
+    ? `${size}px "${weight >= 600 ? Fonts.monoBold : Fonts.mono}", ${MONO_FALLBACK}`
+    : `${size}px "${FAMILY[weight] ?? Fonts.regular}", ${FALLBACK}`;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-const fmtMoney = (n: number) =>
-  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 })
-    .format(Math.abs(n));
+const fmtMoney = formatMoney;
 
 // es-CO devuelve "24 de ago." y el "de" no aporta nada en una etiqueta de 9px.
 const fmtDay = (d: Date) =>
@@ -159,8 +180,15 @@ async function ensureFonts(): Promise<void> {
   if (!fonts) return;
   try {
     await Promise.race([
-      Promise.all([fonts.load(font(800, 44)), fonts.load(font(600, 13)), fonts.ready]),
-      new Promise((r) => setTimeout(r, 900)),
+      Promise.all([
+        fonts.load(font(800, 44)),
+        fonts.load(font(700, 13)),
+        fonts.load(font(600, 10)),
+        fonts.load(font(500, 11)),
+        fonts.load(font(700, 12, true)),
+        fonts.ready,
+      ]),
+      new Promise((r) => setTimeout(r, 1200)),
     ]);
   } catch {
     /* con la fuente de reserva el documento sigue saliendo */
@@ -218,13 +246,13 @@ function drawScale(ctx: CanvasRenderingContext2D, cx: number, cy: number, halfW:
   const dy = Math.tan(angle) * halfW;
 
   // Mástil y base
-  ctx.strokeStyle = rgba(INK_SOFT, 0.5);
+  ctx.strokeStyle = GRAPHIC;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.lineTo(cx, cy + 22);
   ctx.stroke();
-  ctx.fillStyle = rgba(INK_SOFT, 0.4);
+  ctx.fillStyle = GRAPHIC;
   ctx.beginPath();
   ctx.moveTo(cx - 9, cy + 26);
   ctx.lineTo(cx + 9, cy + 26);
@@ -273,17 +301,24 @@ function drawPeople(
   drawAvatar(ctx, rightX, cy, avatarR, THEIRS, ON_THEIRS, initialOf(model.friendName));
   drawScale(ctx, w / 2, cy - 4, Math.min(52, (rightX - leftX) / 2 - avatarR - 18), scaleTilt(model.totals));
 
+  // El texto va centrado en su columna: el ancho disponible es el DOBLE de la
+  // distancia al borde más cercano, no una constante. Con `@mariafernandadelaespriella`
+  // se salía 10px del lienzo.
+  const widthAt = (x: number) => 2 * Math.min(x - PAD, w - PAD - x);
+
   ctx.textAlign = 'center';
   ctx.font = font(700, 13);
   ctx.fillStyle = INK;
   const myFirst = model.myName.split(' ')[0];
-  ctx.fillText(clip(ctx, myFirst, avatarR * 3), leftX, cy + avatarR + 20);
-  ctx.fillText(clip(ctx, model.friendName, avatarR * 3.4), rightX, cy + avatarR + 20);
+  ctx.fillText(clip(ctx, myFirst, widthAt(leftX)), leftX, cy + avatarR + 20);
+  ctx.fillText(clip(ctx, model.friendName, widthAt(rightX)), rightX, cy + avatarR + 20);
 
   ctx.font = font(500, 10.5);
   ctx.fillStyle = INK_DIM;
-  ctx.fillText(labels.you, leftX, cy + avatarR + 35);
-  if (model.friendUserName) ctx.fillText(`@${model.friendUserName}`, rightX, cy + avatarR + 35);
+  ctx.fillText(clip(ctx, labels.you, widthAt(leftX)), leftX, cy + avatarR + 35);
+  if (model.friendUserName) {
+    ctx.fillText(clip(ctx, `@${model.friendUserName}`, widthAt(rightX)), rightX, cy + avatarR + 35);
+  }
 
   // Hacia dónde cae
   const tilt = scaleTilt(model.totals);
@@ -302,31 +337,37 @@ function drawPeople(
 function drawVerdict(
   ctx: CanvasRenderingContext2D, w: number, y: number,
   model: FriendReportModel, labels: FriendReportImageLabels, big: boolean,
+  /** En la tarjeta de chat todo se juega en la miniatura: fuera el eyebrow y
+   *  el veredicto a 25px, que a 130px de ancho son 6px reales en vez de 4. */
+  thumbnailFirst = false,
 ): number {
   const color = model.net === 0 ? INK : model.net > 0 ? MINE : THEIRS;
 
   ctx.textAlign = 'center';
-  ctx.font = font(800, 9);
-  ctx.fillStyle = INK_DIM;
-  ctx.letterSpacing = '1.6px';
-  ctx.fillText(labels.resultOf.toUpperCase(), w / 2, y);
-  ctx.letterSpacing = '0px';
+  if (!thumbnailFirst) {
+    ctx.font = font(800, 9);
+    ctx.fillStyle = INK_DIM;
+    ctx.letterSpacing = '1.6px';
+    ctx.fillText(labels.resultOf.toUpperCase(), w / 2, y);
+    ctx.letterSpacing = '0px';
+  }
 
-  ctx.font = font(700, big ? 17 : 14);
+  ctx.font = font(700, thumbnailFirst ? 25 : big ? 17 : 14);
   ctx.fillStyle = INK;
-  ctx.fillText(clip(ctx, labels.verdict, w - PAD * 2), w / 2, y + (big ? 28 : 24));
+  ctx.fillText(clip(ctx, labels.verdict, w - PAD * 2), w / 2, y + (thumbnailFirst ? 26 : big ? 28 : 24));
 
   const amount = fmtMoney(model.net);
-  let size = big ? 54 : 40;
+  let size = thumbnailFirst ? 48 : big ? 54 : 40;
   ctx.font = font(800, size);
   while (ctx.measureText(amount).width > w - PAD * 2 && size > 24) {
     size -= 2;
     ctx.font = font(800, size);
   }
   ctx.fillStyle = color;
-  ctx.fillText(amount, w / 2, y + (big ? 84 : 66));
+  const amountY = y + (thumbnailFirst ? 84 : big ? 84 : 66);
+  ctx.fillText(amount, w / 2, amountY);
 
-  let bottom = y + (big ? 84 : 66);
+  let bottom = amountY;
   if (model.net !== 0) {
     ctx.font = font(500, 11);
     ctx.fillStyle = INK_SOFT;
@@ -378,13 +419,16 @@ function drawFacingBar(
   const h = 9;
 
   // Carriles
-  ctx.fillStyle = rgba(INK_SOFT, 0.14);
+  ctx.fillStyle = rgba(GRAPHIC, 0.85);
   rr(ctx, cx - trackHalf, rowY, trackHalf - 4, h, h / 2); ctx.fill();
   rr(ctx, cx + 4, rowY, trackHalf - 4, h, h / 2); ctx.fill();
 
   // Relleno, creciendo desde el centro hacia fuera
-  const mineW = ((trackHalf - 4) * mine) / max;
-  const theirsW = ((trackHalf - 4) * theirs) / max;
+  // Suelo de 12px: por debajo, el radio redondea el relleno hasta convertirlo en
+  // un punto indistinguible de un marcador.
+  const barW = (v: number) => (v > 0 ? Math.max(12, ((trackHalf - 4) * v) / max) : 0);
+  const mineW = barW(mine);
+  const theirsW = barW(theirs);
   if (mineW > 0) { ctx.fillStyle = MINE; rr(ctx, cx - 4 - mineW, rowY, mineW, h, h / 2); ctx.fill(); }
   if (theirsW > 0) { ctx.fillStyle = THEIRS; rr(ctx, cx + 4, rowY, theirsW, h, h / 2); ctx.fill(); }
 
@@ -427,8 +471,10 @@ function drawEntryRow(
   if (isMine) {
     ctx.fillText(desc, textX, y + 10);
     ctx.font = font(700, 12, true);
-    ctx.textAlign = 'left';
-    ctx.fillText(amount, textX + ctx.measureText(desc).width + 10, y + 10);
+    // Alineado contra el eje, no detrás de la descripción: en bandera las cifras
+    // arrancaban en siete sitios distintos y no se podían comparar.
+    ctx.textAlign = 'right';
+    ctx.fillText(amount, cx - gutter, y + 10);
   } else {
     ctx.font = font(700, 12, true);
     ctx.textAlign = 'right';
@@ -458,6 +504,7 @@ function drawEntryRow(
 function drawFooter(
   ctx: CanvasRenderingContext2D, w: number, y: number,
   model: FriendReportModel, labels: FriendReportImageLabels, logo: HTMLImageElement | null,
+  withSocialStat = true,
 ) {
   ctx.strokeStyle = HAIRLINE;
   ctx.lineWidth = 1;
@@ -466,14 +513,17 @@ function drawFooter(
   ctx.lineTo(w - PAD, y);
   ctx.stroke();
 
-  ctx.font = font(700, 11);
-  ctx.fillStyle = INK;
-  ctx.textAlign = 'left';
-  ctx.fillText(clip(ctx, labels.socialStat, w - PAD * 2 - 90), PAD, y + 20);
+  if (withSocialStat) {
+    ctx.font = font(700, 11);
+    ctx.fillStyle = INK;
+    ctx.textAlign = 'left';
+    ctx.fillText(clip(ctx, labels.socialStat, w - PAD * 2 - 90), PAD, y + 20);
+  }
 
   ctx.font = font(500, 9.5);
   ctx.fillStyle = INK_DIM;
-  ctx.fillText(clip(ctx, labels.footer, w - PAD * 2 - 90), PAD, y + 35);
+  ctx.textAlign = 'left';
+  ctx.fillText(clip(ctx, labels.footer, w - PAD * 2 - 90), PAD, withSocialStat ? y + 35 : y + 24);
 
   if (logo) {
     const size = 18;
@@ -503,7 +553,7 @@ function drawChat(
   const y = top + Math.max(0, (bottom - top - blockH) / 2);
 
   const afterPeople = drawPeople(ctx, W, y, model, labels, 34);
-  drawVerdict(ctx, W, afterPeople + 22, model, labels, true);
+  drawVerdict(ctx, W, afterPeople + 22, model, labels, true, true);
   drawFooter(ctx, W, h - 62, model, labels, logo);
 }
 
@@ -534,7 +584,7 @@ function drawStory(
 
   // Dato social como píldora, anclada sobre el pie: si se deja fluir queda un
   // vacío enorme entre las barras y el borde inferior.
-  const pillY = Math.max(y + 24, h - 148);
+  const pillY = Math.max(y + 24, Math.min(y + 90, h - 148));
   ctx.font = font(700, 12);
   const pillW = Math.min(ctx.measureText(labels.socialStat).width + 34, W - PAD * 2);
   ctx.fillStyle = PANEL;
@@ -545,13 +595,15 @@ function drawStory(
   ctx.fillText(clip(ctx, labels.socialStat, pillW - 26), W / 2, pillY + 23);
   ctx.textAlign = 'left';
 
-  drawFooter(ctx, W, h - 70, model, labels, logo);
+  // El pie repetiría el dato social que ya está en la píldora, a 62px de distancia.
+  drawFooter(ctx, W, h - 70, model, labels, logo, false);
 }
 
 /** Alto exacto del lienzo: sin esto sobraba un hueco muerto antes del pie. */
 function sheetHeight(entryCount: number, withHeader: boolean): number {
-  const head = withHeader ? 262 : 112;
-  const bars = withHeader ? 168 : 0;
+  // Medido sobre el dibujo real: la cabecera termina en 303 y las barras en 486.
+  const head = withHeader ? 303 : 112;
+  const bars = withHeader ? 183 : 0;
   const rows = entryCount * 40 + 30;
   const foot = 112;   // la raya del pie necesita aire tras la última fila
   return Math.round(head + bars + rows + foot);
@@ -575,16 +627,23 @@ function drawSheet(
     // que cada imagen se entienda suelta si alguien reenvía solo una.
     ctx.fillStyle = PANEL;
     rr(ctx, PAD, 50, W - PAD * 2, 46, 14); ctx.fill();
+    // El hueco para el veredicto se mide contra el importe real: con cifras de
+    // nueve dígitos la reserva fija de 130px dejaba que se montaran.
+    ctx.font = font(800, 17, true);
+    const amountText = fmtMoney(model.net);
+    const amountW = ctx.measureText(amountText).width;
+    ctx.fillStyle = model.net === 0 ? INK : model.net > 0 ? MINE : THEIRS;
+    ctx.textAlign = 'right';
+    ctx.fillText(amountText, W - PAD - 16, 79);
+
     ctx.font = font(700, 12);
     ctx.fillStyle = INK;
     ctx.textAlign = 'left';
-    ctx.fillText(clip(ctx, labels.verdict, W - PAD * 2 - 130), PAD + 16, 79);
-    ctx.font = font(800, 17, true);
-    ctx.fillStyle = model.net >= 0 ? MINE : THEIRS;
-    ctx.textAlign = 'right';
-    ctx.fillText(fmtMoney(model.net), W - PAD - 16, 79);
-    ctx.textAlign = 'left';
+    ctx.fillText(clip(ctx, labels.verdict, W - PAD * 2 - 32 - amountW - 12), PAD + 16, 79);
     y = 112;
+
+    // Sin la leyenda, una página reenviada suelta no dice de quién es cada lado.
+    y = drawLegend(ctx, W, y + 6, labels) + 4;
   }
 
   if (page === 1) {
@@ -601,7 +660,11 @@ function drawSheet(
   ctx.font = font(800, 9);
   ctx.letterSpacing = '1.4px';
   ctx.fillStyle = INK_DIM;
-  ctx.fillText(labels.movementsTitle.toUpperCase(), W / 2, y + 14);
+  // En las páginas de continuación el título habla de las filas que se ven, no del total.
+  ctx.fillText(
+    (page === 1 ? labels.movementsTitle : labels.movementsContinued(entries.length)).toUpperCase(),
+    W / 2, y + 14,
+  );
   ctx.letterSpacing = '0px';
   ctx.textAlign = 'left';
   y += 30;
@@ -609,12 +672,14 @@ function drawSheet(
   // Eje central
   const axisTop = y;
   const axisBottom = y + entries.length * 40 - 6;
-  ctx.strokeStyle = HAIRLINE;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(W / 2, axisTop);
-  ctx.lineTo(W / 2, axisBottom);
-  ctx.stroke();
+  if (entries.length > 0) {
+    ctx.strokeStyle = GRAPHIC;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W / 2, axisTop);
+    ctx.lineTo(W / 2, axisBottom);
+    ctx.stroke();
+  }
 
   for (const entry of entries) y = drawEntryRow(ctx, W, y, entry, labels);
 
@@ -622,7 +687,7 @@ function drawSheet(
     ctx.font = font(600, 9.5);
     ctx.fillStyle = INK_DIM;
     ctx.textAlign = 'center';
-    ctx.fillText(labels.page, W / 2, h - 84);
+    ctx.fillText(labels.pageLabel(page, totalPages), W / 2, Math.min(axisBottom + 26, h - 78));
     ctx.textAlign = 'left';
   }
 

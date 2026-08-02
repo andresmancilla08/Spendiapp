@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
+import { formatMoney } from '../utils/formatMoney';
 import { Fonts } from '../config/fonts';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import AppHeader from '../components/AppHeader';
@@ -64,6 +65,8 @@ export default function FriendReportScreen() {
   const [pages, setPages] = useState<(FriendReportImageResult & { url: string })[]>([]);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState(false);
+  /** Cada generación lleva número: si llega tarde y ya hay otra en curso, se descarta. */
+  const runId = useRef(0);
 
   const { profiles: friendProfiles, loading: friendsLoading } = useFriendProfiles(user?.uid ?? '');
   const { transactions, loading: txLoading } = useTransactions(user?.uid ?? '', year, month);
@@ -88,21 +91,24 @@ export default function FriendReportScreen() {
     [friendProfiles],
   );
 
-  const resetSelection = () => {
-    setSelectedFriendUid(null);
+  /** Al cambiar de mes se descartan las imágenes, pero se conserva la persona:
+   *  comparar dos meses seguidos obligaba a volver a elegirla cada vez. */
+  const resetPreview = () => {
+    runId.current++;
     setSheetVisible(false);
     setPreviewVisible(false);
-    releasePages(pages);
-    setPages([]);
+    setGenerating(false);
+    setGenError(false);
+    setPages((prev) => { releasePages(prev); return []; });
   };
 
   const goToPrevMonth = () => {
-    resetSelection();
+    resetPreview();
     if (month === 0) { setMonth(11); setYear((y) => y - 1); } else setMonth((m) => m - 1);
   };
   const MAX_YEAR = now.getFullYear() + 2;
   const goToNextMonth = () => {
-    resetSelection();
+    resetPreview();
     if (month === 11) {
       if (year >= MAX_YEAR) return;
       setMonth(0); setYear((y) => y + 1);
@@ -124,13 +130,13 @@ export default function FriendReportScreen() {
       sentToFriend: transactions.filter((tx) => tx.sentIncomeTransactionId && tx.sentIncomeToUid === selectedFriendUid),
       receivedFromFriend: transactions.filter((tx) => tx.isSentIncome && tx.sentByUid === selectedFriendUid),
       sharedIOwe: transactions.filter((tx) => tx.isShared && tx.sharedOwnerUid === selectedFriendUid
-        && tx.sharedParticipants?.some((p) => p.uid === selectedFriendUid)),
+        && tx.sharedParticipants?.some((p) => p.uid === user.uid)),
       sharedTheyOwe: transactions.filter((tx) => tx.isShared && tx.sharedOwnerUid === user.uid
         && tx.sharedParticipants?.some((p) => p.uid === selectedFriendUid)),
     });
   }, [selectedFriendUid, selectedFriend, user, transactions, month, year, t]);
 
-  const monthNames = getMonthNames();
+  const monthNames = useMemo(() => getMonthNames(), [t]);
   const monthLabel = monthNames[month];
   const hasMovements = !!model && model.movementCount > 0;
 
@@ -144,7 +150,6 @@ export default function FriendReportScreen() {
 
   const labels: FriendReportImageLabels | null = useMemo(() => {
     if (!model || !selectedFriend) return null;
-    const tilt = scaleTilt(model.totals);
     return {
       verdict: verdictText,
       verdictHint: model.net === 0 ? '' : t('friendReport.faceToFace.oneTransfer'),
@@ -157,41 +162,40 @@ export default function FriendReportScreen() {
       transfersSection: t('friendReport.faceToFace.transfersSection'),
       monthTotal: t('friendReport.faceToFace.monthTotal'),
       movementsTitle: t('friendReport.faceToFace.movementsTitle', { count: model.movementCount }),
-      socialStat: t('friendReport.faceToFace.socialStat', { paid: model.paidByMe, total: model.movementCount }),
+      socialStat: t('friendReport.faceToFace.socialStat', { paid: model.paidByMe, count: model.movementCount }),
       tiltMine: t('friendReport.faceToFace.tiltMine'),
       tiltTheirs: t('friendReport.faceToFace.tiltTheirs', { name: selectedFriend.displayName.split(' ')[0] }),
       tiltEven: t('friendReport.faceToFace.tiltEven'),
       sent: t('friendReport.faceToFace.sent'),
       received: t('friendReport.faceToFace.received'),
       footer: `${model.myName} ↔ ${model.friendName} · ${monthLabel} ${year}`,
-      page: t('friendReport.share.page', { n: 1, total: 1 }),
-      // el tilt se recalcula dentro del generador; aquí solo se elige la etiqueta
-      ...(tilt === 0 ? {} : {}),
+      movementsContinued: (n: number) => t('friendReport.faceToFace.movementsContinued', { count: n }),
+      pageLabel: (n: number, total: number) => t('friendReport.share.page', { n, total }),
     };
   }, [model, selectedFriend, verdictText, monthLabel, year, t]);
 
   // ── Generación ───────────────────────────────────────────────────────────
   const generate = useCallback(async (fmt: ReportFormat) => {
     if (!model || !labels) return;
+    const id = ++runId.current;
     setGenerating(true);
     setGenError(false);
     try {
-      const results = await generateFriendReportImage(
-        model,
-        { ...labels, page: t('friendReport.share.page', { n: 1, total: 1 }) },
-        { format: fmt, logoUri: LOGO_URI },
-      );
-      releasePages(pages);
-      setPages(results.map((r) => ({ ...r, url: URL.createObjectURL(r.blob) })));
+      const results = await generateFriendReportImage(model, labels, { format: fmt, logoUri: LOGO_URI });
+      if (id !== runId.current) return;   // llegó tarde: manda la generación posterior
+      setPages((prev) => {
+        releasePages(prev);
+        return results.map((r) => ({ ...r, url: URL.createObjectURL(r.blob) }));
+      });
     } catch (e) {
+      if (id !== runId.current) return;
       console.error('[FriendReport] no se pudo generar la imagen:', e);
-      releasePages(pages);
-      setPages([]);
+      setPages((prev) => { releasePages(prev); return []; });
       setGenError(true);
     } finally {
-      setGenerating(false);
+      if (id === runId.current) setGenerating(false);
     }
-  }, [model, labels, pages, releasePages, t]);
+  }, [model, labels, releasePages]);
 
   const handlePreview = async () => {
     setSheetVisible(false);
@@ -237,7 +241,11 @@ export default function FriendReportScreen() {
         await navigator.share({ files, title: verdictText });
         return;
       }
-    } catch { /* la hoja nativa no está disponible o el usuario canceló */ }
+    } catch (e) {
+      // Cancelar la hoja del sistema lanza AbortError: no es un fallo y no debe
+      // acabar con N archivos en Descargas.
+      if ((e as Error)?.name === 'AbortError') return;
+    }
     handleDownload();
   };
 
@@ -369,7 +377,7 @@ export default function FriendReportScreen() {
                   />
 
                   <SocialStat label={t('friendReport.faceToFace.socialStat', {
-                    paid: model.paidByMe, total: model.movementCount,
+                    paid: model.paidByMe, count: model.movementCount,
                   })} />
 
                   <Text style={[styles.entriesTitle, { color: colors.textTertiary }]}>
@@ -384,6 +392,9 @@ export default function FriendReportScreen() {
                         sentLabel={t('friendReport.faceToFace.sent')}
                         receivedLabel={t('friendReport.faceToFace.received')}
                         dateLabel={entry.date.toLocaleDateString(localeFor(), { day: 'numeric', month: 'short' })}
+                        sideLabel={entry.side === 'me'
+                          ? t('friendReport.faceToFace.favourMine')
+                          : t('friendReport.faceToFace.favourTheirs', { name: selectedFriend!.displayName.split(' ')[0] })}
                       />
                     ))}
                   </View>
@@ -430,14 +441,17 @@ export default function FriendReportScreen() {
             friendName={selectedFriend?.displayName ?? ''}
             periodLabel={`${monthLabel} ${year}`}
             verdictLabel={verdictText}
-            amountLabel={new Intl.NumberFormat('es-CO', {
-              style: 'currency', currency: 'COP', minimumFractionDigits: 0,
-            }).format(Math.abs(model?.net ?? 0))}
+            amountLabel={formatMoney(model?.net ?? 0)}
             entryCount={model?.movementCount ?? 7}
             onShare={handleShare}
             onDownload={handleDownload}
             onRetry={() => generate(format)}
-            onClose={() => setPreviewVisible(false)}
+            onClose={() => {
+              runId.current++;          // lo que esté en vuelo ya no manda
+              setGenerating(false);
+              setGenError(false);
+              setPreviewVisible(false);
+            }}
           />
         )}
       </ScreenBackground>

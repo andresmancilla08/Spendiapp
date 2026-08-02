@@ -93,3 +93,11 @@
 - **Por qué el catálogo está partido en dos archivos:** los componentes de Tabler arrastran react-native, y el sugeridor y su test corren en Node (`npx tsx utils/suggestIcon.test.ts`). Los datos van aparte para que el gate se pueda ejecutar.
 - **Descartado:** los ~6.200 iconos de Tabler (picker inservible y varios MB de bundle) y dejar que la IA devolviera texto libre (inventaba nombres que no existen).
 - **Ojo con las palabras cortas:** las keywords de ≤3 letras ('d1', 'ara', 'gym') se buscan como palabra completa; como subcadena, "ahorro pARA el viaje" se convertía en supermercado.
+
+### Reporte con amigos: "Cara a cara" y tres formatos de documento — Vigente
+- **Qué:** la pantalla trata la relación como sujeto —dos identidades con color propio (tú cian, la otra persona lima), una balanza que se inclina hacia quien debe, el saldo como tipografía dominante y los movimientos a cada lado de un eje—. Al compartir se elige destino ANTES de generar: `chat` 1080×1080 (sobrevive a la miniatura de WhatsApp), `story` 1080×1920 y `sheet` de alto variable con el detalle, paginada.
+- **Por qué tres piezas:** el mismo mes no se cuenta igual en la miniatura de un chat que en una story o en una hoja que alguien va a revisar. Coste asumido: son tres composiciones distintas que dibujar en Canvas 2D, no tres recortes de una.
+- **`utils/friendReportModel.ts` es la pieza clave:** pantalla y generador leen el MISMO modelo. Antes cada uno repetía el reparto por porcentajes y podían contradecirse. Gate: `npx tsx utils/friendReportModel.test.ts`.
+- **Cuotas (dinero, ojo):** en un compartido a cuotas, `useSharedTransactions` guarda en cada documento la cuota YA amortizada sobre el porcentaje de ese participante — no el total del grupo. Para saber lo que debe la otra persona hay que reescalar por MI porcentaje (`amount * suPct / miPct`), no aplicar el suyo sobre mi cuota: en un 50/50 eso daba la mitad de la mitad. Cubierto en el test.
+- **Instagram:** no permite publicar en historias desde la web. El formato story se genera y se comparte por la hoja del sistema o se guarda; la interfaz lo dice en vez de prometer un botón que no existe.
+- **Descartado:** las otras cuatro direcciones de previsualización (hoja inferior, documento en línea, interruptores, pantalla de envío) están documentadas con mockups en `docs/reporte-amigos-cara-a-cara.html`.

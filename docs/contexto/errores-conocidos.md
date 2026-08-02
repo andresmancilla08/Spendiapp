@@ -118,3 +118,11 @@
 
 ### Los `.test.ts` de `utils/` no corren con Jest
 - **A propósito:** son scripts con `assert`, se ejecutan con `npx tsx utils/<archivo>.test.ts`. El repo no tiene runner de Jest configurado; lanzar `npx jest` falla con "must contain at least one test" y no significa que algo esté roto.
+
+### Canvas: la familia "Montserrat" no existe (resuelto)
+- **Síntoma:** el reporte compartido salía en Helvetica aunque se pidiera Montserrat, y las píldoras quedaban mal dimensionadas.
+- **Causa real:** `expo-font` registra una familia POR PESO con el nombre de la clave (`Montserrat_700Bold`), no una familia "Montserrat" con pesos. `ctx.font = '700 13px Montserrat'` cae al fallback sin avisar.
+- **Solución:** en `utils/generateFriendReportImage.ts`, `font()` elige la familia por peso desde `config/fonts.ts`, y `ensureFonts()` las carga antes de medir.
+
+### El documento y la pantalla se pintan con paletas distintas a propósito
+- **A propósito:** el documento compartido es SIEMPRE oscuro, así que usa los tonos de marca directos (`#00BCD4` / `#C0CA33`). La pantalla en modo claro los oscurece (`#00838F` / `#6B7300`) porque sobre blanco no llegan ni a 3:1. No es una divergencia: es el mismo color adaptado a su fondo.

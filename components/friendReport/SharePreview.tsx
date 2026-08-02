@@ -13,9 +13,9 @@
 import { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal, Image, ScrollView,
-  ActivityIndicator, useWindowDimensions, Platform,
+  ActivityIndicator, useWindowDimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import AppIcon from '../AppIcon';
 import { useTheme } from '../../context/ThemeContext';
@@ -57,19 +57,29 @@ interface SheetProps {
 }
 
 export function FormatSheet({ visible, selected, onSelect, onPreview, onClose, entryCount, busy }: SheetProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   if (!visible) return null;
 
   return (
     <View style={styles.sheetLayer} pointerEvents="box-none">
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} accessibilityRole="button" />
-      <View style={[styles.sheet, { backgroundColor: colors.background, borderColor: colors.border }]}>
+      <TouchableOpacity
+        style={styles.scrim}
+        activeOpacity={1}
+        onPress={onClose}
+        accessibilityRole="button"
+        accessibilityLabel={t('common.close')}
+      />
+      <View
+        style={[styles.sheet, { backgroundColor: colors.background, borderColor: colors.border, paddingBottom: 26 + insets.bottom }]}
+        accessibilityViewIsModal
+      >
         <View style={[styles.grab, { backgroundColor: colors.border }]} />
         <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>{t('friendReport.share.whereTitle')}</Text>
         <Text style={[styles.sheetSub, { color: colors.textSecondary }]}>{t('friendReport.share.whereSub')}</Text>
 
-        <View style={styles.formatRow}>
+        <View style={styles.formatRow} accessibilityRole="radiogroup">
           {FORMATS.map(({ id }) => {
             const active = id === selected;
             const dims = formatDimensions(id, entryCount);
@@ -149,7 +159,7 @@ export function PreviewModal({
   visible, format, onChangeFormat, pages, loading, error, friendName, periodLabel,
   verdictLabel, amountLabel, entryCount, onShare, onDownload, onRetry, onClose,
 }: PreviewProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const { width: screenW } = useWindowDimensions();
   const [page, setPage] = useState(0);
@@ -164,7 +174,12 @@ export function PreviewModal({
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <SafeAreaView style={[styles.previewSafe, { backgroundColor: colors.background }]}>
         <View style={[styles.previewHead, { borderBottomColor: colors.border }]}>
-          <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button">
+          <TouchableOpacity
+            onPress={onClose}
+            hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.close')}
+          >
             <AppIcon name="close" size={22} color={colors.textSecondary} />
           </TouchableOpacity>
           <Text style={[styles.previewTitle, { color: colors.textPrimary }]}>{t('friendReport.share.previewTitle')}</Text>
@@ -182,6 +197,7 @@ export function PreviewModal({
                 activeOpacity={0.85}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: active }}
+                hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                 style={[styles.segmentItem, {
                   backgroundColor: active ? colors.surface : 'transparent',
                   borderColor: active ? colors.primary : 'transparent',
@@ -220,7 +236,7 @@ export function PreviewModal({
                 onPress={onRetry}
                 activeOpacity={0.85}
                 accessibilityRole="button"
-                style={[styles.retry, { borderColor: colors.primary }]}
+                style={[styles.retry, { backgroundColor: colors.surface, borderColor: colors.primary }]}
               >
                 <Text style={[styles.retryText, { color: accentInk(colors, 'primary', colors.surface) }]}>
                   {t('friendReport.share.retry')}
@@ -249,7 +265,7 @@ export function PreviewModal({
                     <TouchableOpacity
                       key={i}
                       onPress={() => setPage(i)}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      hitSlop={{ top: 18, bottom: 18, left: 10, right: 10 }}
                       accessibilityRole="button"
                       accessibilityLabel={t('friendReport.share.page', { n: i + 1, total: pages.length })}
                       style={[styles.dot, {
@@ -326,7 +342,7 @@ const styles = StyleSheet.create({
 
   sheetLayer: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end', zIndex: 20 },
   scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(6,18,20,0.45)' },
-  sheet: { borderTopLeftRadius: 26, borderTopRightRadius: 26, borderTopWidth: 1, paddingHorizontal: 20, paddingTop: 9, paddingBottom: 26 },
+  sheet: { borderTopLeftRadius: 26, borderTopRightRadius: 26, borderTopWidth: 1, paddingHorizontal: 20, paddingTop: 9 },
   grab: { width: 38, height: 4, borderRadius: 2, alignSelf: 'center', marginBottom: 14 },
   sheetTitle: { fontSize: 19, fontFamily: Fonts.extraBold, textAlign: 'center', letterSpacing: -0.3 },
   sheetSub: { fontSize: 11.5, fontFamily: Fonts.regular, textAlign: 'center', marginTop: 4 },
