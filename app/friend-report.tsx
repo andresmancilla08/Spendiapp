@@ -384,6 +384,9 @@ export default function FriendReportScreen() {
                     {t('friendReport.faceToFace.movementsTitle', { count: model.movementCount }).toUpperCase()}
                   </Text>
                   <View style={styles.entries}>
+                    {/* El eje se dibuja UNA vez para toda la lista: por fila, su
+                        posición dependía del ancho de cada celda y se veía torcido. */}
+                    <View style={[styles.entriesAxis, { backgroundColor: colors.border }]} pointerEvents="none" />
                     {model.entries.map((entry) => (
                       <EntryRow
                         key={entry.id}
@@ -484,7 +487,8 @@ const styles = StyleSheet.create({
   card: { borderRadius: 22, borderWidth: 1, padding: 18, marginTop: 20 },
   divider: { height: 1, marginTop: 16 },
   entriesTitle: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 1.3, textAlign: 'center', marginTop: 22 },
-  entries: { marginTop: 10 },
+  entries: { marginTop: 10, position: 'relative' },
+  entriesAxis: { position: 'absolute', top: 4, bottom: 4, left: '50%', width: 1, marginLeft: -0.5 },
 
   footer: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 6, borderTopWidth: 1, width: '100%', maxWidth: 768, alignSelf: 'center' },
   shareBtn: { height: 52, borderRadius: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9 },

@@ -262,7 +262,7 @@ function drawScale(ctx: CanvasRenderingContext2D, cx: number, cy: number, halfW:
   ctx.fill();
 
   // Viga: mitad cian, mitad lima
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 3.5;
   ctx.lineCap = 'round';
   ctx.strokeStyle = MINE;
   ctx.beginPath();
@@ -275,13 +275,24 @@ function drawScale(ctx: CanvasRenderingContext2D, cx: number, cy: number, halfW:
   ctx.lineTo(cx + halfW, cy + dy);
   ctx.stroke();
 
-  // Platillos
-  const pan = (px: number, py: number, color: string) => {
+  // Fulcro
+  circle(ctx, cx, cy, 3.4, rgba(GRAPHIC, 1));
+
+  // Platillos: cuelgan de un tirante y son cuencos rellenos. Como semicírculos
+  // sueltos se leían como dos ganchos y la balanza no se reconocía.
+  const pan = (px: number, yEnd: number, color: string) => {
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 1.6;
     ctx.beginPath();
-    ctx.arc(px, py + 7, 9, 0, Math.PI);
+    ctx.moveTo(px, yEnd);
+    ctx.lineTo(px, yEnd + 10);
     ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px, yEnd + 11, 9, 0, Math.PI);
+    ctx.closePath();
+    ctx.fill();
   };
   pan(cx - halfW, cy - dy, MINE);
   pan(cx + halfW, cy + dy, THEIRS);

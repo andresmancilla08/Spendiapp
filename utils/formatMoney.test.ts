@@ -28,4 +28,13 @@ for (const n of [1234567, -1234567, 999, 0]) {
   assert.ok(/\d/.test(out), `debe llevar dígitos: ${out}`);
 }
 
+
+// El código de moneda de tres letras no debe aparecer en ningún idioma: ocupaba
+// más que la cifra en cada fila.
+for (const lang of ['es', 'en', 'it']) {
+  const out = formatMoney(1234567, lang);
+  assert.ok(!out.includes('COP'), `${lang}: se cuela el código de moneda → "${out}"`);
+  assert.ok(out.includes('$'), `${lang}: falta el símbolo → "${out}"`);
+}
+
 console.log('✓ formatMoney: el signo se conserva y formatMoneyAbs lo quita a propósito');

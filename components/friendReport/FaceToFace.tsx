@@ -44,21 +44,36 @@ export function Scale({ tilt, width = 120, isDark }: { tilt: number; width?: num
   const cx = width / 2;
   const cy = 22;
 
-  return (
-    <Svg width="100%" height={52} viewBox={`0 0 ${width} 52`} preserveAspectRatio="xMidYMid meet">
-      {/* mástil y base */}
-      <Line x1={cx} y1={cy} x2={cx} y2={cy + 18} stroke={colors.textTertiary} strokeWidth={2} opacity={0.55} />
+  // Los platillos CUELGAN de los extremos por un tirante vertical y son cuencos
+  // rellenos: los semicírculos sueltos de antes se leían como dos ganchos y nadie
+  // reconocía la balanza.
+  const panY = (yEnd: number) => yEnd + 11;
+  const pan = (px: number, yEnd: number, color: string) => (
+    <>
+      <Line x1={px} y1={yEnd} x2={px} y2={panY(yEnd) - 1} stroke={color} strokeWidth={1.5} opacity={0.9} />
       <Path
-        d={`M${cx - 8} ${cy + 22} L${cx + 8} ${cy + 22} L${cx + 3.5} ${cy + 17} L${cx - 3.5} ${cy + 17} Z`}
+        d={`M${px - 9} ${panY(yEnd)} a9 9 0 0 0 18 0 Z`}
+        fill={color}
+        opacity={0.92}
+      />
+    </>
+  );
+
+  return (
+    <Svg width="100%" height={56} viewBox={`0 0 ${width} 56`} preserveAspectRatio="xMidYMid meet">
+      {/* columna y base */}
+      <Line x1={cx} y1={cy + 1} x2={cx} y2={cy + 20} stroke={colors.textTertiary} strokeWidth={2.5} opacity={0.5} />
+      <Path
+        d={`M${cx - 11} ${cy + 26} L${cx + 11} ${cy + 26} L${cx + 4} ${cy + 19} L${cx - 4} ${cy + 19} Z`}
         fill={colors.textTertiary}
         opacity={0.45}
       />
-      {/* viga, mitad de cada color */}
-      <Line x1={cx - half} y1={cy - dy} x2={cx} y2={cy} stroke={c.mineFill} strokeWidth={3} strokeLinecap="round" />
-      <Line x1={cx} y1={cy} x2={cx + half} y2={cy + dy} stroke={c.theirsFill} strokeWidth={3} strokeLinecap="round" />
-      {/* platillos */}
-      <Path d={`M${cx - half - 8} ${cy - dy + 5} a8 8 0 0 0 16 0`} stroke={c.mineFill} strokeWidth={2.4} fill="none" />
-      <Path d={`M${cx + half - 8} ${cy + dy + 5} a8 8 0 0 0 16 0`} stroke={c.theirsFill} strokeWidth={2.4} fill="none" />
+      {/* viga, mitad de cada color, con el fulcro marcado */}
+      <Line x1={cx - half} y1={cy - dy} x2={cx} y2={cy} stroke={c.mineFill} strokeWidth={3.5} strokeLinecap="round" />
+      <Line x1={cx} y1={cy} x2={cx + half} y2={cy + dy} stroke={c.theirsFill} strokeWidth={3.5} strokeLinecap="round" />
+      <Circle cx={cx} cy={cy} r={3.2} fill={colors.textTertiary} opacity={0.8} />
+      {pan(cx - half, cy - dy, c.mineFill)}
+      {pan(cx + half, cy + dy, c.theirsFill)}
     </Svg>
   );
 }
@@ -211,12 +226,13 @@ export function EntryRow({
       accessible
       accessibilityLabel={`${entry.description}, ${fmt(entry.amount)}, ${dateLabel}, ${sideLabel}`}
     >
-      {isMine ? cell : <View style={styles.entryCell} />}
-      <View style={styles.axisSlot}>
-        <View style={[styles.axisLine, { backgroundColor: colors.border }]} />
+      {/* Mitades exactas: con `flex: 1` la celda cedía al ancho de su contenido y
+          el punto de cada fila caía en un sitio distinto — el eje se veía torcido. */}
+      <View style={styles.entryHalf}>{isMine ? cell : null}</View>
+      <View style={styles.entryHalf}>{isMine ? null : cell}</View>
+      <View style={styles.axisDotWrap} pointerEvents="none">
         <View style={[styles.axisDot, { backgroundColor: dot, borderColor: colors.surface }]} />
       </View>
-      {isMine ? <View style={styles.entryCell} /> : cell}
     </View>
   );
 }
@@ -281,10 +297,11 @@ const styles = StyleSheet.create({
   trackLeft: { alignItems: 'flex-end' },
   fill: { height: 9, borderRadius: 5 },
 
-  entryRow: { flexDirection: 'row', alignItems: 'stretch', minHeight: 44 },
-  entryCell: { flex: 1, minWidth: 0, paddingVertical: 5 },
-  entryCellLeft: { paddingRight: 10 },
-  entryCellRight: { paddingLeft: 10 },
+  entryRow: { flexDirection: 'row', alignItems: 'stretch', minHeight: 44, position: 'relative' },
+  entryHalf: { width: '50%', minWidth: 0 },
+  entryCell: { minWidth: 0, paddingVertical: 5 },
+  entryCellLeft: { paddingRight: 16 },
+  entryCellRight: { paddingLeft: 16 },
   rowReverse: { flexDirection: 'row-reverse' },
   textRight: { textAlign: 'right' },
   entryDesc: { fontSize: 12.5, fontFamily: Fonts.semiBold },
@@ -294,8 +311,7 @@ const styles = StyleSheet.create({
   entryBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
   entryBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
 
-  axisSlot: { width: 18, alignItems: 'center' },
-  axisLine: { position: 'absolute', top: 0, bottom: 0, width: 1 },
+  axisDotWrap: { position: 'absolute', left: 0, right: 0, top: 12, alignItems: 'center' },
   axisDot: { width: 9, height: 9, borderRadius: 5, borderWidth: 2, marginTop: 12 },
 
   social: { borderRadius: 50, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 10, alignSelf: 'center', marginTop: 16 },

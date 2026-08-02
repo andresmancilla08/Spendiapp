@@ -32,6 +32,10 @@ const formatter = (lang?: string) =>
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0,
+    // El símbolo, no el código: fuera de español, `symbol` devuelve "COP 1,234,567"
+    // y ese prefijo de tres letras pesa más que la propia cifra en cada fila de la
+    // app. `narrowSymbol` da "$" en los tres idiomas.
+    currencyDisplay: 'narrowSymbol',
   });
 
 /** Importe con su signo: un saldo negativo se lee negativo. */
