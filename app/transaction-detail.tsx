@@ -1098,6 +1098,10 @@ export default function TransactionDetailScreen() {
                   ? t('sentIncome.deleteRequestConfirm')
                   : transaction.isShared && !isOwner
                   ? t('sharedExpense.deleteRequestConfirm')
+                  // Un compartido a cuotas se borra ENTERO para todos: la rama de
+                  // `isInstallment` de abajo prometía "solo esta cuota".
+                  : transaction.isShared && transaction.isInstallment
+                  ? t('sharedExpense.deleteConfirmInstallments', { count: transaction.installmentTotal ?? 0 })
                   : transaction.isFixed && deleteScope === 'single'
                     ? t('history.edit.scopeConfirmFixed_single')
                     : transaction.isFixed && deleteScope === 'all'

@@ -1450,7 +1450,9 @@
     "invalidEmail": "Email non valida",
     "emailAlreadyAdded": "Questa email è già stata aggiunta",
     "externalBadge": "Esterno",
-    "selectedWith": "Con"
+    "selectedWith": "Con",
+    "deleteConfirmInstallments_one": "Verrà eliminato l'acquisto completo — la sua unica rata — per te e per le altre persone della spesa. Non si può annullare.",
+    "deleteConfirmInstallments_other": "Verrà eliminato l'acquisto completo, con le sue {{count}} rate, per te e per le altre persone della spesa. Non si può annullare."
   },
   "sentIncome": {
     "toggle": "Registra come entrata per un amico",

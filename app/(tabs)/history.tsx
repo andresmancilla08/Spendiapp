@@ -502,7 +502,9 @@ export default function HistoryScreen() {
   const donutSegments: CategorySegment[] = useMemo(() => {
     const byCat: Record<string, number> = {};
     transactions.forEach((tx) => {
-      if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + tx.amount;
+      // effectiveAmount y no `amount`: en un compartido sin cuotas `amount` es el
+      // total del grupo, y el desglose contaría como gasto propio lo que puso otro.
+      if (tx.type === 'expense') byCat[tx.category] = (byCat[tx.category] ?? 0) + effectiveAmount(tx);
     });
     const sortedCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
     const segments = sortedCats

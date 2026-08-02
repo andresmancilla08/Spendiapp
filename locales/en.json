@@ -1450,7 +1450,9 @@
     "invalidEmail": "Invalid email",
     "emailAlreadyAdded": "This email is already added",
     "externalBadge": "External",
-    "selectedWith": "With"
+    "selectedWith": "With",
+    "deleteConfirmInstallments_one": "This deletes the whole purchase — its only instalment — for you and for everyone else in the expense. It cannot be undone.",
+    "deleteConfirmInstallments_other": "This deletes the whole purchase, all {{count}} instalments, for you and for everyone else in the expense. It cannot be undone."
   },
   "sentIncome": {
     "toggle": "Register as income for a friend",

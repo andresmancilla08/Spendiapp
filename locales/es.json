@@ -1450,7 +1450,9 @@
     "invalidEmail": "Correo no válido",
     "emailAlreadyAdded": "Este correo ya fue agregado",
     "externalBadge": "Externo",
-    "selectedWith": "Con quiénes"
+    "selectedWith": "Con quiénes",
+    "deleteConfirmInstallments_one": "Se eliminará la compra completa —la única cuota— para ti y para las demás personas del gasto. No se puede deshacer.",
+    "deleteConfirmInstallments_other": "Se eliminará la compra completa, con sus {{count}} cuotas, para ti y para las demás personas del gasto. No se puede deshacer."
   },
   "sentIncome": {
     "toggle": "Registrar como ingreso para un amigo",
