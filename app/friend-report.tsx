@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
-import { formatMoney } from '../utils/formatMoney';
+import { formatMoneyAbs } from '../utils/formatMoney';
 import { Fonts } from '../config/fonts';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import AppHeader from '../components/AppHeader';
@@ -441,7 +441,7 @@ export default function FriendReportScreen() {
             friendName={selectedFriend?.displayName ?? ''}
             periodLabel={`${monthLabel} ${year}`}
             verdictLabel={verdictText}
-            amountLabel={formatMoney(model?.net ?? 0)}
+            amountLabel={formatMoneyAbs(model?.net ?? 0)}
             entryCount={model?.movementCount ?? 7}
             onShare={handleShare}
             onDownload={handleDownload}

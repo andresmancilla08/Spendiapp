@@ -160,6 +160,10 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
       ref,
       (snap) => {
         if (!snap.exists()) {
+          // Sin conexión, Firestore emite el snapshot desde una caché vacía: eso
+          // NO significa que la cuenta se haya borrado. Cerrar sesión ahí dejaba
+          // fuera a cualquiera que abriera la app sin red.
+          if (snap.metadata.fromCache) return;
           if (useAuthStore.getState().justRegistered) return;
           // Extra guard: cuenta creada hace menos de 2 min — doc Firestore puede no haberse escrito aún
           const cu = auth.currentUser;
@@ -193,9 +197,11 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
         }
       },
       () => {
+        // Error de red o permiso: no se sabe nada nuevo del usuario. Se desbloquea
+        // la pantalla, pero NO se degrada el premium — un usuario de pago sin
+        // cobertura perdía sus funciones sin explicación.
         setUserIsBlocked(false);
         setIsBlockedChecked(true);
-        setIsPremium(false);
       }
     );
     return unsub;

@@ -24,6 +24,10 @@ export function useNotifications(uid: string) {
         snap.docs.map((d) => ({ id: d.id, ...d.data() }) as NotificationDoc),
       );
       setLoading(false);
+    }, (err) => {
+      // Igual que en useFriends: sin callback de error el estado de carga no baja.
+      console.warn('useNotifications error:', err.code);
+      setLoading(false);
     });
 
     return unsub;

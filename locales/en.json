@@ -597,7 +597,11 @@
     },
     "cutoffAdjusted": "Date adjusted to the 1st of next month due to cutoff day {{day}}",
     "collapse": "Collapse",
-    "newCategory": "New"
+    "newCategory": "New",
+    "fixedIncome": "Fixed income",
+    "fixedExpense": "Fixed expense",
+    "fixedHint": "It will repeat automatically every month",
+    "fixedNotWithInstallments": "An instalment purchase already has an end date"
   },
   "editTransaction": {
     "title": "Edit transaction",
@@ -1452,7 +1456,8 @@
     "externalBadge": "External",
     "selectedWith": "With",
     "deleteConfirmInstallments_one": "This deletes the whole purchase — its only instalment — for you and for everyone else in the expense. It cannot be undone.",
-    "deleteConfirmInstallments_other": "This deletes the whole purchase, all {{count}} instalments, for you and for everyone else in the expense. It cannot be undone."
+    "deleteConfirmInstallments_other": "This deletes the whole purchase, all {{count}} instalments, for you and for everyone else in the expense. It cannot be undone.",
+    "deletePartial": "Deleted from your account, but it couldn't be removed from someone else's. Try again with a connection."
   },
   "sentIncome": {
     "toggle": "Register as income for a friend",
@@ -1465,7 +1470,8 @@
     "chip": {
       "sentBy": "Sent by {{name}}",
       "sentTo": "Sent to {{name}}"
-    }
+    },
+    "deleteConfirmBoth": "This deletes the movement from your account and from the other person’s. It cannot be undone."
   },
   "reports": {
     "menuLabel": "Generate annual report",

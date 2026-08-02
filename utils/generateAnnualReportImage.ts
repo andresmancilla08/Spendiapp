@@ -1,7 +1,7 @@
 // utils/generateAnnualReportImage.ts
 import { ReportData } from '../hooks/useReportGenerator';
 import { localeFor } from './dateLocale';
-import { formatMoney } from './formatMoney';
+import { formatMoneyAbs } from './formatMoney';
 
 export interface AnnualReportImageLabels {
   extractTitle: string;
@@ -73,7 +73,7 @@ const MOV_COLS = [100, 280, 220, 228] as const; // date | desc | cat | amount
 // ── Helpers ────────────────────────────────────────────────────────────────
 // Sigue al idioma activo, igual que `fmtDate` justo debajo: la imagen salía con
 // separadores españoles mientras las fechas ya venían en inglés o italiano.
-const fmtCOP = formatMoney;
+const fmtCOP = formatMoneyAbs;
 
 const fmtDate = (d: Date) =>
   d.toLocaleDateString(localeFor(), { day: '2-digit', month: 'short' });

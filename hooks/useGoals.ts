@@ -47,6 +47,11 @@ export function useGoals(userId: string): UseGoalsResult {
     const unsub = onSnapshot(q, (snap) => {
       setGoals(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Goal)));
       setLoading(false);
+    }, (err) => {
+      // Sin este callback, un fallo de red o de permisos dejaba el spinner
+      // girando para siempre: onSnapshot no vuelve a llamar al de éxito.
+      console.warn('useGoals error:', err.code);
+      setLoading(false);
     });
 
     return unsub;

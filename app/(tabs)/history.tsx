@@ -559,9 +559,15 @@ export default function HistoryScreen() {
 
   const handleLongPress = useCallback((tx: Transaction) => {
     if (tx.isFixed && isPastMonth) return;
+    // Mismo control de propiedad que la ficha del movimiento: por aquí, un
+    // invitado de un gasto compartido o quien recibe un ingreso enviado —a los que
+    // el detalle les niega editar— llegaban al editor completo y podían cambiar
+    // importe, tipo o marcar como fijo su copia.
+    if (tx.isSentIncome) return;
+    if (tx.isShared && tx.sharedOwnerUid && tx.sharedOwnerUid !== user?.uid) return;
     setPendingEditTx(tx);
     router.push('/edit-transaction');
-  }, [isPastMonth, setPendingEditTx]);
+  }, [isPastMonth, setPendingEditTx, user?.uid]);
 
   const handleTogglePaid = useCallback(async (tx: Transaction) => {
     const actualId = getActualId(tx);

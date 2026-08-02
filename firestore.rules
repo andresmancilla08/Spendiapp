@@ -14,7 +14,16 @@ service cloud.firestore {
     }
 
     match /transactions/{docId} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      // En un mirror compartido, quien no es el dueño del gasto solo puede tocar
+      // sus campos locales: cambiando `amount` o `sharedAmount` desincronizaba el
+      // reparto sin que el dueño se enterara.
+      allow write: if request.auth != null
+        && request.auth.uid == resource.data.userId
+        && (resource.data.isShared != true
+            || request.auth.uid == resource.data.sharedOwnerUid
+            || request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['isPaid', 'notes', 'category', 'fixedPaidMonths', 'fixedSkipMonths', 'cardId']));
       allow create: if request.auth != null && (
         request.auth.uid == request.resource.data.userId ||
         (request.resource.data.isShared == true &&
@@ -68,7 +77,9 @@ service cloud.firestore {
     // cualquier autenticado; solo el dueño lo escribe y solo esos 4 campos.
     match /publicProfiles/{userId} {
       allow get: if request.auth != null;
-      allow list: if request.auth != null && request.query.limit <= 10;
+      // La app solo consulta `where userName == x limit 1`. Con límite 10 se podía
+      // paginar con startAfter y volcar el directorio completo de usuarios.
+      allow list: if request.auth != null && request.query.limit == 1;
       allow create, update: if request.auth != null
         && request.auth.uid == userId
         && request.resource.data.uid == userId
@@ -95,8 +106,14 @@ service cloud.firestore {
     // Notificaciones: leer/actualizar solo el destinatario
     // Crear: cualquier auth, pero el fromUserId debe ser el propio usuario y el tipo debe ser válido
     match /notifications/{docId} {
-      allow read, update: if request.auth != null &&
-        request.auth.uid == resource.data.toUserId;
+      allow read: if request.auth != null && request.auth.uid == resource.data.toUserId;
+      // Solo marcar leído: el update abierto permitía reescribir el contenido.
+      allow update: if request.auth != null
+        && request.auth.uid == resource.data.toUserId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      // Faltaba por completo: `deleteNotification` fallaba siempre y la
+      // notificación reaparecía tras deslizarla.
+      allow delete: if request.auth != null && request.auth.uid == resource.data.toUserId;
       allow create: if request.auth != null
         && request.resource.data.type in [
           'friend_request', 'friend_accepted',
@@ -120,16 +137,23 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.auth.uid == request.resource.data.ownerUid;
 
-      // Cualquier participante puede eliminar
+      // Solo el dueño elimina: un participante que borraba la coordinación no podía
+      // borrar los mirrors ajenos, y los demás se quedaban con la transacción viva
+      // y sin forma de eliminarla. Para eso está `shared_delete_request`.
       allow delete: if request.auth != null
-        && request.auth.uid in resource.data.participantUids;
+        && request.auth.uid == resource.data.ownerUid;
 
       // Actualizar: participante, pero [M-2] el ownerUid es inmutable
       // (solo el propio owner puede reasignarlo) para evitar secuestro del grupo.
       allow update: if request.auth != null
         && request.auth.uid in resource.data.participantUids
         && (request.resource.data.ownerUid == resource.data.ownerUid
-            || request.auth.uid == resource.data.ownerUid);
+            || request.auth.uid == resource.data.ownerUid)
+        // Solo el dueño toca la composición del grupo: un participante podía
+        // añadir a un tercero (dándole lectura) o expulsar a los demás.
+        && (request.auth.uid == resource.data.ownerUid
+            || (request.resource.data.participantUids == resource.data.participantUids
+                && request.resource.data.mirrorRefs == resource.data.mirrorRefs));
     }
 
     match /goals/{goalId} {

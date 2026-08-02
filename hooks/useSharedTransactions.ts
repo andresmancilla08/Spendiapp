@@ -212,13 +212,14 @@ export function useSharedTransactions() {
     }
   }
 
-  async function deleteSharedTransaction(params: DeleteSharedParams): Promise<void> {
+  async function deleteSharedTransaction(params: DeleteSharedParams): Promise<{ orphaned: number }> {
     const { sharedId, currentUserUid, currentUserName, currentUserDisplayName, description } = params;
     const resolvedDisplayName = currentUserDisplayName || currentUserName;
 
     // Si el doc de coordinación no existe o no tenemos permiso (la otra cuenta fue eliminada),
     // continuamos silenciosamente — el llamador se encargará de borrar su propia transacción.
     let coordData: SharedTransaction | null = null;
+    let orphaned = 0;
     try {
       const coordSnap = await getDoc(doc(db, 'sharedTransactions', sharedId));
       if (coordSnap.exists()) coordData = coordSnap.data() as SharedTransaction;
@@ -229,11 +230,13 @@ export function useSharedTransactions() {
     if (coordData) {
       // Borrar cada mirror individualmente — alguno puede ya no existir
       // (cuenta del otro participante eliminada) y un batch fallaría entero.
+      // Los fallos se cuentan: si quedan copias vivas, el llamador no debe
+      // anunciar que se eliminó, porque los demás seguirán viéndolo en su balance.
       for (const ref of coordData.mirrorRefs) {
         try {
           await deleteDoc(doc(db, 'transactions', ref.transactionId));
         } catch {
-          // Mirror ya eliminado o inaccesible — continuar
+          orphaned++;
         }
       }
       try {
@@ -267,6 +270,8 @@ export function useSharedTransactions() {
         }
       }
     }
+
+    return { orphaned };
   }
 
   return { createSharedTransaction, deleteSharedTransaction };

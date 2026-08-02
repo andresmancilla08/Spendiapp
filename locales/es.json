@@ -597,7 +597,11 @@
     },
     "cutoffAdjusted": "Fecha ajustada al 1 del mes siguiente por la fecha de corte (día {{day}})",
     "collapse": "Colapsar",
-    "newCategory": "Nueva"
+    "newCategory": "Nueva",
+    "fixedIncome": "Ingreso fijo",
+    "fixedExpense": "Gasto fijo",
+    "fixedHint": "Se repetirá automáticamente cada mes",
+    "fixedNotWithInstallments": "Una compra a cuotas ya tiene fecha de fin"
   },
   "editTransaction": {
     "title": "Editar movimiento",
@@ -1452,7 +1456,8 @@
     "externalBadge": "Externo",
     "selectedWith": "Con quiénes",
     "deleteConfirmInstallments_one": "Se eliminará la compra completa —la única cuota— para ti y para las demás personas del gasto. No se puede deshacer.",
-    "deleteConfirmInstallments_other": "Se eliminará la compra completa, con sus {{count}} cuotas, para ti y para las demás personas del gasto. No se puede deshacer."
+    "deleteConfirmInstallments_other": "Se eliminará la compra completa, con sus {{count}} cuotas, para ti y para las demás personas del gasto. No se puede deshacer.",
+    "deletePartial": "Se eliminó de tu cuenta, pero no se pudo quitar de la de alguna otra persona. Inténtalo de nuevo con conexión."
   },
   "sentIncome": {
     "toggle": "Registrar como ingreso para un amigo",
@@ -1465,7 +1470,8 @@
     "chip": {
       "sentBy": "Enviado por {{name}}",
       "sentTo": "Enviado a {{name}}"
-    }
+    },
+    "deleteConfirmBoth": "Se eliminará el movimiento en tu cuenta y en la de la otra persona. No se puede deshacer."
   },
   "reports": {
     "menuLabel": "Generar extracto anual",

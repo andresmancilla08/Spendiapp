@@ -658,15 +658,20 @@ export default function AddTransactionScreen() {
             <View style={[styles.fixedRow, { borderColor: colors.border }]}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.fixedLabel, { color: colors.textPrimary }]}>
-                  {type === 'income' ? 'Ingreso fijo' : 'Gasto fijo'}
+                  {type === 'income' ? t('addTransaction.fixedIncome') : t('addTransaction.fixedExpense')}
                 </Text>
                 <Text style={[styles.fixedHint, { color: colors.textTertiary }]}>
-                  Se repetirá automáticamente cada mes
+                  {installmentCount > 1
+                    ? t('addTransaction.fixedNotWithInstallments')
+                    : t('addTransaction.fixedHint')}
                 </Text>
               </View>
+              {/* Una compra a cuotas tiene fin: el guardado ya fuerza isFixed a
+                  false, así que dejar el interruptor activo era una promesa falsa. */}
               <Switch
-                value={isFixed}
+                value={isFixed && installmentCount <= 1}
                 onValueChange={setIsFixed}
+                disabled={installmentCount > 1}
                 trackColor={{ false: colors.border, true: colors.primary }}
                 thumbColor="#fff"
               />
@@ -1109,8 +1114,10 @@ export default function AddTransactionScreen() {
               </View>
             )}
 
-            {/* Cuotas — solo si tarjeta crédito seleccionada */}
-            {isCredit && type === 'expense' && (
+            {/* Cuotas — solo si tarjeta crédito seleccionada. Un ingreso enviado se
+                escribe como un único documento por el total: dejar el selector
+                visible enseñaba "12 cuotas de X" y luego las descartaba. */}
+            {isCredit && type === 'expense' && !isSentIncome && (
               <View style={[styles.fixedRow, { borderColor: colors.border, flexDirection: 'column', alignItems: 'stretch', gap: 0, paddingVertical: 12, paddingHorizontal: 16 }]}>
                 <Text style={[styles.sectionLabel, { color: colors.textSecondary, marginBottom: 10 }]}>{t('addTransaction.installments')}</Text>
 

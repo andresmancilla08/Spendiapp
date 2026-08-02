@@ -318,9 +318,30 @@ export const detectPremiumTampering = onDocumentUpdated(
     if (!before || !after) return;
 
     const sensitiveFields = ['isPremium', 'premiumExpiry', 'isBlocked', 'isAdmin'];
-    const tampered = sensitiveFields.filter((f) => before[f] !== after[f]);
 
-    if (tampered.length > 0) {
+    // `premiumExpiry` es un Timestamp: comparar los objetos con !== siempre daba
+    // distinto, así que CUALQUIER escritura en el documento (updateAppVersion en
+    // cada arranque, por ejemplo) se marcaba como manipulación, se revertía, y la
+    // reversión volvía a disparar el trigger — escrituras infinitas.
+    const norm = (v: unknown): unknown => {
+      if (v && typeof (v as { toMillis?: () => number }).toMillis === 'function') {
+        return (v as { toMillis: () => number }).toMillis();
+      }
+      return v ?? null;
+    };
+    const tampered = sensitiveFields.filter((f) => norm(before[f]) !== norm(after[f]));
+    if (tampered.length === 0) return;
+
+    // Esta misma función acaba de revertir: no entrar en ping-pong.
+    if (norm(after._honeypotRevertAt) !== norm(before._honeypotRevertAt)) return;
+
+    // Concesión legítima desde el panel de administración: se marca al escribir.
+    if (after._srv === true) {
+      await event.data?.after.ref.update({ _srv: admin.firestore.FieldValue.delete() });
+      return;
+    }
+
+    {
       const userId = event.params.userId;
 
       await admin.firestore().collection('honeypotLogs').add({
@@ -334,8 +355,11 @@ export const detectPremiumTampering = onDocumentUpdated(
         severity: 'critical',
       });
 
-      // Revertir los campos manipulados automáticamente
-      const revert: Record<string, unknown> = {};
+      // Revertir los campos manipulados automáticamente. La marca corta la
+      // recursión: la siguiente invocación la ve cambiada y sale.
+      const revert: Record<string, unknown> = {
+        _honeypotRevertAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
       for (const field of tampered) {
         revert[field] = before[field];
       }

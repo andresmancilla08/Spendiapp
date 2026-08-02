@@ -11,7 +11,7 @@ import Svg, { Line, Path, Circle } from 'react-native-svg';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
 import { accentInk } from '../../utils/contrast';
-import { formatMoney } from '../../utils/formatMoney';
+import { formatMoneyAbs } from '../../utils/formatMoney';
 import { initialOf, scaleTilt, type FriendReportModel, type FriendReportEntry } from '../../utils/friendReportModel';
 
 /**
@@ -29,7 +29,7 @@ export function sideColors(isDark: boolean) {
   };
 }
 
-const fmt = formatMoney;
+const fmt = formatMoneyAbs;
 
 // ── Balanza ────────────────────────────────────────────────────────────────
 

@@ -1,19 +1,45 @@
 /**
- * Formato de dinero para el reporte entre amigos.
+ * Formato de dinero de la app.
  *
  * La moneda es COP (el producto es colombiano) pero la agrupación sigue al idioma
- * ACTIVO de la app, igual que las fechas: en inglés o italiano los importes salían
- * con separadores españoles porque el locale estaba fijado a 'es-CO'.
+ * ACTIVO, igual que las fechas: con el locale fijado a 'es-CO' los importes salían
+ * con separadores españoles en inglés e italiano.
  *
- * Existía tres veces copiado —pantalla, componente y generador de imagen—, que es
- * justo cómo se separaron antes lo que se veía y lo que se compartía.
+ * `formatMoney` RESPETA EL SIGNO. Hubo una versión que aplicaba `Math.abs` siempre
+ * y, al adoptarla en las pantallas de balance, −$500.000 se mostraba como
+ * "$ 500.000": quien estaba en rojo veía la misma cifra que quien estaba en verde,
+ * y solo el color los distinguía. Para los sitios donde el signo lo aporta el
+ * contexto —una fila con flecha, un lado de la balanza— está `formatMoneyAbs`.
+ *
+ * El idioma se resuelve con `require` diferido a propósito: importar `dateLocale`
+ * arriba arrastra `config/i18n` y con él react-native, lo que impide ejecutar este
+ * módulo (y su gate) en Node.
  */
-import { localeFor } from './dateLocale';
+const LOCALE_MAP: Record<string, string> = { es: 'es-CO', en: 'en-US', it: 'it-IT' };
 
-export function formatMoney(amount: number, lang?: string): string {
-  return new Intl.NumberFormat(localeFor(lang), {
+function resolveLocale(lang?: string): string {
+  if (lang) return LOCALE_MAP[lang.slice(0, 2)] ?? 'es-CO';
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return (require('./dateLocale') as typeof import('./dateLocale')).localeFor();
+  } catch {
+    return 'es-CO';
+  }
+}
+
+const formatter = (lang?: string) =>
+  new Intl.NumberFormat(resolveLocale(lang), {
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0,
-  }).format(Math.abs(amount));
+  });
+
+/** Importe con su signo: un saldo negativo se lee negativo. */
+export function formatMoney(amount: number, lang?: string): string {
+  return formatter(lang).format(amount);
+}
+
+/** Importe sin signo, para cuando ya lo dice el contexto (flecha, color, lado). */
+export function formatMoneyAbs(amount: number, lang?: string): string {
+  return formatter(lang).format(Math.abs(amount));
 }

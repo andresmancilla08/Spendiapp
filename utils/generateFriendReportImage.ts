@@ -17,7 +17,7 @@ import type { FriendReportModel, FriendReportEntry } from './friendReportModel';
 import { initialOf, scaleTilt } from './friendReportModel';
 import { localeFor } from './dateLocale';
 import { Fonts } from '../config/fonts';
-import { formatMoney } from './formatMoney';
+import { formatMoneyAbs } from './formatMoney';
 
 export type ReportFormat = 'chat' | 'story' | 'sheet';
 
@@ -115,7 +115,7 @@ const font = (weight: number, size: number, mono = false) =>
     : `${size}px "${FAMILY[weight] ?? Fonts.regular}", ${FALLBACK}`;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-const fmtMoney = formatMoney;
+const fmtMoney = formatMoneyAbs;
 
 // es-CO devuelve "24 de ago." y el "de" no aporta nada en una etiqueta de 9px.
 const fmtDay = (d: Date) =>

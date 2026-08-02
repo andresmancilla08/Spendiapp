@@ -210,7 +210,7 @@ export default function TransactionDetailScreen() {
       setDeleteLoading(false);
       setLastAction('deleted');
       router.back();
-      setTimeout(() => showToast(t('sharedExpense.deleteRequestSent'), 'success'), 350);
+      showToast(t('sharedExpense.deleteRequestSent'), 'success');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error('[handleRequestDeletion] ' + msg);
@@ -240,7 +240,7 @@ export default function TransactionDetailScreen() {
       setDeleteLoading(false);
       setLastAction('deleted');
       router.back();
-      setTimeout(() => showToast(t('sentIncome.deleteRequestSent'), 'success'), 350);
+      showToast(t('sentIncome.deleteRequestSent'), 'success');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error('[handleRequestSentIncomeDeletion] ' + msg);
@@ -265,9 +265,12 @@ export default function TransactionDetailScreen() {
       await addDoc(collection(db, 'transactions'), {
         userId: transaction.userId,
         type: transaction.type,
-        amount: transaction.amount,
+        // `effectiveAmount` y no `amount`: en un compartido sin cuotas `amount` es el
+        // total del grupo, así que duplicar creaba un gasto propio por el total.
+        amount: effectiveAmount(transaction),
         category: transaction.category,
         description: transaction.description,
+        ...(transaction.notes ? { notes: transaction.notes } : {}),
         date: Timestamp.fromDate(transaction.date),
         createdAt: Timestamp.fromDate(new Date()),
         ...(transaction.cardId ? { cardId: transaction.cardId } : {}),
@@ -283,7 +286,15 @@ export default function TransactionDetailScreen() {
 
   const handleDeletePress = useCallback(() => {
     if (!transaction) return;
-    if (transaction.isFixed) {
+    // `handleDelete` ramifica primero por compartido / ingreso enviado y borra la
+    // operación ENTERA para todos los implicados: ofrecer aquí un alcance ("solo
+    // este mes", "solo esta cuota") prometía algo que no ocurre, y la confirmación
+    // llegaba a describir lo contrario de lo que iba a pasar.
+    if (transaction.isShared && transaction.sharedId) {
+      setDeleteStep('confirm');
+    } else if (transaction.sentIncomeTransactionId || transaction.isSentIncome) {
+      setDeleteStep('confirm');
+    } else if (transaction.isFixed) {
       setDeleteScope('fromNow');
       setDeleteStep('scope');
     } else if (transaction.isInstallment) {
@@ -299,7 +310,7 @@ export default function TransactionDetailScreen() {
     setDeleteLoading(true);
     try {
       if (transaction.isShared && transaction.sharedId) {
-        await deleteSharedTransaction({
+        const { orphaned } = await deleteSharedTransaction({
           sharedId: transaction.sharedId,
           currentUserUid,
           currentUserName,
@@ -312,6 +323,15 @@ export default function TransactionDetailScreen() {
           await deleteDoc(doc(db, 'transactions', getActualId(transaction)));
         } catch {
           // Ya eliminada por deleteSharedTransaction — OK
+        }
+        if (orphaned > 0) {
+          // Alguna copia sobrevivió (sin permiso, sin red): decir "eliminado" sería
+          // mentir, porque los demás lo siguen viendo en su balance.
+          showToast(t('sharedExpense.deletePartial'), 'error');
+          setDeleteLoading(false);
+          setLastAction('deleted');
+          router.back();
+          return;
         }
       } else if (transaction.sentIncomeTransactionId) {
         await deleteSentIncome({
@@ -1097,6 +1117,10 @@ export default function TransactionDetailScreen() {
                   // `isInstallment` de abajo prometía "solo esta cuota".
                   : transaction.isShared && transaction.isInstallment
                   ? t('sharedExpense.deleteConfirmInstallments', { count: transaction.installmentTotal ?? 0 })
+                  : transaction.isShared
+                  ? t('sharedExpense.deleteConfirm')
+                  : transaction.sentIncomeTransactionId || transaction.isSentIncome
+                  ? t('sentIncome.deleteConfirmBoth')
                   : transaction.isFixed && deleteScope === 'single'
                     ? t('history.edit.scopeConfirmFixed_single')
                     : transaction.isFixed && deleteScope === 'all'

@@ -597,7 +597,11 @@
     },
     "cutoffAdjusted": "Data adeguata al 1° del mese successivo per la data di chiusura (giorno {{day}})",
     "collapse": "Comprimi",
-    "newCategory": "Nuova"
+    "newCategory": "Nuova",
+    "fixedIncome": "Entrata fissa",
+    "fixedExpense": "Spesa fissa",
+    "fixedHint": "Si ripeterà automaticamente ogni mese",
+    "fixedNotWithInstallments": "Un acquisto a rate ha già una data di fine"
   },
   "editTransaction": {
     "title": "Modifica movimento",
@@ -1452,7 +1456,8 @@
     "externalBadge": "Esterno",
     "selectedWith": "Con",
     "deleteConfirmInstallments_one": "Verrà eliminato l'acquisto completo — la sua unica rata — per te e per le altre persone della spesa. Non si può annullare.",
-    "deleteConfirmInstallments_other": "Verrà eliminato l'acquisto completo, con le sue {{count}} rate, per te e per le altre persone della spesa. Non si può annullare."
+    "deleteConfirmInstallments_other": "Verrà eliminato l'acquisto completo, con le sue {{count}} rate, per te e per le altre persone della spesa. Non si può annullare.",
+    "deletePartial": "Eliminato dal tuo account, ma non è stato possibile rimuoverlo da quello di qualcun altro. Riprova con connessione."
   },
   "sentIncome": {
     "toggle": "Registra come entrata per un amico",
@@ -1465,7 +1470,8 @@
     "chip": {
       "sentBy": "Inviato da {{name}}",
       "sentTo": "Inviato a {{name}}"
-    }
+    },
+    "deleteConfirmBoth": "Il movimento verrà eliminato dal tuo account e da quello dell'altra persona. Non si può annullare."
   },
   "reports": {
     "menuLabel": "Genera estratto annuale",

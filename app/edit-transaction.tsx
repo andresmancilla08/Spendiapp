@@ -326,7 +326,12 @@ export default function EditTransactionScreen() {
         for (const mirrorRef of coordData.mirrorRefs) {
           const participant = sharedEditParticipants.find((p) => p.uid === mirrorRef.uid);
           if (!participant) continue;
-          const newSharedAmount = calcSharedAmount(parsedAmount, 0, 1, participant.percentage);
+          // Un reclamo de ingreso va ENTERO, como en la creación
+          // (useSharedTransactions): repartirlo por porcentaje dejaba a los dos
+          // lados con la mitad del importe reclamado.
+          const newSharedAmount = isIncomeClaim
+            ? parsedAmount
+            : calcSharedAmount(parsedAmount, 0, 1, participant.percentage);
           const isMine = mirrorRef.uid === user.uid;
           // income_claim: la copia del amigo sigue siendo un egreso, no se invierte.
           const mirrorType = isIncomeClaim && !isMine ? 'expense' : type;
@@ -343,7 +348,11 @@ export default function EditTransactionScreen() {
             sharedAmount: newSharedAmount,
             ...(mirrorRef.uid === user.uid ? { cardId: selectedCardId ?? null } : {}),
             ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
-            ...(notes.trim() ? { notes: notes.trim() } : { notes: deleteField() }),
+            // La nota es privada: escribirla en todos los mirrors la enseñaba al
+            // resto de participantes.
+            ...(isMine
+              ? (notes.trim() ? { notes: notes.trim() } : { notes: deleteField() })
+              : {}),
           });
         }
         await batch.commit();
@@ -412,7 +421,10 @@ export default function EditTransactionScreen() {
               </View>
             )}
 
-            {/* Type toggle */}
+            {/* Type toggle — en un compartido el tipo es parte del contrato del
+                grupo: cambiarlo convertía el gasto del amigo en un ingreso que
+                nunca tuvo y le subía el balance. */}
+            {!isSharedTx && (
             <View style={[styles.typeToggleRow, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>
               {(['expense', 'income'] as TransactionType[]).map((tp) => (
                 <TouchableOpacity
@@ -431,6 +443,7 @@ export default function EditTransactionScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+            )}
 
             {/* Amount */}
             <View style={styles.amountRow}>
