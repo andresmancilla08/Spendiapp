@@ -91,8 +91,9 @@ export default function ReportsScreen() {
         dateCol: t('reports.pdfDate'),
         descriptionCol: t('reports.pdfDescription'),
         categoryLabel: t('reports.pdfCategory'),
-        amountCol: 'Monto',
+        amountCol: t('reports.pdfAmount'),
         footer: t('reports.pdfFooter'),
+        movementCount: (n: number) => t('reports.movementCount', { count: n }),
       };
       const results = await generateAnnualReportImage(data, labels, LOGO_URI);
       previewPages.forEach((p) => URL.revokeObjectURL(p.url));

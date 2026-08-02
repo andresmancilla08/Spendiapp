@@ -19,6 +19,8 @@ export interface AnnualReportImageLabels {
   categoryLabel: string;
   amountCol: string;
   footer: string;
+  /** "12 movimientos" — con plural, se llama por cada bloque. */
+  movementCount: (n: number) => string;
 }
 
 export interface AnnualReportImageResult {
@@ -365,9 +367,9 @@ function drawSummaryCards(
   const cardW = (CW - gapC * 2) / 3;
 
   const summaries = [
-    { label: labels.income,   value: fmtCOP(totalIncome),   color: EMERALD, icon: '↑', sub: `${incomeCount} mov.` },
-    { label: labels.expenses, value: fmtCOP(totalExpenses), color: RED,     icon: '↓', sub: `${expenseCount} mov.` },
-    { label: labels.balance,  value: fmtCOP(balance),       color: balCol,  icon: balance >= 0 ? '↑' : '↓', sub: `${totalCount} mov.` },
+    { label: labels.income,   value: fmtCOP(totalIncome),   color: EMERALD, icon: '↑', sub: labels.movementCount(incomeCount) },
+    { label: labels.expenses, value: fmtCOP(totalExpenses), color: RED,     icon: '↓', sub: labels.movementCount(expenseCount) },
+    { label: labels.balance,  value: fmtCOP(balance),       color: balCol,  icon: balance >= 0 ? '↑' : '↓', sub: labels.movementCount(totalCount) },
   ];
 
   summaries.forEach((card, i) => {
@@ -712,7 +714,7 @@ function drawMovementsSection(
   const fY = ry + H_SFOOT / 2;
   ctx.fillStyle = GRAY_600; ctx.font = `600 13px ${FONT}`;
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText(`${txs.length} movimientos`, cx + 20, fY);
+  ctx.fillText(labels.movementCount(txs.length), cx + 20, fY);
   ctx.textAlign = 'right'; ctx.font = `800 14px ${FONT}`;
   if (totInc > 0 && totExp > 0) {
     ctx.fillStyle = EMERALD;

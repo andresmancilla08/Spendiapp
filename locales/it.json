@@ -759,7 +759,7 @@
       "catShareOfMonth": "{{pct}}% del mese",
       "catShareOfIncome": "{{pct}}% delle entrate",
       "catNotExpense": "non è una spesa",
-      "cardSpentCaption": "a {{month}}",
+      "cardSpentCaption": "la tua parte · in {{month}}",
       "cutoffLabel": "GIORNO DI CHIUSURA",
       "cutoffValue": "{{day}} di ogni mese",
       "cardMovementsLabel": "MOVIMENTI",
@@ -1477,8 +1477,8 @@
     "share": "Condividi",
     "save": "Salva",
     "close": "Chiudi",
-    "savedSuccess": "PDF salvato nei Download",
-    "shareError": "Impossibile condividere il PDF",
+    "savedSuccess": "Immagine salvata",
+    "shareError": "Impossibile condividere l'immagine",
     "noTransactions": "Nessuna transazione per questo anno",
     "viewerTitle": "Estratto {{year}}",
     "pdfTitle": "SPENDIA",
@@ -1497,7 +1497,10 @@
     "pdfDescription": "Descrizione",
     "pdfFooter": "Generato da Spendia · Questo documento è informativo. Consulta il tuo commercialista per la dichiarazione ufficiale.",
     "fiscalYear": "Anno fiscale",
-    "pages": "pagine"
+    "pages": "pagine",
+    "pdfAmount": "Importo",
+    "movementCount_one": "1 movimento",
+    "movementCount_other": "{{count}} movimenti"
   },
   "tools": {
     "title": "Strumenti",

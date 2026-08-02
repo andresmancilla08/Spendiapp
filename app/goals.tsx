@@ -72,7 +72,11 @@ function GoalCard({
   onContribute?: () => void;
   onDelete: () => void;
 }) {
-  const pct = goal.targetAmount > 0 ? (goal.savedAmount / goal.targetAmount) * 100 : 0;
+  // Acotado a 100 como en el resumen premium: aportar de más imprimía "142%"
+  // sobre una barra clavada al tope, y las dos vistas se contradecían.
+  const pct = goal.targetAmount > 0
+    ? Math.min(100, (goal.savedAmount / goal.targetAmount) * 100)
+    : 0;
   const isCompleted = goal.status === 'completed';
   const accentColor = isCompleted ? colors.success : colors.primary;
   const trackColor = isDark ? colors.textPrimary + '1A' : colors.border;

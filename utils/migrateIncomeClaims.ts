@@ -8,7 +8,7 @@ import {
   query,
   where,
   getDocs,
-  writeBatch,
+  writeBatch, setDoc,
   doc,
   getDoc,
 } from 'firebase/firestore';
@@ -77,12 +77,20 @@ export async function migrateIncomeClaims(userId: string): Promise<void> {
       batch.update(doc(db, 'transactions', id), { sharedType: 'income_claim', sharedAmount: amount });
     });
 
-    // Update coord docs so OTHER participants can detect income_claim later
-    ownerSharedIds.forEach((sharedId) => {
-      batch.update(doc(db, 'sharedTransactions', sharedId), { sharedType: 'income_claim' });
-    });
-
     await batch.commit();
+
+    // Los docs de coordinación van APARTE y con merge: `update` falla si el doc no
+    // existe —cosa que pasa cuando la cuenta del otro se eliminó, escenario que
+    // `deleteSharedTransaction` tolera— y un solo fallo tumbaba el lote entero,
+    // dejando también sin aplicar los arreglos de las transacciones.
+    for (const sharedId of ownerSharedIds) {
+      try {
+        await setDoc(doc(db, 'sharedTransactions', sharedId), { sharedType: 'income_claim' }, { merge: true });
+      } catch {
+        // Coordinación inaccesible: los documentos de dinero ya quedaron bien.
+      }
+    }
+
     _markDone(userId);
   } catch (e) {
     console.warn('[migrateIncomeClaims] skipped:', e);

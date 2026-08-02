@@ -408,10 +408,14 @@ export default function AddTransactionScreen() {
 
   const sharedParticipantRequired = !isShared || sharedParticipants.length > 0;
 
+  // Además de sumar 100, nadie puede quedar al 0%: se le escribía un documento de
+  // cero pesos (o N de cero, con cuotas) que solo ensucia su historial.
   const sharedPercentageValid = !isShared
     || type === 'income'  // income_claim no usa porcentajes
     || sharedParticipants.length === 0
-    || Math.round(ownerPercentage + sharedParticipants.reduce((s, p) => s + p.percentage, 0)) === 100;
+    || (Math.round(ownerPercentage + sharedParticipants.reduce((s, p) => s + p.percentage, 0)) === 100
+        && ownerPercentage > 0
+        && sharedParticipants.every((p) => p.percentage > 0));
 
   const sentIncomeValid = !isSentIncome || sentIncomeRecipient !== null;
 

@@ -64,10 +64,19 @@ export default function SharedExpenseSection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [participants.length, splitType]);
 
+  /** En un reclamo de ingreso solo cabe una persona: mi ingreso se registra una
+   *  vez, así que con dos la suma de las deudas duplicaría lo que yo cobro. */
+  const singleParticipant = mode === 'income_claim';
+
   const toggleFriend = (profile: PublicProfile) => {
     const exists = participants.find((p) => p.uid === profile.uid);
     if (exists) {
       onParticipantsChange(participants.filter((p) => p.uid !== profile.uid));
+    } else if (singleParticipant) {
+      // Elegir a otro sustituye al anterior en vez de sumarse.
+      onParticipantsChange([
+        { uid: profile.uid, userName: profile.userName, displayName: profile.displayName, percentage: 0 },
+      ]);
     } else {
       onParticipantsChange([
         ...participants,
@@ -82,10 +91,8 @@ export default function SharedExpenseSection({
     const email = extEmail.trim().toLowerCase();
     if (!EMAIL_RE.test(email)) { setEmailError(t('sharedExpense.invalidEmail')); return; }
     if (participants.find((p) => p.uid === email)) { setEmailError(t('sharedExpense.emailAlreadyAdded')); return; }
-    onParticipantsChange([
-      ...participants,
-      { uid: email, userName: '', displayName: extName.trim(), percentage: 0, isExternal: true, email },
-    ]);
+    const nuevo = { uid: email, userName: '', displayName: extName.trim(), percentage: 0, isExternal: true, email };
+    onParticipantsChange(singleParticipant ? [nuevo] : [...participants, nuevo]);
     setExtName('');
     setExtEmail('');
   };

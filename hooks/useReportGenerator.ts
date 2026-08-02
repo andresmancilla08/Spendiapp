@@ -50,9 +50,22 @@ export async function getAvailableYears(userId: string): Promise<number[]> {
   );
 
   const yearSet = new Set<number>();
+  const currentYear = new Date().getFullYear();
+
   snap.docs.forEach((doc) => {
-    const date = (doc.data().date as Timestamp).toDate();
+    const d = doc.data();
+    const date = (d.date as Timestamp).toDate();
     yearSet.add(date.getFullYear());
+
+    // Un gasto fijo es UN documento con mensualidades virtuales: sigue generando
+    // movimientos en los años posteriores mientras no se cancele. Sin esto, quien
+    // tuviera un fijo de 2023 vivo solo podía pedir el reporte de 2023.
+    if (d.isFixed === true) {
+      const until = d.fixedCancelledFrom
+        ? (d.fixedCancelledFrom as Timestamp).toDate().getFullYear()
+        : currentYear;
+      for (let y = date.getFullYear(); y <= Math.min(until, currentYear); y++) yearSet.add(y);
+    }
   });
 
   return Array.from(yearSet).sort((a, b) => b - a); // más reciente primero
