@@ -17,6 +17,7 @@ import assert from 'node:assert';
 import { calculateInstallments } from './installmentCalc';
 import { calcSharedAmount } from './sharedCalc';
 import { buildFriendReport } from './friendReportModel';
+import { effectiveAmount } from './sharedCalc';
 import type { Transaction } from '../types/transaction';
 
 const ME = 'uid-yo';
@@ -200,7 +201,32 @@ function createSharedInstallments(opts: {
   assert.strictEqual(model.paidByMe, 1, 'de los dos, uno lo puse yo');
 }
 
+
+// ── Caso 5: lo que enseña la ficha del movimiento ─────────────────────────
+// `app/transaction-detail.tsx` pinta "$X cada uno" con el mismo dato. Usaba
+// `sharedAmount ?? amount`, que en cuotas es el gemelo por división plana.
+{
+  const docs = createSharedInstallments({
+    total: 1_000_000, installments: 3, tea: null, ownerUid: ME,
+    participants: [
+      { uid: ME, displayName: 'Yo', percentage: 35 },
+      { uid: FRIEND, displayName: 'Amigo', percentage: 65 },
+    ],
+    description: 'Sofá', startDay: 14,
+  });
+  const ultima = docs[ME][2];
+
+  assert.notStrictEqual(
+    ultima.sharedAmount, ultima.amount,
+    'el escenario es válido: en esta cuota los dos campos difieren',
+  );
+  assert.strictEqual(
+    effectiveAmount(ultima), ultima.amount,
+    'la ficha debe enseñar la cuota real, no el gemelo redondeado',
+  );
+}
+
 console.log(
-  '✓ friendReportInstallments: cuotas 50/50, 70/30 con interés, tres personas y mes mixto ' +
-  'cuadran con los documentos que escribe createSharedTransaction',
+  '✓ cuotas compartidas: 50/50, 70/30 con interés, tres personas, mes mixto y la ficha ' +
+  'del movimiento cuadran con los documentos que escribe createSharedTransaction',
 );

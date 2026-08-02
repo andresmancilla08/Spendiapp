@@ -617,7 +617,10 @@ export default function TransactionDetailScreen() {
       const label = isClaim
         ? (isOwner ? t('history.detail.owesYouLabel') : t('history.detail.youOweLabel'))
         : (isOwner ? t('history.detail.sharedWithLabel') : t('history.detail.sharedByLabel'));
-      const share = transaction.sharedAmount ?? mine;
+      // `effectiveAmount` y no `sharedAmount` a secas: en cuotas ese campo es un
+      // gemelo redondeado por división plana y desvía la cifra (utils/sharedCalc).
+      // Fuera de cuotas devuelve exactamente `sharedAmount`, así que no cambia nada.
+      const share = mine;
       const pill = isClaim
         ? (isOwner ? t('history.detail.owedEach', { amount: formatCurrency(share) })
                    : t('history.detail.owePending', { amount: formatCurrency(share) }))

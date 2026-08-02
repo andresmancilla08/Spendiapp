@@ -1,5 +1,8 @@
 import type { Category } from '../types/category';
-import { FALLBACK_ICON } from './categoryIcons';
+// Desde los DATOS, no desde el módulo de componentes: `categoryIcons` arrastra
+// @tabler/icons-react-native y dejaba sin poder ejecutarse los tests que
+// importan constantes de categorías en Node.
+import { FALLBACK_ICON } from './categoryIconData';
 
 export const DEFAULT_CATEGORIES: Omit<Category, 'userId' | 'createdAt'>[] = [
   { id: 'food',          name: 'Comida',      icon: 'tools-kitchen', type: 'expense', isDefault: true },
