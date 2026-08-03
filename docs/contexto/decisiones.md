@@ -113,3 +113,12 @@
 - **Qué:** el botón "Compartir" abre la previsualización y genera la pieza; el formato se cambia en el segmento que la propia vista ya tiene arriba. "Compartir" invoca la hoja nativa (`navigator.share` con los `File` ya en memoria) y el botón de descarga guarda el archivo directamente.
 - **Por qué:** la hoja "¿Para dónde va?" preguntaba lo mismo que la vista siguiente. Un paso menos y ninguna decisión perdida.
 - **Ojo (ver errores conocidos):** entre el toque y `navigator.share` no puede haber `await`, y la descarga necesita un blob `application/octet-stream`.
+
+### Metas: la lista informa, la hoja actúa — Vigente
+- **Qué:** la tarjeta de una meta solo muestra estado (nombre, `62% · faltan X`, lo ahorrado, barra) y un chevron. Tocarla abre `components/GoalSheet`, que es el único sitio donde se actúa: aportar (input + tres atajos calculados sobre lo que falta, el último **completa la meta al céntimo**), editar (lápiz), eliminar (papelera) y, si ya está cumplida, reabrir. Editar reutiliza el diálogo de crear con otro título y otro CTA; eliminar sigue con `AppDialog` + toast.
+- **Por qué:** eliminar existía SOLO como `onLongPress` sobre la tarjeta —invisible, imposible de descubrir con lector de pantalla y, en la PWA de iOS, interceptado por Safari— y editar no existía en ninguna parte. Tres acciones no caben en una tarjeta de 68 px sin sacrificar las cifras.
+- **Descartado:** los dos botones ícono en la fila al estilo `cards.tsx` (ocupan justo el sitio de las cifras: una tarjeta de dinero se quedaba sin el dinero), un CTA "Aportar" repetido en cada fila (ruido en una lista de seis metas) y el aporte desplegable dentro de la lista (rompe el ritmo y deja editar/eliminar igual de escondidos). Swipe-to-delete descartado por regla: nada de gestos horizontales en el contenido principal.
+- **Área táctil:** los botones ícono son 44×44 reales con la pastilla de 36 dentro. El patrón de `cards.tsx` (34×34 sin `hitSlop`) se queda corto para WCAG/HIG.
+- **Verificación:** `npx tsx utils/goalsContrast.test.ts` mide 832 pares en las 32 paletas × claro/oscuro, **incluido el estado activo del chip**, y exige que las tintas de señal NO caigan a gris.
+- **`updateGoal` recalcula el estado:** bajar el objetivo por debajo de lo ahorrado completa la meta; subirlo por encima la reactiva y borra `completedAt`. Vive en el hook para que el documento nunca tenga un `status` que contradiga sus cifras.
+

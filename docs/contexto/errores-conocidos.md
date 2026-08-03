@@ -155,3 +155,13 @@
 
 ### Las copias virtuales de un fijo tienen que llevar su reparto
 - **A propósito:** un gasto fijo es UN documento; sus mensualidades se generan en cliente. Cada sitio que las genere debe copiar `isShared`, `sharedAmount` e `isInstallment`, o `effectiveAmount` contará el total del grupo. Le pasaba a `useReportGenerator` (el año salía al doble) y le pasaba a `useTransactions` con las cuotas.
+
+### El long-press no es una vía de acción (resuelto en Metas)
+- **Síntoma:** en Metas no se podía eliminar ni editar nada.
+- **Causa real:** eliminar solo existía como `onLongPress` de la tarjeta. En la PWA de iOS ese gesto lo intercepta Safari (menú de sistema / selección) y con ratón nadie lo descubre; para VoiceOver, simplemente no existía. Editar no estaba implementado (`useGoals` no tenía `updateGoal`).
+- **Solución:** la tarjeta abre `components/GoalSheet` y todas las acciones son botones visibles con `accessibilityRole`/`accessibilityLabel`. Regla general: **ninguna acción puede vivir solo en un gesto**; el long-press vale como atajo, nunca como única vía. Quedan con el mismo patrón viejo `app/(tabs)/budget.tsx:366` y `app/expense-groups.tsx:243`.
+
+### El color de señal no puede caer a gris (`accentInk` vs `readableTint`)
+- **A propósito:** en Metas y en el reporte de amigos las tintas de señal (barra de progreso, cifra ahorrada, badge "LOGRADA", chip activo) usan `readableTint`, no `accentInk`. `accentInk` es correcto para texto de acento, pero su último recurso es `textSecondary`: el badge de logro salía **gris** en modo oscuro y el chip activo perdía el cian. `readableTint` conserva el tono y solo lo acerca al blanco o al negro hasta alcanzar el ratio.
+- **Y cada tinta se mide contra el fondo que tiene DEBAJO:** sobre una pastilla `#RRGGBB1E` compuesta hay que medir el color resultante, no la superficie. Medido contra la superficie, el ícono de editar daba 1,70:1 en las paletas pastel.
+

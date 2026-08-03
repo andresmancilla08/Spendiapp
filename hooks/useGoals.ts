@@ -8,6 +8,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   doc,
   Timestamp,
   orderBy,
@@ -25,6 +26,8 @@ interface UseGoalsResult {
     currentSaved: number,
     targetAmount: number,
   ) => Promise<boolean>;
+  updateGoal: (goal: Goal, patch: { name: string; emoji: string; targetAmount: number }) => Promise<void>;
+  reopenGoal: (goalId: string) => Promise<void>;
   deleteGoal: (goalId: string) => Promise<void>;
 }
 
@@ -85,9 +88,37 @@ export function useGoals(userId: string): UseGoalsResult {
     return completed;
   };
 
+  /**
+   * Editar la meta puede cambiar si está cumplida: bajar el objetivo por debajo de
+   * lo ahorrado la completa, y subirlo por encima la devuelve a activa. Se resuelve
+   * aquí y no en la pantalla para que el documento nunca quede con un `status` que
+   * contradiga sus propias cifras.
+   */
+  const updateGoal = async (
+    goal: Goal,
+    patch: { name: string; emoji: string; targetAmount: number },
+  ): Promise<void> => {
+    const completed = goal.savedAmount >= patch.targetAmount;
+    await updateDoc(doc(db, 'goals', goal.id), {
+      ...patch,
+      status: completed ? 'completed' : 'active',
+      ...(completed
+        ? { completedAt: goal.completedAt ?? Timestamp.now() }
+        : { completedAt: deleteField() }),
+    });
+  };
+
+  /** Volver a ponerla en marcha: se borra la fecha de logro, no se conserva una vieja. */
+  const reopenGoal = async (goalId: string): Promise<void> => {
+    await updateDoc(doc(db, 'goals', goalId), {
+      status: 'active',
+      completedAt: deleteField(),
+    });
+  };
+
   const deleteGoal = async (goalId: string): Promise<void> => {
     await deleteDoc(doc(db, 'goals', goalId));
   };
 
-  return { goals, loading, addGoal, addContribution, deleteGoal };
+  return { goals, loading, addGoal, addContribution, updateGoal, reopenGoal, deleteGoal };
 }

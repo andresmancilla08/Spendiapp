@@ -1560,8 +1560,6 @@
     "emojiPlaceholder": "✈️",
     "targetLabel": "Importo obiettivo",
     "targetPlaceholder": "$ 0",
-    "addContributionTitle": "Aggiungi risparmio",
-    "contributionLabel": "Quanto vuoi aggiungere?",
     "deleteTitle": "Elimina obiettivo",
     "deleteDescBefore": "Sei sicuro di voler eliminare",
     "deleteDescAfter": "? Questa azione non può essere annullata.",
@@ -1577,7 +1575,6 @@
     "createButton": "Crea obiettivo",
     "cancelButton": "Annulla",
     "deleteButton": "Elimina",
-    "addButton": "Aggiungi",
     "newGoalButton": "Nuovo obiettivo",
     "gotIt": "Ottimo!",
     "toasts": {
@@ -1585,7 +1582,30 @@
       "deleted": "Obiettivo eliminato",
       "contributed": "Risparmio aggiunto!",
       "completed": "Obiettivo raggiunto! 🎉",
-      "error": "Si è verificato un errore"
+      "error": "Si è verificato un errore",
+      "updated": "Obiettivo aggiornato",
+      "reopened": "Obiettivo riaperto"
+    },
+    "editTitle": "Modifica obiettivo",
+    "saveButton": "Salva modifiche",
+    "card": {
+      "remaining": "mancano {{amount}}",
+      "reached": "RAGGIUNTO",
+      "hintActive": "Apri l’obiettivo per versare, modificarlo o eliminarlo",
+      "hintCompleted": "Apri l’obiettivo per riaprirlo o eliminarlo"
+    },
+    "sheet": {
+      "remaining": "Mancano {{amount}}",
+      "reached": "Obiettivo raggiunto",
+      "ofTarget": "di {{amount}}",
+      "howMuch": "Quanto versi",
+      "fill": "Completa",
+      "contribute": "Versa nell’obiettivo",
+      "contributeAmount": "Versa {{amount}}",
+      "edit": "Modifica obiettivo",
+      "delete": "Elimina obiettivo",
+      "reopen": "Riapri obiettivo",
+      "completedOn": "Raggiunto il {{date}}"
     }
   },
   "expenseGroups": {

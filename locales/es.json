@@ -1560,8 +1560,6 @@
     "emojiPlaceholder": "✈️",
     "targetLabel": "Monto objetivo",
     "targetPlaceholder": "$ 0",
-    "addContributionTitle": "Agregar ahorro",
-    "contributionLabel": "¿Cuánto vas a agregar?",
     "deleteTitle": "Eliminar meta",
     "deleteDescBefore": "¿Seguro que quieres eliminar",
     "deleteDescAfter": "? Esta acción no se puede deshacer.",
@@ -1577,7 +1575,6 @@
     "createButton": "Crear meta",
     "cancelButton": "Cancelar",
     "deleteButton": "Eliminar",
-    "addButton": "Agregar",
     "newGoalButton": "Nueva meta",
     "gotIt": "¡Genial!",
     "toasts": {
@@ -1585,7 +1582,30 @@
       "deleted": "Meta eliminada",
       "contributed": "¡Ahorro registrado!",
       "completed": "¡Meta cumplida! 🎉",
-      "error": "Ocurrió un error"
+      "error": "Ocurrió un error",
+      "updated": "Meta actualizada",
+      "reopened": "Meta reabierta"
+    },
+    "editTitle": "Editar meta",
+    "saveButton": "Guardar cambios",
+    "card": {
+      "remaining": "faltan {{amount}}",
+      "reached": "LOGRADA",
+      "hintActive": "Abre la meta para aportar, editarla o eliminarla",
+      "hintCompleted": "Abre la meta para reabrirla o eliminarla"
+    },
+    "sheet": {
+      "remaining": "Faltan {{amount}}",
+      "reached": "Meta cumplida",
+      "ofTarget": "de {{amount}}",
+      "howMuch": "Cuánto aportas",
+      "fill": "Completar",
+      "contribute": "Aportar a la meta",
+      "contributeAmount": "Aportar {{amount}}",
+      "edit": "Editar meta",
+      "delete": "Eliminar meta",
+      "reopen": "Reabrir meta",
+      "completedOn": "Lograda el {{date}}"
     }
   },
   "expenseGroups": {

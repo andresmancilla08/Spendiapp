@@ -1560,8 +1560,6 @@
     "emojiPlaceholder": "✈️",
     "targetLabel": "Target amount",
     "targetPlaceholder": "$ 0",
-    "addContributionTitle": "Add savings",
-    "contributionLabel": "How much are you adding?",
     "deleteTitle": "Delete goal",
     "deleteDescBefore": "Are you sure you want to delete",
     "deleteDescAfter": "? This action cannot be undone.",
@@ -1577,7 +1575,6 @@
     "createButton": "Create goal",
     "cancelButton": "Cancel",
     "deleteButton": "Delete",
-    "addButton": "Add",
     "newGoalButton": "New goal",
     "gotIt": "Got it!",
     "toasts": {
@@ -1585,7 +1582,30 @@
       "deleted": "Goal deleted",
       "contributed": "Savings added!",
       "completed": "Goal achieved! 🎉",
-      "error": "An error occurred"
+      "error": "An error occurred",
+      "updated": "Goal updated",
+      "reopened": "Goal reopened"
+    },
+    "editTitle": "Edit goal",
+    "saveButton": "Save changes",
+    "card": {
+      "remaining": "{{amount}} to go",
+      "reached": "REACHED",
+      "hintActive": "Open the goal to add money, edit or delete it",
+      "hintCompleted": "Open the goal to reopen or delete it"
+    },
+    "sheet": {
+      "remaining": "{{amount}} to go",
+      "reached": "Goal reached",
+      "ofTarget": "of {{amount}}",
+      "howMuch": "How much are you adding",
+      "fill": "Finish it",
+      "contribute": "Add to goal",
+      "contributeAmount": "Add {{amount}}",
+      "edit": "Edit goal",
+      "delete": "Delete goal",
+      "reopen": "Reopen goal",
+      "completedOn": "Reached on {{date}}"
     }
   },
   "expenseGroups": {
