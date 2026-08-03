@@ -12,10 +12,14 @@ import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition from '../components/ScreenTransition';
 import AppSegmentedControl from '../components/AppSegmentedControl';
 import PaletteGrid from '../components/PaletteGrid';
+import PersonalizationCanvas, { PersonalizationCanvasBar, type CanvasFocus } from '../components/PersonalizationCanvas';
+import { PALETTE_MAP } from '../config/palettes';
+import { LOOKS, matchLook, type Look } from '../config/looks';
+import { accentInk } from '../utils/contrast';
 import { BackgroundEffect } from '../components/AppBackground';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
-  GRADIENT_STYLE_VALUES, type GradientStyle,
+  GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
 } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { useProMotion } from '../hooks/useProMotion';
@@ -24,46 +28,6 @@ import { Sparkline, resolveChartAccent, resolveChartAccent2 } from '../component
 import { Fonts } from '../config/fonts';
 
 // ── Acordeón — exclusivo: abrir una sección cierra la anterior; ninguna abierta al entrar ──
-function AccordionSection({ id, icon, title, open, onToggle, children }: {
-  id: string; icon: AppIconName; title: string; open: boolean; onToggle: (id: string) => void; children: ReactNode;
-}) {
-  const { colors } = useTheme();
-  const [contentH, setContentH] = useState(0);
-  const anim = useRef(new Animated.Value(open ? 1 : 0)).current;
-
-  useEffect(() => {
-    Animated.timing(anim, {
-      toValue: open ? 1 : 0,
-      duration: 220,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
-    }).start();
-  }, [open]);
-
-  return (
-    <View style={[styles.accordion, { backgroundColor: colors.surface }]}>
-      <TouchableOpacity
-        style={styles.accordionHeader}
-        onPress={() => onToggle(id)}
-        activeOpacity={0.7}
-      >
-        <View style={[styles.accordionIconWrap, { backgroundColor: colors.primary + '18' }]}>
-          <AppIcon name={icon} size={17} color={colors.primary} />
-        </View>
-        <Text style={[styles.accordionTitle, { color: colors.textPrimary }]}>{title}</Text>
-        <AppIcon name={open ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textTertiary} />
-      </TouchableOpacity>
-      <Animated.View style={{ height: anim.interpolate({ inputRange: [0, 1], outputRange: [0, contentH] }), overflow: 'hidden' }}>
-        <View
-          style={styles.accordionContent}
-          onLayout={(e) => { const h = e.nativeEvent.layout.height; if (h && Math.abs(h - contentH) > 1) setContentH(h); }}
-        >
-          {children}
-        </View>
-      </Animated.View>
-    </View>
-  );
-}
 
 function SwitchRow({ icon, label, sub, value, onValueChange, isLast }: {
   icon: AppIconName; label: string; sub: string; value: boolean; onValueChange: (v: boolean) => void; isLast?: boolean;
@@ -145,77 +109,80 @@ const ICON_STROKE_OPTIONS: { key: IconStroke; labelKey: string }[] = [
 // ── Vista previa en vivo del brillo (barrido de luz) — réplica fiel de la
 // tarjeta real que lo recibe hoy en Home: "Gastos por categoría" (el balance
 // premium ya no tiene caja, así que ya no es el ejemplo correcto). ──
-function CardEffectPreview({ sheen }: { sheen: boolean }) {
-  const { colors, isDark } = useTheme();
-  const sweep = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (!sheen) return;
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(sweep, { toValue: 1, duration: 1400, easing: Easing.inOut(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
-        Animated.delay(1100),
-        Animated.timing(sweep, { toValue: 0, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [sheen, sweep]);
-
-  const sweepX = sweep.interpolate({ inputRange: [0, 1], outputRange: [-70, 260] });
-  const rows: { label: string; pct: number; color: string }[] = [
-    { label: 'Alimentación', pct: 62, color: colors.primary },
-    { label: 'Transporte', pct: 34, color: colors.tertiary },
-  ];
-
-  const inner = (
-    <View
-      style={[
-        styles.previewCard,
-        { backgroundColor: colors.surface, borderColor: isDark ? colors.primary + '20' : colors.border },
-      ]}
-    >
-      <LinearGradient
-        colors={[colors.primary + '16', 'transparent', colors.primary + '0A']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
-      <Text style={[styles.previewLabel, { color: colors.textTertiary, marginBottom: 12 }]}>GASTOS POR CATEGORÍA</Text>
-      {rows.map((r) => (
-        <View key={r.label} style={styles.previewCatRow}>
-          <View style={styles.previewCatTop}>
-            <View style={[styles.previewDot, { backgroundColor: r.color }]} />
-            <Text style={[styles.previewCatLabel, { color: colors.textPrimary }]}>{r.label}</Text>
-            <Text style={[styles.previewCatPct, { color: colors.textTertiary }]}>{r.pct}%</Text>
-          </View>
-          <View style={[styles.previewTrack, { backgroundColor: colors.border }]}>
-            <View style={[styles.previewFill, { width: `${r.pct}%`, backgroundColor: r.color }]} />
-          </View>
-        </View>
-      ))}
-      {sheen && (
-        <Animated.View pointerEvents="none" style={[styles.previewSheen, { transform: [{ translateX: sweepX }, { rotate: '18deg' }] }]}>
-          <LinearGradient
-            colors={['transparent', isDark ? 'rgba(255,255,255,0.20)' : colors.primary + '38', 'transparent']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={StyleSheet.absoluteFill}
-          />
-        </Animated.View>
-      )}
-    </View>
-  );
-
-  return <View style={styles.previewWrap}>{inner}</View>;
-}
 
 const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
 const BG_SPEED_OPTIONS: BackgroundSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
 const CHART_TYPES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
+
+/** Los cuatro capítulos, en orden del cambio más notorio al más fino. */
+const CHAPTERS = ['color', 'background', 'data', 'detail'] as const;
+type Chapter = typeof CHAPTERS[number];
+/** Qué enseña el lienzo en cada capítulo cuando se encoge. */
+const CANVAS_FOCUS: Record<Chapter, CanvasFocus> = {
+  color: 'all', background: 'bg', data: 'chart', detail: 'card',
+};
+
+/** Tira de looks: una combinación completa por tarjeta, más el estado "A medida". */
+function LooksStrip({ looks, activeId, colors, t, onPick }: {
+  looks: Look[]; activeId: string | null; colors: any; t: any; onPick: (l: Look) => void;
+}) {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.lookStrip}>
+      {looks.map((look) => {
+        const pal = PALETTE_MAP[look.paletteId];
+        const active = activeId === look.id;
+        return (
+          <TouchableOpacity
+            key={look.id}
+            onPress={() => onPick(look)}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+            accessibilityLabel={t(`profile.palette.${look.paletteId}`)}
+            style={[styles.lookCard, {
+              backgroundColor: colors.surface,
+              borderColor: active ? colors.primary : colors.border,
+            }]}
+          >
+            <LinearGradient
+              colors={pal.gradientDark}
+              start={{ x: 0.1, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={styles.lookPreview}
+            >
+              <View style={styles.lookSwatches}>
+                {pal.previewColors.map((c, i) => (
+                  <View key={i} style={[styles.lookSwatch, { backgroundColor: c, marginLeft: i ? -7 : 0 }]} />
+                ))}
+              </View>
+              {active && (
+                <View style={[styles.lookCheck, { backgroundColor: colors.primary }]}>
+                  <AppIcon name="checkmark" size={9} color={colors.onPrimary} />
+                </View>
+              )}
+            </LinearGradient>
+            <Text
+              style={[styles.lookName, { color: active ? accentInk(colors, 'primary', colors.surface) : colors.textSecondary }]}
+              numberOfLines={1}
+            >
+              {t(`profile.palette.${look.paletteId}`)}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+      {!activeId && (
+        <View style={[styles.lookCard, styles.lookCustom, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+          <AppIcon name="options-outline" size={18} color={accentInk(colors, 'primary', colors.surface)} />
+          <Text style={[styles.lookName, { color: accentInk(colors, 'primary', colors.surface) }]} numberOfLines={1}>
+            {t('personalization.customLook')}
+          </Text>
+        </View>
+      )}
+    </ScrollView>
+  );
+}
 const CHART_ANIM_STYLES: ChartAnimStyle[] = ['pulse', 'draw', 'tide', 'none'];
 // Orden candidato — algunas paletas definen "secondary" igual a "success" (p.ej.
 // deepWater), así que la lista real se deduplica por color en tiempo de render;
@@ -476,7 +443,32 @@ export default function PersonalizationScreen() {
     chartSpeed, setChartSpeed, chartAccent, setChartAccent,
     gradientStyle, setGradientStyle,
   } = useTheme();
+  const [chapter, setChapter] = useState<Chapter>('color');
+  const [collapsed, setCollapsed] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
   const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
+
+  /** La paleta se guarda además en el perfil: es lo único de la personalización que
+   *  otros usuarios ven (el color de tus movimientos compartidos). */
+  const handleSetPaletteId = (id: PaletteId) => {
+    setPaletteId(id);
+    if (user?.uid) updateUserColorPalette(user.uid, id).catch(() => {});
+  };
+
+  // Un look es exactamente esta combinación: si el usuario toca cualquier control
+  // suelto, deja de coincidir y la tira muestra "A medida". Sin estado paralelo.
+  const activeLook = matchLook({
+    paletteId, backgroundLight: backgroundStyleLight, backgroundDark: backgroundStyleDark,
+    gradientStyle, chartType, chartAccent,
+  });
+  const applyLook = (look: Look) => {
+    handleSetPaletteId(look.paletteId);
+    setBackgroundStyleFor('light', look.backgroundLight);
+    setBackgroundStyleFor('dark', look.backgroundDark);
+    setGradientStyle(look.gradientStyle);
+    setChartType(look.chartType);
+    setChartAccent(look.chartAccent);
+  };
   // Las vistas previas respetan reduce-motion igual que el gráfico real del Home:
   // antes animaban siempre, así que con "Reducir movimiento" activo el usuario
   // elegía una animación que en su Home nunca se movía.
@@ -542,13 +534,6 @@ export default function PersonalizationScreen() {
   const targetBgStyle = bgTarget === 'dark' ? backgroundStyleDark : backgroundStyleLight;
 
   // Ninguna sección abierta al entrar; abrir una cierra la que estuviera abierta.
-  const [openSection, setOpenSection] = useState<string | null>(null);
-  const toggleSection = (id: string) => setOpenSection((cur) => (cur === id ? null : id));
-
-  const handleSetPaletteId = (id: typeof paletteId) => {
-    setPaletteId(id);
-    if (user?.uid) updateUserColorPalette(user.uid, id).catch(() => {});
-  };
 
   // Sync a Firestore (debounced): toda la personalización viaja con la cuenta,
   // no solo la paleta — sobrevive reinstalaciones y cambios de dispositivo.
@@ -592,13 +577,58 @@ export default function PersonalizationScreen() {
           <AppHeader showBack />
           <PageTitle title={t('profile.palette.title')} description={t('profile.palette.subtitle')} />
 
-          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-            <AccordionSection id="palette" icon="color-palette-outline" title={t('personalization.sectionPalette')} open={openSection === 'palette'} onToggle={toggleSection}>
-              <PaletteGrid colors={colors} paletteId={paletteId} setPaletteId={handleSetPaletteId} t={t} />
-            </AccordionSection>
+          {/* Lienzo vivo: el conjunto del tema, siempre delante. Al bajar se
+              reduce a una barra de 64 px — con 14 efectos de fondo hay scroll y
+              sin esto el resultado se perdía de vista. */}
+          <View style={styles.canvasWrap}>
+            {collapsed
+              ? <PersonalizationCanvasBar onExpand={() => scrollRef.current?.scrollTo({ y: 0, animated: true })} />
+              : <PersonalizationCanvas focus={CANVAS_FOCUS[chapter]} bgTarget={chapter === 'background' ? bgTarget : undefined} />}
+          </View>
 
-            <AccordionSection id="background" icon="image-outline" title={t('personalization.sectionBackground')} open={openSection === 'background'} onToggle={toggleSection}>
-              {/* Un fondo por modo: elige cuál estás editando */}
+          {/* Cuatro capítulos, del cambio más notorio al más fino */}
+          <AppSegmentedControl
+            segments={CHAPTERS.map((c) => ({ key: c, label: t(`personalization.chapter.${c}`) }))}
+            activeKey={chapter}
+            onChange={(key) => setChapter(key as Chapter)}
+            style={styles.chapterBar}
+          />
+
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={styles.scroll}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={32}
+            onScroll={(e) => {
+              // Histéresis: sin los dos umbrales, el lienzo parpadeaba al arrastrar
+              // justo en el límite.
+              const y = e.nativeEvent.contentOffset.y;
+              if (!collapsed && y > 96) setCollapsed(true);
+              else if (collapsed && y < 44) setCollapsed(false);
+            }}
+          >
+            {chapter === 'color' && (
+              <>
+                <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>
+                  {t('personalization.looksLabel')}
+                </Text>
+                <LooksStrip
+                  looks={LOOKS}
+                  activeId={activeLook?.id ?? null}
+                  colors={colors}
+                  t={t}
+                  onPick={applyLook}
+                />
+                <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>
+                  {t('personalization.sectionPalette')}
+                </Text>
+                <PaletteGrid colors={colors} paletteId={paletteId} setPaletteId={handleSetPaletteId} t={t} />
+              </>
+            )}
+
+            {chapter === 'background' && (
+              <>
+                {/* Un fondo por modo: elige cuál estás editando */}
               <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.bgTargetLabel')}</Text>
               <AppSegmentedControl
                 segments={[
@@ -652,50 +682,12 @@ export default function PersonalizationScreen() {
                   />
                 ))}
               </View>
-            </AccordionSection>
+              </>
+            )}
 
-            <AccordionSection id="cards" icon="card-outline" title={t('personalization.sectionCards')} open={openSection === 'cards'} onToggle={toggleSection}>
-              <CardEffectPreview sheen={cardSheen} />
-              <View style={styles.rowsWrap}>
-                <SwitchRow
-                  icon="sparkles-outline"
-                  label={t('personalization.cardSheen.label')}
-                  sub={t('personalization.cardSheen.sub')}
-                  value={cardSheen}
-                  onValueChange={setCardSheen}
-                  isLast
-                />
-              </View>
-            </AccordionSection>
-
-            <AccordionSection id="chart" icon="trending-up-outline" title={t('personalization.sectionChart')} open={openSection === 'chart'} onToggle={toggleSection}>
-              <View style={styles.chartPreviewWrap}>
-                {SIGNED_FAMILY.includes(chartAccent) ? (
-                  <CrossfadeSparkline
-                    chartType={chartType}
-                    animStyle={chartAnimStyle}
-                    height={64}
-                    duration={chartDuration}
-                    crossfade={signedCrossfade}
-                    motion={motionEnabled}
-                  />
-                ) : (
-                  <Sparkline
-                    key={`${chartType}-${chartAnimStyle}-${chartSpeed}-${chartAccent}`}
-                    values={CHART_PREVIEW_VALUES}
-                    color={chartPreviewColor}
-                    accent={chartPreviewColor}
-                    accent2={chartPreviewColor2}
-                    height={64}
-                    animate={motionEnabled && chartAnimStyle !== 'none'}
-                    duration={chartDuration}
-                    chartType={chartType}
-                    animStyle={chartAnimStyle}
-                  />
-                )}
-              </View>
-
-              <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartTypeLabel')}</Text>
+            {chapter === 'data' && (
+              <>
+                <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartTypeLabel')}</Text>
               <View style={styles.bgGrid}>
                 {CHART_TYPES.map((type) => (
                   <ChartTypeCard
@@ -758,37 +750,46 @@ export default function PersonalizationScreen() {
                   );
                 })}
               </View>
-            </AccordionSection>
+              </>
+            )}
 
-            <AccordionSection id="icons" icon="options-outline" title={t('personalization.sectionIcons')} open={openSection === 'icons'} onToggle={toggleSection}>
-              <View style={styles.iconPreviewRow}>
-                {(['home-outline', 'wallet-outline', 'card-outline', 'star-outline', 'person-outline'] as const).map((n) => (
-                  <AppIcon key={n} name={n} size={24} color={colors.primary} strokeWidth={iconStroke} />
-                ))}
-              </View>
-              <AppSegmentedControl
+            {chapter === 'detail' && (
+              <>
+                <View style={styles.iconPreviewRow}>
+                  {(['home-outline', 'wallet-outline', 'card-outline', 'star-outline', 'person-outline'] as const).map((n) => (
+                    <AppIcon key={n} name={n} size={24} color={colors.primary} strokeWidth={iconStroke} />
+                  ))}
+                </View>
+                <AppSegmentedControl
                 segments={ICON_STROKE_OPTIONS.map((o) => ({ key: String(o.key), label: t(`personalization.iconStroke.${o.labelKey}`) }))}
                 activeKey={String(iconStroke)}
                 onChange={(key) => setIconStroke(Number(key) as IconStroke)}
                 style={styles.intensitySpacing}
               />
-            </AccordionSection>
-
-            <AccordionSection id="celebrations" icon="gift-outline" title={t('personalization.sectionCelebrations')} open={openSection === 'celebrations'} onToggle={toggleSection}>
-              <View style={styles.rowsWrap}>
+                <View style={styles.rowsWrap}>
                 <SwitchRow
-                  icon="gift-outline"
-                  label={t('personalization.confetti.label')}
-                  sub={t('personalization.confetti.sub')}
-                  value={streakConfetti}
-                  onValueChange={setStreakConfetti}
+                  icon="sparkles-outline"
+                  label={t('personalization.cardSheen.label')}
+                  sub={t('personalization.cardSheen.sub')}
+                  value={cardSheen}
+                  onValueChange={setCardSheen}
                   isLast
                 />
               </View>
-            </AccordionSection>
-
-            <AccordionSection id="roadmap" icon="flag-outline" title={t('personalization.roadmapTitle')} open={openSection === 'roadmap'} onToggle={toggleSection}>
-              <View style={styles.roadmapWrap}>
+                <View style={styles.rowsWrap}>
+                  <SwitchRow
+                    icon="gift-outline"
+                    label={t('personalization.confetti.label')}
+                    sub={t('personalization.confetti.sub')}
+                    value={streakConfetti}
+                    onValueChange={setStreakConfetti}
+                    isLast
+                  />
+                </View>
+                <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>
+                  {t('personalization.roadmapTitle')}
+                </Text>
+                <View style={styles.roadmapWrap}>
                 {(t('personalization.roadmapItems', { returnObjects: true }) as string[]).map((item, i) => (
                   <View key={i} style={styles.roadmapRow}>
                     <AppIcon name="star-outline" size={13} color={colors.textTertiary} />
@@ -796,7 +797,9 @@ export default function PersonalizationScreen() {
                   </View>
                 ))}
               </View>
-            </AccordionSection>
+              </>
+            )}
+            <View style={{ height: 28 }} />
           </ScrollView>
         </ScreenBackground>
       </SafeAreaView>
@@ -806,6 +809,16 @@ export default function PersonalizationScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  canvasWrap: { paddingHorizontal: 16, paddingTop: 2, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  chapterBar: { marginHorizontal: 16, marginTop: 12, marginBottom: 4, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  lookStrip: { gap: 9, paddingRight: 8, paddingBottom: 2 },
+  lookCard: { width: 104, borderRadius: 14, borderWidth: 1.5, overflow: 'hidden' },
+  lookCustom: { alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14, width: 84 },
+  lookPreview: { height: 62, padding: 8, justifyContent: 'flex-end', position: 'relative' },
+  lookSwatches: { flexDirection: 'row' },
+  lookSwatch: { width: 16, height: 16, borderRadius: 8 },
+  lookCheck: { position: 'absolute', top: 6, right: 6, width: 15, height: 15, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  lookName: { fontSize: 10, fontFamily: Fonts.bold, paddingHorizontal: 8, paddingVertical: 6 },
   scroll: { padding: 16, paddingTop: 4, paddingBottom: 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
   accordion: { borderRadius: 20, marginBottom: 10, overflow: 'hidden' },
   accordionHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 15 },

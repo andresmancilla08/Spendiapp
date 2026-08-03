@@ -386,7 +386,6 @@
   },
   "personalization": {
     "sectionPalette": "Color palette",
-    "sectionBackground": "Animated background",
     "background": {
       "none": "None",
       "aurora": "Aurora",
@@ -408,24 +407,20 @@
       "default": "Medium",
       "intense": "Intense"
     },
-    "sectionCards": "Cards",
     "cardSheen": {
       "label": "Card shine",
       "sub": "Light sweep when the app loads"
     },
-    "sectionChart": "Balance chart",
     "chartSpeed": {
       "slow": "Slow",
       "normal": "Normal",
       "fast": "Fast"
     },
-    "sectionIcons": "Icon style",
     "iconStroke": {
       "thin": "Thin",
       "regular": "Regular",
       "bold": "Bold"
     },
-    "sectionCelebrations": "Celebrations",
     "confetti": {
       "label": "Confetti on savings streak",
       "sub": "A little celebration when your streak goes up"
@@ -483,6 +478,21 @@
       "diagonal": "Diagonal",
       "radial": "Radial",
       "flat": "Flat"
+    },
+    "chapter": {
+      "color": "Color",
+      "background": "Background",
+      "data": "Data",
+      "detail": "Detail"
+    },
+    "looksLabel": "Looks · palette, background and chart in one tap",
+    "customLook": "Custom",
+    "canvas": {
+      "greeting": "Hi",
+      "balance": "Balance this month",
+      "byCategory": "Spending by category",
+      "sampleCategory": "Groceries",
+      "expand": "Expand the preview"
     }
   },
   "settings": {

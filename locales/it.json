@@ -386,7 +386,6 @@
   },
   "personalization": {
     "sectionPalette": "Tavolozza colori",
-    "sectionBackground": "Sfondo animato",
     "background": {
       "none": "Nessuno",
       "aurora": "Aurora",
@@ -408,24 +407,20 @@
       "default": "Media",
       "intense": "Intenso"
     },
-    "sectionCards": "Schede",
     "cardSheen": {
       "label": "Bagliore nelle schede",
       "sub": "Passaggio di luce all'avvio dell'app"
     },
-    "sectionChart": "Grafico del saldo",
     "chartSpeed": {
       "slow": "Lenta",
       "normal": "Normale",
       "fast": "Veloce"
     },
-    "sectionIcons": "Stile icone",
     "iconStroke": {
       "thin": "Sottile",
       "regular": "Normale",
       "bold": "Spesso"
     },
-    "sectionCelebrations": "Celebrazioni",
     "confetti": {
       "label": "Coriandoli per serie di risparmio",
       "sub": "Una piccola festa quando la tua serie sale"
@@ -483,6 +478,21 @@
       "diagonal": "Diagonale",
       "radial": "Radiale",
       "flat": "Piatto"
+    },
+    "chapter": {
+      "color": "Colore",
+      "background": "Sfondo",
+      "data": "Dati",
+      "detail": "Dettaglio"
+    },
+    "looksLabel": "Looks · palette, sfondo e grafico in un tocco",
+    "customLook": "Su misura",
+    "canvas": {
+      "greeting": "Ciao",
+      "balance": "Saldo del mese",
+      "byCategory": "Spese per categoria",
+      "sampleCategory": "Spesa",
+      "expand": "Espandi l’anteprima"
     }
   },
   "settings": {

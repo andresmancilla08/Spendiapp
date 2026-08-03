@@ -386,7 +386,6 @@
   },
   "personalization": {
     "sectionPalette": "Paleta de colores",
-    "sectionBackground": "Fondo animado",
     "background": {
       "none": "Ninguno",
       "aurora": "Aurora",
@@ -408,24 +407,20 @@
       "default": "Media",
       "intense": "Intenso"
     },
-    "sectionCards": "Tarjetas",
     "cardSheen": {
       "label": "Brillo en tarjetas",
       "sub": "Barrido de luz al cargar la app"
     },
-    "sectionChart": "Gráfico del balance",
     "chartSpeed": {
       "slow": "Lenta",
       "normal": "Normal",
       "fast": "Rápida"
     },
-    "sectionIcons": "Estilo de íconos",
     "iconStroke": {
       "thin": "Fino",
       "regular": "Normal",
       "bold": "Grueso"
     },
-    "sectionCelebrations": "Celebraciones",
     "confetti": {
       "label": "Confeti por racha de ahorro",
       "sub": "Una pequeña fiesta cuando sube tu racha"
@@ -483,6 +478,21 @@
       "diagonal": "Diagonal",
       "radial": "Radial",
       "flat": "Plano"
+    },
+    "chapter": {
+      "color": "Color",
+      "background": "Fondo",
+      "data": "Datos",
+      "detail": "Detalle"
+    },
+    "looksLabel": "Looks · paleta, fondo y gráfico de un toque",
+    "customLook": "A medida",
+    "canvas": {
+      "greeting": "Hola",
+      "balance": "Balance del mes",
+      "byCategory": "Gastos por categoría",
+      "sampleCategory": "Mercado",
+      "expand": "Ampliar la vista previa"
     }
   },
   "settings": {
