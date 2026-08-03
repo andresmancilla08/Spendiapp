@@ -13,7 +13,8 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import ScreenBackground from '../components/ScreenBackground';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../context/ThemeContext';
-import { accentInk } from '../utils/contrast';
+import type { AppColors } from '../config/colors';
+import { accentInk, mixHex } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 
 
@@ -26,12 +27,24 @@ const BENEFIT_ICONS: Array<AppIconName> = [
   'headset-outline',
 ];
 
-const BENEFIT_COLORS = ['#00ACC1', '#F59E0B', '#00897B', '#6366F1', '#EC4899', '#00BCD4'];
+/** Los iconos de beneficio rotan por los tonos de la paleta ACTIVA: antes eran seis
+ *  hex fijos, asi que el muro de pago se veia igual con las 40 paletas. */
+const benefitColors = (c: AppColors) => [c.primary, c.warning, c.success, c.secondary, c.tertiary, c.info];
 
 export default function UpgradeScreen() {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const transitionRef = useRef<ScreenTransitionRef>(null);
+  const accents = benefitColors(colors);
+  // El hero es una superficie de COLOR de marca (no el fondo de la app), asi que se
+  // arma con los tonos de la paleta activa en vez de tres cian fijos.
+  const heroGradient: [string, string, string] = isDark
+    ? [colors.primaryDark, colors.primary, colors.secondaryDark]
+    : [colors.primaryDark, colors.primary, colors.secondary];
+  // El oro de Premium sale de `warning`; el tono claro del degradado se calcula,
+  // no se elige a mano, para que funcione igual en las 40 paletas y en los 2 modos.
+  const gold = colors.warning;
+  const goldLight = mixHex(colors.warning, '#FFFFFF', 0.4);
 
   // Star animations
   const starScale  = useRef(new Animated.Value(0)).current;
@@ -133,9 +146,7 @@ export default function UpgradeScreen() {
             <Animated.View style={{ opacity: heroOpacity, transform: [{ translateY: heroSlide }] }}>
               <View style={styles.heroWrapper}>
                 <LinearGradient
-                  colors={isDark
-                    ? ['#005F6B', '#007A8A', '#005046']
-                    : ['#00838F', '#00ACC1', '#00796B']}
+                  colors={heroGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={StyleSheet.absoluteFillObject}
@@ -154,12 +165,12 @@ export default function UpgradeScreen() {
 
                 {/* Star icon with glow */}
                 <View style={styles.starContainer}>
-                  <Animated.View style={[styles.starHalo, { opacity: haloOpacity }]} />
-                  <Animated.View style={[styles.starHaloInner, { opacity: Animated.multiply(haloOpacity, 0.5) }]} />
+                  <Animated.View style={[styles.starHalo, { backgroundColor: gold, opacity: haloOpacity }]} />
+                  <Animated.View style={[styles.starHaloInner, { backgroundColor: goldLight, opacity: Animated.multiply(haloOpacity, 0.5) }]} />
                   <Animated.View style={{ transform: [{ scale: Animated.multiply(starScale, starPulse) }], zIndex: 2 }}>
                     <LinearGradient
-                      colors={['#FFE566', '#F59E0B']}
-                      style={styles.starCircle}
+                      colors={[goldLight, gold]}
+                      style={[styles.starCircle, { shadowColor: gold }]}
                     >
                       <AppIcon name="star" size={36} color="#fff" />
                     </LinearGradient>
@@ -171,10 +182,10 @@ export default function UpgradeScreen() {
 
                 {/* Price pill */}
                 <LinearGradient
-                  colors={['#F59E0B', '#FBBF24']}
+                  colors={[gold, goldLight]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  style={styles.pricePill}
+                  style={[styles.pricePill, { shadowColor: gold }]}
                 >
                   <AppIcon name="pricetag-outline" size={13} color="#fff" />
                   <Text style={styles.priceText}>{t('upgrade.price')}</Text>
@@ -194,11 +205,11 @@ export default function UpgradeScreen() {
                 </Text>
                 {benefits.map((benefit, i) => (
                   <View key={i} style={styles.benefitRow}>
-                    <View style={[styles.benefitIconWrap, { backgroundColor: BENEFIT_COLORS[i % BENEFIT_COLORS.length] + '20' }]}>
+                    <View style={[styles.benefitIconWrap, { backgroundColor: `${accents[i % accents.length]}20` }]}>
                       <AppIcon
                         name={BENEFIT_ICONS[i % BENEFIT_ICONS.length]}
                         size={18}
-                        color={BENEFIT_COLORS[i % BENEFIT_COLORS.length]}
+                        color={accents[i % accents.length]}
                       />
                     </View>
                     <Text style={[styles.benefitText, { color: colors.textPrimary }]}>{benefit}</Text>
@@ -226,7 +237,7 @@ export default function UpgradeScreen() {
                 style={styles.ctaBtnTouch}
               >
                 <LinearGradient
-                  colors={['#25D366', '#128C7E']}
+                  colors={['#25D366', '#128C7E'] /* marca de WhatsApp: no es tema */}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.ctaBtn}
@@ -298,20 +309,11 @@ const styles = StyleSheet.create({
     letterSpacing: 2.5,
   },
   starContainer: { alignItems: 'center', justifyContent: 'center', width: 110, height: 110, marginBottom: 4 },
-  starHalo: {
-    position: 'absolute',
-    width: 110, height: 110, borderRadius: 55,
-    backgroundColor: '#F59E0B',
-  },
-  starHaloInner: {
-    position: 'absolute',
-    width: 82, height: 82, borderRadius: 41,
-    backgroundColor: '#FBBF24',
-  },
+  starHalo: { position: 'absolute', width: 110, height: 110, borderRadius: 55 },
+  starHaloInner: { position: 'absolute', width: 82, height: 82, borderRadius: 41 },
   starCircle: {
     width: 68, height: 68, borderRadius: 22,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#F59E0B',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.5, shadowRadius: 14,
     elevation: 10,
@@ -331,7 +333,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 7,
     borderRadius: 50, paddingHorizontal: 18, paddingVertical: 10,
     marginTop: 4, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.35)',
-    shadowColor: '#F59E0B', shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.45, shadowRadius: 12, elevation: 8,
   },
   priceText: { fontSize: 13, fontFamily: Fonts.semiBold, color: '#fff' },
@@ -352,7 +354,7 @@ const styles = StyleSheet.create({
   footer: { padding: 16, paddingBottom: 8, borderTopWidth: 1 },
   btnWrapper: {
     borderRadius: 50, overflow: 'hidden',
-    shadowColor: '#25D366',
+    shadowColor: '#25D366',  // marca de WhatsApp
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4, shadowRadius: 18, elevation: 10,
   },

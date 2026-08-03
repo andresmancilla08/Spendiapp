@@ -437,7 +437,7 @@ export default function EditTransactionScreen() {
                   onPress={() => handleTypeChange(tp)}
                   activeOpacity={0.8}
                 >
-                  <Text style={[styles.typePillText, { color: type === tp ? '#FFFFFF' : colors.textSecondary }]}>
+                  <Text style={[styles.typePillText, { color: type === tp ? colors.onPrimary : colors.textSecondary }]}>
                     {tp === 'expense' ? t('addTransaction.typeExpense') : t('addTransaction.typeIncome')}
                   </Text>
                 </TouchableOpacity>
@@ -536,7 +536,7 @@ export default function EditTransactionScreen() {
                           onPress={() => handleSharedSplitTypeChange(s)}
                           activeOpacity={0.8}
                         >
-                          <Text style={[styles.splitBtnText, { color: sharedSplitType === s ? '#FFFFFF' : colors.textSecondary }]}>
+                          <Text style={[styles.splitBtnText, { color: sharedSplitType === s ? colors.onPrimary : colors.textSecondary }]}>
                             {t(s === 'equal' ? 'sharedExpense.equalParts' : 'sharedExpense.customParts')}
                           </Text>
                         </TouchableOpacity>
@@ -688,7 +688,7 @@ export default function EditTransactionScreen() {
                       : isSuggested
                       ? [styles.categoryChip, { backgroundColor: colors.primaryLight ?? `${colors.primary}22`, borderWidth: 1, borderColor: colors.primary }]
                       : [styles.categoryChip, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border }];
-                    const labelColor = isSelected ? '#FFFFFF' : isSuggested ? colors.primary : colors.textSecondary;
+                    const labelColor = isSelected ? colors.onPrimary : isSuggested ? colors.primary : colors.textSecondary;
                     return (
                       <View key={item.id} style={styles.chipWrapper}>
                         <TouchableOpacity style={chipStyle} onPress={() => setCategory(item.id)} activeOpacity={0.8}>
@@ -761,7 +761,7 @@ export default function EditTransactionScreen() {
                         : isSuggested
                         ? [styles.categoryChip, { backgroundColor: colors.primaryLight ?? `${colors.primary}22`, borderWidth: 1, borderColor: colors.primary }]
                         : [styles.categoryChip, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border }];
-                      const labelColor = isSelected ? '#FFFFFF' : isSuggested ? colors.primary : colors.textSecondary;
+                      const labelColor = isSelected ? colors.onPrimary : isSuggested ? colors.primary : colors.textSecondary;
                       return (
                         <View key={item.id} style={styles.chipWrapper} onLayout={(e) => { chipOffsets.current[item.id] = e.nativeEvent.layout.x; }}>
                           <TouchableOpacity style={chipStyle} onPress={() => setCategory(item.id)} onLongPress={() => setCatExpanded(true)} delayLongPress={2000} activeOpacity={0.8}>
@@ -782,7 +782,7 @@ export default function EditTransactionScreen() {
                         : isSuggested
                         ? [styles.categoryChip, { backgroundColor: colors.primaryLight ?? `${colors.primary}22`, borderWidth: 1, borderColor: colors.primary }]
                         : [styles.categoryChip, { backgroundColor: colors.backgroundSecondary, borderWidth: 1, borderColor: colors.border }];
-                      const labelColor = isSelected ? '#FFFFFF' : isSuggested ? colors.primary : colors.textSecondary;
+                      const labelColor = isSelected ? colors.onPrimary : isSuggested ? colors.primary : colors.textSecondary;
                       return (
                         <View key={item.id} style={styles.chipWrapper} onLayout={(e) => { chipOffsets.current[item.id] = e.nativeEvent.layout.x; }}>
                           <TouchableOpacity style={chipStyle} onPress={() => setCategory(item.id)} onLongPress={() => setCatExpanded(true)} delayLongPress={2000} activeOpacity={0.8}>
@@ -867,7 +867,7 @@ export default function EditTransactionScreen() {
                               onPress={() => setPickerDay(day)}
                               activeOpacity={0.8}
                             >
-                              <Text style={[styles.dayText, { color: isSelected ? '#FFFFFF' : colors.textPrimary }]}>
+                              <Text style={[styles.dayText, { color: isSelected ? colors.onPrimary : colors.textPrimary }]}>
                                 {day}
                               </Text>
                             </TouchableOpacity>
@@ -908,7 +908,7 @@ export default function EditTransactionScreen() {
                               onPress={() => { setPickerMonth(idx); setPickerMode('day'); }}
                               activeOpacity={0.8}
                             >
-                              <Text style={[styles.monthChipText, { color: isSelectedMonth ? '#FFFFFF' : colors.textPrimary }]}>
+                              <Text style={[styles.monthChipText, { color: isSelectedMonth ? colors.onPrimary : colors.textPrimary }]}>
                                 {name.slice(0, 3)}
                               </Text>
                             </TouchableOpacity>
@@ -952,7 +952,7 @@ export default function EditTransactionScreen() {
                         onPress={() => setSelectedCardId(null)}
                         activeOpacity={0.8}
                       >
-                        <Text style={[styles.cardChipText, { color: selectedCardId === null ? '#FFFFFF' : colors.textSecondary }]}>
+                        <Text style={[styles.cardChipText, { color: selectedCardId === null ? colors.onPrimary : colors.textSecondary }]}>
                           {t('addTransaction.noCard')}
                         </Text>
                       </TouchableOpacity>
@@ -969,7 +969,7 @@ export default function EditTransactionScreen() {
                           activeOpacity={0.8}
                         >
                           <BankLogo bankId={card.bankId} size={20} radius={5} />
-                          <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]}>
+                          <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? colors.onPrimary : colors.textSecondary }]}>
                             {card.nickname || card.bankName}
                           </Text>
                           <View style={[
@@ -982,7 +982,7 @@ export default function EditTransactionScreen() {
                           ]}>
                             <Text style={[styles.cardTypeBadgeText, {
                               color: selectedCardId === card.id
-                                ? '#FFFFFF'
+                                ? colors.onPrimary
                                 : card.type === 'credit' ? colors.primary : colors.tertiary,
                             }]}>
                               {card.type === 'credit' ? 'C' : 'D'}
@@ -1002,7 +1002,7 @@ export default function EditTransactionScreen() {
         {/* Footer */}
         <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
           {error !== '' && (
-            <Text style={[styles.errorText, { color: colors.error ?? '#EF4444', textAlign: 'center', marginBottom: 6 }]}>
+            <Text style={[styles.errorText, { color: colors.error, textAlign: 'center', marginBottom: 6 }]}>
               {error}
             </Text>
           )}
@@ -1013,8 +1013,8 @@ export default function EditTransactionScreen() {
             activeOpacity={0.85}
           >
             {loading
-              ? <ActivityIndicator color="#FFFFFF" />
-              : <Text style={[styles.saveBtnText, { color: '#FFFFFF' }]}>{t('history.edit.saveButton')}</Text>
+              ? <ActivityIndicator color={colors.onPrimary} />
+              : <Text style={[styles.saveBtnText, { color: colors.onPrimary }]}>{t('history.edit.saveButton')}</Text>
             }
           </TouchableOpacity>
         </View>

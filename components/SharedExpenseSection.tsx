@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import AppIcon from './AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
+import { mixHex } from '../utils/contrast';
 import { accentInk } from '../utils/contrast';
 import AppSegmentedControl from './AppSegmentedControl';
 import { Fonts } from '../config/fonts';
@@ -140,26 +141,26 @@ export default function SharedExpenseSection({
                     key={p.uid}
                     style={[styles.chip, {
                       backgroundColor: p.isExternal
-                        ? (isDark ? 'rgba(255,167,38,0.15)' : '#FFF3E0')
+                        ? (isDark ? 'rgba(255,167,38,0.15)' : mixHex(colors.surface, colors.warning, 0.14))
                         : colors.primaryLight,
-                      borderColor: p.isExternal ? '#FFA726' : colors.primary,
+                      borderColor: p.isExternal ? colors.warning : colors.primary,
                     }]}
                   >
                     <AppIcon
                       name={p.isExternal ? 'mail-outline' : 'person-outline'}
                       size={12}
-                      color={p.isExternal ? '#FFA726' : colors.primary}
+                      color={p.isExternal ? colors.warning : colors.primary}
                     />
-                    <Text style={[styles.chipText, { color: p.isExternal ? '#FFA726' : colors.primary }]}>
+                    <Text style={[styles.chipText, { color: p.isExternal ? colors.warning : colors.primary }]}>
                       {p.isExternal ? p.displayName : `@${p.userName}`}
                     </Text>
                     {p.isExternal && (
-                      <Text style={[styles.externalBadge, { color: '#FFA726' }]}>
+                      <Text style={[styles.externalBadge, { color: colors.warning }]}>
                         {t('sharedExpense.externalBadge')}
                       </Text>
                     )}
                     <TouchableOpacity onPress={() => removeParticipant(p.uid)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                      <AppIcon name="close-circle" size={16} color={p.isExternal ? '#FFA726' : colors.primary} />
+                      <AppIcon name="close-circle" size={16} color={p.isExternal ? colors.warning : colors.primary} />
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -283,7 +284,7 @@ export default function SharedExpenseSection({
                             {p.isExternal ? p.displayName : `@${p.userName}`}
                           </Text>
                         </View>
-                        <Text style={[styles.previewAmt, { color: colors.expense ?? '#EF4444' }]}>
+                        <Text style={[styles.previewAmt, { color: colors.expense }]}>
                           −${amount.toLocaleString('es-CO')}
                         </Text>
                       </View>

@@ -77,7 +77,9 @@ function DonutChart({ percent, color, size = 140, trackColor }: { percent: numbe
   );
 }
 
-function ProgressBar({ percent, color, trackColor }: { percent: number; color: string; trackColor?: string }) {
+/** `trackColor` obligatorio: sin el, el carril quedaba transparente tras quitar el
+ *  gris quemado del estilo. */
+function ProgressBar({ percent, color, trackColor }: { percent: number; color: string; trackColor: string }) {
   const clamped = Math.min(percent, 100);
   const anim = useRef(new Animated.Value(0)).current;
 
@@ -93,21 +95,24 @@ function ProgressBar({ percent, color, trackColor }: { percent: number; color: s
   const width = anim.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] });
 
   return (
-    <View style={[progressStyles.track, trackColor ? { backgroundColor: trackColor } : null]}>
+    <View style={[progressStyles.track, { backgroundColor: trackColor }]}>
       <Animated.View style={[progressStyles.fill, { width, backgroundColor: color }]} />
     </View>
   );
 }
 
 const progressStyles = StyleSheet.create({
-  track: { height: 6, borderRadius: 3, backgroundColor: '#E5E7EB', overflow: 'hidden', marginTop: 6 },
+  // sin color: el carril lo pone quien lo usa, con el token de la paleta
+  track: { height: 6, borderRadius: 3, overflow: 'hidden', marginTop: 6 },
   fill: { height: 6, borderRadius: 3 },
 });
 
-function progressColor(percent: number, successColor: string, errorColor: string): string {
+/** Semaforo de gasto. Los tres tonos vienen de la paleta: el ambar intermedio estaba
+ *  fijo (#F59E0B) y no cambiaba con el tema. */
+function progressColor(percent: number, successColor: string, errorColor: string, warnColor: string): string {
   if (percent >= 100) return errorColor;
   if (percent >= 85) return errorColor + 'CC';
-  if (percent >= 60) return '#F59E0B';
+  if (percent >= 60) return warnColor;
   return successColor;
 }
 
@@ -142,7 +147,7 @@ export default function BudgetScreen() {
   const totalLimit = budgets.reduce((s, b) => s + b.limitAmount, 0);
   const totalSpent = budgets.reduce((s, b) => s + (spentByCategory[b.categoryId] ?? 0), 0);
   const overallPercent = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
-  const donutColor = progressColor(overallPercent, colors.success, colors.error);
+  const donutColor = progressColor(overallPercent, colors.success, colors.error, colors.warning);
 
   const budgetedIds = new Set(budgets.map((b) => b.categoryId));
   const unlimitedCategories = DEFAULT_EXPENSE_CATEGORIES.filter((c) => !budgetedIds.has(c.id));
@@ -174,7 +179,7 @@ export default function BudgetScreen() {
   const projectedPercent = totalLimit > 0 && dayOfMonth > 0
     ? Math.round(((totalSpent / dayOfMonth) * daysInMonth / totalLimit) * 100)
     : 0;
-  const projectionColor = progressColor(projectedPercent, colors.success, colors.error);
+  const projectionColor = progressColor(projectedPercent, colors.success, colors.error, colors.warning);
   const showProjection = isPremium && isCurrentMonth && totalLimit > 0 && totalSpent > 0;
 
   const openAdd = (cat: { id: string; name: string; icon: string }) => {
@@ -360,7 +365,7 @@ export default function BudgetScreen() {
           {budgets.map((b) => {
             const spent = spentByCategory[b.categoryId] ?? 0;
             const pct = b.limitAmount > 0 ? (spent / b.limitAmount) * 100 : 0;
-            const color = progressColor(pct, colors.success, colors.error);
+            const color = progressColor(pct, colors.success, colors.error, colors.warning);
             return (
               <PressableScale
                 key={b.id}

@@ -1373,7 +1373,7 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   txActionLabel: {
-    color: '#FFFFFF',
+    color: '#FFFFFF',  // tinta sobre relleno saturado (error/success)
     fontSize: 10,
   },
   txRow: {
@@ -1432,6 +1432,7 @@ const styles = StyleSheet.create({
   // ── Sheet ──────────────────────────────────────────────────────────────────
   backdrop: {
     ...StyleSheet.absoluteFillObject,
+    // Negro puro a propósito: es un scrim, no un color de tema.
     backgroundColor: '#000000',
   },
   sheetWrapper: {
@@ -1546,7 +1547,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 15,
     fontFamily: Fonts.bold,
-    color: '#FFFFFF',
+    color: '#FFFFFF',  // tinta sobre relleno saturado (error/success)
   },
   buttonDisabled: { opacity: 0.4 },
   loadingRow: {

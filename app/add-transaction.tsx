@@ -558,7 +558,7 @@ export default function AddTransactionScreen() {
               >
                 <Text style={[
                   styles.typePillText,
-                  { color: type === 'expense' ? '#FFFFFF' : colors.textSecondary },
+                  { color: type === 'expense' ? colors.onPrimary : colors.textSecondary },
                 ]}>
                   {t('addTransaction.typeExpense')}
                 </Text>
@@ -575,7 +575,7 @@ export default function AddTransactionScreen() {
               >
                 <Text style={[
                   styles.typePillText,
-                  { color: type === 'income' ? '#FFFFFF' : colors.textSecondary },
+                  { color: type === 'income' ? colors.onPrimary : colors.textSecondary },
                 ]}>
                   {t('addTransaction.typeIncome')}
                 </Text>
@@ -747,7 +747,7 @@ export default function AddTransactionScreen() {
                     let labelColor: string;
                     if (isSelected) {
                       chipStyle = [styles.categoryChip, { backgroundColor: colors.primary }];
-                      labelColor = '#FFFFFF';
+                      labelColor = colors.onPrimary;
                     } else if (isSuggested) {
                       chipStyle = [styles.categoryChip, { backgroundColor: colors.primaryLight ?? `${colors.primary}22`, borderWidth: 1, borderColor: colors.primary }];
                       labelColor = colors.primary;
@@ -827,7 +827,7 @@ export default function AddTransactionScreen() {
                       let labelColor: string;
                       if (isSelected) {
                         chipStyle = [styles.categoryChip, { backgroundColor: colors.primary }];
-                        labelColor = '#FFFFFF';
+                        labelColor = colors.onPrimary;
                       } else if (isSuggested) {
                         chipStyle = [styles.categoryChip, { backgroundColor: colors.primaryLight ?? `${colors.primary}22`, borderWidth: 1, borderColor: colors.primary }];
                         labelColor = colors.primary;
@@ -854,7 +854,7 @@ export default function AddTransactionScreen() {
                       let labelColor: string;
                       if (isSelected) {
                         chipStyle = [styles.categoryChip, { backgroundColor: colors.primary }];
-                        labelColor = '#FFFFFF';
+                        labelColor = colors.onPrimary;
                       } else if (isSuggested) {
                         chipStyle = [styles.categoryChip, { backgroundColor: colors.primaryLight ?? `${colors.primary}22`, borderWidth: 1, borderColor: colors.primary }];
                         labelColor = colors.primary;
@@ -973,7 +973,7 @@ export default function AddTransactionScreen() {
                               onPress={() => setPickerDay(day)}
                               activeOpacity={0.8}
                             >
-                              <Text style={[styles.dayText, { color: isSelected ? '#FFFFFF' : colors.textPrimary }]}>
+                              <Text style={[styles.dayText, { color: isSelected ? colors.onPrimary : colors.textPrimary }]}>
                                 {day}
                               </Text>
                             </TouchableOpacity>
@@ -1020,7 +1020,7 @@ export default function AddTransactionScreen() {
                               }}
                               activeOpacity={0.8}
                             >
-                              <Text style={[styles.monthChipText, { color: isSelectedMonth ? '#FFFFFF' : colors.textPrimary }]}>
+                              <Text style={[styles.monthChipText, { color: isSelectedMonth ? colors.onPrimary : colors.textPrimary }]}>
                                 {name.slice(0, 3)}
                               </Text>
                             </TouchableOpacity>
@@ -1064,7 +1064,7 @@ export default function AddTransactionScreen() {
                         onPress={() => { setSelectedCardId(null); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
                         activeOpacity={0.8}
                       >
-                        <Text style={[styles.cardChipText, { color: selectedCardId === null ? '#FFFFFF' : colors.textSecondary }]}>
+                        <Text style={[styles.cardChipText, { color: selectedCardId === null ? colors.onPrimary : colors.textSecondary }]}>
                           {t('addTransaction.noCard')}
                         </Text>
                       </TouchableOpacity>
@@ -1084,7 +1084,7 @@ export default function AddTransactionScreen() {
                             activeOpacity={isLocked ? 1 : 0.8}
                           >
                             <BankLogo bankId={card.bankId} size={20} radius={5} />
-                            <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? '#FFFFFF' : colors.textSecondary }]}>
+                            <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? colors.onPrimary : colors.textSecondary }]}>
                               {`${card.nickname || card.bankName}${selectedCardId === card.id && installmentCount > 1 ? ` · ${installmentCount}×` : ''}`}
                             </Text>
                             <View style={[
@@ -1099,7 +1099,7 @@ export default function AddTransactionScreen() {
                             ]}>
                               <Text style={[styles.cardTypeBadgeText, {
                                 color: selectedCardId === card.id
-                                  ? '#FFFFFF'
+                                  ? colors.onPrimary
                                   : card.type === 'credit' ? colors.primary : colors.tertiary,
                               }]}>
                                 {card.type === 'credit' ? 'C' : 'D'}
@@ -1205,7 +1205,7 @@ export default function AddTransactionScreen() {
                               <Text style={[styles.fixedHint, { color: accentInk(colors, 'primary', colors.surface) }]}>
                                 {t('addTransaction.installmentTotal', { amount: Math.round(total).toLocaleString('es-CO') })}
                               </Text>
-                              <Text style={[styles.fixedHint, { color: colors.error ?? '#EF4444' }]}>
+                              <Text style={[styles.fixedHint, { color: colors.error }]}>
                                 {t('addTransaction.installmentCost', { amount: Math.round(interest).toLocaleString('es-CO') })}
                               </Text>
                             </>
@@ -1268,7 +1268,7 @@ export default function AddTransactionScreen() {
             </Text>
           )}
           {error !== '' && (
-            <Text style={[styles.errorText, { color: colors.error ?? '#EF4444', textAlign: 'center', marginBottom: 6 }]}>{error}</Text>
+            <Text style={[styles.errorText, { color: colors.error, textAlign: 'center', marginBottom: 6 }]}>{error}</Text>
           )}
           <TouchableOpacity
             style={[
@@ -1280,8 +1280,8 @@ export default function AddTransactionScreen() {
             activeOpacity={0.85}
           >
             {loading
-              ? <ActivityIndicator color="#FFFFFF" />
-              : <Text style={[styles.saveBtnText, { color: '#FFFFFF' }]}>{t('addTransaction.saveButton')}</Text>
+              ? <ActivityIndicator color={colors.onPrimary} />
+              : <Text style={[styles.saveBtnText, { color: colors.onPrimary }]}>{t('addTransaction.saveButton')}</Text>
             }
           </TouchableOpacity>
         </View>

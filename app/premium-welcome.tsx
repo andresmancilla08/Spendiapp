@@ -12,6 +12,8 @@ import * as Haptics from 'expo-haptics';
 import { doc, updateDoc } from 'firebase/firestore';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import { useTheme } from '../context/ThemeContext';
+import type { AppColors } from '../config/colors';
+import { mixHex } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { useAuthStore } from '../store/authStore';
 import { db } from '../config/firebase';
@@ -25,12 +27,23 @@ const FEATURE_ICONS: AppIconName[] = [
   'contrast-outline',
 ];
 
-const FEATURE_COLORS = ['#00ACC1', '#F59E0B', '#00897B', '#EC4899', '#6366F1'];
+/** Tonos de la paleta ACTIVA: antes eran cinco hex fijos y la bienvenida a Premium
+ *  se veia igual con las 40 paletas. */
+const featureColors = (c: AppColors) => [c.primary, c.warning, c.success, c.tertiary, c.secondary];
 
 export default function PremiumWelcomeScreen() {
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
   const { user } = useAuthStore();
+  const accents = featureColors(colors);
+  // Rampa de oro derivada de `warning`, no cuatro hex de marca: funciona igual en
+  // las 40 paletas. En claro arranca mas claro para que el texto blanco se lea.
+  const gold = colors.warning;
+  const goldLight = mixHex(gold, '#FFFFFF', 0.45);
+  const goldDeep = mixHex(gold, '#000000', 0.35);
+  const goldRamp: [string, string, string, string] = isDark
+    ? [mixHex(gold, '#000000', 0.55), goldDeep, mixHex(gold, '#000000', 0.15), gold]
+    : [goldDeep, mixHex(gold, '#000000', 0.15), gold, goldLight];
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
   const starScale    = useRef(new Animated.Value(0)).current;
@@ -160,16 +173,14 @@ export default function PremiumWelcomeScreen() {
           {/* ── Hero ─────────────────────────────────────── */}
           <View style={styles.heroWrapper}>
             <LinearGradient
-              colors={isDark
-                ? ['#78350F', '#92400E', '#B45309', '#D97706']
-                : ['#92400E', '#B45309', '#D97706', '#F59E0B']}
+              colors={goldRamp}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={StyleSheet.absoluteFillObject}
             />
             <View style={[styles.decoCircle1, { backgroundColor: '#fff' }]} />
             <View style={[styles.decoCircle2, { backgroundColor: '#fff' }]} />
-            <View style={[styles.decoCircle3, { backgroundColor: '#00ACC1' }]} />
+            <View style={[styles.decoCircle3, { backgroundColor: colors.primary }]} />
 
             {/* Badge */}
             <Animated.View
@@ -189,7 +200,7 @@ export default function PremiumWelcomeScreen() {
               <Animated.View
                 style={{ transform: [{ scale: Animated.multiply(starScale, starPulse) }], zIndex: 2 }}
               >
-                <LinearGradient colors={['#FEF3C7', '#F59E0B']} style={styles.starCircle}>
+                <LinearGradient colors={[goldLight, gold]} style={[styles.starCircle, { shadowColor: gold }]}>
                   <AppIcon name="star" size={36} color="#fff" />
                 </LinearGradient>
               </Animated.View>
@@ -230,12 +241,12 @@ export default function PremiumWelcomeScreen() {
                   },
                 ]}
               >
-                <View style={[styles.featureIconWrap, { backgroundColor: FEATURE_COLORS[i] + '20' }]}>
-                  <AppIcon name={FEATURE_ICONS[i]} size={20} color={FEATURE_COLORS[i]} />
+                <View style={[styles.featureIconWrap, { backgroundColor: accents[i % accents.length] + '20' }]}>
+                  <AppIcon name={FEATURE_ICONS[i]} size={20} color={accents[i % accents.length]} />
                 </View>
                 <Text style={[styles.featureText, { color: colors.textPrimary }]}>{feature}</Text>
                 <Animated.View style={{ transform: [{ scale: featureAnims[i].check }] }}>
-                  <AppIcon name="checkmark-circle" size={22} color="#22C55E" />
+                  <AppIcon name="checkmark-circle" size={22} color={colors.success} />
                 </Animated.View>
               </Animated.View>
             ))}
@@ -263,7 +274,7 @@ export default function PremiumWelcomeScreen() {
               style={styles.ctaBtnTouch}
             >
               <LinearGradient
-                colors={['#D97706', '#F59E0B']}
+                colors={[goldDeep, gold]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.ctaBtn}
@@ -342,7 +353,7 @@ const styles = StyleSheet.create({
   starCircle: {
     width: 72, height: 72, borderRadius: 24,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#F59E0B',
+
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.55, shadowRadius: 16,
     elevation: 12,
@@ -358,7 +369,7 @@ const styles = StyleSheet.create({
   },
   heroTitleAccent: {
     fontFamily: Fonts.extraBold,
-    color: '#FEF3C7',
+
   },
   heroSub: {
     fontSize: 14, fontFamily: Fonts.regular,
@@ -379,7 +390,7 @@ const styles = StyleSheet.create({
   footer: { padding: 16, paddingBottom: 8, borderTopWidth: 1 },
   btnWrapper: {
     borderRadius: 50, overflow: 'hidden',
-    shadowColor: '#F59E0B',
+
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.45, shadowRadius: 18, elevation: 10,
   },

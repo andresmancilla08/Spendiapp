@@ -16,6 +16,7 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import ScreenBackground from '../components/ScreenBackground';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../context/ThemeContext';
+import { mixHex } from '../utils/contrast';
 import { accentInk } from '../utils/contrast';
 import { useAuthStore } from '../store/authStore';
 import { db } from '../config/firebase';
@@ -155,16 +156,16 @@ export default function PaymentQrScreen() {
             <Animated.View style={{ opacity: headerOpacity, transform: [{ translateY: headerSlide }] }}>
               <LinearGradient
                 colors={isDark
-                  ? ['#00455A', '#005F6B', '#003D35']
-                  : ['#00697A', '#00ACC1', '#00695C']}
+                  ? [mixHex(colors.primaryDark, '#000000', 0.3), colors.primaryDark, mixHex(colors.secondaryDark, '#000000', 0.25)]
+                  : [colors.primaryDark, colors.primary, colors.secondary]}
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 style={styles.hero}
               >
                 <View style={[styles.decoCircle, { top: -50, right: -30, width: 160, height: 160, borderRadius: 80 }]} />
                 <View style={[styles.decoCircle, { bottom: -40, left: -20, width: 110, height: 110, borderRadius: 55 }]} />
                 <View style={styles.heroBadge}>
-                  <AppIcon name="star" size={10} color="#FFD166" />
-                  <Text style={styles.heroBadgeText}>PREMIUM</Text>
+                  <AppIcon name="star" size={10} color={colors.warning} />
+                  <Text style={[styles.heroBadgeText, { color: colors.warning }]}>PREMIUM</Text>
                 </View>
                 <Text style={styles.heroTitle}>{t('paymentQr.title')}</Text>
                 <Text style={styles.heroSubtitle}>{t('paymentQr.subtitle')}</Text>
@@ -178,7 +179,7 @@ export default function PaymentQrScreen() {
                 const price = plan === 'monthly' ? planMonthlyPrice : planAnnualPrice;
                 const label = plan === 'monthly' ? t('paymentQr.planMonthly') : t('paymentQr.planAnnual');
                 const annualSelected = plan === 'annual' && isSelected;
-                const priceColor = annualSelected ? '#00897B' : isSelected ? colors.primary : colors.textSecondary;
+                const priceColor = annualSelected ? colors.success : isSelected ? colors.primary : colors.textSecondary;
                 const [amount, period] = price.split(' / ');
 
                 return (
@@ -189,16 +190,16 @@ export default function PaymentQrScreen() {
                     style={[
                       styles.planCard,
                       {
-                        backgroundColor: annualSelected ? '#00897B12' : isSelected ? `${colors.primary}18` : colors.surface,
-                        borderColor: annualSelected ? '#00897B' : isSelected ? colors.primary : `${colors.textPrimary}15`,
+                        backgroundColor: annualSelected ? `${colors.success}12` : isSelected ? `${colors.primary}18` : colors.surface,
+                        borderColor: annualSelected ? colors.success : isSelected ? colors.primary : `${colors.textPrimary}15`,
                         borderWidth: isSelected ? 2 : 1.5,
                       },
                     ]}
                   >
                     <View style={styles.planCardInner}>
                       <View style={[styles.planRadio, {
-                        borderColor: annualSelected ? '#00897B' : isSelected ? colors.primary : `${colors.textPrimary}40`,
-                        backgroundColor: annualSelected ? '#00897B' : isSelected ? colors.primary : 'transparent',
+                        borderColor: annualSelected ? colors.success : isSelected ? colors.primary : `${colors.textPrimary}40`,
+                        backgroundColor: annualSelected ? colors.success : isSelected ? colors.primary : 'transparent',
                       }]}>
                         {isSelected && <View style={styles.planRadioDot} />}
                       </View>
@@ -211,8 +212,8 @@ export default function PaymentQrScreen() {
                     </View>
 
                     {plan === 'annual' && (
-                      <View style={[styles.savingsBadge, { backgroundColor: '#00897B20' }]}>
-                        <Text style={[styles.savingsText, { color: '#00897B' }]}>{t('paymentQr.planAnnualSavings')}</Text>
+                      <View style={[styles.savingsBadge, { backgroundColor: `${colors.success}20` }]}>
+                        <Text style={[styles.savingsText, { color: colors.success }]}>{t('paymentQr.planAnnualSavings')}</Text>
                       </View>
                     )}
                   </TouchableOpacity>
@@ -243,7 +244,7 @@ export default function PaymentQrScreen() {
                   <TouchableOpacity
                     onPress={handleCopy}
                     activeOpacity={0.75}
-                    style={[styles.copyBtn, { backgroundColor: copied ? '#00897B' : colors.primary }]}
+                    style={[styles.copyBtn, { backgroundColor: copied ? colors.success : colors.primary }]}
                   >
                     <AppIcon name={copied ? 'checkmark' : 'copy-outline'} size={16} color="#fff" />
                     <Text style={styles.copyBtnText}>
@@ -273,15 +274,15 @@ export default function PaymentQrScreen() {
             </Animated.View>
 
             {status === 'sent' && (
-              <View style={[styles.statusBox, { backgroundColor: '#00897B18', borderColor: '#00897B40' }]}>
-                <AppIcon name="checkmark-circle" size={20} color="#00897B" />
-                <Text style={[styles.statusText, { color: '#00897B' }]}>{t('paymentQr.sent')}</Text>
+              <View style={[styles.statusBox, { backgroundColor: `${colors.success}18`, borderColor: `${colors.success}40` }]}>
+                <AppIcon name="checkmark-circle" size={20} color={colors.success} />
+                <Text style={[styles.statusText, { color: colors.success }]}>{t('paymentQr.sent')}</Text>
               </View>
             )}
             {status === 'error' && (
-              <View style={[styles.statusBox, { backgroundColor: '#EF444418', borderColor: '#EF444440' }]}>
-                <AppIcon name="alert-circle" size={20} color="#EF4444" />
-                <Text style={[styles.statusText, { color: '#EF4444' }]}>{t('paymentQr.error')}</Text>
+              <View style={[styles.statusBox, { backgroundColor: `${colors.error}18`, borderColor: `${colors.error}40` }]}>
+                <AppIcon name="alert-circle" size={20} color={colors.error} />
+                <Text style={[styles.statusText, { color: colors.error }]}>{t('paymentQr.error')}</Text>
               </View>
             )}
 
@@ -293,7 +294,7 @@ export default function PaymentQrScreen() {
             backgroundColor: colors.background,
             borderTopColor: `${colors.textPrimary}10`,
           }]}>
-            <Animated.View style={[styles.btnWrapper, { transform: [{ scale: btnScale }], shadowColor: status === 'sent' ? '#00897B' : '#00C4D9' }]}>
+            <Animated.View style={[styles.btnWrapper, { transform: [{ scale: btnScale }], shadowColor: status === 'sent' ? colors.success : colors.primary }]}>
               <TouchableOpacity
                 onPress={handlePaid}
                 onPressIn={handlePressIn}
@@ -303,7 +304,9 @@ export default function PaymentQrScreen() {
                 style={styles.ctaTouch}
               >
                 <LinearGradient
-                  colors={status === 'sent' ? ['#00BFA5', '#00695C'] : ['#007B8E', '#00ACC1', '#005F73']}
+                  colors={status === 'sent'
+                    ? [colors.success, mixHex(colors.success, '#000000', 0.35)]
+                    : [mixHex(colors.primary, '#000000', 0.2), colors.primary, mixHex(colors.primaryDark, '#000000', 0.25)]}
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                   style={[styles.ctaBtn, { opacity: status === 'sending' ? 0.8 : 1 }]}
                 >
@@ -381,7 +384,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.5)',
     paddingHorizontal: 12, paddingVertical: 5, marginBottom: 2,
   },
-  heroBadgeText: { fontSize: 10, fontFamily: Fonts.bold, color: '#FFD166', letterSpacing: 2.5 },
+  heroBadgeText: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 2.5 },
   heroTitle: { fontSize: 22, fontFamily: Fonts.bold, color: '#fff', textAlign: 'center' },
   heroSubtitle: { fontSize: 13, fontFamily: Fonts.regular, color: 'rgba(255,255,255,0.8)', textAlign: 'center' },
 

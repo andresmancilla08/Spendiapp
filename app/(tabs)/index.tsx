@@ -368,7 +368,7 @@ export default function HomeScreen() {
   const pillPercent = Math.round(expenseRatio * 100);
   const pillColor =
     pillPercent >= 85 ? colors.error
-    : pillPercent >= 60 ? '#F59E0B'
+    : pillPercent >= 60 ? colors.warning
     : colors.success;
   const pillIcon =
     pillPercent >= 85 ? 'warning' as const

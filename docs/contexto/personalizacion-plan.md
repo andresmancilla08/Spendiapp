@@ -71,18 +71,19 @@ Regla que queda escrita: **un color semántico (estado, categoría, marca de ban
 sustituye por el acento del usuario.** La personalización manda en lo decorativo y en las
 superficies; no pisa el significado.
 
-Hardcodes de color que rompen la paleta (por gravedad):
+### Barrido de hardcodes — cerrado (2026-08-03)
 
-| Archivo | Qué | Gravedad |
-|---|---|---|
-| `app/upgrade.tsx` | ~23 hex: gradientes cian/dorados de marca. El muro de pago se ve igual en las 40 paletas | 🔴 |
-| `app/premium-welcome.tsx` | ~22 hex, mismo caso | 🔴 |
-| ~~`app/(tabs)/index.tsx`~~ | `CATEGORY_META`: los 9 pares `bg`/`darkBg` fijos ya salen de `colors.surfaceSecondary`. El color semántico de cada categoría se queda | ✅ hecho |
-| `app/payment-qr.tsx` | ~31 hex | 🟠 |
-| `app/(tabs)/history.tsx` | ~15 hex | 🟠 |
-| `app/add-transaction.tsx`, `app/edit-transaction.tsx` | ~14 y ~13 hex | 🟠 |
-| `components/SharedExpenseSection.tsx` | 7 hex | 🟡 |
-| resto (`CardFormSheet`, `CardEditSheet`, `CategoryFormModal`, `BankLogo`, `AnnouncementBanner`, `login`, `biometric-lock`, `select-cards`) | 3-4 hex cada uno | 🟡 |
+| Archivo | Antes | Ahora | Qué se hizo |
+|---|---|---|---|
+| `app/upgrade.tsx` | 23 | 3 | Hero con el degradado de la paleta; los 6 colores de beneficio rotan por `primary/warning/success/secondary/tertiary/info`; el oro sale de `warning` con su tono claro **calculado** (`mixHex`). Los 3 restantes son la marca de WhatsApp (`#25D366`/`#128C7E`) |
+| `app/premium-welcome.tsx` | 22 | 4 | Rampa de oro derivada de `warning` (4 pasos con `mixHex`); iconos de feature por la paleta; el check verde a `success`. Los 4 restantes son `#FFFFFF`/`#000000` **dentro** de `mixHex` |
+| `app/payment-qr.tsx` | 31 | 3 | Hero, plan anual, badges de estado y CTA a `primary`/`success`/`error`/`warning`. Los 3 restantes están dentro de `mixHex` |
+| `app/add-transaction.tsx` | 14 | 0 | Los `#FFFFFF` de pills y chips seleccionados pasan a `colors.onPrimary`; fuera los fallbacks `?? '#EF4444'` |
+| `app/edit-transaction.tsx` | 13 | 0 | Igual que el anterior |
+| `components/SharedExpenseSection.tsx` | 7 | 0 | El naranja de "participante externo" (`#FFA726`) es ESTADO → `colors.warning`; su fondo con `mixHex` |
+| `app/(tabs)/history.tsx` | 15 | 15 | **A propósito**: 8 son colores semánticos de categoría, el resto es blanco sobre relleno saturado y un scrim negro puro. Anotados en el código para que no parezcan olvidos |
+| `app/(tabs)/index.tsx` | 28 | 11 | Los 9 `bg`/`darkBg` fijos a `surfaceSecondary`; el ámbar del semáforo a `colors.warning`. Los 11 restantes son los colores semánticos de categoría |
+| `app/(tabs)/budget.tsx` | 3 | 0 | El ámbar del semáforo entra por parámetro desde la paleta; los dos carriles `#E5E7EB` fuera y `trackColor` obligatorio en anillo y barra |
 
 Criterio para el barrido: un hex solo se queda si **no** representa marca ni estado
 (logos de banco reales, negro/blanco puros de una tinta medida, colores semánticos de
