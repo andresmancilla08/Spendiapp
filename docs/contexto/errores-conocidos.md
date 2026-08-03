@@ -165,3 +165,14 @@
 - **A propósito:** en Metas y en el reporte de amigos las tintas de señal (barra de progreso, cifra ahorrada, badge "LOGRADA", chip activo) usan `readableTint`, no `accentInk`. `accentInk` es correcto para texto de acento, pero su último recurso es `textSecondary`: el badge de logro salía **gris** en modo oscuro y el chip activo perdía el cian. `readableTint` conserva el tono y solo lo acerca al blanco o al negro hasta alcanzar el ratio.
 - **Y cada tinta se mide contra el fondo que tiene DEBAJO:** sobre una pastilla `#RRGGBB1E` compuesta hay que medir el color resultante, no la superficie. Medido contra la superficie, el ícono de editar daba 1,70:1 en las paletas pastel.
 
+
+### `width: '100%'` + `marginHorizontal` desborda el contenedor (resuelto)
+- **Síntoma:** en Personalización, la pastilla de capítulos (Color · Fondo · Datos · Detalle) salía de borde a borde, sin los 16px laterales que sí respetan el lienzo y la lista de abajo.
+- **Causa real:** el estilo mezclaba `width: '100%'` con `marginHorizontal: 16`. En flexbox el ancho ya es el 100% del padre y las márgenes se suman **por fuera**: el control medía padre + 32px.
+- **Solución:** el margen lateral lo pone un contenedor con `paddingHorizontal` (patrón de `canvasWrap`), y el control no lleva `width`/`margin`. Regla general: para alinear con el resto de la pantalla se usa **padding del contenedor**, nunca `margin` sobre un hijo al 100%.
+
+### El chrome del sistema (barra de estado) hay que fijarlo ANTES de que React monte (resuelto)
+- **Síntoma:** en modo oscuro la franja superior del dispositivo salía blanca (con la hora en negro) en vez de negra.
+- **Causa real:** el único que escribía `theme-color` y `--spendia-statusbar-bg` era `AppBackground`, ya montado React. El sistema pinta esa franja al **lanzar** la app, con el `theme_color` estático del manifest (era `#00ACC1`) o con su blanco por defecto; el cambio posterior por JS llega tarde o lo ignora.
+- **Solución:** un script inline en el `<head>` (en `app/+html.tsx` **y** en `scripts/patch-html.js`, son dos pipelines: dev y export) lee `@spendiapp_theme` de `localStorage` y fija meta + variable CSS antes del primer pintado; `theme_color` del manifest y `web.themeColor` de `app.json` quedan neutros (`#000000`). `AppBackground` sigue manteniéndolo sincronizado al cambiar de tema en caliente.
+- **Lo que NO arregla:** iOS congela `apple-mobile-web-app-status-bar-style` en el momento de "Añadir a pantalla de inicio". Un icono instalado antes del cambio a `black-translucent` sigue con la barra opaca del sistema hasta que se reinstala el acceso directo.

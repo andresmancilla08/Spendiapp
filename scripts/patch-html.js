@@ -77,6 +77,25 @@ const pwaTags = `
   <meta name="apple-mobile-web-app-title" content="Spendia" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
+  <!-- Chrome del sistema (barra de estado / barra de navegacion) ANTES de que React
+       monte: negro en oscuro, blanco en claro. Sin esto el color solo se fijaba al
+       montar AppBackground, y la PWA instalada ya habia pintado la franja con el
+       valor estatico del manifest o con su blanco por defecto (barra blanca en
+       modo oscuro). Misma fuente de verdad que ThemeContext: '@spendiapp_theme'. -->
+  <script>
+    (function () {
+      try {
+        var mode = window.localStorage.getItem('@spendiapp_theme');
+        var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var chrome = dark ? '#000000' : '#FFFFFF';
+        document.documentElement.style.setProperty('--spendia-statusbar-bg', chrome);
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
+        m.setAttribute('content', chrome);
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Captura beforeinstallprompt antes de que React monte (Android PWA install) -->
   <script>
     window.__pwaPrompt = null;

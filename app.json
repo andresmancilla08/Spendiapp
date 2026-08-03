@@ -2,7 +2,7 @@
   "expo": {
     "name": "spendiapp",
     "slug": "spendiapp",
-    "version": "2.50.1",
+    "version": "2.50.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -44,7 +44,7 @@
       "name": "Spendia",
       "shortName": "Spendia",
       "description": "Controla tus gastos mensuales",
-      "themeColor": "#00ACC1",
+      "themeColor": "#000000",
       "backgroundColor": "#FFFFFF",
       "display": "standalone",
       "orientation": "portrait",

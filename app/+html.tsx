@@ -37,6 +37,26 @@ export default function Root({ children }: PropsWithChildren) {
         {/* Ícono para iOS al agregar a pantalla de inicio */}
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
+        {/* Chrome del sistema (barra de estado / barra de navegación) ANTES de que
+            React monte: negro en oscuro, blanco en claro. Sin esto el color solo se
+            fijaba cuando AppBackground montaba, y en la PWA instalada el sistema ya
+            había pintado la franja con el valor estático del manifest (o con su
+            propio blanco por defecto) — de ahí la barra blanca en modo oscuro.
+            Misma fuente de verdad que ThemeContext: '@spendiapp_theme'. */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function () {
+            try {
+              var mode = window.localStorage.getItem('@spendiapp_theme');
+              var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+              var chrome = dark ? '#000000' : '#FFFFFF';
+              document.documentElement.style.setProperty('--spendia-statusbar-bg', chrome);
+              var m = document.querySelector('meta[name="theme-color"]');
+              if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
+              m.setAttribute('content', chrome);
+            } catch (e) {}
+          })();
+        `}} />
+
         {/* Capture beforeinstallprompt early before React mounts */}
         <script dangerouslySetInnerHTML={{ __html: `
           window.__pwaPrompt = null;

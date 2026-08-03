@@ -586,13 +586,17 @@ export default function PersonalizationScreen() {
               : <PersonalizationCanvas focus={CANVAS_FOCUS[chapter]} bgTarget={chapter === 'background' ? bgTarget : undefined} />}
           </View>
 
-          {/* Cuatro capítulos, del cambio más notorio al más fino */}
-          <AppSegmentedControl
-            segments={CHAPTERS.map((c) => ({ key: c, label: t(`personalization.chapter.${c}`) }))}
-            activeKey={chapter}
-            onChange={(key) => setChapter(key as Chapter)}
-            style={styles.chapterBar}
-          />
+          {/* Cuatro capítulos, del cambio más notorio al más fino.
+              El margen lateral lo pone el contenedor (padding), no el control:
+              con `width:'100%'` + `marginHorizontal` el control se desbordaba
+              32 px y la pastilla salía por los dos lados de la pantalla. */}
+          <View style={styles.chapterBarWrap}>
+            <AppSegmentedControl
+              segments={CHAPTERS.map((c) => ({ key: c, label: t(`personalization.chapter.${c}`) }))}
+              activeKey={chapter}
+              onChange={(key) => setChapter(key as Chapter)}
+            />
+          </View>
 
           <ScrollView
             ref={scrollRef}
@@ -810,7 +814,7 @@ export default function PersonalizationScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   canvasWrap: { paddingHorizontal: 16, paddingTop: 2, width: '100%', maxWidth: 640, alignSelf: 'center' },
-  chapterBar: { marginHorizontal: 16, marginTop: 12, marginBottom: 4, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  chapterBarWrap: { paddingHorizontal: 16, marginTop: 12, marginBottom: 4, width: '100%', maxWidth: 640, alignSelf: 'center' },
   lookStrip: { gap: 9, paddingRight: 8, paddingBottom: 2 },
   lookCard: { width: 104, borderRadius: 14, borderWidth: 1.5, overflow: 'hidden' },
   lookCustom: { alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14, width: 84 },
