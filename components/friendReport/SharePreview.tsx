@@ -13,7 +13,7 @@
 import { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal, Image, ScrollView,
-  ActivityIndicator, useWindowDimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -56,12 +56,10 @@ export function PreviewModal({
 }: PreviewProps) {
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const { width: screenW } = useWindowDimensions();
   const [page, setPage] = useState(0);
 
   useEffect(() => { setPage(0); }, [format, pages.length]);
 
-  const maxW = Math.min(screenW - 40, 420);
   const current = pages[Math.min(page, pages.length - 1)];
   const dims = formatDimensions(format, entryCount);
 
@@ -112,8 +110,7 @@ export function PreviewModal({
         <ScrollView contentContainerStyle={styles.previewBody} showsVerticalScrollIndicator={false}>
           {loading ? (
             <View style={[styles.skeleton, {
-              width: maxW,
-              height: maxW * (dims.h / dims.w),
+              aspectRatio: dims.w / dims.h,
               backgroundColor: colors.surface,
               borderColor: colors.border,
             }]}>
@@ -142,11 +139,10 @@ export function PreviewModal({
             <>
               <Image
                 source={{ uri: current.url }}
-                style={{
-                  width: maxW,
-                  height: (maxW * current.height) / current.width,
-                  borderRadius: 16,
-                }}
+                // El tamaño lo pone el layout, no `useWindowDimensions`: medir la
+                // ventana desde dentro del modal daba un ancho falso y la pieza
+                // salía diminuta.
+                style={[styles.piece, { aspectRatio: current.width / current.height }]}
                 resizeMode="contain"
                 accessibilityLabel={t('friendReport.share.imageAlt', { name: friendName, period: periodLabel })}
               />
@@ -249,7 +245,8 @@ const styles = StyleSheet.create({
   dots: { flexDirection: 'row', gap: 6, alignItems: 'center' },
   dot: { height: 7, borderRadius: 4 },
 
-  skeleton: { borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center', gap: 10 },
+  piece: { width: '100%', maxWidth: 420, borderRadius: 16 },
+  skeleton: { width: '100%', maxWidth: 420, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center', gap: 10 },
   skeletonText: { fontSize: 12, fontFamily: Fonts.regular },
 
   errorBox: { borderRadius: 18, borderWidth: 1, padding: 24, alignItems: 'center', gap: 8, maxWidth: 340 },
