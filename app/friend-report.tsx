@@ -35,7 +35,7 @@ import {
 import {
   People, Verdict, FacingBar, EntryRow, Legend, SocialStat, sideColors,
 } from '../components/friendReport/FaceToFace';
-import { FormatSheet, PreviewModal } from '../components/friendReport/SharePreview';
+import { PreviewModal } from '../components/friendReport/SharePreview';
 
 const _logoMod = require('../assets/logo.png');
 const LOGO_URI: string | undefined =
@@ -59,7 +59,6 @@ export default function FriendReportScreen() {
   const [selectedFriendUid, setSelectedFriendUid] = useState<string | null>(null);
 
   // Compartir
-  const [sheetVisible, setSheetVisible] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [format, setFormat] = useState<ReportFormat>('chat');
   const [pages, setPages] = useState<(FriendReportImageResult & { url: string })[]>([]);
@@ -95,7 +94,6 @@ export default function FriendReportScreen() {
    *  comparar dos meses seguidos obligaba a volver a elegirla cada vez. */
   const resetPreview = () => {
     runId.current++;
-    setSheetVisible(false);
     setPreviewVisible(false);
     setGenerating(false);
     setGenError(false);
@@ -197,8 +195,7 @@ export default function FriendReportScreen() {
     }
   }, [model, labels, releasePages]);
 
-  const handlePreview = async () => {
-    setSheetVisible(false);
+  const handleOpenPreview = async () => {
     setPreviewVisible(true);
     await generate(format);
   };
@@ -212,39 +209,45 @@ export default function FriendReportScreen() {
   const fileBase = () =>
     `spendia-${selectedFriend?.displayName.replace(/\s+/g, '-').toLowerCase() ?? 'reporte'}-${month + 1}-${year}-${format}`;
 
+  const fileName = (idx: number) =>
+    `${fileBase()}${pages.length > 1 ? `-p${idx + 1}` : ''}.png`;
+
+  /** Descarga directa a la carpeta de Descargas del dispositivo. */
   const handleDownload = () => {
     pages.forEach((page, idx) => {
-      const suffix = pages.length > 1 ? `-p${idx + 1}` : '';
-      try {
-        const a = document.createElement('a');
-        a.href = page.url;
-        a.download = `${fileBase()}${suffix}.png`;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => document.body.removeChild(a), 100);
-      } catch {
-        window.open(page.url, '_blank');
-      }
+      // ponytail: octet-stream fuerza la descarga; con image/png el navegador
+      // (iOS sobre todo) abre el visor en lugar de guardar el archivo.
+      const url = URL.createObjectURL(new Blob([page.blob], { type: 'application/octet-stream' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName(idx);
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 1000);
     });
   };
 
+  /** Hoja nativa del sistema. Nada de `await` antes de `navigator.share`: iOS
+   *  pierde la activación del gesto y la hoja no llega a abrirse. */
   const handleShare = async () => {
     if (!pages.length) return;
-    try {
-      const files = await Promise.all(pages.map(async (page, idx) => {
-        const res = await fetch(page.url);
-        const blob = await res.blob();
-        const suffix = pages.length > 1 ? `-p${idx + 1}` : '';
-        return new File([blob], `${fileBase()}${suffix}.png`, { type: 'image/png' });
-      }));
-      if (navigator.share && navigator.canShare?.({ files })) {
-        await navigator.share({ files, title: verdictText });
+    const files = pages.map((page, idx) => new File([page.blob], fileName(idx), { type: 'image/png' }));
+    // Varios archivos a la vez no se admiten en todas partes: si no, va la primera página.
+    const shareFiles = navigator.canShare?.({ files })
+      ? files
+      : navigator.canShare?.({ files: [files[0]] })
+        ? [files[0]]
+        : null;
+    if (shareFiles) {
+      try {
+        await navigator.share({ files: shareFiles, title: verdictText });
         return;
+      } catch (e) {
+        // Cancelar la hoja lanza AbortError: no es un fallo y no debe acabar con
+        // N archivos en Descargas.
+        if ((e as Error)?.name === 'AbortError') return;
       }
-    } catch (e) {
-      // Cancelar la hoja del sistema lanza AbortError: no es un fallo y no debe
-      // acabar con N archivos en Descargas.
-      if ((e as Error)?.name === 'AbortError') return;
     }
     handleDownload();
   };
@@ -410,7 +413,7 @@ export default function FriendReportScreen() {
           <View style={[styles.footer, { borderTopColor: colors.border }]}>
             <TouchableOpacity
               style={[styles.shareBtn, { backgroundColor: colors.primary }, !hasMovements && styles.disabled]}
-              onPress={() => setSheetVisible(true)}
+              onPress={handleOpenPreview}
               disabled={!hasMovements}
               activeOpacity={0.85}
               accessibilityRole="button"
@@ -422,16 +425,6 @@ export default function FriendReportScreen() {
             </TouchableOpacity>
           </View>
         </SafeAreaView>
-
-        <FormatSheet
-          visible={sheetVisible}
-          selected={format}
-          onSelect={setFormat}
-          onPreview={handlePreview}
-          onClose={() => setSheetVisible(false)}
-          entryCount={model?.movementCount ?? 7}
-          busy={generating}
-        />
 
         {previewVisible && (
           <PreviewModal

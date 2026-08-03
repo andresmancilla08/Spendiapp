@@ -1686,9 +1686,6 @@
     },
     "share": {
       "openSheet": "Compartir cara a cara",
-      "whereTitle": "¿Para dónde va?",
-      "whereSub": "El mismo mes, tres piezas distintas",
-      "previewCta": "Previsualizar {{name}}",
       "previewTitle": "Previsualización",
       "shareCta": "Compartir {{name}}",
       "download": "Guardar imagen",
@@ -1703,16 +1700,13 @@
       "imageAlt": "Reporte con {{name}} de {{period}}",
       "format": {
         "chat": {
-          "name": "Tarjeta",
-          "where": "WhatsApp"
+          "name": "Tarjeta"
         },
         "story": {
-          "name": "Story",
-          "where": "Instagram"
+          "name": "Story"
         },
         "sheet": {
-          "name": "Hoja",
-          "where": "Revisar"
+          "name": "Hoja"
         }
       }
     }

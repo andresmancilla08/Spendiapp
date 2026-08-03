@@ -1,10 +1,10 @@
 /**
- * "¿Para dónde va?" y la previsualización del documento.
+ * Previsualización del documento.
  *
  * El mismo mes se cuenta distinto según dónde acabe: una tarjeta cuadrada
  * sobrevive a la miniatura de un chat, una story vertical llena la pantalla de
- * quien la mira, y la hoja larga es la que se revisa. Se elige destino ANTES de
- * generar, y se previsualiza la pieza real —no un recorte de otra.
+ * quien la mira, y la hoja larga es la que se revisa. El destino se elige aquí
+ * mismo, sobre la pieza real —no en una hoja previa que pedía lo mismo dos veces.
  *
  * Instagram no admite publicar en historias desde la web: el formato story se
  * comparte por la hoja del sistema o se guarda, y el usuario lo sube. Se dice en
@@ -15,7 +15,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Modal, Image, ScrollView,
   ActivityIndicator, useWindowDimensions,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import AppIcon from '../AppIcon';
 import { useTheme } from '../../context/ThemeContext';
@@ -29,111 +29,6 @@ export const FORMATS: { id: ReportFormat; icon: 'square' | 'story' | 'sheet' }[]
   { id: 'story', icon: 'story' },
   { id: 'sheet', icon: 'sheet' },
 ];
-
-/** Silueta de la proporción de cada formato: se entiende antes que cualquier texto. */
-function FormatShape({ format, color, bg }: { format: ReportFormat; color: string; bg: string }) {
-  const size = format === 'chat'
-    ? { width: 44, height: 44 }
-    : format === 'story'
-      ? { width: 27, height: 48 }
-      : { width: 24, height: 53 };
-  return (
-    <View style={[styles.shape, size, { borderColor: color, backgroundColor: bg }]}>
-      <View style={[styles.shapeBar, { backgroundColor: color }]} />
-    </View>
-  );
-}
-
-// ── Hoja "¿Para dónde va?" ─────────────────────────────────────────────────
-
-interface SheetProps {
-  visible: boolean;
-  selected: ReportFormat;
-  onSelect: (f: ReportFormat) => void;
-  onPreview: () => void;
-  onClose: () => void;
-  entryCount: number;
-  busy?: boolean;
-}
-
-export function FormatSheet({ visible, selected, onSelect, onPreview, onClose, entryCount, busy }: SheetProps) {
-  const { colors } = useTheme();
-  const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  if (!visible) return null;
-
-  return (
-    <View style={styles.sheetLayer} pointerEvents="box-none">
-      <TouchableOpacity
-        style={styles.scrim}
-        activeOpacity={1}
-        onPress={onClose}
-        accessibilityRole="button"
-        accessibilityLabel={t('common.close')}
-      />
-      <View
-        style={[styles.sheet, { backgroundColor: colors.background, borderColor: colors.border, paddingBottom: 26 + insets.bottom }]}
-        accessibilityViewIsModal
-      >
-        <View style={[styles.grab, { backgroundColor: colors.border }]} />
-        <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>{t('friendReport.share.whereTitle')}</Text>
-        <Text style={[styles.sheetSub, { color: colors.textSecondary }]}>{t('friendReport.share.whereSub')}</Text>
-
-        <View style={styles.formatRow} accessibilityRole="radiogroup">
-          {FORMATS.map(({ id }) => {
-            const active = id === selected;
-            const dims = formatDimensions(id, entryCount);
-            return (
-              <TouchableOpacity
-                key={id}
-                onPress={() => onSelect(id)}
-                activeOpacity={0.85}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: active }}
-                style={[styles.formatCard, {
-                  borderColor: active ? colors.primary : colors.border,
-                  backgroundColor: active ? `${colors.primary}12` : colors.surface,
-                }]}
-              >
-                <FormatShape
-                  format={id}
-                  color={active ? colors.primary : colors.textTertiary}
-                  bg={active ? `${colors.primary}18` : 'transparent'}
-                />
-                <Text style={[styles.formatName, { color: colors.textPrimary }]}>
-                  {t(`friendReport.share.format.${id}.name`)}
-                </Text>
-                <View style={[styles.ratioPill, { backgroundColor: active ? `${colors.primary}20` : colors.surfaceSecondary ?? colors.surface }]}>
-                  <Text style={[styles.ratioText, { color: active ? accentInk(colors, 'primary', colors.surface) : colors.textTertiary }]}>
-                    {dims.ratio}
-                  </Text>
-                </View>
-                <Text style={[styles.formatWhere, { color: colors.textTertiary }]} numberOfLines={1}>
-                  {t(`friendReport.share.format.${id}.where`)}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <TouchableOpacity
-          style={[styles.cta, { backgroundColor: colors.primary }, busy && styles.disabled]}
-          onPress={onPreview}
-          disabled={busy}
-          activeOpacity={0.85}
-          accessibilityRole="button"
-        >
-          {busy
-            ? <ActivityIndicator size="small" color={colors.onPrimary} />
-            : <AppIcon name="eye-outline" size={18} color={colors.onPrimary} />}
-          <Text style={[styles.ctaText, { color: colors.onPrimary }]}>
-            {t('friendReport.share.previewCta', { name: t(`friendReport.share.format.${selected}.name`) })}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
 
 // ── Previsualización ───────────────────────────────────────────────────────
 
@@ -339,22 +234,6 @@ export function PreviewModal({
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   disabled: { opacity: 0.45 },
-
-  sheetLayer: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end', zIndex: 20 },
-  scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(6,18,20,0.45)' },
-  sheet: { borderTopLeftRadius: 26, borderTopRightRadius: 26, borderTopWidth: 1, paddingHorizontal: 20, paddingTop: 9 },
-  grab: { width: 38, height: 4, borderRadius: 2, alignSelf: 'center', marginBottom: 14 },
-  sheetTitle: { fontSize: 19, fontFamily: Fonts.extraBold, textAlign: 'center', letterSpacing: -0.3 },
-  sheetSub: { fontSize: 11.5, fontFamily: Fonts.regular, textAlign: 'center', marginTop: 4 },
-
-  formatRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
-  formatCard: { flex: 1, borderWidth: 1.5, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 8, alignItems: 'center', gap: 7 },
-  shape: { borderWidth: 1.5, borderRadius: 5, alignItems: 'center', paddingTop: 5 },
-  shapeBar: { width: '55%', height: 3, borderRadius: 2, opacity: 0.85 },
-  formatName: { fontSize: 12.5, fontFamily: Fonts.bold },
-  ratioPill: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
-  ratioText: { fontSize: 10, fontFamily: Fonts.bold, fontVariant: ['tabular-nums'] },
-  formatWhere: { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 0.8 },
 
   cta: { height: 52, borderRadius: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9, marginTop: 18 },
   ctaText: { fontSize: 14.5, fontFamily: Fonts.bold },

@@ -1686,9 +1686,6 @@
     },
     "share": {
       "openSheet": "Share face to face",
-      "whereTitle": "Where is it going?",
-      "whereSub": "Same month, three different pieces",
-      "previewCta": "Preview {{name}}",
       "previewTitle": "Preview",
       "shareCta": "Share {{name}}",
       "download": "Save image",
@@ -1703,16 +1700,13 @@
       "imageAlt": "Report with {{name}} for {{period}}",
       "format": {
         "chat": {
-          "name": "Card",
-          "where": "WhatsApp"
+          "name": "Card"
         },
         "story": {
-          "name": "Story",
-          "where": "Instagram"
+          "name": "Story"
         },
         "sheet": {
-          "name": "Sheet",
-          "where": "Review"
+          "name": "Sheet"
         }
       }
     }
