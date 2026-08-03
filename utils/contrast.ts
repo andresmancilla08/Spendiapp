@@ -12,6 +12,9 @@ function rgbOf(hex: string): [number, number, number] | null {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
+const hexOf = ([r, g, b]: [number, number, number]) =>
+  `#${[r, g, b].map((c) => Math.round(Math.max(0, Math.min(255, c))).toString(16).padStart(2, '0')).join('')}`;
+
 function relLuminance([r, g, b]: [number, number, number]): number {
   const lin = [r, g, b].map((c) => {
     const s = c / 255;
@@ -47,6 +50,46 @@ export function readableOn(bg: string, candidates: string[]): string {
     }
   }
   return best;
+}
+
+/**
+ * Distancia entre dos colores en RGB, de 0 a 441. Responde a "¿se ven distintos?",
+ * que NO es lo que mide el contraste: dos tonos opuestos con la misma luminancia dan
+ * ratio 1,05 y aun así nadie los confunde.
+ */
+export function colorDistance(a: string, b: string): number {
+  const ra = rgbOf(a);
+  const rb = rgbOf(b);
+  if (!ra || !rb) return 0;
+  return Math.hypot(ra[0] - rb[0], ra[1] - rb[1], ra[2] - rb[2]);
+}
+
+/** Mezcla lineal de dos colores: `t` = 0 devuelve `a`, 1 devuelve `b`. */
+export function mixHex(a: string, b: string, t: number): string {
+  const ra = rgbOf(a);
+  const rb = rgbOf(b);
+  if (!ra || !rb) return a;
+  return hexOf([0, 1, 2].map((i) => ra[i] + (rb[i] - ra[i]) * t) as [number, number, number]);
+}
+
+/**
+ * El MISMO color de la paleta, aclarado u oscurecido lo justo para llegar a `ratio`
+ * sobre `bg`. Es lo que `accentInk` no puede hacer: allí el último recurso es un gris
+ * neutro, y con dos identidades enfrentadas (yo / la otra persona) dos grises se leen
+ * como el mismo lado. Aquí se conserva el tono, que es lo que porta el significado.
+ */
+export function readableTint(color: string, bg: string, ratio = 4.5): string {
+  const start = rgbOf(color);
+  const back = rgbOf(bg);
+  if (!start || !back) return color;
+  // Fondo claro → hay que oscurecer; fondo oscuro → aclarar.
+  const towards: [number, number, number] = relLuminance(back) > 0.4 ? [0, 0, 0] : [255, 255, 255];
+  let out = color;
+  for (let step = 0; step <= 20; step++) {
+    out = hexOf([0, 1, 2].map((i) => start[i] + (towards[i] - start[i]) * (step * 0.05)) as [number, number, number]);
+    if (contrastRatio(out, bg) >= ratio) return out;
+  }
+  return out;   // ni el blanco/negro puro llegó: se devuelve el extremo
 }
 
 type AccentTone = 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'info';

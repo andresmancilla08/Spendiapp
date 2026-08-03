@@ -124,8 +124,22 @@
 - **Causa real:** `expo-font` registra una familia POR PESO con el nombre de la clave (`Montserrat_700Bold`), no una familia "Montserrat" con pesos. `ctx.font = '700 13px Montserrat'` cae al fallback sin avisar.
 - **Solución:** en `utils/generateFriendReportImage.ts`, `font()` elige la familia por peso desde `config/fonts.ts`, y `ensureFonts()` las carga antes de medir.
 
-### El documento y la pantalla se pintan con paletas distintas a propósito
-- **A propósito:** el documento compartido es SIEMPRE oscuro, así que usa los tonos de marca directos (`#00BCD4` / `#C0CA33`). La pantalla en modo claro los oscurece (`#00838F` / `#6B7300`) porque sobre blanco no llegan ni a 3:1. No es una divergencia: es el mismo color adaptado a su fondo.
+### El documento y la pantalla se pintan con tonos distintos a propósito
+- **A propósito:** los dos salen de la MISMA paleta del usuario (`utils/friendReportColors`), pero el documento es siempre oscuro y la pantalla sigue el modo activo, así que cada uno ajusta el tono a su fondo con `readableTint`. Que el hex no coincida no es una divergencia.
+- **Y el lado ajeno no siempre es `tertiary`:** en nordic, mint, peachPastel o mochaPastel el `tertiary` está a 12-30 puntos (sobre 441) del `primary` y los dos lados se veían como uno. `otherToken` baja por `secondary`, `success`, `info`… hasta el primero que se distinga.
+
+### `navigator.share` no admite `await` antes de llamarse (resuelto)
+- **Síntoma:** en la PWA de iOS, "Compartir" abría el PNG en el visor de Safari en vez de la hoja del sistema.
+- **Causa real:** el handler hacía `await fetch(objectURL)` para reconstruir los `File`. iOS invalida la activación del gesto en cuanto hay un await, `navigator.share` lanza `NotAllowedError` y el código caía al fallback de descarga.
+- **Solución:** los `File` se construyen sincrónicamente desde el `blob` que ya está en memoria. Regla general: nada de awaits entre el toque y `navigator.share`.
+
+### `useWindowDimensions` dentro de un `Modal` mide una ventana falsa (resuelto)
+- **Síntoma:** la previsualización del reporte salía a un tercio de su tamaño.
+- **Causa real:** el ancho se calculaba con `useWindowDimensions()` desde dentro del modal, que en web devolvía ~180px.
+- **Solución:** el tamaño lo pone el layout — `width: '100%'`, `maxWidth` y `aspectRatio`. En un modal, no medir la ventana con JS.
+
+### Descargar en la PWA: `image/png` abre el visor, `octet-stream` guarda
+- **A propósito:** `handleDownload` crea un blob `application/octet-stream` aunque el archivo sea PNG. Con el tipo real, el navegador (iOS sobre todo) navega al blob y muestra el visor en lugar de guardar en Descargas.
 
 ### La regla del dinero compartido (leer antes de tocar importes)
 - **Sin cuotas:** el documento de cada participante trae `amount` = TOTAL del grupo y `sharedAmount` = SU parte.

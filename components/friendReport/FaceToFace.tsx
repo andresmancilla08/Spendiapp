@@ -11,33 +11,19 @@ import Svg, { Line, Path, Circle } from 'react-native-svg';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
 import { accentInk } from '../../utils/contrast';
+import { sideColors } from '../../utils/friendReportColors';
 import { formatMoneyAbs } from '../../utils/formatMoney';
 import { initialOf, scaleTilt, type FriendReportModel, type FriendReportEntry } from '../../utils/friendReportModel';
-
-/**
- * Identidad de cada lado. En claro NO valen los tonos de marca: medidos sobre
- * `surface` (#FFFFFF en las 32 paletas) el cian da 2,74:1 y el lima 1,79:1, y
- * contra el carril de las barras bajan a 1,8 y 1,2. Estos dos pasan 3:1 contra
- * el carril y 4,5:1 como texto.
- */
-export function sideColors(isDark: boolean) {
-  return {
-    mine: isDark ? '#00BCD4' : '#00838F',
-    theirs: isDark ? '#C0CA33' : '#6B7300',
-    mineFill: isDark ? '#00BCD4' : '#00838F',
-    theirsFill: isDark ? '#C0CA33' : '#6B7300',
-  };
-}
 
 const fmt = formatMoneyAbs;
 
 // ── Balanza ────────────────────────────────────────────────────────────────
 
-export function Scale({ tilt, width = 120, isDark }: { tilt: number; width?: number; isDark: boolean }) {
+export function Scale({ tilt, width = 120 }: { tilt: number; width?: number }) {
   // El SVG se declara con viewBox y ancho 100%: en el eje transversal de una
   // columna flex el ancho fijo no encoge, y a 320px se salía 37px por cada lado.
-  const c = sideColors(isDark);
   const { colors } = useTheme();
+  const c = sideColors(colors);
   const half = width / 2 - 6;
   const angle = Math.max(-0.34, Math.min(0.34, tilt * 0.42));
   const dy = Math.tan(angle) * half;
@@ -81,10 +67,10 @@ export function Scale({ tilt, width = 120, isDark }: { tilt: number; width?: num
 // ── Cabecera de personas ───────────────────────────────────────────────────
 
 export function People({
-  model, isDark, tiltLabel, youLabel,
-}: { model: FriendReportModel; isDark: boolean; tiltLabel: string; youLabel: string }) {
+  model, tiltLabel, youLabel,
+}: { model: FriendReportModel; tiltLabel: string; youLabel: string }) {
   const { colors } = useTheme();
-  const c = sideColors(isDark);
+  const c = sideColors(colors);
   const avatar = (letter: string, fill: string, onFill: string) => (
     <View style={[styles.avatar, { backgroundColor: fill }]}>
       <Text style={[styles.avatarText, { color: onFill }]}>{letter}</Text>
@@ -94,7 +80,7 @@ export function People({
   return (
     <View style={styles.peopleRow}>
       <View style={styles.person}>
-        {avatar(initialOf(model.myName), c.mineFill, isDark ? '#04252B' : '#FFFFFF')}
+        {avatar(initialOf(model.myName), c.mineFill, c.onMine)}
         <Text style={[styles.personName, { color: colors.textPrimary }]} numberOfLines={1}>
           {model.myName.split(' ')[0]}
         </Text>
@@ -102,14 +88,14 @@ export function People({
       </View>
 
       <View style={styles.scaleCol}>
-        <Scale tilt={scaleTilt(model.totals)} isDark={isDark} />
+        <Scale tilt={scaleTilt(model.totals)} />
         <Text style={[styles.tiltLabel, { color: colors.textTertiary }]} numberOfLines={2}>
           {tiltLabel.toUpperCase()}
         </Text>
       </View>
 
       <View style={styles.person}>
-        {avatar(initialOf(model.friendName), c.theirsFill, '#1E2200')}
+        {avatar(initialOf(model.friendName), c.theirsFill, c.onTheirs)}
         <Text style={[styles.personName, { color: colors.textPrimary }]} numberOfLines={1}>
           {model.friendName}
         </Text>
@@ -126,10 +112,10 @@ export function People({
 // ── Veredicto ──────────────────────────────────────────────────────────────
 
 export function Verdict({
-  model, isDark, kicker, verdict, hint,
-}: { model: FriendReportModel; isDark: boolean; kicker: string; verdict: string; hint?: string }) {
+  model, kicker, verdict, hint,
+}: { model: FriendReportModel; kicker: string; verdict: string; hint?: string }) {
   const { colors } = useTheme();
-  const c = sideColors(isDark);
+  const c = sideColors(colors);
   const color = model.net === 0 ? colors.textPrimary : model.net > 0 ? c.mine : c.theirs;
   const amount = fmt(model.net);
   // adjustsFontSizeToFit no existe en web: la cifra se escala por longitud.
@@ -150,10 +136,10 @@ export function Verdict({
 // ── Barras enfrentadas ─────────────────────────────────────────────────────
 
 export function FacingBar({
-  title, mine, theirs, isDark,
-}: { title: string; mine: number; theirs: number; isDark: boolean }) {
+  title, mine, theirs,
+}: { title: string; mine: number; theirs: number }) {
   const { colors } = useTheme();
-  const c = sideColors(isDark);
+  const c = sideColors(colors);
   const max = Math.max(mine, theirs, 1);
   const minePct = (mine / max) * 100;
   const theirsPct = (theirs / max) * 100;
@@ -182,13 +168,13 @@ export function FacingBar({
 // ── Movimientos a cada lado del eje ────────────────────────────────────────
 
 export function EntryRow({
-  entry, isDark, sentLabel, receivedLabel, dateLabel, sideLabel,
+  entry, sentLabel, receivedLabel, dateLabel, sideLabel,
 }: {
-  entry: FriendReportEntry; isDark: boolean; sentLabel: string; receivedLabel: string;
+  entry: FriendReportEntry; sentLabel: string; receivedLabel: string;
   dateLabel: string; sideLabel: string;
 }) {
   const { colors } = useTheme();
-  const c = sideColors(isDark);
+  const c = sideColors(colors);
   const isMine = entry.side === 'me';
   const color = isMine ? c.mine : c.theirs;
   const dot = isMine ? c.mineFill : c.theirsFill;
@@ -238,9 +224,9 @@ export function EntryRow({
 }
 
 /** Leyenda de los dos colores, para que nadie tenga que adivinar de quién es cada uno. */
-export function Legend({ mineLabel, theirsLabel, isDark }: { mineLabel: string; theirsLabel: string; isDark: boolean }) {
+export function Legend({ mineLabel, theirsLabel }: { mineLabel: string; theirsLabel: string }) {
   const { colors } = useTheme();
-  const c = sideColors(isDark);
+  const c = sideColors(colors);
   return (
     <View style={styles.legend}>
       <View style={styles.legendItem}>

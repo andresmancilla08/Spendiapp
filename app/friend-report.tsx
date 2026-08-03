@@ -1,8 +1,8 @@
 // app/friend-report.tsx
 // Reporte entre dos amigos, dirección "Cara a cara": la pareja es el sujeto —dos
-// identidades con color propio, una balanza que se inclina y un veredicto que
-// domina— y el detalle vive a los lados de un eje. Al compartir se elige primero
-// el formato (chat, story u hoja) y se previsualiza la pieza real.
+// identidades con color propio (el primary y otro tono de SU paleta), una balanza
+// que se inclina y un veredicto que domina— y el detalle vive a los lados de un eje.
+// Al compartir se abre la previsualización de la pieza real y el formato se cambia ahí.
 //
 // Todo el cálculo vive en `utils/friendReportModel`, que es el mismo modelo que
 // alimenta al generador de imagen: pantalla y documento no pueden discrepar.
@@ -32,8 +32,9 @@ import {
   generateFriendReportImage, type ReportFormat, type FriendReportImageResult,
   type FriendReportImageLabels,
 } from '../utils/generateFriendReportImage';
+import { reportPalette, sideColors } from '../utils/friendReportColors';
 import {
-  People, Verdict, FacingBar, EntryRow, Legend, SocialStat, sideColors,
+  People, Verdict, FacingBar, EntryRow, Legend, SocialStat,
 } from '../components/friendReport/FaceToFace';
 import { PreviewModal } from '../components/friendReport/SharePreview';
 
@@ -48,7 +49,7 @@ interface FriendOption {
 }
 
 export default function FriendReportScreen() {
-  const { colors, isDark } = useTheme();
+  const { colors, activePalette } = useTheme();
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const transitionRef = useRef<ScreenTransitionRef>(null);
@@ -179,7 +180,12 @@ export default function FriendReportScreen() {
     setGenerating(true);
     setGenError(false);
     try {
-      const results = await generateFriendReportImage(model, labels, { format: fmt, logoUri: LOGO_URI });
+      const results = await generateFriendReportImage(model, labels, {
+        format: fmt,
+        logoUri: LOGO_URI,
+        // El documento se lee fuera de la app, siempre en oscuro, pero con SU paleta.
+        palette: reportPalette(activePalette.colors.dark),
+      });
       if (id !== runId.current) return;   // llegó tarde: manda la generación posterior
       setPages((prev) => {
         releasePages(prev);
@@ -193,7 +199,7 @@ export default function FriendReportScreen() {
     } finally {
       if (id === runId.current) setGenerating(false);
     }
-  }, [model, labels, releasePages]);
+  }, [model, labels, releasePages, activePalette]);
 
   const handleOpenPreview = async () => {
     setPreviewVisible(true);
@@ -254,7 +260,7 @@ export default function FriendReportScreen() {
 
   const handleBack = () => transitionRef.current?.animateOut(() => router.back());
 
-  const c = sideColors(isDark);
+  const c = sideColors(colors);
   const tiltValue = model ? scaleTilt(model.totals) : 0;
   const tiltLabel = !model || !selectedFriend
     ? ''
@@ -318,7 +324,7 @@ export default function FriendReportScreen() {
                       }]}
                     >
                       <View style={[styles.friendAvatar, { backgroundColor: active ? c.theirsFill : `${colors.primary}20` }]}>
-                        <Text style={[styles.friendInitial, { color: active ? '#1E2200' : accentInk(colors, 'primary', colors.surface) }]}>
+                        <Text style={[styles.friendInitial, { color: active ? c.onTheirs : accentInk(colors, 'primary', colors.surface) }]}>
                           {initialOf(friend.displayName)}
                         </Text>
                       </View>
@@ -345,10 +351,9 @@ export default function FriendReportScreen() {
                 </View>
               ) : (
                 <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <People model={model} isDark={isDark} tiltLabel={tiltLabel} youLabel={t('friendReport.faceToFace.you')} />
+                  <People model={model} tiltLabel={tiltLabel} youLabel={t('friendReport.faceToFace.you')} />
                   <Verdict
                     model={model}
-                    isDark={isDark}
                     kicker={t('friendReport.faceToFace.resultOf', { month: monthLabel })}
                     verdict={verdictText}
                     hint={model.net === 0 ? undefined : t('friendReport.faceToFace.oneTransfer')}
@@ -357,26 +362,22 @@ export default function FriendReportScreen() {
                   <Legend
                     mineLabel={t('friendReport.faceToFace.favourMine')}
                     theirsLabel={t('friendReport.faceToFace.favourTheirs', { name: selectedFriend!.displayName.split(' ')[0] })}
-                    isDark={isDark}
                   />
                   <FacingBar
                     title={t('friendReport.faceToFace.sharedSection')}
                     mine={model.totals.sharedTheyOwe}
                     theirs={model.totals.sharedIOwe}
-                    isDark={isDark}
                   />
                   <FacingBar
                     title={t('friendReport.faceToFace.transfersSection')}
                     mine={model.totals.received}
                     theirs={model.totals.sent}
-                    isDark={isDark}
                   />
                   <View style={[styles.divider, { backgroundColor: colors.border }]} />
                   <FacingBar
                     title={t('friendReport.faceToFace.monthTotal')}
                     mine={model.totals.mine}
                     theirs={model.totals.theirs}
-                    isDark={isDark}
                   />
 
                   <SocialStat label={t('friendReport.faceToFace.socialStat', {
@@ -394,7 +395,6 @@ export default function FriendReportScreen() {
                       <EntryRow
                         key={entry.id}
                         entry={entry}
-                        isDark={isDark}
                         sentLabel={t('friendReport.faceToFace.sent')}
                         receivedLabel={t('friendReport.faceToFace.received')}
                         dateLabel={entry.date.toLocaleDateString(localeFor(), { day: 'numeric', month: 'short' })}

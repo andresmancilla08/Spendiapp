@@ -18,6 +18,9 @@ import { initialOf, scaleTilt } from './friendReportModel';
 import { localeFor } from './dateLocale';
 import { Fonts } from '../config/fonts';
 import { formatMoneyAbs } from './formatMoney';
+import { DEFAULT_REPORT_PALETTE, type ReportPalette } from './friendReportColors';
+
+export { reportPalette, type ReportPalette } from './friendReportColors';
 
 export type ReportFormat = 'chat' | 'story' | 'sheet';
 
@@ -51,6 +54,8 @@ export interface FriendReportImageLabels {
 export interface FriendReportImageOptions {
   format: ReportFormat;
   logoUri?: string;
+  /** Paleta del usuario (`reportPalette(activePalette.colors.dark)`). Sin ella se dibuja Deep Water. */
+  palette?: ReportPalette;
 }
 
 export interface FriendReportImageResult {
@@ -78,19 +83,10 @@ const FORMAT_HEIGHT: Record<ReportFormat, number | null> = {
 const ROWS_PER_PAGE = 9;
 
 // ── Identidad "Cara a cara" ────────────────────────────────────────────────
-const BG        = '#0B1618';
-const PANEL     = '#101E22';
-const HAIRLINE  = '#22353A';
-/** Carriles, ejes y mástil: portan significado, así que necesitan 3:1 (WCAG 1.4.11). */
-const GRAPHIC   = '#5C686B';
-const INK       = '#EEF6F8';
-const INK_SOFT  = '#9EABAF';
-const INK_DIM   = '#7E9198';
-const MINE      = '#00BCD4';   // tú
-const THEIRS    = '#C0CA33';   // la otra persona
-const MINE_DEEP = '#00838F';
-const ON_MINE   = '#04252B';
-const ON_THEIRS = '#1E2200';
+
+/** ponytail: la paleta vive en el módulo, no viaja por 20 funciones de dibujo.
+ *  Se fija al entrar en `generateFriendReportImage`, que es el único punto de entrada. */
+let P: ReportPalette = DEFAULT_REPORT_PALETTE;
 
 /**
  * `expo-font` registra una familia POR PESO con el nombre de la clave
@@ -200,18 +196,18 @@ async function ensureFonts(): Promise<void> {
 /** Franja cian→lima del borde superior: la firma de la pareja. */
 function drawTopBand(ctx: CanvasRenderingContext2D, w: number) {
   const g = ctx.createLinearGradient(0, 0, w, 0);
-  g.addColorStop(0, MINE);
-  g.addColorStop(0.5, MINE);
-  g.addColorStop(0.5, THEIRS);
-  g.addColorStop(1, THEIRS);
+  g.addColorStop(0, P.mine);
+  g.addColorStop(0.5, P.mine);
+  g.addColorStop(0.5, P.theirs);
+  g.addColorStop(1, P.theirs);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, w, 5);
 }
 
 function drawBrandRow(ctx: CanvasRenderingContext2D, w: number, y: number, period: string) {
-  circle(ctx, PAD + 7, y + 7, 7, MINE);
-  circle(ctx, PAD + 7, y + 7, 3, BG);
-  ctx.fillStyle = INK_SOFT;
+  circle(ctx, PAD + 7, y + 7, 7, P.mine);
+  circle(ctx, PAD + 7, y + 7, 3, P.bg);
+  ctx.fillStyle = P.inkSoft;
   ctx.font = font(800, 10);
   ctx.textAlign = 'left';
   ctx.letterSpacing = '2px';
@@ -246,13 +242,13 @@ function drawScale(ctx: CanvasRenderingContext2D, cx: number, cy: number, halfW:
   const dy = Math.tan(angle) * halfW;
 
   // Mástil y base
-  ctx.strokeStyle = GRAPHIC;
+  ctx.strokeStyle = P.graphic;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.lineTo(cx, cy + 22);
   ctx.stroke();
-  ctx.fillStyle = GRAPHIC;
+  ctx.fillStyle = P.graphic;
   ctx.beginPath();
   ctx.moveTo(cx - 9, cy + 26);
   ctx.lineTo(cx + 9, cy + 26);
@@ -264,19 +260,19 @@ function drawScale(ctx: CanvasRenderingContext2D, cx: number, cy: number, halfW:
   // Viga: mitad cian, mitad lima
   ctx.lineWidth = 3.5;
   ctx.lineCap = 'round';
-  ctx.strokeStyle = MINE;
+  ctx.strokeStyle = P.mine;
   ctx.beginPath();
   ctx.moveTo(cx - halfW, cy - dy);
   ctx.lineTo(cx, cy);
   ctx.stroke();
-  ctx.strokeStyle = THEIRS;
+  ctx.strokeStyle = P.theirs;
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.lineTo(cx + halfW, cy + dy);
   ctx.stroke();
 
   // Fulcro
-  circle(ctx, cx, cy, 3.4, rgba(GRAPHIC, 1));
+  circle(ctx, cx, cy, 3.4, rgba(P.graphic, 1));
 
   // Platillos: cuelgan de un tirante y son cuencos rellenos. Como semicírculos
   // sueltos se leían como dos ganchos y la balanza no se reconocía.
@@ -294,8 +290,8 @@ function drawScale(ctx: CanvasRenderingContext2D, cx: number, cy: number, halfW:
     ctx.closePath();
     ctx.fill();
   };
-  pan(cx - halfW, cy - dy, MINE);
-  pan(cx + halfW, cy + dy, THEIRS);
+  pan(cx - halfW, cy - dy, P.mine);
+  pan(cx + halfW, cy + dy, P.theirs);
   ctx.lineCap = 'butt';
 }
 
@@ -308,8 +304,8 @@ function drawPeople(
   const leftX = PAD + avatarR + 6;
   const rightX = w - PAD - avatarR - 6;
 
-  drawAvatar(ctx, leftX, cy, avatarR, MINE, ON_MINE, initialOf(model.myName));
-  drawAvatar(ctx, rightX, cy, avatarR, THEIRS, ON_THEIRS, initialOf(model.friendName));
+  drawAvatar(ctx, leftX, cy, avatarR, P.mine, P.onMine, initialOf(model.myName));
+  drawAvatar(ctx, rightX, cy, avatarR, P.theirs, P.onTheirs, initialOf(model.friendName));
   drawScale(ctx, w / 2, cy - 4, Math.min(52, (rightX - leftX) / 2 - avatarR - 18), scaleTilt(model.totals));
 
   // El texto va centrado en su columna: el ancho disponible es el DOBLE de la
@@ -319,13 +315,13 @@ function drawPeople(
 
   ctx.textAlign = 'center';
   ctx.font = font(700, 13);
-  ctx.fillStyle = INK;
+  ctx.fillStyle = P.ink;
   const myFirst = model.myName.split(' ')[0];
   ctx.fillText(clip(ctx, myFirst, widthAt(leftX)), leftX, cy + avatarR + 20);
   ctx.fillText(clip(ctx, model.friendName, widthAt(rightX)), rightX, cy + avatarR + 20);
 
   ctx.font = font(500, 10.5);
-  ctx.fillStyle = INK_DIM;
+  ctx.fillStyle = P.inkDim;
   ctx.fillText(clip(ctx, labels.you, widthAt(leftX)), leftX, cy + avatarR + 35);
   if (model.friendUserName) {
     ctx.fillText(clip(ctx, `@${model.friendUserName}`, widthAt(rightX)), rightX, cy + avatarR + 35);
@@ -335,7 +331,7 @@ function drawPeople(
   const tilt = scaleTilt(model.totals);
   const tiltLabel = tilt === 0 ? labels.tiltEven : tilt < 0 ? labels.tiltMine : labels.tiltTheirs;
   ctx.font = font(800, 9);
-  ctx.fillStyle = INK_DIM;
+  ctx.fillStyle = P.inkDim;
   ctx.letterSpacing = '1.4px';
   ctx.fillText(tiltLabel.toUpperCase(), w / 2, cy + avatarR + 20);
   ctx.letterSpacing = '0px';
@@ -352,19 +348,19 @@ function drawVerdict(
    *  el veredicto a 25px, que a 130px de ancho son 6px reales en vez de 4. */
   thumbnailFirst = false,
 ): number {
-  const color = model.net === 0 ? INK : model.net > 0 ? MINE : THEIRS;
+  const color = model.net === 0 ? P.ink : model.net > 0 ? P.mine : P.theirs;
 
   ctx.textAlign = 'center';
   if (!thumbnailFirst) {
     ctx.font = font(800, 9);
-    ctx.fillStyle = INK_DIM;
+    ctx.fillStyle = P.inkDim;
     ctx.letterSpacing = '1.6px';
     ctx.fillText(labels.resultOf.toUpperCase(), w / 2, y);
     ctx.letterSpacing = '0px';
   }
 
   ctx.font = font(700, thumbnailFirst ? 25 : big ? 17 : 14);
-  ctx.fillStyle = INK;
+  ctx.fillStyle = P.ink;
   ctx.fillText(clip(ctx, labels.verdict, w - PAD * 2), w / 2, y + (thumbnailFirst ? 26 : big ? 28 : 24));
 
   const amount = fmtMoney(model.net);
@@ -381,7 +377,7 @@ function drawVerdict(
   let bottom = amountY;
   if (model.net !== 0) {
     ctx.font = font(500, 11);
-    ctx.fillStyle = INK_SOFT;
+    ctx.fillStyle = P.inkSoft;
     ctx.fillText(clip(ctx, labels.verdictHint, w - PAD * 2), w / 2, bottom + 20);
     bottom += 20;
   }
@@ -391,17 +387,17 @@ function drawVerdict(
 
 /** Leyenda "a tu favor / a favor de Ana" con sus cuadros de color. */
 function drawLegend(ctx: CanvasRenderingContext2D, w: number, y: number, labels: FriendReportImageLabels) {
-  ctx.fillStyle = MINE;
+  ctx.fillStyle = P.mine;
   rr(ctx, PAD, y - 7, 8, 8, 2); ctx.fill();
   ctx.font = font(800, 9);
   ctx.letterSpacing = '1.2px';
-  ctx.fillStyle = INK_SOFT;
+  ctx.fillStyle = P.inkSoft;
   ctx.textAlign = 'left';
   ctx.fillText(labels.favourMine.toUpperCase(), PAD + 14, y);
 
   ctx.textAlign = 'right';
   ctx.fillText(labels.favourTheirs.toUpperCase(), w - PAD - 14, y);
-  ctx.fillStyle = THEIRS;
+  ctx.fillStyle = P.theirs;
   rr(ctx, w - PAD - 8, y - 7, 8, 8, 2); ctx.fill();
   ctx.letterSpacing = '0px';
   ctx.textAlign = 'left';
@@ -419,7 +415,7 @@ function drawFacingBar(
   ctx.textAlign = 'center';
   ctx.font = font(800, 8.5);
   ctx.letterSpacing = '1.2px';
-  ctx.fillStyle = INK_DIM;
+  ctx.fillStyle = P.inkDim;
   ctx.fillText(title.toUpperCase(), w / 2, y);
   ctx.letterSpacing = '0px';
 
@@ -430,7 +426,7 @@ function drawFacingBar(
   const h = 9;
 
   // Carriles
-  ctx.fillStyle = rgba(GRAPHIC, 0.85);
+  ctx.fillStyle = rgba(P.graphic, 0.85);
   rr(ctx, cx - trackHalf, rowY, trackHalf - 4, h, h / 2); ctx.fill();
   rr(ctx, cx + 4, rowY, trackHalf - 4, h, h / 2); ctx.fill();
 
@@ -440,11 +436,11 @@ function drawFacingBar(
   const barW = (v: number) => (v > 0 ? Math.max(12, ((trackHalf - 4) * v) / max) : 0);
   const mineW = barW(mine);
   const theirsW = barW(theirs);
-  if (mineW > 0) { ctx.fillStyle = MINE; rr(ctx, cx - 4 - mineW, rowY, mineW, h, h / 2); ctx.fill(); }
-  if (theirsW > 0) { ctx.fillStyle = THEIRS; rr(ctx, cx + 4, rowY, theirsW, h, h / 2); ctx.fill(); }
+  if (mineW > 0) { ctx.fillStyle = P.mine; rr(ctx, cx - 4 - mineW, rowY, mineW, h, h / 2); ctx.fill(); }
+  if (theirsW > 0) { ctx.fillStyle = P.theirs; rr(ctx, cx + 4, rowY, theirsW, h, h / 2); ctx.fill(); }
 
   ctx.font = font(700, 11.5, true);
-  ctx.fillStyle = INK;
+  ctx.fillStyle = P.ink;
   ctx.textAlign = 'left';
   ctx.fillText(fmtMoney(mine), PAD, rowY + h - 0.5);
   ctx.textAlign = 'right';
@@ -461,7 +457,7 @@ function drawEntryRow(
 ): number {
   const cx = w / 2;
   const isMine = entry.side === 'me';
-  const color = isMine ? MINE : THEIRS;
+  const color = isMine ? P.mine : P.theirs;
   const gutter = 22;                       // aire a cada lado del eje
   const colW = cx - PAD - gutter;
 
@@ -472,7 +468,7 @@ function drawEntryRow(
   ctx.textAlign = isMine ? 'left' : 'right';
 
   ctx.font = font(650, 12);
-  ctx.fillStyle = INK;
+  ctx.fillStyle = P.ink;
   const amount = fmtMoney(entry.amount);
   ctx.font = font(700, 12, true);
   const amountW = ctx.measureText(amount).width;
@@ -497,7 +493,7 @@ function drawEntryRow(
   // Segunda línea: fecha, y el reparto o el tipo de transferencia
   ctx.textAlign = isMine ? 'left' : 'right';
   ctx.font = font(600, 9);
-  ctx.fillStyle = INK_DIM;
+  ctx.fillStyle = P.inkDim;
   ctx.letterSpacing = '0.6px';
   const badge = entry.percentage != null
     ? `${entry.percentage}%`
@@ -517,7 +513,7 @@ function drawFooter(
   model: FriendReportModel, labels: FriendReportImageLabels, logo: HTMLImageElement | null,
   withSocialStat = true,
 ) {
-  ctx.strokeStyle = HAIRLINE;
+  ctx.strokeStyle = P.hairline;
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(PAD, y);
@@ -526,13 +522,13 @@ function drawFooter(
 
   if (withSocialStat) {
     ctx.font = font(700, 11);
-    ctx.fillStyle = INK;
+    ctx.fillStyle = P.ink;
     ctx.textAlign = 'left';
     ctx.fillText(clip(ctx, labels.socialStat, w - PAD * 2 - 90), PAD, y + 20);
   }
 
   ctx.font = font(500, 9.5);
-  ctx.fillStyle = INK_DIM;
+  ctx.fillStyle = P.inkDim;
   ctx.textAlign = 'left';
   ctx.fillText(clip(ctx, labels.footer, w - PAD * 2 - 90), PAD, withSocialStat ? y + 35 : y + 24);
 
@@ -540,7 +536,7 @@ function drawFooter(
     const size = 18;
     ctx.drawImage(logo, w - PAD - size, y + 12, size, size);
   } else {
-    circle(ctx, w - PAD - 9, y + 21, 9, rgba(MINE, 0.9));
+    circle(ctx, w - PAD - 9, y + 21, 9, rgba(P.mine, 0.9));
   }
 }
 
@@ -551,7 +547,7 @@ function drawChat(
   labels: FriendReportImageLabels, logo: HTMLImageElement | null,
 ) {
   const h = FORMAT_HEIGHT.chat!;
-  ctx.fillStyle = BG;
+  ctx.fillStyle = P.bg;
   ctx.fillRect(0, 0, W, h);
   drawTopBand(ctx, W);
   drawBrandRow(ctx, W, 22, labels.period);
@@ -574,9 +570,9 @@ function drawStory(
 ) {
   const h = FORMAT_HEIGHT.story!;
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, '#0E2126');
-  g.addColorStop(0.55, BG);
-  g.addColorStop(1, '#0A1315');
+  g.addColorStop(0, P.gradTop);
+  g.addColorStop(0.55, P.bg);
+  g.addColorStop(1, P.gradBottom);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, h);
   drawTopBand(ctx, W);
@@ -589,7 +585,7 @@ function drawStory(
   y = drawFacingBar(ctx, W, y + 18, labels.sharedSection, model.totals.sharedTheyOwe, model.totals.sharedIOwe);
   y = drawFacingBar(ctx, W, y + 8, labels.transfersSection, model.totals.received, model.totals.sent);
 
-  ctx.strokeStyle = HAIRLINE;
+  ctx.strokeStyle = P.hairline;
   ctx.beginPath(); ctx.moveTo(PAD, y + 4); ctx.lineTo(W - PAD, y + 4); ctx.stroke();
   y = drawFacingBar(ctx, W, y + 24, labels.monthTotal, model.totals.mine, model.totals.theirs);
 
@@ -598,10 +594,10 @@ function drawStory(
   const pillY = Math.max(y + 24, Math.min(y + 90, h - 148));
   ctx.font = font(700, 12);
   const pillW = Math.min(ctx.measureText(labels.socialStat).width + 34, W - PAD * 2);
-  ctx.fillStyle = PANEL;
+  ctx.fillStyle = P.panel;
   rr(ctx, (W - pillW) / 2, pillY, pillW, 36, 18); ctx.fill();
-  ctx.strokeStyle = HAIRLINE; ctx.lineWidth = 1; ctx.stroke();
-  ctx.fillStyle = INK;
+  ctx.strokeStyle = P.hairline; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = P.ink;
   ctx.textAlign = 'center';
   ctx.fillText(clip(ctx, labels.socialStat, pillW - 26), W / 2, pillY + 23);
   ctx.textAlign = 'left';
@@ -624,7 +620,7 @@ function drawSheet(
   ctx: CanvasRenderingContext2D, model: FriendReportModel, labels: FriendReportImageLabels,
   logo: HTMLImageElement | null, entries: FriendReportEntry[], page: number, totalPages: number, h: number,
 ) {
-  ctx.fillStyle = BG;
+  ctx.fillStyle = P.bg;
   ctx.fillRect(0, 0, W, h);
   drawTopBand(ctx, W);
   drawBrandRow(ctx, W, 22, labels.period);
@@ -636,19 +632,19 @@ function drawSheet(
   } else {
     // En las páginas siguientes el veredicto viaja en una franja compacta, para
     // que cada imagen se entienda suelta si alguien reenvía solo una.
-    ctx.fillStyle = PANEL;
+    ctx.fillStyle = P.panel;
     rr(ctx, PAD, 50, W - PAD * 2, 46, 14); ctx.fill();
     // El hueco para el veredicto se mide contra el importe real: con cifras de
     // nueve dígitos la reserva fija de 130px dejaba que se montaran.
     ctx.font = font(800, 17, true);
     const amountText = fmtMoney(model.net);
     const amountW = ctx.measureText(amountText).width;
-    ctx.fillStyle = model.net === 0 ? INK : model.net > 0 ? MINE : THEIRS;
+    ctx.fillStyle = model.net === 0 ? P.ink : model.net > 0 ? P.mine : P.theirs;
     ctx.textAlign = 'right';
     ctx.fillText(amountText, W - PAD - 16, 79);
 
     ctx.font = font(700, 12);
-    ctx.fillStyle = INK;
+    ctx.fillStyle = P.ink;
     ctx.textAlign = 'left';
     ctx.fillText(clip(ctx, labels.verdict, W - PAD * 2 - 32 - amountW - 12), PAD + 16, 79);
     y = 112;
@@ -661,7 +657,7 @@ function drawSheet(
     y = drawLegend(ctx, W, y + 10, labels);
     y = drawFacingBar(ctx, W, y + 14, labels.sharedSection, model.totals.sharedTheyOwe, model.totals.sharedIOwe);
     y = drawFacingBar(ctx, W, y + 6, labels.transfersSection, model.totals.received, model.totals.sent);
-    ctx.strokeStyle = HAIRLINE;
+    ctx.strokeStyle = P.hairline;
     ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
     y = drawFacingBar(ctx, W, y + 20, labels.monthTotal, model.totals.mine, model.totals.theirs);
   }
@@ -670,7 +666,7 @@ function drawSheet(
   ctx.textAlign = 'center';
   ctx.font = font(800, 9);
   ctx.letterSpacing = '1.4px';
-  ctx.fillStyle = INK_DIM;
+  ctx.fillStyle = P.inkDim;
   // En las páginas de continuación el título habla de las filas que se ven, no del total.
   ctx.fillText(
     (page === 1 ? labels.movementsTitle : labels.movementsContinued(entries.length)).toUpperCase(),
@@ -684,7 +680,7 @@ function drawSheet(
   const axisTop = y;
   const axisBottom = y + entries.length * 40 - 6;
   if (entries.length > 0) {
-    ctx.strokeStyle = GRAPHIC;
+    ctx.strokeStyle = P.graphic;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(W / 2, axisTop);
@@ -696,7 +692,7 @@ function drawSheet(
 
   if (totalPages > 1) {
     ctx.font = font(600, 9.5);
-    ctx.fillStyle = INK_DIM;
+    ctx.fillStyle = P.inkDim;
     ctx.textAlign = 'center';
     ctx.fillText(labels.pageLabel(page, totalPages), W / 2, Math.min(axisBottom + 26, h - 78));
     ctx.textAlign = 'left';
@@ -717,6 +713,7 @@ export async function generateFriendReportImage(
   options: FriendReportImageOptions,
 ): Promise<FriendReportImageResult[]> {
   await ensureFonts();
+  P = options.palette ?? DEFAULT_REPORT_PALETTE;
   const logo = options.logoUri ? await loadImg(options.logoUri) : null;
   const { format } = options;
 
