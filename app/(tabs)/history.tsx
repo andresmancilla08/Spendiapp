@@ -54,6 +54,7 @@ import ExchangeRateChips from '../../components/ExchangeRateChips';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
 import { readableOn } from '../../utils/txRelation';
 import { accentInk } from '../../utils/contrast';
+import { applyHistoryFilters, activeFilterCount, type HistoryFilters } from '../../utils/historyFilters';
 import { effectiveAmount } from '../../utils/sharedCalc';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { categoryLabel } from '../../constants/categories';
@@ -419,6 +420,49 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
 
 // ── Main Screen ───────────────────────────────────────────────────────────────
 
+/**
+ * Una fila del panel de filtros. Existe porque con cuatro criterios el JSX repetido
+ * eran ~90 líneas iguales; y volver a tocar el mismo valor lo desactiva (vuelve a
+ * "Todos"), que es lo que ya hacía el filtro de compartido.
+ */
+function FilterRow<T extends string>({ label, values, active, onPick, labelFor, colors }: {
+  label: string;
+  values: readonly T[];
+  active: T;
+  onPick: (v: T) => void;
+  labelFor: (v: T) => string;
+  colors: any;
+}) {
+  return (
+    <View style={styles.filterSection}>
+      <Text style={[styles.filterSectionLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
+        {label.toUpperCase()}
+      </Text>
+      <View style={styles.filterSectionOptions}>
+        {values.map((val) => {
+          const on = active === val;
+          return (
+            <TouchableOpacity
+              key={val}
+              onPress={() => onPick(on ? (values[0] as T) : val)}
+              hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: on }}
+            >
+              <Text style={[styles.filterSectionOption, {
+                color: on ? colors.textPrimary : colors.textTertiary,
+                fontFamily: on ? Fonts.bold : Fonts.regular,
+              }]}>
+                {labelFor(val)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 export default function HistoryScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -447,6 +491,12 @@ export default function HistoryScreen() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [paidFilter, setPaidFilter] = useState<'all' | 'paid' | 'unpaid'>('unpaid');
   const [sharedFilter, setSharedFilter] = useState<'all' | 'shared' | 'notShared'>('all');
+  /** Naturaleza del movimiento: un fijo y una cuota se comportan distinto y son las
+   *  dos preguntas que no se podían hacer desde aquí. */
+  const [kindFilter, setKindFilter] = useState<'all' | 'fixed' | 'installment' | 'single'>('all');
+  const [cardFilter, setCardFilter] = useState<'all' | 'withCard' | 'noCard'>('all');
+  /** Movimientos que vienen de otra persona (o van hacia ella). */
+  const [friendFilter, setFriendFilter] = useState<'all' | 'received' | 'sent'>('all');
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -468,6 +518,9 @@ export default function HistoryScreen() {
     setSearchQuery('');
     setPaidFilter('unpaid');
     setSharedFilter('all');
+    setKindFilter('all');
+    setCardFilter('all');
+    setFriendFilter('all');
     setFilterPanelOpen(false);
     setMonthPickerOpen(false);
   }, []));
@@ -517,6 +570,9 @@ export default function HistoryScreen() {
     setSearchQuery('');
     setPaidFilter('unpaid');
     setSharedFilter('all');
+    setKindFilter('all');
+    setCardFilter('all');
+    setFriendFilter('all');
     setFilterPanelOpen(false);
   };
 
@@ -650,14 +706,17 @@ export default function HistoryScreen() {
     setPendingDeleteTx(tx);
   }, [setSelectedTransaction, cardsMap, year, month, isPastMonth, currentUserName]);
 
-  const filteredTransactions = useMemo(() =>
-    transactions
-      .filter(t => activeFilter === 'all' || t.type === activeFilter)
-      .filter(t => searchQuery.trim() === '' || t.description.toLowerCase().includes(searchQuery.toLowerCase()))
-      .filter(t => paidFilter === 'all' || (paidFilter === 'paid' ? t.isPaid === true : t.isPaid !== true))
-      .filter(t => sharedFilter === 'all' || (sharedFilter === 'shared' ? t.isShared === true : t.isShared !== true)),
-    [transactions, activeFilter, searchQuery, paidFilter, sharedFilter]
+  const filters: HistoryFilters = {
+    type: activeFilter, paid: paidFilter, shared: sharedFilter,
+    kind: kindFilter, card: cardFilter, friend: friendFilter, search: searchQuery,
+  };
+  const filteredTransactions = useMemo(
+    () => applyHistoryFilters(transactions, filters),
+    [transactions, activeFilter, searchQuery, paidFilter, sharedFilter, kindFilter, cardFilter, friendFilter],
   );
+  /** Con siete criterios, un filtro olvidado se lee como "no tengo movimientos": el
+   *  número va en el botón y el estado vacío ofrece limpiarlos. */
+  const activeFilters = activeFilterCount(filters);
 
   const groups = groupByDay(filteredTransactions, WEEKDAYS);
 
@@ -689,7 +748,8 @@ export default function HistoryScreen() {
 
   const toggleSummary = () => setSummaryExpanded(prev => !prev);
 
-  const hasActiveFilters = sharedFilter !== 'all';
+  const panelFilters = [sharedFilter, kindFilter, cardFilter, friendFilter].filter((v) => v !== 'all').length;
+  const hasActiveFilters = panelFilters > 0;
 
   const toggleFilter = (f: 'income' | 'expense') => {
     setActiveFilter(prev => prev === f ? 'all' : f);
@@ -915,7 +975,9 @@ export default function HistoryScreen() {
             color={hasActiveFilters ? colors.primary : colors.textTertiary}
           />
           {hasActiveFilters && (
-            <View style={[styles.filterDot, { backgroundColor: colors.primary }]} />
+            <View style={[styles.filterDot, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.filterDotText, { color: colors.onPrimary }]}>{panelFilters}</Text>
+            </View>
           )}
         </TouchableOpacity>
       </View>
@@ -943,31 +1005,38 @@ export default function HistoryScreen() {
             },
           ]}
         >
-          {/* Compartido */}
-          <View style={styles.filterSection}>
-            <Text style={[styles.filterSectionLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>
-              {t('history.filters.shareLabel').toUpperCase()}
-            </Text>
-            <View style={styles.filterSectionOptions}>
-              {(['all', 'shared', 'notShared'] as const).map((val) => (
-                <TouchableOpacity
-                  key={val}
-                  onPress={() => setSharedFilter(s => s === val ? 'all' : val)}
-                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
-                >
-                  <Text style={[
-                    styles.filterSectionOption,
-                    {
-                      color: sharedFilter === val ? colors.textPrimary : colors.textTertiary,
-                      fontFamily: sharedFilter === val ? Fonts.bold : Fonts.regular,
-                    },
-                  ]}>
-                    {t(`history.filters.${val === 'all' ? 'allLabel' : val}`)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+          <FilterRow
+            label={t('history.filters.shareLabel')}
+            values={['all', 'shared', 'notShared'] as const}
+            active={sharedFilter}
+            onPick={(v) => setSharedFilter(v)}
+            labelFor={(v) => t(`history.filters.${v === 'all' ? 'allLabel' : v}`)}
+            colors={colors}
+          />
+          <FilterRow
+            label={t('history.filters.kindLabel')}
+            values={['all', 'fixed', 'installment', 'single'] as const}
+            active={kindFilter}
+            onPick={(v) => setKindFilter(v)}
+            labelFor={(v) => t(`history.filters.kind.${v}`)}
+            colors={colors}
+          />
+          <FilterRow
+            label={t('history.filters.cardLabel')}
+            values={['all', 'withCard', 'noCard'] as const}
+            active={cardFilter}
+            onPick={(v) => setCardFilter(v)}
+            labelFor={(v) => t(`history.filters.card.${v}`)}
+            colors={colors}
+          />
+          <FilterRow
+            label={t('history.filters.friendLabel')}
+            values={['all', 'received', 'sent'] as const}
+            active={friendFilter}
+            onPick={(v) => setFriendFilter(v)}
+            labelFor={(v) => t(`history.filters.friend.${v}`)}
+            colors={colors}
+          />
         </Animated.View>
       )}
 
@@ -984,8 +1053,21 @@ export default function HistoryScreen() {
             {t('history.noTransactions')}
           </Text>
           <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
-            {t('history.noTransactionsSub')}
+            {activeFilters > 0 ? t('history.filters.emptyByFilters') : t('history.noTransactionsSub')}
           </Text>
+          {activeFilters > 0 && (
+            <TouchableOpacity
+              onPress={resetFilters}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              style={[styles.clearFiltersBtn, { borderColor: colors.primary }]}
+            >
+              <AppIcon name="close-circle-outline" size={16} color={accentInk(colors, 'primary', colors.background)} />
+              <Text style={[styles.clearFiltersText, { color: accentInk(colors, 'primary', colors.background) }]}>
+                {t('history.filters.clear', { count: activeFilters })}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       ) : (
         <ScrollView
@@ -1209,13 +1291,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   filterDot: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    // Burbuja con el número de filtros del panel: antes era un punto de 6 px que
+    // decía "hay algo puesto" pero no cuántos.
+    position: 'absolute', top: 5, right: 5,
+    minWidth: 15, height: 15, borderRadius: 8, paddingHorizontal: 3,
+    alignItems: 'center', justifyContent: 'center',
   },
+  filterDotText: { fontSize: 9, fontFamily: Fonts.bold },
+  clearFiltersBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 16,
+    height: 44, paddingHorizontal: 18, borderRadius: 50, borderWidth: 1.5,
+  },
+  clearFiltersText: { fontSize: 13.5, fontFamily: Fonts.bold },
   filterPanel: {
     marginHorizontal: 20,
     marginBottom: 8,

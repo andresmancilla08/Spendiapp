@@ -841,7 +841,29 @@
       "shared": "Shared",
       "notShared": "Not shared",
       "pending": "Pending",
-      "paidTab": "Paid"
+      "paidTab": "Paid",
+      "kindLabel": "Type",
+      "cardLabel": "Card",
+      "friendLabel": "With friends",
+      "kind": {
+        "all": "All",
+        "fixed": "Fixed",
+        "installment": "Installments",
+        "single": "One-off"
+      },
+      "card": {
+        "all": "All",
+        "withCard": "With card",
+        "noCard": "No card"
+      },
+      "friend": {
+        "all": "All",
+        "received": "Received",
+        "sent": "Sent"
+      },
+      "clear": "Clear {{count}} filters",
+      "clear_one": "Clear 1 filter",
+      "emptyByFilters": "No movement matches the filters."
     },
     "prevMonth": "Previous month",
     "nextMonth": "Next month"

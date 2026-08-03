@@ -841,7 +841,29 @@
       "shared": "Condiviso",
       "notShared": "Non condiviso",
       "pending": "In sospeso",
-      "paidTab": "Pagati"
+      "paidTab": "Pagati",
+      "kindLabel": "Tipo",
+      "cardLabel": "Carta",
+      "friendLabel": "Con amici",
+      "kind": {
+        "all": "Tutti",
+        "fixed": "Fissi",
+        "installment": "Rate",
+        "single": "Singoli"
+      },
+      "card": {
+        "all": "Tutte",
+        "withCard": "Con carta",
+        "noCard": "Senza carta"
+      },
+      "friend": {
+        "all": "Tutti",
+        "received": "Ricevuti",
+        "sent": "Inviati"
+      },
+      "clear": "Azzera {{count}} filtri",
+      "clear_one": "Azzera 1 filtro",
+      "emptyByFilters": "Nessun movimento corrisponde ai filtri."
     },
     "prevMonth": "Mese precedente",
     "nextMonth": "Mese successivo"
