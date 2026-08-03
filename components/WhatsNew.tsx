@@ -49,6 +49,12 @@ const APP_FEATURES: Feature[] = [
     ],
   },
   {
+    icon: 'options-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.historyFilters.title',
+    items: ['whatsNew.historyFilters.item1', 'whatsNew.historyFilters.item2'],
+  },
+  {
     icon: 'flag-outline',
     colorKey: 'success',
     titleKey: 'whatsNew.goalsActions.title',

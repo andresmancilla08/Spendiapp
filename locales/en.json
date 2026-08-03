@@ -1479,6 +1479,11 @@
       "title": "Goals: edit, reopen and delete",
       "item1": "Tap a goal and everything is there: add money, edit it, reopen it or delete it.",
       "item2": "The \"Finish it\" shortcut adds exactly what is missing — no math."
+    },
+    "historyFilters": {
+      "title": "History: more filters",
+      "item1": "Filter by fixed expenses, installments, one-offs, with or without card, and by what you received or sent to friends.",
+      "item2": "The button shows how many filters are on, and clears them in one tap."
     }
   },
   "incomeClaim": {

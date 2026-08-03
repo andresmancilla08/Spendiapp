@@ -1479,6 +1479,11 @@
       "title": "Metas: editar, reabrir y eliminar",
       "item1": "Toca una meta y ahí está todo: aportar, editarla, reabrirla si ya la cumpliste o eliminarla.",
       "item2": "El atajo \"Completar\" aporta justo lo que falta, sin calcular nada."
+    },
+    "historyFilters": {
+      "title": "Historial: más filtros",
+      "item1": "Filtra por gastos fijos, cuotas, sueltos, con o sin tarjeta, y por lo recibido o enviado con amigos.",
+      "item2": "El botón muestra cuántos filtros tienes puestos y los limpias de un toque."
     }
   },
   "incomeClaim": {

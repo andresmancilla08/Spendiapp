@@ -1479,6 +1479,11 @@
       "title": "Obiettivi: modifica, riapri ed elimina",
       "item1": "Tocca un obiettivo e c’è tutto: versare, modificarlo, riaprirlo o eliminarlo.",
       "item2": "La scorciatoia \"Completa\" versa esattamente quello che manca."
+    },
+    "historyFilters": {
+      "title": "Cronologia: più filtri",
+      "item1": "Filtra per spese fisse, rate, singole, con o senza carta, e per ciò che hai ricevuto o inviato agli amici.",
+      "item2": "Il pulsante mostra quanti filtri sono attivi e li azzeri con un tocco."
     }
   },
   "incomeClaim": {
