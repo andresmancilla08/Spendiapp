@@ -1,0 +1,462 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Personalización · dirección A afinada</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#05090a;color:#EEF6F8;font-family:Montserrat,sans-serif;padding:36px 28px 90px;line-height:1.45}
+  .wrap{max-width:1780px;margin:0 auto}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.75px}
+  .lede{color:#9EABAF;font-size:15px;margin-top:8px;max-width:80ch}
+  h2{font-size:11.5px;font-weight:800;letter-spacing:1.7px;text-transform:uppercase;color:#00BCD4;margin:46px 0 6px;padding-top:22px;border-top:1px solid #1e2b2e}
+  .h2sub{color:#7f9297;font-size:13.5px;margin-bottom:18px;max-width:88ch}
+  p{font-size:14px;color:#9EABAF;max-width:84ch}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#152125;padding:1px 6px;border-radius:5px;color:#bfe9ef}
+  .row{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+  .col{width:390px}
+  .tag{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:3px}
+  .tagsub{font-size:11.5px;color:#7f9297;margin-bottom:10px;min-height:30px}
+  table{border-collapse:collapse;width:100%;margin-top:14px;font-size:13.5px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid #1e2b2e;vertical-align:top}
+  th{font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:#7f9297;font-weight:700}
+  td strong{color:#EEF6F8}
+  ul{margin:8px 0 0 18px;font-size:14px;color:#9EABAF} li{margin:6px 0}
+  .win{color:#00d6b4;font-weight:800} .kill{color:#F87171;font-weight:800} .meh{color:#FBBF24;font-weight:800}
+  .note{border-left:3px solid #00BCD4;background:#0d1a1d;padding:12px 16px;border-radius:0 10px 10px 0;margin-top:16px;font-size:13.5px;color:#9EABAF}
+  .ask{border-left:3px solid #D4E157;background:#161a0d;padding:12px 16px;border-radius:0 10px 10px 0;margin-top:12px;font-size:13.5px;color:#cfd8a8}
+
+  .phone{width:390px;height:790px;border-radius:34px;overflow:hidden;position:relative;border:1px solid #223034;display:flex;flex-direction:column}
+  .status{height:24px;flex-shrink:0}
+  .hdr{display:flex;align-items:center;gap:10px;padding:6px 18px 2px;position:relative;z-index:5}
+  .ttl{padding:6px 18px 10px}
+  .ttl h3{font-size:22px;font-weight:800;letter-spacing:-.5px}
+  .ttl p{font-size:12px;margin-top:2px}
+  .body{flex:1;overflow:hidden;padding:0 16px 16px;position:relative}
+
+  /* lienzo */
+  .canvas{border-radius:24px;overflow:hidden;position:relative;padding:16px;display:flex;flex-direction:column;gap:8px}
+  .cvTop{display:flex;align-items:center;gap:9px;position:relative;z-index:2}
+  .avatar{width:30px;height:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+  .cvBal{position:relative;z-index:2}
+  .lbl{font-size:9px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;opacity:.75}
+  .amt{font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:1px}
+  .cvCard{position:relative;z-index:2;border-radius:16px;padding:12px 14px;overflow:hidden;margin-top:auto}
+  .cvCardT{font-size:9px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;opacity:.75}
+  .catRow{display:flex;align-items:center;gap:7px;margin-top:8px}
+  .dot{width:7px;height:7px;border-radius:3px}
+  .catN{flex:1;font-size:11.5px;font-weight:600}
+  .catP{font-size:11px;font-weight:700}
+  .track{height:5px;border-radius:3px;margin-top:5px;overflow:hidden}
+  .fill{height:100%;border-radius:3px}
+  .sheen{position:absolute;top:-40px;bottom:-40px;width:56px;transform:rotate(12deg);animation:sweep 3.4s ease-in-out infinite}
+  @keyframes sweep{0%{left:-70px;opacity:0}35%{opacity:.5}70%{left:110%;opacity:0}100%{left:110%;opacity:0}}
+  .spark{position:relative;z-index:2;height:42px}
+  .fx{position:absolute;inset:0;overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(26px);opacity:.55;animation:drift 12s ease-in-out infinite alternate}
+  @keyframes drift{to{transform:translate(26px,-20px) scale(1.15)}}
+  .grid-fx{position:absolute;inset:0;background-image:linear-gradient(#ffffff10 1px,transparent 1px),linear-gradient(90deg,#ffffff10 1px,transparent 1px);background-size:26px 26px}
+  .stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.55;animation:tw 3s ease-in-out infinite alternate}
+  @keyframes tw{to{opacity:.1}}
+  .waves{position:absolute;left:-20%;right:-20%;bottom:-10%;height:60%;border-radius:45%;animation:roll 9s ease-in-out infinite alternate}
+  @keyframes roll{to{transform:translateY(-14px) rotate(3deg)}}
+  @media (prefers-reduced-motion: reduce){.blob,.stars i,.sheen,.waves{animation:none}}
+
+  /* marco de dispositivo dentro del lienzo (A2) */
+  .device{width:132px;border-radius:18px;border:5px solid #0a1214;overflow:hidden;position:relative;box-shadow:0 12px 30px #00000066;margin:0 auto}
+  .devScreen{height:200px;position:relative;padding:9px}
+
+  /* chips de capítulo */
+  .chips{display:flex;gap:6px;margin-top:14px}
+  .chip{flex:1;height:38px;border-radius:50px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:700;border:1.5px solid}
+  .grpLbl{font-size:9.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin:16px 0 8px}
+  .hint{font-size:10.5px;margin:-3px 0 8px}
+
+  /* paletas */
+  .palGrid{display:flex;flex-wrap:wrap;gap:8px}
+  .palCard{border-radius:14px;display:flex;flex-direction:column;align-items:center;gap:7px;border:1.5px solid transparent}
+  .swRow{display:flex}
+  .sw{border-radius:50%;border:2px solid}
+  .sw+.sw{margin-left:-8px}
+  .palName{font-size:9.5px;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+  /* looks */
+  .lookStrip{display:flex;gap:9px;overflow:hidden;margin-top:2px}
+  .look{width:112px;flex-shrink:0;border-radius:14px;overflow:hidden;border:1.5px solid;position:relative}
+  .lookPrev{height:66px;position:relative;overflow:hidden;padding:8px}
+  .lookName{font-size:9.5px;font-weight:700;padding:6px 8px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lookCheck{position:absolute;top:6px;right:6px;width:15px;height:15px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
+
+  /* fondos */
+  .bgGrid{display:flex;flex-wrap:wrap;gap:9px}
+  .bgCard{width:calc(33.33% - 6px);border-radius:14px;border:2px solid transparent;padding:6px;display:flex;flex-direction:column;gap:6px;align-items:center}
+  .bgBox{width:100%;height:52px;border-radius:9px;overflow:hidden;position:relative}
+  .bgLbl{font-size:9.5px;font-weight:600}
+  .seg{display:flex;border-radius:12px;overflow:hidden;border:1.5px solid;height:36px}
+  .seg span{flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+
+  /* filas */
+  .rowItem{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid}
+  .riMeta{flex:1;min-width:0}
+  .riL{font-size:13.5px;font-weight:600}
+  .riS{font-size:11px;margin-top:2px}
+  .swtch{width:40px;height:23px;border-radius:12px;position:relative;flex-shrink:0}
+  .swtch i{position:absolute;top:2.5px;width:18px;height:18px;border-radius:9px;background:#fff}
+  .miniSeg{display:flex;border-radius:9px;overflow:hidden;border:1px solid;flex-shrink:0}
+  .miniSeg span{padding:6px 10px;font-size:10.5px;font-weight:700}
+
+  /* barra colapsada */
+  .collapsed{border-radius:16px;overflow:hidden;position:relative;height:64px;padding:0 14px;display:flex;align-items:center;gap:10px}
+  .collAmt{font-size:15px;font-weight:800;letter-spacing:-.4px;position:relative;z-index:2}
+  .collPill{height:20px;padding:0 8px;border-radius:10px;font-size:8.5px;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;position:relative;z-index:2}
+  .expandBtn{width:30px;height:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:13px;position:relative;z-index:2;margin-left:auto}
+  footer{margin-top:56px;padding-top:18px;border-top:1px solid #1e2b2e;color:#7f9297;font-size:12px}
+</style>
+<body><div class="wrap" id="root"></div>
+<script>
+const D = {"themes":{"dwDark":{"id":"deepWater","mode":"dark","name":"deepWater","preview":["#00ACC1","#00897B","#C0CA33"],"grad":["#0D1A1C","#062830","#003840"],"blobs":[["#00BCD4","#006978"],["#0097A7","#004D5A"],["#00897B","#004D40"],["#26C6DA","#0097A7"]],"primary":"#00BCD4","secondary":"#00A896","tertiary":"#D4E157","success":"#00A896","error":"#F87171","bg":"#0D1A1C","bg2":"#111F22","surface":"#162428","surface2":"#1E2E32","ink":"#EEF6F8","ink2":"#9EABAF","ink3":"#93A6AB","border":"#243438","accentInk":"#00BCD4","tint":"#00bcd4","pill":"#13363c","onPrimary":"#FFFFFF"},"dwLight":{"id":"deepWater","mode":"light","name":"deepWater","preview":["#00ACC1","#00897B","#C0CA33"],"grad":["#FFFFFF","#F5F9FA","#E0F7FA"],"blobs":[["#B2EBF2","#80DEEA"],["#80DEEA","#4DD0E1"],["#B2DFDB","#80CBC4"],["#E0F7FA","#B2EBF2"]],"primary":"#00ACC1","secondary":"#00897B","tertiary":"#C0CA33","success":"#00897B","error":"#EF4444","bg":"#FFFFFF","bg2":"#F0F7F8","surface":"#FFFFFF","surface2":"#EEF4F5","ink":"#1A2428","ink2":"#6B7280","ink3":"#6E737C","border":"#DDE8EA","accentInk":"#00838F","tint":"#008191","pill":"#e1f5f8","onPrimary":"#FFFFFF"},"sunset":{"id":"sunset","mode":"dark","name":"sunset","preview":["#F59E0B","#EF4444","#8B5CF6"],"grad":["#1C0D00","#2D1505","#180C1A"],"blobs":[["#F59E0B","#92400E"],["#EF4444","#7F1D1D"],["#D97706","#78350F"],["#FBBF24","#B45309"]],"primary":"#FBBF24","secondary":"#F87171","tertiary":"#A78BFA","success":"#22C55E","error":"#F87171","bg":"#1C0D00","bg2":"#241200","surface":"#2D1800","surface2":"#361D00","ink":"#FFF8F0","ink2":"#B09880","ink3":"#97816D","border":"#4A3018","accentInk":"#FBBF24","tint":"#fbbf24","pill":"#452c04","onPrimary":"#1A0F00"},"midnight":{"id":"midnight","mode":"dark","name":"midnight","preview":["#7C3AED","#4F46E5","#EC4899"],"grad":["#0D0B1A","#130D2C","#1A0D26"],"blobs":[["#A78BFA","#4C1D95"],["#818CF8","#312E81"],["#7C3AED","#2E1065"],["#C4B5FD","#6D28D9"]],"primary":"#A78BFA","secondary":"#818CF8","tertiary":"#F472B6","success":"#4ADE80","error":"#F87171","bg":"#0D0B1A","bg2":"#120F22","surface":"#18142E","surface2":"#1E1940","ink":"#F0EFF8","ink2":"#9B96AF","ink3":"#847D9E","border":"#2E2A52","accentInk":"#A78BFA","tint":"#a78bfa","pill":"#292246","onPrimary":"#FFFFFF"},"mint":{"id":"mint","mode":"dark","name":"mint","preview":["#10B981","#059669","#34D399"],"grad":["#051A10","#082E1C","#0A3820"],"blobs":[["#10B981","#064E3B"],["#059669","#022C22"],["#34D399","#065F46"],["#6EE7B7","#047857"]],"primary":"#34D399","secondary":"#10B981","tertiary":"#6EE7B7","success":"#34D399","error":"#F87171","bg":"#051A10","bg2":"#082018","surface":"#0A2E1C","surface2":"#0E3A24","ink":"#EDFFF6","ink2":"#7EC8A4","ink3":"#4F9E77","border":"#123A24","accentInk":"#34D399","tint":"#34d399","pill":"#0f412b","onPrimary":"#FFFFFF"},"mocha":{"id":"mocha","mode":"dark","name":"mocha","preview":["#92400E","#D97706","#FBBF24"],"grad":["#140805","#1E0E08","#1A0C05"],"blobs":[["#B45309","#451A03"],["#92400E","#3B1504"],["#78350F","#2C1104"],["#D97706","#7C2D12"]],"primary":"#D97706","secondary":"#B45309","tertiary":"#FBBF24","success":"#4ADE80","error":"#F87171","bg":"#140805","bg2":"#1C0E08","surface":"#28140A","surface2":"#341A0E","ink":"#F8F0E8","ink2":"#B09070","ink3":"#A67857","border":"#442010","accentInk":"#D97706","tint":"#d97706","pill":"#3d200a","onPrimary":"#FFFFFF"}},"all":[{"id":"deepWater","preview":["#00ACC1","#00897B","#C0CA33"]},{"id":"sunset","preview":["#F59E0B","#EF4444","#8B5CF6"]},{"id":"forest","preview":["#16A34A","#0D9488","#84CC16"]},{"id":"midnight","preview":["#7C3AED","#4F46E5","#EC4899"]},{"id":"rose","preview":["#E11D48","#DB2777","#F59E0B"]},{"id":"ocean","preview":["#0284C7","#0369A1","#06B6D4"]},{"id":"ember","preview":["#DC2626","#EA580C","#FBBF24"]},{"id":"lavender","preview":["#9333EA","#C084FC","#818CF8"]},{"id":"slate","preview":["#3B82F6","#64748B","#06B6D4"]},{"id":"deepWaterPastel","preview":["#80DEEA","#80CBC4","#DCE775"]},{"id":"sunsetPastel","preview":["#FBBF24","#FCA5A5","#C4B5FD"]},{"id":"forestPastel","preview":["#86EFAC","#99F6E4","#D9F99D"]},{"id":"midnightPastel","preview":["#A78BFA","#818CF8","#F9A8D4"]},{"id":"rosePastel","preview":["#FDA4AF","#FBCFE8","#FDE68A"]},{"id":"oceanPastel","preview":["#7DD3FC","#93C5FD","#67E8F9"]},{"id":"emberPastel","preview":["#FCA5A5","#FDBA74","#FDE68A"]},{"id":"lavenderPastel","preview":["#D8B4FE","#E9D5FF","#FBCFE8"]},{"id":"slatePastel","preview":["#93C5FD","#CBD5E1","#A5F3FC"]},{"id":"sakura","preview":["#F472B6","#EC4899","#FDE68A"]},{"id":"nordic","preview":["#64A8C8","#8DA8C0","#94BFDE"]},{"id":"cottonCandy","preview":["#F9A8D4","#93C5FD","#A5F3FC"]},{"id":"peach","preview":["#FDBA74","#FDE68A","#FCA5A5"]},{"id":"sakuraPastel","preview":["#FBCFE8","#F9A8D4","#FDE68A"]},{"id":"nordicPastel","preview":["#BAE6FD","#BFDBFE","#CBD5E1"]},{"id":"cottonCandyPastel","preview":["#FBCFE8","#BFDBFE","#CFFAFE"]},{"id":"peachPastel","preview":["#FED7AA","#FDE68A","#FECACA"]},{"id":"mint","preview":["#10B981","#059669","#34D399"]},{"id":"mintPastel","preview":["#6EE7B7","#A7F3D0","#BAE6FD"]},{"id":"aurora","preview":["#06B6D4","#7C3AED","#22C55E"]},{"id":"auroraPastel","preview":["#67E8F9","#C4B5FD","#86EFAC"]},{"id":"mocha","preview":["#92400E","#D97706","#FBBF24"]},{"id":"mochaPastel","preview":["#FCD9B0","#FDE8D0","#FEF3C7"]}]};
+const T = D.themes;
+const money = '$ 4.286.500';
+
+const sparkPath = (w,h) => {
+  const vals=[38,44,41,52,49,63,58,71,68,80,76,88], max=Math.max(...vals), min=Math.min(...vals);
+  return vals.map((v,i)=>`${i?'L':'M'}${((i/(vals.length-1))*w).toFixed(1)},${(h-((v-min)/(max-min))*h).toFixed(1)}`).join(' ');
+};
+const spark = (c,c2,h=42,type='area') => {
+  const w=300, p=sparkPath(w,h-6);
+  if (type==='bars') {
+    const vals=[38,44,41,52,49,63,58,71,68,80,76,88], bw=w/vals.length-6;
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">${vals.map((v,i)=>{
+      const bh=((v-38)/(88-38))*(h-8)+6;
+      return `<rect x="${i*(w/vals.length)+3}" y="${h-bh}" width="${bw}" height="${bh}" rx="2.5" fill="${i>8?c2||c:c}" opacity="${i>8?1:.8}"/>`;}).join('')}</svg>`;
+  }
+  if (type==='dots') {
+    const vals=[38,44,41,52,49,63,58,71,68,80,76,88];
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">${vals.map((v,i)=>
+      `<circle cx="${(i/(vals.length-1))*w}" cy="${(h-6)-((v-38)/(88-38))*(h-6)}" r="3.2" fill="${c}" opacity="${.45+i*.045}"/>`).join('')}</svg>`;
+  }
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none">
+    ${type==='area'?`<defs><linearGradient id="g${c.slice(1)}${h}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${c}" stop-opacity=".45"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs>
+      <path d="${p} L${w},${h} L0,${h} Z" fill="url(#g${c.slice(1)}${h})"/>`:''}
+    <path d="${p}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${w}" cy="${(h-6)-((88-38)/(88-38))*(h-6)}" r="3.4" fill="${c2||c}"/></svg>`;
+};
+const fx = (th, kind) => {
+  if (kind==='none') return '';
+  if (kind==='grid') return `<div class="fx"><div class="grid-fx"></div></div>`;
+  if (kind==='stars') return `<div class="fx stars">${Array.from({length:30},(_,i)=>
+    `<i style="left:${(i*37)%100}%;top:${(i*53)%100}%;animation-delay:${(i%9)*.3}s"></i>`).join('')}</div>`;
+  if (kind==='waves') return `<div class="fx"><div class="waves" style="background:radial-gradient(ellipse at 50% 0,${th.blobs[0][0]}55,transparent 70%)"></div>
+    <div class="waves" style="background:radial-gradient(ellipse at 30% 0,${th.blobs[1][0]}44,transparent 70%);animation-delay:1.6s;bottom:-20%"></div></div>`;
+  return `<div class="fx">${th.blobs.map((pr,i)=>`<div class="blob" style="width:${140+i*34}px;height:${130+i*28}px;
+    left:${[-16,54,16,66][i]}%;top:${[-16,-8,44,36][i]}%;background:radial-gradient(circle at 40% 40%,${pr[0]},${pr[1]});
+    animation-delay:${i*1.4}s"></div>`).join('')}</div>`;
+};
+
+/* ── el lienzo, versión "Home fiel" ── */
+/* El lienzo compacto NO recorta: muestra lo que ese capítulo necesita ver.
+   focus 'all' (Color, 292px) · 'bg' (Fondo) · 'chart' (Datos) · 'card' (Detalle) */
+const canvasHome = (th,{kind='aurora',sheen=true,h=292,chart='area',focus='all'}={}) => {
+  const card = `<div class="cvCard" style="background:${th.surface};border:1px solid ${th.border}">
+    ${sheen?`<div class="sheen" style="background:linear-gradient(90deg,transparent,${th.ink}22,transparent)"></div>`:''}
+    <div class="cvCardT" style="color:${th.ink2}">gastos por categoría</div>
+    <div class="catRow"><div class="dot" style="background:${th.primary}"></div>
+      <div class="catN" style="color:${th.ink}">Mercado</div><div class="catP" style="color:${th.tint}">42%</div></div>
+    <div class="track" style="background:${th.border}"><div class="fill" style="width:42%;background:${th.tint}"></div></div>
+  </div>`;
+  const bal = `<div class="cvBal"><div class="lbl" style="color:${th.ink2}">balance del mes</div>
+    <div class="amt" style="color:${th.ink};font-size:${focus==='all'?30:25}px">${money}</div></div>`;
+  const chartBlock = `<div class="spark" style="height:${focus==='chart'?64:42}px">${spark(th.tint,th.tertiary,focus==='chart'?64:42,chart)}</div>`;
+  const top = `<div class="cvTop">
+    <div class="avatar" style="background:${th.primary};color:${th.onPrimary}">A</div>
+    <div style="flex:1;font-size:11px;color:${th.ink2}">Hola, Andrés</div>
+    <div style="font-size:14px;opacity:.6;color:${th.ink2}">🔔</div></div>`;
+  const inner = focus==='all'  ? top+bal+chartBlock+card
+              : focus==='bg'   ? top+bal+chartBlock
+              : focus==='chart'? bal+chartBlock
+              : /* card */       bal+card;
+  return `<div class="canvas" style="height:${h}px;background:linear-gradient(160deg,${th.grad[0]},${th.grad[1]} 55%,${th.grad[2]})">
+    ${fx(th,kind)}${inner}</div>`;
+};
+
+/* ── el lienzo, versión "mini dispositivo" ── */
+const canvasDevice = (th,{kind='aurora',h=292}={}) => `
+<div class="canvas" style="height:${h}px;background:${th.bg2};align-items:center;justify-content:center;border:1px solid ${th.border}">
+  <div class="device" style="border-color:${th.bg}">
+    <div class="devScreen" style="background:linear-gradient(160deg,${th.grad[0]},${th.grad[1]} 55%,${th.grad[2]})">
+      ${fx(th,kind)}
+      <div style="position:relative;z-index:2">
+        <div style="font-size:6.5px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:${th.ink2};opacity:.8">balance</div>
+        <div style="font-size:14px;font-weight:800;letter-spacing:-.4px;color:${th.ink};margin-top:1px">$ 4.28M</div>
+        <div style="margin-top:6px">${spark(th.tint,th.tertiary,26,'area')}</div>
+        <div style="border-radius:7px;background:${th.surface};border:1px solid ${th.border};padding:6px 7px;margin-top:8px">
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="width:5px;height:5px;border-radius:3px;background:${th.primary}"></span>
+            <span style="flex:1;font-size:7px;font-weight:600;color:${th.ink}">Mercado</span>
+            <span style="font-size:7px;font-weight:700;color:${th.tint}">42%</span></div>
+          <div style="height:3px;border-radius:2px;background:${th.border};margin-top:4px">
+            <div style="height:3px;width:42%;border-radius:2px;background:${th.tint}"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:9.5px;color:${th.ink3};margin-top:10px;position:relative;z-index:2">Deep Water · Aurora</div>
+</div>`;
+
+/* ── el lienzo, versión "pantalla conmutable" ── */
+const canvasSwitch = (th,{kind='aurora',h=292,view='home'}={}) => `
+<div class="canvas" style="height:${h}px;background:linear-gradient(160deg,${th.grad[0]},${th.grad[1]} 55%,${th.grad[2]})">
+  ${fx(th,kind)}
+  <div style="display:flex;gap:5px;position:relative;z-index:3">
+    ${[['Inicio',view==='home'],['Historial',view==='hist'],['Metas',false]].map(([n,on])=>`
+      <div style="height:24px;padding:0 10px;border-radius:12px;font-size:9.5px;font-weight:700;display:flex;align-items:center;
+        background:${on?th.surface:'transparent'};color:${on?th.tint:th.ink2};border:1px solid ${on?th.border:'transparent'}">${n}</div>`).join('')}
+  </div>
+  ${view==='home' ? `
+    <div class="cvBal" style="margin-top:4px"><div class="lbl" style="color:${th.ink2}">balance del mes</div>
+      <div class="amt" style="color:${th.ink}">${money}</div></div>
+    <div class="spark">${spark(th.tint,th.tertiary,42,'area')}</div>` : `
+    <div style="position:relative;z-index:2;margin-top:6px">
+      ${[['Mercado','$ 182.000',th.primary],['Uber','$ 24.500',th.tertiary],['Netflix','$ 38.900',th.primary]].map(([n,v,c])=>`
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid ${th.border}44">
+          <span style="width:26px;height:26px;border-radius:9px;background:${c}22;display:flex;align-items:center;justify-content:center;font-size:11px">🛒</span>
+          <span style="flex:1;font-size:11.5px;font-weight:600;color:${th.ink}">${n}</span>
+          <span style="font-size:11.5px;font-weight:700;color:${th.ink}">${v}</span></div>`).join('')}
+    </div>`}
+  <div class="cvCard" style="background:${th.surface};border:1px solid ${th.border}">
+    <div class="sheen" style="background:linear-gradient(90deg,transparent,${th.ink}22,transparent)"></div>
+    <div class="cvCardT" style="color:${th.ink2}">gastos por categoría</div>
+    <div class="catRow"><div class="dot" style="background:${th.primary}"></div>
+      <div class="catN" style="color:${th.ink}">Mercado</div><div class="catP" style="color:${th.tint}">42%</div></div>
+    <div class="track" style="background:${th.border}"><div class="fill" style="width:42%;background:${th.tint}"></div></div>
+  </div>
+</div>`;
+
+const chips = (th, active) => `
+<div class="chips">
+  ${['Color','Fondo','Datos','Detalle'].map(n=>`
+    <div class="chip" style="border-color:${n===active?th.primary:th.border};background:${n===active?th.pill:'transparent'};
+      color:${n===active?th.tint:th.ink2}">${n}</div>`).join('')}
+</div>`;
+
+const shell = (th, inner, {title='Tu Spendia', sub='Cámbialo y míralo al instante'}={}) => `
+<div class="phone" style="background:${th.bg}">
+  <div class="status"></div>
+  <div class="hdr"><div style="font-size:19px;opacity:.75;color:${th.ink2}">‹</div></div>
+  <div class="ttl"><h3 style="color:${th.ink}">${title}</h3><p style="color:${th.ink2}">${sub}</p></div>
+  <div class="body">${inner}</div>
+</div>`;
+
+/* ══════ capítulos ══════ */
+const capColor = (th) => shell(th, `
+  ${canvasHome(th)}
+  ${chips(th,'Color')}
+  <div class="grpLbl" style="color:${th.ink3}">looks · paleta + fondo + gráfico</div>
+  <div class="lookStrip">
+    ${[['Deep Water',T.dwDark,'aurora',1],['Sunset',T.sunset,'waves',0],['Midnight',T.midnight,'stars',0]].map(([n,lt,k,on])=>`
+      <div class="look" style="border-color:${on?th.primary:th.border};background:${th.surface}">
+        <div class="lookPrev" style="background:linear-gradient(160deg,${lt.grad[0]},${lt.grad[1]} 55%,${lt.grad[2]})">
+          ${fx(lt,k)}
+          <div style="position:relative;z-index:2;font-size:10px;font-weight:800;color:${lt.ink}">$ 4.28M</div>
+          <div style="position:relative;z-index:2;margin-top:2px">${spark(lt.tint,lt.tertiary,20,'area')}</div>
+          ${on?`<div class="lookCheck" style="background:${th.primary};color:${th.onPrimary}">✓</div>`:''}
+        </div>
+        <div class="lookName" style="color:${on?th.tint:th.ink2}">${n}</div>
+      </div>`).join('')}
+    <div class="look" style="border-color:${th.border};background:${th.surface};width:76px">
+      <div class="lookPrev" style="display:flex;align-items:center;justify-content:center;background:${th.surface2}">
+        <span style="font-size:17px;color:${th.ink3}">✎</span></div>
+      <div class="lookName" style="color:${th.ink2}">A medida</div>
+    </div>
+  </div>
+  <div class="grpLbl" style="color:${th.ink3}">las 32 paletas</div>
+  <div class="palGrid">
+    ${D.all.slice(0,12).map((p,i)=>`
+      <div class="palCard" style="width:calc(16.66% - 6.7px);padding:7px 3px;background:${th.surface2};${i===0?`border-color:${th.primary}`:''}">
+        <div class="swRow">${p.preview.map(c=>`<div class="sw" style="width:15px;height:15px;background:${c};border-color:${th.surface2}"></div>`).join('')}</div>
+      </div>`).join('')}
+  </div>
+  <div class="hint" style="color:${th.ink3};margin-top:8px">Desliza para ver las 32 · toca para probarla arriba</div>
+`);
+
+const capFondo = (th) => shell(th, `
+  ${canvasHome(th,{h:196,focus:'bg'})}
+  ${chips(th,'Fondo')}
+  <div class="grpLbl" style="color:${th.ink3}">editando el modo</div>
+  <div class="seg" style="border-color:${th.border};background:${th.surface}">
+    <span style="background:${th.pill};color:${th.tint}">Oscuro</span><span style="color:${th.ink2}">Claro</span>
+  </div>
+  <div class="grpLbl" style="color:${th.ink3}">efecto</div>
+  <div class="bgGrid">
+    ${[['Aurora','aurora',1],['Ondas','waves',0],['Estrellas','stars',0],['Malla','grid',0],['Sin fondo','none',0]].map(([n,k,on])=>`
+      <div class="bgCard" style="background:${th.surface2};${on?`border-color:${th.primary}`:''}">
+        <div class="bgBox" style="background:${th.bg}">${k==='none'?`<div style="display:flex;height:100%;align-items:center;justify-content:center;color:${th.ink3};font-size:13px">✕</div>`:fx(th,k)}</div>
+        <div class="bgLbl" style="color:${on?th.tint:th.ink2}">${n}</div>
+      </div>`).join('')}
+    <div class="bgCard" style="background:${th.surface2};align-items:center;justify-content:center">
+      <div style="font-size:10px;color:${th.ink3};text-align:center;padding:14px 4px">+5 más</div></div>
+  </div>
+  <div class="grpLbl" style="color:${th.ink3}">intensidad</div>
+  <div class="seg" style="border-color:${th.border};background:${th.surface}">
+    <span style="color:${th.ink2}">Sutil</span><span style="background:${th.pill};color:${th.tint}">Media</span><span style="color:${th.ink2}">Intensa</span></div>
+  <div class="grpLbl" style="color:${th.ink3}">velocidad</div>
+  <div class="seg" style="border-color:${th.border};background:${th.surface}">
+    <span style="color:${th.ink2}">Lenta</span><span style="background:${th.pill};color:${th.tint}">Normal</span><span style="color:${th.ink2}">Rápida</span></div>
+`);
+
+const capDatos = (th) => shell(th, `
+  ${canvasHome(th,{h:196,chart:'bars',focus:'chart'})}
+  ${chips(th,'Datos')}
+  <div class="grpLbl" style="color:${th.ink3}">tipo de gráfico</div>
+  <div class="bgGrid">
+    ${[['Línea','line',0],['Barras','bars',1],['Área','area',0],['Puntos','dots',0]].map(([n,k,on])=>`
+      <div class="bgCard" style="width:calc(25% - 7px);background:${th.surface2};${on?`border-color:${th.primary}`:''}">
+        <div class="bgBox" style="height:40px;background:${th.bg};padding:5px">${spark(on?th.tint:th.ink3,th.tertiary,30,k)}</div>
+        <div class="bgLbl" style="color:${on?th.tint:th.ink2};font-size:9px">${n}</div></div>`).join('')}
+  </div>
+  <div class="grpLbl" style="color:${th.ink3}">animación</div>
+  <div class="seg" style="border-color:${th.border};background:${th.surface}">
+    <span style="background:${th.pill};color:${th.tint}">Pulso</span><span style="color:${th.ink2}">Trazo</span>
+    <span style="color:${th.ink2}">Marea</span><span style="color:${th.ink2}">Sin</span></div>
+  <div class="grpLbl" style="color:${th.ink3}">acento de la cifra</div>
+  <div class="hint" style="color:${th.ink3}">Cómo se colorean ingresos y gastos en los gráficos</div>
+  <div style="display:flex;gap:9px;flex-wrap:wrap">
+    ${[['Tema',[th.primary],1],['Éxito',[th.success],0],['Por signo',[th.success,th.error],0],['Dúo',[th.primary,th.tertiary],0]].map(([n,cs,on])=>`
+      <div style="width:calc(25% - 7px);display:flex;flex-direction:column;align-items:center;gap:5px">
+        <div style="width:38px;height:38px;border-radius:19px;border:2px solid ${on?th.primary:'transparent'};display:flex;overflow:hidden">
+          ${cs.map(c=>`<div style="flex:1;background:${c}"></div>`).join('')}</div>
+        <div style="font-size:9px;font-weight:600;color:${on?th.tint:th.ink2};text-align:center">${n}</div></div>`).join('')}
+  </div>
+`);
+
+const capDetalle = (th) => shell(th, `
+  ${canvasHome(th,{h:196,focus:'card'})}
+  ${chips(th,'Detalle')}
+  <div class="grpLbl" style="color:${th.ink3}">grosor de iconos</div>
+  <div style="display:flex;justify-content:space-around;padding:10px 0 4px">
+    ${['🏠','👛','💳','⭐','👤'].map(e=>`<span style="font-size:19px;opacity:.9">${e}</span>`).join('')}
+  </div>
+  <div class="seg" style="border-color:${th.border};background:${th.surface};margin-top:6px">
+    <span style="color:${th.ink2}">Fino</span><span style="background:${th.pill};color:${th.tint}">Normal</span><span style="color:${th.ink2}">Grueso</span></div>
+  <div style="margin-top:18px">
+    ${[['Brillo en tarjetas','Un barrido de luz al aparecer',1],['Confeti al cumplir racha','Cuando cierras una semana',0]].map(([l,s,on])=>`
+      <div class="rowItem" style="border-color:${th.border}">
+        <div class="riMeta"><div class="riL" style="color:${th.ink}">${l}</div><div class="riS" style="color:${th.ink3}">${s}</div></div>
+        <div class="swtch" style="background:${on?th.primary:th.border}"><i style="${on?'right:2.5px':'left:2.5px;opacity:.6'}"></i></div>
+      </div>`).join('')}
+  </div>
+  <div class="grpLbl" style="color:${th.ink3};margin-top:16px">lo que viene</div>
+  ${['Tipografía a elegir','Iconos de categoría a medida','Modo de alto contraste'].map(x=>`
+    <div style="display:flex;gap:8px;align-items:flex-start;margin-top:7px">
+      <span style="color:${th.ink3};font-size:11px">☆</span>
+      <span style="flex:1;font-size:12px;color:${th.ink2}">${x}</span></div>`).join('')}
+`);
+
+/* scroll: lienzo colapsado */
+const capScrolled = (th) => shell(th, `
+  <div class="collapsed" style="background:linear-gradient(120deg,${th.grad[0]},${th.grad[1]} 60%,${th.grad[2]});border:1px solid ${th.border}">
+    ${fx(th,'aurora')}
+    <div class="collAmt" style="color:${th.ink}">$ 4.28M</div>
+    <div class="collPill" style="background:${th.surface};color:${th.tint}">AURORA</div>
+    <div class="collPill" style="background:${th.surface};color:${th.ink2}">ÁREA</div>
+    <div class="expandBtn" style="background:${th.surface};color:${th.tint}">⌄</div>
+  </div>
+  ${chips(th,'Fondo')}
+  <div class="grpLbl" style="color:${th.ink3}">efecto</div>
+  <div class="bgGrid">
+    ${[['Aurora','aurora',1],['Ondas','waves',0],['Estrellas','stars',0],['Malla','grid',0],['Sin fondo','none',0],['Bokeh','aurora',0]].map(([n,k,on])=>`
+      <div class="bgCard" style="background:${th.surface2};${on?`border-color:${th.primary}`:''}">
+        <div class="bgBox" style="background:${th.bg}">${k==='none'?`<div style="display:flex;height:100%;align-items:center;justify-content:center;color:${th.ink3};font-size:13px">✕</div>`:fx(th,k)}</div>
+        <div class="bgLbl" style="color:${on?th.tint:th.ink2}">${n}</div></div>`).join('')}
+  </div>
+  <div class="grpLbl" style="color:${th.ink3}">intensidad</div>
+  <div class="seg" style="border-color:${th.border};background:${th.surface}">
+    <span style="color:${th.ink2}">Sutil</span><span style="background:${th.pill};color:${th.tint}">Media</span><span style="color:${th.ink2}">Intensa</span></div>
+  <div class="grpLbl" style="color:${th.ink3}">velocidad</div>
+  <div class="seg" style="border-color:${th.border};background:${th.surface}">
+    <span style="color:${th.ink2}">Lenta</span><span style="background:${th.pill};color:${th.tint}">Normal</span><span style="color:${th.ink2}">Rápida</span></div>
+`, {title:'Tu Spendia', sub:'Al bajar, el lienzo se hace barra'});
+
+/* variantes del lienzo */
+const varHome = (th) => shell(th, `${canvasHome(th)}${chips(th,'Color')}
+  <div class="grpLbl" style="color:${th.ink3}">las 32 paletas</div>
+  <div class="palGrid">${D.all.slice(0,6).map((p,i)=>`
+    <div class="palCard" style="width:calc(33.33% - 5.4px);padding:9px 5px;background:${th.surface2};${i===0?`border-color:${th.primary}`:''}">
+      <div class="swRow">${p.preview.map(c=>`<div class="sw" style="width:21px;height:21px;background:${c};border-color:${th.surface2}"></div>`).join('')}</div>
+      <div class="palName" style="color:${i===0?th.tint:th.ink2}">${p.id.replace(/([A-Z])/g,' $1')}</div></div>`).join('')}</div>`,
+  {sub:'A1 · el lienzo ES la pantalla'});
+const varDevice = (th) => shell(th, `${canvasDevice(th)}${chips(th,'Color')}
+  <div class="grpLbl" style="color:${th.ink3}">las 32 paletas</div>
+  <div class="palGrid">${D.all.slice(0,6).map((p,i)=>`
+    <div class="palCard" style="width:calc(33.33% - 5.4px);padding:9px 5px;background:${th.surface2};${i===0?`border-color:${th.primary}`:''}">
+      <div class="swRow">${p.preview.map(c=>`<div class="sw" style="width:21px;height:21px;background:${c};border-color:${th.surface2}"></div>`).join('')}</div>
+      <div class="palName" style="color:${i===0?th.tint:th.ink2}">${p.id.replace(/([A-Z])/g,' $1')}</div></div>`).join('')}</div>`,
+  {sub:'A2 · un teléfono dentro del teléfono'});
+const varSwitch = (th) => shell(th, `${canvasSwitch(th,{view:'hist'})}${chips(th,'Color')}
+  <div class="grpLbl" style="color:${th.ink3}">las 32 paletas</div>
+  <div class="palGrid">${D.all.slice(0,6).map((p,i)=>`
+    <div class="palCard" style="width:calc(33.33% - 5.4px);padding:9px 5px;background:${th.surface2};${i===0?`border-color:${th.primary}`:''}">
+      <div class="swRow">${p.preview.map(c=>`<div class="sw" style="width:21px;height:21px;background:${c};border-color:${th.surface2}"></div>`).join('')}</div>
+      <div class="palName" style="color:${i===0?th.tint:th.ink2}">${p.id.replace(/([A-Z])/g,' $1')}</div></div>`).join('')}</div>`,
+  {sub:'A3 · el lienzo cambia de pantalla'});
+
+const R = (title,color,sub,html) => `<div class="col"><div class="tag" style="color:${color}">${title}</div><div class="tagsub">${sub}</div>${html}</div>`;
+
+document.getElementById('root').innerHTML = `
+  <h1>Dirección A, afinada</h1>
+  <p class="lede">El lienzo vivo es el héroe y los 12 ajustes viven en cuatro capítulos. Aquí están las tres formas posibles del lienzo, los cuatro capítulos por dentro, qué pasa al bajar y cómo queda en claro. Sigue sin implementarse nada.</p>
+
+  <h2>1 · Qué forma tiene el lienzo</h2>
+  <div class="h2sub">La decisión más importante de la dirección: es lo que vas a estar mirando mientras tocas. Las tres muestran el mismo tema (Deep Water · Aurora).</div>
+  <div class="row">
+    ${R('A1 · Home a tamaño real','#00d6b4','El lienzo ES tu Home: mismo saldo, mismo gráfico, misma tarjeta. Sin marco, a sangre.', varHome(T.dwDark))}
+    ${R('A2 · Mini dispositivo','#FBBF24','Un teléfono dentro del teléfono, con marco y nombre del tema debajo.', varDevice(T.dwDark))}
+    ${R('A3 · Lienzo conmutable','#a78bfa','Como A1, pero con pestañas para ver el tema aplicado a Inicio, Historial o Metas.', varSwitch(T.dwDark))}
+  </div>
+  <table>
+    <tr><th style="width:60px">Var</th><th>Juicio</th></tr>
+    <tr><td class="win">A1</td><td><span class="win">Recomendada.</span> A tamaño real el fondo se ve como se va a ver, el saldo tiene el peso que tiene y la tarjeta cabe con su brillo. Sin marco no se lee como "una demo": se lee como tu app.</td></tr>
+    <tr><td class="meh">A2</td><td>Bonita y muy "de catálogo", pero a 132 px el fondo animado y el brillo de la tarjeta <strong>dejan de distinguirse</strong> — justo lo que vienes a decidir. Sirve para vender el módulo en una captura, no para elegir.</td></tr>
+    <tr><td class="meh">A3</td><td>Es la más completa y la única que enseña que el tema afecta a TODA la app. Coste: tres maquetas que mantener sincronizadas con tres pantallas reales, y unas pestañas que compiten con los capítulos de abajo (dos filas de pestañas en una pantalla). <strong>Candidata a fase 2.</strong></td></tr>
+  </table>
+  <div class="note"><strong>Síntesis:</strong> A1 como lienzo, y de A3 se guarda la idea para más adelante: un pequeño conmutador <em>Inicio / Historial</em> cuando el módulo ya esté asentado.</div>
+
+  <h2>2 · Los cuatro capítulos por dentro</h2>
+  <div class="h2sub">Mismos 12 ajustes de hoy, repartidos. El lienzo se encoge de 292 a 196 px cuando el capítulo trae más controles — y al encogerse <strong>no recorta: cambia lo que muestra</strong>. En Fondo enseña el fondo con el saldo encima; en Datos agranda el gráfico al doble; en Detalle deja la tarjeta con su brillo, que es lo que se está tocando.</div>
+  <div class="row">
+    ${R('Color','#00BCD4','Looks arriba (paleta + fondo + gráfico de un toque) y las 32 paletas en rejilla de 6. “A medida” aparece en cuanto tocas un ajuste fino.', capColor(T.dwDark))}
+    ${R('Fondo','#00BCD4','Qué modo estás editando, los 10 efectos con su preview real, intensidad y velocidad.', capFondo(T.dwDark))}
+    ${R('Datos','#00BCD4','Tipo de gráfico con su forma real, animación, y el acento con muestras de dos colores para “por signo”.', capDatos(T.dwDark))}
+    ${R('Detalle','#00BCD4','Grosor de iconos con la fila de iconos reales, los dos interruptores y el roadmap al final.', capDetalle(T.dwDark))}
+  </div>
+
+  <h2>3 · Al bajar, y en claro</h2>
+  <div class="h2sub">Con 10 efectos en pantalla hay scroll. El lienzo no desaparece: se convierte en una barra de 64 px que sigue mostrando el tema y se puede volver a abrir.</div>
+  <div class="row">
+    ${R('Scroll · lienzo colapsado','#D4E157','64 px con el saldo, dos píldoras de estado y el botón para volver a desplegarlo.', capScrolled(T.dwDark))}
+    ${R('Capítulo Color · modo claro','#D4E157','El mismo capítulo con la paleta en su variante clara.', capColor(T.dwLight))}
+    ${R('Otra paleta · Sunset','#D4E157','El lienzo con Sunset y fondo de ondas: la pantalla entera cambia de temperatura.', shell(T.sunset, `${canvasHome(T.sunset,{kind:'waves'})}${chips(T.sunset,'Color')}
+      <div class="grpLbl" style="color:${T.sunset.ink3}">las 32 paletas</div>
+      <div class="palGrid">${D.all.slice(0,6).map((p,i)=>`
+        <div class="palCard" style="width:calc(33.33% - 5.4px);padding:9px 5px;background:${T.sunset.surface2};${i===1?`border-color:${T.sunset.primary}`:''}">
+          <div class="swRow">${p.preview.map(c=>`<div class="sw" style="width:21px;height:21px;background:${c};border-color:${T.sunset.surface2}"></div>`).join('')}</div>
+          <div class="palName" style="color:${i===1?T.sunset.tint:T.sunset.ink2}">${p.id.replace(/([A-Z])/g,' $1')}</div></div>`).join('')}</div>`,
+      {sub:'Sunset · ondas'}))}
+  </div>
+
+  <h2>4 · Lo que queda decidido</h2>
+  <ul>
+    <li><strong>Lienzo A1</strong> a tamaño real: 292 px en Color y 196 px en los demás, colapsable a 64 px al bajar. Al encogerse cambia de contenido en vez de recortarlo — cada capítulo ve la pieza que está tocando.</li>
+    <li><strong>Cuatro capítulos</strong> en este orden: Color · Fondo · Datos · Detalle. El orden no es alfabético ni casual: va del cambio más notorio al más fino.</li>
+    <li><strong>Looks</strong> solo dentro de Color, con “A medida” como estado cuando tocas cualquier ajuste suelto.</li>
+    <li><strong>Motion</strong>: cambio de capítulo = desplazamiento horizontal de 150 ms con <code>cubic-bezier(.23,1,.32,1)</code>; el colapso del lienzo sigue al scroll (sin animación propia); el lienzo <strong>no</strong> se reanima al cambiar de capítulo, solo cuando cambia lo que muestra.</li>
+    <li><strong>Reutiliza lo que existe</strong>: <code>BackgroundEffect</code>, <code>Sparkline</code>, la tarjeta de <code>CardEffectPreview</code> y <code>PaletteGrid</code> (adaptado a rejilla de 6). No hay componentes nuevos de fondo ni de gráfico.</li>
+    <li><strong>Un solo efecto animado a la vez</strong> en vez de los 10 previews simultáneos de hoy: es una mejora de rendimiento, no un coste.</li>
+  </ul>
+  <div class="ask"><strong>Tres cosas que decides tú:</strong><br>
+    1. ¿Lienzo A1 a secas, o quieres el conmutador Inicio/Historial de A3 desde el principio?<br>
+    2. Los <strong>looks</strong>: ¿cuántos y con qué nombres? Los del mockup (Deep Water, Sunset, Midnight, Mint) son las paletas; podrían ser combinaciones con nombre propio.<br>
+    3. El capítulo <strong>Detalle</strong> incluye el roadmap (“lo que viene”). ¿Se queda ahí o se va del módulo?</div>
+
+  <footer>Spendia · equipo visual · 2026-08-03 — paletas, gradientes y blobs desde <code>config/palettes.ts</code>; tintas desde <code>utils/contrast.ts</code>. Cero código de la app modificado.</footer>`;
+</script>

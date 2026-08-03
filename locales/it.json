@@ -322,8 +322,17 @@
         "classic": "Classiche",
         "pastel": "Pastello",
         "new": "Nuove",
-        "newPastel": "Nuove Pastello"
-      }
+        "newPastel": "Nuove Pastello",
+        "bold": "Carattere"
+      },
+      "citrus": "Agrumi",
+      "graphite": "Grafite",
+      "wine": "Vino",
+      "arctic": "Artico",
+      "jade": "Giada",
+      "sandstone": "Arenaria",
+      "neon": "Neon",
+      "moss": "Muschio"
     },
     "notifications": {
       "label": "Notifiche",

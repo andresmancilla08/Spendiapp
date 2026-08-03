@@ -1,0 +1,89 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Metas · acciones de la tarjeta — propuestas y veredicto</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --cian:#00BCD4; --lima:#D4E157; --ink:#EEF6F8; --ink2:#9EABAF; --ink3:#7f9297; --bg:#05090a; --panel:#0e1a1c; --border:#1e2b2e; --err:#F87171; --warn:#FBBF24; --ok:#00A896; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:Montserrat,sans-serif;padding:40px 32px 80px;line-height:1.5}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.7px}
+  .lede{color:var(--ink2);font-size:15px;margin-top:8px;max-width:70ch}
+  h2{font-size:12px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--cian);margin:44px 0 14px;padding-top:20px;border-top:1px solid var(--border)}
+  h3{font-size:16px;font-weight:700;margin:22px 0 6px}
+  p{font-size:14px;color:var(--ink2);max-width:80ch}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#152125;padding:1px 6px;border-radius:5px;color:#bfe9ef}
+  table{border-collapse:collapse;width:100%;margin-top:12px;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink3);font-weight:700}
+  td strong{color:var(--ink)}
+  .v{font-size:15px;white-space:nowrap}
+  ul{margin:8px 0 0 18px;font-size:14px;color:var(--ink2)} li{margin:5px 0}
+  iframe{width:100%;border:1px solid var(--border);border-radius:16px;background:var(--panel);margin-top:14px}
+  .note{border-left:3px solid var(--cian);background:#0d1a1d;padding:12px 16px;border-radius:0 10px 10px 0;margin-top:16px;font-size:13.5px;color:var(--ink2)}
+  .win{color:var(--ok);font-weight:700}
+  .kill{color:var(--err);font-weight:700}
+  .meh{color:var(--warn);font-weight:700}
+  footer{margin-top:52px;padding-top:18px;border-top:1px solid var(--border);color:var(--ink3);font-size:12px}
+</style>
+<div class="wrap">
+  <h1>Metas · dónde viven las acciones</h1>
+  <p class="lede">Cuatro direcciones renderizadas, el veredicto y la matriz de estados de la que ganó. Todo con los tokens reales de la paleta del usuario: los colores de estos mockups los calcula el mismo código que pinta la app.</p>
+
+  <h2>El problema</h2>
+  <ul>
+    <li><strong>Eliminar</strong> existía solo como <code>onLongPress</code> sobre la tarjeta (<code>app/goals.tsx:90</code>): invisible, y en la PWA de iOS lo intercepta Safari.</li>
+    <li><strong>Editar no existía</strong>: <code>useGoals</code> no tenía <code>updateGoal</code>.</li>
+    <li>Una meta <strong>cumplida</strong> no permitía ninguna acción.</li>
+    <li>Las reglas de Firestore sí permitían todo (<code>firestore.rules:159</code>) — no era permisos.</li>
+  </ul>
+
+  <h2>1 · Las cuatro direcciones</h2>
+  <p>De izquierda a derecha: el estado de hoy, y luego A, B, C y D. Abajo, las mismas en modo claro.</p>
+  <iframe src="metas-propuestas-direcciones.html" height="1500" loading="lazy" title="Cuatro direcciones"></iframe>
+
+  <h2>2 · Veredicto</h2>
+  <table>
+    <tr><th style="width:52px">Dir</th><th style="width:210px">Qué proponía</th><th>Juicio</th></tr>
+    <tr>
+      <td class="v kill">A</td>
+      <td><strong>Fila estilo <code>cards.tsx</code></strong><br>lápiz + papelera a la derecha</td>
+      <td><span class="kill">Muerta.</span> Los dos íconos ocupan exactamente el sitio de las cifras: una tarjeta de <em>dinero</em> se queda sin el dinero, solo con <code>62%</code>. Y mete tres áreas táctiles en 68 px de alto.</td>
+    </tr>
+    <tr>
+      <td class="v meh">B</td>
+      <td><strong>CTA “Aportar” + menú ⋯</strong></td>
+      <td><span class="meh">Descartada, con dos injertos.</span> Descubribilidad perfecta, pero el pill cian repetido en seis filas es ruido y también sacrifica las cifras. Me quedé con su subtítulo <em>“faltan $X”</em> (mejor dato que el objetivo crudo) y el badge <strong>LOGRADA</strong>.</td>
+    </tr>
+    <tr>
+      <td class="v win">C</td>
+      <td><strong>Toque → hoja de la meta</strong><br>la lista solo informa</td>
+      <td><span class="win">Gana.</span> La lista queda limpia y <strong>conserva las cifras</strong>, con chevron como affordance. Una sola hoja resuelve aportar, editar, eliminar y reabrir. Es el patrón <code>transaction-detail</code> que la app ya usa.</td>
+    </tr>
+    <tr>
+      <td class="v kill">D</td>
+      <td><strong>Aporte inline</strong><br>chips de monto en la lista</td>
+      <td><span class="kill">Muerta.</span> Rompe el ritmo de la lista y deja editar/eliminar igual de escondidos en un ⋯.</td>
+    </tr>
+  </table>
+  <div class="note"><strong>Swipe-to-delete no se consideró:</strong> regla dura de <code>ux-guidelines.csv#24</code> — nada de gestos horizontales sobre el contenido principal, entran en conflicto con los del sistema.</div>
+  <div class="note"><strong>El momento que cuesta caro:</strong> el chip <strong>“Completar”</strong> de la hoja aporta el importe exacto que falta y cierra la meta sin que el usuario calcule nada.</div>
+
+  <h2>3 · La elegida, estado por estado</h2>
+  <p>Lista en oscuro, en claro y en la paleta <em>sunset</em>; hoja en reposo, con el chip activo, aportando (loading) y cumplida; y las dos últimas a 320 px con nombre y cifras largas.</p>
+  <iframe src="metas-propuestas-estados.html" height="1760" loading="lazy" title="Matriz de estados"></iframe>
+
+  <h2>4 · Lo que cazó el gate de contraste</h2>
+  <p><code>npx tsx utils/goalsContrast.test.ts</code> mide 832 pares en las 32 paletas × claro/oscuro, incluido el estado activo del chip. Encontró 127 por debajo del mínimo:</p>
+  <table>
+    <tr><th style="width:230px">Pieza</th><th style="width:120px">Medido</th><th>Corrección</th></tr>
+    <tr><td><strong>Badge “LOGRADA”</strong></td><td>gris <code>#9EABAF</code></td><td><code>accentInk</code> cae a <code>textSecondary</code> cuando el token no llega al ratio: el verde de logro desaparecía en oscuro. Ahora <code>readableTint</code>, que conserva el tono.</td></tr>
+    <tr><td><strong>Ícono de editar</strong></td><td>1,70:1</td><td>La tinta se medía contra la superficie, no contra su propia pastilla al 12%.</td></tr>
+    <tr><td><strong>Barra de progreso</strong> (sunset claro)</td><td>1,65:1</td><td>El ámbar de marca no se veía sobre el carril: se tinta hasta 2,5:1.</td></tr>
+    <tr><td><strong>Texto del CTA</strong></td><td>2,30:1</td><td>No hereda el <code>onPrimary: #FFFFFF</code> global (deuda ya documentada): usa <code>inkOnFill</code>.</td></tr>
+    <tr><td><strong>Carril de progreso</strong></td><td>—</td><td>Fuera el <code>#E5E7EB</code> quemado que ignoraba paleta y modo oscuro.</td></tr>
+  </table>
+  <p style="margin-top:14px">Y mirando la matriz a 320 px: con un nombre largo y siete dígitos <strong>el chevron se salía de la tarjeta</strong> → las cifras bajaron a su propia línea. Los botones ícono son 44×44 reales con la pastilla de 36 dentro (el patrón de <code>cards.tsx</code> se queda en 34 sin <code>hitSlop</code>).</p>
+
+  <footer>Spendia · equipo visual · 2026-08-03 — mockups alimentados por <code>utils/contrast.ts</code> y <code>config/palettes.ts</code></footer>
+</div>

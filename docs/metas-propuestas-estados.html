@@ -1,0 +1,147 @@
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#05090a;font-family:Montserrat,sans-serif;padding:24px;color:#EEF6F8}
+  .grid{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+  .col{width:360px}
+  .col.narrow{width:320px}
+  h2{font-size:11px;letter-spacing:1.3px;font-weight:800;text-transform:uppercase;color:#00BCD4;margin-bottom:6px}
+  h2 small{display:block;font-size:10px;letter-spacing:0;font-weight:500;color:#7f9297;text-transform:none;margin-top:2px}
+  .phone{border-radius:22px;padding:16px;border:1px solid #1e2b2e}
+  /* tarjeta — medidas exactas del código */
+  .card{border-radius:14px;margin-bottom:10px;border-width:1px;border-style:solid;display:flex;overflow:hidden}
+  .accent{width:4px}
+  .inner{flex:1;padding:14px}
+  .top{display:flex;align-items:center;gap:10px}
+  .emojiWrap{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .emojiWrap span{font-size:22px}
+  .meta{flex:1;min-width:0}
+  .name{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pct{font-size:11.5px;font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .amts{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0}
+  .saved{font-size:14px;font-weight:700;letter-spacing:-.2px;white-space:nowrap}
+  .target{font-size:10.5px;font-weight:400;margin-top:1px;white-space:nowrap}
+  .badge{display:inline-flex;flex-shrink:0;align-items:center;gap:3px;height:20px;padding:0 7px;border-radius:10px;margin-top:4px}
+  .badge span{font-size:9px;font-weight:700;letter-spacing:.7px}
+  .track{height:6px;border-radius:3px;overflow:hidden;margin-top:8px}
+  .fill{height:6px;border-radius:3px}
+  .chev{flex-shrink:0;opacity:.9}
+  .stats{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+  /* hoja */
+  .sheetWrap{border-radius:22px;overflow:hidden;position:relative;padding-top:70px}
+  .sheet{border-top-left-radius:24px;border-top-right-radius:24px;padding:12px 20px 34px}
+  .handle{width:36px;height:4px;border-radius:2px;margin:0 auto 12px}
+  .head{display:flex;align-items:center;gap:4px}
+  .headEmoji{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-right:8px;flex-shrink:0}
+  .headEmoji span{font-size:24px}
+  .headMeta{flex:1;min-width:0}
+  .title{font-size:17px;font-weight:800;letter-spacing:-.3px}
+  .sub{font-size:12px;font-weight:400;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .iconTap{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .iconBox{width:36px;height:36px;border-radius:18px;display:flex;align-items:center;justify-content:center}
+  .strack{height:6px;border-radius:3px;overflow:hidden;margin-top:18px}
+  .amtRow{display:flex;align-items:baseline;gap:5px;margin-top:8px}
+  .sSaved{font-size:16px;font-weight:800;letter-spacing:-.3px}
+  .sTarget{font-size:12px}
+  .label{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;margin:20px 0 8px}
+  .input{height:54px;border-radius:14px;border-width:1.5px;border-style:solid;padding:0 16px;display:flex;align-items:center;font-size:20px;font-weight:700;letter-spacing:-.3px}
+  .chips{display:flex;gap:8px;margin-top:10px}
+  .chip{flex:1;height:44px;border-radius:50px;border-width:1.5px;border-style:solid;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;padding:0 6px;white-space:nowrap}
+  .cta{height:54px;border-radius:50px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:700;margin-top:20px}
+  .cta2{height:52px;border-radius:50px;border-width:1.5px;border-style:solid;display:flex;align-items:center;justify-content:center;gap:9px;font-size:14.5px;font-weight:700;margin-top:20px}
+  .doneAt{font-size:12px;margin-top:14px;text-align:center}
+  .dim{opacity:.45}
+  .spin{width:17px;height:17px;border-radius:50%;border:2px solid currentColor;border-top-color:transparent}
+</style>
+<body><div id="root"></div>
+<script>
+const T = {"dark":{"surface":"#162428","background":"#0D1A1C","border":"#243438","surface2":"#1E2E32","ink":"#EEF6F8","ink2":"#9EABAF","ink3":"#93A6AB","accent":"#00BCD4","success":"#00A896","accentText":"#00bcd4","successText":"#00a896","track":"#2c393d","fill":"#00bcd4","fillDone":"#00a896","badgeBg":"#133435","badgeInk":"#0dac9b","chipOn":"#143035","chipOnInk":"#00bcd4","editBg":"#13363c","editInk":"#00bcd4","delBg":"#312d31","delInk":"#f87171","cta":"#00BCD4","ctaInk":"#000000","input":"#1A2C30","emojiBg":"#13363c","emojiBgDone":"#133435"},"light":{"surface":"#FFFFFF","background":"#FFFFFF","border":"#DDE8EA","surface2":"#EEF4F5","ink":"#1A2428","ink2":"#6B7280","ink3":"#6E737C","accent":"#00ACC1","success":"#00897B","accentText":"#008191","successText":"#008275","track":"#DDE8EA","fill":"#009bae","fillDone":"#00897b","badgeBg":"#e1f1ef","badgeInk":"#007469","chipOn":"#ebf8fa","chipOnInk":"#007887","editBg":"#e1f5f8","editInk":"#0092a4","delBg":"#fde9e9","delInk":"#ef4444","cta":"#00ACC1","ctaInk":"#1A2428","input":"#F5F9FA","emojiBg":"#e1f5f8","emojiBgDone":"#e1f1ef"},"sunset":{"surface":"#FFFFFF","background":"#FFFFFF","border":"#F0E0C4","surface2":"#FEF9EC","ink":"#27180A","ink2":"#6B7280","ink3":"#6E737C","accent":"#F59E0B","success":"#16A34A","accentText":"#9f6707","successText":"#12823b","track":"#F0E0C4","fill":"#c47e09","fillDone":"#16a34a","badgeBg":"#e4f4ea","badgeInk":"#117a38","chipOn":"#fef7ec","chipOnInk":"#935f07","editBg":"#fef4e2","editInk":"#c47e09","delBg":"#fde9e9","delInk":"#ef4444","cta":"#F59E0B","ctaInk":"#27180A","input":"#FFFBF0","emojiBg":"#fef4e2","emojiBgDone":"#e4f4ea"}};
+const I = {
+  pencil:`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.828 2.828 0 1 0-4-4L4 16v4"/><path d="M13.5 6.5l4 4"/></svg>`,
+  trash:`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>`,
+  plus:`<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  chev:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`,
+  check:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`,
+  refresh:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg>`,
+};
+
+function card(k, {name='Viaje a Japón', emoji='✈️', pct=62, saved='$ 1.860.000', target='$ 3.000.000', rem='$ 1.140.000', done=false, pressed=false}={}) {
+  const c = T[k];
+  const acc = done ? c.success : c.accent, accTxt = done ? c.successText : c.accentText;
+  const fill = done ? c.fillDone : c.fill;
+  return `<div class="card" style="background:${c.surface};border-color:${c.border};opacity:${pressed?0.75:1}">
+    <div class="accent" style="background:${acc}"></div>
+    <div class="inner">
+      <div class="top">
+        <div class="emojiWrap" style="background:${done?c.emojiBgDone:c.emojiBg};box-shadow:0 0 16px ${acc}44"><span>${emoji}</span></div>
+        <div class="name" style="color:${c.ink};flex:1;min-width:0">${name}</div>
+        <div class="chev" style="color:${c.ink3}">${I.chev}</div>
+      </div>
+      <div class="stats">
+        ${done
+          ? `<div class="badge" style="background:${c.badgeBg};color:${c.badgeInk}">${I.check}<span>LOGRADA</span></div>`
+          : `<div class="pct" style="color:${c.ink2};flex:1;min-width:0">${pct}% · faltan ${rem}</div>`}
+        <div class="saved" style="color:${accTxt};flex-shrink:0">${saved}</div>
+      </div>
+      <div class="track" style="background:${c.track}"><div class="fill" style="width:${done?100:pct}%;background:${fill}"></div></div>
+    </div></div>`;
+}
+
+function sheet(k, {state='idle'}={}) {
+  const c = T[k];
+  const done = state === 'done';
+  const acc = done ? c.success : c.accent, accTxt = done ? c.successText : c.accentText;
+  const filled = state === 'filled' || state === 'busy';
+  const amount = filled ? '1.140.000' : '';
+  return `<div class="sheetWrap" style="background:${c.background}">
+    <div class="sheet" style="background:${c.surface}">
+      <div class="handle" style="background:${c.border}"></div>
+      <div class="head">
+        <div class="headEmoji" style="background:${done?c.emojiBgDone:c.emojiBg}"><span>${done?'🏝️':'✈️'}</span></div>
+        <div class="headMeta">
+          <div class="title" style="color:${c.ink}">${done?'Mi meta cumplida':'Viaje a Japón'}</div>
+          <div class="sub" style="color:${c.ink2}">${done?'Meta cumplida · 100%':'Faltan $ 1.140.000 · 62%'}</div>
+        </div>
+        <div class="iconTap"><div class="iconBox" style="background:${c.editBg};color:${c.editInk}">${I.pencil}</div></div>
+        <div class="iconTap"><div class="iconBox" style="background:${c.delBg};color:${c.delInk}">${I.trash}</div></div>
+      </div>
+      <div class="strack" style="background:${c.track}"><div class="fill" style="width:${done?100:62}%;background:${done?c.fillDone:c.fill}"></div></div>
+      <div class="amtRow"><div class="sSaved" style="color:${accTxt}">${done?'$ 800.000':'$ 1.860.000'}</div>
+        <div class="sTarget" style="color:${c.ink3}">de ${done?'$ 800.000':'$ 3.000.000'}</div></div>
+      ${done ? `
+        <div class="doneAt" style="color:${c.ink3}">Lograda el 14 de julio de 2026</div>
+        <div class="cta2" style="border-color:${c.accent};color:${c.accentText};background:${c.surface}">${I.refresh} Reabrir meta</div>
+      ` : `
+        <div class="label" style="color:${c.ink3}">Cuánto aportas</div>
+        <div class="input" style="border-color:${filled?c.accent:c.border};background:${c.input};color:${amount?c.ink:c.ink3}">${amount||'0'}</div>
+        <div class="chips">
+          <div class="chip" style="border-color:${c.border};background:${c.surface2};color:${c.ink}">+ $ 114.000</div>
+          <div class="chip" style="border-color:${c.border};background:${c.surface2};color:${c.ink}">+ $ 285.000</div>
+          <div class="chip" style="border-color:${filled?c.accent:c.border};background:${filled?c.chipOn:c.surface2};color:${filled?c.chipOnInk:c.ink}">Completar</div>
+        </div>
+        <div class="cta ${filled?'':'dim'}" style="background:${c.cta};color:${c.ctaInk}">
+          ${state==='busy' ? '<div class="spin"></div>' : I.plus} ${filled?'Aportar $ 1.140.000':'Aportar a la meta'}</div>
+      `}
+    </div></div>`;
+}
+
+const cols = [
+  ['1 · Lista oscuro<small>activa + completada</small>', `<div class="phone" style="background:${T.dark.background}">${card('dark')}${card('dark',{name:'Mi meta cumplida',emoji:'🏝️',done:true,saved:'$ 800.000',target:'$ 800.000'})}${card('dark',{name:'Fondo de emergencia',emoji:'🛟',pct:38,saved:'$ 1.900.000',target:'$ 5.000.000',rem:'$ 3.100.000'})}</div>`],
+  ['2 · Lista claro<small>mismos estados</small>', `<div class="phone" style="background:${T.light.background}">${card('light')}${card('light',{name:'Mi meta cumplida',emoji:'🏝️',done:true,saved:'$ 800.000',target:'$ 800.000'})}${card('light',{name:'Fondo de emergencia',emoji:'🛟',pct:38,saved:'$ 1.900.000',target:'$ 5.000.000',rem:'$ 3.100.000'})}</div>`],
+  ['3 · Sunset claro + press<small>barra tintada 2,5:1</small>', `<div class="phone" style="background:${T.sunset.background}">${card('sunset')}${card('sunset',{pressed:true,name:'Estado pressed'})}${card('sunset',{name:'Mi meta cumplida',emoji:'🏝️',done:true,saved:'$ 800.000',target:'$ 800.000'})}</div>`],
+  ['4 · Hoja · activa (idle)<small>CTA deshabilitado</small>', sheet('dark',{state:'idle'})],
+  ['5 · Hoja · chip ACTIVO<small>Completar seleccionado</small>', sheet('dark',{state:'filled'})],
+  ['6 · Hoja · aportando<small>loading</small>', sheet('dark',{state:'busy'})],
+  ['7 · Hoja · cumplida<small>fecha + reabrir</small>', sheet('dark',{state:'done'})],
+  ['8 · Hoja claro · chip activo', sheet('light',{state:'filled'})],
+  ['9 · Hoja cumplida claro', sheet('light',{state:'done'})],
+];
+const narrow = [
+  ['10 · 320px · nombre y cifras largas<small>sin overflow</small>', `<div class="phone" style="background:${T.dark.background}">${card('dark',{name:'Reforma completa de la cocina',saved:'$ 12.860.000',target:'$ 45.000.000',rem:'$ 32.140.000',pct:28})}${card('dark',{name:'Obiettivo raggiunto molto lungo',emoji:'🏝️',done:true,saved:'$ 9.999.999',target:'$ 9.999.999'})}</div>`],
+  ['11 · 320px · hoja', sheet('dark',{state:'filled'})],
+];
+document.getElementById('root').innerHTML = '<div class="grid">' +
+  cols.map(([t,h])=>`<div class="col"><h2>${t}</h2>${h}</div>`).join('') +
+  narrow.map(([t,h])=>`<div class="col narrow"><h2 style="color:#D4E157">${t}</h2>${h}</div>`).join('') + '</div>';
+</script>

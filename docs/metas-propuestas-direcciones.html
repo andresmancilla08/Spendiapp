@@ -1,0 +1,182 @@
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#00BCD4; --primaryLight:#003840; --tertiary:#D4E157; --success:#00A896;
+    --bg:#0D1A1C; --bg2:#111F22; --surface:#162428; --surface2:#1E2E32;
+    --ink:#EEF6F8; --ink2:#9EABAF; --ink3:#93A6AB; --border:#243438;
+    --error:#F87171; --errorLight:#3D1515;
+  }
+  .light{
+    --primary:#00ACC1; --primaryLight:#E0F7FA; --tertiary:#C0CA33; --success:#00897B;
+    --bg:#FFFFFF; --bg2:#F0F7F8; --surface:#FFFFFF; --surface2:#EEF4F5;
+    --ink:#1A2428; --ink2:#6B7280; --ink3:#6E737C; --border:#DDE8EA;
+    --error:#EF4444; --errorLight:#FEE2E2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#05090a;font-family:Montserrat,sans-serif;padding:28px;color:#EEF6F8}
+  .grid{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+  .col{width:390px}
+  .phone{background:var(--bg);border:1px solid var(--border);border-radius:22px;padding:16px;min-height:120px}
+  h2{font-size:12px;letter-spacing:1.4px;font-weight:800;text-transform:uppercase;margin:0 0 4px;color:#00BCD4}
+  h2 small{display:block;font-size:10.5px;letter-spacing:0;font-weight:500;color:#7f9297;text-transform:none;margin-top:3px}
+  .tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.8px;padding:2px 7px;border-radius:6px;margin-bottom:8px}
+
+  /* ── tarjeta base (la de hoy) ── */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;display:flex;overflow:hidden;margin-bottom:10px}
+  .accent{width:4px;background:var(--primary)}
+  .inner{flex:1;padding:14px}
+  .top{display:flex;align-items:center;gap:10px}
+  .emoji{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;
+         background:color-mix(in srgb, var(--primary) 12%, transparent);box-shadow:0 0 16px color-mix(in srgb,var(--primary) 27%,transparent)}
+  .meta{flex:1;min-width:0}
+  .name{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pct{font-size:11px;font-weight:500;color:var(--primary);margin-top:2px}
+  .amounts{display:flex;align-items:baseline}
+  .saved{font-size:12px;font-weight:700;color:var(--primary)}
+  .target{font-size:11px;color:var(--ink3)}
+  .track{height:6px;border-radius:3px;background:color-mix(in srgb,var(--ink) 10%,transparent);margin-top:8px;overflow:hidden}
+  .fill{height:6px;border-radius:3px;background:var(--primary)}
+
+  /* ── botones ── */
+  .act{display:flex;align-items:center;gap:8px}
+  .ibtn{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative}
+  .ibtn .box{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+  .ibtn.small .box{width:36px;height:36px;border-radius:18px}
+  svg{display:block}
+  .pill{height:36px;border-radius:50px;background:var(--primary);display:flex;align-items:center;gap:6px;padding:0 14px;
+        font-size:12.5px;font-weight:700;color:#fff}
+  .pill.ghost{background:color-mix(in srgb,var(--primary) 14%,transparent);color:var(--primary);border:1.5px solid color-mix(in srgb,var(--primary) 45%,transparent)}
+  .chev{color:var(--ink3)}
+
+  /* ── hoja inferior ── */
+  .sheet{background:var(--bg);border:1px solid var(--border);border-top-left-radius:24px;border-top-right-radius:24px;padding:10px 18px 20px;margin-top:10px}
+  .grab{width:38px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 14px}
+  .sheetHead{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .sheetTitle{font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+  .sheetSub{font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .row{display:flex;align-items:center;gap:12px;height:52px;border-top:1px solid var(--border);color:var(--ink);font-size:14px;font-weight:600}
+  .row.danger{color:var(--error)}
+  .rowIcon{width:36px;height:36px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+           background:color-mix(in srgb,var(--primary) 14%,transparent)}
+  .rowIcon.danger{background:color-mix(in srgb,var(--error) 14%,transparent)}
+  .cta{height:52px;border-radius:50px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;
+       font-size:14.5px;font-weight:700;margin-top:16px}
+  .input{height:52px;border-radius:14px;border:1.5px solid var(--primary);background:var(--bg2);display:flex;align-items:center;padding:0 14px;
+         font-size:20px;font-weight:700;color:var(--ink);font-family:'DM Mono',ui-monospace,monospace}
+  .label{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--ink3);margin:14px 0 7px}
+  .chips{display:flex;gap:8px;margin-top:10px}
+  .chip{height:38px;flex:1;border-radius:50px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;
+        font-size:12.5px;font-weight:700;color:var(--ink)}
+  .chip.on{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 14%,transparent);color:var(--primary)}
+  .doneBadge{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:11px;font-size:9.5px;font-weight:700;letter-spacing:.6px;
+             background:color-mix(in srgb,var(--success) 16%,transparent);color:var(--success)}
+</style>
+<script>
+const I = {
+  pencil:`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.828 2.828 0 1 0-4-4L4 16v4"/><path d="M13.5 6.5l4 4"/></svg>`,
+  trash:`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>`,
+  dots:`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>`,
+  plus:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  chev:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`,
+  rotate:`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg>`,
+  check:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`,
+};
+</script>
+<div class="grid" id="root"></div>
+<script>
+const card = ({pct=62, saved='$ 1.860.000', target='$ 3.000.000', name='Viaje a Japón', emoji='✈️', right='', done=false, sub=''}) => `
+<div class="card">
+  <div class="accent" ${done?'style="background:var(--success)"':''}></div>
+  <div class="inner">
+    <div class="top">
+      <div class="emoji" ${done?'style="background:color-mix(in srgb,var(--success) 12%,transparent);box-shadow:0 0 16px color-mix(in srgb,var(--success) 27%,transparent)"':''}>${emoji}</div>
+      <div class="meta">
+        <div class="name">${name}</div>
+        <div class="pct" ${done?'style="color:var(--success)"':''}>${done?'✓ 100%':pct+'%'}</div>
+        ${sub?`<div style="font-size:10.5px;color:var(--ink3);margin-top:3px">${sub}</div>`:''}
+      </div>
+      ${right}
+    </div>
+    <div class="track"><div class="fill" style="width:${done?100:pct}%${done?';background:var(--success)':''}"></div></div>
+  </div>
+</div>`;
+
+const amounts = (saved='$ 1.860.000', target='$ 3.000.000') => `
+  <div class="amounts" style="flex-direction:column;align-items:flex-end">
+    <div class="saved">${saved}</div><div class="target">de ${target}</div>
+  </div>`;
+
+const dirA = `
+${card({right:`<div class="act">
+  <div class="ibtn"><div class="box" style="background:var(--primaryLight)"><span style="color:var(--primary)">${I.pencil}</span></div></div>
+  <div class="ibtn"><div class="box" style="background:var(--errorLight)"><span style="color:var(--error)">${I.trash}</span></div></div>
+</div>`})}
+${card({name:'Fondo de emergencia',emoji:'🛟',pct:38,right:`<div class="act">
+  <div class="ibtn"><div class="box" style="background:var(--primaryLight)"><span style="color:var(--primary)">${I.pencil}</span></div></div>
+  <div class="ibtn"><div class="box" style="background:var(--errorLight)"><span style="color:var(--error)">${I.trash}</span></div></div>
+</div>`})}`;
+
+const dirB = `
+${card({right:`<div class="act">
+  <div class="pill">${I.plus} Aportar</div>
+  <div class="ibtn"><div class="box small" style="background:color-mix(in srgb,var(--primary) 14%,transparent)"><span style="color:var(--primary)">${I.dots}</span></div></div>
+</div>`, sub:'Faltan $ 1.140.000'})}
+${card({name:'Mi meta cumplida',emoji:'🏝️',done:true,right:`<div class="act">
+  <div class="doneBadge">${I.check} LOGRADA</div>
+  <div class="ibtn"><div class="box small" style="background:color-mix(in srgb,var(--primary) 14%,transparent)"><span style="color:var(--primary)">${I.dots}</span></div></div>
+</div>`})}
+<div class="sheet">
+  <div class="grab"></div>
+  <div class="sheetHead">
+    <div class="emoji">✈️</div>
+    <div style="flex:1"><div class="sheetTitle">Viaje a Japón</div><div class="sheetSub">$ 1.860.000 de $ 3.000.000 · 62%</div></div>
+  </div>
+  <div class="row"><div class="rowIcon"><span style="color:var(--primary)">${I.pencil}</span></div>Editar meta</div>
+  <div class="row danger"><div class="rowIcon danger"><span style="color:var(--error)">${I.trash}</span></div>Eliminar meta</div>
+</div>`;
+
+const dirC = `
+${card({right:`<div class="act">${amounts()}<div class="chev">${I.chev}</div></div>`})}
+${card({name:'Mi meta cumplida',emoji:'🏝️',done:true,right:`<div class="act">${amounts('$ 800.000','$ 800.000')}<div class="chev">${I.chev}</div></div>`})}
+<div class="sheet">
+  <div class="grab"></div>
+  <div class="sheetHead">
+    <div class="emoji">✈️</div>
+    <div style="flex:1"><div class="sheetTitle">Viaje a Japón</div><div class="sheetSub">Faltan $ 1.140.000 · 62%</div></div>
+    <div class="ibtn"><div class="box small" style="background:color-mix(in srgb,var(--primary) 14%,transparent)"><span style="color:var(--primary)">${I.pencil}</span></div></div>
+    <div class="ibtn"><div class="box small" style="background:color-mix(in srgb,var(--error) 14%,transparent)"><span style="color:var(--error)">${I.trash}</span></div></div>
+  </div>
+  <div class="track" style="margin-bottom:4px"><div class="fill" style="width:62%"></div></div>
+  <div class="label">Cuánto aportas</div>
+  <div class="input">$ 250.000</div>
+  <div class="chips"><div class="chip on">+50 mil</div><div class="chip">+100 mil</div><div class="chip">Completar</div></div>
+  <div class="cta">${I.plus} Aportar a la meta</div>
+</div>`;
+
+const dirD = `
+${card({right:`<div class="act">${amounts()}
+  <div class="ibtn"><div class="box small" style="background:color-mix(in srgb,var(--primary) 14%,transparent)"><span style="color:var(--primary)">${I.dots}</span></div></div>
+</div>`})}
+<div style="margin:-4px 0 12px;padding:14px;border:1px solid var(--primary);border-radius:14px;background:var(--surface)">
+  <div style="font-size:10px;font-weight:700;letter-spacing:1.1px;color:var(--ink3);text-transform:uppercase">APORTAR A VIAJE A JAPÓN</div>
+  <div class="chips" style="margin-top:10px"><div class="chip on">+50 mil</div><div class="chip">+100 mil</div><div class="chip">Otro…</div></div>
+  <div class="cta" style="height:46px;margin-top:12px">${I.plus} Aportar $ 50.000</div>
+</div>
+${card({name:'Mi meta cumplida',emoji:'🏝️',done:true,right:`<div class="act"><div class="doneBadge">${I.check} LOGRADA</div>
+  <div class="ibtn"><div class="box small" style="background:color-mix(in srgb,var(--primary) 14%,transparent)"><span style="color:var(--primary)">${I.dots}</span></div></div></div>`})}`;
+
+const hoy = card({right:`<div class="act">${amounts()}</div>`});
+
+const cols = [
+  ['ANTES — hoy<small>toque = aportar · long-press invisible = eliminar · editar no existe</small>', hoy, '#F87171'],
+  ['A · fila cards.tsx<small>dos íconos visibles, toque = aportar</small>', dirA, '#00BCD4'],
+  ['B · CTA + menú ⋯<small>aportar explícito, hoja de acciones</small>', dirB, '#00BCD4'],
+  ['C · toque = hoja de meta<small>lista limpia, todo en la hoja</small>', dirC, '#D4E157'],
+  ['D · aporte inline<small>chips de monto en la propia lista</small>', dirD, '#D4E157'],
+];
+document.getElementById('root').innerHTML = cols.map(([t,html,c]) =>
+  `<div class="col"><h2 style="color:${c}">${t}</h2><div class="phone">${html}</div></div>`).join('')
+  + cols.slice(1,4).map(([t,html,c]) =>
+  `<div class="col"><h2 style="color:${c}">${t.split('<small>')[0]} · CLARO</h2><div class="phone light">${html}</div></div>`).join('');
+</script>

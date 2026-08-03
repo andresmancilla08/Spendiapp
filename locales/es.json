@@ -322,8 +322,17 @@
         "classic": "Clásicas",
         "pastel": "Pastel",
         "new": "Nuevas",
-        "newPastel": "Nuevas Pastel"
-      }
+        "newPastel": "Nuevas Pastel",
+        "bold": "Carácter"
+      },
+      "citrus": "Cítrico",
+      "graphite": "Grafito",
+      "wine": "Vino",
+      "arctic": "Ártico",
+      "jade": "Jade",
+      "sandstone": "Arenisca",
+      "neon": "Neón",
+      "moss": "Musgo"
     },
     "notifications": {
       "label": "Notificaciones",

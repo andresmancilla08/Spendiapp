@@ -27,6 +27,12 @@ export const PALETTE_GROUPS: PaletteGroup[] = [
     labelKey: 'profile.palette.group.pastel',
     ids: ['deepWaterPastel', 'sunsetPastel', 'forestPastel', 'midnightPastel', 'rosePastel', 'oceanPastel', 'emberPastel', 'lavenderPastel', 'slatePastel', 'sakuraPastel', 'nordicPastel', 'cottonCandyPastel', 'peachPastel', 'mintPastel', 'auroraPastel', 'mochaPastel'],
   },
+  {
+    // Familias con tono propio: ninguna repite el dominante de las clásicas.
+    key: 'bold',
+    labelKey: 'profile.palette.group.bold',
+    ids: ['citrus', 'neon', 'wine', 'arctic', 'jade', 'sandstone', 'graphite', 'moss'],
+  },
 ];
 
 // ── PaletteCard — 3 columnas, swatches solapados, glow, haptics ─────────────
