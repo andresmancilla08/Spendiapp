@@ -398,7 +398,10 @@
       "flow": "Seda",
       "starfield": "Estrellas",
       "rays": "Haces de luz",
-      "constellation": "Constelaciones"
+      "constellation": "Constelaciones",
+      "orbs": "Orbes",
+      "topography": "Topografía",
+      "spotlight": "Foco"
     },
     "intensity": {
       "subtle": "Sutil",
@@ -438,7 +441,9 @@
       "line": "Línea",
       "bars": "Barras",
       "area": "Área sólida",
-      "dots": "Puntos"
+      "dots": "Puntos",
+      "stepped": "Escalones",
+      "lollipop": "Piruleta"
     },
     "chartAnimLabel": "Animación",
     "chartAnim": {
@@ -471,6 +476,13 @@
     "bgTarget": {
       "light": "Modo claro",
       "dark": "Modo oscuro"
+    },
+    "gradientStyleLabel": "Forma del degradado",
+    "gradientStyle": {
+      "linear": "Vertical",
+      "diagonal": "Diagonal",
+      "radial": "Radial",
+      "flat": "Plano"
     }
   },
   "settings": {

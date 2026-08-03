@@ -22,17 +22,23 @@ const CHART_TYPE_KEY = '@spendiapp_chart_type';
 const CHART_ANIM_KEY = '@spendiapp_chart_anim';
 const CHART_SPEED_KEY = '@spendiapp_chart_speed';
 const CHART_ACCENT_KEY = '@spendiapp_chart_accent';
+const GRADIENT_STYLE_KEY = '@spendiapp_gradient_style';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves' | 'grain' | 'mesh' | 'bokeh' | 'flow' | 'starfield' | 'rays' | 'constellation';
-export const BACKGROUND_STYLE_VALUES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh', 'flow', 'starfield', 'rays', 'constellation'];
+export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves' | 'grain' | 'mesh' | 'bokeh' | 'flow' | 'starfield' | 'rays' | 'constellation' | 'orbs' | 'topography' | 'spotlight';
+export const BACKGROUND_STYLE_VALUES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh', 'flow', 'starfield', 'rays', 'constellation', 'orbs', 'topography', 'spotlight'];
 export type BackgroundSpeed = 'slow' | 'normal' | 'fast';
 /** Multiplicador de duración de las animaciones de fondo por velocidad. */
 export const BACKGROUND_SPEED_FACTOR: Record<BackgroundSpeed, number> = { slow: 1.6, normal: 1, fast: 0.62 };
 export type IconStroke = 1.5 | 2 | 2.5;
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
-export type ChartType = 'line' | 'bars' | 'area' | 'dots';
+export type ChartType = 'line' | 'bars' | 'area' | 'dots' | 'stepped' | 'lollipop';
+export const CHART_TYPE_VALUES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
 export type ChartAnimStyle = 'pulse' | 'draw' | 'tide' | 'none';
+/** Forma del degradado del fondo: la misma paleta cae distinto según la dirección. */
+export type GradientStyle = 'linear' | 'diagonal' | 'radial' | 'flat';
+export const GRADIENT_STYLE_VALUES: GradientStyle[] = ['linear', 'diagonal', 'radial', 'flat'];
+
 export type ChartAccent = 'theme' | 'secondary' | 'success' | 'gold' | 'signed' | 'signedLine' | 'signedFill' | 'duoSuccess' | 'duoTertiary';
 export const CHART_ACCENT_VALUES: ChartAccent[] = ['theme', 'secondary', 'success', 'gold', 'signed', 'signedLine', 'signedFill', 'duoSuccess', 'duoTertiary'];
 export type { PaletteId, AuroraIntensity };
@@ -72,6 +78,8 @@ interface ThemeContextValue {
   setChartSpeed: (v: ChartSpeed) => void;
   chartAccent: ChartAccent;
   setChartAccent: (v: ChartAccent) => void;
+  gradientStyle: GradientStyle;
+  setGradientStyle: (v: GradientStyle) => void;
 }
 
 const defaultPalette = PALETTE_MAP['deepWater'];
@@ -107,6 +115,8 @@ const ThemeContext = createContext<ThemeContextValue>({
   setChartSpeed: () => {},
   chartAccent: 'theme',
   setChartAccent: () => {},
+  gradientStyle: 'diagonal',
+  setGradientStyle: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -124,6 +134,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [chartAnimStyle, setChartAnimStyleState] = useState<ChartAnimStyle>('pulse');
   const [chartSpeed, setChartSpeedState] = useState<ChartSpeed>('slow');
   const [chartAccent, setChartAccentState] = useState<ChartAccent>('theme');
+  // 'diagonal' es lo que la app pintaba antes de que esto fuera configurable.
+  const [gradientStyle, setGradientStyleState] = useState<GradientStyle>('diagonal');
 
   useEffect(() => {
     Promise.all([
@@ -141,7 +153,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(CHART_ANIM_KEY),
       AsyncStorage.getItem(CHART_SPEED_KEY),
       AsyncStorage.getItem(CHART_ACCENT_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBgSpeed, storedSheen, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent]) => {
+      AsyncStorage.getItem(GRADIENT_STYLE_KEY),
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBgSpeed, storedSheen, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
@@ -171,10 +184,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (storedSheen != null) setCardSheenState(storedSheen === '1');
       if (storedStroke === '1.5' || storedStroke === '2' || storedStroke === '2.5') setIconStrokeState(Number(storedStroke) as IconStroke);
       if (storedConfetti != null) setStreakConfettiState(storedConfetti === '1');
-      if (storedChartType === 'line' || storedChartType === 'bars' || storedChartType === 'area' || storedChartType === 'dots') setChartTypeState(storedChartType);
+      if (CHART_TYPE_VALUES.includes(storedChartType as ChartType)) setChartTypeState(storedChartType as ChartType);
       if (storedChartAnim === 'pulse' || storedChartAnim === 'draw' || storedChartAnim === 'tide' || storedChartAnim === 'none') setChartAnimStyleState(storedChartAnim);
       if (storedChartSpeed === 'slow' || storedChartSpeed === 'normal' || storedChartSpeed === 'fast') setChartSpeedState(storedChartSpeed);
       if (CHART_ACCENT_VALUES.includes(storedChartAccent as ChartAccent)) setChartAccentState(storedChartAccent as ChartAccent);
+      if (GRADIENT_STYLE_VALUES.includes(storedGradientStyle as GradientStyle)) setGradientStyleState(storedGradientStyle as GradientStyle);
     }).catch(() => {});
   }, []);
 
@@ -243,6 +257,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(CHART_ACCENT_KEY, v);
   };
 
+  const setGradientStyle = async (v: GradientStyle) => {
+    setGradientStyleState(v);
+    await AsyncStorage.setItem(GRADIENT_STYLE_KEY, v);
+  };
+
   const isDark =
     themeMode === 'dark' || (themeMode === 'system' && systemScheme === 'dark');
 
@@ -265,6 +284,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       streakConfetti, setStreakConfetti,
       chartType, setChartType, chartAnimStyle, setChartAnimStyle,
       chartSpeed, setChartSpeed, chartAccent, setChartAccent,
+      gradientStyle, setGradientStyle,
     }}>
       {children}
     </ThemeContext.Provider>

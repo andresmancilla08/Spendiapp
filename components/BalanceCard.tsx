@@ -58,6 +58,18 @@ interface BalanceCardProps {
  * de una subida/bajada — importante en datos financieros para no insinuar
  * una variación que no ocurrió.
  */
+/** Escalonado (chartType='stepped'): el valor se mantiene hasta que cambia — para
+ *  quien lee saldos como escalones y no como una curva. */
+function steppedPath(pts: { x: number; y: number }[]): string {
+  if (pts.length < 2) return '';
+  let d = `M${pts[0].x},${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++) {
+    const mid = (pts[i - 1].x + pts[i].x) / 2;
+    d += ` L${mid},${pts[i - 1].y} L${mid},${pts[i].y} L${pts[i].x},${pts[i].y}`;
+  }
+  return d;
+}
+
 function monotonePath(pts: { x: number; y: number }[]): string {
   const n = pts.length;
   if (n < 2) return '';
@@ -336,10 +348,12 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   }
   if (pts.length < 2) return null;
 
-  const line = monotonePath(pts);
+  const line = chartType === 'stepped' ? steppedPath(pts) : monotonePath(pts);
   const area = `${line} L${W},${H} L0,${H} Z`;
-  const showLine = chartType !== 'area';
-  const showDots = chartType === 'dots';
+  const isLollipop = chartType === 'lollipop';
+  const showLine = chartType !== 'area' && !isLollipop;
+  // La piruleta marca cada dato con su punto, igual que "puntos", pero con tallo.
+  const showDots = chartType === 'dots' || isLollipop;
   const end = samples.length ? samples[samples.length - 1] : pts[pts.length - 1];
 
   const areaOpacity = tideActive ? 0.55 + tideT * 0.65 : (drawActive && chartType === 'area') ? 0.2 + drawT * 0.8 : 1;
@@ -350,7 +364,7 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // "contenido" de un cruce de color), el relleno ES la única señal visible: debe
   // verse tan claro como en "área", sin importar el chartType, o el cambio de color
   // pasa inadvertido (Personalización → "Contenido dinámico").
-  const fillIsHero = chartType === 'area' || !renderStroke;
+  const fillIsHero = chartType === 'area' || (!renderStroke && !isLollipop);
 
   // El punto animado (pulso) y el halo de "trazo vivo" viven FUERA del SVG,
   // como Views nativas: el viewBox usa preserveAspectRatio="none" (deforma X e
@@ -371,7 +385,7 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
             <Stop offset="1" stopColor={fillColor} stopOpacity={0} />
           </SvgGradient>
         </Defs>
-        {renderFill && <Path d={area} fill={`url(#${gradientId})`} opacity={areaOpacity} />}
+        {renderFill && !isLollipop && <Path d={area} fill={`url(#${gradientId})`} opacity={areaOpacity} />}
         {renderStroke && showLine && (
           <>
             {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
@@ -386,6 +400,16 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
             />
           </>
         )}
+        {renderStroke && isLollipop && pts.map((pt, i) => (
+          /* Tallo por dato: del eje al valor. Los puntos se dibujan fuera del SVG. */
+          <Path
+            key={`stem-${i}`}
+            d={`M${pt.x},${H} L${pt.x},${pt.y}`}
+            stroke={stroke} strokeWidth={1.6}
+            strokeOpacity={i === pts.length - 1 ? 0.95 : 0.55}
+            strokeLinecap="round" vectorEffect="non-scaling-stroke"
+          />
+        ))}
         {renderStroke && chartType === 'area' && (
           /* Borde superior fino — sin él, el área queda sin contorno definido y "no aplica nada" al ojo */
           <Path

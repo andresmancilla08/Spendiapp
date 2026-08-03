@@ -14,6 +14,9 @@ import FlowBackground from './FlowBackground';
 import StarfieldBackground from './StarfieldBackground';
 import RaysBackground from './RaysBackground';
 import ConstellationBackground from './ConstellationBackground';
+import OrbsBackground from './OrbsBackground';
+import TopographyBackground from './TopographyBackground';
+import SpotlightBackground from './SpotlightBackground';
 
 /** Scrim que oscurece el gradiente base en modo oscuro. Va SIEMPRE debajo de
  * los efectos — compartido con el fondo local del login (ScreenBackground). */
@@ -46,6 +49,9 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
     case 'starfield':     return <StarfieldBackground intensity={intensity} speed={speed} />;
     case 'rays':          return <RaysBackground intensity={intensity} speed={speed} />;
     case 'constellation': return <ConstellationBackground intensity={intensity} speed={speed} />;
+    case 'orbs':          return <OrbsBackground intensity={intensity} speed={speed} />;
+    case 'topography':    return <TopographyBackground intensity={intensity} speed={speed} />;
+    case 'spotlight':     return <SpotlightBackground intensity={intensity} speed={speed} />;
     default:              return null;
   }
 }
@@ -61,7 +67,7 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
  * animación (antes iba encima al 70% y los efectos casi no se veían en dark).
  */
 export default function AppBackground() {
-  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed } = useTheme();
+  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed, gradientStyle } = useTheme();
   const { isPremium } = useAuthStore();
   const { reduceMotion } = useProMotion();
 
@@ -99,12 +105,34 @@ export default function AppBackground() {
 
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.clip]} pointerEvents="none">
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.9, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
-      />
+      {/* La MISMA paleta cae distinto según la dirección del degradado. 'diagonal'
+          es lo que la app pintaba antes de que esto fuera configurable; 'flat' deja
+          el color base sólido, para quien quiere un fondo sin transición. */}
+      {gradientStyle === 'flat' ? (
+        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradientColors[0] as string }]} />
+      ) : gradientStyle === 'radial' ? (
+        <>
+          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradientColors[2] as string }]} />
+          {/* Radial simulado: expo-linear-gradient no lo trae, y un halo enorme y
+              desenfocado da el mismo resultado sin añadir dependencias. */}
+          <View
+            style={[
+              styles.radialCore,
+              { backgroundColor: gradientColors[0] as string },
+              Platform.OS === 'web'
+                ? ({ filter: 'blur(120px)' } as any)
+                : { shadowColor: gradientColors[0] as string, shadowOpacity: 1, shadowRadius: 120, shadowOffset: { width: 0, height: 0 } },
+            ]}
+          />
+        </>
+      ) : (
+        <LinearGradient
+          colors={gradientColors}
+          start={gradientStyle === 'linear' ? { x: 0.5, y: 0 } : { x: 0.1, y: 0 }}
+          end={gradientStyle === 'linear' ? { x: 0.5, y: 1 } : { x: 0.9, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+      )}
       {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
       {/* Reduce-motion: solo el gradiente estático — sin animación permanente */}
       {!reduceMotion && (
@@ -115,5 +143,9 @@ export default function AppBackground() {
 }
 
 const styles = StyleSheet.create({
+  radialCore: {
+    position: 'absolute', top: '-25%', left: '-25%', width: '150%', height: '110%',
+    borderRadius: 9999, opacity: 0.9,
+  },
   clip: { overflow: 'hidden' },
 });

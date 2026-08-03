@@ -398,7 +398,10 @@
       "flow": "Seta",
       "starfield": "Cielo stellato",
       "rays": "Raggi di luce",
-      "constellation": "Costellazioni"
+      "constellation": "Costellazioni",
+      "orbs": "Orbite",
+      "topography": "Topografia",
+      "spotlight": "Faretto"
     },
     "intensity": {
       "subtle": "Sottile",
@@ -438,7 +441,9 @@
       "line": "Linea",
       "bars": "Barre",
       "area": "Area piena",
-      "dots": "Punti"
+      "dots": "Punti",
+      "stepped": "Gradini",
+      "lollipop": "Lecca-lecca"
     },
     "chartAnimLabel": "Animazione",
     "chartAnim": {
@@ -471,6 +476,13 @@
     "bgTarget": {
       "light": "Modalità chiara",
       "dark": "Modalità scura"
+    },
+    "gradientStyleLabel": "Forma del gradiente",
+    "gradientStyle": {
+      "linear": "Verticale",
+      "diagonal": "Diagonale",
+      "radial": "Radiale",
+      "flat": "Piatto"
     }
   },
   "settings": {

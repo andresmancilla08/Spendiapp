@@ -14,7 +14,9 @@ import AppSegmentedControl from '../components/AppSegmentedControl';
 import PaletteGrid from '../components/PaletteGrid';
 import { BackgroundEffect } from '../components/AppBackground';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
+  GRADIENT_STYLE_VALUES, type GradientStyle,
+} from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { useProMotion } from '../hooks/useProMotion';
 import { updateUserColorPalette, updateUserPersonalization } from '../hooks/useUserProfile';
@@ -213,7 +215,7 @@ const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
 const BG_SPEED_OPTIONS: BackgroundSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
-const CHART_TYPES: ChartType[] = ['line', 'bars', 'area', 'dots'];
+const CHART_TYPES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
 const CHART_ANIM_STYLES: ChartAnimStyle[] = ['pulse', 'draw', 'tide', 'none'];
 // Orden candidato — algunas paletas definen "secondary" igual a "success" (p.ej.
 // deepWater), así que la lista real se deduplica por color en tiempo de render;
@@ -472,6 +474,7 @@ export default function PersonalizationScreen() {
     streakConfetti, setStreakConfetti,
     chartType, setChartType, chartAnimStyle, setChartAnimStyle,
     chartSpeed, setChartSpeed, chartAccent, setChartAccent,
+    gradientStyle, setGradientStyle,
   } = useTheme();
   const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
   // Las vistas previas respetan reduce-motion igual que el gráfico real del Home:
@@ -556,7 +559,7 @@ export default function PersonalizationScreen() {
   prefsRef.current = {
     backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed,
     cardSheen, iconStroke, streakConfetti,
-    chartType, chartAnimStyle, chartSpeed, chartAccent,
+    chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle,
   };
   const dirtyRef = useRef(false);
   const isFirstSync = useRef(true);
@@ -573,7 +576,7 @@ export default function PersonalizationScreen() {
     const timer = setTimeout(() => syncNow(user.uid), 800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent]);
+  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle]);
   // Flush al desmontar: antes el debounce pendiente se CANCELABA al salir de la
   // pantalla y los últimos cambios nunca llegaban a Firestore.
   useEffect(() => () => {
@@ -625,6 +628,17 @@ export default function PersonalizationScreen() {
                   />
                 </>
               )}
+              {/* La forma del degradado va ANTES de la grilla: afecta a la pantalla
+                  entera, no a un efecto concreto. */}
+              <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>
+                {t('personalization.gradientStyleLabel')}
+              </Text>
+              <AppSegmentedControl
+                segments={GRADIENT_STYLE_VALUES.map((g) => ({ key: g, label: t(`personalization.gradientStyle.${g}`) }))}
+                activeKey={gradientStyle}
+                onChange={(key) => setGradientStyle(key as GradientStyle)}
+                style={styles.bgGridSpacing}
+              />
               <View style={styles.bgGrid}>
                 {BACKGROUND_STYLES.map((key) => (
                   <BackgroundPreviewCard

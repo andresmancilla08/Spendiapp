@@ -11,7 +11,9 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent } from '../context/ThemeContext';
+import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
+  CHART_TYPE_VALUES, GRADIENT_STYLE_VALUES, type GradientStyle,
+} from '../context/ThemeContext';
 import { PALETTE_MAP } from '../config/palettes';
 import AppBackground from '../components/AppBackground';
 import { ToastProvider } from '../context/ToastContext';
@@ -31,7 +33,7 @@ function PaletteLoader() {
   const {
     setPaletteId, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundSpeed,
     setCardSheen, setIconStroke, setStreakConfetti,
-    setChartType, setChartAnimStyle, setChartSpeed, setChartAccent,
+    setChartType, setChartAnimStyle, setChartSpeed, setChartAccent, setGradientStyle,
   } = useTheme();
 
   useEffect(() => {
@@ -64,13 +66,17 @@ function PaletteLoader() {
         if (typeof p.cardSheen === 'boolean') setCardSheen(p.cardSheen);
         if (p.iconStroke === 1.5 || p.iconStroke === 2 || p.iconStroke === 2.5) setIconStroke(p.iconStroke as IconStroke);
         if (typeof p.streakConfetti === 'boolean') setStreakConfetti(p.streakConfetti);
-        if (['line', 'bars', 'area', 'dots'].includes(p.chartType as string)) setChartType(p.chartType as ChartType);
+        // Se valida contra la lista EXPORTADA, no contra una copia: con la lista
+        // escrita a mano aquí, cada tipo nuevo (stepped, lollipop) se descartaba al
+        // llegar desde otro dispositivo y parecía que la elección no se guardaba.
+        if (CHART_TYPE_VALUES.includes(p.chartType as ChartType)) setChartType(p.chartType as ChartType);
         if (['pulse', 'draw', 'tide', 'none'].includes(p.chartAnimStyle as string)) setChartAnimStyle(p.chartAnimStyle as ChartAnimStyle);
         if (['slow', 'normal', 'fast'].includes(p.chartSpeed as string)) setChartSpeed(p.chartSpeed as ChartSpeed);
         // Validado como sus hermanos: un acento remoto viejo o retirado se
         // colaba en el contexto y `resolveChartAccent` caía al color del tema —
         // se veía como "el acento elegido no se aplica".
         if (CHART_ACCENT_VALUES.includes(p.chartAccent as ChartAccent)) setChartAccent(p.chartAccent as ChartAccent);
+        if (GRADIENT_STYLE_VALUES.includes(p.gradientStyle as GradientStyle)) setGradientStyle(p.gradientStyle as GradientStyle);
       })
       .catch(() => {});
   }, [user?.uid]);

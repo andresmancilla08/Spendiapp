@@ -398,7 +398,10 @@
       "flow": "Silk",
       "starfield": "Starfield",
       "rays": "Light rays",
-      "constellation": "Constellations"
+      "constellation": "Constellations",
+      "orbs": "Orbs",
+      "topography": "Topography",
+      "spotlight": "Spotlight"
     },
     "intensity": {
       "subtle": "Subtle",
@@ -438,7 +441,9 @@
       "line": "Line",
       "bars": "Bars",
       "area": "Solid area",
-      "dots": "Dots"
+      "dots": "Dots",
+      "stepped": "Stepped",
+      "lollipop": "Lollipop"
     },
     "chartAnimLabel": "Animation",
     "chartAnim": {
@@ -471,6 +476,13 @@
     "bgTarget": {
       "light": "Light mode",
       "dark": "Dark mode"
+    },
+    "gradientStyleLabel": "Gradient shape",
+    "gradientStyle": {
+      "linear": "Vertical",
+      "diagonal": "Diagonal",
+      "radial": "Radial",
+      "flat": "Flat"
     }
   },
   "settings": {
