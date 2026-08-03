@@ -52,7 +52,24 @@ Auditoría del 2026-08-03. Preferencias y dónde se consumen hoy:
 | `iconStroke` | `AppIcon` lee el contexto | ✅ global |
 | `streakConfetti` | `app/(tabs)/index.tsx` | ✅ |
 | `cardSheen` | solo `components/ProSheen.tsx` | ⚠️ falta en `premium/CategoryBars`, en las tarjetas de `history` y en la tarjeta de saldo no premium |
-| `chartType`, `chartAnimStyle`, `chartSpeed`, `chartAccent` | solo `components/BalanceCard.tsx` | 🔴 **el anillo de `app/(tabs)/budget.tsx` y las barras de `premium/CategoryBars` ignoran las 4**; el reporte anual y el detalle de categoría tampoco las usan |
+| `chartType`, `chartAnimStyle`, `chartSpeed`, `chartAccent` | `components/BalanceCard.tsx` (el único gráfico de serie de la app) | ✅ revisado: **no hay hueco**. Ver la corrección de abajo |
+
+### Corrección de la auditoría (2026-08-03, tras leer el código)
+
+Dos de los tres 🔴 iniciales eran **falsos positivos del grep**, y aplicarlos habría
+sido un error:
+
+- **El anillo de `budget.tsx` NO debe seguir a `chartAccent`.** Su color sale de
+  `progressColor(percent, success, error)`: es un semáforo — verde si vas bien, rojo si
+  te pasaste. Ahí el color ES el estado, no decoración. Lo que sí era un hex quemado es
+  su carril (`trackColor = '#E5E7EB'`), ahora obligatorio y tomado de la paleta.
+- **`premium/CategoryBars` tampoco.** Recibe un color POR CATEGORÍA (comida, transporte…):
+  son series distintas, no una sola serie a la que aplicar un acento. Sus tokens
+  (`border`, `textPrimary`, `textTertiary`) ya eran correctos.
+
+Regla que queda escrita: **un color semántico (estado, categoría, marca de banco) no se
+sustituye por el acento del usuario.** La personalización manda en lo decorativo y en las
+superficies; no pisa el significado.
 
 Hardcodes de color que rompen la paleta (por gravedad):
 
@@ -60,7 +77,7 @@ Hardcodes de color que rompen la paleta (por gravedad):
 |---|---|---|
 | `app/upgrade.tsx` | ~23 hex: gradientes cian/dorados de marca. El muro de pago se ve igual en las 40 paletas | 🔴 |
 | `app/premium-welcome.tsx` | ~22 hex, mismo caso | 🔴 |
-| `app/(tabs)/index.tsx` | `CATEGORY_META`: `bg: '#F3F4F6'` y `darkBg: '#252830'` por categoría — los fondos de icono no siguen la paleta (los colores semánticos por categoría sí pueden quedarse) | 🟠 |
+| ~~`app/(tabs)/index.tsx`~~ | `CATEGORY_META`: los 9 pares `bg`/`darkBg` fijos ya salen de `colors.surfaceSecondary`. El color semántico de cada categoría se queda | ✅ hecho |
 | `app/payment-qr.tsx` | ~31 hex | 🟠 |
 | `app/(tabs)/history.tsx` | ~15 hex | 🟠 |
 | `app/add-transaction.tsx`, `app/edit-transaction.tsx` | ~14 y ~13 hex | 🟠 |

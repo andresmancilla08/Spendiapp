@@ -54,7 +54,10 @@ function formatCurrencyInput(raw: string): string {
   return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(parseInt(digits, 10));
 }
 
-function DonutChart({ percent, color, size = 140, trackColor = '#E5E7EB' }: { percent: number; color: string; size?: number; trackColor?: string }) {
+/** `trackColor` es obligatorio: el gris que habia por defecto era un hex quemado
+ *  que ignoraba la paleta y el modo oscuro. El color del arco SI es semantico
+ *  (semaforo verde/rojo por porcentaje) y por eso no sigue al acento del grafico. */
+function DonutChart({ percent, color, size = 140, trackColor }: { percent: number; color: string; size?: number; trackColor: string }) {
   const radius = (size - 24) / 2;
   const circumference = 2 * Math.PI * radius;
   const clampedPercent = Math.min(percent, 100);

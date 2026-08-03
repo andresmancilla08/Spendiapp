@@ -66,15 +66,18 @@ import ExchangeRateChips from '../../components/ExchangeRateChips';
 import { formatMoney } from '../../utils/formatMoney';
 
 
-const CATEGORY_META: Record<string, { icon: string; color: string; bg: string; darkBg: string }> = {
-  food:          { icon: 'tools-kitchen', color: '#EF4444', bg: '#F3F4F6', darkBg: '#252830' },
-  transport:     { icon: 'car', color: '#F59E0B', bg: '#F3F4F6', darkBg: '#252830' },
-  health:        { icon: 'pill', color: '#10B981', bg: '#F3F4F6', darkBg: '#252830' },
-  entertainment: { icon: 'confetti', color: '#8B5CF6', bg: '#F3F4F6', darkBg: '#252830' },
-  shopping:      { icon: 'shopping-bag', color: '#EC4899', bg: '#F3F4F6', darkBg: '#252830' },
-  home:          { icon: 'home', color: '#00897B', bg: '#F3F4F6', darkBg: '#252830' },
-  salary:        { icon: 'cash', color: '#00ACC1', bg: '#F3F4F6', darkBg: '#252830' },
-  other:         { icon: 'pin', color: '#737879', bg: '#F3F4F6', darkBg: '#252830' },
+/** El color de cada categoria es SEMANTICO (comida roja, salud verde) y se queda.
+ *  El fondo de la pastilla, en cambio, salia de dos hex fijos (#F3F4F6 / #252830) que
+ *  ignoraban la paleta: ahora es la superficie secundaria del tema. */
+const CATEGORY_META: Record<string, { icon: string; color: string }> = {
+  food:          { icon: 'tools-kitchen', color: '#EF4444' },
+  transport:     { icon: 'car', color: '#F59E0B' },
+  health:        { icon: 'pill', color: '#10B981' },
+  entertainment: { icon: 'confetti', color: '#8B5CF6' },
+  shopping:      { icon: 'shopping-bag', color: '#EC4899' },
+  home:          { icon: 'home', color: '#00897B' },
+  salary:        { icon: 'cash', color: '#00ACC1' },
+  other:         { icon: 'pin', color: '#737879' },
 };
 
 const formatCurrency = formatMoney;
@@ -106,7 +109,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();
   const customCat = customCatMap[item.category];
-  const cat = CATEGORY_META[item.category] ?? (customCat ? { icon: customCat.icon, color: '#737879', bg: '#F3F4F6', darkBg: '#252830' } : CATEGORY_META.other);
+  const cat = CATEGORY_META[item.category] ?? (customCat ? { icon: customCat.icon, color: '#737879' } : CATEGORY_META.other);
   const isExpense = item.type === 'expense';
   const card = item.cardId ? cardsMap[item.cardId] : null;
   const relation = useTxRelation(item);
@@ -129,7 +132,7 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
     >
       <View style={styles.txRow}>
         <View style={styles.txIconSlot}>
-          <View style={[styles.txIconWrap, { backgroundColor: isDark ? cat.darkBg : cat.bg }]}>
+          <View style={[styles.txIconWrap, { backgroundColor: colors.surfaceSecondary }]}>
             <CategoryIcon icon={cat.icon} size={20} color={cat.color} />
           </View>
           {relation && <TxRelationNotch relation={relation} />}
