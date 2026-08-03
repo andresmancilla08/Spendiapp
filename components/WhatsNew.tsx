@@ -39,6 +39,22 @@ interface Feature {
 // Catálogo curado de funcionalidades principales de la app — sin duplicados ni versiones.
 const APP_FEATURES: Feature[] = [
   {
+    icon: 'color-palette-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.personalizationStudio.title',
+    items: [
+      'whatsNew.personalizationStudio.item1',
+      'whatsNew.personalizationStudio.item2',
+      'whatsNew.personalizationStudio.item3',
+    ],
+  },
+  {
+    icon: 'flag-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.goalsActions.title',
+    items: ['whatsNew.goalsActions.item1', 'whatsNew.goalsActions.item2'],
+  },
+  {
     icon: 'people-outline',
     colorKey: 'primary',
     titleKey: 'whatsNew.friendReportFaceToFace.title',

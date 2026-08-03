@@ -1446,6 +1446,17 @@
       "item1": "La coppia è il soggetto: una bilancia che pende verso chi deve e il saldo come protagonista.",
       "item2": "Ogni movimento sta dal lato di chi ne trae vantaggio.",
       "item3": "Quando condividi scegli il formato: scheda per la chat, story verticale o foglio con il dettaglio."
+    },
+    "personalizationStudio": {
+      "title": "Personalizzazione, da cima a fondo",
+      "item1": "Un’anteprima viva della tua Home sempre in vista: cambi qualcosa e lo vedi subito.",
+      "item2": "40 palette (8 nuove), 13 sfondi animati, 6 tipi di grafico e la forma del gradiente.",
+      "item3": "Looks: palette, sfondo e grafico combinati con un tocco."
+    },
+    "goalsActions": {
+      "title": "Obiettivi: modifica, riapri ed elimina",
+      "item1": "Tocca un obiettivo e c’è tutto: versare, modificarlo, riaprirlo o eliminarlo.",
+      "item2": "La scorciatoia \"Completa\" versa esattamente quello che manca."
     }
   },
   "incomeClaim": {

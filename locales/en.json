@@ -1446,6 +1446,17 @@
       "item1": "The pair is the subject: a scale that tips towards whoever owes, and the balance as the hero.",
       "item2": "Every movement sits on the side of whoever it favours.",
       "item3": "Pick a format when sharing: chat card, vertical story or a sheet with the detail."
+    },
+    "personalizationStudio": {
+      "title": "Personalization, top to bottom",
+      "item1": "A live preview of your Home always in view: change anything and see it at once.",
+      "item2": "40 palettes (8 new), 13 animated backgrounds, 6 chart types and the gradient shape.",
+      "item3": "Looks: palette, background and chart combined in a single tap."
+    },
+    "goalsActions": {
+      "title": "Goals: edit, reopen and delete",
+      "item1": "Tap a goal and everything is there: add money, edit it, reopen it or delete it.",
+      "item2": "The \"Finish it\" shortcut adds exactly what is missing — no math."
     }
   },
   "incomeClaim": {

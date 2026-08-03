@@ -1446,6 +1446,17 @@
       "item1": "La pareja es el sujeto: una balanza que se inclina hacia quien debe y el saldo como protagonista.",
       "item2": "Cada movimiento se coloca del lado de quien sale beneficiado.",
       "item3": "Al compartir eliges formato: tarjeta para el chat, story vertical u hoja con el detalle."
+    },
+    "personalizationStudio": {
+      "title": "Personalización, de arriba abajo",
+      "item1": "Una vista previa viva de tu Home siempre delante: cambias algo y lo ves al instante.",
+      "item2": "40 paletas (8 nuevas), 13 fondos animados, 6 tipos de gráfico y la forma del degradado a elegir.",
+      "item3": "Looks: paleta, fondo y gráfico combinados de un solo toque."
+    },
+    "goalsActions": {
+      "title": "Metas: editar, reabrir y eliminar",
+      "item1": "Toca una meta y ahí está todo: aportar, editarla, reabrirla si ya la cumpliste o eliminarla.",
+      "item2": "El atajo \"Completar\" aporta justo lo que falta, sin calcular nada."
     }
   },
   "incomeClaim": {
