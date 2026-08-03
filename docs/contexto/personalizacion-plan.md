@@ -15,9 +15,9 @@ al final se cierra que se apliquen en toda la app.
 | # | Qué | Estado |
 |---|-----|--------|
 | 1a | **8 paletas nuevas** (`citrus`, `neon`, `wine`, `arctic`, `jade`, `sandstone`, `graphite`, `moss`) con grupo propio "Carácter" en `PaletteGrid`, nombres en es/en/it | ✅ hecho |
-| 1b | **Fondos nuevos** (hoy 10 + "sin fondo"): `orbs`, `topography`, `spotlight` — un componente por efecto, registro en `BackgroundStyle` + `BACKGROUND_STYLE_VALUES` + i18n | ⬜ pendiente |
-| 1c | **Tipos de gráfico nuevos** (hoy line/bars/area/dots): `stepped`, `lollipop` — en `Sparkline` y en las tarjetas de tipo | ⬜ pendiente |
-| 1d | **Estilo de gradiente** como preferencia nueva (`linear` / `radial` / `diagonal` / `plano`), consumida por `AppBackground` | ⬜ pendiente |
+| 1b | **Fondos nuevos**: `orbs`, `topography`, `spotlight` (13 efectos + "sin fondo"). La pantalla los lista sola porque lee `BACKGROUND_STYLE_VALUES` | ✅ hecho |
+| 1c | **Tipos de gráfico**: `stepped` y `lollipop` en `Sparkline` y en el selector (6 tipos) | ✅ hecho |
+| 1d | **Forma del degradado** (`linear` / `diagonal` / `radial` / `flat`) en `AppBackground`, con sync a Firestore. `diagonal` = lo que ya pintaba | ✅ hecho |
 | 1e | Variantes pastel de las 8 nuevas (llegaría a 48 paletas) | ⬜ opcional |
 
 Gates que cubren esta fase (los tres pasan hoy con 40 paletas):
@@ -51,7 +51,7 @@ Auditoría del 2026-08-03. Preferencias y dónde se consumen hoy:
 | `backgroundStyle` (+intensidad, velocidad) | `AppBackground` (global) | ✅ sin huecos conocidos |
 | `iconStroke` | `AppIcon` lee el contexto | ✅ global |
 | `streakConfetti` | `app/(tabs)/index.tsx` | ✅ |
-| `cardSheen` | solo `components/ProSheen.tsx` | ⚠️ falta en `premium/CategoryBars`, en las tarjetas de `history` y en la tarjeta de saldo no premium |
+| `cardSheen` | `components/ProSheen.tsx`, montado desde `ProCardFx` y `BalanceCard` | ⬜ por revisar en `history` y en la tarjeta de saldo no premium |
 | `chartType`, `chartAnimStyle`, `chartSpeed`, `chartAccent` | `components/BalanceCard.tsx` (el único gráfico de serie de la app) | ✅ revisado: **no hay hueco**. Ver la corrección de abajo |
 
 ### Corrección de la auditoría (2026-08-03, tras leer el código)
@@ -88,6 +88,14 @@ Criterio para el barrido: un hex solo se queda si **no** representa marca ni est
 (logos de banco reales, negro/blanco puros de una tinta medida, colores semánticos de
 categoría). Todo lo demás pasa a token de la paleta y, si es tinta sobre color, se
 mide con `readableTint` / `inkOnFill` — nunca a ojo.
+
+### Bug de sincronización corregido (2026-08-03)
+
+`app/_layout.tsx` validaba el `chartType` remoto contra una lista escrita a mano
+(`['line','bars','area','dots']`), así que cualquier tipo nuevo llegado de Firestore se
+descartaba en silencio y parecía que la elección no se guardaba. Ahora valida contra
+`CHART_TYPE_VALUES`. Mismo patrón que ya había mordido a `chartAccent`.
+**Regla:** las listas de validación se importan del contexto, nunca se copian.
 
 ## Fase 4 · Verificación
 
