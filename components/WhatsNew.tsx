@@ -19,7 +19,8 @@ const CONTENT_MAX_WIDTH: Record<string, number> = {
 };
 
 // WHATS_NEW_VERSION siempre debe coincidir con app.json version.
-// Al hacer deploy, bump app.json y agregar entrada en VERSION_HISTORY.
+// Al hacer deploy: bump app.json y REEMPLAZAR APP_FEATURES por las mejoras de
+// esa versión (ver la regla sobre la lista, más abajo).
 // El modal aparece cuando whatsNewSeen del usuario ≠ WHATS_NEW_VERSION.
 export const WHATS_NEW_VERSION = appConfig.expo.version;
 
@@ -36,119 +37,12 @@ interface Feature {
   items: string[];
 }
 
-// Catálogo curado de funcionalidades principales de la app — sin duplicados ni versiones.
+// REGLA: aquí van SOLO las mejoras importantes de la versión que se publica, 5
+// como máximo. No es un historial: al preparar una versión nueva se REEMPLAZA
+// esta lista (y se borran del i18n las claves que dejan de usarse), no se añade
+// al final. Un listado acumulado convierte el modal en un changelog interminable
+// que nadie lee.
 const APP_FEATURES: Feature[] = [
-  {
-    icon: 'color-palette-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.personalizationStudio.title',
-    items: [
-      'whatsNew.personalizationStudio.item1',
-      'whatsNew.personalizationStudio.item2',
-      'whatsNew.personalizationStudio.item3',
-      'whatsNew.personalizationStudio.item4',
-    ],
-  },
-  {
-    icon: 'options-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.historyFilters.title',
-    items: ['whatsNew.historyFilters.item1', 'whatsNew.historyFilters.item2'],
-  },
-  {
-    icon: 'flag-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.goalsActions.title',
-    items: ['whatsNew.goalsActions.item1', 'whatsNew.goalsActions.item2'],
-  },
-  {
-    icon: 'people-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.friendReportFaceToFace.title',
-    items: [
-      'whatsNew.friendReportFaceToFace.item1',
-      'whatsNew.friendReportFaceToFace.item2',
-      'whatsNew.friendReportFaceToFace.item3',
-    ],
-  },
-  {
-    icon: 'grid-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.categoryIcons.title',
-    items: ['whatsNew.categoryIcons.item1', 'whatsNew.categoryIcons.item2', 'whatsNew.categoryIcons.item3'],
-  },
-  {
-    icon: 'sparkles-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.aiInsight.title',
-    items: ['whatsNew.aiInsight.item1', 'whatsNew.aiInsight.item2'],
-  },
-  {
-    icon: 'repeat',
-    colorKey: 'success',
-    titleKey: 'whatsNew.recurring.title',
-    items: ['whatsNew.recurring.item1', 'whatsNew.recurring.item2'],
-  },
-  {
-    icon: 'receipt-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.scanReceipt.title',
-    items: ['whatsNew.scanReceipt.item1', 'whatsNew.scanReceipt.item2'],
-  },
-  {
-    icon: 'image-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.animatedBackgrounds.title',
-    items: ['whatsNew.animatedBackgrounds.item1', 'whatsNew.animatedBackgrounds.item2', 'whatsNew.animatedBackgrounds.item3'],
-  },
-  {
-    icon: 'contrast-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.perModeBackground.title',
-    items: ['whatsNew.perModeBackground.item1', 'whatsNew.perModeBackground.item2'],
-  },
-  {
-    icon: 'person-circle-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.profileCard.title',
-    items: ['whatsNew.profileCard.item1', 'whatsNew.profileCard.item2'],
-  },
-  {
-    icon: 'color-palette-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.accentSelector.title',
-    items: ['whatsNew.accentSelector.item1', 'whatsNew.accentSelector.item2', 'whatsNew.accentSelector.item3'],
-  },
-  {
-    icon: 'trending-up-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.dynamicColors.title',
-    items: ['whatsNew.dynamicColors.item1', 'whatsNew.dynamicColors.item2', 'whatsNew.dynamicColors.item3'],
-  },
-  {
-    icon: 'people-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.txCard.title',
-    items: ['whatsNew.txCard.item1', 'whatsNew.txCard.item2', 'whatsNew.txCard.item3'],
-  },
-  {
-    icon: 'person-circle-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.homeHeader.title',
-    items: ['whatsNew.homeHeader.item1', 'whatsNew.homeHeader.item2'],
-  },
-  {
-    icon: 'phone-portrait-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.immersiveStatusBar.title',
-    items: ['whatsNew.immersiveStatusBar.item1', 'whatsNew.immersiveStatusBar.item2'],
-  },
-  {
-    icon: 'document-text-outline',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.txDetail.title',
-    items: ['whatsNew.txDetail.item1', 'whatsNew.txDetail.item2', 'whatsNew.txDetail.item3'],
-  },
   {
     icon: 'sparkles-outline',
     colorKey: 'primary',
@@ -206,7 +100,7 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
           </Text>
         </View>
 
-        {/* Contenido con scroll — todas las versiones */}
+        {/* Contenido con scroll — solo las mejoras de esta versión */}
         <ScrollView
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
