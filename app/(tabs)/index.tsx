@@ -39,14 +39,6 @@ import { useAiInsight, type InsightInput } from '../../hooks/useAiInsight';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { useHistoryStore } from '../../store/historyStore';
 import { Fonts } from '../../config/fonts';
-import {
-  isBiometricsAvailable,
-  isBiometricsAppEnrolled,
-  setBiometricsAppEnrolled,
-  wasBiometricsOffered,
-  markBiometricsOffered,
-} from '../../hooks/useBiometrics';
-import AppDialog from '../../components/AppDialog';
 import PwaInstallBanner from '../../components/PwaInstallBanner';
 import NotificationBell from '../../components/NotificationBell';
 import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
@@ -237,7 +229,6 @@ export default function HomeScreen() {
       setRefreshKey((k) => k + 1);
     }
   }, [pendingEditTx, lastAction, setLastAction]));
-  const [biometricOfferVisible, setBiometricOfferVisible] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
   const [showWhatsNew, setShowWhatsNew] = useState(false);
   const whatsNewChecked = useRef(false);
@@ -258,24 +249,6 @@ export default function HomeScreen() {
     } catch {}
     setShowWhatsNew(false);
   };
-
-  useEffect(() => {
-    async function offerBiometrics() {
-      try {
-        const available = await isBiometricsAvailable();
-        if (!available) return;
-        const alreadyEnrolled = await isBiometricsAppEnrolled();
-        if (alreadyEnrolled) return;
-        const offered = await wasBiometricsOffered();
-        if (offered) return;
-        await markBiometricsOffered();
-        setBiometricOfferVisible(true);
-      } catch {
-        // SecureStore failure — silently skip the offer
-      }
-    }
-    offerBiometrics();
-  }, []);
 
   // Repara los documentos que quedaron a la vez como cuota y como gasto fijo: se
   // clonaban cada mes indefinidamente e inflaban todos los agregados. Una sola vez
@@ -752,26 +725,6 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </FloatingActions>
 
-      {Platform.OS !== 'web' && (
-        <AppDialog
-          visible={biometricOfferVisible}
-          type="info"
-          title={t('home.biometricOffer.title')}
-          description={
-            <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
-              {t('home.biometricOffer.descPart1')}
-              <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('home.biometricOffer.descBold')}</Text>
-              {t('home.biometricOffer.descPart2')}
-            </Text>
-          }
-          primaryLabel={t('home.biometricOffer.activate')}
-          secondaryLabel={t('home.biometricOffer.notNow')}
-          onPrimary={() => {
-            setBiometricsAppEnrolled(true).catch(() => {}).finally(() => setBiometricOfferVisible(false));
-          }}
-          onSecondary={() => setBiometricOfferVisible(false)}
-        />
-      )}
       </ScreenBackground>
     </SafeAreaView>
     </ScreenTransition>

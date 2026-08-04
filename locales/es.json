@@ -185,14 +185,6 @@
     "noCardsBannerTitle": "Agrega tus tarjetas",
     "noCardsBannerSub": "Elige qué tarjetas usas y lleva un control exacto por cada una.",
     "transactionSaved": "Transacción guardada",
-    "biometricOffer": {
-      "title": "¿Entrar más rápido?",
-      "descPart1": "Activa ",
-      "descBold": "Face ID / Touch ID",
-      "descPart2": " para abrir Spendia sin necesidad de escribir nada.",
-      "activate": "Activar",
-      "notNow": "Ahora no"
-    },
     "greetingName": "Hola, {{name}}"
   },
   "profile": {
@@ -319,21 +311,6 @@
     "cards": {
       "section": "Mis tarjetas",
       "label": "Mis tarjetas"
-    },
-    "security": "SEGURIDAD",
-    "biometric": {
-      "label": "Face ID / Touch ID",
-      "subtitle": "Desbloquea la app con tu rostro o huella",
-      "unavailable": "No disponible en este dispositivo",
-      "enableError": "No se pudo activar la biometría. Intenta de nuevo.",
-      "disableError": "No se pudo desactivar la biometría. Intenta de nuevo.",
-      "disableDialog": {
-        "title": "Desactivar biometría",
-        "descPart1": "La próxima vez que abras la app necesitarás hacer ",
-        "descBold": "login completo",
-        "descPart2": ".",
-        "confirm": "Desactivar"
-      }
     },
     "signOut": {
       "button": "Cerrar sesión",
@@ -940,21 +917,6 @@
       "deleted": "Presupuesto eliminado",
       "error": "No se pudo guardar el presupuesto. Intenta de nuevo.",
       "deleteError": "No se pudo eliminar. Intenta de nuevo."
-    }
-  },
-  "biometricLock": {
-    "greeting": "Bienvenid@, {{name}}",
-    "greetingFallback": "de vuelta",
-    "subtitle": "Verifica tu identidad para continuar",
-    "error": "No se pudo verificar. Intenta de nuevo.",
-    "button": "Usar biometría",
-    "signOut": "Cerrar sesión",
-    "signOutDialog": {
-      "descPart1": "¿Seguro que quieres ",
-      "descBold1": "cerrar sesión",
-      "descPart2": "? Tendrás que volver a ",
-      "descBold2": "iniciar sesión",
-      "descPart3": " la próxima vez."
     }
   },
   "selectCards": {

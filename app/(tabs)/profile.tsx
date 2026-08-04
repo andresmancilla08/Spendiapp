@@ -22,11 +22,6 @@ import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import { accentInk } from '../../utils/contrast';
 import { signOut, updateDisplayName, changePin } from '../../hooks/useAuth';
-import {
-  isBiometricsAvailable,
-  isBiometricsAppEnrolled,
-  setBiometricsAppEnrolled,
-} from '../../hooks/useBiometrics';
 import { ThemeMode } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, changeLanguage } from '../../config/i18n';
@@ -375,7 +370,6 @@ export default function ProfileScreen() {
   const [changePinVisible, setChangePinVisible] = useState(false);
   const [langVisible, setLangVisible] = useState(false);
   const [dialog, setDialog] = useState<DialogState>(DIALOG_CLOSED);
-  const [biometricsAvailable, setBiometricsAvailable] = useState(false);
   const [userName, setUserName] = useState<string>('');
   const [fullName, setFullName] = useState<string>('');
 
@@ -392,25 +386,6 @@ export default function ProfileScreen() {
       .catch(() => {});
     return () => { cancelled = true; };
   }, [user?.uid]);
-
-  const [biometricsEnabled, setBiometricsEnabled] = useState(false);
-  const [biometricToggleDialog, setBiometricToggleDialog] = useState(false);
-
-  useEffect(() => {
-    async function loadBiometricsState() {
-      try {
-        const available = await isBiometricsAvailable();
-        setBiometricsAvailable(available);
-        if (available) {
-          const enrolled = await isBiometricsAppEnrolled();
-          setBiometricsEnabled(enrolled);
-        }
-      } catch {
-        // Si SecureStore falla, mantener biometría deshabilitada
-      }
-    }
-    loadBiometricsState();
-  }, []);
 
   const closeDialog = () => setDialog((d) => ({ ...d, visible: false }));
 
@@ -460,29 +435,6 @@ export default function ProfileScreen() {
       setNameInputError(t('profile.editName.error.generic.desc'));
     } finally {
       setEditNameLoading(false);
-    }
-  };
-
-  const handleBiometricToggle = async (value: boolean) => {
-    if (value) {
-      try {
-        await setBiometricsAppEnrolled(true);
-        setBiometricsEnabled(true);
-      } catch {
-        showError(t('common.error'), t('profile.biometric.enableError'));
-      }
-    } else {
-      setBiometricToggleDialog(true);
-    }
-  };
-
-  const confirmDisableBiometrics = async () => {
-    setBiometricToggleDialog(false);
-    try {
-      await setBiometricsAppEnrolled(false);
-      setBiometricsEnabled(false);
-    } catch {
-      showError(t('common.error'), t('profile.biometric.disableError'));
     }
   };
 
@@ -787,34 +739,6 @@ export default function ProfileScreen() {
           </>
         )}
 
-        {/* ── SEGURIDAD — biometría (solo nativo) ────────────────────── */}
-        {Platform.OS !== 'web' && (
-          <>
-            <GroupHeader label={t('profile.security')} />
-            <View style={[styles.optionCard, { backgroundColor: colors.surface, borderColor: colors.primary + '24' }, cardShadow]}>
-              <View style={[styles.optionRow, { opacity: biometricsAvailable ? 1 : 0.4 }]}>
-                <RowIconChip name="finger-print" color={colors.primary} />
-                <View style={styles.optionMeta}>
-                  <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>
-                    {t('profile.biometric.label')}
-                  </Text>
-                  <Text style={[styles.optionValue, { color: colors.textSecondary }]}>
-                    {biometricsAvailable
-                      ? t('profile.biometric.subtitle')
-                      : t('profile.biometric.unavailable')}
-                  </Text>
-                </View>
-                <Switch
-                  value={biometricsEnabled}
-                  onValueChange={biometricsAvailable ? handleBiometricToggle : undefined}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                  thumbColor="#FFFFFF"
-                  disabled={!biometricsAvailable}
-                />
-              </View>
-            </View>
-          </>
-        )}
 
         {/* ── SOPORTE ────────────────────────────────────────────────── */}
         <GroupHeader label={t('profile.sections.support')} />
@@ -872,26 +796,6 @@ export default function ProfileScreen() {
         i18n={i18n}
         t={t}
       />
-
-      {/* Dialog: Desactivar biometría (solo nativo) */}
-      {Platform.OS !== 'web' && (
-        <AppDialog
-          visible={biometricToggleDialog}
-          type="warning"
-          title={t('profile.biometric.disableDialog.title')}
-          description={
-            <Text style={{ fontSize: 15, lineHeight: 22, textAlign: 'center', color: colors.textSecondary }}>
-              {t('profile.biometric.disableDialog.descPart1')}
-              <Text style={{ fontFamily: Fonts.bold, color: colors.textPrimary }}>{t('profile.biometric.disableDialog.descBold')}</Text>
-              {t('profile.biometric.disableDialog.descPart2')}
-            </Text>
-          }
-          primaryLabel={t('profile.biometric.disableDialog.confirm')}
-          secondaryLabel={t('common.cancel')}
-          onPrimary={confirmDisableBiometrics}
-          onSecondary={() => setBiometricToggleDialog(false)}
-        />
-      )}
 
       {/* Dialog global */}
       <AppDialog

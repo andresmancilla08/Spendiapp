@@ -6,13 +6,11 @@ interface AuthState {
   isLoading: boolean;
   justRegistered: boolean;
   justLoggedIn: boolean;
-  biometricLocked: boolean;
   isPremium: boolean;
   setUser: (user: AuthUser | null) => void;
   setLoading: (loading: boolean) => void;
   setJustRegistered: (value: boolean) => void;
   setJustLoggedIn: (value: boolean) => void;
-  setBiometricLocked: (value: boolean) => void;
   setIsPremium: (value: boolean) => void;
 }
 
@@ -21,12 +19,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
   justRegistered: false,
   justLoggedIn: false,
-  biometricLocked: true,
   isPremium: false,
   setUser: (user) => set({ user }),
   setLoading: (isLoading) => set({ isLoading }),
   setJustRegistered: (justRegistered) => set({ justRegistered }),
   setJustLoggedIn: (justLoggedIn) => set({ justLoggedIn }),
-  setBiometricLocked: (biometricLocked) => set({ biometricLocked }),
   setIsPremium: (isPremium) => set({ isPremium }),
 }));

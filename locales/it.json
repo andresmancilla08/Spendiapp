@@ -185,14 +185,6 @@
     "noCardsBannerTitle": "Aggiungi le tue carte",
     "noCardsBannerSub": "Scegli quali carte usi e tieni traccia precisa di ogni spesa.",
     "transactionSaved": "Transazione salvata",
-    "biometricOffer": {
-      "title": "Accedi più velocemente?",
-      "descPart1": "Attiva ",
-      "descBold": "Face ID / Touch ID",
-      "descPart2": " per aprire Spendia senza digitare nulla.",
-      "activate": "Attiva",
-      "notNow": "Non ora"
-    },
     "greetingName": "Ciao, {{name}}"
   },
   "profile": {
@@ -319,21 +311,6 @@
     "cards": {
       "section": "Le mie carte",
       "label": "Le mie carte"
-    },
-    "security": "SICUREZZA",
-    "biometric": {
-      "label": "Face ID / Touch ID",
-      "subtitle": "Sblocca l'app con il tuo volto o impronta",
-      "unavailable": "Non disponibile su questo dispositivo",
-      "enableError": "Impossibile attivare la biometria. Riprova.",
-      "disableError": "Impossibile disattivare la biometria. Riprova.",
-      "disableDialog": {
-        "title": "Disattiva biometria",
-        "descPart1": "La prossima volta che apri l'app dovrai fare un ",
-        "descBold": "accesso completo",
-        "descPart2": ".",
-        "confirm": "Disattiva"
-      }
     },
     "signOut": {
       "button": "Disconnetti",
@@ -912,21 +889,6 @@
       "deleted": "Budget eliminato",
       "error": "Impossibile salvare il budget. Riprova.",
       "deleteError": "Impossibile eliminare. Riprova."
-    }
-  },
-  "biometricLock": {
-    "greeting": "Bentornato/a, {{name}}",
-    "greetingFallback": "di nuovo",
-    "subtitle": "Verifica la tua identità per continuare",
-    "error": "Impossibile verificare. Riprova.",
-    "button": "Usa biometria",
-    "signOut": "Disconnetti",
-    "signOutDialog": {
-      "descPart1": "Sei sicuro di voler ",
-      "descBold1": "disconnetterti",
-      "descPart2": "? Dovrai ",
-      "descBold2": "accedere di nuovo",
-      "descPart3": " la prossima volta."
     }
   },
   "selectCards": {

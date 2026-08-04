@@ -19,7 +19,6 @@ import AppBackground from '../components/AppBackground';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import { DMMono_400Regular, DMMono_500Medium } from '@expo-google-fonts/dm-mono';
-import { isBiometricsAppEnrolled } from '../hooks/useBiometrics';
 import WebAppShell from '../components/WebAppShell';
 import { useTranslation } from 'react-i18next';
 import { savePendingConsent, hasAcceptedConsent, hasPendingConsent, setPendingConsent } from '../hooks/useConsentLogger';
@@ -125,7 +124,7 @@ const PUBLIC_ROUTES = new Set(['/privacy', '/terms']);
 function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded: boolean }) {
   const { flags, flagsLoading } = useFlags();
   const pathname = usePathname();
-  const { user, isLoading, justRegistered, biometricLocked, setBiometricLocked, setIsPremium } = useAuthStore();
+  const { user, isLoading, justRegistered, setIsPremium } = useAuthStore();
   const [isBlockedChecked, setIsBlockedChecked] = useState(false);
   const [userIsBlocked, setUserIsBlocked] = useState(false);
   const [versionChecked, setVersionChecked] = useState(false);
@@ -265,35 +264,12 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
         navigate('/blocked');
         return;
       }
-      // 3. Biométrico (solo nativo)
-      if (biometricLocked && Platform.OS !== 'web') {
-        let cancelled = false;
-        isBiometricsAppEnrolled()
-          .then((enrolled) => {
-            if (cancelled) return;
-            if (enrolled) {
-              navigate('/(auth)/biometric-lock');
-            } else {
-              setBiometricLocked(false);
-              navigate('/(tabs)/');
-            }
-          })
-          .catch(() => {
-            if (!cancelled) {
-              setBiometricLocked(false);
-              navigate('/(tabs)/');
-            }
-          });
-        return () => { cancelled = true; };
-      } else {
-        navigate('/(tabs)/');
-      }
+      navigate('/(tabs)/');
     } else {
       if (PUBLIC_ROUTES.has(pathname)) return;
-      setBiometricLocked(true);
       navigate('/(auth)/login');
     }
-  }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, biometricLocked, flags.maintenanceMode, flagsLoading, userIsBlocked, isBlockedChecked, versionChecked, needsUpdate, pathname]);
+  }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, flags.maintenanceMode, flagsLoading, userIsBlocked, isBlockedChecked, versionChecked, needsUpdate, pathname]);
 
   return null;
 }

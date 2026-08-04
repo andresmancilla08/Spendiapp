@@ -211,6 +211,17 @@
 - **Solución:** el lienzo **viaja dentro del ScrollView**, así que su desplazamiento lo hace el propio scroller. Lo único animado son `opacity` y `translateY`/`scale` (propiedades de compositor, `useNativeDriver: true`), y las interpolaciones se crean **una vez** en un `useMemo` con el alto del capítulo como dependencia. La barra compacta se superpone en `position: absolute` con `overflow: hidden`: fuera de rango queda recortada, así que no se ve ni recibe toques, y ya no hace falta ningún estado para `pointerEvents`.
 - **Regla:** contra el scroll, solo transform y opacity. Cualquier propiedad que dispare layout (`height`, `width`, `margin`, `padding`, `top`) se anima en un `timing` puntual, nunca atada al gesto.
 
+### Desinstalar un paquete se llevó `@expo/vector-icons` (resuelto)
+- **Síntoma:** tras `npm uninstall` de seis dependencias sin uso, el `typecheck` falló con TS2307 en `context/ToastContext.tsx`: no encontraba `@expo/vector-icons`.
+- **Causa real:** ese módulo nunca estuvo en `package.json`. Se resolvía como **dependencia transitiva** de los paquetes desinstalados, así que el import funcionaba por accidente. Al limpiar el árbol, desapareció.
+- **Solución:** no reinstalarlo — el único uso era el icono del toast, y la regla del proyecto es que **todo icono va por `AppIcon` (Tabler)**. Se migró a `AppIcon` y la dependencia sobra. Los cuatro nombres (`checkmark-circle`, `close-circle`, `information-circle`, `warning`) existen igual en `ICON_MAP`, así que fue cambiar import, tipo (`AppIconName`) y etiqueta.
+- **Regla:** un import que no aparece en `package.json` es una bomba de relojería. Tras cualquier `uninstall`, pasar `typecheck` **y** `npm run export`: el bundler puede seguir resolviendo lo que TypeScript ya no ve.
+
+### Un stub `.web` es la variante de plataforma, no un fichero huérfano
+- **Síntoma:** un detector de módulos sin importar señaló `hooks/useBiometrics.web.ts` como muerto, porque nadie escribe `.web` en un import.
+- **Causa real:** Metro resuelve `fichero.web.ts` automáticamente en builds web frente a `fichero.ts`. Borrar **solo** el `.web` es lo peor que se puede hacer: web pasaría a cargar la variante nativa. O se van los dos o no se va ninguno.
+- **Regla:** ante un `*.web.ts` / `*.native.ts` / `*.ios.ts`, tratar el grupo como una unidad.
+
 ### Una paleta fuera de `PALETTE_GROUPS` no se ve (resuelto)
 - **Síntoma:** las ocho paletas neón estaban en `PALETTES`, con nombre en los tres idiomas y pasando los tests de contraste… y no aparecían en Personalización.
 - **Causa real:** el selector no recorre `PALETTES`: pinta `PALETTE_GROUPS`, que lista los ids **a mano**. Una paleta que no esté en ningún grupo existe en el código y es invisible en la app, sin ningún error.

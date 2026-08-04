@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import { Animated, Platform, Text, View, StyleSheet, useWindowDimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import AppIcon, { type AppIconName } from '../components/AppIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../config/fonts';
 
@@ -22,7 +22,7 @@ export function useToast() {
   return useContext(ToastContext);
 }
 
-const CONFIG: Record<ToastType, { bg: string; icon: keyof typeof Ionicons.glyphMap }> = {
+const CONFIG: Record<ToastType, { bg: string; icon: AppIconName }> = {
   success: { bg: '#10B981', icon: 'checkmark-circle' },
   error:   { bg: '#EF4444', icon: 'close-circle' },
   info:    { bg: '#3B82F6', icon: 'information-circle' },
@@ -81,7 +81,7 @@ function ToastBanner({ toast }: { toast: ToastState }) {
       ]}
       pointerEvents="none"
     >
-      <Ionicons name={cfg.icon} size={20} color="#fff" />
+      <AppIcon name={cfg.icon} size={20} color="#fff" />
       <Text style={styles.message} numberOfLines={2}>{toast.message}</Text>
     </Animated.View>
   );
