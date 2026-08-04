@@ -2,7 +2,8 @@
  * Autoselección del icono de una categoría a partir de lo que escribe el usuario.
  *
  * Orden: tabla de palabras (instantánea, sin red, cubre español latinoamericano y
- * marcas locales) → Gemini restringido al catálogo → `FALLBACK_ICON` ("Otro").
+ * marcas locales) → Gemini restringido al catálogo, vía `api/suggest-icon.js` →
+ * `FALLBACK_ICON` ("Otro").
  * La IA NUNCA inventa: su respuesta se valida contra `CATEGORY_ICONS` y, si no
  * está, se descarta.
  */
@@ -30,45 +31,27 @@ export function suggestIconLocal(name: string): string | null {
   return null;
 }
 
-interface GeminiResponse {
-  candidates?: { content?: { parts?: { text?: string }[] } }[];
-}
-
-export async function suggestIconWithGemini(name: string, apiKey: string): Promise<string | null> {
-  if (!apiKey) return null;
-  const catalog = CATEGORY_ICON_NAMES.join(', ');
-  const prompt =
-    `Elige el icono que mejor representa esta categoría de gastos: "${name}".\n` +
-    `Responde ÚNICAMENTE con una de estas claves, sin comillas ni explicación:\n${catalog}\n` +
-    `Si ninguna encaja razonablemente, responde exactamente: ${FALLBACK_ICON}`;
+/** Sugerencia IA vía server (api/suggest-icon.js). La key vive en el servidor,
+ *  nunca en el cliente. Devuelve null si falla/offline → el caller usa FALLBACK_ICON. */
+export async function suggestIconRemote(name: string): Promise<string | null> {
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 12, temperature: 0.1 },
-        }),
-      },
-    );
-    const data = (await res.json()) as GeminiResponse;
-    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toLowerCase() ?? '';
-    const key = raw.replace(/[^a-z0-9-]/g, '');
-    return isCategoryIcon(key) ? key : null;
+    const r = await fetch('https://spendia.co/api/suggest-icon', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name, catalog: CATEGORY_ICON_NAMES, fallback: FALLBACK_ICON }),
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    // La respuesta se valida contra el catálogo real: la IA nunca inventa un icono.
+    return typeof data?.icon === 'string' && isCategoryIcon(data.icon) ? data.icon : null;
   } catch {
     return null;
   }
 }
 
 /** Palabras primero, IA después, "Otro" si nada encaja. Nunca devuelve vacío. */
-export async function suggestIcon(name: string, apiKey?: string): Promise<string> {
+export async function suggestIcon(name: string): Promise<string> {
   const local = suggestIconLocal(name);
   if (local) return local;
-  if (apiKey) {
-    const ai = await suggestIconWithGemini(name, apiKey);
-    if (ai) return ai;
-  }
-  return FALLBACK_ICON;
+  return (await suggestIconRemote(name)) ?? FALLBACK_ICON;
 }

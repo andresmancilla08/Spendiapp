@@ -26,10 +26,9 @@ import { Fonts } from '../config/fonts';
 import type { Category, CategoryType } from '../types/category';
 import IconPicker from './IconPicker';
 import CategoryIcon from './CategoryIcon';
-import { suggestIconLocal, suggestIconWithGemini } from '../utils/suggestIcon';
+import { suggestIconLocal, suggestIconRemote } from '../utils/suggestIcon';
 import { FALLBACK_ICON } from '../constants/categoryIconData';
 
-const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 
 const DEFAULT_ICON = FALLBACK_ICON;
 
@@ -146,17 +145,12 @@ export function CategoryFormModal({
         return;
       }
 
-      if (GEMINI_KEY) {
-        setIsEmojiLoading(true);
-        const aiIcon = await suggestIconWithGemini(name, GEMINI_KEY);
-        setIsEmojiLoading(false);
-        // Sin coincidencia ni en palabras ni en IA: se queda el icono de "Otro".
-        setIcon(aiIcon ?? FALLBACK_ICON);
-        setIconSource('auto');
-      } else {
-        setIcon(FALLBACK_ICON);
-        setIconSource('auto');
-      }
+      setIsEmojiLoading(true);
+      const aiIcon = await suggestIconRemote(name);
+      setIsEmojiLoading(false);
+      // Sin coincidencia ni en palabras ni en IA: se queda el icono de "Otro".
+      setIcon(aiIcon ?? FALLBACK_ICON);
+      setIconSource('auto');
     }, 500);
 
     return () => {

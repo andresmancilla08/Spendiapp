@@ -76,6 +76,22 @@ await check('insight: devuelve frase + chip', async () => {
   assert.ok(res.body.sentence.length > 10 && res.body.sentence.length <= 140);
 });
 
+await check('suggest-icon: elige del catálogo recibido', async () => {
+  // Catálogo reducido a propósito: el endpoint no guarda copia del real
+  // (constants/categoryIconData.ts), lo recibe y valida contra él.
+  const catalog = ['fish', 'bowl', 'paw', 'plane', 'book', 'car', 'pin'];
+  const res = await call('suggest-icon.js', { name: 'sushi para llevar', catalog, fallback: 'pin' });
+  assert.equal(res.code, 200, `HTTP ${res.code} ${JSON.stringify(res.body)}`);
+  assert.ok(catalog.includes(res.body.icon), `icon=${res.body.icon} fuera del catálogo`);
+  assert.notEqual(res.body.icon, 'pin', 'debería reconocer comida, no caer al fallback');
+});
+
+await check('suggest-icon: rechaza catálogo vacío', async () => {
+  const res = await call('suggest-icon.js', { name: 'gimnasio', catalog: [] });
+  assert.equal(res.code, 400);
+  assert.equal(res.body.error, 'no_catalog');
+});
+
 // El parser debe rechazar un recibo ilegible para que el formulario no se prellene con nada.
 await check('ocr.parse: descarta salida vacía', async () => {
   const { parse } = await import(join(ROOT, 'api/ocr.js'));

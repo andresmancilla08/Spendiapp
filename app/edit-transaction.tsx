@@ -37,7 +37,7 @@ import BankLogo from '../components/BankLogo';
 import { useHistoryStore } from '../store/historyStore';
 import ScreenTransition from '../components/ScreenTransition';
 import { categorizeLocal, categorizeRemote } from '../utils/categorize';
-import { suggestIconLocal, suggestIconWithGemini } from '../utils/suggestIcon';
+import { suggestIconLocal, suggestIconRemote } from '../utils/suggestIcon';
 import { FALLBACK_ICON } from '../constants/categoryIconData';
 import IconPicker from '../components/IconPicker';
 import CategoryIcon from '../components/CategoryIcon';
@@ -46,7 +46,6 @@ import { calcSharedAmount, calcEqualPercentages } from '../utils/sharedCalc';
 import { categoryForOtherUser } from '../utils/sharedCategory';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
-const GEMINI_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY ?? '';
 
 function formatDisplayDate(date: Date, lang?: string): string {
   return formatDate(date, { day: 'numeric', month: 'short', year: 'numeric' }, lang);
@@ -161,14 +160,11 @@ export default function EditTransactionScreen() {
     emojiDebounceRef.current = setTimeout(async () => {
       const local = suggestIconLocal(newCatName);
       if (local) { setNewCatIcon(local); return; }
-      if (!GEMINI_KEY) { setNewCatIcon(FALLBACK_ICON); return; }
-      if (GEMINI_KEY) {
-        setEmojiSuggesting(true);
-        const ai = await suggestIconWithGemini(newCatName, GEMINI_KEY);
-        setEmojiSuggesting(false);
-        // Sin coincidencia: se queda el icono de "Otro".
-        setNewCatIcon(ai ?? FALLBACK_ICON);
-      }
+      setEmojiSuggesting(true);
+      const ai = await suggestIconRemote(newCatName);
+      setEmojiSuggesting(false);
+      // Sin coincidencia: se queda el icono de "Otro".
+      setNewCatIcon(ai ?? FALLBACK_ICON);
     }, 500);
   }, [newCatName, userPickedEmoji]);
 
