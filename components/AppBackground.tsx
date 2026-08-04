@@ -47,7 +47,15 @@ export const CHROME_COLOR_KEY = '@spendia_chrome';
  * padre a crear su propio contexto de composición restablece el clip.
  */
 export const CLIP_BLURRED_CHILD = Platform.OS === 'web'
-  ? ({ isolation: 'isolate', transform: 'translateZ(0)' } as any)
+  ? ({
+      // La máscara es la que hace el trabajo: obliga a WebKit a recortar en el
+      // COMPOSITOR usando la geometría del padre (radio incluido), que es donde
+      // `overflow: hidden` se rendía ante la capa del `filter`. Opaca de punta a
+      // punta, así que no altera nada de lo que se ve.
+      maskImage: 'linear-gradient(#000 0 0)',
+      WebkitMaskImage: 'linear-gradient(#000 0 0)',
+      isolation: 'isolate',
+    } as any)
   : null;
 
 /** Desenfoque del efecto de fondo, listo para `style`. En web es `filter` CSS;
