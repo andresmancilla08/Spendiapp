@@ -82,7 +82,7 @@
 - **Descartado:** teñir la banda con `colors.primaryDark` (versión de 2026-07-29: metía una banda de marca sobre el reloj) y mantenerla neutra (versión intermedia).
 - **Arranque sin parpadeo:** `AppBackground` cachea el color en `localStorage['@spendia_chrome']`; el script del `<head>` lo lee antes de que React monte y solo cae al neutro por modo en el primer arranque, cuando aún no conoce la paleta.
 - **Contrapartida conocida:** el color del reloj lo decide iOS y no se puede fijar por CSS. Coincide con el modo del **sistema**, no con el de la app: forzar tema oscuro en Spendia con el iPhone en claro (o al revés) puede dejarlo con poco contraste sobre la zona segura.
-- **Ojo:** el CSS que llega a producción es el de `scripts/patch-html.js`, no el de `app/+html.tsx` (ese solo aplica a `expo start`). Todo cambio de `<head>` o de CSS global hay que hacerlo en LOS DOS.
+- **Ojo:** el único `<head>` que existe es el de `scripts/patch-html.js`. `app/+html.tsx` está muerto (necesita `web.output: "static"`, que no está declarado) — se sigue editando en paralelo por si algún día se activa, pero nada de lo que hay ahí llega al navegador, ni en dev. Ver `errores-conocidos.md`.
 
 ### SEO: la ficha de búsqueda se arma en el post-build — Vigente
 - **Qué:** `scripts/patch-html.js` escribe título y descripción con intención de búsqueda, canonical, `robots`, Open Graph completo, Twitter card y JSON-LD `SoftwareApplication`, y sustituye el `<noscript>` de Expo por una descripción real del producto. En `public/`: `robots.txt`, `sitemap.xml`, `og-image.png` (1200×630) e iconos 192/512 reales.
