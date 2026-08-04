@@ -76,6 +76,21 @@ await check('insight: devuelve frase + chip', async () => {
   assert.ok(res.body.sentence.length > 10 && res.body.sentence.length <= 140);
 });
 
+// El insight tiene que CONCLUIR, no solo proyectar: 700k a día 3 de 31 son 7,2M
+// contra 4M de ingresos. Con el modelo -lite al frente esto salía como
+// "muy por debajo de tus ingresos" y tone "pos".
+await check('insight: detecta el sobregasto proyectado', async () => {
+  const res = await call('insight.js', {
+    monthLabel: 'agosto', dayOfMonth: 3, daysInMonth: 31,
+    income: 4_000_000, expenses: 700_000, balance: 3_300_000,
+    prevMonthExpenses: 3_800_000, prevMonthToDateExpenses: 400_000, savingsRate: 82,
+    topCategories: [{ label: 'home', amount: 400_000 }],
+  });
+  assert.equal(res.code, 200, `HTTP ${res.code} ${JSON.stringify(res.body)}`);
+  assert.equal(res.body.chip?.tone, 'neg', `tone=${res.body.chip?.tone} :: ${res.body.sentence}`);
+  assert.ok(res.body.chip.label.length <= 16); // parseInsight recorta ahí: el prompt debe respetarlo
+});
+
 await check('suggest-icon: elige del catálogo recibido', async () => {
   // Catálogo reducido a propósito: el endpoint no guarda copia del real
   // (constants/categoryIconData.ts), lo recibe y valida contra él.

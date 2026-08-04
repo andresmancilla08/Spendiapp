@@ -24,11 +24,14 @@ const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models';
  *  @returns {Promise<{ok:true, data:any} | {ok:false, status:number, reason:string}>}
  *  status es el HTTP de Gemini (429 = cuota) o 0 si no hubo respuesta.
  */
-export async function generate({ apiKey, parts, system, generationConfig = {}, timeoutMs = 20000, parse, label = 'gemini' }) {
+export async function generate({ apiKey, parts, system, generationConfig = {}, timeoutMs = 20000, parse, label = 'gemini', reasoningFirst = false }) {
   let status = 0;
   let reason = 'no_candidates';
 
-  for (const step of CHAIN) {
+  // reasoningFirst: para tareas que razonan sobre varias cifras a la vez. -lite es
+  // ideal extrayendo datos (OCR, clasificar) y flojo concluyendo: proyectaba 7,2M
+  // de gasto contra 4M de ingresos y lo llamaba "muy por debajo de tus ingresos".
+  for (const step of reasoningFirst ? [...CHAIN].reverse() : CHAIN) {
     const body = {
       contents: [{ role: 'user', parts }],
       generationConfig: { ...generationConfig, maxOutputTokens: step.maxOutputTokens },

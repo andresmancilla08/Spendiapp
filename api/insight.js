@@ -30,8 +30,9 @@ export default async function handler(req, res) {
     system: SYSTEM,
     parts: [{ text: JSON.stringify(a) }],
     generationConfig: { temperature: 0.6, responseMimeType: 'application/json' },
-    timeoutMs: 12000,
+    timeoutMs: 15000, // el modelo que razona tarda más; si se pasa, cae al -lite del segundo intento
     parse: parseInsight,
+    reasoningFirst: true, // proyecta y compara cifras: -lite sacaba conclusiones que se contradicen
   });
 
   if (!out.ok) return res.status(out.status === 429 ? 429 : 502).json({ error: 'insight_failed', reason: out.reason });
@@ -50,6 +51,8 @@ Reglas:
   sobre-gasto vs mes anterior, categoría dominante, tasa de ahorro. Habla en segunda persona ("vas", "cierras").
 - "chip": dato clave con signo. tone "pos" si es buena señal (ahorro, gasto a la baja),
   "neg" si es alerta (déficit, gasto al alza), "muted" si es neutro/sin datos.
+  "label": MÁXIMO 16 caracteres, se recorta sin piedad. Cifra abreviada y nada más
+  ("$7,2M al cierre", "-18% vs julio", "82% ahorrado"); no metas la palabra "proyección".
 - Nunca inventes cifras que no estén en los datos. Nada de markdown, nada fuera del JSON.
 - Si no hay datos suficientes (todo 0 o null), sentence motivacional breve y chip tone "muted".`;
 
