@@ -11,7 +11,7 @@ import BalanceCard from '../../components/BalanceCard';
 import CategoryIcon from '../../components/CategoryIcon';
 import * as Haptics from 'expo-haptics';
 import ScreenBackground from '../../components/ScreenBackground';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AppIcon from '../../components/AppIcon';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
 import HomeHeader, { HOME_HEADER_HEIGHT } from '../../components/HomeHeader';
@@ -44,7 +44,7 @@ import NotificationBell from '../../components/NotificationBell';
 import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
 import FloatingActions from '../../components/FloatingActions';
-import ScrollFadeEdges from '../../components/ScrollFadeEdges';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import ScreenTransition from '../../components/ScreenTransition';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfettiBurst from '../../components/ConfettiBurst';
@@ -194,6 +194,7 @@ function ProSectionHeader({ label, right }: { label: string; right?: ReactNode }
 export default function HomeScreen() {
   const { user, isPremium } = useAuthStore();
   const { reduceMotion } = useProMotion();
+  const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
   const { categories } = useCategories(user?.uid ?? '');
   const customCatMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c])), [categories]);
@@ -522,7 +523,8 @@ export default function HomeScreen() {
       </View>
 
       <Animated.ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingTop: HOME_HEADER_HEIGHT + 12 }]}
+        style={scrollFadeMask(HOME_HEADER_HEIGHT, 96)}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={Animated.event(
@@ -750,7 +752,7 @@ const styles = StyleSheet.create({
   // hueco con paddingTop (alto del header + el aire que ya tenía).
   stage: { flex: 1 },
   headerLayer: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 3 },
-  scroll: { paddingHorizontal: 20, paddingTop: HOME_HEADER_HEIGHT + 12, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  scroll: { paddingHorizontal: 20, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
 
   // Summary

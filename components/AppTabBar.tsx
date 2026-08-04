@@ -12,7 +12,6 @@ import { Fonts } from '../config/fonts';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useAuthStore } from '../store/authStore';
 import { useTabBarShrink } from '../hooks/useTabBarShrink';
-import ScrollFadeEdges from './ScrollFadeEdges';
 import PremiumTabBar from './PremiumTabBar';
 
 
@@ -91,9 +90,6 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   return (
     <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
-      {/* El contenido que pasa por detrás de la píldora se desenfoca en vez de
-          cortarse; el difuminado llega hasta el borde físico, zona segura incluida. */}
-      <ScrollFadeEdges edge="bottom" height={BAR_HEIGHT + bottomPad + 44} />
       <Animated.View style={[
         styles.container,
         {

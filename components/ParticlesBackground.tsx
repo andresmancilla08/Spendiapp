@@ -83,13 +83,15 @@ function Particle({ config, travel }: { config: ParticleConfig; travel: number }
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.delay(config.delay),
         Animated.timing(anim, { toValue: 1, duration: config.duration, easing: Easing.linear, useNativeDriver: false }),
         Animated.timing(anim, { toValue: 0, duration: 0, useNativeDriver: false }),
       ])
     );
-    loop.start();
-    return () => loop.stop();
+    // El desfase se aplica UNA vez, no en cada vuelta: con el `Animated.delay`
+    // dentro del loop la pausa se repetía en cada ciclo y el efecto se leía
+    // como un reinicio a tirones en vez de un movimiento continuo.
+    const kickoff = setTimeout(() => loop.start(), config.delay);
+    return () => { clearTimeout(kickoff); loop.stop(); };
     // Reinicia in-place al cambiar velocidad/intensidad (duración/delay nuevos)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.duration, config.delay]);

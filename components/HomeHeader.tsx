@@ -14,7 +14,6 @@ import Svg, { Circle } from 'react-native-svg';
 import AppIcon from './AppIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
-import ScrollFadeEdges from './ScrollFadeEdges';
 import { Fonts } from '../config/fonts';
 import { readableOn } from '../utils/contrast';
 
@@ -188,12 +187,6 @@ export default function HomeHeader({
 
   return (
     <View style={[styles.root, { height: HOME_HEADER_HEIGHT }]}>
-      {/* Difuminado del borde superior: se estira hasta el borde físico
-          (insets.top) para que el contenido que sube se desvanezca también
-          bajo la barra de estado y no quede una línea a la altura de la zona
-          segura. Va lo primero: el header se pinta encima. */}
-      <ScrollFadeEdges edge="top" height={HOME_HEADER_HEIGHT} extend={insets.top} />
-
       {/* Al abrir */}
       <Animated.View style={[styles.layer, expandedStyle]} pointerEvents={compact ? 'none' : 'auto'}>
         <TouchableOpacity onPress={onPressProfile} activeOpacity={0.8} style={styles.avatarHit}>

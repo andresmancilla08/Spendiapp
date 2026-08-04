@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useTabBarShrink } from '../hooks/useTabBarShrink';
-import ScrollFadeEdges from './ScrollFadeEdges';
 
 
 const TAB_CONFIG: Record<string, { icon: AppIconName; iconActive: AppIconName }> = {
@@ -108,9 +107,6 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
 
   return (
     <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
-      {/* El contenido que pasa por detrás de la píldora se desenfoca en vez de
-          cortarse; el difuminado llega hasta el borde físico, zona segura incluida. */}
-      <ScrollFadeEdges edge="bottom" height={BAR_HEIGHT + bottomPad + 44} />
       <Animated.View style={[
         styles.container,
         { backgroundColor: glassColor, borderColor },

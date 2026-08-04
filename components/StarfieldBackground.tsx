@@ -81,13 +81,15 @@ function Star({ config, speed }: { config: StarConfig; speed: number }) {
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.delay(config.delay),
         Animated.timing(anim, { toValue: 1, duration: config.dur * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
         Animated.timing(anim, { toValue: 0, duration: config.dur * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
       ])
     );
-    loop.start();
-    return () => loop.stop();
+    // El desfase se aplica UNA vez, no en cada vuelta: con el `Animated.delay`
+    // dentro del loop la pausa se repetía en cada ciclo y el titileo se leía
+    // como un reinicio en vez de un ciclo continuo.
+    const kickoff = setTimeout(() => loop.start(), config.delay);
+    return () => { clearTimeout(kickoff); loop.stop(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [speed]);
 
