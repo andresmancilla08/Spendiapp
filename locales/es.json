@@ -107,9 +107,6 @@
       "description": "Este correo ya tiene una cuenta con PIN. ¿Quieres iniciar sesión?",
       "primary": "Iniciar sesión",
       "secondary": "Cancelar"
-    },
-    "inactivity": {
-      "description": "Por seguridad, cerraremos tu sesión en {{seconds}} segundos por inactividad."
     }
   },
   "errors": {
@@ -202,8 +199,7 @@
     "sections": {
       "account": "CUENTA",
       "preferences": "PREFERENCIAS",
-      "support": "SOPORTE",
-      "tools": "Herramientas"
+      "support": "SOPORTE"
     },
     "editName": {
       "label": "Editar nombre",
@@ -215,8 +211,7 @@
       },
       "error": {
         "empty": {
-          "title": "Nombre inválido",
-          "desc": "El nombre no puede estar vacío."
+          "title": "Nombre inválido"
         },
         "generic": {
           "desc": "No se pudo actualizar el nombre. Intenta de nuevo."
@@ -315,9 +310,6 @@
       "tangerine": "Mandarina",
       "infrared": "Infrarrojo"
     },
-    "notifications": {
-      "label": "Notificaciones"
-    },
     "faq": {
       "label": "Buzón de sugerencias"
     },
@@ -346,7 +338,6 @@
     "signOut": {
       "button": "Cerrar sesión",
       "title": "Cerrar sesión",
-      "description": "¿Estás seguro que deseas cerrar sesión?",
       "descPart1": "¿Seguro que quieres ",
       "descBold": "cerrar sesión",
       "descPart2": "? Tendrás que volver a iniciar sesión la próxima vez.",
@@ -709,7 +700,6 @@
       "categoryLabel": "CATEGORÍA",
       "notesLabel": "NOTA",
       "cardLabel": "TARJETA",
-      "noCard": "Sin tarjeta",
       "editButton": "Editar",
       "creditType": "Crédito",
       "debitType": "Débito",
@@ -1062,12 +1052,10 @@
       "cancel": "Cancelar"
     },
     "remove": {
-      "button": "Eliminar amigo",
       "dialogTitle": "¿Eliminar amigo?",
       "dialogDescBefore": "¿Seguro que quieres eliminar a ",
       "dialogDescAfter": " de tus amigos?",
-      "confirm": "Sí, eliminar",
-      "success": "Amigo eliminado"
+      "confirm": "Sí, eliminar"
     },
     "toasts": {
       "requestSent": "Solicitud enviada a @{{userName}}",
@@ -1271,7 +1259,6 @@
     "generating": "Generando...",
     "share": "Compartir",
     "save": "Guardar",
-    "close": "Cerrar",
     "savedSuccess": "Imagen guardada",
     "shareError": "No se pudo compartir la imagen",
     "noTransactions": "Sin movimientos para este año",
@@ -1355,7 +1342,6 @@
     "emptyActiveSub": "Crea tu primera meta y empieza a ahorrar",
     "emptyCompleted": "Aún no has completado ninguna meta",
     "emptyCompletedSub": "¡Sigue adelante, pronto lo lograrás!",
-    "saved": "guardado",
     "of": "de",
     "createButton": "Crear meta",
     "cancelButton": "Cancelar",
@@ -1403,7 +1389,6 @@
     "statusSettled": "Liquidado",
     "participants": "participante",
     "participants_plural": "participantes",
-    "total": "Total",
     "deleteGroup": "Eliminar grupo",
     "deleteGroupConfirm": "¿Eliminar este grupo y todos sus gastos? Esta acción no se puede deshacer.",
     "settle": "Marcar como liquidado",
@@ -1597,9 +1582,6 @@
     "accept": "Acepto y continuar",
     "cancel": "Cancelar",
     "legalNote": "Al continuar, confirmas que has leído y aceptas los documentos indicados. Guardamos la fecha y hora de tu aceptación."
-  },
-  "landing": {
-    "description": "Registra ingresos y gastos, categoriza transacciones y visualiza tus finanzas con gráficas claras. Diseñado para Colombia."
   },
   "exchangeRate": {
     "updatedAt": "Act. {{time}}",

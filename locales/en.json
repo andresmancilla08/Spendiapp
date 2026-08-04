@@ -107,9 +107,6 @@
       "description": "This email already has a PIN account. Would you like to sign in?",
       "primary": "Sign in",
       "secondary": "Cancel"
-    },
-    "inactivity": {
-      "description": "For security, we'll log you out in {{seconds}} seconds due to inactivity."
     }
   },
   "errors": {
@@ -202,8 +199,7 @@
     "sections": {
       "account": "ACCOUNT",
       "preferences": "PREFERENCES",
-      "support": "SUPPORT",
-      "tools": "Tools"
+      "support": "SUPPORT"
     },
     "editName": {
       "label": "Edit name",
@@ -215,8 +211,7 @@
       },
       "error": {
         "empty": {
-          "title": "Invalid name",
-          "desc": "The name cannot be empty."
+          "title": "Invalid name"
         },
         "generic": {
           "desc": "Could not update the name. Please try again."
@@ -315,9 +310,6 @@
       "tangerine": "Tangerine",
       "infrared": "Infrared"
     },
-    "notifications": {
-      "label": "Notifications"
-    },
     "faq": {
       "label": "Suggestion box"
     },
@@ -346,7 +338,6 @@
     "signOut": {
       "button": "Sign out",
       "title": "Sign out",
-      "description": "Are you sure you want to sign out?",
       "descPart1": "Are you sure you want to ",
       "descBold": "sign out",
       "descPart2": "? You'll need to sign in again next time.",
@@ -709,7 +700,6 @@
       "categoryLabel": "CATEGORY",
       "notesLabel": "NOTE",
       "cardLabel": "CARD",
-      "noCard": "No card",
       "editButton": "Edit",
       "creditType": "Credit",
       "debitType": "Debit",
@@ -1062,12 +1052,10 @@
       "cancel": "Cancel"
     },
     "remove": {
-      "button": "Remove friend",
       "dialogTitle": "Remove friend?",
       "dialogDescBefore": "Are you sure you want to remove ",
       "dialogDescAfter": " from your friends?",
-      "confirm": "Yes, remove",
-      "success": "Friend removed"
+      "confirm": "Yes, remove"
     },
     "toasts": {
       "requestSent": "Request sent to @{{userName}}",
@@ -1271,7 +1259,6 @@
     "generating": "Generating...",
     "share": "Share",
     "save": "Save",
-    "close": "Close",
     "savedSuccess": "Image saved",
     "shareError": "Couldn't share the image",
     "noTransactions": "No transactions for this year",
@@ -1355,7 +1342,6 @@
     "emptyActiveSub": "Create your first goal and start saving",
     "emptyCompleted": "No completed goals yet",
     "emptyCompletedSub": "Keep going, you'll get there!",
-    "saved": "saved",
     "of": "of",
     "createButton": "Create goal",
     "cancelButton": "Cancel",
@@ -1403,7 +1389,6 @@
     "statusSettled": "Settled",
     "participants": "participant",
     "participants_plural": "participants",
-    "total": "Total",
     "deleteGroup": "Delete group",
     "deleteGroupConfirm": "Delete this group and all its expenses? This action cannot be undone.",
     "settle": "Mark as settled",
@@ -1597,9 +1582,6 @@
     "accept": "I accept and continue",
     "cancel": "Cancel",
     "legalNote": "By continuing, you confirm that you have read and accepted the indicated documents. We store the date and time of your acceptance."
-  },
-  "landing": {
-    "description": "Track income and expenses, categorize transactions and visualize your finances with clear charts. Designed for Colombia."
   },
   "exchangeRate": {
     "updatedAt": "Upd. {{time}}",

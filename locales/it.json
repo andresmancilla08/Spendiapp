@@ -107,9 +107,6 @@
       "description": "Questa email ha già un account con PIN. Vuoi accedere?",
       "primary": "Accedi",
       "secondary": "Annulla"
-    },
-    "inactivity": {
-      "description": "Per sicurezza, ti disconnetteremo tra {{seconds}} secondi per inattività."
     }
   },
   "errors": {
@@ -202,8 +199,7 @@
     "sections": {
       "account": "ACCOUNT",
       "preferences": "PREFERENZE",
-      "support": "SUPPORTO",
-      "tools": "Strumenti"
+      "support": "SUPPORTO"
     },
     "editName": {
       "label": "Modifica nome",
@@ -215,8 +211,7 @@
       },
       "error": {
         "empty": {
-          "title": "Nome non valido",
-          "desc": "Il nome non può essere vuoto."
+          "title": "Nome non valido"
         },
         "generic": {
           "desc": "Impossibile aggiornare il nome. Riprova."
@@ -315,9 +310,6 @@
       "tangerine": "Mandarino",
       "infrared": "Infrarosso"
     },
-    "notifications": {
-      "label": "Notifiche"
-    },
     "faq": {
       "label": "Cassetta dei suggerimenti"
     },
@@ -346,7 +338,6 @@
     "signOut": {
       "button": "Disconnetti",
       "title": "Disconnetti",
-      "description": "Sei sicuro di voler uscire dall'account?",
       "descPart1": "Sei sicuro di voler ",
       "descBold": "disconnetterti",
       "descPart2": "? Dovrai accedere di nuovo la prossima volta.",
@@ -709,7 +700,6 @@
       "categoryLabel": "CATEGORIA",
       "notesLabel": "NOTA",
       "cardLabel": "CARTA",
-      "noCard": "Nessuna carta",
       "editButton": "Modifica",
       "creditType": "Credito",
       "debitType": "Debito",
@@ -1062,12 +1052,10 @@
       "cancel": "Annulla"
     },
     "remove": {
-      "button": "Rimuovi amico",
       "dialogTitle": "Rimuovere amico?",
       "dialogDescBefore": "Sei sicuro di voler rimuovere ",
       "dialogDescAfter": " dai tuoi amici?",
-      "confirm": "Sì, rimuovi",
-      "success": "Amico rimosso"
+      "confirm": "Sì, rimuovi"
     },
     "toasts": {
       "requestSent": "Richiesta inviata a @{{userName}}",
@@ -1271,7 +1259,6 @@
     "generating": "Generazione...",
     "share": "Condividi",
     "save": "Salva",
-    "close": "Chiudi",
     "savedSuccess": "Immagine salvata",
     "shareError": "Impossibile condividere l'immagine",
     "noTransactions": "Nessuna transazione per questo anno",
@@ -1355,7 +1342,6 @@
     "emptyActiveSub": "Crea il tuo primo obiettivo e inizia a risparmiare",
     "emptyCompleted": "Nessun obiettivo completato",
     "emptyCompletedSub": "Continua così, ce la farai!",
-    "saved": "risparmiato",
     "of": "di",
     "createButton": "Crea obiettivo",
     "cancelButton": "Annulla",
@@ -1403,7 +1389,6 @@
     "statusSettled": "Saldato",
     "participants": "partecipante",
     "participants_plural": "partecipanti",
-    "total": "Totale",
     "deleteGroup": "Elimina gruppo",
     "deleteGroupConfirm": "Eliminare questo gruppo e tutte le sue spese? Questa azione non può essere annullata.",
     "settle": "Segna come saldato",
@@ -1597,9 +1582,6 @@
     "accept": "Accetto e continua",
     "cancel": "Annulla",
     "legalNote": "Continuando, confermi di aver letto e accettato i documenti indicati. Salviamo la data e l'ora della tua accettazione."
-  },
-  "landing": {
-    "description": "Registra entrate e uscite, categorizza le transazioni e visualizza le tue finanze con grafici chiari. Progettato per la Colombia."
   },
   "exchangeRate": {
     "updatedAt": "Agg. {{time}}",
