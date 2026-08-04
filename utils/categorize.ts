@@ -93,31 +93,3 @@ export async function categorizeRemote(description: string): Promise<string | nu
     return null;
   }
 }
-
-/** @deprecated Usa categorizeRemote (server-side). Exponer la key en el cliente es un riesgo. */
-export async function categorizeWithGemini(description: string, apiKey: string): Promise<string | null> {
-  const VALID = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary', 'other'];
-  const prompt = `Clasifica este gasto o ingreso en UNA de estas categorías exactas: food, transport, health, entertainment, shopping, home, salary, other. Responde ÚNICAMENTE con la palabra de la categoría en inglés, sin explicación ni puntuación. Gasto/ingreso: "${description}"`;
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 10, temperature: 0 },
-        }),
-      }
-    );
-    const data: unknown = await res.json();
-    const text = (data as { candidates?: [{ content?: { parts?: [{ text?: string }] } }] })
-      ?.candidates?.[0]?.content?.parts?.[0]?.text
-      ?.trim()
-      .toLowerCase()
-      .replace(/[^a-z]/g, '');
-    return text !== undefined && VALID.includes(text) ? text : null;
-  } catch {
-    return null;
-  }
-}
