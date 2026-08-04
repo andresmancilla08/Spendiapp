@@ -473,11 +473,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    // La hoja se centra dentro de la capa: a ancho completo, en desktop el
+    // formulario se estiraba de punta a punta de la ventana.
+    alignItems: 'center',
   },
   sheet: {
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     overflow: 'hidden',
+    width: '100%',
+    maxWidth: 768,
   },
   dragHandleRow: {
     alignItems: 'center',

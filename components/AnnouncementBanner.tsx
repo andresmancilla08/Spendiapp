@@ -34,7 +34,9 @@ export default function AnnouncementBanner() {
 }
 
 const styles = StyleSheet.create({
-  banner: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1, marginHorizontal: 16, marginTop: 8 },
+  // Vive FUERA del scroll: sin tope se estiraba a ~930 px en desktop, desalineado
+  // del contenido. Sin `width: '100%'` a propósito — con marginHorizontal desborda.
+  banner: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, borderWidth: 1, marginHorizontal: 16, marginTop: 8, maxWidth: 768, alignSelf: 'center' },
   msg: { fontSize: 13, fontFamily: Fonts.medium, lineHeight: 18 },
   cta: { fontSize: 13, fontFamily: Fonts.bold },
 });

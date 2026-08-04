@@ -93,7 +93,7 @@ export default function RecurringScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  scroll: { padding: 16, paddingBottom: 40 },
+  scroll: { padding: 16, paddingBottom: 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
   center: { paddingTop: 80, alignItems: 'center' },
   empty: { marginTop: 24, padding: 28, borderRadius: 20, borderWidth: 1, alignItems: 'center' },
   emptyEmoji: { marginBottom: 12 },

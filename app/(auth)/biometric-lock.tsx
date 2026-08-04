@@ -135,6 +135,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 32,
     gap: 16,
+    // Sin tope, el botón `width: '100%'` medía casi 900 px en desktop.
+    width: '100%',
+    maxWidth: 420,
+    alignSelf: 'center',
   },
   iconWrap: { marginBottom: 8 },
   title: { fontSize: 26, fontFamily: Fonts.bold, textAlign: 'center' },

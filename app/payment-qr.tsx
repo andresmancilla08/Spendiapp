@@ -373,7 +373,7 @@ export default function PaymentQrScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { padding: 16, gap: 16 },
+  scrollContent: { padding: 16, gap: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
 
   // Hero
   hero: { borderRadius: 24, padding: 24, alignItems: 'center', gap: 8, overflow: 'hidden' },

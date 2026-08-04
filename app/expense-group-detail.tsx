@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon from '../components/AppIcon';
+import FloatingActions from '../components/FloatingActions';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
@@ -450,16 +451,18 @@ export default function ExpenseGroupDetailScreen() {
 
               {/* FAB agregar gasto */}
               {tab === 'expenses' && !isSettled && (
-                <TouchableOpacity
-                  onPress={openAddExpense}
-                  activeOpacity={0.85}
-                  style={[styles.fab, { backgroundColor: colors.primary }]}
-                >
-                  <AppIcon name="add" size={26} color={colors.onPrimary} />
-                  <Text style={[styles.fabLabel, { color: colors.onPrimary }]}>
-                    {t('expenseGroups.detail.addExpense')}
-                  </Text>
-                </TouchableOpacity>
+                <FloatingActions bottom={28} align="stretch">
+                  <TouchableOpacity
+                    onPress={openAddExpense}
+                    activeOpacity={0.85}
+                    style={[styles.fab, { backgroundColor: colors.primary }]}
+                  >
+                    <AppIcon name="add" size={26} color={colors.onPrimary} />
+                    <Text style={[styles.fabLabel, { color: colors.onPrimary }]}>
+                      {t('expenseGroups.detail.addExpense')}
+                    </Text>
+                  </TouchableOpacity>
+                </FloatingActions>
               )}
             </>
           )}
@@ -833,10 +836,6 @@ const styles = StyleSheet.create({
 
   // FAB
   fab: {
-    position: 'absolute',
-    bottom: 28,
-    right: 20,
-    left: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

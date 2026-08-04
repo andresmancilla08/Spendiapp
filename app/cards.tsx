@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
+import FloatingActions from '../components/FloatingActions';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
 import { useToast } from '../context/ToastContext';
@@ -154,14 +155,16 @@ export default function CardsScreen() {
 
       </ScrollView>
 
-      <TouchableOpacity
-        style={[styles.fab, { backgroundColor: colors.primary }]}
-        onPress={() => setCardFormVisible(true)}
-        activeOpacity={0.85}
-      >
-        <AppIcon name="add" size={20} color="#FFFFFF" />
-        <Text style={styles.fabText}>{t('cardForm.addButton')}</Text>
-      </TouchableOpacity>
+      <FloatingActions bottom={28} align="stretch">
+        <TouchableOpacity
+          style={[styles.fab, { backgroundColor: colors.primary }]}
+          onPress={() => setCardFormVisible(true)}
+          activeOpacity={0.85}
+        >
+          <AppIcon name="add" size={20} color="#FFFFFF" />
+          <Text style={styles.fabText}>{t('cardForm.addButton')}</Text>
+        </TouchableOpacity>
+      </FloatingActions>
 
       <CardFormSheet
         visible={cardFormVisible}
@@ -216,10 +219,6 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   scroll: { padding: 20, paddingBottom: 100, width: '100%', maxWidth: 640, alignSelf: 'center' },
   fab: {
-    position: 'absolute',
-    bottom: 28,
-    left: 20,
-    right: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -304,7 +304,7 @@ export default function PremiumWelcomeScreen() {
 const styles = StyleSheet.create({
   safeArea:      { flex: 1 },
   scroll:        { flex: 1 },
-  scrollContent: { padding: 20, gap: 20, paddingBottom: 16 },
+  scrollContent: { padding: 20, gap: 20, paddingBottom: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
 
   heroWrapper: {
     borderRadius: 28, overflow: 'hidden',

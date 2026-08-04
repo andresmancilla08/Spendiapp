@@ -20,6 +20,7 @@ import { useHistoryStore } from '../../store/historyStore';
 import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import FloatingActions from '../../components/FloatingActions';
 import AppIcon from '../../components/AppIcon';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
@@ -1098,21 +1099,23 @@ export default function HistoryScreen() {
         </ScrollView>
       )}
 
-      {/* FAB */}
-      <TouchableOpacity
-        style={[styles.fab, { backgroundColor: colors.primary }]}
-        activeOpacity={0.78}
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          if (isCurrentMonth) {
-            router.push('/add-transaction');
-          } else {
-            router.push(`/add-transaction?year=${year}&month=${month}`);
-          }
-        }}
-      >
-        <AppIcon name="add" size={30} color="#FFFFFF" />
-      </TouchableOpacity>
+      {/* FAB — en la misma columna que el contenido y la tab bar */}
+      <FloatingActions bottom={110}>
+        <TouchableOpacity
+          style={[styles.fab, { backgroundColor: colors.primary }]}
+          activeOpacity={0.78}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            if (isCurrentMonth) {
+              router.push('/add-transaction');
+            } else {
+              router.push(`/add-transaction?year=${year}&month=${month}`);
+            }
+          }}
+        >
+          <AppIcon name="add" size={30} color="#FFFFFF" />
+        </TouchableOpacity>
+      </FloatingActions>
 
       </ScreenBackground>
 
@@ -1858,9 +1861,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   fab: {
-    position: 'absolute',
-    bottom: 110,
-    right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,

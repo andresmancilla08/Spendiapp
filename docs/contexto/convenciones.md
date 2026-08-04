@@ -23,3 +23,29 @@
 
 ## Commits
 - Commit tras cada ajuste. Deploy solo con permiso.
+
+## Responsive: anchos y flotantes
+
+La app se ve en móvil, tablet y navegador de escritorio. El lienzo lo limita
+`ScreenBackground` (720 px en tablet, 960 en desktop), pero **eso no es el ancho
+del contenido**: cada pantalla pone su propio tope.
+
+- **Contenido de una pantalla:** el `contentContainerStyle` del scroll lleva
+  `width: '100%', maxWidth: N, alignSelf: 'center'`. `N` = 640 para formularios y
+  listas simples, 768 para pantallas de datos (Home, Historial, informes). Ninguna
+  pantalla nueva se queda sin tope: en desktop, un CTA `width: '100%'` sin tope mide
+  ~900 px.
+- **Flotantes (FAB, botón fijo al fondo):** van dentro de `components/FloatingActions`,
+  que los mete en la MISMA columna que el contenido y la tab bar (640/560). Nunca
+  `position: absolute` con `right: 20` o `left: 20 / right: 20` a pelo — contra la
+  ventana, el FAB acaba pegado al borde del navegador y el botón fijo se estira.
+- **Hojas y modales:** `width: '100%', maxWidth: 768` y centrado. Si la capa que la
+  contiene es un `position: absolute` con `left/right: 0`, el centrado se hace con
+  `alignItems: 'center'` en la capa, no con márgenes en la hoja.
+- **Nunca `width: '100%'` junto a `marginHorizontal`:** el ancho ya es el 100% del
+  padre y las márgenes suman por fuera; el elemento desborda el doble del margen.
+  Para separar de los bordes se usa `paddingHorizontal` en el contenedor.
+- **Verificación:** capturas reales a 390 / 834 / 1440 px antes de dar por terminada
+  cualquier pantalla. Aviso: Chrome headless con `--window-size` puede calcular el
+  layout a otro ancho y recortar la imagen; si el resultado de móvil sale desplazado,
+  es la herramienta, no la app.

@@ -317,6 +317,12 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     maxHeight: '85%',
     paddingBottom: 40,
+    // Mismo tope que GoalSheet: en desktop, a ancho completo, la hoja era una
+    // barra de punta a punta con los controles estirados dentro.
+    width: '100%',
+    maxWidth: 768,
+    alignSelf: 'center',
+    marginHorizontal: 'auto',
   },
   handleRow: { alignItems: 'center', paddingTop: 12, paddingBottom: 4 },
   handle: { width: 36, height: 4, borderRadius: 2 },

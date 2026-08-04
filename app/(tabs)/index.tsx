@@ -51,6 +51,7 @@ import PwaInstallBanner from '../../components/PwaInstallBanner';
 import NotificationBell from '../../components/NotificationBell';
 import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
+import FloatingActions from '../../components/FloatingActions';
 import ScreenTransition from '../../components/ScreenTransition';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfettiBurst from '../../components/ConfettiBurst';
@@ -735,19 +736,21 @@ export default function HomeScreen() {
         )}
       </Animated.ScrollView>
 
-      {/* FAB */}
-      <TouchableOpacity
-        style={[styles.fab, { backgroundColor: colors.primary }]}
-        activeOpacity={0.78}
-        accessibilityRole="button"
-        accessibilityLabel={t('addTransaction.title')}
-        onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          router.push('/add-transaction');
-        }}
-      >
-        <AppIcon name="add" size={30} color={colors.onPrimary} />
-      </TouchableOpacity>
+      {/* FAB — en la misma columna que el contenido y la tab bar */}
+      <FloatingActions bottom={110}>
+        <TouchableOpacity
+          style={[styles.fab, { backgroundColor: colors.primary }]}
+          activeOpacity={0.78}
+          accessibilityRole="button"
+          accessibilityLabel={t('addTransaction.title')}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            router.push('/add-transaction');
+          }}
+        >
+          <AppIcon name="add" size={30} color={colors.onPrimary} />
+        </TouchableOpacity>
+      </FloatingActions>
 
       {Platform.OS !== 'web' && (
         <AppDialog
@@ -871,9 +874,6 @@ const styles = StyleSheet.create({
 
   // FAB
   fab: {
-    position: 'absolute',
-    bottom: 110,
-    right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
