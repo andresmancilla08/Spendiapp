@@ -1158,6 +1158,16 @@
       "title": "Historial: más filtros",
       "item1": "Filtra por gastos fijos, cuotas, sueltos, con o sin tarjeta, y por lo recibido o enviado con amigos.",
       "item2": "El botón muestra cuántos filtros tienes puestos y los limpias de un toque."
+    },
+    "edgeFade": {
+      "title": "Bordes sin cortes",
+      "item1": "El contenido se desvanece al pasar bajo el header y la barra, en vez de cortarse",
+      "item2": "El fondo llega hasta los bordes del teléfono, zonas seguras incluidas"
+    },
+    "shrinkTabBar": {
+      "title": "La barra se aparta cuando lees",
+      "item1": "Al bajar se estrecha y deja solo los iconos; al subir vuelve entera",
+      "item2": "Los fondos animados ya no dan el tirón del reinicio"
     }
   },
   "incomeClaim": {

@@ -149,6 +149,18 @@ const APP_FEATURES: Feature[] = [
     titleKey: 'whatsNew.txDetail.title',
     items: ['whatsNew.txDetail.item1', 'whatsNew.txDetail.item2', 'whatsNew.txDetail.item3'],
   },
+  {
+    icon: 'sparkles-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.edgeFade.title',
+    items: ['whatsNew.edgeFade.item1', 'whatsNew.edgeFade.item2'],
+  },
+  {
+    icon: 'phone-portrait-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.shrinkTabBar.title',
+    items: ['whatsNew.shrinkTabBar.item1', 'whatsNew.shrinkTabBar.item2'],
+  },
 ];
 
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {

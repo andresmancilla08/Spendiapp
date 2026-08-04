@@ -174,7 +174,7 @@ export function PersonalizationCanvasBar({ onExpand }: { onExpand: () => void })
   const themed = isDark ? activePalette.colors.dark : activePalette.colors.light;
 
   return (
-    <View style={[styles.bar, { borderColor: colors.border }]}>
+    <View style={[styles.bar, CLIP_BLURRED_CHILD, { borderColor: colors.border }]}>
       <LinearGradient colors={gradient} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={StyleSheet.absoluteFillObject} />
       {isDark && <View style={[StyleSheet.absoluteFillObject, styles.scrim]} />}
       {animate && (
