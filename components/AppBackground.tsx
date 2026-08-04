@@ -22,6 +22,21 @@ import SpotlightBackground from './SpotlightBackground';
  * los efectos — compartido con el fondo local del login (ScreenBackground). */
 export const DARK_SCRIM = 'rgba(0,0,0,0.7)';
 
+/** Color visible en el borde superior del fondo: primer stop del gradiente
+ *  activo, ya mezclado con DARK_SCRIM (que en oscuro va encima al 70% → el
+ *  color de fondo queda al 30%). Es el que se da al chrome del sistema y al
+ *  canvas del navegador, para que la zona segura siga el tema del usuario. */
+export function topBackgroundColor(hex: string, isDark: boolean) {
+  if (!isDark) return hex;
+  const n = parseInt(hex.slice(1), 16);
+  const scrim = (c: number) => Math.round(c * 0.3).toString(16).padStart(2, '0');
+  return `#${scrim((n >> 16) & 255)}${scrim((n >> 8) & 255)}${scrim(n & 255)}`;
+}
+
+/** Clave donde se cachea ese color para el script pre-React de `+html.tsx`:
+ *  sin ella la PWA arranca con el neutro del modo y la franja parpadea. */
+export const CHROME_COLOR_KEY = '@spendia_chrome';
+
 /** Desenfoque del efecto de fondo, listo para `style`. En web es `filter` CSS;
  *  en nativo, el `filter` de RN (array de operaciones). El contenedor se
  *  sobredimensiona con `inset` negativo porque un blur deja el borde del
@@ -82,6 +97,13 @@ export default function AppBackground() {
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
   const blurStyle = backgroundBlurStyle(BACKGROUND_BLUR_PX[backgroundBlur]);
 
+  // Chrome del sistema y canvas del navegador con el color del fondo de la app,
+  // no un neutro: la zona segura superior sigue el tema/paleta del usuario igual
+  // que el resto de la pantalla. En iOS la banda ni se pinta (black-translucent
+  // + sin `body::before`), ahí manda este mismo fondo; esto cubre el chrome de
+  // Android y el canvas visible antes de que monte React.
+  const chromeColor = topBackgroundColor(gradientColors[0] as string, isDark);
+
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -90,20 +112,13 @@ export default function AppBackground() {
         meta.setAttribute('name', 'theme-color');
         document.head.appendChild(meta);
       }
-      // El chrome del navegador (Android/Chrome) y la zona segura de la PWA en iOS
-      // van SIEMPRE neutros: negro en oscuro, blanco en claro. Con el color de la
-      // paleta, la franja superior cambiaba de tono con cada tema y competía con
-      // el contenido; neutro funciona igual en las 32 paletas.
-      const chrome = isDark ? '#000000' : '#FFFFFF';
-      meta.content = chrome;
-      document.documentElement.style.setProperty('--spendia-statusbar-bg', chrome);
-      // Canvas del navegador (html/body): el MISMO neutro. Con el color de la
-      // paleta, la franja de la barra de estado y el rubber band salían azul
-      // oscuro en vez de negro — la franja del sistema tiene que ser negra en
-      // oscuro y blanca en claro, sin tinte de marca.
-      document.documentElement.style.setProperty('--spendia-app-bg', chrome);
+      meta.content = chromeColor;
+      document.documentElement.style.setProperty('--spendia-app-bg', chromeColor);
+      // Cache para el arranque siguiente: el script del <head> corre antes de
+      // conocer la paleta y sin esto pintaría el neutro del modo.
+      try { window.localStorage.setItem(CHROME_COLOR_KEY, chromeColor); } catch {}
     }
-  }, [isDark]);
+  }, [chromeColor]);
 
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.clip]} pointerEvents="none">

@@ -78,17 +78,17 @@ const pwaTags = `
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
   <!-- Chrome del sistema (barra de estado / barra de navegacion) ANTES de que React
-       monte: negro en oscuro, blanco en claro. Sin esto el color solo se fijaba al
-       montar AppBackground, y la PWA instalada ya habia pintado la franja con el
-       valor estatico del manifest o con su blanco por defecto (barra blanca en
-       modo oscuro). Misma fuente de verdad que ThemeContext: '@spendiapp_theme'. -->
+       monte. Sin esto el color solo se fijaba al montar AppBackground, y la PWA
+       instalada ya habia pintado la franja con el valor estatico del manifest o con
+       su blanco por defecto (barra blanca en modo oscuro). '@spendia_chrome' lo
+       cachea AppBackground con el color real de la paleta activa; el neutro por
+       modo ('@spendiapp_theme') es el fallback del primer arranque. -->
   <script>
     (function () {
       try {
         var mode = window.localStorage.getItem('@spendiapp_theme');
         var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        var chrome = dark ? '#000000' : '#FFFFFF';
-        document.documentElement.style.setProperty('--spendia-statusbar-bg', chrome);
+        var chrome = window.localStorage.getItem('@spendia_chrome') || (dark ? '#000000' : '#FFFFFF');
         document.documentElement.style.setProperty('--spendia-app-bg', chrome);
         var m = document.querySelector('meta[name="theme-color"]');
         if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
@@ -147,17 +147,9 @@ const pwaTags = `
       inset: 0;
       height: auto;
     }
-    /* Zona segura superior en PWA iOS: banda neutra (blanca en claro, negra en
-       oscuro). AppBackground escribe --spendia-statusbar-bg segun el modo. */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: env(safe-area-inset-top, 0px);
-      background: var(--spendia-statusbar-bg, transparent);
-      pointer-events: none;
-      z-index: 2147483000;
-    }
+    /* Zona segura superior: SIN banda. Con black-translucent la webview ya se
+       extiende bajo la barra de estado, asi que el gradiente y el efecto animado
+       de AppBackground la pintan igual que el resto de la pantalla. */
   </style>
 `;
 
