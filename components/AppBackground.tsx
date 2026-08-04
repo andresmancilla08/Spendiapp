@@ -97,12 +97,27 @@ export default function AppBackground() {
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
   const blurStyle = backgroundBlurStyle(BACKGROUND_BLUR_PX[backgroundBlur]);
 
-  // Chrome del sistema y canvas del navegador con el color del fondo de la app,
-  // no un neutro: la zona segura superior sigue el tema/paleta del usuario igual
-  // que el resto de la pantalla. En iOS la banda ni se pinta (black-translucent
-  // + sin `body::before`), ahí manda este mismo fondo; esto cubre el chrome de
-  // Android y el canvas visible antes de que monte React.
+  // Chrome del sistema y canvas del navegador con el fondo de la app, no un
+  // neutro: las zonas seguras siguen el tema/paleta del usuario igual que el
+  // resto de la pantalla. `theme-color` solo acepta un color, así que lleva el
+  // del borde superior; el canvas (html/body) lleva el DEGRADADO COMPLETO.
+  //
+  // Por qué el degradado y no un color: en la PWA de iOS `innerHeight` (820pt
+  // medidos en un iPhone 17) es menor que la pantalla, así que `#root`, aun
+  // siendo `fixed; inset: 0`, se queda corto y el canvas asoma en la franja del
+  // home indicator (~34pt). Con un color plano esa franja no empataba con el
+  // fondo justo encima; con los mismos tres stops, empata arriba y abajo.
   const chromeColor = topBackgroundColor(gradientColors[0] as string, isDark);
+  const endColor = topBackgroundColor(gradientColors[2] as string, isDark);
+  // `no-repeat` + color de relleno: el fondo del elemento raíz se propaga al
+  // canvas pero se posiciona con la caja del root, así que un gradiente sin
+  // más se REPETÍA y la franja de abajo volvía a mostrar el primer stop (blanco
+  // en casi todas las paletas claras). El color pinta lo que sobre.
+  const canvasBackground = gradientStyle === 'flat'
+    ? chromeColor
+    : gradientStyle === 'radial'
+      ? endColor
+      : `${endColor} linear-gradient(180deg, ${gradientColors.map((c) => topBackgroundColor(c as string, isDark)).join(', ')}) no-repeat`;
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -113,12 +128,12 @@ export default function AppBackground() {
         document.head.appendChild(meta);
       }
       meta.content = chromeColor;
-      document.documentElement.style.setProperty('--spendia-app-bg', chromeColor);
+      document.documentElement.style.setProperty('--spendia-app-bg', canvasBackground);
       // Cache para el arranque siguiente: el script del <head> corre antes de
       // conocer la paleta y sin esto pintaría el neutro del modo.
-      try { window.localStorage.setItem(CHROME_COLOR_KEY, chromeColor); } catch {}
+      try { window.localStorage.setItem(CHROME_COLOR_KEY, canvasBackground); } catch {}
     }
-  }, [chromeColor]);
+  }, [chromeColor, canvasBackground]);
 
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.clip]} pointerEvents="none">

@@ -134,18 +134,24 @@ const pwaTags = `
     html, body {
       height: 100%;
       height: -webkit-fill-available;
-      height: 100dvh;
+      height: 100lvh;
       background: var(--spendia-app-bg, #000000);
       overscroll-behavior: none;
     }
-    /* El root SIEMPRE cubre el viewport real. En PWA iOS standalone 100dvh/100vh
-       se quedan cortos (excluyen el inset del home indicator en algunos modelos)
-       y sobraba una franja del canvas bajo la tab bar. fixed + inset:0 con
-       viewport-fit=cover no depende de esa medida. */
+    /* El root SIEMPRE cubre la pantalla FÍSICA. Medido en la PWA instalada
+       (iPhone 17, iOS 26.5): innerHeight = 820, 100dvh = 100svh = 812, y
+       100vh = 100lvh = screen.height = 874 con safe areas de 62 arriba y 34
+       abajo. Es decir 'inset: 0' (= 820) y 'dvh' se quedan CORTOS y dejaban
+       asomar el canvas del navegador en la franja del home indicator. 'lvh'
+       (viewport largo, ignora las barras retráctiles) es la única medida que
+       llega al borde; 'vh' es el fallback para navegadores sin 'lvh'. */
     #root {
       position: fixed;
-      inset: 0;
-      height: auto;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100vh;
+      height: 100lvh;
     }
     /* Zona segura superior: SIN banda. Con black-translucent la webview ya se
        extiende bajo la barra de estado, asi que el gradiente y el efecto animado
