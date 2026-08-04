@@ -59,7 +59,8 @@
 ### Barra de estado blanca en la PWA de iOS (resuelto)
 - **Síntoma:** en la app instalada en iOS, la franja superior (hora/batería) se veía **blanca** aunque la app estuviera en modo oscuro.
 - **Causa real:** `AppBackground` ya actualizaba `theme-color` dinámicamente, pero **iOS ignora `theme-color` en apps instaladas**: ahí manda `apple-mobile-web-app-status-bar-style`, que estaba en `default` (= barra blanca fija). Ese meta se lee al arrancar y solo acepta 3 valores; no se puede cambiar por modo en caliente.
-- **Solución (2026-07-29):** `black-translucent` en `+html.tsx` **y** en `scripts/patch-html.js` → la webview se extiende bajo la barra y la pinta `AppBackground` (con `viewport-fit=cover`, ya presente, y las `SafeAreaView` de cada pantalla desplazando el contenido). Contrapartida: la hora va **siempre en blanco**, así que en modo claro (todos los `gradientLight` arrancan en `#FFFFFF`) la banda se tiñe con `colors.primaryDark` vía `body::before` + la variable CSS `--spendia-statusbar-bg` que escribe `AppBackground`.
+- **Solución (2026-07-29):** `black-translucent` en `+html.tsx` **y** en `scripts/patch-html.js` → la webview se extiende bajo la barra y la pinta `AppBackground` (con `viewport-fit=cover`, ya presente, y las `SafeAreaView` de cada pantalla desplazando el contenido).
+- **Actualización (2026-08-04):** se quitó la banda (`body::before` + `--spendia-statusbar-bg`), que pasó por dos versiones — teñida con `colors.primaryDark` y neutra — y en las dos cortaba la pantalla justo encima del header. Hoy la zona segura la pinta el fondo de la app, sin capa intermedia; ver `decisiones.md`.
 - **OJO al probar:** iOS cachea el `<head>` de la app instalada. Tras el deploy hay que **cerrar la app del todo** (swipe) y reabrir; si no cambia, **borrarla de la pantalla de inicio y volver a instalarla**.
 - **Invariante:** toda pantalla nueva debe usar `SafeAreaView` (o `insets.top`) en la raíz. Sin eso su contenido queda **debajo de la hora**. Auditado 2026-07-29: solo `app/index.tsx` no lo usa, y es un placeholder vacío.
 - **Nota:** `+html.tsx` NO se emite en el export estático (solo aplica en `expo start --web`); lo que se publica lo inyecta `scripts/patch-html.js`. Cualquier tag de `<head>` hay que tocarlo en **los dos** archivos.
@@ -183,10 +184,10 @@
 - **Solución:** `icon: AppIconName` y render con `<AppIcon>`; las cuatro tarjetas usan íconos Tabler. El tipo es ahora el que impide la repetición — un nombre inválido no compila.
 - **Referencia de blindaje:** `components/CategoryIcon.tsx` es el patrón correcto para un icono que puede llegar como clave o como emoji legado: clave del catálogo → Tabler, algo que no sea `[a-z0-9-]+` → emoji, resto → ícono de "Otro". Nunca imprime la clave.
 
-### La franja del sistema no puede llevar el color de la paleta (resuelto)
-- **Síntoma:** tras pasar el `theme-color` a negro, la barra de estado seguía saliendo azul oscuro en modo oscuro (no negra).
-- **Causa real:** `--spendia-app-bg` (el fondo de `html`/`body`, que se ve en la franja de la barra y en el rubber band) llevaba el degradado de la paleta oscurecido por el scrim. Ese azul es lo que asomaba, no el `theme-color`.
-- **Solución:** `--spendia-statusbar-bg` y `--spendia-app-bg` valen lo MISMO y son neutros: `#000000` en oscuro, `#FFFFFF` en claro. El color de marca vive dentro del `#root`, nunca en el chrome del sistema.
+### La franja del sistema sale con el color de la paleta — es a propósito
+- **Síntoma:** el `theme-color` está en negro y la barra de estado sale, por ejemplo, azul oscuro en modo oscuro.
+- **Causa real:** lo que se ve ahí es `--spendia-app-bg` (fondo de `html`/`body`, visible en la franja y en el rubber band), no el `theme-color`.
+- **Estado (2026-08-04):** buscado. Desde el cambio de la zona segura, `--spendia-app-bg` y el `theme-color` valen los dos `topBackgroundColor(gradientColors[0], isDark)` — el color real del borde superior del fondo — para que el chrome del sistema no corte la pantalla con un neutro. Entre 2026-07-29 y esa fecha fueron neutros (`#000000` / `#FFFFFF`); si aparece un neutro hoy, es el fallback del primer arranque, antes de que `AppBackground` cachee `@spendia_chrome`.
 
 ### El lienzo de Personalización se encoge con el dedo, no por umbral (resuelto)
 - **Síntoma:** al bajar en Personalización, la vista previa de arriba cambiaba de golpe: en un fotograma pasaba del lienzo de 292 px a la barra de 64.

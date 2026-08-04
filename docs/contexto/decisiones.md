@@ -76,9 +76,12 @@
 - **Relación con `detailInk`:** `utils/detailInk` es el mismo principio aplicado al detalle de movimiento (escalera de oscurecimiento conservando el tono). `accentInk` es la versión simple para el resto de la app: elige entre tokens que ya existen, no genera colores nuevos.
 - **Estado de la migración:** aplicado en home, historial, perfil, tarjetas, herramientas, presupuesto e InsightBanner. La lista de puntos pendientes está en `docs/auditoria-visual-2026-08-01.md`.
 
-### La zona segura de iOS es neutra, no de marca — Vigente
-- **Qué:** con `apple-mobile-web-app-status-bar-style: black-translucent`, la franja de la barra de estado (`body::before`, alto `env(safe-area-inset-top)`) se pinta blanca en modo claro y negra en oscuro. Lo escribe `AppBackground` en `--spendia-statusbar-bg`.
-- **Por qué:** antes se teñía con `colors.primaryDark`, así que cada paleta metía una banda de color sobre el reloj del sistema. Neutro funciona igual en las 31 paletas y no compite con el contenido.
+### La zona segura de iOS la pinta el fondo de la app — Vigente (2026-08-04)
+- **Qué:** no hay banda. Se eliminó el `body::before` de alto `env(safe-area-inset-top)` y la variable `--spendia-statusbar-bg`: con `apple-mobile-web-app-status-bar-style: black-translucent` la webview ya se extiende bajo la barra de estado, así que el gradiente **y el efecto animado** de `AppBackground` la cubren igual que el resto de la pantalla. El `theme-color` (chrome de Android) y el canvas `html/body` (`--spendia-app-bg`) toman el color real del borde superior del fondo: `topBackgroundColor(gradientColors[0], isDark)` en `AppBackground`, que aplica al primer stop del gradiente la mezcla con `DARK_SCRIM` (×0.3) cuando el modo oscuro lo superpone.
+- **Por qué:** la banda neutra (blanca en claro, negra en oscuro) cortaba la pantalla en seco justo encima del header — abajo el fondo llega al borde y arriba no. El color, además, ya no compite con nada: es exactamente el que tiene la app debajo.
+- **Descartado:** teñir la banda con `colors.primaryDark` (versión de 2026-07-29: metía una banda de marca sobre el reloj) y mantenerla neutra (versión intermedia).
+- **Arranque sin parpadeo:** `AppBackground` cachea el color en `localStorage['@spendia_chrome']`; el script del `<head>` lo lee antes de que React monte y solo cae al neutro por modo en el primer arranque, cuando aún no conoce la paleta.
+- **Contrapartida conocida:** el color del reloj lo decide iOS y no se puede fijar por CSS. Coincide con el modo del **sistema**, no con el de la app: forzar tema oscuro en Spendia con el iPhone en claro (o al revés) puede dejarlo con poco contraste sobre la zona segura.
 - **Ojo:** el CSS que llega a producción es el de `scripts/patch-html.js`, no el de `app/+html.tsx` (ese solo aplica a `expo start`). Todo cambio de `<head>` o de CSS global hay que hacerlo en LOS DOS.
 
 ### SEO: la ficha de búsqueda se arma en el post-build — Vigente
