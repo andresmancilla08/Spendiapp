@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon, { AppIconName } from '../../components/AppIcon';
@@ -132,7 +133,8 @@ export default function ToolsScreen() {
         <ScreenBackground>
           <AppHeader />
           <PageTitle title={t('tools.title')} description={t('tools.pageDesc2')} />
-          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <ScrollView
+        style={scrollFadeMask(0, 74)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
             {/* Destacado: Presupuesto */}
             <FeaturedTool

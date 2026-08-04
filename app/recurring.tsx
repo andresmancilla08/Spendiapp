@@ -1,5 +1,6 @@
 // app/recurring.tsx — Recurrentes / suscripciones detectadas del historial.
 import { useRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +40,8 @@ export default function RecurringScreen() {
           <AppHeader showBack onBack={back} />
           <PageTitle title={t('recurring.title')} description={t('recurring.pageDesc')} />
 
-          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <ScrollView
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
             {loading ? (
               <View style={styles.center}><ActivityIndicator color={colors.primary} /></View>
             ) : error || data.items.length === 0 ? (

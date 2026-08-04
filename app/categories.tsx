@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -288,6 +289,7 @@ export default function CategoriesScreen() {
       <PageTitle title={t('categories.title')} description={t('categories.pageDesc')} />
 
       <ScrollView
+        style={scrollFadeMask(0, 0)}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >

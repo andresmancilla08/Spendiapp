@@ -12,6 +12,7 @@ import {
   Switch,
 } from 'react-native';
 import { useMemo, useRef, useEffect, useState, type ElementRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { getMonthNames, formatDate } from '../utils/dateLocale';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
@@ -394,7 +395,7 @@ export default function EditTransactionScreen() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             focusable={false}
-            style={Platform.OS === 'web' ? { outline: 'none' } as any : undefined}
+            style={[Platform.OS === 'web' ? { outline: 'none' } as any : undefined, scrollFadeMask(0, 0)]}
           >
             {/* Notices */}
             {transaction.isInstallment && (

@@ -1,5 +1,6 @@
 // app/goals.tsx
 import { useState, useMemo, useRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -323,7 +324,8 @@ export default function GoalsScreen() {
               <ActivityIndicator color={colors.primary} size="large" />
             </View>
           ) : (
-            <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <ScrollView
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
               {/* Nueva meta button (solo en tab activas) */}
               {tab === 'active' && (
                 <TouchableOpacity

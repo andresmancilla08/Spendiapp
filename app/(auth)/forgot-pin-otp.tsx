@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -168,6 +169,7 @@ export default function ForgotPinOtpScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
             <ScrollView
+        style={scrollFadeMask(0, 0)}
               contentContainerStyle={styles.scroll}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}

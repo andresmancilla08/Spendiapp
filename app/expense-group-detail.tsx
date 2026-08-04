@@ -1,5 +1,6 @@
 // app/expense-group-detail.tsx
 import { useState, useRef, useMemo } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -298,6 +299,7 @@ export default function ExpenseGroupDetailScreen() {
               {/* Tab: Gastos */}
               {tab === 'expenses' && (
                 <ScrollView
+        style={scrollFadeMask(0, 0)}
                   contentContainerStyle={styles.scroll}
                   showsVerticalScrollIndicator={false}
                 >

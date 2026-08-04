@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   Platform, Animated,
@@ -46,7 +46,9 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { isMobile, isDesktop } = useBreakpoint();
   const { isPremium } = useAuthStore();
 
-  const { barHeight, barScale, labelOpacity, labelHeight } = useTabBarShrink(BAR_HEIGHT);
+  // El ancho de la píldora se anima en px, así que hay que medir el hueco.
+  const [slotWidth, setSlotWidth] = useState(0);
+  const { barHeight, barWidth, barScale, labelOpacity, labelHeight } = useTabBarShrink(BAR_HEIGHT, slotWidth);
 
   const allTabRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
   // Budget is premium-only: hidden for free users
@@ -89,7 +91,13 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const bottomPad = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'ios' ? 16 : 8);
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
+    <View
+      style={[styles.wrapper, { paddingBottom: bottomPad }]}
+      onLayout={(e) => {
+        const w = e.nativeEvent.layout.width;
+        if (w && Math.abs(w - slotWidth) > 1) setSlotWidth(w);
+      }}
+    >
       <Animated.View style={[
         styles.container,
         {
@@ -97,6 +105,7 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           shadowColor: '#000',
           borderColor: `${colors.primary}20`,
           height: barHeight,
+          ...(barWidth ? { width: barWidth } : null),
           transform: [{ scale: barScale }],
         },
         !isMobile && { maxWidth: isDesktop ? 640 : 560 },

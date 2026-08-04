@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { localeFor } from '../utils/dateLocale';
 import {
   View, Text, ScrollView, TouchableOpacity, Linking,
@@ -148,7 +149,7 @@ export default function PaymentQrScreen() {
           <AppHeader showBack onBack={handleBack} />
 
           <ScrollView
-            style={styles.scroll}
+            style={[styles.scroll, scrollFadeMask(0, 0)]}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >

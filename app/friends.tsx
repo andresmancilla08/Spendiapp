@@ -1,5 +1,6 @@
 // app/friends.tsx
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, ActivityIndicator, Platform,
@@ -261,7 +262,8 @@ export default function FriendsScreen() {
           style={styles.tabRow}
         />
 
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
           {/* Search bar */}
           <View style={[styles.searchRow, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>

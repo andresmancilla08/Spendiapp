@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, Linking, KeyboardAvoidingView, Platform,
@@ -140,6 +141,7 @@ export default function SupportScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
+        style={scrollFadeMask(0, 0)}
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"

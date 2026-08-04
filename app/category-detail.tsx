@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -70,7 +71,8 @@ export default function CategoryDetailScreen() {
               <ActivityIndicator color={colors.primary} size="large" />
             </View>
           ) : (
-            <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <ScrollView
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
               {segments.length === 0 ? (
                 <View style={[styles.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                   <View style={[styles.emptyIconWrap, { backgroundColor: colors.primary + '18' }]}>

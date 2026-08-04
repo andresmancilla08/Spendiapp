@@ -21,7 +21,7 @@ import { useProMotion } from '../hooks/useProMotion';
 import { readableTint } from '../utils/contrast';
 import { formatMoney } from '../utils/formatMoney';
 import { Fonts } from '../config/fonts';
-import { BackgroundEffect, backgroundBlurStyle } from './AppBackground';
+import { BackgroundEffect, backgroundBlurStyle, CLIP_BLURRED_CHILD } from './AppBackground';
 import { Sparkline, resolveChartAccent, resolveChartAccent2 } from './BalanceCard';
 import ProSheen from './ProSheen';
 import AppIcon from './AppIcon';
@@ -74,7 +74,7 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
   const amountInk = readableTint(themed.primary, themed.surface, 4.5);
 
   return (
-    <View style={[styles.canvas, { height, borderColor: colors.border }]}>
+    <View style={[styles.canvas, CLIP_BLURRED_CHILD, { height, borderColor: colors.border }]}>
       {/* Mismo orden de capas que el fondo real: degradado → scrim → efecto. */}
       {gradientStyle === 'flat' ? (
         <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradient[0] }]} />

@@ -7,6 +7,9 @@ import { useAuthStore } from '../store/authStore';
 import NotificationBell from './NotificationBell';
 import { useFlags } from '../context/FeatureFlagsContext';
 
+/** Alto del header: icono de 24 + su padding de 4 + los 10 verticales del bloque. */
+export const APP_HEADER_HEIGHT = 52;
+
 interface AppHeaderProps {
   showBack?: boolean;
   onBack?: () => void;
@@ -94,6 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
+    height: APP_HEADER_HEIGHT,
   },
   left: {
     width: 44,

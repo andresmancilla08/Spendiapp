@@ -1,5 +1,6 @@
 // app/expense-groups.tsx
 import { useState, useRef, memo } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -199,7 +200,8 @@ export default function ExpenseGroupsScreen() {
               <ActivityIndicator color={colors.primary} size="large" />
             </View>
           ) : (
-            <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <ScrollView
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
               {/* Nuevo grupo button */}
               <TouchableOpacity
                 onPress={openCreate}

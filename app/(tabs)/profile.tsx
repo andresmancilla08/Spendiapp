@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -519,7 +520,8 @@ export default function ProfileScreen() {
       <ScreenBackground>
       <AppHeader showBack onBack={handleBack} />
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={scrollFadeMask(0, 74)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* ── Hero card de perfil ─────────────────────────────────────── */}
         <View style={[

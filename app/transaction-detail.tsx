@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { useRouter } from 'expo-router';
 import AppHeader from '../components/AppHeader';
 import CategoryIcon from '../components/CategoryIcon';
@@ -739,7 +740,7 @@ export default function TransactionDetailScreen() {
         <ScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
-          style={styles.flex}
+          style={[styles.flex, scrollFadeMask(0, 0)]}
           contentContainerStyle={styles.scroll}
         >
           {/* ── Ficha héroe: cifra, contexto inmediato y barra de progreso al borde ── */}

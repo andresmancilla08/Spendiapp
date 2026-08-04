@@ -13,6 +13,7 @@ import {
   Switch,
 } from 'react-native';
 import { useRef, useEffect, useState, useMemo, type ElementRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
@@ -540,7 +541,7 @@ export default function AddTransactionScreen() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             focusable={false}
-            style={Platform.OS === 'web' ? { outline: 'none' } as any : undefined}
+            style={[Platform.OS === 'web' ? { outline: 'none' } as any : undefined, scrollFadeMask(0, 0)]}
           >
             {/* Type toggle */}
             <View style={[styles.typeToggleRow, { backgroundColor: colors.backgroundSecondary, borderColor: colors.border }]}>

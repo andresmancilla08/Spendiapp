@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Animated, Easing, Platform,
@@ -138,7 +139,7 @@ export default function UpgradeScreen() {
         <ScreenBackground>
           <AppHeader showBack onBack={handleBack} />
           <ScrollView
-            style={styles.scroll}
+            style={[styles.scroll, scrollFadeMask(0, 0)]}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >

@@ -1,5 +1,6 @@
 // app/reports.tsx
 import { useState, useEffect, useRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -158,6 +159,7 @@ export default function ReportsScreen() {
           <AppHeader onBack={handleBack} />
 
           <ScrollView
+        style={scrollFadeMask(0, 0)}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
           >

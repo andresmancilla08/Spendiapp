@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   Platform, Animated, Easing,
@@ -33,7 +33,9 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
   const { reduceMotion } = useProMotion();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { barHeight, barScale, labelOpacity, labelHeight } = useTabBarShrink(BAR_HEIGHT);
+  // El ancho de la píldora se anima en px, así que hay que medir el hueco.
+  const [slotWidth, setSlotWidth] = useState(0);
+  const { barHeight, barWidth, barScale, labelOpacity, labelHeight } = useTabBarShrink(BAR_HEIGHT, slotWidth);
   const { isMobile, isDesktop } = useBreakpoint();
 
   const allTabRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
@@ -106,11 +108,18 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
   const iconInactive = colors.textTertiary;
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
+    <View
+      style={[styles.wrapper, { paddingBottom: bottomPad }]}
+      onLayout={(e) => {
+        const w = e.nativeEvent.layout.width;
+        if (w && Math.abs(w - slotWidth) > 1) setSlotWidth(w);
+      }}
+    >
       <Animated.View style={[
         styles.container,
         { backgroundColor: glassColor, borderColor },
         { height: barHeight, transform: [{ scale: barScale }] },
+        barWidth ? { width: barWidth } : null,
         !isMobile && { maxWidth: isDesktop ? 640 : 560 },
       ]}>
         {allTabRoutes.map((route) => {

@@ -37,6 +37,19 @@ export function topBackgroundColor(hex: string, isDark: boolean) {
  *  sin ella la PWA arranca con el neutro del modo y la franja parpadea. */
 export const CHROME_COLOR_KEY = '@spendia_chrome';
 
+/**
+ * Arreglo de recorte para CUALQUIER contenedor con `borderRadius` +
+ * `overflow: 'hidden'` que tenga dentro un efecto de fondo desenfocado.
+ *
+ * `filter: blur()` promueve al hijo a capa compuesta y WebKit deja de aplicarle
+ * el recorte redondeado del padre: el desenfoque asoma por las cuatro esquinas
+ * (se veía en el lienzo de Personalización y en sus vistas previas). Forzar al
+ * padre a crear su propio contexto de composición restablece el clip.
+ */
+export const CLIP_BLURRED_CHILD = Platform.OS === 'web'
+  ? ({ isolation: 'isolate', transform: 'translateZ(0)' } as any)
+  : null;
+
 /** Desenfoque del efecto de fondo, listo para `style`. En web es `filter` CSS;
  *  en nativo, el `filter` de RN (array de operaciones). El contenedor se
  *  sobredimensiona con `inset` negativo porque un blur deja el borde del

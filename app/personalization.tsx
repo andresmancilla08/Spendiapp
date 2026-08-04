@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useMemo, useId, type ReactNode } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -16,7 +17,7 @@ import PersonalizationCanvas, { PersonalizationCanvasBar, CANVAS_HEIGHT, CANVAS_
 import { PALETTE_MAP } from '../config/palettes';
 import { LOOKS, matchLook, type Look } from '../config/looks';
 import { accentInk } from '../utils/contrast';
-import { BackgroundEffect, backgroundBlurStyle } from '../components/AppBackground';
+import { BackgroundEffect, backgroundBlurStyle, CLIP_BLURRED_CHILD } from '../components/AppBackground';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
   GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
@@ -78,7 +79,7 @@ function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, bl
         },
       ]}
     >
-      <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
+      <View style={[styles.bgPreviewBox, CLIP_BLURRED_CHILD, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
         {/* Los efectos reinician sus loops in-place al cambiar intensidad/velocidad — sin remount */}
         {styleKey === 'none' ? (
           <View style={styles.bgNoneWrap}>
@@ -133,7 +134,8 @@ function LooksStrip({ looks, activeId, colors, t, onPick }: {
   looks: Look[]; activeId: string | null; colors: any; t: any; onPick: (l: Look) => void;
 }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.lookStrip}>
+    <ScrollView
+        horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.lookStrip}>
       {looks.map((look) => {
         const pal = PALETTE_MAP[look.paletteId];
         const active = activeId === look.id;
@@ -286,7 +288,7 @@ function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossf
       accessibilityState={{ selected }}
       style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
     >
-      <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
+      <View style={[styles.bgPreviewBox, CLIP_BLURRED_CHILD, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
         {crossfade ? (
           <CrossfadeSparkline chartType={type} animStyle={animStyle} height={64} duration={4200} crossfade={crossfade} motion={motion} />
         ) : (
@@ -328,7 +330,7 @@ function ChartAnimCard({ anim, label, selected, chartType, color, color2, crossf
       accessibilityState={{ selected }}
       style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
     >
-      <View style={[styles.bgPreviewBox, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
+      <View style={[styles.bgPreviewBox, CLIP_BLURRED_CHILD, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
         {crossfade ? (
           <CrossfadeSparkline chartType={chartType} animStyle={anim} height={64} duration={4200} crossfade={crossfade} motion={motion} />
         ) : (
@@ -649,6 +651,7 @@ export default function PersonalizationScreen() {
           <View style={styles.scrollArea}>
           <Animated.ScrollView
             ref={scrollRef}
+            style={scrollFadeMask(0, 0)}
             contentContainerStyle={styles.scroll}
             showsVerticalScrollIndicator={false}
             scrollEventThrottle={16}

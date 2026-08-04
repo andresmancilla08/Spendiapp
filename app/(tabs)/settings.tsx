@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { AppIconName } from '../../components/AppIcon';
@@ -87,7 +88,8 @@ export default function SettingsScreen() {
       <AppHeader showBack onBack={handleBack} />
       <PageTitle title={t('settings.title')} description={t('settings.pageDesc')} />
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={scrollFadeMask(0, 74)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <SectionTitle label={t('settings.sections.appearance')} />
         <View style={[styles.card, { backgroundColor: colors.surface }]}>

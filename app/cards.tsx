@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -71,7 +72,7 @@ export default function CardsScreen() {
       <AppHeader showBack onBack={handleBack} />
       <PageTitle title={t('cardsScreen.title')} description={t('cardsScreen.pageDesc')} />
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} style={[{ flex: 1 }, scrollFadeMask(0, 0)]}>
 
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           {loading ? (

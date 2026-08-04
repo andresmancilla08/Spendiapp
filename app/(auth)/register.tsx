@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -146,6 +147,7 @@ export default function RegisterScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView
+        style={scrollFadeMask(0, 0)}
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}

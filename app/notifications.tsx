@@ -1,5 +1,6 @@
 // app/notifications.tsx
 import { useRef } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { AppIconName } from '../components/AppIcon';
@@ -208,6 +209,7 @@ export default function NotificationsScreen() {
         )}
 
         <ScrollView
+        style={scrollFadeMask(0, 0)}
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >

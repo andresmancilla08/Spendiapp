@@ -7,6 +7,7 @@
 // Todo el cálculo vive en `utils/friendReportModel`, que es el mismo modelo que
 // alimenta al generador de imagen: pantalla y documento no pueden discrepar.
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView,
 } from 'react-native';
@@ -276,7 +277,8 @@ export default function FriendReportScreen() {
         <SafeAreaView style={styles.safe}>
           <AppHeader onBack={handleBack} />
 
-          <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <ScrollView
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
             <PageTitle title={t('friendReport.title')} description={t('friendReport.pageDesc')} />
 
             {/* Mes */}

@@ -31,8 +31,10 @@ export default function InsightBanner({ kicker, sentence, chip }: Props) {
     colors.textSecondary,
   ]);
 
+  // Fondo OPACO como el resto de las tarjetas: el degradado es solo el acento
+  // de marca, no el fondo. Translúcido, la frase competía con el fondo animado.
   return (
-    <View style={[styles.wrap, { borderColor: colors.primary + '2A' }]}>
+    <View style={[styles.wrap, { backgroundColor: colors.surface, borderColor: colors.primary + '2A' }]}>
       <LinearGradient
         colors={[colors.primary + (isDark ? '30' : '22'), colors.tertiary + '10', 'transparent']}
         start={{ x: 1, y: 0 }}

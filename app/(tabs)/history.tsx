@@ -12,6 +12,7 @@ import {
   PanResponder,
 } from 'react-native';
 import AppDialog from '../../components/AppDialog';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import CategoryIcon from '../../components/CategoryIcon';
 import AppSegmentedControl from '../../components/AppSegmentedControl';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
@@ -1072,6 +1073,7 @@ export default function HistoryScreen() {
         </View>
       ) : (
         <ScrollView
+        style={scrollFadeMask(0, 74)}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
