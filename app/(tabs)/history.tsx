@@ -1201,15 +1201,6 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
 
   // Header
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 10,
-  },
-  headerTitle: {
-    fontSize: 26,
-    fontFamily: Fonts.bold,
-  },
 
   // Month navigation
   monthNav: {
@@ -1329,10 +1320,6 @@ const styles = StyleSheet.create({
   },
   filterSectionOption: {
     fontSize: 13,
-  },
-  filterDivider: {
-    height: 1,
-    marginVertical: 4,
   },
   summaryExchangeChips: { paddingHorizontal: 16, paddingVertical: 12 },
   summaryCatSection: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 16 },
@@ -1520,313 +1507,27 @@ const styles = StyleSheet.create({
   },
 
   // ── Sheet ──────────────────────────────────────────────────────────────────
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    // Negro puro a propósito: es un scrim, no un color de tema.
-    backgroundColor: '#000000',
-  },
-  sheetWrapper: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  sheet: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    overflow: 'hidden',
-  },
-  dragHandleRow: {
-    alignItems: 'center',
-    paddingTop: 12,
-    paddingBottom: 4,
-  },
-  dragHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  sheetTitle: {
-    fontSize: 18,
-    fontFamily: Fonts.bold,
-  },
-  sheetScrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
 
   // Fixed note bar
-  fixedNoteBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 8,
-    marginTop: 4,
-  },
-  fixedNoteText: {
-    fontSize: 13,
-    fontFamily: Fonts.semiBold,
-    flex: 1,
-  },
 
   // Fields
-  fieldLabel: {
-    fontSize: 11,
-    fontFamily: Fonts.semiBold,
-    letterSpacing: 0.5,
-    marginBottom: 8,
-    marginTop: 16,
-  },
-  inputWrap: {
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  textInput: {
-    fontSize: 16,
-    fontFamily: Fonts.regular,
-  },
 
   // Category chips
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 20,
-    marginTop: 4,
-  },
-  categoryChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  chipIcon: { fontSize: 14 },
-  chipLabel: { fontSize: 13, fontFamily: Fonts.medium },
 
   // Error
-  errorText: {
-    fontSize: 13,
-    fontFamily: Fonts.regular,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
 
   // Buttons
-  saveButton: {
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-    marginBottom: 10,
-  },
-  saveButtonText: {
-    fontSize: 15,
-    fontFamily: Fonts.bold,
-    color: '#FFFFFF',  // tinta sobre relleno saturado (error/success)
-  },
-  buttonDisabled: { opacity: 0.4 },
-  loadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
 
   // Fixed bottom actions bar (detail sheet)
-  detailFixedActions: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    borderTopWidth: 1,
-  },
 
   // Action tiles (detail sheet)
-  actionGrid: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  actionTile: {
-    flex: 1,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 18,
-    gap: 8,
-  },
-  actionTileLabel: {
-    fontSize: 12,
-    fontFamily: Fonts.semiBold,
-  },
 
   // Secondary actions
-  secondaryRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  secondaryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-  },
-  secondaryButtonText: {
-    fontSize: 13,
-    fontFamily: Fonts.semiBold,
-  },
 
   // Detail sheet
-  detailHero: {
-    borderRadius: 24,
-    paddingTop: 32,
-    paddingBottom: 28,
-    paddingHorizontal: 20,
-    marginBottom: 12,
-    alignItems: 'center',
-    gap: 10,
-  },
-  detailHeroIcon: {
-    width: 76,
-    height: 76,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 2,
-  },
   // legacy — ya no se usa pero evita errores si algún ref quedó
-  detailHeroTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  detailCatIcon: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  detailTypeDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-  },
-  detailTypeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 20,
-  },
-  detailTypeBadgeText: {
-    fontSize: 12,
-    fontFamily: Fonts.bold,
-    letterSpacing: 0.4,
-  },
-  detailAmount: {
-    fontSize: 40,
-    fontFamily: Fonts.extraBold,
-    letterSpacing: -1,
-  },
-  detailDescription: {
-    fontSize: 15,
-    fontFamily: Fonts.regular,
-    textAlign: 'center',
-  },
-  detailCard: {
-    marginBottom: 16,
-    overflow: 'hidden',
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-  },
-  detailRowLabel: {
-    fontSize: 11,
-    fontFamily: Fonts.semiBold,
-    letterSpacing: 0.5,
-  },
-  detailRowValue: {
-    fontSize: 13,
-    fontFamily: Fonts.medium,
-    textAlign: 'right',
-    flex: 1,
-    marginLeft: 16,
-  },
-  detailDivider: {
-    height: 1,
-    marginHorizontal: 16,
-  },
-  detailCardTypeBadge: {
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  detailCardTypeBadgeText: {
-    fontSize: 10,
-    fontFamily: Fonts.bold,
-  },
-  detailFixedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
-  detailFixedBadgeText: {
-    fontSize: 11,
-    fontFamily: Fonts.semiBold,
-  },
-  installmentTrack: {
-    height: 6,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  installmentFill: {
-    height: 6,
-    borderRadius: 3,
-  },
-  installmentHint: {
-    fontSize: 11,
-    fontFamily: Fonts.medium,
-    textAlign: 'right',
-  },
 
   // Confirm delete
-  confirmDeleteWrap: {
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    gap: 8,
-  },
-  confirmDeleteText: {
-    fontSize: 12,
-    fontFamily: Fonts.semiBold,
-    textAlign: 'center',
-  },
-  confirmDeleteBtns: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  confirmBtn: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  confirmBtnText: {
-    fontSize: 12,
-    fontFamily: Fonts.semiBold,
-  },
 
   // Scope picker options (dentro de AppDialog description)
   scopeOption: {

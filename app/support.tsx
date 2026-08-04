@@ -223,32 +223,6 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
   footer: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
 
-  heroCard: {
-    borderRadius: 24,
-    padding: 28,
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 20,
-  },
-  heroIconWrap: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
-  },
-  heroTitle: {
-    fontSize: 20,
-    fontFamily: Fonts.bold,
-    textAlign: 'center',
-  },
-  heroSubtitle: {
-    fontSize: 14,
-    fontFamily: Fonts.regular,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
 
   formCard: {
     borderRadius: 24,

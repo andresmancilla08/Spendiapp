@@ -781,9 +781,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
 
-  headerBrand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  headerLogo: { width: 32, height: 32, alignSelf: 'center' },
-  headerTitle: { fontSize: 22, fontFamily: Fonts.extraBold, lineHeight: 28, includeFontPadding: false },
 
   // paddingTop: el subtítulo que abría el scroll ya no existe (su contexto vive en el header),
   // así que el aire hasta el card de balance lo pone el propio scroll.

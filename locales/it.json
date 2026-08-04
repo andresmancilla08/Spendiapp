@@ -29,7 +29,6 @@
     "consentPrivacy": "Politica sulla Privacy"
   },
   "register": {
-    "back": "← Indietro",
     "title": "Crea account",
     "subtitle": "Inserisci i tuoi dati per iniziare",
     "nameLabel": "Nome completo",
@@ -37,8 +36,6 @@
     "emailLabel": "Email",
     "emailPlaceholder": "tu@email.com",
     "continueButton": "Continua",
-    "haveAccount": "Hai già un account? ",
-    "signInLink": "Accedi",
     "successDialog": {
       "title": "Benvenuto/a, {{name}}!",
       "description": "Il tuo account è stato creato con successo. Ora puoi iniziare a tenere traccia delle tue finanze.",
@@ -52,7 +49,6 @@
     "privacyLabel": "Politica sulla Privacy"
   },
   "loginEmail": {
-    "back": "← Indietro",
     "title": "Inserisci la tua email",
     "subtitle": "Useremo la tua email per identificarti",
     "emailLabel": "Email",
@@ -93,18 +89,15 @@
   "pinEntry": {
     "createTitle": "Crea il tuo PIN di accesso",
     "createSubtitle": "Scegli 4 cifre che ricorderai",
-    "enterTitle": "Inserisci il tuo PIN",
-    "enterSubtitle": "Ciao, {{email}}"
+    "enterTitle": "Inserisci il tuo PIN"
   },
   "dialogs": {
     "googleAccount": {
-      "title": "Account Google",
       "description": "Questa email è collegata a un account Google. Usa il pulsante Google per accedere.",
       "primary": "Torna al login",
       "secondary": "Annulla"
     },
     "emailNotFound": {
-      "title": "Email non trovata",
       "description": "Non abbiamo trovato un account con questa email. Vuoi creare un nuovo account?",
       "primary": "Registrati",
       "secondary": "Annulla"
@@ -116,24 +109,13 @@
       "secondary": "Annulla"
     },
     "inactivity": {
-      "title": "Sei ancora lì?",
-      "description": "Per sicurezza, ti disconnetteremo tra {{seconds}} secondi per inattività.",
-      "stayButton": "Rimani nell'app",
-      "logoutButton": "Esci",
-      "descBefore": "Per sicurezza, ti disconnetteremo tra",
-      "descAfter": "secondi per inattività."
+      "description": "Per sicurezza, ti disconnetteremo tra {{seconds}} secondi per inattività."
     }
   },
   "errors": {
     "fillAllFields": "Compila tutti i campi",
     "invalidEmail": "Email non valida",
-    "verifyEmailError": "Non siamo riusciti a verificare la tua email. Riprova.",
-    "resetEmailSent": "Ti abbiamo inviato un'email per reimpostare il PIN",
-    "resetEmailError": "Non siamo riusciti a inviare l'email. Controlla la tua email e riprova.",
-    "wrongPin": "Il PIN inserito non è valido. Riprova.",
     "invalidCredentials": "Email o PIN errati. Verifica i tuoi dati e riprova.",
-    "wrongPinTitle": "PIN errato",
-    "signOutError": "Impossibile disconnettersi",
     "genericError": "Si è verificato un errore. Riprova."
   },
   "common": {
@@ -159,30 +141,23 @@
     "home": "HOME",
     "budget": "BUDGET",
     "history": "CRONOLOGIA",
-    "whatsNew": "Novità",
     "tools": "Strumenti"
   },
   "home": {
-    "welcome": "Ciao, {{name}}",
-    "monthBalance": "Saldo del mese",
     "income": "Entrate",
     "expenses": "Spese",
-    "recentTransactions": "Transazioni recenti",
     "noTransactions": "Nessuna transazione questo mese",
     "noTransactionsSub": "Tocca + per registrare la prima spesa",
-    "signOut": "Disconnetti",
     "subtitleSpentToday": "Oggi hai speso {{amount}}",
     "subtitleWarning": "Attenzione alle spese questo mese",
     "subtitleGood": "Stai andando alla grande!",
     "subtitleStart": "Inizia a registrare le tue spese",
     "subtitleDefault": "Riepilogo del mese",
-    "pillSpent": "{{percent}}% speso",
     "headerContext": "{{percent}}% speso · restano {{days}} giorni",
     "headerContextOneDay": "{{percent}}% speso · resta 1 giorno",
     "headerContextLastDay": "{{percent}}% speso · ultimo giorno del mese",
     "headerContextNoDays": "{{percent}}% speso",
     "balanceLabel": "SALDO DEL MESE",
-    "balanceBadge": "Questo mese",
     "incomeLabel": "ENTRATE",
     "expensesLabel": "SPESE",
     "recentActivity": "Attività Recente",
@@ -224,7 +199,6 @@
     "greetingName": "Ciao, {{name}}"
   },
   "profile": {
-    "title": "Profilo",
     "sections": {
       "account": "ACCOUNT",
       "preferences": "PREFERENZE",
@@ -321,9 +295,8 @@
       "group": {
         "classic": "Classiche",
         "pastel": "Pastello",
-        "new": "Nuove",
-        "newPastel": "Nuove Pastello",
-        "bold": "Carattere"
+        "bold": "Carattere",
+        "neon": "Neon"
       },
       "citrus": "Agrumi",
       "graphite": "Grafite",
@@ -343,16 +316,13 @@
       "infrared": "Infrarosso"
     },
     "notifications": {
-      "label": "Notifiche",
-      "soon": "Le impostazioni delle notifiche saranno disponibili a breve."
+      "label": "Notifiche"
     },
     "faq": {
-      "label": "Cassetta dei suggerimenti",
-      "soon": "La sezione di aiuto sarà disponibile a breve."
+      "label": "Cassetta dei suggerimenti"
     },
     "privacy": {
-      "label": "Informativa sulla privacy",
-      "soon": "L'informativa sulla privacy sarà disponibile a breve."
+      "label": "Informativa sulla privacy"
     },
     "cards": {
       "section": "Le mie carte",
@@ -523,9 +493,7 @@
     "security": {
       "changePin": "Cambia PIN",
       "faceId": "Face ID / Touch ID",
-      "faceIdValue": "Disattivato",
-      "inactivity": "Blocco per inattività",
-      "inactivityValue": "3 min"
+      "faceIdValue": "Disattivato"
     },
     "notifications": {
       "push": "Notifiche push",
@@ -551,8 +519,6 @@
     "pageDesc": "Registra una spesa o un'entrata",
     "typeExpense": "Spesa",
     "typeIncome": "Entrata",
-    "amountPrefix": "$",
-    "amountPlaceholder": "0",
     "descriptionPlaceholder": "A cosa l'hai usato?",
     "scanReceipt": "Scansiona ricevuta",
     "scanning": "Lettura ricevuta…",
@@ -565,7 +531,6 @@
     "dateLabel": "Data",
     "today": "Oggi",
     "saveButton": "Salva",
-    "saving": "Salvataggio...",
     "categoryNamePlaceholder": "Nome...",
     "paymentMethod": "Metodo di pagamento",
     "noCards": "Aggiungi le tue carte",
@@ -573,7 +538,6 @@
     "installments": "Rate",
     "installmentSingle": "rata (pagamento unico)",
     "installmentsPlural": "rate",
-    "installmentAmountPlaceholder": "Es: 26.4",
     "installmentPreviewEqual": "{{count}} rate da ${{amount}}",
     "installmentPreviewUnequal": "{{count}} rate da ${{first}} + ultima da ${{last}}",
     "withInterest": "Con interessi?",
@@ -658,8 +622,6 @@
     "fixedIncome": "Entrata fissa",
     "saveCategoryError": "Impossibile salvare la categoria",
     "sharedSection": "Spesa condivisa",
-    "sharedOwnerNote": "Le modifiche si applicano a tutti i partecipanti",
-    "sharedParticipantNote": "Puoi modificare il tuo record senza influenzare gli altri",
     "sharedInstallmentLocked": "La divisione di un acquisto a rate è stata fissata alla creazione e non si può cambiare da qui. Ogni rata mostra la parte di ciascuno."
   },
   "history": {
@@ -669,28 +631,19 @@
     "noTransactions": "Nessuna transazione",
     "noTransactionsSub": "Nessun record per questo mese",
     "edit": {
-      "title": "Modifica transazione",
-      "descriptionLabel": "Descrizione",
-      "amountLabel": "Importo",
-      "categoryLabel": "Categoria",
       "saveButton": "Salva modifiche",
       "duplicateButton": "Duplica",
       "deleteButton": "Elimina",
       "confirmDelete": "Confermare l'eliminazione?",
       "confirmDeleteYes": "Sì, elimina",
       "confirmDeleteCancel": "Annulla",
-      "saving": "Salvataggio...",
       "deleteSuccess": "Spesa eliminata correttamente",
       "deleteError": "Impossibile eliminare. Riprova.",
       "saveError": "Impossibile salvare. Riprova.",
       "fixedNote": "Spesa fissa — le modifiche riguardano i mesi successivi",
-      "fixedDeleteNote": "Elimina spesa fissa? Sparirà da tutti i mesi.",
       "cancelFixedButton": "Annulla ricorrente",
       "confirmCancelFixed": "Questo cancellerà la transazione ricorrente da questo mese in poi. I mesi precedenti non saranno interessati.",
-      "confirmCancelFixedYes": "Sì, annulla",
       "fixedLocked": "Questa transazione è già avvenuta e non può essere modificata.",
-      "dateLabel": "Data",
-      "isFixedLabel": "Ricorrente mensile",
       "isFixedHint": "Si ripete automaticamente ogni mese",
       "scopePickerTitle": "Quali movimenti vuoi modificare?",
       "scopeOnlyThis": "Solo questo mese",
@@ -705,7 +658,6 @@
       "scopeFromNowInstallmentDesc": "Verranno eliminate questa rata e tutte quelle rimanenti.",
       "scopeContinue": "Continua",
       "scopeConfirmFixed_single": "Solo questo mese verrà saltato. Il fisso continuerà nei mesi successivi.",
-      "scopeConfirmFixed_fromNow": "Il fisso verrà cancellato da questo mese. I mesi precedenti non sono interessati.",
       "scopeConfirmFixed_all": "Il fisso verrà eliminato permanentemente da tutti i mesi.",
       "scopeConfirmInstallment_single": "Solo questa rata verrà eliminata. Le altre rimangono.",
       "scopeConfirmInstallment_fromNow": "Questa rata e tutte quelle seguenti dello stesso gruppo verranno eliminate.",
@@ -751,18 +703,13 @@
       "markedUnpaid": "Deselezionato come pagato"
     },
     "detail": {
-      "title": "Dettaglio",
       "typeExpense": "Spesa",
       "typeIncome": "Entrata",
       "dateLabel": "DATA",
-      "timeLabel": "ORA",
       "categoryLabel": "CATEGORIA",
       "notesLabel": "NOTA",
       "cardLabel": "CARTA",
       "noCard": "Nessuna carta",
-      "installmentLabel": "RATE",
-      "installmentProgress": "Rata {{current}} di {{total}}",
-      "fixedLabel": "Spesa fissa",
       "editButton": "Modifica",
       "creditType": "Credito",
       "debitType": "Debito",
@@ -770,7 +717,6 @@
       "sharedByLabel": "CONDIVISO DA",
       "owesYouLabel": "MI DEVONO",
       "youOweLabel": "DEVO A",
-      "pageDesc": "Dettagli del movimento",
       "movement": "MOVIMENTO",
       "stampInstallment": "RATA\n{{current}} / {{total}}",
       "stampFixed": "FISSA\nMENSILE",
@@ -847,7 +793,6 @@
       "fixedHistoryFoot_other": "{{count}} mesi di fila · {{amount}} in totale.",
       "subInstallmentShared": "Rata {{current}} di {{total}} · tra {{people}} persone"
     },
-    "pageDesc": "Un registro di tutte le tue operazioni",
     "filters": {
       "allLabel": "Tutti",
       "payLabel": "Stato",
@@ -896,9 +841,6 @@
     "title": "Le mie categorie",
     "defaultSection": "PREDEFINITE",
     "customSection": "LE MIE CATEGORIE",
-    "emptyCustom": "Non hai ancora categorie personalizzate",
-    "emptyCustomSub": "Tocca + per creare la tua prima categoria",
-    "addButton": "Nuova categoria",
     "editTitle": "Modifica categoria",
     "createTitle": "Nuova categoria",
     "nameLabel": "Nome",
@@ -908,23 +850,15 @@
     "typeIncome": "Entrata",
     "typeBoth": "Entrambi",
     "iconLabel": "Icona",
-    "iconAuto": "Suggerito automaticamente",
     "iconSourceAuto": "Suggerito automaticamente",
     "iconSourceManual": "Scelto manualmente",
-    "iconChange": "Cambia icona",
     "changeIcon": "Cambia icona",
-    "iconPicker": "Scegli un'icona",
     "saving": "Salvataggio...",
     "saveButton": "Salva",
-    "deleteButton": "Elimina categoria",
     "deleteTitle": "Eliminare la categoria?",
     "deleteDesc": "Questa azione riassegnerà {{count}} transazione/i a \"Altro\". Non può essere annullata.",
     "deleteConfirm": "Sì, elimina",
     "deleteCancel": "Annulla",
-    "deleteError": "Impossibile eliminare. Riprova.",
-    "saveError": "Impossibile salvare. Riprova.",
-    "nameError": "Il nome deve avere almeno 2 caratteri",
-    "manageCategoriesLabel": "Le mie categorie",
     "suggestingEmoji": "Suggerendo icona...",
     "names": {
       "food": "Cibo",
@@ -970,13 +904,11 @@
       "sub": "Definisci quanto vuoi spendere per categoria"
     },
     "addLimit": "Imposta limite",
-    "editLimit": "Modifica limite",
     "unlimitedSection": "SENZA LIMITE",
     "dialog": {
       "addTitle": "Nuovo budget",
       "editTitle": "Modifica budget",
       "deleteTitle": "Elimina budget",
-      "deleteDesc": "Eliminare il budget per {{category}}?",
       "deleteDescBefore": "Eliminare il budget per",
       "deleteDescAfter": "?",
       "limitLabel": "Limite mensile (COP)",
@@ -1040,8 +972,7 @@
     "deletedSuccess": "Carta eliminata con successo",
     "deleteError": "Impossibile eliminare la carta",
     "pageDesc": "Gestisci le tue carte e i metodi di pagamento",
-    "defaultBadge": "Predefinita",
-    "setDefaultSuccess": "Carta predefinita aggiornata"
+    "defaultBadge": "Predefinita"
   },
   "cardForm": {
     "selectBank": "Seleziona la banca",
@@ -1099,7 +1030,6 @@
     "title": "Installa Spendia",
     "subtitle": "Aggiungila alla schermata principale",
     "dialogTitle": "Come installare su iOS",
-    "dialogSteps": "1. Tocca l'icona di condivisione (quadrato con freccia ↑)\n2. Seleziona \"Aggiungi alla schermata Home\"\n3. Tocca \"Aggiungi\" per confermare",
     "dialogButton": "Capito"
   },
   "friends": {
@@ -1129,8 +1059,6 @@
       "outgoing": "INVIATE",
       "noIncoming": "Nessuna richiesta in arrivo",
       "noOutgoing": "Non hai inviato richieste",
-      "accept": "Accetta",
-      "reject": "Rifiuta",
       "cancel": "Annulla"
     },
     "remove": {
@@ -1186,216 +1114,6 @@
     "title": "Cosa puoi fare?",
     "subtitle": "Esplora le funzionalità principali di Spendia.",
     "dismiss": "Capito",
-    "sharedExpenses": {
-      "title": "Spese condivise",
-      "item1": "Condividi qualsiasi spesa con uno o più amici di Spendia",
-      "item2": "Ogni partecipante la vede automaticamente nella cronologia",
-      "item3": "Chiunque può eliminare la spesa per tutti con un tocco"
-    },
-    "splitCalc": {
-      "title": "Divisione proporzionale",
-      "item1": "Dividi in parti uguali o imposta percentuali personalizzate",
-      "item2": "Anteprima in tempo reale dell'importo esatto per persona",
-      "item3": "Compatibile con rate e interessi: calcola automaticamente"
-    },
-    "newForm": {
-      "title": "Modulo a schermo intero",
-      "item1": "Il pulsante + apre ora una schermata dedicata con più spazio",
-      "item2": "Stesso flusso di sempre: importo, categoria, carta, data",
-      "item3": "La sezione di condivisione appare in fondo, senza interruzioni"
-    },
-    "syncHistory": {
-      "title": "Cronologia sincronizzata",
-      "item1": "Le spese condivise mostrano un chip 👥 nella lista",
-      "item2": "Vedi la tua parte esatta dell'importo, non il totale",
-      "item3": "Notifiche istantanee quando qualcuno condivide una spesa con te"
-    },
-    "budget": {
-      "title": "Budget mensile",
-      "item1": "Imposta limiti di spesa per categoria",
-      "item2": "Grafico visivo dell'avanzamento in tempo reale",
-      "item3": "Controllo intelligente delle transazioni fisse tra mesi"
-    },
-    "friends": {
-      "title": "Sistema di amici",
-      "item1": "Cerca utenti per nome utente",
-      "item2": "Invia, accetta o rifiuta richieste di amicizia",
-      "item3": "Gestisci la lista di amici dal tuo profilo"
-    },
-    "notifications": {
-      "title": "Notifiche",
-      "item1": "Badge numerico per le non lette in tempo reale",
-      "item2": "Tocca per segnare come letta individualmente",
-      "item3": "Elimina notifiche o segna tutte come lette in un tocco"
-    },
-    "navbarRedesign": {
-      "title": "Navbar riprogettata",
-      "item1": "Pill animata perfettamente centrata sull'icona attiva",
-      "item2": "Animazione fluida di entrata e uscita al cambio di scheda",
-      "item3": "Design più pulito: pill dentro il contenitore dell'icona"
-    },
-    "improvements": {
-      "title": "Miglioramenti generali",
-      "item1": "Impronta / Face ID per sblocco rapido",
-      "item2": "Schermata di accesso con email e PIN ridisegnata",
-      "item3": "Design visivo unificato in tutta l'app"
-    },
-    "badges": {
-      "title": "Badge credito/debito",
-      "item1": "Le transazioni recenti nella home mostrano ora un badge 'C' per credito e 'D' per debito",
-      "item2": "Identifica a colpo d'occhio con quale carta hai effettuato ogni spesa",
-      "item3": "Il colore cambia per tipo: blu per credito, verde per debito"
-    },
-    "versionedNews": {
-      "title": "Novità per versione",
-      "item1": "Questa schermata mostra ora solo le modifiche della versione attuale",
-      "item2": "Niente più ripetizioni delle novità precedenti ad ogni aggiornamento",
-      "item3": "Ogni versione porta la propria lista di miglioramenti"
-    },
-    "savingsGoals": {
-      "title": "Obiettivi di risparmio",
-      "item1": "Crea obiettivi con nome, emoji e importo target",
-      "item2": "Registra risparmi e segui i progressi con una barra visiva",
-      "item3": "Raggiungi l'obiettivo e festeggia con un'animazione speciale 🎉"
-    },
-    "toolsHub": {
-      "title": "Hub Strumenti",
-      "item1": "Nuova scheda Strumenti con accesso centralizzato",
-      "item2": "Gestisci Categorie e Obiettivi da un unico posto",
-      "item3": "Presto altri strumenti per potenziare le tue finanze"
-    },
-    "annualReport": {
-      "title": "Estratto annuale PDF",
-      "item1": "Genera il report delle transazioni dell'anno fiscale",
-      "item2": "Ripartizione per categoria con totali e lista voci",
-      "item3": "Ideale per il tuo commercialista o archivio personale"
-    },
-    "sentIncomeFeature": {
-      "title": "Invia entrate agli amici",
-      "item1": "Registra una spesa e inviala come entrata a un altro utente di Spendia",
-      "item2": "Il tuo amico la vede automaticamente nella cronologia come entrata ricevuta",
-      "item3": "Perfetto per rimborsi, trasferimenti o dividere conti informalmente"
-    },
-    "friendReport": {
-      "title": "Report spese con amici",
-      "item1": "Seleziona un amico e un mese per vedere tutte le transazioni condivise tra voi",
-      "item2": "Identifica subito chi deve a chi e quanto con il saldo netto",
-      "item3": "Genera un'immagine scaricabile e condivisibile con ogni transazione nel dettaglio"
-    },
-    "annualReportImage": {
-      "title": "Estratto annuale come immagini",
-      "item1": "L'estratto annuale ora viene generato come immagini di alta qualità invece di PDF",
-      "item2": "Scarica ogni pagina o condividila direttamente dall'app",
-      "item3": "Design visivo migliorato con riepilogo, categorie e movimenti dell'anno"
-    },
-    "customCategories": {
-      "title": "Categorie personalizzate",
-      "item1": "Crea le tue categorie con icona e nome unico",
-      "item2": "Ora visualizzate correttamente in home, cronologia e dettaglio",
-      "item3": "Organizza spese ed entrate esattamente come vuoi"
-    },
-    "spendiaDomain": {
-      "title": "Ora su spendia.co",
-      "item1": "L'app ha il suo dominio: spendia.co",
-      "item2": "Accesso con Google più stabile e sicuro",
-      "item3": "Installa Spendia come PWA direttamente da spendia.co"
-    },
-    "expenseGroups": {
-      "title": "Spese di gruppo",
-      "item1": "Crea gruppi per viaggi o uscite e registra chi ha pagato cosa",
-      "item2": "Calcola automaticamente chi deve quanto a chi",
-      "item3": "Salda o riapri i gruppi con un solo tocco"
-    },
-    "editTransactionParity": {
-      "title": "Modifica movimento migliorata",
-      "item1": "Categorizzazione automatica con IA durante la digitazione della descrizione",
-      "item2": "Crea categorie personalizzate direttamente durante la modifica",
-      "item3": "Suggerimenti rapidi per la descrizione e selettore carta completo"
-    },
-    "visualPolish": {
-      "title": "Miglioramenti visivi",
-      "item1": "Animazione aurora nel login: fluida e continua in modalità scura e chiara",
-      "item2": "Blob animati visibili in modalità chiara con toni cyan sottili",
-      "item3": "Pulsante Google corretto in modalità scura con sfondo solido"
-    },
-    "transactionDetail": {
-      "title": "Dettaglio e modifica delle transazioni",
-      "item1": "Vedi il riepilogo completo di ogni spesa e entrata",
-      "item2": "Modifica qualsiasi campo direttamente dal dettaglio",
-      "item3": "Cambia la data con un selettore visivo intuitivo"
-    },
-    "auroraBackground": {
-      "title": "Sfondo animato in tutta l'app",
-      "item1": "Effetto aurora con 6 cerchi fluttuanti in ogni schermata",
-      "item2": "Animazione fluida e continua durante la navigazione",
-      "item3": "Intensità diverse per schermata, si adatta a chiaro e scuro"
-    },
-    "defaultCard": {
-      "title": "Carta predefinita per le uscite",
-      "item1": "Imposta una carta come predefinita aggiungendola o modificandola",
-      "item2": "Viene selezionata automaticamente alla registrazione di una spesa",
-      "item3": "Badge ★ in Le mie carte per identificarla a colpo d'occhio"
-    },
-    "cardManagement": {
-      "title": "Gestione completa delle carte",
-      "item1": "Modifica banca, tipo, nome e predefinita direttamente da Le mie carte",
-      "item2": "Pulsanti d'azione ridisegnati con sfondi tintati a squircle",
-      "item3": "Cambia la banca direttamente nel modulo di modifica"
-    },
-    "auroraBlur": {
-      "title": "Sfondo aurora migliorato",
-      "item1": "Effetto blur morbido sui cerchi animati dello sfondo",
-      "item2": "Intensità adattiva: sottile in modalità chiara, più marcata in scura",
-      "item3": "Le animazioni continuano a scorrere senza interruzioni"
-    },
-    "toolCardsRedesign": {
-      "title": "Schede strumenti rinnovate",
-      "item1": "Sfondo solido con maggior contrasto sull'aurora animata",
-      "item2": "Ombra sottile con tinta dalla palette principale dell'app",
-      "item3": "Angoli perfettamente arrotondati su Android e iOS"
-    },
-    "sharedFixedPerms": {
-      "title": "Spese condivise migliorate",
-      "item1": "Le spese fisse condivise si propagano correttamente ai mesi futuri",
-      "item2": "Solo il proprietario può modificare o eliminare una spesa condivisa",
-      "item3": "Se non sei il proprietario, puoi inviare una richiesta di eliminazione al creatore"
-    },
-    "balanceCardRedesign": {
-      "title": "Balance Card rinnovata",
-      "item1": "Nuovo design elegante con sfondo frosted glass traslucido",
-      "item2": "Entrate e uscite in un'unica riga pulita con divisore sottile",
-      "item3": "Tipografia in grassetto per una migliore leggibilità delle cifre"
-    },
-    "friendReportImproved": {
-      "title": "Report con amico migliorato",
-      "item1": "Le spese condivise ora includono la direzione corretta: ciò che devi e ciò che ti devono",
-      "item2": "Il saldo netto riflette tutti i movimenti: inviati, ricevuti e condivisi",
-      "item3": "Vista unificata raggruppata per data con icone di direzione"
-    },
-    "responsiveViewer": {
-      "title": "Visualizzatore adattivo",
-      "item1": "Il visualizzatore di immagini e PDF si adatta a tablet e schermi desktop",
-      "item2": "Tempo di inattività esteso a 5 minuti per maggiore comodità",
-      "item3": "Contenuto centrato e ottimizzato per schermi grandi"
-    },
-    "paletteSelector": {
-      "title": "Personalizza la tua palette di colori",
-      "item1": "Scegli tra più palette dal tuo profilo",
-      "item2": "Ogni palette trasforma colori, aurora e sfumature dell'app",
-      "item3": "La tua selezione viene salvata automaticamente per le sessioni future"
-    },
-    "darkOverlay": {
-      "title": "Sfondo scuro più profondo",
-      "item1": "Strato scuro sottile sullo sfondo in modalità scura",
-      "item2": "I componenti risaltano con più chiarezza sullo sfondo",
-      "item3": "L'aurora animata rimane visibile sotto un elegante velo"
-    },
-    "editCardDialogFit": {
-      "title": "Finestre di dialogo più compatte",
-      "item1": "Il dialogo di modifica carta si adatta all'altezza del contenuto senza scorrimento inutile",
-      "item2": "Il pannello inferiore occupa solo lo spazio necessario per i campi visibili",
-      "item3": "Tutto visibile a colpo d'occhio durante la modifica, senza dover scorrere"
-    },
     "accentSelector": {
       "title": "Nuovo selettore di colore accento",
       "item1": "Icona ridisegnata: l'anello è la linea, il disco è il contenuto — come nel tuo grafico reale",
@@ -1407,18 +1125,6 @@
       "item1": "\"Linea dinamica\" e \"Contenuto dinamico\": cambiano da soli tra verde e rosso in base a se il saldo sale o scende",
       "item2": "Transizione fluida tra i colori — nessun salto brusco",
       "item3": "Funziona sia nell'anteprima di Personalizzazione sia nel grafico reale della Home"
-    },
-    "personalizationAccordion": {
-      "title": "Personalizzazione più ordinata",
-      "item1": "Nessuna sezione si apre da sola entrando in Personalizzazione",
-      "item2": "Aprire una sezione chiude automaticamente quella precedente",
-      "item3": "Più facile navigare tra Palette, Sfondo, Carte e Grafico"
-    },
-    "solidAreaFix": {
-      "title": "Grafico \"Area solida\" corretto",
-      "item1": "Il riempimento non scompare più né appare quasi trasparente",
-      "item2": "Nessun bordo netto o taglio — il degradé si dissolve in modo fluido",
-      "item3": "Appare coerente in modalità chiara e scura"
     },
     "aiInsight": {
       "title": "Il tuo mese in una frase, con IA",
@@ -1532,8 +1238,6 @@
     "ofTotal": "di {{amount}}",
     "appFriendsTab": "Amici nell'app",
     "externalTab": "Persona esterna",
-    "externalName": "Nome completo",
-    "externalEmail": "Indirizzo email",
     "externalNamePlaceholder": "Es. Mario Rossi",
     "externalEmailPlaceholder": "email@esempio.com",
     "addExternalBtn": "Aggiungi",
@@ -1560,7 +1264,6 @@
     "deleteConfirmBoth": "Il movimento verrà eliminato dal tuo account e da quello dell'altra persona. Non si può annullare."
   },
   "reports": {
-    "menuLabel": "Genera estratto annuale",
     "title": "Estratto annuale",
     "subtitle": "Per la tua dichiarazione dei redditi",
     "selectYear": "Seleziona l'anno",
@@ -1573,10 +1276,8 @@
     "shareError": "Impossibile condividere l'immagine",
     "noTransactions": "Nessuna transazione per questo anno",
     "viewerTitle": "Estratto {{year}}",
-    "pdfTitle": "SPENDIA",
     "pdfExtract": "Estratto Annuale {{year}}",
     "pdfGeneratedOn": "Generato il {{date}}",
-    "pdfSummary": "RIEPILOGO ANNUALE",
     "pdfIncome": "Entrate",
     "pdfExpenses": "Uscite",
     "pdfBalance": "Saldo",
@@ -1596,7 +1297,6 @@
   },
   "tools": {
     "title": "Strumenti",
-    "pageDesc": "Funzionalità per potenziare le tue finanze",
     "goalsCard": {
       "title": "Obiettivi di risparmio",
       "description": "Risparmia per ciò che conta di più"
@@ -1643,7 +1343,6 @@
     "nameLabel": "Nome obiettivo",
     "namePlaceholder": "Es: Viaggio in Europa",
     "emojiLabel": "Emoji",
-    "emojiPlaceholder": "✈️",
     "targetLabel": "Importo obiettivo",
     "targetPlaceholder": "$ 0",
     "deleteTitle": "Elimina obiettivo",
@@ -1748,7 +1447,6 @@
     "settlement": {
       "title": "Saldo",
       "balanced": "Tutto in ordine! Nessun debito in sospeso.",
-      "owes": "deve a",
       "totalPaid": "Totale pagato da te",
       "yourShare": "La tua parte",
       "balance": "Il tuo saldo"
@@ -1819,13 +1517,11 @@
   },
   "maintenance": {
     "title": "In manutenzione",
-    "subtitle": "Spendia è in fase di miglioramento. Torneremo prestissimo.",
-    "estimatedReturn": "Tempo stimato: {{time}}"
+    "subtitle": "Spendia è in fase di miglioramento. Torneremo prestissimo."
   },
   "blocked": {
     "title": "Account sospeso",
     "subtitle": "Il tuo account è stato temporaneamente sospeso. Contatta il supporto se pensi sia un errore.",
-    "reason": "Motivo: {{reason}}",
     "contact": "Contatta il supporto"
   },
   "premiumWelcome": {
@@ -1846,7 +1542,6 @@
     "lockedTitle": "Funzione Premium",
     "lockedSubtitle": "Sblocca questa funzione con Spendia Premium.",
     "upgradeButton": "Vedi piani",
-    "badge": "Premium",
     "bannerSubtitle": "Contattaci su WhatsApp per attivare il tuo piano"
   },
   "upgrade": {
@@ -1904,12 +1599,7 @@
     "legalNote": "Continuando, confermi di aver letto e accettato i documenti indicati. Salviamo la data e l'ora della tua accettazione."
   },
   "landing": {
-    "description": "Registra entrate e uscite, categorizza le transazioni e visualizza le tue finanze con grafici chiari. Progettato per la Colombia.",
-    "register": "Crea account gratuito",
-    "signIn": "Accedi",
-    "feature1Label": "Transazioni",
-    "feature2Label": "Analisi",
-    "feature3Label": "Obiettivi"
+    "description": "Registra entrate e uscite, categorizza le transazioni e visualizza le tue finanze con grafici chiari. Progettato per la Colombia."
   },
   "exchangeRate": {
     "updatedAt": "Agg. {{time}}",

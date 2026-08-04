@@ -1921,5 +1921,38 @@ export const PALETTES: PaletteDefinition[] = [
   },
 ];
 
+/** Grupos del selector de Personalización. Una paleta que no esté en ningún grupo
+ *  NO se ve en la app: el grid solo pinta lo que hay aquí. Lo vigila
+ *  `utils/reportPalette.test.ts`. */
+export interface PaletteGroup {
+  key: string;
+  labelKey: string;
+  ids: PaletteId[];
+}
+
+export const PALETTE_GROUPS: PaletteGroup[] = [
+  {
+    key: 'classic',
+    labelKey: 'profile.palette.group.classic',
+    ids: ['deepWater', 'sunset', 'forest', 'midnight', 'rose', 'ocean', 'ember', 'lavender', 'slate', 'sakura', 'nordic', 'cottonCandy', 'peach', 'mint', 'aurora', 'mocha'],
+  },
+  {
+    key: 'pastel',
+    labelKey: 'profile.palette.group.pastel',
+    ids: ['deepWaterPastel', 'sunsetPastel', 'forestPastel', 'midnightPastel', 'rosePastel', 'oceanPastel', 'emberPastel', 'lavenderPastel', 'slatePastel', 'sakuraPastel', 'nordicPastel', 'cottonCandyPastel', 'peachPastel', 'mintPastel', 'auroraPastel', 'mochaPastel'],
+  },
+  {
+    // Familias con tono propio: ninguna repite el dominante de las clásicas.
+    key: 'bold',
+    labelKey: 'profile.palette.group.bold',
+    ids: ['citrus', 'neon', 'wine', 'arctic', 'jade', 'sandstone', 'graphite', 'moss'],
+  },
+  {
+    key: 'neon',
+    labelKey: 'profile.palette.group.neon',
+    ids: ['cyberpunk', 'electricViolet', 'acidLime', 'solarFlare', 'hotMagenta', 'electricBlue', 'tangerine', 'infrared'],
+  },
+];
+
 export const PALETTE_MAP: Record<PaletteId, PaletteDefinition> =
   Object.fromEntries(PALETTES.map((p) => [p.id, p])) as Record<PaletteId, PaletteDefinition>;

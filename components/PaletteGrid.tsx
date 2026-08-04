@@ -4,36 +4,10 @@ import * as Haptics from 'expo-haptics';
 import AppIcon from './AppIcon';
 import AppSegmentedControl from './AppSegmentedControl';
 import { Fonts } from '../config/fonts';
-import { PaletteId, PALETTES } from '../config/palettes';
+import { PALETTES, PALETTE_GROUPS, type PaletteId } from '../config/palettes';
 
 const COLUMNS = 3;
 const GRID_GAP = 10;
-
-// ── Palette groups ──────────────────────────────────────────────────────────
-interface PaletteGroup {
-  key: string;
-  labelKey: string;
-  ids: PaletteId[];
-}
-
-export const PALETTE_GROUPS: PaletteGroup[] = [
-  {
-    key: 'classic',
-    labelKey: 'profile.palette.group.classic',
-    ids: ['deepWater', 'sunset', 'forest', 'midnight', 'rose', 'ocean', 'ember', 'lavender', 'slate', 'sakura', 'nordic', 'cottonCandy', 'peach', 'mint', 'aurora', 'mocha'],
-  },
-  {
-    key: 'pastel',
-    labelKey: 'profile.palette.group.pastel',
-    ids: ['deepWaterPastel', 'sunsetPastel', 'forestPastel', 'midnightPastel', 'rosePastel', 'oceanPastel', 'emberPastel', 'lavenderPastel', 'slatePastel', 'sakuraPastel', 'nordicPastel', 'cottonCandyPastel', 'peachPastel', 'mintPastel', 'auroraPastel', 'mochaPastel'],
-  },
-  {
-    // Familias con tono propio: ninguna repite el dominante de las clásicas.
-    key: 'bold',
-    labelKey: 'profile.palette.group.bold',
-    ids: ['citrus', 'neon', 'wine', 'arctic', 'jade', 'sandstone', 'graphite', 'moss'],
-  },
-];
 
 // ── PaletteCard — 3 columnas, swatches solapados, glow, haptics ─────────────
 export const PaletteCard = memo(function PaletteCard({

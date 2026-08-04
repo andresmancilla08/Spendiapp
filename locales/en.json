@@ -29,7 +29,6 @@
     "consentPrivacy": "Privacy Policy"
   },
   "register": {
-    "back": "← Back",
     "title": "Create account",
     "subtitle": "Enter your details to get started",
     "nameLabel": "Full name",
@@ -37,8 +36,6 @@
     "emailLabel": "Email",
     "emailPlaceholder": "you@email.com",
     "continueButton": "Continue",
-    "haveAccount": "Already have an account? ",
-    "signInLink": "Sign in",
     "successDialog": {
       "title": "Welcome, {{name}}!",
       "description": "Your account was created successfully. You can now start tracking your finances.",
@@ -52,7 +49,6 @@
     "privacyLabel": "Privacy Policy"
   },
   "loginEmail": {
-    "back": "← Back",
     "title": "Enter your email",
     "subtitle": "We'll use your email to identify you",
     "emailLabel": "Email",
@@ -93,18 +89,15 @@
   "pinEntry": {
     "createTitle": "Create your access PIN",
     "createSubtitle": "Choose 4 digits you'll remember",
-    "enterTitle": "Enter your PIN",
-    "enterSubtitle": "Hello, {{email}}"
+    "enterTitle": "Enter your PIN"
   },
   "dialogs": {
     "googleAccount": {
-      "title": "Google Account",
       "description": "This email is linked to a Google account. Use the Google button to sign in.",
       "primary": "Back to login",
       "secondary": "Cancel"
     },
     "emailNotFound": {
-      "title": "Email not found",
       "description": "We couldn't find an account with this email. Would you like to create a new account?",
       "primary": "Sign up",
       "secondary": "Cancel"
@@ -116,24 +109,13 @@
       "secondary": "Cancel"
     },
     "inactivity": {
-      "title": "Still there?",
-      "description": "For security, we'll log you out in {{seconds}} seconds due to inactivity.",
-      "stayButton": "Stay in app",
-      "logoutButton": "Log out",
-      "descBefore": "For security, we'll log you out in",
-      "descAfter": "seconds due to inactivity."
+      "description": "For security, we'll log you out in {{seconds}} seconds due to inactivity."
     }
   },
   "errors": {
     "fillAllFields": "Please fill in all fields",
     "invalidEmail": "Invalid email",
-    "verifyEmailError": "We couldn't verify your email. Please try again.",
-    "resetEmailSent": "We sent you an email to reset your PIN",
-    "resetEmailError": "We couldn't send the email. Check your email and try again.",
-    "wrongPin": "The entered PIN is not valid. Please try again.",
     "invalidCredentials": "Incorrect email or PIN. Please verify your details and try again.",
-    "wrongPinTitle": "Incorrect PIN",
-    "signOutError": "Could not sign out",
     "genericError": "An error occurred. Please try again."
   },
   "common": {
@@ -159,30 +141,23 @@
     "home": "HOME",
     "budget": "BUDGET",
     "history": "HISTORY",
-    "whatsNew": "What's New",
     "tools": "Tools"
   },
   "home": {
-    "welcome": "Hi, {{name}}",
-    "monthBalance": "Monthly balance",
     "income": "Income",
     "expenses": "Expenses",
-    "recentTransactions": "Recent transactions",
     "noTransactions": "No transactions this month",
     "noTransactionsSub": "Tap + to record your first expense",
-    "signOut": "Sign out",
     "subtitleSpentToday": "Today you spent {{amount}}",
     "subtitleWarning": "Watch your spending this month",
     "subtitleGood": "You're doing great this month!",
     "subtitleStart": "Start recording your expenses",
     "subtitleDefault": "Monthly summary",
-    "pillSpent": "{{percent}}% spent",
     "headerContext": "{{percent}}% spent · {{days}} days left",
     "headerContextOneDay": "{{percent}}% spent · 1 day left",
     "headerContextLastDay": "{{percent}}% spent · last day of the month",
     "headerContextNoDays": "{{percent}}% spent",
     "balanceLabel": "MONTH BALANCE",
-    "balanceBadge": "This month",
     "incomeLabel": "INCOME",
     "expensesLabel": "EXPENSES",
     "recentActivity": "Recent Activity",
@@ -224,7 +199,6 @@
     "greetingName": "Hi, {{name}}"
   },
   "profile": {
-    "title": "Profile",
     "sections": {
       "account": "ACCOUNT",
       "preferences": "PREFERENCES",
@@ -321,9 +295,8 @@
       "group": {
         "classic": "Classic",
         "pastel": "Pastel",
-        "new": "New",
-        "newPastel": "New Pastel",
-        "bold": "Character"
+        "bold": "Character",
+        "neon": "Neon"
       },
       "citrus": "Citrus",
       "graphite": "Graphite",
@@ -343,16 +316,13 @@
       "infrared": "Infrared"
     },
     "notifications": {
-      "label": "Notifications",
-      "soon": "Notification settings will be available soon."
+      "label": "Notifications"
     },
     "faq": {
-      "label": "Suggestion box",
-      "soon": "Help section will be available soon."
+      "label": "Suggestion box"
     },
     "privacy": {
-      "label": "Privacy policy",
-      "soon": "Privacy policy will be available soon."
+      "label": "Privacy policy"
     },
     "cards": {
       "section": "My cards",
@@ -523,9 +493,7 @@
     "security": {
       "changePin": "Change PIN",
       "faceId": "Face ID / Touch ID",
-      "faceIdValue": "Disabled",
-      "inactivity": "Inactivity lock",
-      "inactivityValue": "3 min"
+      "faceIdValue": "Disabled"
     },
     "notifications": {
       "push": "Push notifications",
@@ -551,8 +519,6 @@
     "pageDesc": "Record an expense or income",
     "typeExpense": "Expense",
     "typeIncome": "Income",
-    "amountPrefix": "$",
-    "amountPlaceholder": "0",
     "descriptionPlaceholder": "What did you spend it on?",
     "scanReceipt": "Scan receipt",
     "scanning": "Reading receipt…",
@@ -565,7 +531,6 @@
     "dateLabel": "Date",
     "today": "Today",
     "saveButton": "Save",
-    "saving": "Saving...",
     "categoryNamePlaceholder": "Name...",
     "paymentMethod": "Payment method",
     "noCards": "Add your cards",
@@ -573,7 +538,6 @@
     "installments": "Installments",
     "installmentSingle": "installment (one-time payment)",
     "installmentsPlural": "installments",
-    "installmentAmountPlaceholder": "E.g.: 26.4",
     "installmentPreviewEqual": "{{count}} installments of ${{amount}}",
     "installmentPreviewUnequal": "{{count}} installments of ${{first}} + last of ${{last}}",
     "withInterest": "With interest?",
@@ -658,8 +622,6 @@
     "fixedIncome": "Fixed income",
     "saveCategoryError": "Could not save the category",
     "sharedSection": "Shared expense",
-    "sharedOwnerNote": "Changes apply to all participants",
-    "sharedParticipantNote": "You can edit your record without affecting others",
     "sharedInstallmentLocked": "The split of an instalment purchase was set when it was created and cannot be changed here. Each instalment shows what each person pays."
   },
   "history": {
@@ -669,28 +631,19 @@
     "noTransactions": "No transactions",
     "noTransactionsSub": "No records for this month",
     "edit": {
-      "title": "Edit transaction",
-      "descriptionLabel": "Description",
-      "amountLabel": "Amount",
-      "categoryLabel": "Category",
       "saveButton": "Save changes",
       "duplicateButton": "Duplicate",
       "deleteButton": "Delete",
       "confirmDelete": "Confirm deletion?",
       "confirmDeleteYes": "Yes, delete",
       "confirmDeleteCancel": "Cancel",
-      "saving": "Saving...",
       "deleteSuccess": "Expense deleted successfully",
       "deleteError": "Could not delete. Please try again.",
       "saveError": "Could not save. Please try again.",
       "fixedNote": "Fixed expense — changes affect following months",
-      "fixedDeleteNote": "Delete fixed expense? It will disappear from all months.",
       "cancelFixedButton": "Cancel recurring",
       "confirmCancelFixed": "This will cancel the recurring transaction from this month onwards. Previous months will not be affected.",
-      "confirmCancelFixedYes": "Yes, cancel",
       "fixedLocked": "This transaction already occurred and cannot be modified.",
-      "dateLabel": "Date",
-      "isFixedLabel": "Monthly recurring",
       "isFixedHint": "Repeats automatically every month",
       "scopePickerTitle": "Which transactions do you want to affect?",
       "scopeOnlyThis": "Only this month",
@@ -705,7 +658,6 @@
       "scopeFromNowInstallmentDesc": "This installment and all remaining ones will be deleted.",
       "scopeContinue": "Continue",
       "scopeConfirmFixed_single": "Only this month will be skipped. The recurring will continue in following months.",
-      "scopeConfirmFixed_fromNow": "The recurring will be cancelled from this month. Previous months are not affected.",
       "scopeConfirmFixed_all": "The recurring will be permanently deleted from all months.",
       "scopeConfirmInstallment_single": "Only this installment will be deleted. Others remain.",
       "scopeConfirmInstallment_fromNow": "This installment and all following ones in this group will be deleted.",
@@ -751,18 +703,13 @@
       "markedUnpaid": "Marked as unpaid"
     },
     "detail": {
-      "title": "Detail",
       "typeExpense": "Expense",
       "typeIncome": "Income",
       "dateLabel": "DATE",
-      "timeLabel": "TIME",
       "categoryLabel": "CATEGORY",
       "notesLabel": "NOTE",
       "cardLabel": "CARD",
       "noCard": "No card",
-      "installmentLabel": "INSTALLMENTS",
-      "installmentProgress": "Installment {{current}} of {{total}}",
-      "fixedLabel": "Fixed expense",
       "editButton": "Edit",
       "creditType": "Credit",
       "debitType": "Debit",
@@ -770,7 +717,6 @@
       "sharedByLabel": "SHARED BY",
       "owesYouLabel": "OWED TO ME",
       "youOweLabel": "I OWE TO",
-      "pageDesc": "Transaction details",
       "movement": "MOVEMENT",
       "stampInstallment": "INSTALLMENT\n{{current}} / {{total}}",
       "stampFixed": "FIXED\nMONTHLY",
@@ -847,7 +793,6 @@
       "fixedHistoryFoot_other": "{{count}} months in a row · {{amount}} in total.",
       "subInstallmentShared": "Installment {{current}} of {{total}} · among {{people}} people"
     },
-    "pageDesc": "A record of all your transactions",
     "filters": {
       "allLabel": "All",
       "payLabel": "Status",
@@ -896,9 +841,6 @@
     "title": "My categories",
     "defaultSection": "DEFAULT",
     "customSection": "MY CATEGORIES",
-    "emptyCustom": "You don't have custom categories yet",
-    "emptyCustomSub": "Tap + to create your first category",
-    "addButton": "New category",
     "editTitle": "Edit category",
     "createTitle": "New category",
     "nameLabel": "Name",
@@ -908,23 +850,15 @@
     "typeIncome": "Income",
     "typeBoth": "Both",
     "iconLabel": "Icon",
-    "iconAuto": "Automatically suggested",
     "iconSourceAuto": "Automatically suggested",
     "iconSourceManual": "Manually chosen",
-    "iconChange": "Change icon",
     "changeIcon": "Change icon",
-    "iconPicker": "Choose an icon",
     "saving": "Saving...",
     "saveButton": "Save",
-    "deleteButton": "Delete category",
     "deleteTitle": "Delete category?",
     "deleteDesc": "This action will reassign {{count}} transaction(s) to \"Other\". Cannot be undone.",
     "deleteConfirm": "Yes, delete",
     "deleteCancel": "Cancel",
-    "deleteError": "Could not delete. Please try again.",
-    "saveError": "Could not save. Please try again.",
-    "nameError": "Name must be at least 2 characters",
-    "manageCategoriesLabel": "My categories",
     "suggestingEmoji": "Suggesting icon...",
     "names": {
       "food": "Food",
@@ -970,13 +904,11 @@
       "sub": "Define how much you want to spend per category"
     },
     "addLimit": "Set limit",
-    "editLimit": "Edit limit",
     "unlimitedSection": "NO LIMIT SET",
     "dialog": {
       "addTitle": "New budget",
       "editTitle": "Edit budget",
       "deleteTitle": "Delete budget",
-      "deleteDesc": "Delete the budget for {{category}}?",
       "deleteDescBefore": "Delete the budget for",
       "deleteDescAfter": "?",
       "limitLabel": "Monthly limit (COP)",
@@ -1040,8 +972,7 @@
     "deletedSuccess": "Card deleted successfully",
     "deleteError": "Could not delete the card",
     "pageDesc": "Manage your cards and payment methods",
-    "defaultBadge": "Default",
-    "setDefaultSuccess": "Default card updated"
+    "defaultBadge": "Default"
   },
   "cardForm": {
     "selectBank": "Select bank",
@@ -1099,7 +1030,6 @@
     "title": "Install Spendia",
     "subtitle": "Add it to your home screen",
     "dialogTitle": "How to install on iOS",
-    "dialogSteps": "1. Tap the share icon (square with arrow ↑)\n2. Select \"Add to Home Screen\"\n3. Tap \"Add\" to confirm",
     "dialogButton": "Got it"
   },
   "friends": {
@@ -1129,8 +1059,6 @@
       "outgoing": "SENT",
       "noIncoming": "No incoming requests",
       "noOutgoing": "You haven't sent any requests",
-      "accept": "Accept",
-      "reject": "Decline",
       "cancel": "Cancel"
     },
     "remove": {
@@ -1186,216 +1114,6 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "sharedExpenses": {
-      "title": "Shared expenses",
-      "item1": "Share any expense with one or more Spendia friends",
-      "item2": "Each participant sees it automatically in their history",
-      "item3": "Anyone can delete the expense for all with one tap"
-    },
-    "splitCalc": {
-      "title": "Proportional split",
-      "item1": "Split equally or set custom percentages per person",
-      "item2": "Real-time preview of the exact amount per person",
-      "item3": "Works with installments and interest rates automatically"
-    },
-    "newForm": {
-      "title": "Full-screen form",
-      "item1": "The + button now opens a dedicated screen with more space",
-      "item2": "Same flow as always: amount, category, card, date",
-      "item3": "The sharing section appears at the bottom, out of the way"
-    },
-    "syncHistory": {
-      "title": "Synced history",
-      "item1": "Shared expenses show a 👥 chip in the transaction list",
-      "item2": "You see your exact share of the amount, not the total",
-      "item3": "Instant notifications when someone shares an expense with you"
-    },
-    "budget": {
-      "title": "Monthly budget",
-      "item1": "Set spending limits by category",
-      "item2": "Visual progress chart in real time",
-      "item3": "Smart control of fixed transactions across months"
-    },
-    "friends": {
-      "title": "Friends system",
-      "item1": "Search users by username",
-      "item2": "Send, accept or reject friend requests",
-      "item3": "Manage your friends list from your profile"
-    },
-    "notifications": {
-      "title": "Notifications",
-      "item1": "Numeric badge for unread notifications in real time",
-      "item2": "Tap to mark as read individually",
-      "item3": "Delete notifications or mark all as read in one tap"
-    },
-    "navbarRedesign": {
-      "title": "Redesigned navbar",
-      "item1": "Animated pill perfectly centered on the active icon",
-      "item2": "Smooth fade-in and fade-out animation when switching tabs",
-      "item3": "Cleaner design: pill inside the icon container, no manual position math"
-    },
-    "improvements": {
-      "title": "General improvements",
-      "item1": "Fingerprint / Face ID for quick unlock",
-      "item2": "Redesigned email and PIN sign-in screen",
-      "item3": "Unified visual design across the entire app"
-    },
-    "badges": {
-      "title": "Credit/debit badge",
-      "item1": "Recent transactions on the home screen now show a 'C' badge for credit and 'D' for debit",
-      "item2": "Identify at a glance which card you used for each expense",
-      "item3": "Color changes by type: blue for credit, green for debit"
-    },
-    "versionedNews": {
-      "title": "Versioned what's new",
-      "item1": "This screen now shows only the changes for the current version",
-      "item2": "No more repeated updates from previous versions",
-      "item3": "Each version brings its own list of improvements"
-    },
-    "savingsGoals": {
-      "title": "Savings Goals",
-      "item1": "Create goals with name, emoji, and target amount",
-      "item2": "Log savings and track your progress with a visual bar",
-      "item3": "Reach your goal and celebrate with a special animation 🎉"
-    },
-    "toolsHub": {
-      "title": "Tools Hub",
-      "item1": "New Tools tab with centralized access to features",
-      "item2": "Manage Categories and Goals from one place",
-      "item3": "More tools coming soon to supercharge your finances"
-    },
-    "annualReport": {
-      "title": "Annual PDF Report",
-      "item1": "Generate your fiscal year transaction report",
-      "item2": "Category breakdown with totals and item list",
-      "item3": "Perfect for your accountant or personal archive"
-    },
-    "sentIncomeFeature": {
-      "title": "Send income to friends",
-      "item1": "Log an expense and send it as income to another Spendia user",
-      "item2": "Your friend sees it automatically in their history as received income",
-      "item3": "Perfect for reimbursements, transfers, or splitting bills informally"
-    },
-    "friendReport": {
-      "title": "Friend expense report",
-      "item1": "Select a friend and month to see all shared transactions between you",
-      "item2": "Instantly identify who owes who and how much with the net balance",
-      "item3": "Generate a downloadable and shareable image with every transaction detailed"
-    },
-    "annualReportImage": {
-      "title": "Annual report as images",
-      "item1": "The annual report is now generated as high-quality images instead of PDF",
-      "item2": "Download each page or share it directly from the app",
-      "item3": "Improved visual design with summary, categories and yearly movements"
-    },
-    "customCategories": {
-      "title": "Custom categories",
-      "item1": "Create your own categories with a unique icon and name",
-      "item2": "Now displayed correctly in home, history and detail",
-      "item3": "Organize your expenses and income exactly as you need"
-    },
-    "spendiaDomain": {
-      "title": "Now at spendia.co",
-      "item1": "The app has its own domain: spendia.co",
-      "item2": "Google sign-in is now more stable and secure",
-      "item3": "Install Spendia as a PWA directly from spendia.co"
-    },
-    "expenseGroups": {
-      "title": "Group Expenses",
-      "item1": "Create groups for trips or outings and track who paid what",
-      "item2": "Automatically calculate who owes whom and how much",
-      "item3": "Settle or reopen groups with a single tap"
-    },
-    "editTransactionParity": {
-      "title": "Improved edit transaction",
-      "item1": "AI-powered auto-categorization when typing the description",
-      "item2": "Create custom categories directly while editing",
-      "item3": "Quick description suggestions and full card selector"
-    },
-    "visualPolish": {
-      "title": "Visual improvements",
-      "item1": "Smooth, seamless aurora animation on login in both dark and light mode",
-      "item2": "Animated blobs now visible in light mode with subtle cyan tones",
-      "item3": "Google button fixed in dark mode with a solid background"
-    },
-    "transactionDetail": {
-      "title": "Transaction detail & editing",
-      "item1": "See the full breakdown of every expense and income",
-      "item2": "Edit any field directly from the detail view",
-      "item3": "Change the date with an intuitive visual picker"
-    },
-    "auroraBackground": {
-      "title": "Animated background across the app",
-      "item1": "Aurora effect with 6 floating circles on every screen",
-      "item2": "Smooth, continuous animation that persists while navigating",
-      "item3": "Different intensities per screen, adapts to light and dark mode"
-    },
-    "defaultCard": {
-      "title": "Default card for expenses",
-      "item1": "Mark a card as default when adding or editing it",
-      "item2": "Auto-selected when logging a new expense",
-      "item3": "Star badge ★ in My Cards to identify it at a glance"
-    },
-    "cardManagement": {
-      "title": "Full card editing",
-      "item1": "Edit bank, type, name and default directly from My Cards",
-      "item2": "Redesigned action buttons with tinted squircle backgrounds",
-      "item3": "Change the bank directly inside the edit form"
-    },
-    "auroraBlur": {
-      "title": "Improved aurora background",
-      "item1": "Soft blur effect over the animated background circles",
-      "item2": "Adaptive intensity: subtle in light mode, stronger in dark",
-      "item3": "Animations keep flowing smoothly with the new effect"
-    },
-    "toolCardsRedesign": {
-      "title": "Redesigned tool cards",
-      "item1": "Solid background with better contrast over the animated aurora",
-      "item2": "Subtle shadow with a tint from the app's primary palette",
-      "item3": "Perfectly rounded corners on both Android and iOS"
-    },
-    "sharedFixedPerms": {
-      "title": "Improved shared expenses",
-      "item1": "Fixed shared expenses now correctly propagate to future months",
-      "item2": "Only the owner can edit or delete a shared expense",
-      "item3": "If you're not the owner, you can send a deletion request to the creator"
-    },
-    "balanceCardRedesign": {
-      "title": "Redesigned Balance Card",
-      "item1": "New elegant design with frosted glass translucent background",
-      "item2": "Income and expenses in a single clean row with subtle divider",
-      "item3": "Bold typography for better readability of your figures"
-    },
-    "friendReportImproved": {
-      "title": "Improved friend report",
-      "item1": "Shared expenses now included with correct direction: what you owe and what they owe",
-      "item2": "Net balance reflects all movements: sent, received and shared",
-      "item3": "Unified view grouped by date with direction icons"
-    },
-    "responsiveViewer": {
-      "title": "Adaptive viewer",
-      "item1": "Image and PDF viewer now adapts to tablets and desktop screens",
-      "item2": "Inactivity timeout extended to 5 minutes for more comfort",
-      "item3": "Centered content optimized for large screens"
-    },
-    "paletteSelector": {
-      "title": "Customize your color palette",
-      "item1": "Choose from multiple palettes in your profile",
-      "item2": "Each palette transforms colors, aurora, and gradients across the app",
-      "item3": "Your selection is saved automatically for future sessions"
-    },
-    "darkOverlay": {
-      "title": "Deeper dark background",
-      "item1": "Subtle dark overlay on the background in dark mode",
-      "item2": "Components stand out more clearly against the background",
-      "item3": "Animated aurora stays visible beneath an elegant veil"
-    },
-    "editCardDialogFit": {
-      "title": "More compact dialogs",
-      "item1": "The edit card dialog now fits its content without unnecessary scrolling",
-      "item2": "The bottom sheet only takes up as much space as its visible fields require",
-      "item3": "Everything visible at a glance when editing — no scrolling needed"
-    },
     "accentSelector": {
       "title": "New accent color selector",
       "item1": "Redesigned icon: the ring is the line, the disc is the content — just like your real chart",
@@ -1407,18 +1125,6 @@
       "item1": "\"Dynamic line\" and \"Dynamic content\": switch on their own between green and red based on whether your balance is up or down",
       "item2": "Smooth transition between colors — no abrupt jumps",
       "item3": "Works the same in the Personalization preview and the real Home chart"
-    },
-    "personalizationAccordion": {
-      "title": "Tidier Personalization",
-      "item1": "No section opens on its own when you enter Personalization",
-      "item2": "Opening one section automatically closes the previous one",
-      "item3": "Easier to navigate between Palette, Background, Cards, and Chart"
-    },
-    "solidAreaFix": {
-      "title": "\"Solid area\" chart fixed",
-      "item1": "The fill no longer disappears or looks nearly transparent",
-      "item2": "No hard edges or cuts — the gradient fades smoothly",
-      "item3": "Looks consistent in light and dark mode"
     },
     "aiInsight": {
       "title": "Your month in one line, with AI",
@@ -1532,8 +1238,6 @@
     "ofTotal": "of {{amount}}",
     "appFriendsTab": "Friends in app",
     "externalTab": "External person",
-    "externalName": "Full name",
-    "externalEmail": "Email address",
     "externalNamePlaceholder": "e.g. John Smith",
     "externalEmailPlaceholder": "email@example.com",
     "addExternalBtn": "Add",
@@ -1560,7 +1264,6 @@
     "deleteConfirmBoth": "This deletes the movement from your account and from the other person’s. It cannot be undone."
   },
   "reports": {
-    "menuLabel": "Generate annual report",
     "title": "Annual report",
     "subtitle": "For your tax return",
     "selectYear": "Select year",
@@ -1573,10 +1276,8 @@
     "shareError": "Couldn't share the image",
     "noTransactions": "No transactions for this year",
     "viewerTitle": "Report {{year}}",
-    "pdfTitle": "SPENDIA",
     "pdfExtract": "Annual Report {{year}}",
     "pdfGeneratedOn": "Generated on {{date}}",
-    "pdfSummary": "YEAR SUMMARY",
     "pdfIncome": "Income",
     "pdfExpenses": "Expenses",
     "pdfBalance": "Balance",
@@ -1596,7 +1297,6 @@
   },
   "tools": {
     "title": "Tools",
-    "pageDesc": "Features to boost your finances",
     "goalsCard": {
       "title": "Savings Goals",
       "description": "Save for what matters most"
@@ -1643,7 +1343,6 @@
     "nameLabel": "Goal name",
     "namePlaceholder": "E.g.: Trip to Europe",
     "emojiLabel": "Emoji",
-    "emojiPlaceholder": "✈️",
     "targetLabel": "Target amount",
     "targetPlaceholder": "$ 0",
     "deleteTitle": "Delete goal",
@@ -1748,7 +1447,6 @@
     "settlement": {
       "title": "Settlement",
       "balanced": "All settled! No pending debts.",
-      "owes": "owes",
       "totalPaid": "Total paid by you",
       "yourShare": "Your share",
       "balance": "Your balance"
@@ -1819,13 +1517,11 @@
   },
   "maintenance": {
     "title": "Under Maintenance",
-    "subtitle": "Spendia is currently undergoing improvements. We'll be back very soon.",
-    "estimatedReturn": "Estimated time: {{time}}"
+    "subtitle": "Spendia is currently undergoing improvements. We'll be back very soon."
   },
   "blocked": {
     "title": "Account suspended",
     "subtitle": "Your account has been temporarily suspended. Contact support if you think this is a mistake.",
-    "reason": "Reason: {{reason}}",
     "contact": "Contact support"
   },
   "premiumWelcome": {
@@ -1846,7 +1542,6 @@
     "lockedTitle": "Premium Feature",
     "lockedSubtitle": "Unlock this feature with Spendia Premium.",
     "upgradeButton": "View plans",
-    "badge": "Premium",
     "bannerSubtitle": "Contact us on WhatsApp to activate your plan"
   },
   "upgrade": {
@@ -1904,12 +1599,7 @@
     "legalNote": "By continuing, you confirm that you have read and accepted the indicated documents. We store the date and time of your acceptance."
   },
   "landing": {
-    "description": "Track income and expenses, categorize transactions and visualize your finances with clear charts. Designed for Colombia.",
-    "register": "Create free account",
-    "signIn": "Sign in",
-    "feature1Label": "Transactions",
-    "feature2Label": "Analytics",
-    "feature3Label": "Goals"
+    "description": "Track income and expenses, categorize transactions and visualize your finances with clear charts. Designed for Colombia."
   },
   "exchangeRate": {
     "updatedAt": "Upd. {{time}}",

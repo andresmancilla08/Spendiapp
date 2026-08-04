@@ -350,7 +350,6 @@ const styles = StyleSheet.create({
   notifText: { fontSize: 13, fontFamily: Fonts.medium, lineHeight: 18 },
   notifMeta: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   notifTime: { fontSize: 11, fontFamily: Fonts.regular },
-  unreadDot: { width: 8, height: 8, borderRadius: 4, flexShrink: 0 },
   deleteBtn: {
     width: 32,
     height: 32,

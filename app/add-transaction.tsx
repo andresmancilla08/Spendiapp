@@ -1531,11 +1531,4 @@ const styles = StyleSheet.create({
     maxWidth: 140,
     paddingVertical: 0,
   },
-  suggestDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginTop: 3,
-  },
 });

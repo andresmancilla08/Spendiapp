@@ -453,25 +453,5 @@ const styles = StyleSheet.create({
   },
 
   // Empty state
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 36,
-    paddingHorizontal: 24,
-    gap: 8,
-  },
-  emptyEmoji: {
-    fontSize: 40,
-    marginBottom: 4,
-  },
-  emptyTitle: {
-    fontSize: 15,
-    fontFamily: Fonts.semiBold,
-    textAlign: 'center',
-  },
-  emptySubtitle: {
-    fontSize: 13,
-    fontFamily: Fonts.regular,
-    textAlign: 'center',
-  },
 
 });

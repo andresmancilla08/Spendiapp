@@ -561,9 +561,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconEmoji: {
-    fontSize: 30,
-  },
   emojiSpinner: {
     marginLeft: 4,
   },

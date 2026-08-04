@@ -8,7 +8,7 @@
  * siendo distinguibles entre sí.
  */
 import assert from 'node:assert';
-import { PALETTES } from '../config/palettes';
+import { PALETTES, PALETTE_GROUPS } from '../config/palettes';
 import { colorDistance, contrastRatio, readableTint } from './contrast';
 import { reportPalette, sideColors } from './friendReportColors';
 
@@ -49,4 +49,15 @@ for (const p of PALETTES) {
 assert.equal(readableTint('#00838F', '#FFFFFF', 4.5).toUpperCase(), '#00838F');
 assert.ok(contrastRatio(readableTint('#F8BBD0', '#FFFFFF', 4.5), '#FFFFFF') >= 4.4);
 
-console.log(`OK — ${PALETTES.length} paletas × claro/oscuro + documento`);
+// Una paleta fuera de PALETTE_GROUPS existe en el código pero NO se ve en la app:
+// el selector de Personalización solo pinta lo que hay en los grupos. Pasó con las
+// ocho neón, que se añadieron a PALETTES y quedaron invisibles.
+const grouped = new Set(PALETTE_GROUPS.flatMap((g) => g.ids));
+for (const p of PALETTES) {
+  assert.ok(grouped.has(p.id), `${p.id} no está en ningún grupo: no aparecería en el selector`);
+}
+for (const id of grouped) {
+  assert.ok(PALETTES.some((p) => p.id === id), `el grupo cita "${id}", que ya no existe`);
+}
+
+console.log(`OK — ${PALETTES.length} paletas × claro/oscuro + documento, todas en ${PALETTE_GROUPS.length} grupos`);
