@@ -1048,7 +1048,7 @@ export default function HistoryScreen() {
         </View>
       ) : groups.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>📭</Text>
+          <AppIcon name="inbox" size={42} color={colors.textTertiary} style={styles.emptyIcon} />
           <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
             {t('history.noTransactions')}
           </Text>
@@ -1507,7 +1507,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 40,
   },
-  emptyIcon: { fontSize: 42, marginBottom: 14 },
+  emptyIcon: { marginBottom: 14 },
   emptyTitle: { fontSize: 16, fontFamily: Fonts.semiBold, marginBottom: 6 },
   emptySubtitle: {
     fontSize: 13,

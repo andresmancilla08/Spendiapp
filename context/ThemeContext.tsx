@@ -15,6 +15,8 @@ const BG_STYLE_LIGHT_KEY = '@spendiapp_bg_style_light';
 const BG_STYLE_DARK_KEY = '@spendiapp_bg_style_dark';
 const BG_INTENSITY_KEY = '@spendiapp_bg_intensity';
 const BG_SPEED_KEY = '@spendiapp_bg_speed';
+const BG_BLUR_LIGHT_KEY = '@spendiapp_bg_blur_light';
+const BG_BLUR_DARK_KEY = '@spendiapp_bg_blur_dark';
 const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
 const ICON_STROKE_KEY = '@spendiapp_icon_stroke';
 const STREAK_CONFETTI_KEY = '@spendiapp_streak_confetti';
@@ -30,6 +32,13 @@ export const BACKGROUND_STYLE_VALUES: BackgroundStyle[] = ['none', 'aurora', 'pa
 export type BackgroundSpeed = 'slow' | 'normal' | 'fast';
 /** Multiplicador de duración de las animaciones de fondo por velocidad. */
 export const BACKGROUND_SPEED_FACTOR: Record<BackgroundSpeed, number> = { slow: 1.6, normal: 1, fast: 0.62 };
+/** Desenfoque del efecto de fondo. Existe para que el fondo NUNCA compita con el
+ *  contenido: los efectos de trazo fino (orbs, constellation, topography) cruzaban
+ *  las tarjetas y el texto quedaba sucio. Se elige por modo — el mismo efecto pide
+ *  más desenfoque sobre un fondo claro que sobre uno oscuro. */
+export type BackgroundBlur = 'none' | 'soft' | 'medium' | 'strong';
+export const BACKGROUND_BLUR_VALUES: BackgroundBlur[] = ['none', 'soft', 'medium', 'strong'];
+export const BACKGROUND_BLUR_PX: Record<BackgroundBlur, number> = { none: 0, soft: 6, medium: 14, strong: 26 };
 export type IconStroke = 1.5 | 2 | 2.5;
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type ChartType = 'line' | 'bars' | 'area' | 'dots' | 'stepped' | 'lollipop';
@@ -64,6 +73,11 @@ interface ThemeContextValue {
   setBackgroundIntensity: (intensity: AuroraIntensity) => void;
   backgroundSpeed: BackgroundSpeed;
   setBackgroundSpeed: (speed: BackgroundSpeed) => void;
+  /** Desenfoque del modo ACTIVO (derivado de light/dark). */
+  backgroundBlur: BackgroundBlur;
+  backgroundBlurLight: BackgroundBlur;
+  backgroundBlurDark: BackgroundBlur;
+  setBackgroundBlurFor: (mode: 'light' | 'dark', blur: BackgroundBlur) => void;
   cardSheen: boolean;
   setCardSheen: (v: boolean) => void;
   iconStroke: IconStroke;
@@ -101,6 +115,10 @@ const ThemeContext = createContext<ThemeContextValue>({
   setBackgroundIntensity: () => {},
   backgroundSpeed: 'normal',
   setBackgroundSpeed: () => {},
+  backgroundBlur: 'medium',
+  backgroundBlurLight: 'medium',
+  backgroundBlurDark: 'medium',
+  setBackgroundBlurFor: () => {},
   cardSheen: true,
   setCardSheen: () => {},
   iconStroke: 2,
@@ -127,6 +145,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [backgroundStyleDark, setBackgroundStyleDarkState] = useState<BackgroundStyle>('aurora');
   const [backgroundIntensity, setBackgroundIntensityState] = useState<AuroraIntensity>('default');
   const [backgroundSpeed, setBackgroundSpeedState] = useState<BackgroundSpeed>('normal');
+  // 'medium' por defecto: un fondo animado sin desenfocar competía con el contenido.
+  const [backgroundBlurLight, setBackgroundBlurLightState] = useState<BackgroundBlur>('medium');
+  const [backgroundBlurDark, setBackgroundBlurDarkState] = useState<BackgroundBlur>('medium');
   const [cardSheen, setCardSheenState] = useState(true);
   const [iconStroke, setIconStrokeState] = useState<IconStroke>(2);
   const [streakConfetti, setStreakConfettiState] = useState(true);
@@ -146,6 +167,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(BG_STYLE_DARK_KEY),
       AsyncStorage.getItem(BG_INTENSITY_KEY),
       AsyncStorage.getItem(BG_SPEED_KEY),
+      AsyncStorage.getItem(BG_BLUR_LIGHT_KEY),
+      AsyncStorage.getItem(BG_BLUR_DARK_KEY),
       AsyncStorage.getItem(CARD_SHEEN_KEY),
       AsyncStorage.getItem(ICON_STROKE_KEY),
       AsyncStorage.getItem(STREAK_CONFETTI_KEY),
@@ -154,7 +177,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(CHART_SPEED_KEY),
       AsyncStorage.getItem(CHART_ACCENT_KEY),
       AsyncStorage.getItem(GRADIENT_STYLE_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBgSpeed, storedSheen, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBgSpeed, storedBlurLight, storedBlurDark, storedSheen, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
@@ -181,6 +204,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (storedBgSpeed === 'slow' || storedBgSpeed === 'normal' || storedBgSpeed === 'fast') {
         setBackgroundSpeedState(storedBgSpeed);
       }
+      if (BACKGROUND_BLUR_VALUES.includes(storedBlurLight as BackgroundBlur)) setBackgroundBlurLightState(storedBlurLight as BackgroundBlur);
+      if (BACKGROUND_BLUR_VALUES.includes(storedBlurDark as BackgroundBlur)) setBackgroundBlurDarkState(storedBlurDark as BackgroundBlur);
       if (storedSheen != null) setCardSheenState(storedSheen === '1');
       if (storedStroke === '1.5' || storedStroke === '2' || storedStroke === '2.5') setIconStrokeState(Number(storedStroke) as IconStroke);
       if (storedConfetti != null) setStreakConfettiState(storedConfetti === '1');
@@ -220,6 +245,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setBackgroundSpeed = async (speed: BackgroundSpeed) => {
     setBackgroundSpeedState(speed);
     await AsyncStorage.setItem(BG_SPEED_KEY, speed);
+  };
+
+  const setBackgroundBlurFor = async (mode: 'light' | 'dark', blur: BackgroundBlur) => {
+    if (mode === 'dark') {
+      setBackgroundBlurDarkState(blur);
+      await AsyncStorage.setItem(BG_BLUR_DARK_KEY, blur);
+    } else {
+      setBackgroundBlurLightState(blur);
+      await AsyncStorage.setItem(BG_BLUR_LIGHT_KEY, blur);
+    }
   };
 
   const setCardSheen = async (v: boolean) => {
@@ -267,6 +302,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Fondo del modo activo + setter compat que escribe sobre el modo actual.
   const backgroundStyle = isDark ? backgroundStyleDark : backgroundStyleLight;
+  const backgroundBlur = isDark ? backgroundBlurDark : backgroundBlurLight;
   const setBackgroundStyle = (style: BackgroundStyle) =>
     setBackgroundStyleFor(isDark ? 'dark' : 'light', style);
 
@@ -279,6 +315,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
       backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
       backgroundSpeed, setBackgroundSpeed,
+      backgroundBlur, backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
       cardSheen, setCardSheen,
       iconStroke, setIconStroke,
       streakConfetti, setStreakConfetti,

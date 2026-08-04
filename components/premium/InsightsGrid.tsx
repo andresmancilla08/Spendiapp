@@ -1,10 +1,13 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
+import AppIcon, { AppIconName } from '../AppIcon';
 
 export interface InsightItem {
   key: string;
-  icon: string;                 // emoji
+  /** Ícono Tabler vía AppIcon — nunca emoji ni texto: con un nombre suelto en un
+   *  <Text> la tarjeta mostraba el literal ("tools-kitchen") en vez del ícono. */
+  icon: AppIconName;
   label: string;
   value: string;
   delta?: string;
@@ -31,7 +34,7 @@ export default function InsightsGrid({ items }: { items: InsightItem[] }) {
           }]}
         >
           <View style={styles.kRow}>
-            <Text style={styles.kIcon}>{it.icon}</Text>
+            <AppIcon name={it.icon} size={14} color={colors.primary} style={styles.kIcon} />
             <Text style={[styles.k, { color: colors.textSecondary }]} numberOfLines={2}>
               {it.label}
             </Text>
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   kRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', gap: 6, minHeight: 30 },
-  kIcon: { fontSize: 13, lineHeight: 15 },
+  kIcon: { marginTop: 0 },
   k: { flexShrink: 1, fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.3, textTransform: 'uppercase', lineHeight: 14, textAlign: 'center' },
   big: { fontSize: 21, fontFamily: Fonts.extraBold, marginTop: 6, letterSpacing: -0.5, textAlign: 'center' },
   delta: { fontSize: 11, fontFamily: Fonts.bold, marginTop: 4, textAlign: 'center' },

@@ -16,9 +16,9 @@ import PersonalizationCanvas, { PersonalizationCanvasBar, type CanvasFocus } fro
 import { PALETTE_MAP } from '../config/palettes';
 import { LOOKS, matchLook, type Look } from '../config/looks';
 import { accentInk } from '../utils/contrast';
-import { BackgroundEffect } from '../components/AppBackground';
+import { BackgroundEffect, backgroundBlurStyle } from '../components/AppBackground';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
   GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
 } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
@@ -59,8 +59,8 @@ const BACKGROUND_STYLES: BackgroundStyle[] = BACKGROUND_STYLE_VALUES;
 
 // ── Tarjeta de fondo con vista previa EN VIVO (renderiza el efecto real a la
 // intensidad y velocidad seleccionadas, no un mockup) ──
-function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, onPress }: {
-  styleKey: BackgroundStyle; label: string; selected: boolean; intensity: AuroraIntensity; speed: number; onPress: () => void;
+function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, blurPx, onPress }: {
+  styleKey: BackgroundStyle; label: string; selected: boolean; intensity: AuroraIntensity; speed: number; blurPx: number; onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -85,7 +85,11 @@ function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, on
             <AppIcon name="close-outline" size={18} color={colors.textTertiary} />
           </View>
         ) : (
-          <BackgroundEffect styleKey={styleKey} intensity={intensity} speed={speed} />
+          // La miniatura mide ~1/4 del ancho real: el desenfoque se escala igual
+          // o "suave" se vería como "fuerte" en la tarjeta.
+          <View style={backgroundBlurStyle(blurPx / 4) ?? StyleSheet.absoluteFill} pointerEvents="none">
+            <BackgroundEffect styleKey={styleKey} intensity={intensity} speed={speed} />
+          </View>
         )}
       </View>
       <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
@@ -436,6 +440,7 @@ export default function PersonalizationScreen() {
     backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
     backgroundIntensity, setBackgroundIntensity,
     backgroundSpeed, setBackgroundSpeed,
+    backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
     cardSheen, setCardSheen,
     iconStroke, setIconStroke,
     streakConfetti, setStreakConfetti,
@@ -532,6 +537,7 @@ export default function PersonalizationScreen() {
   // oscuro. Por defecto, el modo activo ahora mismo.
   const [bgTarget, setBgTarget] = useState<'light' | 'dark'>(isDark ? 'dark' : 'light');
   const targetBgStyle = bgTarget === 'dark' ? backgroundStyleDark : backgroundStyleLight;
+  const targetBgBlur = bgTarget === 'dark' ? backgroundBlurDark : backgroundBlurLight;
 
   // Ninguna sección abierta al entrar; abrir una cierra la que estuviera abierta.
 
@@ -543,6 +549,7 @@ export default function PersonalizationScreen() {
   const prefsRef = useRef<Parameters<typeof updateUserPersonalization>[1] | null>(null);
   prefsRef.current = {
     backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed,
+    backgroundBlurLight, backgroundBlurDark,
     cardSheen, iconStroke, streakConfetti,
     chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle,
   };
@@ -561,7 +568,7 @@ export default function PersonalizationScreen() {
     const timer = setTimeout(() => syncNow(user.uid), 800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle]);
+  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed, backgroundBlurLight, backgroundBlurDark, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle]);
   // Flush al desmontar: antes el debounce pendiente se CANCELABA al salir de la
   // pantalla y los últimos cambios nunca llegaban a Firestore.
   useEffect(() => () => {
@@ -658,8 +665,16 @@ export default function PersonalizationScreen() {
                     segments={BG_SPEED_OPTIONS.map((s) => ({ key: s, label: t(`personalization.bgSpeed.${s}`) }))}
                     activeKey={backgroundSpeed}
                     onChange={(key) => setBackgroundSpeed(key as BackgroundSpeed)}
-                    style={styles.bgGridSpacing}
                   />
+                  {/* Desenfoque: propio de CADA modo, como el efecto. Es lo que
+                      mantiene el fondo detrás del contenido en vez de encima. */}
+                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgBlurLabel')}</Text>
+                  <AppSegmentedControl
+                    segments={BACKGROUND_BLUR_VALUES.map((b) => ({ key: b, label: t(`personalization.bgBlur.${b}`) }))}
+                    activeKey={targetBgBlur}
+                    onChange={(key) => setBackgroundBlurFor(bgTarget, key as BackgroundBlur)}
+                  />
+                  <Text style={[styles.chartAccentHint, { color: colors.textTertiary }]}>{t('personalization.bgBlurHint')}</Text>
                 </>
               )}
               {/* La forma del degradado va ANTES de la grilla: afecta a la pantalla
@@ -682,6 +697,7 @@ export default function PersonalizationScreen() {
                     selected={targetBgStyle === key}
                     intensity={backgroundIntensity}
                     speed={BACKGROUND_SPEED_FACTOR[backgroundSpeed]}
+                    blurPx={BACKGROUND_BLUR_PX[targetBgBlur]}
                     onPress={() => setBackgroundStyleFor(bgTarget, key)}
                   />
                 ))}

@@ -89,6 +89,7 @@ const pwaTags = `
         var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         var chrome = dark ? '#000000' : '#FFFFFF';
         document.documentElement.style.setProperty('--spendia-statusbar-bg', chrome);
+        document.documentElement.style.setProperty('--spendia-app-bg', chrome);
         var m = document.querySelector('meta[name="theme-color"]');
         if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
         m.setAttribute('content', chrome);
@@ -134,7 +135,7 @@ const pwaTags = `
       height: 100%;
       height: -webkit-fill-available;
       height: 100dvh;
-      background: var(--spendia-app-bg, #0D1A1C);
+      background: var(--spendia-app-bg, #000000);
       overscroll-behavior: none;
     }
     /* El root SIEMPRE cubre el viewport real. En PWA iOS standalone 100dvh/100vh

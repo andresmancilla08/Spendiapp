@@ -446,24 +446,24 @@ export default function HomeScreen() {
 
   const insights: InsightItem[] = [
     {
-      key: 'savings', icon: '💧', label: t('home.pro.savingsRate'), value: `${savingsRate}%`,
+      key: 'savings', icon: 'water-outline', label: t('home.pro.savingsRate'), value: `${savingsRate}%`,
       delta: savingsDelta != null ? `${savingsDelta >= 0 ? '▲' : '▼'} ${t('home.pro.points', { value: Math.abs(savingsDelta) })}` : undefined,
       tone: savingsDelta != null ? (savingsDelta >= 0 ? 'pos' : 'neg') : 'muted',
     },
     {
-      key: 'vsLastMonth', icon: '📊', label: t('home.pro.vsLastMonth'),
+      key: 'vsLastMonth', icon: 'stats-chart-outline', label: t('home.pro.vsLastMonth'),
       value: vsLastMonthPct != null ? `${vsLastMonthPct >= 0 ? '+' : ''}${vsLastMonthPct}%` : '—',
       delta: vsLastMonthPct != null ? t('home.pro.vsLastMonthCaption') : t('home.pro.noData'),
       tone: vsLastMonthPct != null ? (vsLastMonthPct <= 0 ? 'pos' : 'neg') : 'muted',
     },
     {
-      key: 'topcat', icon: 'tools-kitchen', label: t('home.pro.topCategory'),
+      key: 'topcat', icon: 'pie-chart-outline', label: t('home.pro.topCategory'),
       value: topCategory ? topCategory.label : '—',
       delta: topCategory && totalExpenses > 0 ? `${compactCurrency(topCategory.amount)} · ${Math.round((topCategory.amount / totalExpenses) * 100)}%` : undefined,
       tone: 'neg',
     },
     {
-      key: 'streak', icon: '🔥', label: t('home.pro.savingsStreak'),
+      key: 'streak', icon: 'flame-outline', label: t('home.pro.savingsStreak'),
       value: t('home.pro.streakValue', { count: savingsStreak }),
       delta: savingsStreak > 0 ? t('home.pro.streakGoing') : undefined,
       tone: savingsStreak > 0 ? 'pos' : 'muted',

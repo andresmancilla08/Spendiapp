@@ -467,6 +467,14 @@
       "normal": "Normale",
       "fast": "Veloce"
     },
+    "bgBlurLabel": "Sfocatura dello sfondo",
+    "bgBlurHint": "Uno sfondo sfocato mantiene il contenuto leggibile. Si imposta separatamente per chiaro e scuro.",
+    "bgBlur": {
+      "none": "Nessuna",
+      "soft": "Leggera",
+      "medium": "Media",
+      "strong": "Forte"
+    },
     "bgTargetLabel": "Scegli lo sfondo per",
     "bgTarget": {
       "light": "Modalità chiara",
@@ -1473,7 +1481,8 @@
       "title": "Personalizzazione, da cima a fondo",
       "item1": "Un’anteprima viva della tua Home sempre in vista: cambi qualcosa e lo vedi subito.",
       "item2": "40 palette (8 nuove), 13 sfondi animati, 6 tipi di grafico e la forma del gradiente.",
-      "item3": "Looks: palette, sfondo e grafico combinati con un tocco."
+      "item3": "Looks: palette, sfondo e grafico combinati con un tocco.",
+      "item4": "Sfocatura dello sfondo, regolabile e indipendente per chiaro e scuro: lo sfondo non copre mai il contenuto."
     },
     "goalsActions": {
       "title": "Obiettivi: modifica, riapri ed elimina",

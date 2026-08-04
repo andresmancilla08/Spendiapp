@@ -467,6 +467,14 @@
       "normal": "Normal",
       "fast": "Fast"
     },
+    "bgBlurLabel": "Background blur",
+    "bgBlurHint": "A blurred background keeps your content readable. Set separately for light and dark.",
+    "bgBlur": {
+      "none": "None",
+      "soft": "Soft",
+      "medium": "Medium",
+      "strong": "Strong"
+    },
     "bgTargetLabel": "Choose background for",
     "bgTarget": {
       "light": "Light mode",
@@ -1473,7 +1481,8 @@
       "title": "Personalization, top to bottom",
       "item1": "A live preview of your Home always in view: change anything and see it at once.",
       "item2": "40 palettes (8 new), 13 animated backgrounds, 6 chart types and the gradient shape.",
-      "item3": "Looks: palette, background and chart combined in a single tap."
+      "item3": "Looks: palette, background and chart combined in a single tap.",
+      "item4": "Background blur, adjustable and independent for light and dark: the background never fights your content."
     },
     "goalsActions": {
       "title": "Goals: edit, reopen and delete",

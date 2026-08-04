@@ -30,6 +30,8 @@ export interface UserProfile {
     backgroundStyleDark?: string;
     backgroundIntensity?: string;
     backgroundSpeed?: string;
+    backgroundBlurLight?: string;
+    backgroundBlurDark?: string;
     cardSheen?: boolean;
     iconStroke?: number;
     streakConfetti?: boolean;

@@ -16,12 +16,12 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme, BACKGROUND_BLUR_PX } from '../context/ThemeContext';
 import { useProMotion } from '../hooks/useProMotion';
 import { readableTint } from '../utils/contrast';
 import { formatMoney } from '../utils/formatMoney';
 import { Fonts } from '../config/fonts';
-import { BackgroundEffect } from './AppBackground';
+import { BackgroundEffect, backgroundBlurStyle } from './AppBackground';
 import { Sparkline, resolveChartAccent, resolveChartAccent2 } from './BalanceCard';
 import ProSheen from './ProSheen';
 import AppIcon from './AppIcon';
@@ -43,6 +43,7 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
   const {
     colors, isDark, activePalette, gradientStyle,
     backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed,
+    backgroundBlurLight, backgroundBlurDark,
     chartType, chartAnimStyle, chartSpeed, chartAccent,
   } = useTheme();
   const { animate } = useProMotion();
@@ -57,6 +58,8 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
   // donde manda el modo que se está editando.
   const shownDark = bgTarget ? bgTarget === 'dark' : isDark;
   const styleKey = shownDark ? backgroundStyleDark : backgroundStyleLight;
+  // El lienzo mide casi el ancho real de la pantalla: el desenfoque va a escala 1:1.
+  const canvasBlur = backgroundBlurStyle(BACKGROUND_BLUR_PX[shownDark ? backgroundBlurDark : backgroundBlurLight]);
   const gradient = shownDark ? activePalette.gradientDark : activePalette.gradientLight;
   const themed = shownDark ? activePalette.colors.dark : activePalette.colors.light;
 
@@ -85,9 +88,11 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
       )}
       {shownDark && <View style={[StyleSheet.absoluteFillObject, styles.scrim]} />}
       {animate && (
-        <BackgroundEffect styleKey={styleKey} intensity={backgroundIntensity} speed={
-          backgroundSpeed === 'slow' ? 1.6 : backgroundSpeed === 'fast' ? 0.62 : 1
-        } />
+        <View style={canvasBlur ?? StyleSheet.absoluteFill} pointerEvents="none">
+          <BackgroundEffect styleKey={styleKey} intensity={backgroundIntensity} speed={
+            backgroundSpeed === 'slow' ? 1.6 : backgroundSpeed === 'fast' ? 0.62 : 1
+          } />
+        </View>
       )}
 
       <View style={styles.content}>
@@ -157,7 +162,7 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
 /** Barra compacta: al bajar, el lienzo no desaparece — se reduce a 64 px y sigue
  *  mostrando el tema. Sin esto, en el capítulo Fondo (14 efectos) se pierde de vista. */
 export function PersonalizationCanvasBar({ onExpand }: { onExpand: () => void }) {
-  const { colors, isDark, activePalette, backgroundStyleLight, backgroundStyleDark, backgroundIntensity } = useTheme();
+  const { colors, isDark, activePalette, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundBlur } = useTheme();
   const { animate } = useProMotion();
   const { t } = useTranslation();
   const gradient = isDark ? activePalette.gradientDark : activePalette.gradientLight;
@@ -168,7 +173,9 @@ export function PersonalizationCanvasBar({ onExpand }: { onExpand: () => void })
       <LinearGradient colors={gradient} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={StyleSheet.absoluteFillObject} />
       {isDark && <View style={[StyleSheet.absoluteFillObject, styles.scrim]} />}
       {animate && (
-        <BackgroundEffect styleKey={isDark ? backgroundStyleDark : backgroundStyleLight} intensity={backgroundIntensity} speed={1} />
+        <View style={backgroundBlurStyle(BACKGROUND_BLUR_PX[backgroundBlur]) ?? StyleSheet.absoluteFill} pointerEvents="none">
+          <BackgroundEffect styleKey={isDark ? backgroundStyleDark : backgroundStyleLight} intensity={backgroundIntensity} speed={1} />
+        </View>
       )}
       <Text style={[styles.barAmount, { color: themed.textPrimary }]} numberOfLines={1}>
         {formatMoney(PREVIEW_BALANCE)}

@@ -20,7 +20,7 @@ import { Fonts } from '../../config/fonts';
 const GOLD = '#F5A623';
 
 // Chip de ícono con glow (firma Aurora Ledger).
-function IconChip({ emoji, size, colors, locked }: { emoji: string; size: number; colors: any; locked?: boolean }) {
+function IconChip({ icon, size, colors, locked }: { icon: AppIconName; size: number; colors: any; locked?: boolean }) {
   const tint = locked ? GOLD : colors.primary;
   return (
     <View
@@ -31,7 +31,7 @@ function IconChip({ emoji, size, colors, locked }: { emoji: string; size: number
           : { shadowColor: tint, shadowOpacity: 0.5, shadowRadius: 12, shadowOffset: { width: 0, height: 0 } },
       ]}
     >
-      <Text style={{ fontSize: size * 0.46 }}>{emoji}</Text>
+      <AppIcon name={icon} size={Math.round(size * 0.46)} color={tint} />
     </View>
   );
 }
@@ -46,8 +46,8 @@ function PremiumBadge({ compact }: { compact?: boolean }) {
 }
 
 // Herramienta destacada (hero de la vista).
-function FeaturedTool({ emoji, title, description, ctaLabel, onPress, colors, isDark, premiumLocked, disabled }: {
-  emoji: string; title: string; description: string; ctaLabel: string; onPress: () => void; colors: any; isDark: boolean; premiumLocked?: boolean; disabled?: boolean;
+function FeaturedTool({ icon, title, description, ctaLabel, onPress, colors, isDark, premiumLocked, disabled }: {
+  icon: AppIconName; title: string; description: string; ctaLabel: string; onPress: () => void; colors: any; isDark: boolean; premiumLocked?: boolean; disabled?: boolean;
 }) {
   return (
     <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={[styles.feat, { borderColor: (premiumLocked ? GOLD : colors.primary) + '33', opacity: disabled ? 0.55 : 1 }]}>
@@ -57,7 +57,7 @@ function FeaturedTool({ emoji, title, description, ctaLabel, onPress, colors, is
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.featTopRow}>
-        <IconChip emoji={emoji} size={48} colors={colors} locked={premiumLocked} />
+        <IconChip icon={icon} size={48} colors={colors} locked={premiumLocked} />
         {premiumLocked && <PremiumBadge />}
         {disabled && !premiumLocked && (
           <View style={[styles.pauseChip, { backgroundColor: colors.surface, borderColor: colors.textSecondary + '40' }]}>
@@ -78,8 +78,8 @@ function FeaturedTool({ emoji, title, description, ctaLabel, onPress, colors, is
 }
 
 // Tile del bento grid.
-function ToolTile({ emoji, title, description, metric, onPress, colors, isDark, premiumLocked, disabled, wide }: {
-  emoji: string; title: string; description: string; metric?: string; onPress: () => void; colors: any; isDark: boolean; premiumLocked?: boolean; disabled?: boolean; wide?: boolean;
+function ToolTile({ icon, title, description, metric, onPress, colors, isDark, premiumLocked, disabled, wide }: {
+  icon: AppIconName; title: string; description: string; metric?: string; onPress: () => void; colors: any; isDark: boolean; premiumLocked?: boolean; disabled?: boolean; wide?: boolean;
 }) {
   return (
     <TouchableOpacity
@@ -92,7 +92,7 @@ function ToolTile({ emoji, title, description, metric, onPress, colors, isDark, 
       ]}
     >
       <View style={styles.tileTopRow}>
-        <IconChip emoji={emoji} size={42} colors={colors} locked={premiumLocked} />
+        <IconChip icon={icon} size={42} colors={colors} locked={premiumLocked} />
         {premiumLocked && <PremiumBadge compact />}
         {disabled && !premiumLocked && (
           <View style={[styles.pauseChip, { backgroundColor: colors.surface, borderColor: colors.textSecondary + '40' }]}>
@@ -136,7 +136,7 @@ export default function ToolsScreen() {
 
             {/* Destacado: Presupuesto */}
             <FeaturedTool
-              emoji="📊"
+              icon="stats-chart-outline"
               title={t('tools.budgetCard.title')}
               description={t('tools.budgetCard.description')}
               ctaLabel={t('tools.open')}
@@ -157,7 +157,7 @@ export default function ToolsScreen() {
             <GroupHeader label={t('tools.groupMoney')} colors={colors} />
             <View style={styles.grid}>
               <ToolTile
-                emoji="🎯"
+                icon="flag"
                 title={t('tools.goalsCard.title')}
                 description={t('tools.goalsCard.description')}
                 onPress={flags.goalsEnabled ? () => router.push('/goals') : paused(t('tools.goalsCard.title'))}
@@ -165,14 +165,14 @@ export default function ToolsScreen() {
                 colors={colors} isDark={isDark}
               />
               <ToolTile
-                emoji="🔁"
+                icon="repeat"
                 title={t('tools.recurringCard.title')}
                 description={t('tools.recurringCard.description')}
                 onPress={() => router.push('/recurring')}
                 colors={colors} isDark={isDark}
               />
               <ToolTile
-                emoji="📂"
+                icon="grid-outline"
                 title={t('tools.categoriesCard.title')}
                 description={t('tools.categoriesCard.description')}
                 metric={categories.length > 0 ? t('tools.categoriesCount', { count: categories.length }) : undefined}
@@ -181,7 +181,7 @@ export default function ToolsScreen() {
                 colors={colors} isDark={isDark}
               />
               <ToolTile
-                emoji="📄"
+                icon="document-text-outline"
                 title={t('tools.reportsCard.title')}
                 description={t('tools.reportsCard.description')}
                 onPress={flags.reportsEnabled ? () => router.push('/reports') : paused(t('tools.reportsCard.title'))}
@@ -197,7 +197,7 @@ export default function ToolsScreen() {
                 <GroupHeader label={t('tools.groupShared')} colors={colors} />
                 <View style={styles.grid}>
                   <ToolTile
-                    emoji="👥"
+                    icon="people-outline"
                     title={t('tools.friendReportCard.title')}
                     description={t('tools.friendReportCard.description')}
                     onPress={flags.friendsEnabled ? () => router.push('/friend-report') : paused(t('tools.friendReportCard.title'))}
@@ -205,7 +205,7 @@ export default function ToolsScreen() {
                     colors={colors} isDark={isDark}
                   />
                   <ToolTile
-                    emoji="🧳"
+                    icon="people-circle-outline"
                     title={t('tools.expenseGroupsCard.title')}
                     description={t('tools.expenseGroupsCard.description')}
                     onPress={flags.expenseGroupsEnabled ? () => router.push('/expense-groups') : paused(t('tools.expenseGroupsCard.title'))}

@@ -46,6 +46,7 @@ const APP_FEATURES: Feature[] = [
       'whatsNew.personalizationStudio.item1',
       'whatsNew.personalizationStudio.item2',
       'whatsNew.personalizationStudio.item3',
+      'whatsNew.personalizationStudio.item4',
     ],
   },
   {

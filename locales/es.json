@@ -467,6 +467,14 @@
       "normal": "Normal",
       "fast": "Rápida"
     },
+    "bgBlurLabel": "Desenfoque del fondo",
+    "bgBlurHint": "Un fondo desenfocado deja el contenido siempre legible. Se elige por separado para claro y oscuro.",
+    "bgBlur": {
+      "none": "Ninguno",
+      "soft": "Suave",
+      "medium": "Medio",
+      "strong": "Fuerte"
+    },
     "bgTargetLabel": "Elegir fondo para",
     "bgTarget": {
       "light": "Modo claro",
@@ -1473,7 +1481,8 @@
       "title": "Personalización, de arriba abajo",
       "item1": "Una vista previa viva de tu Home siempre delante: cambias algo y lo ves al instante.",
       "item2": "40 paletas (8 nuevas), 13 fondos animados, 6 tipos de gráfico y la forma del degradado a elegir.",
-      "item3": "Looks: paleta, fondo y gráfico combinados de un solo toque."
+      "item3": "Looks: paleta, fondo y gráfico combinados de un solo toque.",
+      "item4": "Desenfoque del fondo, ajustable e independiente para claro y oscuro: el fondo nunca se come el contenido."
     },
     "goalsActions": {
       "title": "Metas: editar, reabrir y eliminar",

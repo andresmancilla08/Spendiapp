@@ -176,3 +176,14 @@
 - **Causa real:** el único que escribía `theme-color` y `--spendia-statusbar-bg` era `AppBackground`, ya montado React. El sistema pinta esa franja al **lanzar** la app, con el `theme_color` estático del manifest (era `#00ACC1`) o con su blanco por defecto; el cambio posterior por JS llega tarde o lo ignora.
 - **Solución:** un script inline en el `<head>` (en `app/+html.tsx` **y** en `scripts/patch-html.js`, son dos pipelines: dev y export) lee `@spendiapp_theme` de `localStorage` y fija meta + variable CSS antes del primer pintado; `theme_color` del manifest y `web.themeColor` de `app.json` quedan neutros (`#000000`). `AppBackground` sigue manteniéndolo sincronizado al cambiar de tema en caliente.
 - **Lo que NO arregla:** iOS congela `apple-mobile-web-app-status-bar-style` en el momento de "Añadir a pantalla de inicio". Un icono instalado antes del cambio a `black-translucent` sigue con la barra opaca del sistema hasta que se reinstala el acceso directo.
+
+### Un `<Text>` con nombre de ícono imprime el nombre (resuelto)
+- **Síntoma:** en el Home, la tarjeta "Top category" mostraba el texto `tools-kitchen` en lugar de un ícono.
+- **Causa real:** `InsightItem.icon` estaba tipado como `string` con el comentario "emoji" y se pintaba en un `<Text>`. Tres tarjetas pasaban emoji y la cuarta pasaba una clave del catálogo Tabler, que el `<Text>` imprimió tal cual.
+- **Solución:** `icon: AppIconName` y render con `<AppIcon>`; las cuatro tarjetas usan íconos Tabler. El tipo es ahora el que impide la repetición — un nombre inválido no compila.
+- **Referencia de blindaje:** `components/CategoryIcon.tsx` es el patrón correcto para un icono que puede llegar como clave o como emoji legado: clave del catálogo → Tabler, algo que no sea `[a-z0-9-]+` → emoji, resto → ícono de "Otro". Nunca imprime la clave.
+
+### La franja del sistema no puede llevar el color de la paleta (resuelto)
+- **Síntoma:** tras pasar el `theme-color` a negro, la barra de estado seguía saliendo azul oscuro en modo oscuro (no negra).
+- **Causa real:** `--spendia-app-bg` (el fondo de `html`/`body`, que se ve en la franja de la barra y en el rubber band) llevaba el degradado de la paleta oscurecido por el scrim. Ese azul es lo que asomaba, no el `theme-color`.
+- **Solución:** `--spendia-statusbar-bg` y `--spendia-app-bg` valen lo MISMO y son neutros: `#000000` en oscuro, `#FFFFFF` en claro. El color de marca vive dentro del `#root`, nunca en el chrome del sistema.

@@ -30,6 +30,10 @@ import {
   IconCreditCard,
   IconDeviceMobile,
   IconDiamond,
+  IconDroplet,
+  IconChartBar,
+  IconChartPie,
+  IconFlame,
   IconDots,
   IconDownload,
   IconEdit,
@@ -216,6 +220,10 @@ const ICON_MAP = {
   'trending-down': IconTrendingDown,
   'trending-up': IconTrendingUp,
   'trending-up-outline': IconTrendingUp,
+  'water-outline': IconDroplet,
+  'stats-chart-outline': IconChartBar,
+  'pie-chart-outline': IconChartPie,
+  'flame-outline': IconFlame,
 } as const;
 
 export type AppIconName = keyof typeof ICON_MAP;

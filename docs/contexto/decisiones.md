@@ -122,3 +122,14 @@
 - **Verificación:** `npx tsx utils/goalsContrast.test.ts` mide 832 pares en las 32 paletas × claro/oscuro, **incluido el estado activo del chip**, y exige que las tintas de señal NO caigan a gris.
 - **`updateGoal` recalcula el estado:** bajar el objetivo por debajo de lo ahorrado completa la meta; subirlo por encima la reactiva y borra `completedAt`. Vive en el hook para que el documento nunca tenga un `status` que contradiga sus cifras.
 
+
+### El fondo animado va DESENFOCADO por defecto — Vigente
+- **Qué:** el efecto de fondo (no el degradado, que es el que aporta el color) se pinta a través de un contenedor con `filter: blur()` — helper `backgroundBlurStyle` en `components/AppBackground.tsx`. Cuatro niveles (`none`/`soft`/`medium`/`strong` = 0/6/14/26 px) **por modo**: claro y oscuro se ajustan por separado, como el propio efecto. Por defecto `medium`. Se elige en Personalización → Fondo, y viaja en la cuenta (`personalization.backgroundBlur{Light,Dark}`).
+- **Por qué:** los efectos de trazo fino y alto contraste (orbs, constellation, topography, spotlight) cruzaban las tarjetas y el texto: círculos y líneas nítidas por encima de las cifras. Desenfocado, el fondo aporta atmósfera y deja de competir. Se elige por modo porque el mismo efecto necesita más desenfoque sobre un fondo claro que sobre uno oscuro.
+- **Descartado:** bajar la opacidad del efecto (mata el color, no la nitidez del trazo); `BlurView` de `expo-blur` sobre el fondo (desenfoca por `backdrop-filter` todo lo que hay detrás y añade su propio tinte, imposible de igualar entre las 40 paletas); un único nivel global (el usuario quiere claro y oscuro independientes).
+- **El contenedor se sobredimensiona** con `inset` negativo de `2 × px`: un blur deja translúcido el borde del propio elemento y sin ese sangrado se veía una orla clara en los cuatro lados. Todos los contenedores que lo usan tienen `overflow: hidden`.
+- **Coste:** un `filter` a pantalla completa sobre una animación continua obliga al compositor a recomponer cada frame. Si algún dispositivo va justo, el usuario tiene `none` a un toque.
+
+### Ningún ícono de la UI es un emoji — Vigente
+- **Qué:** todo ícono de interfaz sale de `AppIcon` (Tabler). Los emojis solo sobreviven donde son **dato del usuario**: el emoji que elige para una meta, un grupo de gastos o una categoría creada a mano (`EmojiPicker`, `CategoryIcon`).
+- **Por qué:** el emoji cambia de forma en cada sistema, no respeta el grosor de trazo elegido en Personalización ni el color del tema, y no escala con el resto de la iconografía. Además, un `<Text>` que espera un emoji imprime el literal si le llega un nombre de ícono — así apareció "tools-kitchen" escrito en el Home.

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme, BACKGROUND_SPEED_FACTOR, type BackgroundStyle } from '../context/ThemeContext';
+import { useTheme, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_PX, type BackgroundStyle } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { useProMotion } from '../hooks/useProMotion';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
@@ -21,15 +21,20 @@ import SpotlightBackground from './SpotlightBackground';
 /** Scrim que oscurece el gradiente base en modo oscuro. Va SIEMPRE debajo de
  * los efectos — compartido con el fondo local del login (ScreenBackground). */
 export const DARK_SCRIM = 'rgba(0,0,0,0.7)';
-const DARK_SCRIM_FACTOR = 0.3; // luz restante bajo el scrim (1 - 0.7)
 
-/** Oscurece un color #RRGGBB multiplicando sus canales — para que el
- * theme-color del navegador coincida con el fondo real bajo el scrim. */
-function darkenHex(hex: string, factor: number): string {
-  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return hex;
-  const n = parseInt(hex.slice(1), 16);
-  const ch = (c: number) => Math.round(c * factor).toString(16).padStart(2, '0');
-  return `#${ch((n >> 16) & 255)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
+/** Desenfoque del efecto de fondo, listo para `style`. En web es `filter` CSS;
+ *  en nativo, el `filter` de RN (array de operaciones). El contenedor se
+ *  sobredimensiona con `inset` negativo porque un blur deja el borde del
+ *  elemento translúcido y se vería una orla clara pegada a los cuatro lados. */
+export function backgroundBlurStyle(px: number) {
+  if (px <= 0) return null;
+  const bleed = -px * 2;
+  return [
+    { position: 'absolute' as const, top: bleed, right: bleed, bottom: bleed, left: bleed },
+    Platform.OS === 'web'
+      ? ({ filter: `blur(${px}px)` } as any)
+      : ({ filter: [{ blur: px }] } as any),
+  ];
 }
 
 /** Renderiza el efecto animado correspondiente a un estilo de fondo.
@@ -67,7 +72,7 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
  * animación (antes iba encima al 70% y los efectos casi no se veían en dark).
  */
 export default function AppBackground() {
-  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed, gradientStyle } = useTheme();
+  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed, backgroundBlur, gradientStyle } = useTheme();
   const { isPremium } = useAuthStore();
   const { reduceMotion } = useProMotion();
 
@@ -75,11 +80,7 @@ export default function AppBackground() {
   const effectiveStyle: BackgroundStyle = isPremium ? backgroundStyle : 'aurora';
   const speedFactor = BACKGROUND_SPEED_FACTOR[backgroundSpeed];
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
-  // En dark, el chrome del navegador debe coincidir con el fondo YA oscurecido
-  // por el scrim, no con el gradiente crudo.
-  const statusBarColor = isDark
-    ? darkenHex(gradientColors[0] as string, DARK_SCRIM_FACTOR)
-    : (gradientColors[0] as string);
+  const blurStyle = backgroundBlurStyle(BACKGROUND_BLUR_PX[backgroundBlur]);
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -96,12 +97,13 @@ export default function AppBackground() {
       const chrome = isDark ? '#000000' : '#FFFFFF';
       meta.content = chrome;
       document.documentElement.style.setProperty('--spendia-statusbar-bg', chrome);
-      // Canvas del navegador (html/body) con el fondo REAL de la app: si algún
-      // píxel del viewport queda fuera del #root (rubber band), sale del color
-      // de la app y no blanco.
-      document.documentElement.style.setProperty('--spendia-app-bg', statusBarColor);
+      // Canvas del navegador (html/body): el MISMO neutro. Con el color de la
+      // paleta, la franja de la barra de estado y el rubber band salían azul
+      // oscuro en vez de negro — la franja del sistema tiene que ser negra en
+      // oscuro y blanca en claro, sin tinte de marca.
+      document.documentElement.style.setProperty('--spendia-app-bg', chrome);
     }
-  }, [statusBarColor, isDark]);
+  }, [isDark]);
 
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.clip]} pointerEvents="none">
@@ -134,9 +136,17 @@ export default function AppBackground() {
         />
       )}
       {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
-      {/* Reduce-motion: solo el gradiente estático — sin animación permanente */}
+      {/* Reduce-motion: solo el gradiente estático — sin animación permanente.
+          El efecto va desenfocado (según Personalización) para que nunca compita
+          con el contenido; el gradiente queda nítido, es el que da el color. */}
       {!reduceMotion && (
-        <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
+        blurStyle ? (
+          <View style={blurStyle} pointerEvents="none">
+            <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
+          </View>
+        ) : (
+          <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
+        )
       )}
     </View>
   );
