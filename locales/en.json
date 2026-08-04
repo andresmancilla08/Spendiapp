@@ -492,6 +492,7 @@
     "scanning": "Reading receipt…",
     "scanDone": "Receipt read — check the details",
     "scanFailed": "Couldn't read the receipt, try again",
+    "scanQuota": "Scanning hit today's limit, try again later",
     "addNote": "Add note",
     "notesLabel": "Note",
     "notesPlaceholder": "Extra detail (optional)",

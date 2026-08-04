@@ -1,8 +1,9 @@
 // OCR de recibo: recibe una foto (base64) y devuelve los campos de la transacción
-// prellenados, vía Gemini 2.0 Flash (visión, tier gratuito). Key server-side.
+// prellenados, vía Gemini (visión, tier gratuito). Key server-side.
 // La imagen NO se persiste: se procesa y se descarta.
 
-const MODEL = 'gemini-2.0-flash';
+import { generate, jsonFrom } from './_gemini.js';
+
 const VALID = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary', 'other'];
 
 export default async function handler(req, res) {
@@ -27,43 +28,37 @@ export default async function handler(req, res) {
   const prompt = `Extrae los datos de este recibo/factura. Devuelve EXCLUSIVAMENTE un JSON válido:
 {"merchant": string, "amount": number, "category": string, "date": string}
 - "merchant": nombre del comercio (corto). Si no se lee, "".
-- "amount": TOTAL pagado como entero en pesos colombianos, sin símbolos, sin decimales, sin separadores. Si no se lee, 0.
+- "amount": TOTAL pagado, en la MISMA moneda que aparece en el recibo (no conviertas).
+  Entero, sin símbolos ni separadores de miles: "26.500" -> 26500, "$1,234.50" -> 1234.
+  Si no se lee, 0.
 - "category": UNA de estas exactas: ${VALID.join(', ')}. Elige la más probable por el tipo de comercio.
 - "date": fecha del recibo en formato YYYY-MM-DD. Si no se lee, "".
 No inventes datos que no estén en la imagen. Nada fuera del JSON.`;
 
-  try {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({
-        contents: [{ parts: [{ inline_data: { mime_type: mimeType, data: image } }, { text: prompt }] }],
-        generationConfig: { responseMimeType: 'application/json', temperature: 0, maxOutputTokens: 300 },
-      }),
-      signal: AbortSignal.timeout(20000),
-    });
-    if (!r.ok) throw new Error(`gemini_${r.status}`);
-    const data = await r.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') ?? '';
-    const out = parse(text);
-    if (!out) throw new Error('unparseable');
-    return res.status(200).json(out);
-  } catch {
-    return res.status(502).json({ error: 'ocr_failed' });
-  }
+  const out = await generate({
+    apiKey,
+    label: 'ocr',
+    parts: [{ inline_data: { mime_type: mimeType, data: image } }, { text: prompt }],
+    generationConfig: { responseMimeType: 'application/json', temperature: 0 },
+    timeoutMs: 20000,
+    parse,
+  });
+
+  if (out.ok) return res.status(200).json(out.data);
+  // 429 hacia el cliente cuando la causa es cuota: el mensaje al usuario cambia.
+  if (out.status === 429) return res.status(429).json({ error: 'quota_exceeded' });
+  return res.status(502).json({ error: 'ocr_failed', reason: out.reason });
 }
 
-function parse(text) {
-  let obj;
-  try { obj = JSON.parse(text); } catch {
-    const m = text.match(/\{[\s\S]*\}/);
-    if (!m) return null;
-    try { obj = JSON.parse(m[0]); } catch { return null; }
-  }
+export function parse(text) {
+  const obj = jsonFrom(text);
   if (!obj || typeof obj !== 'object') return null;
   const merchant = String(obj.merchant ?? '').slice(0, 60).trim();
   const amount = Math.max(0, Math.round(Number(obj.amount) || 0));
   const category = VALID.includes(obj.category) ? obj.category : 'other';
   const date = /^\d{4}-\d{2}-\d{2}$/.test(obj.date ?? '') ? obj.date : '';
+  // Recibo ilegible: ni comercio ni importe. Devolver null hace que se reintente
+  // con el modelo siguiente en vez de prellenar el formulario con nada.
+  if (!merchant && !amount) return null;
   return { merchant, amount, category, date };
 }

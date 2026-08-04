@@ -12,6 +12,7 @@ export interface ScannedReceipt {
 export type ScanResult =
   | { status: 'ok'; data: ScannedReceipt }
   | { status: 'cancelled' } // el usuario cerró el selector: volver a estado inicial, sin error
+  | { status: 'quota' }     // cuota diaria de IA agotada: reintentar más tarde, no es culpa de la foto
   | { status: 'failed' };   // OCR/red falló: mostrar error
 
 const OCR_URL = 'https://spendia.co/api/ocr';
@@ -36,9 +37,10 @@ function pickImage(): Promise<File | null> {
       resolve(f);
     };
     const onFocus = () => {
-      // El diálogo se cerró. Damos un instante por si 'change' llega justo después;
-      // si no hay archivo, fue cancelado.
-      setTimeout(() => finish(input.files?.[0] ?? null), 500);
+      // El diálogo se cerró. Damos margen por si 'change' llega justo después
+      // (en móvil, tras la cámara, el File tarda en materializarse); si no hay
+      // archivo, fue cancelado.
+      setTimeout(() => finish(input.files?.[0] ?? null), 1500);
     };
 
     input.onchange = () => finish(input.files?.[0] ?? null);
@@ -85,6 +87,7 @@ export async function scanReceipt(): Promise<ScanResult> {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ image: base64, mimeType }),
     });
+    if (r.status === 429) return { status: 'quota' };
     if (!r.ok) return { status: 'failed' };
     const data = await r.json();
     if (typeof data?.amount !== 'number') return { status: 'failed' };

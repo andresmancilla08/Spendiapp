@@ -3,7 +3,8 @@
 // El cliente ya tiene categorizeLocal (keywords) como fallback instantáneo; esto
 // solo entra cuando las keywords no reconocen la descripción.
 
-const MODEL = 'gemini-2.0-flash';
+import { generate } from './_gemini.js';
+
 const VALID = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary', 'other'];
 
 export default async function handler(req, res) {
@@ -25,24 +26,19 @@ export default async function handler(req, res) {
 
   const prompt = `Clasifica este gasto o ingreso en UNA de estas categorías exactas: ${VALID.join(', ')}. Responde ÚNICAMENTE con la palabra de la categoría en inglés, sin explicación ni puntuación. Gasto/ingreso: "${description}"`;
 
-  try {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 10, temperature: 0 },
-      }),
-      signal: AbortSignal.timeout(9000),
-    });
-    if (!r.ok) throw new Error(`gemini_${r.status}`);
-    const data = await r.json();
-    const text = (data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') ?? '')
-      .trim().toLowerCase().replace(/[^a-z]/g, '');
-    if (!VALID.includes(text)) throw new Error('invalid_category');
-    res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800'); // misma desc → misma categoría
-    return res.status(200).json({ category: text });
-  } catch {
-    return res.status(502).json({ error: 'categorize_failed' });
-  }
+  const out = await generate({
+    apiKey,
+    label: 'categorize',
+    parts: [{ text: prompt }],
+    generationConfig: { temperature: 0 },
+    timeoutMs: 9000,
+    parse: (text) => {
+      const word = text.trim().toLowerCase().replace(/[^a-z]/g, '');
+      return VALID.includes(word) ? { category: word } : null;
+    },
+  });
+
+  if (!out.ok) return res.status(out.status === 429 ? 429 : 502).json({ error: 'categorize_failed', reason: out.reason });
+  res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800'); // misma desc → misma categoría
+  return res.status(200).json(out.data);
 }

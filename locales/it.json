@@ -492,6 +492,7 @@
     "scanning": "Lettura ricevuta…",
     "scanDone": "Ricevuta letta — controlla i dati",
     "scanFailed": "Non ho potuto leggere la ricevuta, riprova",
+    "scanQuota": "La scansione ha raggiunto il limite di oggi, riprova più tardi",
     "addNote": "Aggiungi nota",
     "notesLabel": "Nota",
     "notesPlaceholder": "Dettaglio aggiuntivo (opzionale)",

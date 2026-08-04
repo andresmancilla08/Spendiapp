@@ -263,6 +263,7 @@ export default function AddTransactionScreen() {
     const res = await scanReceipt();
     setScanning(false); // siempre resetea, incluso si el usuario canceló el selector
     if (res.status === 'cancelled') return;
+    if (res.status === 'quota') { showToast(t('addTransaction.scanQuota'), 'error'); return; }
     if (res.status === 'failed') { showToast(t('addTransaction.scanFailed'), 'error'); return; }
     const r = res.data;
     if (r.amount > 0) setAmount(String(r.amount));
