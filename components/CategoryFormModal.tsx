@@ -53,7 +53,7 @@ export function CategoryFormModal({
   onClose,
   onSaved,
   editingCategory,
-}: Props): JSX.Element {
+}: Props) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { user } = useAuthStore();

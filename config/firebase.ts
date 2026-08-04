@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence, browserLocalPersistence, browserPopupRedirectResolver } from 'firebase/auth';
+import { initializeAuth, browserLocalPersistence, browserPopupRedirectResolver, type Persistence } from 'firebase/auth';
+import * as firebaseAuth from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,8 +19,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+/** `getReactNativePersistence` solo lo declara la entrada React Native del SDK
+ *  (`@firebase/auth/dist/index.rn.d.ts`); resolviendo `firebase/auth` para web no
+ *  existe en los tipos y el import estático rompía el typecheck. Se lee del módulo
+ *  en runtime, que es cuando Metro ya ha resuelto la entrada nativa. */
+const getReactNativePersistence = (firebaseAuth as unknown as {
+  getReactNativePersistence?: (storage: unknown) => Persistence;
+}).getReactNativePersistence;
+
 export const auth = initializeAuth(app, {
-  persistence: Platform.OS === 'web'
+  persistence: Platform.OS === 'web' || !getReactNativePersistence
     ? browserLocalPersistence
     : getReactNativePersistence(AsyncStorage),
   popupRedirectResolver: Platform.OS === 'web'

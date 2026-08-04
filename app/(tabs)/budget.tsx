@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon from '../../components/AppIcon';
 import CategoryIcon from '../../components/CategoryIcon';
+import { DEFAULT_CATEGORIES, categoryLabel } from '../../constants/categories';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import PressableScale from '../../components/PressableScale';
@@ -36,15 +37,12 @@ import { effectiveAmount } from '../../utils/sharedCalc';
 import { formatMoney } from '../../utils/formatMoney';
 
 
-const DEFAULT_EXPENSE_CATEGORIES = [
-  { id: 'food', name: 'Comida', icon: '🍽️' },
-  { id: 'transport', name: 'Transporte', icon: '🚗' },
-  { id: 'health', name: 'Salud', icon: '💊' },
-  { id: 'entertainment', name: 'Entretenimiento', icon: '🎉' },
-  { id: 'shopping', name: 'Compras', icon: '🛍️' },
-  { id: 'home', name: 'Hogar', icon: '🏡' },
-  { id: 'other', name: 'Otro', icon: '📌' },
-];
+// Las categorías presupuestables salen del catálogo oficial (`DEFAULT_CATEGORIES`):
+// esta pantalla tenía su propia copia con emojis y los nombres en castellano fijos,
+// así que el mismo 'food' se veía 🍽️ aquí y con ícono Tabler en el resto de la app.
+const DEFAULT_EXPENSE_CATEGORIES = DEFAULT_CATEGORIES
+  .filter((c) => c.type === 'expense' || c.id === 'other')
+  .map((c) => ({ id: c.id, name: c.name, icon: c.icon }));
 
 const formatCurrency = formatMoney;
 
@@ -118,6 +116,9 @@ function progressColor(percent: number, successColor: string, errorColor: string
 
 export default function BudgetScreen() {
   const { t } = useTranslation();
+  /** Nombre de la categoría traducido; para un id fuera del catálogo, lo guardado. */
+  const catLabel = (id: string, fallback: string) =>
+    DEFAULT_CATEGORIES.some((c) => c.id === id) ? categoryLabel(id, [], t) : fallback;
   const { colors, isDark } = useTheme();
   const { flags } = useFlags();
   const { user, isPremium } = useAuthStore();
@@ -382,7 +383,7 @@ export default function BudgetScreen() {
                         <CategoryIcon icon={b.categoryIcon} size={18} color={color} />
                       </View>
                       <View>
-                        <Text style={[styles.catName, { color: colors.textPrimary }]}>{b.categoryName}</Text>
+                        <Text style={[styles.catName, { color: colors.textPrimary }]}>{catLabel(b.categoryId, b.categoryName)}</Text>
                         <Text style={[styles.pctLabel, { color: color }]}>
                           {pct >= 100 ? t('budget.limitExceeded') : `${Math.round(pct)}% ${t('budget.spentLabel')}`}
                         </Text>
@@ -412,7 +413,7 @@ export default function BudgetScreen() {
                   <View style={[styles.catIconWrap, { backgroundColor: colors.backgroundSecondary }]}>
                     <CategoryIcon icon={cat.icon} size={18} color={colors.textSecondary} />
                   </View>
-                  <Text style={[styles.catName, { color: colors.textSecondary }]}>{cat.name}</Text>
+                  <Text style={[styles.catName, { color: colors.textSecondary }]}>{catLabel(cat.id, cat.name)}</Text>
                   <View style={[styles.addChip, { backgroundColor: colors.primaryLight }]}>
                     <AppIcon name="add" size={13} color={accentInk(colors, 'primary', colors.primaryLight)} />
                     <Text style={[styles.addChipText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>{t('budget.addLimit')}</Text>
@@ -441,11 +442,15 @@ export default function BudgetScreen() {
                     backgroundColor: `${colors.primary}15`,
                     borderRadius: 20, paddingHorizontal: 14, paddingVertical: 7,
                   }}>
-                    <Text style={{ fontSize: 18 }}>
-                      {dialogMode === 'add' ? selectedCategory!.icon : selectedBudget!.categoryIcon}
-                    </Text>
+                    <CategoryIcon
+                      icon={dialogMode === 'add' ? selectedCategory!.icon : selectedBudget!.categoryIcon}
+                      size={18}
+                      color={accentInk(colors, 'primary', colors.surface)}
+                    />
                     <Text style={{ fontFamily: Fonts.semiBold, fontSize: 14, color: accentInk(colors, 'primary', colors.surface) }}>
-                      {dialogMode === 'add' ? selectedCategory!.name : selectedBudget!.categoryName}
+                      {dialogMode === 'add'
+                        ? catLabel(selectedCategory!.id, selectedCategory!.name)
+                        : catLabel(selectedBudget!.categoryId, selectedBudget!.categoryName)}
                     </Text>
                   </View>
                 </View>

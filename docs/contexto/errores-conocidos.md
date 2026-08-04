@@ -187,3 +187,20 @@
 - **Síntoma:** tras pasar el `theme-color` a negro, la barra de estado seguía saliendo azul oscuro en modo oscuro (no negra).
 - **Causa real:** `--spendia-app-bg` (el fondo de `html`/`body`, que se ve en la franja de la barra y en el rubber band) llevaba el degradado de la paleta oscurecido por el scrim. Ese azul es lo que asomaba, no el `theme-color`.
 - **Solución:** `--spendia-statusbar-bg` y `--spendia-app-bg` valen lo MISMO y son neutros: `#000000` en oscuro, `#FFFFFF` en claro. El color de marca vive dentro del `#root`, nunca en el chrome del sistema.
+
+### El lienzo de Personalización se encoge con el dedo, no por umbral (resuelto)
+- **Síntoma:** al bajar en Personalización, la vista previa de arriba cambiaba de golpe: en un fotograma pasaba del lienzo de 292 px a la barra de 64.
+- **Causa real:** `collapsed` era un booleano con histéresis (96 px / 44 px) que **sustituía un componente por otro**. No había transición: había relevo.
+- **Solución:** la altura y las dos opacidades se interpolan sobre un `Animated.Value` alimentado por el scroll (`Animated.event`, `useNativeDriver: false` — `height` no la puede animar el hilo nativo). Los tramos de opacidad se solapan (43-60 px) para que se lea como un cruce. El alto del capítulo va en su propio `Animated.Value` con un `timing` de 140 ms, porque cambiar de capítulo también cambia el alto (292 ↔ 196) y ese salto se veía igual de brusco. Queda un booleano, `barTouchable`, pero solo decide `pointerEvents`: no repinta nada visible.
+- **Con "reducir movimiento" el lienzo no se encoge** (mismo criterio que el header del Home) y la barra no se monta.
+
+### Presupuesto tenía su propio catálogo de categorías (resuelto)
+- **Síntoma:** las categorías de Presupuesto salían con emoji (🍽️, 🚗…) mientras el resto de la app usaba íconos Tabler, y su nombre siempre en castellano aunque la app estuviera en inglés o italiano.
+- **Causa real:** `app/(tabs)/budget.tsx` declaraba su propia `DEFAULT_EXPENSE_CATEGORIES` con emojis y nombres fijos, en paralelo a `DEFAULT_CATEGORIES` de `constants/categories.ts`.
+- **Solución:** la lista se deriva del catálogo oficial y el nombre pasa por `categoryLabel`. El chip del diálogo pintaba el icono en un `<Text>` (mismo fallo que "tools-kitchen" en el Home): ahora usa `CategoryIcon`, que además sigue entendiendo el emoji guardado en los presupuestos antiguos.
+
+### `getReactNativePersistence` no existe en los tipos web de Firebase (resuelto)
+- **Síntoma:** `typecheck` fallaba con TS2305 en `config/firebase.ts` (firebase 12).
+- **Causa real:** ese símbolo solo lo declara la entrada React Native del SDK (`@firebase/auth/dist/index.rn.d.ts`); resolviendo `firebase/auth` para web no existe.
+- **Solución:** se lee del módulo en runtime con un tipo explícito (`import * as firebaseAuth`), y si no está, se cae a `browserLocalPersistence`. Sin `@ts-ignore`.
+- **`JSX.Element` como tipo de retorno ya no compila** (React 19 retiró el namespace global): se quita la anotación y se deja inferir, o se usa `React.JSX.Element`.

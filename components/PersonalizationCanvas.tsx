@@ -33,7 +33,12 @@ export type CanvasFocus = 'all' | 'bg' | 'chart' | 'card';
 const PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284, 1420, 1380, 1495];
 const PREVIEW_BALANCE = 4286500;
 
-const HEIGHT: Record<CanvasFocus, number> = { all: 292, bg: 196, chart: 196, card: 196 };
+/** Alto del lienzo por capítulo, y el de la barra a la que se encoge al bajar.
+ *  Los exporta porque la pantalla anima la altura ENTRE los dos valores y necesita
+ *  ambos extremos. */
+export const CANVAS_HEIGHT: Record<CanvasFocus, number> = { all: 292, bg: 196, chart: 196, card: 196 };
+export const CANVAS_BAR_HEIGHT = 64;
+const HEIGHT = CANVAS_HEIGHT;
 
 export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
   focus?: CanvasFocus;
