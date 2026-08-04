@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useId, type ReactNode } from 'react';
+import { useRef, useState, useEffect, useMemo, useId, type ReactNode } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -123,9 +123,6 @@ const CHART_TYPES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lo
 /** Los cuatro capítulos, en orden del cambio más notorio al más fino. */
 const CHAPTERS = ['color', 'background', 'data', 'detail'] as const;
 type Chapter = typeof CHAPTERS[number];
-/** Píxeles de scroll en los que el lienzo pasa de completo a barra. */
-const COLLAPSE_AT = 96;
-
 /** Qué enseña el lienzo en cada capítulo cuando se encoge. */
 const CANVAS_FOCUS: Record<Chapter, CanvasFocus> = {
   color: 'all', background: 'bg', data: 'chart', detail: 'card',
@@ -452,13 +449,16 @@ export default function PersonalizationScreen() {
     gradientStyle, setGradientStyle,
   } = useTheme();
   const [chapter, setChapter] = useState<Chapter>('color');
-  // El lienzo se encoge SIGUIENDO el dedo: `scrollY` interpola su altura y el
-  // cruce de opacidad. Antes era un booleano con histéresis, así que a los 96 px
-  // el lienzo de 292 px se sustituía por la barra de 64 en un solo fotograma.
+  // El lienzo VIAJA CON EL SCROLL (va dentro de la lista), así que su movimiento lo
+  // hace el propio scroller y no puede trabarse. Lo único animado es la barra
+  // compacta, con opacidad y translateY: dos propiedades de compositor.
+  //
+  // La versión anterior animaba la ALTURA del lienzo contra `scrollY`: cada
+  // fotograma de scroll obligaba a recalcular el layout del lienzo entero (SVG
+  // animados incluidos) y, además, los nodos de `interpolate`/`Animated.add` se
+  // recreaban en cada render y se iban acumulando sobre `scrollY`. De ahí que
+  // subiendo y bajando se trabara y acabara dejando de responder.
   const scrollY = useRef(new Animated.Value(0)).current;
-  // Solo decide si la barra puede recibir toques (no su aspecto): cambiarlo no
-  // repinta nada visible, así que no reintroduce el salto.
-  const [barTouchable, setBarTouchable] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
 
@@ -488,40 +488,45 @@ export default function PersonalizationScreen() {
   // elegía una animación que en su Home nunca se movía.
   const { animate: motionEnabled, reduceMotion } = useProMotion();
 
-  // Alto del capítulo activo. Va por un Animated aparte porque cambiar de capítulo
-  // también cambia el alto (292 → 196) y de golpe se veía igual de brusco.
+  // Alto del lienzo del capítulo activo: la barra entra justo cuando el lienzo
+  // termina de salir por arriba, sea 292 px (Color) o 196 (el resto).
   const fullHeight = CANVAS_HEIGHT[CANVAS_FOCUS[chapter]];
-  const fullHeightAnim = useRef(new Animated.Value(fullHeight)).current;
-  useEffect(() => {
-    Animated.timing(fullHeightAnim, {
-      toValue: fullHeight,
-      duration: reduceMotion ? 0 : 140,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: false,
-    }).start();
-  }, [fullHeight, fullHeightAnim, reduceMotion]);
 
-  // altura = alto del capítulo + (64 - alto) × progreso de colapso
-  const collapseProgress = scrollY.interpolate({
-    inputRange: [0, COLLAPSE_AT],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-  const canvasHeight = reduceMotion
-    ? fullHeightAnim
-    : Animated.add(fullHeightAnim, Animated.multiply(collapseProgress, Animated.subtract(CANVAS_BAR_HEIGHT, fullHeightAnim)));
-  // Los dos tramos se solapan a propósito (43-60 px): ahí conviven las dos capas y
-  // el cambio se lee como un cruce, no como un relevo.
-  const canvasOpacity = reduceMotion ? 1 : scrollY.interpolate({
-    inputRange: [0, COLLAPSE_AT * 0.62],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-  const barOpacity = scrollY.interpolate({
-    inputRange: [COLLAPSE_AT * 0.45, COLLAPSE_AT],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
+  // UN nodo por interpolación para toda la vida del componente. Dependen del alto
+  // del capítulo, así que se rehacen SOLO al cambiar de capítulo, nunca por render.
+  const { barOpacity, barShift, canvasShift, canvasFade, canvasScale } = useMemo(() => {
+    const start = Math.max(24, fullHeight - CANVAS_BAR_HEIGHT - 24);
+    const end = start + 56;
+    return {
+      barOpacity: scrollY.interpolate({ inputRange: [start, end], outputRange: [0, 1], extrapolate: 'clamp' }),
+      // Entra deslizándose desde arriba; fuera de rango queda escondida tras el
+      // recorte de su hueco, así que no tapa ni recibe toques.
+      barShift: scrollY.interpolate({
+        inputRange: [start, end],
+        outputRange: [-(CANVAS_BAR_HEIGHT + 8), 0],
+        extrapolate: 'clamp',
+      }),
+      // Parallax: el lienzo se queda ~35 % por detrás del contenido, se atenúa y se
+      // aleja un poco al salir. Sin esto sube pegado al dedo, a la misma velocidad
+      // que la lista, y la salida se lee seca. Las tres son propiedades de
+      // compositor (translate/opacity/scale): no tocan el layout de nada.
+      canvasShift: scrollY.interpolate({
+        inputRange: [0, fullHeight],
+        outputRange: [0, fullHeight * 0.35],
+        extrapolate: 'clamp',
+      }),
+      canvasFade: scrollY.interpolate({
+        inputRange: [0, fullHeight * 0.85],
+        outputRange: [1, 0.12],
+        extrapolate: 'clamp',
+      }),
+      canvasScale: scrollY.interpolate({
+        inputRange: [0, fullHeight],
+        outputRange: [1, 0.94],
+        extrapolate: 'clamp',
+      }),
+    };
+  }, [scrollY, fullHeight]);
 
   // "Dinámico" no es una mezcla — es un color ÚNICO que cambia según la tendencia
   // real (verde si sube, rojo si baja). Para que se note en toda vista previa (no
@@ -628,30 +633,8 @@ export default function PersonalizationScreen() {
           <AppHeader showBack />
           <PageTitle title={t('profile.palette.title')} description={t('profile.palette.subtitle')} />
 
-          {/* Lienzo vivo: el conjunto del tema, siempre delante. Al bajar se
-              reduce a una barra de 64 px — con 14 efectos de fondo hay scroll y
-              sin esto el resultado se perdía de vista.
-              La reducción es CONTINUA: la altura y las dos opacidades se
-              interpolan sobre el scroll, así que el lienzo se encoge con el dedo
-              en vez de sustituirse de golpe. Con "reducir movimiento" no se
-              encoge en absoluto (mismo criterio que el header del Home). */}
-          <View style={styles.canvasWrap}>
-            <Animated.View style={[styles.canvasStage, { height: canvasHeight }]}>
-              <Animated.View style={[styles.canvasLayer, { opacity: canvasOpacity }]} pointerEvents="none">
-                <PersonalizationCanvas focus={CANVAS_FOCUS[chapter]} bgTarget={chapter === 'background' ? bgTarget : undefined} />
-              </Animated.View>
-              {!reduceMotion && (
-                <Animated.View
-                  style={[styles.canvasLayer, { opacity: barOpacity }]}
-                  pointerEvents={barTouchable ? 'auto' : 'none'}
-                >
-                  <PersonalizationCanvasBar onExpand={() => scrollRef.current?.scrollTo({ y: 0, animated: true })} />
-                </Animated.View>
-              )}
-            </Animated.View>
-          </View>
-
-          {/* Cuatro capítulos, del cambio más notorio al más fino.
+          {/* Cuatro capítulos, del cambio más notorio al más fino. Van FIJOS y
+              sobre el lienzo: son navegación, tienen que estar siempre a mano.
               El margen lateral lo pone el contenedor (padding), no el control:
               con `width:'100%'` + `marginHorizontal` el control se desbordaba
               32 px y la pastilla salía por los dos lados de la pantalla. */}
@@ -663,26 +646,34 @@ export default function PersonalizationScreen() {
             />
           </View>
 
+          <View style={styles.scrollArea}>
           <Animated.ScrollView
             ref={scrollRef}
             contentContainerStyle={styles.scroll}
             showsVerticalScrollIndicator={false}
-            // 16 ms: la altura del lienzo va atada a este valor, con 32 se notaba a saltos.
             scrollEventThrottle={16}
+            // Solo alimenta la opacidad y el desplazamiento de la barra compacta:
+            // ninguna propiedad de layout depende del scroll.
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-              {
-                // La altura no es una propiedad que el hilo nativo pueda animar.
-                useNativeDriver: false,
-                // Histéresis solo para los toques de la barra, no para su aspecto.
-                listener: (e) => {
-                  const y = (e.nativeEvent as { contentOffset: { y: number } }).contentOffset.y;
-                  if (!barTouchable && y > COLLAPSE_AT * 0.8) setBarTouchable(true);
-                  else if (barTouchable && y < COLLAPSE_AT * 0.45) setBarTouchable(false);
-                },
-              },
+              { useNativeDriver: true },
             )}
           >
+            {/* Lienzo vivo: el conjunto del tema. Viaja DENTRO de la lista, así que
+                el desplazamiento lo hace el propio scroller; el parallax solo lo
+                frena y lo atenúa para que la salida sea suave. */}
+            <Animated.View
+              style={[
+                styles.canvasInScroll,
+                reduceMotion ? null : {
+                  opacity: canvasFade,
+                  transform: [{ translateY: canvasShift }, { scale: canvasScale }],
+                },
+              ]}
+            >
+              <PersonalizationCanvas focus={CANVAS_FOCUS[chapter]} bgTarget={chapter === 'background' ? bgTarget : undefined} />
+            </Animated.View>
+
             {chapter === 'color' && (
               <>
                 <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>
@@ -886,6 +877,21 @@ export default function PersonalizationScreen() {
             )}
             <View style={{ height: 28 }} />
           </Animated.ScrollView>
+
+          {/* Barra compacta: releva al lienzo cuando este ya se ha ido por arriba,
+              para no perder de vista el resultado mientras se tocan los ajustes.
+              Solo opacidad y translateY (compositor). Fuera de rango queda
+              escondida tras el recorte del hueco: ni se ve ni recibe toques. */}
+          {!reduceMotion && (
+            <View style={styles.barSlot} pointerEvents="box-none">
+              <Animated.View
+                style={[styles.barInner, { opacity: barOpacity, transform: [{ translateY: barShift }] }]}
+              >
+                <PersonalizationCanvasBar onExpand={() => scrollRef.current?.scrollTo({ y: 0, animated: true })} />
+              </Animated.View>
+            </View>
+          )}
+          </View>
         </ScreenBackground>
       </SafeAreaView>
     </ScreenTransition>
@@ -894,11 +900,13 @@ export default function PersonalizationScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  canvasWrap: { paddingHorizontal: 16, paddingTop: 2, width: '100%', maxWidth: 640, alignSelf: 'center' },
-  // overflow hidden: mientras se encoge, el lienzo completo (292 px) tiene que
-  // recortarse dentro del escenario o se derramaría sobre la pastilla de capítulos.
-  canvasStage: { overflow: 'hidden', borderRadius: 24, justifyContent: 'flex-start' },
-  canvasLayer: { position: 'absolute', top: 0, left: 0, right: 0 },
+  scrollArea: { flex: 1 },
+  canvasInScroll: { paddingBottom: 14 },
+  // Hueco de la barra compacta, superpuesto al scroll: no ocupa layout, así que su
+  // entrada y salida no mueven ni un píxel del contenido. `overflow: hidden`
+  // esconde la barra cuando está desplazada fuera.
+  barSlot: { position: 'absolute', top: 0, left: 0, right: 0, alignItems: 'center', overflow: 'hidden', paddingBottom: 10 },
+  barInner: { width: '100%', maxWidth: 640, paddingHorizontal: 16 },
   chapterBarWrap: { paddingHorizontal: 16, marginTop: 12, marginBottom: 4, width: '100%', maxWidth: 640, alignSelf: 'center' },
   lookStrip: { gap: 9, paddingRight: 8, paddingBottom: 2 },
   lookCard: { width: 104, borderRadius: 14, borderWidth: 1.5, overflow: 'hidden' },

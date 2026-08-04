@@ -332,7 +332,15 @@
       "jade": "Giada",
       "sandstone": "Arenaria",
       "neon": "Neon",
-      "moss": "Muschio"
+      "moss": "Muschio",
+      "cyberpunk": "Cyberpunk",
+      "electricViolet": "Viola elettrico",
+      "acidLime": "Lime acido",
+      "solarFlare": "Brillamento solare",
+      "hotMagenta": "Magenta acceso",
+      "electricBlue": "Blu elettrico",
+      "tangerine": "Mandarino",
+      "infrared": "Infrarosso"
     },
     "notifications": {
       "label": "Notifiche",

@@ -204,3 +204,9 @@
 - **Causa real:** ese símbolo solo lo declara la entrada React Native del SDK (`@firebase/auth/dist/index.rn.d.ts`); resolviendo `firebase/auth` para web no existe.
 - **Solución:** se lee del módulo en runtime con un tipo explícito (`import * as firebaseAuth`), y si no está, se cae a `browserLocalPersistence`. Sin `@ts-ignore`.
 - **`JSX.Element` como tipo de retorno ya no compila** (React 19 retiró el namespace global): se quita la anotación y se deja inferir, o se usa `React.JSX.Element`.
+
+### Nunca animar `height` contra el scroll (resuelto, segunda vez)
+- **Síntoma:** en Personalización, subiendo y bajando, la vista previa se trababa y acababa dejando de responder.
+- **Causa real:** dos fallos juntos. (1) La altura del lienzo se interpolaba contra `scrollY` con `useNativeDriver: false`, así que **cada fotograma de scroll recalculaba el layout** del lienzo entero, con sus SVG animados dentro. (2) Los nodos de `interpolate`/`Animated.add` se creaban **en cada render** y se iban acumulando sobre el mismo `scrollY` — y el `setState` que había dentro del `listener` del scroll provocaba justo esos renders. Degradación progresiva, no un fallo puntual.
+- **Solución:** el lienzo **viaja dentro del ScrollView**, así que su desplazamiento lo hace el propio scroller. Lo único animado son `opacity` y `translateY`/`scale` (propiedades de compositor, `useNativeDriver: true`), y las interpolaciones se crean **una vez** en un `useMemo` con el alto del capítulo como dependencia. La barra compacta se superpone en `position: absolute` con `overflow: hidden`: fuera de rango queda recortada, así que no se ve ni recibe toques, y ya no hace falta ningún estado para `pointerEvents`.
+- **Regla:** contra el scroll, solo transform y opacity. Cualquier propiedad que dispare layout (`height`, `width`, `margin`, `padding`, `top`) se anima en un `timing` puntual, nunca atada al gesto.

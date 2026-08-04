@@ -332,7 +332,15 @@
       "jade": "Jade",
       "sandstone": "Sandstone",
       "neon": "Neon",
-      "moss": "Moss"
+      "moss": "Moss",
+      "cyberpunk": "Cyberpunk",
+      "electricViolet": "Electric violet",
+      "acidLime": "Acid lime",
+      "solarFlare": "Solar flare",
+      "hotMagenta": "Hot magenta",
+      "electricBlue": "Electric blue",
+      "tangerine": "Tangerine",
+      "infrared": "Infrared"
     },
     "notifications": {
       "label": "Notifications",
