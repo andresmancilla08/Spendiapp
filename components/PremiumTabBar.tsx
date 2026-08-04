@@ -11,6 +11,8 @@ import { useProMotion } from '../hooks/useProMotion';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import { useTabBarShrink } from '../hooks/useTabBarShrink';
+import ScrollFadeEdges from './ScrollFadeEdges';
 
 
 const TAB_CONFIG: Record<string, { icon: AppIconName; iconActive: AppIconName }> = {
@@ -32,6 +34,7 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
   const { reduceMotion } = useProMotion();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { barHeight, barScale, labelOpacity, labelHeight } = useTabBarShrink(BAR_HEIGHT);
   const { isMobile, isDesktop } = useBreakpoint();
 
   const allTabRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
@@ -105,9 +108,13 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
 
   return (
     <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
-      <View style={[
+      {/* El contenido que pasa por detrás de la píldora se desenfoca en vez de
+          cortarse; el difuminado llega hasta el borde físico, zona segura incluida. */}
+      <ScrollFadeEdges edge="bottom" height={BAR_HEIGHT + bottomPad + 44} />
+      <Animated.View style={[
         styles.container,
         { backgroundColor: glassColor, borderColor },
+        { height: barHeight, transform: [{ scale: barScale }] },
         !isMobile && { maxWidth: isDesktop ? 640 : 560 },
       ]}>
         {allTabRoutes.map((route) => {
@@ -165,23 +172,24 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
                   </Animated.View>
                 </View>
 
-                <Text
+                <Animated.Text
                   style={[
                     styles.label,
                     {
                       color: isFocused ? colors.primary : iconInactive,
                       fontFamily: isFocused ? Fonts.bold : Fonts.regular,
                     },
+                    { opacity: labelOpacity, height: labelHeight },
                   ]}
                   numberOfLines={1}
                 >
                   {tabLabels[route.name]}
-                </Text>
+                </Animated.Text>
               </Animated.View>
             </TouchableOpacity>
           );
         })}
-      </View>
+      </Animated.View>
     </View>
   );
 }

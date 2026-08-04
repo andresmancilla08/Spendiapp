@@ -11,6 +11,8 @@ import { useTranslation } from 'react-i18next';
 import { Fonts } from '../config/fonts';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useAuthStore } from '../store/authStore';
+import { useTabBarShrink } from '../hooks/useTabBarShrink';
+import ScrollFadeEdges from './ScrollFadeEdges';
 import PremiumTabBar from './PremiumTabBar';
 
 
@@ -44,6 +46,8 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { isMobile, isDesktop } = useBreakpoint();
   const { isPremium } = useAuthStore();
+
+  const { barHeight, barScale, labelOpacity, labelHeight } = useTabBarShrink(BAR_HEIGHT);
 
   const allTabRoutes = state.routes.filter(r => TAB_CONFIG[r.name]);
   // Budget is premium-only: hidden for free users
@@ -87,12 +91,17 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   return (
     <View style={[styles.wrapper, { paddingBottom: bottomPad }]}>
-      <View style={[
+      {/* El contenido que pasa por detrás de la píldora se desenfoca en vez de
+          cortarse; el difuminado llega hasta el borde físico, zona segura incluida. */}
+      <ScrollFadeEdges edge="bottom" height={BAR_HEIGHT + bottomPad + 44} />
+      <Animated.View style={[
         styles.container,
         {
           backgroundColor: colors.surface,
           shadowColor: '#000',
           borderColor: `${colors.primary}20`,
+          height: barHeight,
+          transform: [{ scale: barScale }],
         },
         !isMobile && { maxWidth: isDesktop ? 640 : 560 },
       ]}>
@@ -153,19 +162,20 @@ function FreeTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
               </View>
 
-              <Text
+              <Animated.Text
                 style={[
                   styles.label,
                   { color: labelColor, fontFamily: isFocused ? Fonts.bold : Fonts.regular },
+                  { opacity: labelOpacity, height: labelHeight },
                 ]}
                 numberOfLines={1}
               >
                 {tabLabels[route.name]}
-              </Text>
+              </Animated.Text>
             </TouchableOpacity>
           );
         })}
-      </View>
+      </Animated.View>
     </View>
   );
 }

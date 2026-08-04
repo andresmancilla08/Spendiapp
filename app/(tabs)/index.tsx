@@ -14,7 +14,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../../components/AppIcon';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
-import HomeHeader from '../../components/HomeHeader';
+import HomeHeader, { HOME_HEADER_HEIGHT } from '../../components/HomeHeader';
 import { useProMotion } from '../../hooks/useProMotion';
 import { effectiveAmount } from '../../utils/sharedCalc';
 import { useTranslation } from 'react-i18next';
@@ -44,6 +44,7 @@ import NotificationBell from '../../components/NotificationBell';
 import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
 import FloatingActions from '../../components/FloatingActions';
+import ScrollFadeEdges from '../../components/ScrollFadeEdges';
 import ScreenTransition from '../../components/ScreenTransition';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfettiBurst from '../../components/ConfettiBurst';
@@ -484,7 +485,12 @@ export default function HomeScreen() {
       <WhatsNew visible={showWhatsNew} onDismiss={handleDismissWhatsNew} />
       <ScreenBackground>
 
-      {/* Header — avatar con el anillo del mes a la izquierda; se contrae al bajar */}
+      {/* El header flota SOBRE la lista (no la empuja): así el contenido pasa
+          por debajo y el difuminado del header lo va borrando, en vez de
+          cortarse contra el borde del ScrollView. */}
+      <View style={styles.stage}>
+
+      <View style={styles.headerLayer} pointerEvents="box-none">
       <HomeHeader
         firstName={t('home.greetingName', { name: firstName })}
         photoUrl={photoUrl}
@@ -513,8 +519,7 @@ export default function HomeScreen() {
         collapsible={!reduceMotion}
         onPressProfile={() => router.push('/(tabs)/profile')}
       />
-
-      <AnnouncementBanner />
+      </View>
 
       <Animated.ScrollView
         contentContainerStyle={styles.scroll}
@@ -533,6 +538,10 @@ export default function HomeScreen() {
           />
         }
       >
+        {/* Anuncios y PWA: dentro del scroll, ya que el header dejó de empujar
+            contenido (flota) y estos banners sí deben desplazarse con la lista. */}
+        <AnnouncementBanner />
+
         {/* PWA Install Banner */}
         {Platform.OS === 'web' && !loading && !refreshing && <PwaInstallBanner />}
 
@@ -709,6 +718,8 @@ export default function HomeScreen() {
         )}
       </Animated.ScrollView>
 
+      </View>
+
       {/* FAB — en la misma columna que el contenido y la tab bar */}
       <FloatingActions bottom={110}>
         <TouchableOpacity
@@ -735,9 +746,11 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
 
 
-  // paddingTop: el subtítulo que abría el scroll ya no existe (su contexto vive en el header),
-  // así que el aire hasta el card de balance lo pone el propio scroll.
-  scroll: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  // El header flota encima, así que el scroll ocupa toda la altura y reserva su
+  // hueco con paddingTop (alto del header + el aire que ya tenía).
+  stage: { flex: 1 },
+  headerLayer: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 3 },
+  scroll: { paddingHorizontal: 20, paddingTop: HOME_HEADER_HEIGHT + 12, paddingBottom: 130, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
 
   // Summary
