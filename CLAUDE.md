@@ -19,6 +19,48 @@ node -p "require('./app.json').expo.version"
 # Deben ser idénticos
 ```
 
+## Animación — Reglas obligatorias
+
+Estas tres reglas salieron de una auditoría medida: el patrón anterior hacía
+**1.440 escrituras del atributo `style` por segundo con la app en reposo** y
+mantenía **13 capas desenfocadas** cubriendo casi tres pantallas. Era la causa
+de que la app calentara el teléfono.
+
+**1. El movimiento decorativo NUNCA se anima desde JS.**
+Todo efecto de fondo y toda animación en bucle pasa por `components/fx/FxLayer.tsx`.
+
+```tsx
+import FxLayer, { type FxFrame } from './fx/FxLayer';
+
+const FRAMES: FxFrame[] = [
+  { at: 0,   opacity: 0.2, x: 0,  y: 0 },
+  { at: 0.5, opacity: 0.5, x: 24, y: -20 },
+  { at: 1,   opacity: 0.2, x: 0,  y: 0 },
+];
+
+<FxLayer frames={FRAMES} duration={9000} phase={0.33} easing="sin" style={...} />
+```
+
+Prohibido `Animated.loop` con `useNativeDriver: false` para decoración. En web
+ese driver no existe: si pides `true` sin `Platform.OS !== 'web'`, solo obtienes
+un aviso en consola y cae a JS igual.
+
+**2. El borde difuso se pinta, no se desenfoca.**
+Nada de `filter: blur()` sobre capas que se animan — la GPU rehace el desenfoque
+en cada frame. Usar `components/fx/SoftOrb.tsx` (degradado radial). El ajuste de
+Personalización es `BACKGROUND_SOFTNESS`, no píxeles de blur.
+
+**3. El valor de una animación nunca pasa por el estado de React.**
+Prohibido `animatedValue.addListener(({ value }) => setState(value))`: eso
+re-renderiza el componente entero en cada frame. Los valores viajan por
+`Animated` hasta la propiedad, o por keyframes. Para atributos SVG,
+`Animated.createAnimatedComponent(Path)`. Única excepción: un contador numérico
+que se muestra como texto, y siempre transitorio, nunca en bucle.
+
+**Además:** todo `useEffect` que arranque una animación debe devolver su
+limpieza. `Skeleton` y `ExchangeRateChips` no lo hacían y dejaban bucles vivos
+tras desmontarse.
+
 ## Transición de pantallas
 
 **Toda vista nueva debe usar `ScreenTransition` como wrapper raíz del JSX retornado.**

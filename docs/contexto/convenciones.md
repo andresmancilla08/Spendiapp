@@ -11,15 +11,20 @@
 - **Todo agregado de dinero pasa por `effectiveAmount(tx)`** (`utils/sharedCalc.ts`): balance, tendencia, presupuesto, desglose por categoría, reportes y la propia fila. Sumar `tx.amount` a pelo cuenta el total del grupo en gastos compartidos y descuadra el balance contra las filas. Las únicas excepciones legítimas son los formularios (editar/duplicar guardan el total) y `friend-report`, que calcula deudas con su propia lógica de porcentajes.
 - **Franja superior del Home (`components/HomeHeader.tsx`) — dos estados sobre altura fija (70px):** al abrir, avatar con el anillo del % gastado a la izquierda + nombre + línea de contexto; al bajar, barra compacta con el mismo anillo, nombre y mes. El colapso se ata al scroll con `opacity`/`transform` (nunca `height`: no corre en el hilo nativo) desde un `Animated.ScrollView`. Con reduce-motion **no** se colapsa. La campana se renderiza UNA vez fuera de las dos capas: duplicarla monta dos `NotificationBell` y dos suscripciones a Firestore. El card de balance no se toca desde aquí.
 - **Color de texto sobre tinte:** en chips/badges tintados no asumir que `primary`/`primaryDark` se lee — las paletas pastel dan 1.5:1. Medir y caer a `textPrimary` (patrón `readableOn` en `components/TxRelation.tsx`).
-- Seguridad: secure-store para datos sensibles; biometría para acceso.
+- **Animación:** todo movimiento decorativo por `components/fx/FxLayer.tsx`; bordes difusos con `SoftOrb`, nunca `filter: blur()` animado; ningún valor de animación pasa por el estado de React. Ver CLAUDE.md → «Animación — Reglas obligatorias».
 
 ## Patrones PROHIBIDOS
-- Strings hardcodeados · guardar datos sensibles fuera de secure-store.
+- Strings hardcodeados.
+- **`Animated.loop` con `useNativeDriver: false` para decoración** — en web eso interpola en JS y escribe estilos inline en cada frame (se midieron 1.440 escrituras/s en reposo). Usar `FxLayer`.
+- **`filter: blur()` sobre una capa que se anima** — la GPU rehace el desenfoque en cada frame. Usar un degradado radial.
+- **`animatedValue.addListener(v => setState(v))`** — re-renderiza el componente entero 60 veces por segundo.
+- **`useEffect` que arranca una animación sin devolver su limpieza** — deja el bucle vivo tras desmontar.
 - **Fechas/meses hardcodeados:** prohibido arrays `['Enero',...]` o `toLocaleDateString('es-CO', ...)`. Usar SIEMPRE `utils/dateLocale.ts`: `getMonthNames(i18n.language)` para nombres de mes, `formatDate/formatTime(date, opts)` (o `localeFor()` como locale) para que la fecha siga al idioma activo (es→es-CO, en→en-US, it→it-IT). Los números (`toLocaleString('es-CO')`) se dejan en es-CO a propósito (formato COP).
 - **Paridad i18n:** toda clave nueva va a los 3 locales (es/en/it) — verificar con el script de auditoría (round-trip JSON idéntico). Claves dinámicas `t(\`x.${var}\`)` deben cubrir TODOS los valores del dominio.
 
 ## Tests
-- Hay scripts sueltos (`test_logic.js`, `test_generateUserName.ts`). TODO: no hay suite formal; validar a mano web + iOS.
+- Hay scripts sueltos (`test_logic.js`, `test_generateUserName.ts`). No hay suite formal; se valida a mano.
+- **Rendimiento:** se mide con Chrome headless por CDP contra el bundle de producción (viewport 390×844, CPU 4×), contando mutaciones del atributo `style` y capas con `filter`. Borrar el perfil de Chrome entre medidas: el service worker sirve el bundle viejo desde caché y compararías dos builds idénticos.
 
 ## Commits
 - Commit tras cada ajuste. Deploy solo con permiso.

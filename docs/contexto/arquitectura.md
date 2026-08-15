@@ -1,13 +1,15 @@
 # Arquitectura
 
-**En una frase:** App de finanzas personales (Spendia) en Expo, web + iOS/Android, con Firebase.
+**En una frase:** App de finanzas personales (Spendia) en Expo, hoy publicada como PWA web y con el salto a iOS/Android planificado, sobre Firebase.
 
 ## Stack
 - **Runtime/Framework:** Expo + Expo Router. React Native + react-native-web. TypeScript.
 - **Estado:** Zustand (`store/`). **i18n:** i18next + react-i18next (`locales/`).
 - **Backend:** Firebase (Auth, Firestore) + **Cloud Functions** (`functions/`). `api/` para endpoints.
 - **Extras:** expo-crypto, jspdf (+autotable). **Iconos:** `@tabler/icons-react-native`, siempre vía `components/AppIcon.tsx` — ninguna otra librería de iconos.
-- **Deploy:** export web Expo → Vercel (`vercel.json`); `npm run deploy`. iOS nativo (`ios/`, EAS `eas.json`).
+- **Deploy:** export web Expo → Vercel (`vercel.json`); `npm run deploy`. Bundle web ÚNICO de ~8,5 MB (`vercel.json` reescribe todo a `/index.html`): dividirlo por rutas exige rehacer el despliegue, ver `decisiones.md`.
+- **Nativo:** perfiles EAS listos (`eas.json`), bundle IDs `com.spendiapp`; `ios/` y `android/` están en `.gitignore` (generación nativa continua). Lo que falta para publicar está en `docs/checklist-tiendas.md`.
+- **Movimiento:** `components/fx/` — `FxLayer` (animación por compositor), `SoftOrb` (bordes difusos sin blur), `hooks/useIsActive.ts` (pausa en segundo plano).
 
 ## Mapa de carpetas
 - `app/` — rutas: `(tabs)`, `(onboarding)`, `(auth)`. `components/`, `hooks/`, `context/`, `store/`.

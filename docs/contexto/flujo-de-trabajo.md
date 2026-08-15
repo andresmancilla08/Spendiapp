@@ -4,12 +4,14 @@
 - Leer `docs/contexto/` y memorias. Revisar si la lógica va en `functions/` o cliente.
 
 ## Implementar cambios
-1. Editar. Todo texto con `t()`. Datos sensibles → secure-store.
+1. Editar. Todo texto con `t()`, en los tres locales.
 2. UI: validar con el equipo visual.
-3. `git commit` tras cada ajuste.
+3. Si hay movimiento: pasa por `FxLayer`, sin blur animado, sin `setState` por frame (CLAUDE.md → «Animación»).
+4. `git commit` tras cada ajuste.
 
 ## Checklist "terminado"
-- [ ] `npm run typecheck` sin errores nuevos (solo los 3 preexistentes). [ ] Sin strings hardcodeados. [ ] Validado web + iOS. [ ] Equipo visual firmó (si UI). [ ] Commit hecho.
+- [ ] `npm run typecheck` sin errores nuevos. [ ] Sin strings hardcodeados. [ ] Validado en claro Y oscuro. [ ] Equipo visual firmó (si UI). [ ] Commit hecho.
+- Si tocaste animación: [ ] cero mutaciones de `style` en reposo, [ ] cero capas con `filter` animado, [ ] comparado con capturas del build anterior.
 
 > `npx tsc --noEmit` a secas **crashea** (stack overflow): usa siempre `npm run typecheck`.
 
