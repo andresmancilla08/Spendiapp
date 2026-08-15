@@ -1083,15 +1083,15 @@
     "title": "¿Qué puedes hacer?",
     "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
-    "fullHeight": {
-      "title": "Nada más cortado abajo",
-      "item1": "En algunos iPhone la barra inferior y los botones se salían de la pantalla: ya se ven completos en cualquier modelo",
-      "item2": "El último bloque de cada lista deja de quedarse debajo de la barra"
+    "cooler": {
+      "title": "El móvil ya no se calienta",
+      "item1": "Los fondos y los gráficos se movían gastando batería a cada instante: ahora el movimiento es prácticamente gratis",
+      "item2": "Con la app en segundo plano, las animaciones se detienen del todo"
     },
-    "clearForm": {
-      "title": "Ya sabes qué falta para guardar",
-      "item1": "El botón te dice qué dato falta y te lleva al campo con un toque, en vez de quedarse apagado",
-      "item2": "Los campos obligatorios van marcados, y el aviso aparece junto al campo, no al final"
+    "batterySaver": {
+      "title": "Ahorro de batería",
+      "item1": "Nuevo ajuste en Personalización para dejar el fondo y los gráficos quietos",
+      "item2": "Antes solo podías conseguirlo apagando el movimiento en todo el teléfono"
     }
   },
   "incomeClaim": {

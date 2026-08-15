@@ -1,0 +1,150 @@
+<meta charset="utf-8">
+<title>Spendia · add-transaction — re-auditoría (dark / light / 320px)</title>
+<style>
+  .dark{
+    --bg:#0D1A1C; --surface2:#1E2E32; --primary:#00BCD4; --primaryLight:#003840;
+    --text:#EEF6F8; --text2:#9EABAF; --text3:#93A6AB;
+    --border:#243438; --inputBg:#1A2C30; --inputBorder:#2A3C40;
+    --err:#F87171;              /* readableTint no lo toca: 6.42:1 sobre #0D1A1C */
+    --ctaInk:#00BCD4;           /* accentInk(primary, surfaceSecondary) = 6.13:1 */
+    --scan:#4DD0E1;
+  }
+  .light{
+    --bg:#FFFFFF; --surface2:#EEF4F5; --primary:#00ACC1; --primaryLight:#E0F7FA;
+    --text:#1A2428; --text2:#6B7280; --text3:#6E737C;
+    --border:#DDE8EA; --inputBg:#F5F9FA; --inputBorder:#D0DDE0;
+    --err:#B32C2C;              /* readableTint(#EF4444, #FFF) → 4.5:1 */
+    --ctaInk:#00838F;           /* accentInk cae a primaryDark: 4.5:1 sobre #EEF4F5 */
+    --scan:#00838F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#05090A;font-family:'Montserrat',-apple-system,sans-serif;padding:22px;display:flex;gap:20px;align-items:flex-start}
+  .phone{background:var(--bg);border-radius:30px;overflow:hidden;border:1px solid #2a3a3e;display:flex;flex-direction:column;height:660px;width:340px}
+  .phone.narrow{width:320px}
+  .caption{color:#7f9096;font:700 10px/1.4 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin-bottom:9px}
+  .col{display:flex;flex-direction:column}
+  .body{flex:1;overflow:hidden;padding:18px;display:flex;flex-direction:column;gap:14px}
+  .titleWrap{padding:8px 18px 0;text-align:center}
+  .h1{color:var(--text);font:800 20px/1.2 Montserrat,sans-serif}
+  .sub{color:var(--text2);font:400 12px/1.4 Montserrat,sans-serif;margin-top:3px}
+  .scanBtn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:14px;background:var(--primaryLight);border:1px solid #00bcd433;color:var(--scan);font:700 13px Montserrat,sans-serif}
+  .amount{color:var(--primary);font:800 36px/1 Montserrat,sans-serif;text-align:center;padding:4px 0}
+
+  .flabel{display:flex;align-items:center;gap:7px;font:700 11px Montserrat,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--text2);margin-bottom:7px}
+  .flabel .d{width:5px;height:5px;border-radius:3px;background:var(--primary);flex:none}
+  .flabel.miss{color:var(--err)} .flabel.miss .d{background:var(--err)}
+  .flabel .optTag{margin-left:auto;color:var(--text3);font:500 10px Montserrat,sans-serif;letter-spacing:.04em;text-transform:none}
+
+  .input{background:var(--inputBg);border:1px solid var(--inputBorder);border-radius:14px;padding:14px 15px;color:var(--text);font:400 14px Montserrat,sans-serif}
+  .input.ph{color:var(--text3)}
+  .input.err{border-color:var(--err)}
+  .errline{display:flex;align-items:center;gap:6px;color:var(--err);font:600 12px Montserrat,sans-serif;margin-top:7px}
+  .ico{width:14px;height:14px;border-radius:8px;border:1.6px solid var(--err);flex:none;font:700 9px/11px Montserrat,sans-serif;text-align:center;color:var(--err)}
+
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{border:1px solid var(--border);border-radius:50px;padding:7px 13px;color:var(--text2);font:500 11.5px Montserrat,sans-serif}
+  .chip.on{background:var(--primary);color:#fff;border-color:var(--primary);font-weight:700}
+
+  .row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:16px;padding:13px 15px;gap:10px}
+  .rowT{color:var(--text);font:700 13px Montserrat,sans-serif}
+  .rowH{color:var(--text3);font:400 10.5px Montserrat,sans-serif;margin-top:2px}
+  .sw{width:42px;height:25px;border-radius:13px;background:var(--inputBorder);position:relative;flex:none}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:10px;background:#fff}
+
+  .footer{border-top:1px solid var(--border);padding:11px 18px 20px;background:var(--bg)}
+  /* MISMO tamaño de fuente en los dos estados: la diferencia es de COLOR,
+     no de tamaño. Corrección del hallazgo 🟠 de la primera pasada. */
+  .cta{height:54px;border-radius:50px;display:flex;align-items:center;justify-content:center;font:700 16px Montserrat,sans-serif;padding:0 14px}
+  .cta span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cta.ready{background:var(--primary);color:#fff}
+  .cta.wait{background:var(--surface2);border:1.5px solid var(--primary);color:var(--ctaInk)}
+  .spacer{flex:1}
+</style>
+
+<div class="col">
+  <div class="caption">DARK · falta 1 tras intentar</div>
+  <div class="phone dark">
+    <div class="titleWrap"><div class="h1">Nueva transacción</div><div class="sub">Registra un gasto o ingreso</div></div>
+    <div class="body">
+      <div class="scanBtn">▤ Escanear recibo</div>
+      <div class="amount">$698.000</div>
+      <div>
+        <div class="flabel miss"><span class="d"></span>Descripción</div>
+        <div class="input ph err">¿En qué lo usaste?</div>
+        <div class="errline"><span class="ico">!</span>Agrega una descripción</div>
+      </div>
+      <div class="row"><div><div class="rowT">Ingreso fijo</div><div class="rowH">Se repetirá cada mes</div></div><div class="sw"></div></div>
+      <div><div class="flabel"><span class="d"></span>Categoría</div>
+      <div class="chips"><span class="chip">+ Nueva</span><span class="chip">Otro</span><span class="chip on">Salario</span></div></div>
+      <div class="spacer"></div>
+    </div>
+    <div class="footer"><div class="cta wait"><span>Escribe en qué lo usaste</span></div></div>
+  </div>
+</div>
+
+<div class="col">
+  <div class="caption">LIGHT · faltan 2 (era el 🔴)</div>
+  <div class="phone light">
+    <div class="titleWrap"><div class="h1">Nueva transacción</div><div class="sub">Registra un gasto o ingreso</div></div>
+    <div class="body">
+      <div class="scanBtn">▤ Escanear recibo</div>
+      <div class="amount">$698.000</div>
+      <div>
+        <div class="flabel miss"><span class="d"></span>Descripción</div>
+        <div class="input ph err">¿En qué lo usaste?</div>
+        <div class="errline"><span class="ico">!</span>Agrega una descripción</div>
+      </div>
+      <div class="row"><div><div class="rowT">Gasto fijo</div><div class="rowH">Se repetirá cada mes</div></div><div class="sw"></div></div>
+      <div>
+        <div class="flabel miss"><span class="d"></span>Categoría</div>
+        <div class="errline" style="margin-top:0;margin-bottom:8px"><span class="ico">!</span>Selecciona una categoría</div>
+        <div class="chips"><span class="chip">+ Nueva</span><span class="chip">Otro</span><span class="chip">Comida</span></div>
+      </div>
+      <div class="spacer"></div>
+    </div>
+    <div class="footer"><div class="cta wait"><span>Faltan 2 datos</span></div></div>
+  </div>
+</div>
+
+<div class="col">
+  <div class="caption">LIGHT · completo</div>
+  <div class="phone light">
+    <div class="titleWrap"><div class="h1">Nueva transacción</div><div class="sub">Registra un gasto o ingreso</div></div>
+    <div class="body">
+      <div class="scanBtn">▤ Escanear recibo</div>
+      <div class="amount">$698.000</div>
+      <div>
+        <div class="flabel"><span class="d"></span>Descripción</div>
+        <div class="input">Salario mensual</div>
+      </div>
+      <div class="row"><div><div class="rowT">Ingreso fijo</div><div class="rowH">Se repetirá cada mes</div></div><div class="sw"></div></div>
+      <div><div class="flabel"><span class="d"></span>Categoría</div>
+      <div class="chips"><span class="chip">+ Nueva</span><span class="chip">Otro</span><span class="chip on">Salario</span></div></div>
+      <div><div class="flabel">Nota<span class="optTag">Opcional</span></div>
+      <div class="input ph">Detalle adicional (opcional)</div></div>
+      <div class="spacer"></div>
+    </div>
+    <div class="footer"><div class="cta ready"><span>Guardar</span></div></div>
+  </div>
+</div>
+
+<div class="col">
+  <div class="caption">320px · IT (copy 2× largo)</div>
+  <div class="phone dark narrow">
+    <div class="titleWrap"><div class="h1">Nuova transazione</div><div class="sub">Registra una spesa</div></div>
+    <div class="body">
+      <div class="scanBtn">▤ Scansiona scontrino</div>
+      <div class="amount">$698.000</div>
+      <div>
+        <div class="flabel miss"><span class="d"></span>Descrizione</div>
+        <div class="input ph err">Per cosa l'hai usato?</div>
+        <div class="errline"><span class="ico">!</span>Aggiungi una descrizione</div>
+      </div>
+      <div class="row"><div><div class="rowT">Spesa fissa</div><div class="rowH">Si ripeterà ogni mese</div></div><div class="sw"></div></div>
+      <div><div class="flabel"><span class="d"></span>Categoria</div>
+      <div class="chips"><span class="chip">+ Nuova</span><span class="chip">Altro</span><span class="chip on">Stipendio</span></div></div>
+      <div class="spacer"></div>
+    </div>
+    <div class="footer"><div class="cta wait"><span>Scrivi per cosa l'hai usato</span></div></div>
+  </div>
+</div>

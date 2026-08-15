@@ -2,6 +2,10 @@
 
 **Fecha:** 2026-08-15 · **Versión auditada:** 2.56.0 · **Build medido:** `dist/` de producción
 
+> **Estado: corregido en la v2.57.0.** Los P0 y los P1 (salvo la división del
+> bundle) están implementados y vueltos a medir sobre el bundle de producción.
+> Resultados al final, en «Resultado».
+
 ## Veredicto en una frase
 
 No es el movimiento: es **cómo está implementado** el movimiento. Los fondos y los
@@ -238,3 +242,67 @@ Lo que sí conviene cambiar de producto, aparte del motor:
 2. **Ajuste explícito de ahorro de batería** (P1.4).
 3. **Los gráficos animan una vez al entrar y se detienen.** El loop infinito de
    "trazo vivo" y "marea" no añade información después del primer ciclo.
+
+---
+
+## 5. Resultado
+
+Mismo método, mismo bundle de producción, misma pantalla. Medido tras
+implementar los P0 y los P1.
+
+| Métrica | Antes | Después | Objetivo |
+|---|---:|---:|---:|
+| CPU en reposo (login, throttle 4×) | 7,2 % | **0 %** | < 1 % |
+| Mutaciones de estilo por segundo | 1 440 | **0** | < 60 |
+| Capas con `filter: blur()` | 13 | **0** | 0 |
+| Superficie desenfocada | 2,95 pantallas | **0** | 0 |
+| Nodos del DOM | 137 | 136 | sin cambio |
+
+El coste del fondo animado ya no se distingue del ruido de medición: la
+diferencia entre tenerlo encendido y tenerlo apagado quedó por debajo de la
+precisión del instrumento. Los nodos del DOM no cambian, es decir el efecto
+sigue ahí — no se apagó, se movió al compositor.
+
+### Qué se implementó
+
+| Causa | Corrección |
+|---|---|
+| C1 · `useNativeDriver: false` | `components/fx/FxLayer.tsx` — animación CSS en web, hilo de UI en nativo. Los 13 efectos pasan por ahí |
+| C2 · blur animado | `components/fx/SoftOrb.tsx` — degradado radial en lugar de `filter: blur()` |
+| C3 · `setState` por frame | `BalanceCard`: `AnimatedPath` para el trazo, keyframes para el cometa, capa animada para la marea, `scaleY` para las barras |
+| C4 · 13 efectos en Personalización | `FxFrozen`: solo se anima la miniatura seleccionada |
+| C5 · sin pausa en segundo plano | `hooks/useIsActive.ts` |
+| C7 · movimiento perpetuo | Retirada la respiración de la barra de pestañas |
+| — | `Skeleton` y el punto «en vivo» tenían un bucle **sin limpieza** que seguía corriendo tras desmontarse. Corregido de paso |
+| P1.4 | Ajuste de ahorro de batería en Personalización |
+
+### Verificación visual
+
+Se compararon capturas del bundle de producción antes y después, en claro y en
+oscuro, y el degradado se ajustó tres veces hasta ser fiel:
+
+1. `closest-side` — sin esto el degradado llegaba a la esquina de la caja y el
+   blob se leía como un cuadrado.
+2. Núcleo pequeño y caída larga — con la meseta amplia el círculo quedaba
+   recortado demasiado limpio y dejaba de leerse como niebla de color.
+3. `PEAK 0.74` — un blur no solo difumina el borde, también reparte la luz y
+   baja el pico. Sin compensarlo, en modo oscuro el núcleo brillaba tanto que el
+   texto encima perdía contraste.
+
+### Lo que queda pendiente
+
+**C6 · el bundle de 8,5 MB en un solo archivo.** `web.output: "static"` divide
+por rutas, pero `vercel.json` reescribe todo a `/index.html` (arquitectura SPA)
+y `scripts/patch-html.js` solo parchea ese fichero. Hacerlo bien exige rehacer
+el despliegue y revisar el service worker: es un cambio de arquitectura, no un
+ajuste, y no entra en un release cuyo objetivo era el calentamiento. Afecta al
+arranque (~2,7 s de CPU), no a la temperatura sostenida.
+
+**C8 · los 30 `onSnapshot`.** Sin tocar; conviene revisar cuáles pueden ser
+lecturas puntuales.
+
+**Medición en dispositivo físico.** Todo lo anterior está medido en Chrome con
+throttling de CPU, que aproxima un móvil pero no lo sustituye. Antes de publicar
+en tiendas hay que repetirlo en un Android de gama media y en un iPhone reales,
+sobre todo la pausa en segundo plano: en nativo no existe el salvavidas del
+navegador que congela `rAF`.

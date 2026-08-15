@@ -203,7 +203,10 @@ function BarsChart({ values, color, height, animate }: { values: number[]; color
     if (!animate) { growAnim.setValue(1); return; }
     growAnim.setValue(0);
     const anim = Animated.timing(growAnim, {
-      toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+      toValue: 1, duration: 700, easing: Easing.out(Easing.cubic),
+      // En web no existe el driver nativo; pedirlo solo genera un aviso y cae a
+      // JS igualmente. Son 700 ms una sola vez, no un bucle.
+      useNativeDriver: Platform.OS !== 'web',
     });
     anim.start();
     return () => anim.stop();
