@@ -1079,19 +1079,15 @@
     "title": "¿Qué puedes hacer?",
     "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
-    "sharedZero": {
-      "title": "Gastos compartidos al 0%",
-      "item1": "Ya puedes registrar un gasto que asume otra persona por completo: prestaste tu tarjeta o te prestaron la suya",
-      "item2": "A quien va al 0% le llega el movimiento y su aviso, pero no le suma a sus gastos"
+    "fullHeight": {
+      "title": "Nada más cortado abajo",
+      "item1": "En algunos iPhone la barra inferior y los botones se salían de la pantalla: ya se ven completos en cualquier modelo",
+      "item2": "El último bloque de cada lista deja de quedarse debajo de la barra"
     },
-    "splitDetail": {
-      "title": "El reparto, a la vista",
-      "item1": "La ficha del movimiento enseña qué porcentaje y qué importe asume cada persona",
-      "item2": "En cuotas, la de este mes y el total del gasto entero"
-    },
-    "crispHeader": {
-      "title": "Cabecera nítida en iPhone",
-      "item1": "La barra con tu foto ya no se ve borrosa al desplazarte"
+    "clearForm": {
+      "title": "Ya sabes qué falta para guardar",
+      "item1": "El botón te dice qué dato falta y te lleva al campo con un toque, en vez de quedarse apagado",
+      "item2": "Los campos obligatorios van marcados, y el aviso aparece junto al campo, no al final"
     }
   },
   "incomeClaim": {

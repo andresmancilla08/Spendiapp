@@ -1079,19 +1079,15 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "sharedZero": {
-      "title": "Shared expenses at 0%",
-      "item1": "You can now record an expense someone else takes on in full — you lent your card, or they lent you theirs",
-      "item2": "Whoever is at 0% still gets the movement and the notification, but it doesn't add to their expenses"
+    "fullHeight": {
+      "title": "Nothing cut off at the bottom",
+      "item1": "On some iPhones the bottom bar and buttons ran off the screen: now they show in full on any model",
+      "item2": "The last block of every list no longer hides under the bar"
     },
-    "splitDetail": {
-      "title": "The split, in plain sight",
-      "item1": "The movement details show what percentage and what amount each person takes on",
-      "item2": "With installments, this month's and the whole expense"
-    },
-    "crispHeader": {
-      "title": "Crisp header on iPhone",
-      "item1": "The bar with your photo no longer looks blurry while you scroll"
+    "clearForm": {
+      "title": "You can see what's missing",
+      "item1": "The button tells you which detail is missing and takes you to the field with one tap, instead of sitting there greyed out",
+      "item2": "Required fields are marked, and the warning shows next to the field, not at the end"
     }
   },
   "incomeClaim": {
