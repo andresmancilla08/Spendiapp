@@ -411,12 +411,6 @@
       "signedFill": "Contenuto dinamico"
     },
     "bgIntensityLabel": "Intensità",
-    "bgSpeedLabel": "Velocità",
-    "bgSpeed": {
-      "slow": "Lenta",
-      "normal": "Normale",
-      "fast": "Veloce"
-    },
     "bgBlurLabel": "Sfocatura dello sfondo",
     "bgBlurHint": "Uno sfondo sfocato mantiene il contenuto leggibile. Si imposta separatamente per chiaro e scuro.",
     "bgBlur": {

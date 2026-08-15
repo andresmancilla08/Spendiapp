@@ -411,12 +411,6 @@
       "signedFill": "Dynamic content"
     },
     "bgIntensityLabel": "Intensity",
-    "bgSpeedLabel": "Speed",
-    "bgSpeed": {
-      "slow": "Slow",
-      "normal": "Normal",
-      "fast": "Fast"
-    },
     "bgBlurLabel": "Background blur",
     "bgBlurHint": "A blurred background keeps your content readable. Set separately for light and dark.",
     "bgBlur": {

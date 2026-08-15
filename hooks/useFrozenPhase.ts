@@ -29,12 +29,13 @@ export function useFrozenPhase(v: Animated.Value, _duration?: number, phase = 0)
   }, [phase]);
 }
 
-/** Para efectos que reparten sus elementos por índice (partículas, orbes): cada
- *  uno se congela en un punto distinto del ciclo, así el conjunto se ve
- *  disperso y no alineado. */
+/** Para efectos que reparten sus elementos por índice (partículas, orbes,
+ *  estrellas): cada uno se congela en un punto distinto del ciclo, así el
+ *  conjunto queda disperso en vez de alineado a la misma altura. */
 export function frozenPhaseFor(index: number, count: number) {
+  if (count <= 1) return FROZEN_AT;
   // Razón áurea: reparte sin repetir patrón visible aunque el conjunto crezca.
-  return ((index * 0.618) % 1) * (count > 1 ? 1 : 0) || FROZEN_AT;
+  return (index * 0.618) % 1;
 }
 
 export { FROZEN_AT };

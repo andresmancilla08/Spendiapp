@@ -105,7 +105,10 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  const onMomentumEnd = (e: any) => {
+  // `onMomentumScrollEnd` no dispara si el arrastre es corto y se suelta sin
+  // inercia — un gesto muy normal al pasar de una tarjeta a la siguiente. Sin el
+  // respaldo de `onScrollEndDrag`, el fondo no se aplicaba en ese caso.
+  const settleOn = (e: any) => {
     const i = Math.round(e.nativeEvent.contentOffset.x / step);
     const key = keys[Math.max(0, Math.min(keys.length - 1, i))];
     if (key && key !== selectedKey) onSelect(key);
@@ -121,7 +124,8 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
         snapToInterval={step}
         snapToAlignment="start"
         disableIntervalMomentum
-        onMomentumScrollEnd={onMomentumEnd}
+        onMomentumScrollEnd={settleOn}
+        onScrollEndDrag={settleOn}
         contentContainerStyle={{ paddingHorizontal: sidePad, gap }}
       >
         {keys.map((key) => {
@@ -218,7 +222,6 @@ const ICON_STROKE_OPTIONS: { key: IconStroke; labelKey: string }[] = [
 // premium ya no tiene caja, así que ya no es el ejemplo correcto). ──
 
 const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
-const BG_SPEED_OPTIONS: BackgroundSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
 const CHART_TYPES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
@@ -822,12 +825,9 @@ export default function PersonalizationScreen() {
                     activeKey={backgroundIntensity}
                     onChange={(key) => setBackgroundIntensity(key as AuroraIntensity)}
                   />
-                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgSpeedLabel')}</Text>
-                  <AppSegmentedControl
-                    segments={BG_SPEED_OPTIONS.map((s) => ({ key: s, label: t(`personalization.bgSpeed.${s}`) }))}
-                    activeKey={backgroundSpeed}
-                    onChange={(key) => setBackgroundSpeed(key as BackgroundSpeed)}
-                  />
+                  {/* Aquí había un control de VELOCIDAD del fondo. Los efectos
+                      ya no se mueven, así que no regulaba nada: un ajuste que no
+                      hace nada es peor que no tenerlo. */}
                   {/* Desenfoque: propio de CADA modo, como el efecto. Es lo que
                       mantiene el fondo detrás del contenido en vez de encima. */}
                   <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgBlurLabel')}</Text>

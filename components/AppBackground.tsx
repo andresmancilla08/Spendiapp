@@ -3,7 +3,6 @@ import { View, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_PX, type BackgroundStyle } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
-import { useProMotion } from '../hooks/useProMotion';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
 import ParticlesBackground from './ParticlesBackground';
 import WavesBackground from './WavesBackground';
@@ -110,7 +109,6 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
 export default function AppBackground() {
   const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed, backgroundBlur, gradientStyle } = useTheme();
   const { isPremium } = useAuthStore();
-  const { reduceMotion } = useProMotion();
 
   // Gate premium: usuarios free siempre ven Aurora (el efecto de la marca).
   const effectiveStyle: BackgroundStyle = isPremium ? backgroundStyle : 'aurora';
@@ -187,17 +185,18 @@ export default function AppBackground() {
         />
       )}
       {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
-      {/* Reduce-motion: solo el gradiente estático — sin animación permanente.
-          El efecto va desenfocado (según Personalización) para que nunca compita
-          con el contenido; el gradiente queda nítido, es el que da el color. */}
-      {!reduceMotion && (
-        blurStyle ? (
-          <View style={blurStyle} pointerEvents="none">
-            <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
-          </View>
-        ) : (
+      {/* El efecto ya NO se mueve (ver `hooks/useFrozenPhase.ts`), así que se
+          muestra siempre: reduce-motion pide quitar movimiento, no quitar el
+          diseño, y una imagen quieta no es movimiento. Antes se ocultaba porque
+          era una animación permanente.
+          Va desenfocado (según Personalización) para que nunca compita con el
+          contenido; el gradiente queda nítido, es el que da el color. */}
+      {blurStyle ? (
+        <View style={blurStyle} pointerEvents="none">
           <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
-        )
+        </View>
+      ) : (
+        <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
       )}
     </View>
   );

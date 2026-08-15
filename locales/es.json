@@ -411,12 +411,6 @@
       "signedFill": "Contenido dinámico"
     },
     "bgIntensityLabel": "Intensidad",
-    "bgSpeedLabel": "Velocidad",
-    "bgSpeed": {
-      "slow": "Lenta",
-      "normal": "Normal",
-      "fast": "Rápida"
-    },
     "bgBlurLabel": "Desenfoque del fondo",
     "bgBlurHint": "Un fondo desenfocado deja el contenido siempre legible. Se elige por separado para claro y oscuro.",
     "bgBlur": {
