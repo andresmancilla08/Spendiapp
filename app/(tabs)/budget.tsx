@@ -36,6 +36,7 @@ import ScreenTransition from '../../components/ScreenTransition';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import { effectiveAmount } from '../../utils/sharedCalc';
 import { formatMoney } from '../../utils/formatMoney';
+import { TAB_BAR_SPACE } from '../../components/AppTabBar';
 
 
 // Las categorías presupuestables salen del catálogo oficial (`DEFAULT_CATEGORIES`):
@@ -538,7 +539,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scroll: { padding: 16, paddingTop: 12, paddingBottom: 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  scroll: { padding: 16, paddingTop: 12, paddingBottom: TAB_BAR_SPACE, width: '100%', maxWidth: 768, alignSelf: 'center' },
   monthRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 8, paddingVertical: 10,

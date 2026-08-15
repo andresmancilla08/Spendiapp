@@ -11,6 +11,7 @@ import {
   FlatList,
   InputAccessoryView,
   Switch,
+  type LayoutChangeEvent,
 } from 'react-native';
 import { useRef, useEffect, useState, useMemo, type ElementRef } from 'react';
 import { scrollFadeMask } from '../components/ScrollFadeEdges';
@@ -21,7 +22,8 @@ import { addDoc, collection, Timestamp, writeBatch, doc } from 'firebase/firesto
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
-import { accentInk } from '../utils/contrast';
+import { accentInk, readableTint } from '../utils/contrast';
+import { FieldLabel, FieldError } from '../components/FormField';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import type { TransactionType } from '../types/transaction';
@@ -386,7 +388,6 @@ export default function AddTransactionScreen() {
   const amountSelection = { start: displayAmount.length, end: displayAmount.length };
   // Ancho dinámico basado en los chars totales incluyendo el $
   const amountInputWidth = Math.max(60, displayAmount.length * 28 + 10);
-  const isSaveDisabled = !isAmountValid || category === '' || description.trim() === '' || loading;
 
   const selectedCard = cards.find((c) => c.id === selectedCardId) ?? null;
   const isCredit = selectedCard?.type === 'credit';
@@ -417,7 +418,82 @@ export default function AddTransactionScreen() {
 
   const sentIncomeValid = !isSentIncome || sentIncomeRecipient !== null;
 
-  const isSaveDisabledFull = isSaveDisabled || !teaValid || !sharedParticipantRequired || !sharedPercentageValid || !sentIncomeValid;
+  /**
+   * Todo lo que falta para poder guardar, EN EL ORDEN en que aparece en
+   * pantalla. Cada entrada trae su mensaje junto al campo (`message`) y la
+   * instrucción que se pinta en el botón (`cta`).
+   *
+   * Antes esto era un booleano y el usuario solo veía un botón gris: quien
+   * dejaba la descripción vacía no tenía forma de saber qué le faltaba.
+   */
+  const missing = useMemo(() => {
+    const m: { key: string; message: string; cta: string }[] = [];
+    if (!isAmountValid) m.push({
+      key: 'amount',
+      message: t('addTransaction.validation.invalidAmount'),
+      cta: t('addTransaction.validation.ctaAmount'),
+    });
+    if (description.trim() === '') m.push({
+      key: 'description',
+      message: t('addTransaction.validation.noDescription'),
+      cta: t('addTransaction.validation.ctaDescription'),
+    });
+    if (category === '') m.push({
+      key: 'category',
+      message: t('addTransaction.validation.noCategory'),
+      cta: t('addTransaction.validation.ctaCategory'),
+    });
+    if (!teaValid) m.push({
+      key: 'tea',
+      message: t('addTransaction.validation.noTea'),
+      cta: t('addTransaction.validation.noTea'),
+    });
+    // Estos tres ya pintan su propio aviso dentro de su sección; entran en la
+    // lista para que el botón nunca diga "Guardar" cuando aún bloquean.
+    if (!sharedParticipantRequired) m.push({ key: 'shared', message: '', cta: t('addTransaction.validation.ctaShared') });
+    if (!sharedPercentageValid) m.push({ key: 'sharedPct', message: '', cta: t('addTransaction.validation.ctaSharedPct') });
+    if (!sentIncomeValid) m.push({ key: 'sentIncome', message: '', cta: t('addTransaction.validation.ctaRecipient') });
+    return m;
+  }, [isAmountValid, description, category, teaValid, sharedParticipantRequired, sharedPercentageValid, sentIncomeValid, t]);
+
+  const isSaveDisabledFull = missing.length > 0 || loading;
+
+  /** Se marcan los campos en rojo solo tras un intento de guardar. */
+  const [attempted, setAttempted] = useState(false);
+  const missingKeys = useMemo(() => new Set(missing.map((m) => m.key)), [missing]);
+  const isMissing = (key: string) => attempted && missingKeys.has(key);
+  useEffect(() => { if (missing.length === 0) setAttempted(false); }, [missing.length]);
+
+  /** Posición de cada campo dentro del scroll, para poder llevar al usuario. */
+  const fieldY = useRef<Record<string, number>>({});
+  const amountRef = useRef<TextInput>(null);
+  const descriptionRef = useRef<TextInput>(null);
+  const onFieldLayout = (key: string) => (e: LayoutChangeEvent) => {
+    fieldY.current[key] = e.nativeEvent.layout.y;
+  };
+
+  /**
+   * El botón NUNCA es un callejón sin salida: si falta algo, en vez de estar
+   * muerto lleva al primer campo pendiente y lo enfoca.
+   */
+  const handlePrimaryPress = () => {
+    if (loading) return;
+    if (missing.length === 0) { handleSave(); return; }
+    setAttempted(true);
+    const first = missing[0];
+    const y = fieldY.current[first.key];
+    if (y !== undefined) scrollRef.current?.scrollTo({ y: Math.max(0, y - 24), animated: true });
+    const input = first.key === 'amount' ? amountRef : first.key === 'description' ? descriptionRef : null;
+    if (input) setTimeout(() => input.current?.focus(), 320);
+  };
+
+  /** Etiqueta del botón: la instrucción del único pendiente, el conteo si hay
+   *  varios, o "Guardar" cuando ya se puede. */
+  const primaryLabel = missing.length === 0
+    ? t('addTransaction.saveButton')
+    : missing.length === 1
+      ? missing[0].cta
+      : t('addTransaction.validation.missingCount', { count: missing.length });
 
   const handleSave = async () => {
     if (isSaveDisabledFull || !user) return;
@@ -602,34 +678,52 @@ export default function AddTransactionScreen() {
               </TouchableOpacity>
             )}
 
-            {/* Amount input */}
-            <View style={styles.amountRow}>
-              <TextInput
-                style={[styles.amountInput, { color: colors.primary, width: amountInputWidth }]}
-                keyboardType="numeric"
-                value={displayAmount}
-                onChangeText={handleAmountChange}
-                selection={amountSelection}
-                placeholder="$0"
-                placeholderTextColor={colors.textTertiary ?? colors.textSecondary}
-                returnKeyType="done"
-                inputAccessoryViewID={Platform.OS === 'ios' ? AMOUNT_INPUT_ID : undefined}
-              />
+            {/* Amount input — sin etiqueta a propósito: el importe gigante ES
+                su propio rótulo. Solo aparece aviso si falta tras intentar. */}
+            <View onLayout={onFieldLayout('amount')}>
+              <View style={styles.amountRow}>
+                <TextInput
+                  ref={amountRef}
+                  style={[styles.amountInput, { color: colors.primary, width: amountInputWidth }]}
+                  keyboardType="numeric"
+                  value={displayAmount}
+                  onChangeText={handleAmountChange}
+                  selection={amountSelection}
+                  placeholder="$0"
+                  placeholderTextColor={colors.textTertiary ?? colors.textSecondary}
+                  returnKeyType="done"
+                  inputAccessoryViewID={Platform.OS === 'ios' ? AMOUNT_INPUT_ID : undefined}
+                />
+              </View>
+              {isMissing('amount') && <FieldError message={t('addTransaction.validation.invalidAmount')} />}
             </View>
 
             {/* Description input */}
-            <View style={[styles.descriptionWrap, { borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]}>
-              <TextInput
-                style={[styles.descriptionInput, { color: colors.textPrimary }]}
-                value={description}
-                onChangeText={setDescription}
-                placeholder={t('addTransaction.descriptionPlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                returnKeyType="done"
-                autoCorrect={false}
-                spellCheck={false}
-                inputAccessoryViewID={Platform.OS === 'ios' ? AMOUNT_INPUT_ID : undefined}
+            <View onLayout={onFieldLayout('description')}>
+              <FieldLabel
+                label={t('addTransaction.descriptionLabel')}
+                required
+                missing={isMissing('description')}
               />
+              <View style={[
+                styles.descriptionWrap,
+                { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
+                isMissing('description') && { borderColor: readableTint(colors.error, colors.background) },
+              ]}>
+                <TextInput
+                  ref={descriptionRef}
+                  style={[styles.descriptionInput, { color: colors.textPrimary }]}
+                  value={description}
+                  onChangeText={setDescription}
+                  placeholder={t('addTransaction.descriptionPlaceholder')}
+                  placeholderTextColor={colors.textSecondary}
+                  returnKeyType="done"
+                  autoCorrect={false}
+                  spellCheck={false}
+                  inputAccessoryViewID={Platform.OS === 'ios' ? AMOUNT_INPUT_ID : undefined}
+                />
+              </View>
+              {isMissing('description') && <FieldError message={t('addTransaction.validation.noDescription')} />}
             </View>
 
             {/* Sugerencias rápidas según categoría */}
@@ -676,14 +770,21 @@ export default function AddTransactionScreen() {
             </View>
 
             {/* Category section */}
-            <View style={styles.categoryHeaderRow}>
-              <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-                {t('addTransaction.categoryLabel')}
-              </Text>
+            <View style={styles.categoryHeaderRow} onLayout={onFieldLayout('category')}>
+              <FieldLabel
+                label={t('addTransaction.categoryLabel')}
+                required
+                missing={isMissing('category')}
+              />
               {isAiLoading && (
                 <ActivityIndicator size="small" color={colors.primary} style={styles.aiSpinner} />
               )}
             </View>
+            {isMissing('category') && (
+              <View style={{ marginTop: -8, marginBottom: 4 }}>
+                <FieldError message={t('addTransaction.validation.noCategory')} />
+              </View>
+            )}
 
             {catExpanded ? (
               /* ── Expanded grid ── */
@@ -1250,36 +1351,41 @@ export default function AddTransactionScreen() {
           </ScrollView>
         </KeyboardAvoidingView>
 
-        {/* Footer fijo */}
+        {/* Footer fijo. El botón no se deshabilita cuando falta un dato: se
+            queda en su variante secundaria, dice QUÉ falta y al pulsarlo lleva
+            al campo. Un botón gris e inerte no le decía nada a nadie. */}
         <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
-          {isSaveDisabledFull && !loading && (
-            <Text style={[styles.fixedHint, { color: colors.textTertiary, textAlign: 'center', marginBottom: 6 }]}>
-              {!isAmountValid
-                ? t('addTransaction.validation.invalidAmount')
-                : category === ''
-                ? t('addTransaction.validation.noCategory')
-                : description.trim() === ''
-                ? t('addTransaction.validation.noDescription')
-                : !teaValid
-                ? t('addTransaction.validation.noTea')
-                : ''}
-            </Text>
-          )}
           {error !== '' && (
-            <Text style={[styles.errorText, { color: colors.error, textAlign: 'center', marginBottom: 6 }]}>{error}</Text>
+            <Text style={[styles.errorText, { color: readableTint(colors.error, colors.background), textAlign: 'center', marginBottom: 6 }]}>{error}</Text>
           )}
           <TouchableOpacity
             style={[
               styles.saveBtn,
-              { backgroundColor: isSaveDisabledFull ? colors.border : colors.primary },
+              missing.length > 0
+                ? { backgroundColor: colors.surfaceSecondary, borderWidth: 1.5, borderColor: colors.primary }
+                : { backgroundColor: colors.primary },
             ]}
-            onPress={handleSave}
-            disabled={isSaveDisabledFull}
+            onPress={handlePrimaryPress}
+            disabled={loading}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={primaryLabel}
           >
             {loading
               ? <ActivityIndicator color={colors.onPrimary} />
-              : <Text style={[styles.saveBtnText, { color: colors.onPrimary }]}>{t('addTransaction.saveButton')}</Text>
+              : (
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.saveBtnText,
+                    // El token crudo del acento no se lee sobre la superficie
+                    // clara (2.5:1 en modo claro): accentInk lo corrige.
+                    { color: missing.length > 0 ? accentInk(colors, 'primary', colors.surfaceSecondary) : colors.onPrimary },
+                  ]}
+                >
+                  {primaryLabel}
+                </Text>
+              )
             }
           </TouchableOpacity>
         </View>
@@ -1312,7 +1418,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 4,
   },
-  saveBtnText: { fontSize: 17, fontFamily: Fonts.bold },
+  // 16 y no 17: el botón ya no dice solo "Guardar" — también lleva
+  // instrucciones ("Escribe en qué lo usaste"), y en italiano son más largas.
+  saveBtnText: { fontSize: 16, fontFamily: Fonts.bold },
   typeToggleRow: {
     flexDirection: 'row',
     gap: 10,

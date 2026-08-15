@@ -17,6 +17,7 @@ import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
 import FeaturePausedSheet from '../../components/FeaturePausedSheet';
 import { Fonts } from '../../config/fonts';
+import { TAB_BAR_SPACE } from '../../components/AppTabBar';
 
 const GOLD = '#F5A623';
 
@@ -232,7 +233,7 @@ export default function ToolsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  scroll: { padding: 16, paddingBottom: 110, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  scroll: { padding: 16, paddingBottom: TAB_BAR_SPACE, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
   // Featured
   feat: { borderRadius: 24, borderWidth: 1, padding: 18, overflow: 'hidden', position: 'relative', marginBottom: 8 },

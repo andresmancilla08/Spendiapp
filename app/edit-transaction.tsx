@@ -10,6 +10,7 @@ import {
   Platform,
   FlatList,
   Switch,
+  type LayoutChangeEvent,
 } from 'react-native';
 import { useMemo, useRef, useEffect, useState, type ElementRef } from 'react';
 import { scrollFadeMask } from '../components/ScrollFadeEdges';
@@ -21,7 +22,8 @@ import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc, wri
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
-import { accentInk } from '../utils/contrast';
+import { accentInk, readableTint } from '../utils/contrast';
+import { FieldLabel, FieldError } from '../components/FormField';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
 import type { TransactionType } from '../types/transaction';
@@ -299,7 +301,52 @@ export default function EditTransactionScreen() {
   const myEditPct = sharedEditParticipants.find((p) => p.uid === user?.uid)?.percentage ?? 0;
   const sharedPctValid  = !isSharedTx || !isOwnerOfShared || sharedTotalPct === 100;
 
-  const isSaveDisabled = !isAmountValid || category === '' || description.trim() === '' || loading || !sharedPctValid;
+  /** Mismo contrato que en add-transaction: lo que falta, en orden de pantalla,
+   *  con el mensaje del campo y la instrucción que va en el botón. */
+  const missing = useMemo(() => {
+    const m: { key: string; message: string; cta: string }[] = [];
+    if (!isAmountValid) m.push({
+      key: 'amount',
+      message: t('addTransaction.validation.invalidAmount'),
+      cta: t('addTransaction.validation.ctaAmount'),
+    });
+    if (description.trim() === '') m.push({
+      key: 'description',
+      message: t('addTransaction.validation.noDescription'),
+      cta: t('addTransaction.validation.ctaDescription'),
+    });
+    if (category === '') m.push({
+      key: 'category',
+      message: t('addTransaction.validation.noCategory'),
+      cta: t('addTransaction.validation.ctaCategory'),
+    });
+    if (!sharedPctValid) m.push({
+      key: 'sharedPct',
+      message: '',
+      cta: t('addTransaction.validation.ctaSharedPct'),
+    });
+    return m;
+  }, [isAmountValid, description, category, sharedPctValid, t]);
+
+  const isSaveDisabled = missing.length > 0 || loading;
+
+  const [attempted, setAttempted] = useState(false);
+  const missingKeys = useMemo(() => new Set(missing.map((m) => m.key)), [missing]);
+  const isMissing = (key: string) => attempted && missingKeys.has(key);
+  useEffect(() => { if (missing.length === 0) setAttempted(false); }, [missing.length]);
+
+  const fieldY = useRef<Record<string, number>>({});
+  const amountRef = useRef<TextInput>(null);
+  const descriptionRef = useRef<TextInput>(null);
+  const onFieldLayout = (key: string) => (e: LayoutChangeEvent) => {
+    fieldY.current[key] = e.nativeEvent.layout.y;
+  };
+
+  const primaryLabel = missing.length === 0
+    ? t('history.edit.saveButton')
+    : missing.length === 1
+      ? missing[0].cta
+      : t('addTransaction.validation.missingCount', { count: missing.length });
 
   const dateDisplayText = isToday(selectedDate)
     ? `${t('addTransaction.today')}, ${formatDisplayDate(selectedDate, i18n.language)}`
@@ -307,6 +354,18 @@ export default function EditTransactionScreen() {
 
   const activeCategories = filterCategories(type, customCategories)
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
+
+  /** El botón nunca es un callejón sin salida: si falta algo, lleva al campo. */
+  const handlePrimaryPress = () => {
+    if (loading) return;
+    if (missing.length === 0) { handleSave(); return; }
+    setAttempted(true);
+    const first = missing[0];
+    const y = fieldY.current[first.key];
+    if (y !== undefined) scrollRef.current?.scrollTo({ y: Math.max(0, y - 24), animated: true });
+    const input = first.key === 'amount' ? amountRef : first.key === 'description' ? descriptionRef : null;
+    if (input) setTimeout(() => input.current?.focus(), 320);
+  };
 
   const handleSave = async () => {
     if (isSaveDisabled || !transaction || !user) return;
@@ -443,31 +502,48 @@ export default function EditTransactionScreen() {
             )}
 
             {/* Amount */}
-            <View style={styles.amountRow}>
-              <TextInput
-                style={[styles.amountInput, { color: colors.primary, width: amountInputWidth }]}
-                keyboardType="numeric"
-                value={displayAmount}
-                onChangeText={handleAmountChange}
-                selection={amountSelection}
-                placeholder="$0"
-                placeholderTextColor={colors.textTertiary ?? colors.textSecondary}
-                returnKeyType="done"
-              />
+            <View onLayout={onFieldLayout('amount')}>
+              <View style={styles.amountRow}>
+                <TextInput
+                  ref={amountRef}
+                  style={[styles.amountInput, { color: colors.primary, width: amountInputWidth }]}
+                  keyboardType="numeric"
+                  value={displayAmount}
+                  onChangeText={handleAmountChange}
+                  selection={amountSelection}
+                  placeholder="$0"
+                  placeholderTextColor={colors.textTertiary ?? colors.textSecondary}
+                  returnKeyType="done"
+                />
+              </View>
+              {isMissing('amount') && <FieldError message={t('addTransaction.validation.invalidAmount')} />}
             </View>
 
             {/* Description */}
-            <View style={[styles.descriptionWrap, { borderColor: colors.border, backgroundColor: colors.backgroundSecondary }]}>
-              <TextInput
-                style={[styles.descriptionInput, { color: colors.textPrimary }]}
-                value={description}
-                onChangeText={setDescription}
-                placeholder={t('addTransaction.descriptionPlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                returnKeyType="done"
-                autoCorrect={false}
-                spellCheck={false}
+            <View onLayout={onFieldLayout('description')}>
+              <FieldLabel
+                label={t('addTransaction.descriptionLabel')}
+                required
+                missing={isMissing('description')}
               />
+              <View style={[
+                styles.descriptionWrap,
+                { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
+                isMissing('description') && { borderColor: readableTint(colors.error, colors.background) },
+              ]}>
+                <TextInput
+                  ref={descriptionRef}
+                  style={[styles.descriptionInput, { color: colors.textPrimary }]}
+                  value={description}
+                  onChangeText={setDescription}
+                  placeholder={t('addTransaction.descriptionPlaceholder')}
+                  placeholderTextColor={colors.textSecondary}
+                  returnKeyType="done"
+                  autoCorrect={false}
+                  spellCheck={false}
+                />
+              </View>
+              {isMissing('description') && <FieldError message={t('addTransaction.validation.noDescription')} />}
             </View>
 
             {/* Quick desc chips */}
@@ -618,14 +694,21 @@ export default function EditTransactionScreen() {
             )}
 
             {/* Category */}
-            <View style={styles.categoryHeaderRow}>
-              <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
-                {t('addTransaction.categoryLabel')}
-              </Text>
+            <View style={styles.categoryHeaderRow} onLayout={onFieldLayout('category')}>
+              <FieldLabel
+                label={t('addTransaction.categoryLabel')}
+                required
+                missing={isMissing('category')}
+              />
               {isAiLoading && (
                 <ActivityIndicator size="small" color={colors.primary} style={styles.aiSpinner} />
               )}
             </View>
+            {isMissing('category') && (
+              <View style={{ marginTop: -8, marginBottom: 4 }}>
+                <FieldError message={t('addTransaction.validation.noCategory')} />
+              </View>
+            )}
 
             {catExpanded ? (
               <View style={{ marginBottom: 16 }}>
@@ -999,19 +1082,36 @@ export default function EditTransactionScreen() {
         {/* Footer */}
         <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
           {error !== '' && (
-            <Text style={[styles.errorText, { color: colors.error, textAlign: 'center', marginBottom: 6 }]}>
+            <Text style={[styles.errorText, { color: readableTint(colors.error, colors.background), textAlign: 'center', marginBottom: 6 }]}>
               {error}
             </Text>
           )}
           <TouchableOpacity
-            style={[styles.saveBtn, { backgroundColor: isSaveDisabled ? colors.border : colors.primary }]}
-            onPress={handleSave}
-            disabled={isSaveDisabled}
+            style={[
+              styles.saveBtn,
+              missing.length > 0
+                ? { backgroundColor: colors.surfaceSecondary, borderWidth: 1.5, borderColor: colors.primary }
+                : { backgroundColor: colors.primary },
+            ]}
+            onPress={handlePrimaryPress}
+            disabled={loading}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={primaryLabel}
           >
             {loading
               ? <ActivityIndicator color={colors.onPrimary} />
-              : <Text style={[styles.saveBtnText, { color: colors.onPrimary }]}>{t('history.edit.saveButton')}</Text>
+              : (
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.saveBtnText,
+                    { color: missing.length > 0 ? accentInk(colors, 'primary', colors.surfaceSecondary) : colors.onPrimary },
+                  ]}
+                >
+                  {primaryLabel}
+                </Text>
+              )
             }
           </TouchableOpacity>
         </View>

@@ -21,7 +21,7 @@ import { useHistoryStore } from '../../store/historyStore';
 import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import FloatingActions from '../../components/FloatingActions';
+import FloatingActions, { FAB_BOTTOM, FAB_SPACE } from '../../components/FloatingActions';
 import AppIcon from '../../components/AppIcon';
 import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
@@ -1105,7 +1105,7 @@ export default function HistoryScreen() {
       )}
 
       {/* FAB — en la misma columna que el contenido y la tab bar */}
-      <FloatingActions bottom={110}>
+      <FloatingActions bottom={FAB_BOTTOM}>
         <TouchableOpacity
           style={[styles.fab, { backgroundColor: colors.primary }]}
           activeOpacity={0.78}
@@ -1405,7 +1405,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 4,
-    paddingBottom: 120,
+    paddingBottom: FAB_SPACE,
     width: '100%',
     maxWidth: 768,
     alignSelf: 'center',

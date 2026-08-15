@@ -132,7 +132,8 @@
       "close": "Got it"
     },
     "genericError": "Something went wrong. Please try again.",
-    "user": "User"
+    "user": "User",
+    "optional": "Optional"
   },
   "tabBar": {
     "home": "HOME",
@@ -519,7 +520,14 @@
       "invalidAmount": "Enter a valid amount",
       "noCategory": "Select a category",
       "noDescription": "Add a description",
-      "noTea": "Enter the % TEA for installments with interest"
+      "noTea": "Enter the % TEA for installments with interest",
+      "missingCount": "{{count}} details missing",
+      "ctaAmount": "Enter the amount",
+      "ctaDescription": "Write what it was for",
+      "ctaCategory": "Pick a category",
+      "ctaShared": "Pick who you share it with",
+      "ctaSharedPct": "Make the split add up to 100%",
+      "ctaRecipient": "Pick who you sent it to"
     },
     "quickDesc": {
       "food": [
@@ -581,7 +589,8 @@
     "fixedIncome": "Fixed income",
     "fixedExpense": "Fixed expense",
     "fixedHint": "It will repeat automatically every month",
-    "fixedNotWithInstallments": "An instalment purchase already has an end date"
+    "fixedNotWithInstallments": "An instalment purchase already has an end date",
+    "descriptionLabel": "Description"
   },
   "editTransaction": {
     "title": "Edit transaction",

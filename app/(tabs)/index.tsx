@@ -43,7 +43,7 @@ import PwaInstallBanner from '../../components/PwaInstallBanner';
 import NotificationBell from '../../components/NotificationBell';
 import WhatsNew, { WHATS_NEW_VERSION } from '../../components/WhatsNew';
 import { getUserProfile, setWhatsNewSeen } from '../../hooks/useUserProfile';
-import FloatingActions from '../../components/FloatingActions';
+import FloatingActions, { FAB_BOTTOM, FAB_SPACE } from '../../components/FloatingActions';
 import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import ScreenTransition from '../../components/ScreenTransition';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -726,7 +726,7 @@ export default function HomeScreen() {
       </View>
 
       {/* FAB — en la misma columna que el contenido y la tab bar */}
-      <FloatingActions bottom={110}>
+      <FloatingActions bottom={FAB_BOTTOM}>
         <TouchableOpacity
           style={[styles.fab, { backgroundColor: colors.primary }]}
           activeOpacity={0.78}
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
   // hueco con paddingTop (alto del header + el aire que ya tenía).
   stage: { flex: 1 },
   headerLayer: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 3 },
-  scroll: { paddingHorizontal: 20, paddingBottom: 56, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  scroll: { paddingHorizontal: 20, paddingBottom: FAB_SPACE, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
 
   // Summary

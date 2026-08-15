@@ -132,7 +132,8 @@
       "close": "Entendido"
     },
     "genericError": "Algo salió mal. Inténtalo de nuevo.",
-    "user": "Usuario"
+    "user": "Usuario",
+    "optional": "Opcional"
   },
   "tabBar": {
     "home": "Inicio",
@@ -519,7 +520,14 @@
       "invalidAmount": "Ingresa un monto válido",
       "noCategory": "Selecciona una categoría",
       "noDescription": "Agrega una descripción",
-      "noTea": "Ingresa el % TEA para las cuotas con interés"
+      "noTea": "Ingresa el % TEA para las cuotas con interés",
+      "missingCount": "Faltan {{count}} datos",
+      "ctaAmount": "Ingresa el monto",
+      "ctaDescription": "Escribe en qué lo usaste",
+      "ctaCategory": "Elige una categoría",
+      "ctaShared": "Elige con quién lo compartes",
+      "ctaSharedPct": "Ajusta el reparto a 100%",
+      "ctaRecipient": "Elige a quién se lo enviaste"
     },
     "quickDesc": {
       "food": [
@@ -581,7 +589,8 @@
     "fixedIncome": "Ingreso fijo",
     "fixedExpense": "Gasto fijo",
     "fixedHint": "Se repetirá automáticamente cada mes",
-    "fixedNotWithInstallments": "Una compra a cuotas ya tiene fecha de fin"
+    "fixedNotWithInstallments": "Una compra a cuotas ya tiene fecha de fin",
+    "descriptionLabel": "Descripción"
   },
   "editTransaction": {
     "title": "Editar movimiento",

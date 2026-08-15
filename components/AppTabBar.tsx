@@ -29,6 +29,20 @@ const BAR_HEIGHT = 68;
 const PILL_H     = 26;
 const PILL_W     = 36;
 
+/**
+ * Espacio que hay que reservar al FINAL de cualquier scroll que viva bajo la tab
+ * bar (altura de la barra + su separación + aire), y suelo para los flotantes
+ * (FAB) de esas mismas pantallas.
+ *
+ * Es una constante y no depende de `insets.bottom` a propósito: el wrapper de la
+ * barra se separa del borde con ese mismo inset y las pantallas ya lo aplican en
+ * su `<SafeAreaView>`, así que las dos referencias coinciden y sumarlo otra vez
+ * dejaría un hueco de 34pt. Antes cada pantalla ponía su propio número a ojo
+ * (40, 56, 110, 120) y en las que se quedaban cortas el último bloque de la
+ * lista quedaba debajo de la barra.
+ */
+export const TAB_BAR_SPACE = BAR_HEIGHT + 8 + 16;
+
 // Design system spring values for tab bar
 const SPRING_IN  = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: Platform.OS !== 'web' } as const;
 const SPRING_OUT = { damping: 20, stiffness: 380, mass: 0.9, useNativeDriver: Platform.OS !== 'web' } as const;

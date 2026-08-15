@@ -1,6 +1,16 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import { TAB_BAR_SPACE } from './AppTabBar';
+
+/** Alto del FAB redondo (el mismo en todas las pantallas que lo usan). */
+export const FAB_SIZE = 56;
+/** Suelo del FAB en una pantalla CON tab bar: justo encima de la barra. */
+export const FAB_BOTTOM = TAB_BAR_SPACE + 18;
+/** Reserva al final del scroll en esas pantallas: barra + FAB + aire. Sin esto
+ *  el último bloque de la lista se queda debajo del FAB sin poder apartarse,
+ *  porque el scroll ya está en su tope. */
+export const FAB_SPACE = FAB_BOTTOM + FAB_SIZE + 16;
 
 /**
  * Capa para lo que flota sobre el scroll: el FAB redondo y el botón de acción

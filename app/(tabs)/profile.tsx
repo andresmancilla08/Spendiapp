@@ -39,6 +39,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useToast } from '../../context/ToastContext';
 import { useFlags } from '../../context/FeatureFlagsContext';
 import appConfig from '../../app.json';
+import { TAB_BAR_SPACE } from '../../components/AppTabBar';
 
 
 // ── Icon chip con glow — firma Aurora Ledger ───────────────────────────────
@@ -821,7 +822,7 @@ const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: Platform.OS === 'web' ? 120 : 40,
+    paddingBottom: TAB_BAR_SPACE,
     width: '100%',
     maxWidth: 640,
     alignSelf: 'center',

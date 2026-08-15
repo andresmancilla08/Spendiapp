@@ -138,20 +138,22 @@ const pwaTags = `
       background: var(--spendia-app-bg, #000000);
       overscroll-behavior: none;
     }
-    /* El root SIEMPRE cubre la pantalla FÍSICA. Medido en la PWA instalada
-       (iPhone 17, iOS 26.5): innerHeight = 820, 100dvh = 100svh = 812, y
-       100vh = 100lvh = screen.height = 874 con safe areas de 62 arriba y 34
-       abajo. Es decir 'inset: 0' (= 820) y 'dvh' se quedan CORTOS y dejaban
-       asomar el canvas del navegador en la franja del home indicator. 'lvh'
-       (viewport largo, ignora las barras retráctiles) es la única medida que
-       llega al borde; 'vh' es el fallback para navegadores sin 'lvh'. */
+    /* El root mide el viewport VISIBLE, nunca la pantalla física. Medido en la
+       PWA instalada (iPhone 17, iOS 26.5): innerHeight = 820, 100dvh = 100svh =
+       812, y 100vh = 100lvh = screen.height = 874. Con 'lvh' el root quedaba
+       ~60pt MÁS ALTO que lo visible y, al ser 'fixed' (la página no scrollea),
+       esos 60pt de interfaz caían fuera de pantalla: tab bar y botones de acción
+       salían cortados donde lvh > viewport (reportado en iPhone 14 Pro Max).
+       'dvh' sigue el viewport dinámico y nunca se pasa; '100%' es el fallback.
+       La franja del home indicator la pinta el canvas: html/body llevan el
+       degradado completo en --spendia-app-bg, así que empata con la app. */
     #root {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 100vh;
-      height: 100lvh;
+      height: 100%;
+      height: 100dvh;
     }
     /* Zona segura superior: SIN banda. Con black-translucent la webview ya se
        extiende bajo la barra de estado, asi que el gradiente y el efecto animado
