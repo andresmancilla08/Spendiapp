@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../context/ThemeContext';
+import FxLayer, { type FxFrame } from './fx/FxLayer';
 import { useExchangeRates } from '../hooks/useExchangeRates';
 import { Skeleton } from './Skeleton';
 import { Fonts } from '../config/fonts';
@@ -73,35 +74,18 @@ function RateValue({ value, prev, textColor }: { value: number; prev: number; te
   );
 }
 
-// Pulsing live dot
+/** Punto que late para indicar "en vivo". El ciclo son 1,8 s: 0,9 s de latido y
+ *  0,9 s de espera. Iba en un bucle que en web corría por JS y no se detenía al
+ *  desmontar. */
+const DOT_FRAMES: FxFrame[] = [
+  { at: 0,   opacity: 1, scale: 1 },
+  { at: 0.5, opacity: 0, scale: 1.6 },
+  { at: 0.5001, opacity: 1, scale: 1 },
+  { at: 1,   opacity: 1, scale: 1 },
+];
+
 function LiveDot({ color }: { color: string }) {
-  const scale = useRef(new Animated.Value(1)).current;
-  const dotOpacity = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.parallel([
-          Animated.timing(scale, { toValue: 1.6, duration: 900, useNativeDriver: Platform.OS !== 'web' }),
-          Animated.timing(dotOpacity, { toValue: 0, duration: 900, useNativeDriver: Platform.OS !== 'web' }),
-        ]),
-        Animated.parallel([
-          Animated.timing(scale, { toValue: 1, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
-          Animated.timing(dotOpacity, { toValue: 1, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
-        ]),
-        Animated.delay(900),
-      ])
-    ).start();
-  }, []);
-
-  return (
-    <Animated.View
-      style={[
-        styles.dot,
-        { backgroundColor: color, transform: [{ scale }], opacity: dotOpacity },
-      ]}
-    />
-  );
+  return <FxLayer frames={DOT_FRAMES} duration={1800} easing="linear" style={[styles.dot, { backgroundColor: color }]} />;
 }
 
 interface ExchangeRateChipsProps {

@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { Animated, Platform, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import FxLayer, { type FxFrame } from './fx/FxLayer';
 
 interface SkeletonProps {
   width?: number | `${number}%`;
@@ -9,27 +9,30 @@ interface SkeletonProps {
   style?: ViewStyle;
 }
 
+/**
+ * El pulso iba en un `Animated.loop` que en web corría por JS y —peor— nunca se
+ * detenía: el efecto no tenía limpieza, así que cada skeleton desmontado dejaba
+ * su bucle vivo. El home muestra unos quince a la vez mientras carga.
+ */
 export function Skeleton({ width = '100%', height = 16, borderRadius = 8, style }: SkeletonProps) {
   const { colors, isDark } = useTheme();
-  const opacity = useRef(new Animated.Value(0.4)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(opacity, { toValue: 0.4, duration: 700, useNativeDriver: Platform.OS !== 'web' }),
-      ])
-    ).start();
-  }, []);
-
   const baseColor = isDark ? colors.surfaceSecondary : colors.border;
 
+  // Algunas variantes atenúan el skeleton con una opacidad fija; el pulso se
+  // escala por ella en vez de pisarla.
+  const cap = typeof style?.opacity === 'number' ? style.opacity : 1;
+  const frames: FxFrame[] = [
+    { at: 0,   opacity: 0.4 * cap },
+    { at: 0.5, opacity: 1 * cap },
+    { at: 1,   opacity: 0.4 * cap },
+  ];
+
   return (
-    <Animated.View
-      style={[
-        { width, height, borderRadius, backgroundColor: baseColor, opacity },
-        style,
-      ]}
+    <FxLayer
+      frames={frames}
+      duration={1400}
+      easing="sin"
+      style={[{ width, height, borderRadius, backgroundColor: baseColor }, style as ViewStyle]}
     />
   );
 }

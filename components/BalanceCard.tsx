@@ -11,6 +11,11 @@ import {
 import { useState, useEffect, useRef, useMemo, useId, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import AppIcon from './AppIcon';
+import FxLayer, { type FxFrame } from './fx/FxLayer';
+
+/** `Path` con atributos animables: `Animated` escribe directamente sobre el
+ *  nodo SVG, sin pasar por el estado de React ni re-renderizar el gráfico. */
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 import { useTheme, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
 import { useProMotion } from '../hooks/useProMotion';
@@ -182,23 +187,26 @@ export function resolveChartAccent2(accent: ChartAccent, colors: { success: stri
 
 /** Gráfico de barras (chartType='bars'): Views nativas — nunca sufre la deformación del viewBox del SVG. */
 function BarsChart({ values, color, height, animate }: { values: number[]; color: string; height: number; animate: boolean }) {
+  // La barra crece con `scaleY` anclado abajo, no cambiando su altura: así la
+  // animación va por el hilo de UI. Antes un `addListener` volcaba el valor a
+  // `setState` y re-renderizaba las barras en cada frame de los 700 ms.
   const growAnim = useRef(new Animated.Value(animate ? 0 : 1)).current;
-  const [t, setT] = useState(animate ? 0 : 1);
 
-  const { targets } = useMemo(() => {
+  const targets = useMemo(() => {
     const max = Math.max(...values, 1);
     const min = Math.min(0, ...values);
     const span = max - min || 1;
-    return { targets: values.map((v) => 6 + ((v - min) / span) * (height - 10)) };
+    return values.map((v) => 6 + ((v - min) / span) * (height - 10));
   }, [values, height]);
 
   useEffect(() => {
-    if (!animate) { setT(1); return; }
-    setT(0);
+    if (!animate) { growAnim.setValue(1); return; }
     growAnim.setValue(0);
-    const id = growAnim.addListener(({ value: v }) => setT(v));
-    Animated.timing(growAnim, { toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
-    return () => growAnim.removeListener(id);
+    const anim = Animated.timing(growAnim, {
+      toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: true,
+    });
+    anim.start();
+    return () => anim.stop();
   }, [animate, growAnim, values]);
 
   return (
@@ -206,14 +214,16 @@ function BarsChart({ values, color, height, animate }: { values: number[]; color
       {values.map((v, i) => {
         const isLast = i === values.length - 1;
         return (
-          <View
+          <Animated.View
             key={i}
             style={{
               width: `${Math.min(90 / values.length, 13)}%`,
-              height: Math.max(targets[i] * t, 3),
+              height: Math.max(targets[i], 3),
               borderRadius: 5,
               backgroundColor: isLast ? '#FFFFFF' : color,
               opacity: isLast ? 1 : 0.82,
+              transformOrigin: 'bottom',
+              transform: [{ scaleY: growAnim }],
             }}
           />
         );
@@ -280,65 +290,31 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
 
   // ── Pulso: cometa nativo (View, no SVG — evita el óvalo y el warning de RN Web) ──
   const pulseActive = animate && animStyle === 'pulse' && chartType !== 'bars';
-  const progress = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (!pulseActive || samples.length < 2) return;
-    progress.setValue(0);
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(progress, { toValue: 1, duration, easing: Easing.out(Easing.quad), useNativeDriver: false }),
-        Animated.timing(progress, { toValue: 0, duration: 0, useNativeDriver: false }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [pulseActive, samples, progress, duration]);
 
-  // ── Trazo vivo: revela el trazo (o el área, si no hay línea) en bucle + halo al final ──
+  // ── Trazo vivo: revela el trazo (o el área, si no hay línea) UNA vez ──
+  // Antes era un bucle infinito con `addListener` → `setState` en cada frame:
+  // re-renderizaba el gráfico entero, con su muestreo de curva y su SVG, 60
+  // veces por segundo y para siempre. Era el mayor foco de calor del Home.
+  // Ahora el valor viaja por `Animated` hasta el atributo del `Path`, sin pasar
+  // por el estado de React, y el trazo se dibuja al entrar en vez de repetirse:
+  // después del primer ciclo ya no añade información.
   const drawActive = animate && animStyle === 'draw' && chartType !== 'bars';
-  const drawAnim = useRef(new Animated.Value(0)).current;
-  const drawHalo = useRef(new Animated.Value(0)).current;
-  const [drawT, setDrawT] = useState(1);
+  const drawAnim = useRef(new Animated.Value(drawActive ? 0 : 1)).current;
   useEffect(() => {
-    if (!drawActive) { setDrawT(1); return; }
-    setDrawT(0);
+    if (!drawActive) { drawAnim.setValue(1); return; }
     drawAnim.setValue(0);
-    const id = drawAnim.addListener(({ value: v }) => setDrawT(v));
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(drawAnim, { toValue: 1, duration: Math.max(1100, duration * 0.35), easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-        Animated.delay(Math.max(900, duration * 0.35)),
-        Animated.timing(drawAnim, { toValue: 0, duration: 0, useNativeDriver: false }),
-      ])
-    );
-    const haloLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(drawHalo, { toValue: 1, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-        Animated.timing(drawHalo, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-      ])
-    );
-    loop.start();
-    haloLoop.start();
-    return () => { loop.stop(); haloLoop.stop(); drawAnim.removeListener(id); };
-  }, [drawActive, drawAnim, drawHalo, duration]);
+    const anim = Animated.timing(drawAnim, {
+      toValue: 1,
+      duration: Math.max(1100, duration * 0.35),
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false, // strokeDashoffset es un atributo SVG, no un transform
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [drawActive, drawAnim, duration, approxLen]);
 
   // ── Marea: el área y la línea respiran juntas, sin desplazamiento ──
   const tideActive = animate && animStyle === 'tide' && chartType !== 'bars';
-  const tideAnim = useRef(new Animated.Value(0)).current;
-  const [tideT, setTideT] = useState(0);
-  useEffect(() => {
-    if (!tideActive) { setTideT(0); return; }
-    tideAnim.setValue(0);
-    const id = tideAnim.addListener(({ value: v }) => setTideT(v));
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(tideAnim, { toValue: 1, duration: Math.max(1400, duration * 0.4), easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-        Animated.timing(tideAnim, { toValue: 0, duration: Math.max(1400, duration * 0.4), easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-      ])
-    );
-    loop.start();
-    return () => { loop.stop(); tideAnim.removeListener(id); };
-  }, [tideActive, tideAnim, duration]);
 
   if (chartType === 'bars') {
     // Las barras no tienen un canal de "contenido" separado — viven en el canal
@@ -356,8 +332,11 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   const showDots = chartType === 'dots' || isLollipop;
   const end = samples.length ? samples[samples.length - 1] : pts[pts.length - 1];
 
-  const areaOpacity = tideActive ? 0.55 + tideT * 0.65 : (drawActive && chartType === 'area') ? 0.2 + drawT * 0.8 : 1;
-  const glowOpacity = (tideActive ? 0.12 + tideT * 0.14 : 0.2) * (showDots ? 0.55 : 1);
+  // La marea ya no late por estado de React: el latido lo lleva `TideLayer`,
+  // que envuelve el SVG entero en una capa animada por el compositor. Aquí solo
+  // queda la opacidad base sobre la que respira.
+  const areaOpacity = 1;
+  const glowOpacity = 0.2 * (showDots ? 0.55 : 1);
   const lineOpacity = showDots ? 0.5 : 1;
   // El contenido/relleno es solo un fondo sutil bajo la línea en tipos que no son
   // "área" — pero si esta capa no dibuja línea (renderStroke=false, p.ej. la mitad
@@ -369,14 +348,21 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // El punto animado (pulso) y el halo de "trazo vivo" viven FUERA del SVG,
   // como Views nativas: el viewBox usa preserveAspectRatio="none" (deforma X e
   // Y por separado), así que un círculo DENTRO del SVG saldría ovalado.
-  const inputRange = samples.length ? samples.map((_, i) => i / (samples.length - 1)) : [0, 1];
-  const cometLeft = progress.interpolate({ inputRange, outputRange: samples.length ? samples.map((p) => (p.x / W) * boxW) : [0, 0] });
-  const cometTop = progress.interpolate({ inputRange, outputRange: samples.length ? samples.map((p) => (p.y / H) * height) : [0, 0] });
+  //
+  // El cometa recorre la curva con `transform`, no con `left`/`top`: así el
+  // recorrido entero cabe en unos keyframes y lo ejecuta el compositor.
+  const cometFrames: FxFrame[] = samples.length >= 2 && boxW > 0
+    ? samples.map((p, i) => ({
+        at: i / (samples.length - 1),
+        x: (p.x / W) * boxW,
+        y: (p.y / H) * height,
+      }))
+    : [];
   const glowShadow = Platform.OS === 'web' ? ({ boxShadow: `0 0 10px ${stroke}` } as any) : { shadowColor: stroke, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } };
-  const cometCenter = (size: number) => ({ left: Animated.subtract(cometLeft, size / 2), top: Animated.subtract(cometTop, size / 2) });
 
   return (
     <View style={{ width: '100%', height }} onLayout={(e) => setBoxW(e.nativeEvent.layout.width)}>
+      <TideLayer active={tideActive} duration={Math.max(1400, duration * 0.4)}>
       <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
         <Defs>
           <SvgGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -385,18 +371,31 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
             <Stop offset="1" stopColor={fillColor} stopOpacity={0} />
           </SvgGradient>
         </Defs>
-        {renderFill && !isLollipop && <Path d={area} fill={`url(#${gradientId})`} opacity={areaOpacity} />}
+        {renderFill && !isLollipop && (
+          /* En "área" + trazo vivo, el relleno ES lo que se revela (no hay línea
+             que dibujar), así que su opacidad va por el mismo Animated. */
+          <AnimatedPath
+            d={area} fill={`url(#${gradientId})`}
+            opacity={drawActive && chartType === 'area'
+              ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] })
+              : areaOpacity}
+          />
+        )}
         {renderStroke && showLine && (
           <>
             {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
             <Path d={line} fill="none" stroke={stroke} strokeWidth={6} strokeOpacity={glowOpacity} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-            {/* Línea nítida — strokeDasharray/offset revela el trazo en "Trazo vivo" (longitud aproximada por muestreo, sin filtros ni AnimatedComponent) */}
-            <Path
+            {/* Línea nítida — strokeDasharray/offset revela el trazo en "Trazo vivo".
+                El offset lo escribe `Animated` directamente sobre el atributo del
+                path: sin estado de React de por medio, no hay re-render por frame. */}
+            <AnimatedPath
               d={line} fill="none" stroke={stroke}
               strokeWidth={showDots ? 1.6 : 2.4} strokeOpacity={lineOpacity}
               strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"
               strokeDasharray={drawActive ? approxLen : undefined}
-              strokeDashoffset={drawActive ? approxLen * (1 - drawT) : undefined}
+              strokeDashoffset={drawActive
+                ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] })
+                : undefined}
             />
           </>
         )}
@@ -412,15 +411,18 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
         ))}
         {renderStroke && chartType === 'area' && (
           /* Borde superior fino — sin él, el área queda sin contorno definido y "no aplica nada" al ojo */
-          <Path
+          <AnimatedPath
             d={line} fill="none" stroke={stroke}
             strokeWidth={1.4} strokeOpacity={0.9}
             strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"
             strokeDasharray={drawActive ? approxLen : undefined}
-            strokeDashoffset={drawActive ? approxLen * (1 - drawT) : undefined}
+            strokeDashoffset={drawActive
+              ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] })
+              : undefined}
           />
         )}
       </Svg>
+      </TideLayer>
 
       {/* Puntos por dato (chartType='dots') — Views nativas, nunca ovaladas */}
       {renderStroke && showDots && boxW > 0 && pts.map((p, i) => {
@@ -438,30 +440,73 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
         );
       })}
 
-      {/* Pulso: cometa con estela de glow de 3 capas */}
-      {renderStroke && pulseActive && samples.length >= 2 && boxW > 0 && (
+      {/* Pulso: cometa con estela de glow de 3 capas. Recorre la curva con
+          `transform`; el compositor lo ejecuta sin tocar el hilo de JS. */}
+      {renderStroke && pulseActive && cometFrames.length >= 2 && (
         <>
-          <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 26, height: 26, borderRadius: 13, backgroundColor: stroke, opacity: 0.12 }, cometCenter(26)]} />
-          <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 17, height: 17, borderRadius: 8.5, backgroundColor: stroke, opacity: 0.28 }, cometCenter(17)]} />
-          <Animated.View pointerEvents="none" style={[{ position: 'absolute', width: 7.5, height: 7.5, borderRadius: 3.75, backgroundColor: '#FFFFFF' }, glowShadow, cometCenter(7.5)]} />
+          <Comet frames={cometFrames} duration={duration} size={26} color={stroke} opacity={0.12} />
+          <Comet frames={cometFrames} duration={duration} size={17} color={stroke} opacity={0.28} />
+          <Comet frames={cometFrames} duration={duration} size={7.5} color="#FFFFFF" opacity={1} glow={glowShadow} />
         </>
       )}
 
       {/* Trazo vivo: halo respirando en el punto de hoy */}
       {renderStroke && drawActive && boxW > 0 && (
-        <Animated.View
-          pointerEvents="none"
+        <FxLayer
+          frames={HALO_FRAMES}
+          duration={1800}
+          easing="sin"
           style={{
             position: 'absolute', width: 16, height: 16, borderRadius: 8, backgroundColor: stroke,
             left: (end.x / W) * boxW - 8, top: (end.y / H) * height - 8,
-            opacity: drawHalo.interpolate({ inputRange: [0, 1], outputRange: [0.16, 0.4] }),
-            transform: [{ scale: drawHalo.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.3] }) }],
           }}
         />
       )}
     </View>
   );
 }
+
+const HALO_FRAMES: FxFrame[] = [
+  { at: 0,   opacity: 0.16, scale: 0.8 },
+  { at: 0.5, opacity: 0.4,  scale: 1.3 },
+  { at: 1,   opacity: 0.16, scale: 0.8 },
+];
+
+/** Una de las tres capas del cometa. El recorrido ya viene muestreado sobre la
+ *  curva, así que basta con centrar cada fotograma en el tamaño de la capa. */
+function Comet({ frames, duration, size, color, opacity, glow }: {
+  frames: FxFrame[]; duration: number; size: number; color: string; opacity: number; glow?: object;
+}) {
+  const centered = frames.map((f) => ({ ...f, x: (f.x ?? 0) - size / 2, y: (f.y ?? 0) - size / 2 }));
+  return (
+    <FxLayer
+      frames={centered}
+      duration={duration}
+      easing="out"
+      style={[
+        { position: 'absolute', width: size, height: size, borderRadius: size / 2, backgroundColor: color, opacity },
+        glow as any,
+      ]}
+    />
+  );
+}
+
+/** El latido de "marea": una capa animada que envuelve al gráfico entero, en
+ *  lugar de recalcular la opacidad de cada `Path` desde el estado de React. */
+function TideLayer({ active, duration, children }: { active: boolean; duration: number; children: React.ReactNode }) {
+  if (!active) return <>{children}</>;
+  return (
+    <FxLayer frames={TIDE_FRAMES} duration={duration * 2} easing="sin" style={{ width: '100%' }}>
+      {children}
+    </FxLayer>
+  );
+}
+
+const TIDE_FRAMES: FxFrame[] = [
+  { at: 0,   opacity: 0.72 },
+  { at: 0.5, opacity: 1 },
+  { at: 1,   opacity: 0.72 },
+];
 
 export default function BalanceCard({
   displayBalance,

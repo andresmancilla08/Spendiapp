@@ -48,34 +48,13 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
   const iconScale   = useRef(allTabRoutes.map((_, i) => new Animated.Value(i === effectiveAllIdx ? 1 : 0.82))).current;
   const pressScale  = useRef(allTabRoutes.map(() => new Animated.Value(1))).current;
 
-  // Single breathe loop applied to active icon via multiply
-  const breatheAnim = useRef(new Animated.Value(1)).current;
-
   const prevActive = useRef(effectiveAllIdx);
 
-  // Breathe loop — continuous, very subtle
-  useEffect(() => {
-    // El latido es decorativo: con reduce-motion no arranca (a11y).
-    if (reduceMotion) return;
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(breatheAnim, {
-          toValue: 1.045,
-          duration: 1800,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: Platform.OS !== 'web',
-        }),
-        Animated.timing(breatheAnim, {
-          toValue: 1,
-          duration: 1800,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: Platform.OS !== 'web',
-        }),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [reduceMotion]);
+  // Aquí había un bucle infinito de "respiración" del icono activo (escala
+  // 1 → 1,045) que en web corría por JS y no paraba nunca. Un movimiento
+  // perpetuo de 4 % que no comunica nada y que la barra paga en batería
+  // mientras la app esté abierta. La animación de la barra es ahora la
+  // transición entre pestañas, que sí responde a algo que hace el usuario.
 
   // Tab transition animations
   useEffect(() => {
@@ -140,8 +119,7 @@ export default function PremiumTabBar({ state, descriptors, navigation }: Bottom
           const onPressOut = () =>
             Animated.spring(pressScale[allIdx], { toValue: 1, ...PRESS }).start();
 
-          // Breathe only on active icon (multiply inactive scale ~0.82 by breatheAnim ≈ 1.0–1.045 = imperceptible)
-          const iconTransform = [{ scale: Animated.multiply(iconScale[allIdx], breatheAnim) }];
+          const iconTransform = [{ scale: iconScale[allIdx] }];
 
           return (
             <TouchableOpacity
