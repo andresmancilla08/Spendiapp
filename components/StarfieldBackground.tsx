@@ -1,8 +1,9 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet, Platform } from 'react-native';
+import { useMemo } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import type { AuroraIntensity } from './AuroraBackground';
+import FxLayer, { type FxFrame } from './fx/FxLayer';
 
 const CONFIG: Record<AuroraIntensity, { count: number; opacity: number; shooting: boolean }> = {
   subtle:  { count: 16, opacity: 0.6, shooting: false },
@@ -25,29 +26,24 @@ interface Props {
   speed?: number;
 }
 
+const DRIFT: FxFrame[] = [
+  { at: 0,   x: 0,  y: 0 },
+  { at: 0.5, x: 14, y: -10 },
+  { at: 1,   x: 0,  y: 0 },
+];
+
 /**
  * Cielo estrellado: estrellas fijas que titilan a distinto ritmo, con una
  * estrella fugaz ocasional cruzando en diagonal. Distinto de Partículas
  * (puntos que ascienden): aquí nada viaja salvo la fugaz — es un cielo quieto
  * que respira.
+ *
+ * Con 46 estrellas era el efecto más denso del catálogo. Todo el titileo va
+ * ahora por el compositor.
  */
 export default function StarfieldBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
-
-  // Deriva global del cielo: además del titileo por estrella, todo el campo
-  // se desplaza suavemente — garantiza movimiento perceptible siempre.
-  const drift = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.timing(drift, { toValue: 1, duration: 14000 * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-    );
-    loop.start();
-    return () => loop.stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speed]);
-  const driftX = drift.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 14, 0] });
-  const driftY = drift.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, -10, 0] });
 
   const stars = useMemo<StarConfig[]>(() => (
     Array.from({ length: cfg.count }, (_, i) => ({
@@ -65,43 +61,39 @@ export default function StarfieldBackground({ intensity = 'default', speed = 1 }
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-      <Animated.View style={[StyleSheet.absoluteFillObject, { transform: [{ translateX: driftX }, { translateY: driftY }] }]}>
+      {/* Deriva global del cielo: además del titileo por estrella, todo el campo
+          se desplaza suavemente — garantiza movimiento perceptible siempre. */}
+      <FxLayer frames={DRIFT} duration={14000 * speed} easing="sin" style={StyleSheet.absoluteFillObject}>
         {stars.map((s, i) => (
           <Star key={`${intensity}-${i}`} config={s} speed={speed} />
         ))}
-      </Animated.View>
-      {cfg.shooting && <ShootingStar color={isDark ? '#FFFFFF' : colors.primary} speed={speed} />}
+      </FxLayer>
+      {cfg.shooting && SHOOTING_PATHS.map((p, i) => (
+        <ShootingStar key={i} path={p} index={i} color={isDark ? '#FFFFFF' : colors.primary} speed={speed} />
+      ))}
     </View>
   );
 }
 
 function Star({ config, speed }: { config: StarConfig; speed: number }) {
-  const anim = useRef(new Animated.Value(0)).current;
+  const frames: FxFrame[] = [
+    { at: 0,   opacity: config.base * 0.25, scale: 0.8 },
+    { at: 0.5, opacity: config.base,        scale: 1.15 },
+    { at: 1,   opacity: config.base * 0.25, scale: 0.8 },
+  ];
 
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(anim, { toValue: 1, duration: config.dur * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-        Animated.timing(anim, { toValue: 0, duration: config.dur * speed, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-      ])
-    );
-    // El desfase se aplica UNA vez, no en cada vuelta: con el `Animated.delay`
-    // dentro del loop la pausa se repetía en cada ciclo y el titileo se leía
-    // como un reinicio en vez de un ciclo continuo.
-    const kickoff = setTimeout(() => loop.start(), config.delay);
-    return () => { clearTimeout(kickoff); loop.stop(); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speed]);
-
-  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [config.base * 0.25, config.base] });
-  const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.15] });
   const halo = config.size * 2.2;
   const glowStyle = Platform.OS === 'web'
     ? ({ boxShadow: `0 0 ${halo}px ${config.color}` } as any)
     : { shadowColor: config.color, shadowOpacity: 0.8, shadowRadius: halo, shadowOffset: { width: 0, height: 0 } };
 
   return (
-    <Animated.View
+    <FxLayer
+      frames={frames}
+      // El ciclo completo es ida y vuelta: el doble de la duración de un tramo.
+      duration={config.dur * 2 * speed}
+      delay={config.delay}
+      easing="sin"
       style={[
         styles.star,
         glowStyle,
@@ -112,51 +104,56 @@ function Star({ config, speed }: { config: StarConfig; speed: number }) {
           height: config.size,
           borderRadius: config.size / 2,
           backgroundColor: config.color,
-          opacity,
-          transform: [{ scale }],
         },
       ]}
     />
   );
 }
 
-// Trayectorias deterministas que rotan por ciclo — una fugaz siempre igual se
-// percibe como GIF en loop; tres rutas con delays distintos devuelven la magia.
+// Trayectorias deterministas — una fugaz siempre igual se percibe como GIF en
+// loop; tres rutas desfasadas entre sí devuelven la magia.
 const SHOOTING_PATHS = [
-  { top: '14%', left: '6%',  angle: '29deg',  dx: 340,  dy: 190, delay: 5200 },
-  { top: '32%', left: '72%', angle: '152deg', dx: -300, dy: 165, delay: 8600 },
-  { top: '6%',  left: '44%', angle: '58deg',  dx: 190,  dy: 300, delay: 6800 },
+  { top: '14%', left: '6%',  angle: '29deg',  dx: 340,  dy: 190 },
+  { top: '32%', left: '72%', angle: '152deg', dx: -300, dy: 165 },
+  { top: '6%',  left: '44%', angle: '58deg',  dx: 190,  dy: 300 },
 ];
 
-function ShootingStar({ color, speed }: { color: string; speed: number }) {
-  const anim = useRef(new Animated.Value(0)).current;
-  const [cycle, setCycle] = useState(0);
-  const path = SHOOTING_PATHS[cycle % SHOOTING_PATHS.length];
+/** Ciclo completo por ruta. Las tres van desfasadas un tercio, así cruza una
+ *  fugaz cada ~7 s sin que ninguna coincida con otra. */
+const SHOOTING_CYCLE = 21000;
+const SHOOTING_TRAVEL = 900;
 
-  useEffect(() => {
-    anim.setValue(0);
-    const seq = Animated.sequence([
-      Animated.delay(path.delay * speed),
-      Animated.timing(anim, { toValue: 1, duration: 900 * speed, easing: Easing.out(Easing.quad), useNativeDriver: false }),
-    ]);
-    seq.start(({ finished }) => { if (finished) setCycle((c) => c + 1); });
-    return () => seq.stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cycle, speed]);
-
-  const tx = anim.interpolate({ inputRange: [0, 1], outputRange: [0, path.dx] });
-  const ty = anim.interpolate({ inputRange: [0, 1], outputRange: [0, path.dy] });
-  const opacity = anim.interpolate({ inputRange: [0, 0.12, 0.75, 1], outputRange: [0, 0.9, 0.5, 0] });
+function ShootingStar({ path, index, color, speed }: {
+  path: typeof SHOOTING_PATHS[number]; index: number; color: string; speed: number;
+}) {
+  // El cruce ocupa una fracción mínima del ciclo; el resto la fugaz está
+  // invisible y en su posición de salida. Antes esto era un `setState` por
+  // ciclo que re-montaba la animación; ahora es un único bucle continuo.
+  const f = SHOOTING_TRAVEL / SHOOTING_CYCLE;
+  const frames: FxFrame[] = [
+    { at: 0,          opacity: 0,   x: 0,           y: 0 },
+    { at: f * 0.12,   opacity: 0.9, x: path.dx * 0.12, y: path.dy * 0.12 },
+    { at: f * 0.75,   opacity: 0.5, x: path.dx * 0.75, y: path.dy * 0.75 },
+    { at: f,          opacity: 0,   x: path.dx,     y: path.dy },
+    { at: 1,          opacity: 0,   x: path.dx,     y: path.dy },
+  ];
 
   return (
-    <Animated.View style={[styles.shooting, { top: path.top as any, left: path.left as any, opacity, transform: [{ translateX: tx }, { translateY: ty }, { rotate: path.angle }] }]}>
+    <FxLayer
+      frames={frames}
+      duration={SHOOTING_CYCLE * speed}
+      phase={(index / SHOOTING_PATHS.length) % 1}
+      easing="linear"
+      rotate={path.angle}
+      style={[styles.shooting, { top: path.top as any, left: path.left as any }]}
+    >
       <LinearGradient
         colors={['transparent', color]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
         style={StyleSheet.absoluteFillObject}
       />
-    </Animated.View>
+    </FxLayer>
   );
 }
 

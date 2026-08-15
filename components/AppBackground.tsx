@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_PX, type BackgroundStyle } from '../context/ThemeContext';
+import { useTheme, BACKGROUND_SPEED_FACTOR, BACKGROUND_SOFTNESS, type BackgroundStyle } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { useProMotion } from '../hooks/useProMotion';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
@@ -38,55 +38,40 @@ export function topBackgroundColor(hex: string, isDark: boolean) {
 export const CHROME_COLOR_KEY = '@spendia_chrome';
 
 /**
- * Arreglo de recorte para CUALQUIER contenedor con `borderRadius` +
- * `overflow: 'hidden'` que tenga dentro un efecto de fondo desenfocado.
+ * Aislamiento del contexto de composición para contenedores con `borderRadius`
+ * + `overflow: 'hidden'` que llevan dentro un efecto de fondo.
  *
- * `filter: blur()` promueve al hijo a capa compuesta y WebKit deja de aplicarle
- * el recorte redondeado del padre: el desenfoque asoma por las cuatro esquinas
- * (se veía en el lienzo de Personalización y en sus vistas previas). Forzar al
- * padre a crear su propio contexto de composición restablece el clip.
+ * Los efectos crean capas propias (animación CSS) y WebKit dejaba de aplicarles
+ * el recorte redondeado del padre: el fondo asomaba por las cuatro esquinas (se
+ * veía en el lienzo de Personalización y en sus vistas previas). La máscara
+ * obliga a WebKit a recortar en el COMPOSITOR con la geometría del padre, radio
+ * incluido. Es opaca de punta a punta: no altera nada de lo que se ve.
  */
 export const CLIP_BLURRED_CHILD = Platform.OS === 'web'
   ? ({
-      // La máscara es la que hace el trabajo: obliga a WebKit a recortar en el
-      // COMPOSITOR usando la geometría del padre (radio incluido), que es donde
-      // `overflow: hidden` se rendía ante la capa del `filter`. Opaca de punta a
-      // punta, así que no altera nada de lo que se ve.
       maskImage: 'linear-gradient(#000 0 0)',
       WebkitMaskImage: 'linear-gradient(#000 0 0)',
       isolation: 'isolate',
     } as any)
   : null;
 
-/** Desenfoque del efecto de fondo, listo para `style`. En web es `filter` CSS;
- *  en nativo, el `filter` de RN (array de operaciones). El contenedor se
- *  sobredimensiona con `inset` negativo porque un blur deja el borde del
- *  elemento translúcido y se vería una orla clara pegada a los cuatro lados. */
-export function backgroundBlurStyle(px: number) {
-  if (px <= 0) return null;
-  const bleed = -px * 2;
-  return [
-    { position: 'absolute' as const, top: bleed, right: bleed, bottom: bleed, left: bleed },
-    Platform.OS === 'web'
-      ? ({ filter: `blur(${px}px)` } as any)
-      : ({ filter: [{ blur: px }] } as any),
-  ];
-}
-
 /** Renderiza el efecto animado correspondiente a un estilo de fondo.
  * Compartido por el fondo global (AppBackground) y las vistas previas de
- * personalización — una sola fuente de verdad para el mapa estilo→componente. */
-export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
-  styleKey: BackgroundStyle; intensity: AuroraIntensity; speed?: number;
+ * personalización — una sola fuente de verdad para el mapa estilo→componente.
+ *
+ * `softness` sustituye al antiguo desenfoque en píxeles: los efectos con forma
+ * definida difuminan su propio borde con el degradado, sin `filter: blur()`. */
+export function BackgroundEffect({ styleKey, intensity, speed = 1, softness = 0.65 }: {
+  styleKey: BackgroundStyle; intensity: AuroraIntensity; speed?: number; softness?: number;
 }) {
   switch (styleKey) {
-    case 'aurora':        return <AuroraBackground intensity={intensity} speed={speed} />;
+    case 'aurora':        return <AuroraBackground intensity={intensity} speed={speed} softness={softness} />;
     case 'particles':     return <ParticlesBackground intensity={intensity} speed={speed} />;
-    case 'waves':         return <WavesBackground intensity={intensity} speed={speed} />;
+    case 'waves':         return <WavesBackground intensity={intensity} speed={speed} softness={softness} />;
     case 'grain':         return <GrainBackground intensity={intensity} speed={speed} />;
-    case 'mesh':          return <MeshBackground intensity={intensity} speed={speed} />;
+    case 'mesh':          return <MeshBackground intensity={intensity} speed={speed} softness={softness} />;
     case 'bokeh':         return <BokehBackground intensity={intensity} speed={speed} />;
-    case 'flow':          return <FlowBackground intensity={intensity} speed={speed} />;
+    case 'flow':          return <FlowBackground intensity={intensity} speed={speed} softness={softness} />;
     case 'starfield':     return <StarfieldBackground intensity={intensity} speed={speed} />;
     case 'rays':          return <RaysBackground intensity={intensity} speed={speed} />;
     case 'constellation': return <ConstellationBackground intensity={intensity} speed={speed} />;
@@ -116,7 +101,7 @@ export default function AppBackground() {
   const effectiveStyle: BackgroundStyle = isPremium ? backgroundStyle : 'aurora';
   const speedFactor = BACKGROUND_SPEED_FACTOR[backgroundSpeed];
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
-  const blurStyle = backgroundBlurStyle(BACKGROUND_BLUR_PX[backgroundBlur]);
+  const softness = BACKGROUND_SOFTNESS[backgroundBlur];
 
   // Chrome del sistema y canvas del navegador con el fondo de la app, no un
   // neutro: las zonas seguras siguen el tema/paleta del usuario igual que el
@@ -166,15 +151,21 @@ export default function AppBackground() {
       ) : gradientStyle === 'radial' ? (
         <>
           <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradientColors[2] as string }]} />
-          {/* Radial simulado: expo-linear-gradient no lo trae, y un halo enorme y
-              desenfocado da el mismo resultado sin añadir dependencias. */}
+          {/* Radial simulado. Antes era un halo con `blur(120px)` — el
+              desenfoque más grande de toda la app. En web lo pinta ahora un
+              degradado radial real (coste único, no por frame); en nativo,
+              donde no hay degradado radial, se conserva la sombra difusa: es
+              estática, así que no se recalcula en cada frame. */}
           <View
             style={[
               styles.radialCore,
-              { backgroundColor: gradientColors[0] as string },
               Platform.OS === 'web'
-                ? ({ filter: 'blur(120px)' } as any)
-                : { shadowColor: gradientColors[0] as string, shadowOpacity: 1, shadowRadius: 120, shadowOffset: { width: 0, height: 0 } },
+                ? ({ backgroundImage: `radial-gradient(ellipse at 50% 40%, ${gradientColors[0]} 0%, transparent 72%)` } as any)
+                : {
+                    backgroundColor: gradientColors[0] as string,
+                    shadowColor: gradientColors[0] as string,
+                    shadowOpacity: 1, shadowRadius: 120, shadowOffset: { width: 0, height: 0 },
+                  },
             ]}
           />
         </>
@@ -188,16 +179,15 @@ export default function AppBackground() {
       )}
       {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
       {/* Reduce-motion: solo el gradiente estático — sin animación permanente.
-          El efecto va desenfocado (según Personalización) para que nunca compita
+          El efecto va suavizado (según Personalización) para que nunca compita
           con el contenido; el gradiente queda nítido, es el que da el color. */}
       {!reduceMotion && (
-        blurStyle ? (
-          <View style={blurStyle} pointerEvents="none">
-            <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
-          </View>
-        ) : (
-          <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
-        )
+        <BackgroundEffect
+          styleKey={effectiveStyle}
+          intensity={backgroundIntensity}
+          speed={speedFactor}
+          softness={softness}
+        />
       )}
     </View>
   );

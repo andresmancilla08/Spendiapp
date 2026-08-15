@@ -1,0 +1,621 @@
+<title>Sala de máquinas de Spendia</title>
+
+<style>
+:root {
+  --ground: #F1F5F6;
+  --surface: #FFFFFF;
+  --surface-2: #E7EEEF;
+  --line: #CFDCDE;
+  --line-soft: #E2EAEC;
+  --ink: #0B1A1D;
+  --ink-2: #3E5457;
+  --ink-3: #6B8286;
+  --accent: #00808F;
+  --accent-soft: #E0F3F5;
+  --crit: #C13A1E;
+  --crit-soft: #FAE6E1;
+  --high: #B06806;
+  --high-soft: #FCEEDA;
+  --med: #6E7A0B;
+  --med-soft: #F1F4DC;
+  --ok: #00796B;
+  --ok-soft: #DDEFEC;
+  --shadow: 0 1px 2px rgba(11, 26, 29, .06), 0 8px 24px -12px rgba(11, 26, 29, .18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #081214;
+    --surface: #0E1E21;
+    --surface-2: #16292D;
+    --line: #23393D;
+    --line-soft: #1A2E32;
+    --ink: #E6F1F2;
+    --ink-2: #A9C0C3;
+    --ink-3: #7B9396;
+    --accent: #35C6D8;
+    --accent-soft: #0D2E33;
+    --crit: #FF8straight;
+    --crit: #FF8563;
+    --crit-soft: #34140D;
+    --high: #F0A73E;
+    --high-soft: #2E1F09;
+    --med: #C3D02F;
+    --med-soft: #232A08;
+    --ok: #3FCBB4;
+    --ok-soft: #082825;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -12px rgba(0, 0, 0, .7);
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #081214;
+  --surface: #0E1E21;
+  --surface-2: #16292D;
+  --line: #23393D;
+  --line-soft: #1A2E32;
+  --ink: #E6F1F2;
+  --ink-2: #A9C0C3;
+  --ink-3: #7B9396;
+  --accent: #35C6D8;
+  --accent-soft: #0D2E33;
+  --crit: #FF8563;
+  --crit-soft: #34140D;
+  --high: #F0A73E;
+  --high-soft: #2E1F09;
+  --med: #C3D02F;
+  --med-soft: #232A08;
+  --ok: #3FCBB4;
+  --ok-soft: #082825;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -12px rgba(0, 0, 0, .7);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 16.5px;
+  line-height: 1.62;
+  margin: 0;
+  padding: 0 20px 96px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 780px; margin: 0 auto; }
+
+/* ── Tipografía ───────────────────────────────────────────── */
+h1, h2, h3 { text-wrap: balance; line-height: 1.18; margin: 0; }
+h1 {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -.035em;
+}
+h2 {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+h3 { font-size: 1.02rem; font-weight: 650; letter-spacing: -.005em; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+
+.eyebrow {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+code, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+code {
+  font-size: .855em;
+  background: var(--surface-2);
+  padding: .12em .38em;
+  border-radius: 3px;
+  word-break: break-word;
+}
+
+/* ── Estructura ───────────────────────────────────────────── */
+header {
+  display: flex; flex-direction: column; gap: 18px;
+  padding: 72px 0 40px;
+  border-bottom: 2px solid var(--ink);
+}
+header p { color: var(--ink-2); font-size: 1.09rem; }
+.meta {
+  display: flex; flex-wrap: wrap; gap: 10px 28px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .76rem; color: var(--ink-3);
+}
+.meta b { color: var(--ink-2); font-weight: 600; }
+
+section { display: flex; flex-direction: column; gap: 24px; padding: 60px 0 0; }
+.sec-head { display: flex; flex-direction: column; gap: 8px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.rule { height: 1px; background: var(--line); margin: 12px 0 0; }
+
+/* ── Veredicto ────────────────────────────────────────────── */
+.verdict {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 26px 28px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: var(--shadow);
+}
+.verdict .call {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 1.22rem; font-weight: 600; letter-spacing: -.02em;
+  line-height: 1.35;
+}
+.verdict p { color: var(--ink-2); font-size: .96rem; }
+
+/* ── Lecturas de instrumento ──────────────────────────────── */
+.gauge {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 24px 26px 22px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.gauge-title {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .74rem; font-weight: 600; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.bars { display: flex; flex-direction: column; gap: 16px; }
+.bar-row { display: grid; grid-template-columns: 1fr; gap: 7px; }
+.bar-label {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  font-size: .88rem; color: var(--ink-2);
+}
+.bar-val {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600; font-size: 1.02rem; color: var(--ink);
+}
+.bar-track { height: 12px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; }
+.bar-fill.hot { background: linear-gradient(90deg, var(--high), var(--crit)); }
+.bar-fill.cool { background: var(--ok); }
+.gauge-foot {
+  font-size: .82rem; color: var(--ink-3);
+  border-top: 1px solid var(--line-soft); padding-top: 14px;
+}
+
+/* ── Cifras ───────────────────────────────────────────────── */
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.fig { background: var(--surface); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 5px; }
+.fig-n {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.72rem; font-weight: 600; letter-spacing: -.045em; line-height: 1.05;
+}
+.fig-n.crit { color: var(--crit); }
+.fig-n.warn { color: var(--high); }
+.fig-k { font-size: .8rem; color: var(--ink-2); line-height: 1.4; }
+.fig-s { font-size: .72rem; color: var(--ink-3); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+/* ── Hallazgos ────────────────────────────────────────────── */
+.findings { display: flex; flex-direction: column; gap: 10px; }
+.finding {
+  display: grid;
+  grid-template-columns: 4px 1fr;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.sev-stripe { background: var(--ink-3); }
+.finding.crit .sev-stripe { background: var(--crit); }
+.finding.high .sev-stripe { background: var(--high); }
+.finding.med  .sev-stripe { background: var(--med); }
+.finding-body { padding: 16px 20px 17px; display: flex; flex-direction: column; gap: 8px; }
+.finding-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.finding-id {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .76rem; font-weight: 600; color: var(--ink-3);
+}
+.finding h3 { flex: 1; min-width: 200px; }
+.finding p { font-size: .92rem; color: var(--ink-2); }
+.pill {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .655rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 2px; white-space: nowrap;
+}
+.pill.crit { background: var(--crit-soft); color: var(--crit); }
+.pill.high { background: var(--high-soft); color: var(--high); }
+.pill.med  { background: var(--med-soft);  color: var(--med); }
+.pill.ok   { background: var(--ok-soft);   color: var(--ok); }
+.pill.acc  { background: var(--accent-soft); color: var(--accent); }
+.where {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .76rem; color: var(--ink-3); word-break: break-word;
+}
+
+/* ── Tablas ───────────────────────────────────────────────── */
+.tw { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+thead th {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); background: var(--surface-2); border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+tbody tr:last-child td { border-bottom: none; }
+td.num, th.num { text-align: right; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+td.mono-cell { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .82rem; }
+
+/* ── Plan por fases ───────────────────────────────────────── */
+.phase {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+  padding: 20px 22px; display: flex; flex-direction: column; gap: 14px;
+}
+.phase-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.phase-head h3 { font-family: ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: -.01em; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.steps li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline; }
+.steps .k {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .74rem; font-weight: 600; color: var(--accent);
+  padding-top: 2px; white-space: nowrap;
+}
+.steps .v { font-size: .93rem; color: var(--ink-2); }
+.steps .v b { color: var(--ink); font-weight: 650; }
+
+/* ── Calendario ───────────────────────────────────────────── */
+.weeks { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; background: var(--surface); }
+.week { display: grid; grid-template-columns: 74px 1fr; gap: 18px; padding: 15px 18px; border-bottom: 1px solid var(--line-soft); }
+.week:last-child { border-bottom: none; }
+.week-n {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .74rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-3); padding-top: 2px;
+}
+.week-body { display: flex; flex-direction: column; gap: 5px; }
+.week-body .task { font-size: .93rem; color: var(--ink-2); }
+.week-body .hit { font-size: .8rem; color: var(--accent); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.week.ship { background: var(--accent-soft); }
+.week.ship .week-n, .week.ship .hit { color: var(--accent); }
+
+/* ── Decisiones ───────────────────────────────────────────── */
+.decision {
+  background: var(--surface); border: 1px solid var(--line);
+  border-left: 3px solid var(--accent); border-radius: 4px;
+  padding: 18px 22px; display: flex; flex-direction: column; gap: 9px;
+}
+.decision .q { font-weight: 650; font-size: 1rem; }
+.decision .a { font-size: .93rem; color: var(--ink-2); }
+.decision .a b { color: var(--ink); }
+
+.note {
+  font-size: .87rem; color: var(--ink-2);
+  background: var(--high-soft); border: 1px solid var(--line);
+  border-radius: 4px; padding: 14px 18px;
+}
+footer {
+  margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--line);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .74rem; color: var(--ink-3);
+  display: flex; flex-wrap: wrap; gap: 6px 24px;
+}
+@media (max-width: 560px) {
+  body { padding: 0 16px 72px; font-size: 16px; }
+  header { padding-top: 48px; }
+  .week { grid-template-columns: 1fr; gap: 6px; }
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Informe técnico · Spendia 2.56.0</span>
+  <h1>Sala de máquinas</h1>
+  <p>Por qué la app calienta el móvil, y qué hace falta para publicarla en App Store y Google Play.</p>
+  <div class="meta">
+    <span><b>Fecha</b> 15 ago 2026</span>
+    <span><b>Medido sobre</b> build de producción <code>dist/</code></span>
+    <span><b>Método</b> Chrome CDP · 390×844 @3x · CPU 4×</span>
+  </div>
+</header>
+
+<!-- ══ PARTE 1 ══════════════════════════════════════════════ -->
+<section>
+  <div class="sec-head">
+    <span class="eyebrow">Parte 1 · Rendimiento</span>
+    <h2>El calor</h2>
+  </div>
+
+  <div class="verdict">
+    <div class="call">No es el movimiento. Es cómo está implementado el movimiento.</div>
+    <p>Los fondos y los gráficos animan desde JavaScript en el hilo principal, y aplican <code>filter: blur()</code> sobre capas que cambian en cada frame — el peor patrón posible para GPU y batería en un móvil. Quitar los efectos apagaría el calor, pero también el diferenciador visual de Spendia. <b>La recomendación es reimplementar el motor, no borrar los efectos.</b></p>
+  </div>
+
+  <div class="gauge">
+    <div class="gauge-title">CPU en reposo · pantalla de login · ventana de 15 s</div>
+    <div class="bars">
+      <div class="bar-row">
+        <div class="bar-label"><span>Con animación</span><span class="bar-val">7,2 % de un core</span></div>
+        <div class="bar-track"><div class="bar-fill hot" style="width: 100%"></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span>Sin animación <span class="mono" style="opacity:.7">(reduce-motion)</span></span><span class="bar-val">0,4 %</span></div>
+        <div class="bar-track"><div class="bar-fill cool" style="width: 5.6%"></div></div>
+      </div>
+    </div>
+    <div class="gauge-foot">Mismo bundle, misma pantalla, misma sesión: la única diferencia es <code>prefers-reduced-motion</code>, que la app ya respeta. <b>19× más CPU sin que el usuario toque nada.</b> El tiempo de script pasa de 0,00 s a 0,74 s — hay JavaScript ejecutándose de forma continua en una pantalla estática. Y el login es la pantalla <em>más simple</em>: solo monta Aurora, con 6 blobs. El Home es peor.</div>
+  </div>
+
+  <div class="figures">
+    <div class="fig">
+      <span class="fig-n crit">1 440</span>
+      <span class="fig-k">escrituras de <code>style</code> por segundo</span>
+      <span class="fig-s">6 nodos × 4 props × 60 fps</span>
+    </div>
+    <div class="fig">
+      <span class="fig-n crit">2,95×</span>
+      <span class="fig-k">la pantalla, en superficie desenfocada</span>
+      <span class="fig-s">13 capas con blur a la vez</span>
+    </div>
+    <div class="fig">
+      <span class="fig-n warn">2,72 s</span>
+      <span class="fig-k">de CPU solo para arrancar</span>
+      <span class="fig-s">bundle único de 8,1 MB</span>
+    </div>
+    <div class="fig">
+      <span class="fig-n warn">≈144</span>
+      <span class="fig-k">elementos animados en Personalización</span>
+      <span class="fig-s">los 13 efectos, a la vez</span>
+    </div>
+  </div>
+
+  <p>Cada escritura al atributo <code>style</code> invalida el estilo del nodo. Como esos nodos llevan <code>filter: blur()</code>, cada invalidación obliga a la GPU a <b>re-ejecutar el desenfoque</b> sobre esa capa. Se están redibujando casi tres pantallas completas de blur, sesenta veces por segundo.</p>
+
+  <div class="rule"></div>
+
+  <h3>Causas raíz</h3>
+  <div class="findings">
+
+    <div class="finding crit"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">C1</span><h3><code>useNativeDriver: false</code> en todas las animaciones</h3><span class="pill crit">Crítico</span></div>
+      <p>Cada frame, RN Web interpola en JS y escribe estilos inline en el DOM. En nativo será peor: cruza el puente en cada frame.</p>
+      <div class="where">hooks/usePhasedLoop.ts:25,31 · AuroraBackground.tsx:38 · ParticlesBackground.tsx:86 · BalanceCard.tsx:200,289,309,335 · los 13 *Background.tsx</div>
+    </div></div>
+
+    <div class="finding crit"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">C2</span><h3><code>filter: blur()</code> sobre capas animadas</h3><span class="pill crit">Crítico</span></div>
+      <p>Hasta <code>blur(120px)</code> a pantalla completa. El blur global de Personalización se aplica <em>encima</em> de efectos que ya llevan el suyo: desenfoque anidado sobre contenido en movimiento. Un blur gaussiano es multi-paso; animado y a pantalla completa es lo más caro que se le puede pedir a la GPU de un móvil.</p>
+      <div class="where">AppBackground.tsx:71,176 · Spotlight:74 (90px) · Mesh:33 (28px) · Grain:63 (26px) · Flow:73 (22px) · Rays:63 (16px) · Waves:70 (9px) · Aurora:92 (7px × 6)</div>
+    </div></div>
+
+    <div class="finding crit"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">C3</span><h3><code>setState</code> de React en cada frame, dentro de un bucle infinito</h3><span class="pill crit">Crítico</span></div>
+      <p>Los <code>addListener</code> de las animaciones del gráfico llaman a <code>setState</code> en cada frame. Eso re-renderiza el componente entero — sus <code>useMemo</code> de paths, el muestreo de la curva y el SVG completo — 60 veces por segundo, para siempre, mientras el Home esté abierto. <b>Es el mayor foco de calor del Home.</b> El contraejemplo bueno ya existe en el código: <code>HomeHeader.tsx:91</code> solo hace <code>setState</code> al cruzar un umbral.</p>
+      <div class="where">BalanceCard.tsx:199 (growAnim) · :306 (drawAnim) · :332 (tideAnim)</div>
+    </div></div>
+
+    <div class="finding crit"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">C4</span><h3>Personalización monta los 13 efectos a la vez</h3><span class="pill crit">Crítico</span></div>
+      <p>Cada tarjeta de previsualización renderiza un efecto real y animado, más el lienzo grande con otro efecto, más la sparkline, más el fondo global. Starfield aporta 46 elementos, Particles 34, Bokeh 18. Del orden de <b>24 000 escrituras de estilo por segundo</b>.</p>
+      <div class="where">app/personalization.tsx:751 → :92</div>
+    </div></div>
+
+    <div class="finding high"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">C5</span><h3>Nada se pausa cuando la app no está visible</h3><span class="pill high">Alto</span></div>
+      <p>Cero apariciones de <code>AppState</code>, <code>visibilitychange</code> o <code>document.hidden</code> en todo el código. En web el navegador congela <code>rAF</code> y salva la situación. <b>En iOS y Android no habrá ese salvavidas</b> y los bucles seguirán vivos en segundo plano.</p>
+    </div></div>
+
+    <div class="finding high"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">C6</span><h3>Bundle único de 8,1 MB</h3><span class="pill high">Alto</span></div>
+      <p><code>app.json</code> no fija <code>web.output</code>, así que Expo Router exporta una SPA de un solo bundle. Son 1,37 MB en gzip — la red aguanta; el que no aguanta es el parse, que quema un core durante ~3 s en cada arranque en frío.</p>
+    </div></div>
+
+    <div class="finding med"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">C7</span><h3>Movimiento perpetuo sin propósito</h3><span class="pill med">Medio</span></div>
+      <p>La barra de pestañas «respira» en bucle infinito (escala 1 → 1,045) con <code>useNativeDriver: false</code> en web. Una animación que no comunica nada y nunca termina.</p>
+      <div class="where">PremiumTabBar.tsx:60-72</div>
+    </div></div>
+
+    <div class="finding med"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">C8</span><h3>30 listeners de Firestore vivos</h3><span class="pill med">Medio</span></div>
+      <p>En 12 hooks. Firestore los multiplexa, así que el coste de red es contenido, pero cada emisión provoca un re-render. Conviene revisar cuáles pueden ser lecturas puntuales.</p>
+    </div></div>
+
+  </div>
+
+  <div class="rule"></div>
+
+  <h3>Plan de corrección</h3>
+
+  <div class="stack">
+    <div class="phase">
+      <div class="phase-head"><h3>P0</h3><span class="pill acc">2–3 días</span><span class="pill ok">&gt;80 % del calor medido</span></div>
+      <ul class="steps">
+        <li><span class="k">P0.1</span><span class="v"><b>Sacar los fondos del hilo de JS.</b> En web, reescribir los 13 efectos como <code>@keyframes</code> CSS sobre <code>transform</code> y <code>opacity</code>: el compositor las ejecuta sin JS. En nativo, <code>useNativeDriver: true</code> — que obliga a limitarse justo a esas dos propiedades, que son las que ya animan.</span></li>
+        <li><span class="k">P0.2</span><span class="v"><b>Eliminar el blur animado.</b> Un blob desenfocado es un <code>radial-gradient</code> con parada suave: mismo resultado visual, coste GPU cercano a cero. Donde el blur sea imprescindible, aplicarlo a una capa estática y animar solo un padre con <code>transform</code>.</span></li>
+        <li><span class="k">P0.3</span><span class="v"><b>Quitar los <code>setState</code> por frame de BalanceCard.</b> Los valores deben viajar por <code>Animated</code> hasta la propiedad, no por estado de React. Para los paths, <code>Animated.createAnimatedComponent(Path)</code>.</span></li>
+        <li><span class="k">P0.4</span><span class="v"><b>Pausar fuera de foco.</b> Un hook único sobre <code>AppState</code> + <code>visibilitychange</code> que detenga todos los bucles. Imprescindible antes de publicar en tiendas.</span></li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-head"><h3>P1</h3><span class="pill acc">2–3 días</span></div>
+      <ul class="steps">
+        <li><span class="k">P1.1</span><span class="v">En Personalización, <b>solo el efecto seleccionado se anima</b>; el resto, primer frame estático.</span></li>
+        <li><span class="k">P1.2</span><span class="v">Quitar la respiración de la barra de pestañas.</span></li>
+        <li><span class="k">P1.3</span><span class="v"><code>web.output: "static"</code> en <code>app.json</code> → división por rutas.</span></li>
+        <li><span class="k">P1.4</span><span class="v">Ajuste <b>«Ahorro de batería»</b> en Personalización: apaga efecto y blur, deja el degradado. Hoy eso solo se consigue activando reduce-motion en todo el sistema.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Criterio de aceptación</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Métrica</th><th class="num">Hoy</th><th class="num">Objetivo</th></tr></thead>
+    <tbody>
+      <tr><td>CPU en reposo · login · throttle 4×</td><td class="num">7,2 %</td><td class="num">&lt; 1 %</td></tr>
+      <tr><td>Mutaciones de estilo por segundo</td><td class="num">1 440</td><td class="num">&lt; 60</td></tr>
+      <tr><td>Superficie con blur animado</td><td class="num">2,95 pantallas</td><td class="num">0</td></tr>
+      <tr><td>CPU de script al arranque</td><td class="num">2,72 s</td><td class="num">&lt; 1,2 s</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:.87rem; color: var(--ink-3)">Se vuelve a medir con los mismos scripts: <code>measure.mjs</code>, <code>mutations.mjs</code>, <code>boot.mjs</code>.</p>
+
+  <div class="decision">
+    <div class="q">¿Hay que quitar los movimientos del fondo y los gráficos?</div>
+    <div class="a"><b>No.</b> El calor no viene de que haya animación: viene de animar por JS y de desenfocar en cada frame. Los mismos efectos, ejecutados en el compositor y sin blur animado, cuestan una fracción. Los fondos configurables son parte de la propuesta premium; borrarlos es pagar con producto una factura que es técnica.</div>
+    <div class="a">Lo que sí conviene cambiar de producto: <b>efecto apagado por defecto en móvil</b> (activable por quien lo quiera), <b>ajuste explícito de ahorro de batería</b>, y que <b>los gráficos animen una vez al entrar y se detengan</b> — el bucle infinito de «trazo vivo» y «marea» no añade información después del primer ciclo.</div>
+  </div>
+</section>
+
+<!-- ══ PARTE 2 ══════════════════════════════════════════════ -->
+<section>
+  <div class="sec-head">
+    <span class="eyebrow">Parte 2 · Distribución</span>
+    <h2>Las tiendas</h2>
+  </div>
+
+  <div class="verdict">
+    <div class="call">Lo técnico está casi resuelto. Lo que bloquea es de negocio.</div>
+    <p>Spendia ya es Expo SDK 55 / React Native 0.83 con <code>eas.json</code>, bundle IDs y proyecto EAS configurados: <b>no hay que portar la app</b>. Lo que impide publicar es que el premium se cobra por QR manual, que no existe borrado de cuenta, y que tres funciones están escritas contra el <code>canvas</code> del navegador.</p>
+  </div>
+
+  <h3>Lo que ya está listo</h3>
+  <div class="tw"><table>
+    <tbody>
+      <tr><td>Framework</td><td class="mono-cell">Expo SDK 55 · RN 0.83.6 · expo-router</td></tr>
+      <tr><td>Perfiles de build</td><td class="mono-cell">eas.json — development / preview / production</td></tr>
+      <tr><td>Identificadores</td><td class="mono-cell">com.spendiapp (iOS y Android) · esquema spendiapp://</td></tr>
+      <tr><td>Sesión</td><td class="mono-cell">getReactNativePersistence(AsyncStorage) — correcto para RN</td></tr>
+      <tr><td>Google Sign-In</td><td class="mono-cell">rama nativa vía expo-auth-session, ya implementada</td></tr>
+      <tr><td>Iconos</td><td class="mono-cell">icon.png · adaptive icon Android (fondo/frente/mono) · splash</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Bloqueadores</h3>
+  <div class="findings">
+
+    <div class="finding crit"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">B1</span><h3>El premium se cobra por QR y WhatsApp</h3><span class="pill crit">Bloqueante</span></div>
+      <p><code>app/payment-qr.tsx</code> muestra una llave de Nequi y remite a un teléfono para confirmar el pago a mano. La guideline 3.1.1 de App Store exige In-App Purchase para desbloquear funciones digitales; Google Play Billing exige lo equivalente. Una pantalla que envía a pagar por fuera es rechazo directo, y suele serlo ya en la primera revisión.</p>
+    </div></div>
+
+    <div class="finding crit"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">B2</span><h3>No hay borrado de cuenta dentro de la app</h3><span class="pill crit">Bloqueante</span></div>
+      <p>No existe <code>deleteUser</code> ni flujo de eliminación. Apple lo exige desde 2022 (5.1.1 v) y Google Play desde 2024, con la particularidad de que Google pide <b>además</b> una ruta web accesible sin instalar la app. Lo laborioso no es el borrado en sí: es el barrido de datos relacionados y decidir qué pasa con los gastos compartidos. <b>≈2 días.</b></p>
+    </div></div>
+
+    <div class="finding crit"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">B3</span><h3>Tres funciones escritas contra el <code>canvas</code> del navegador</h3><span class="pill crit">Bloqueante de paridad</span></div>
+      <p>Usan <code>document.createElement('canvas')</code>, <code>getContext('2d')</code> y <code>canvas.toBlob</code>. En nativo no existe ninguna de esas APIs: la pantalla falla al invocarlas.</p>
+      <div class="where">generateAnnualReportImage.ts (816 líneas) · generateFriendReportImage.ts (767) · scanReceipt.ts (98)</div>
+    </div></div>
+
+    <div class="finding crit"><div class="sev-stripe"></div><div class="finding-body">
+      <div class="finding-top"><span class="finding-id">B4</span><h3>Falta alternativa de inicio de sesión en iOS</h3><span class="pill crit">Bloqueante</span></div>
+      <p>La app ofrece Google Sign-In. La guideline 4.8 obliga a ofrecer junto a él una opción equivalente que limite la recolección de datos; Sign in with Apple la cumple. <code>expo-apple-authentication</code> + <code>signInWithCredential</code>: <b>1 día.</b></p>
+    </div></div>
+  </div>
+
+  <div class="note">Las reglas sobre enlazar a pagos externos han cambiado por vía judicial y regulatoria, y varían por territorio. Antes de decidir B1 conviene verificar la política vigente para Colombia y España en el momento del envío. Esto es una lectura informativa, no asesoría legal.</div>
+
+  <h3>B1 · Cómo cobrar el premium en móvil</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Opción</th><th>Coste</th><th>Consecuencia</th></tr></thead>
+    <tbody>
+      <tr><td><b>A · IAP con RevenueCat</b><br><span class="mono" style="font-size:.76rem;color:var(--accent)">recomendada</span></td><td class="mono-cell">2–3 días</td><td>Comisión del 15 % (Small Business / primer millón). Suscripciones, restauración de compras y prueba gratuita resueltas. Una integración sirve para las dos tiendas.</td></tr>
+      <tr><td>B · IAP nativo sin intermediario</td><td class="mono-cell">5–8 días</td><td>Sin coste de terceros; hay que construir a mano validación de recibos, restauración y renovaciones.</td></tr>
+      <tr><td>C · v1 sin premium en móvil</td><td class="mono-cell">0 días</td><td>Desbloquea el lanzamiento ya, pero se renuncia al ingreso en el canal nativo.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Con la opción A, retirar <code>payment-qr</code> del build nativo — puede seguir en la PWA — y mantener el estado premium en Firestore como fuente de verdad, alimentado por los webhooks de RevenueCat contra una Cloud Function. El proyecto ya tiene <code>functions/</code>.</p>
+
+  <h3>B3 · Cómo portar los informes</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Opción</th><th>Coste</th><th>Consecuencia</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · Renderizar en servidor</b><br><span class="mono" style="font-size:.76rem;color:var(--accent)">recomendada</span></td><td class="mono-cell">3–4 días</td><td>Una Cloud Function con canvas de Node reutiliza el código de dibujo casi tal cual y sirve a web y a nativo por igual. Es la vía que menos código duplica.</td></tr>
+      <tr><td>2 · <code>@shopify/react-native-skia</code></td><td class="mono-cell">5–7 días</td><td>API equivalente, funciona en web y nativo. Hay que traducir 1 583 líneas de dibujo.</td></tr>
+      <tr><td>3 · Ocultar en nativo en la v1</td><td class="mono-cell">1 hora</td><td>Se pierde paridad con la PWA.</td></tr>
+    </tbody>
+  </table></div>
+  <p><code>scanReceipt</code> es aparte y es fácil: <code>expo-image-picker</code> + <code>expo-image-manipulator</code>, medio día.</p>
+
+  <h3>Obligatorio, aunque no bloquee</h3>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Requisito</th><th class="num">Coste</th></tr></thead>
+    <tbody>
+      <tr><td class="mono-cell">R1</td><td>Cuenta Apple Developer — 99 USD/año. El alta y la verificación pueden tardar días</td><td class="num">1 d + espera</td></tr>
+      <tr><td class="mono-cell">R2</td><td>Google Play Console — 25 USD pago único. Las cuentas nuevas de particular exigen prueba con testers antes de producción</td><td class="num">1 d + espera</td></tr>
+      <tr><td class="mono-cell">R3</td><td><code>PrivacyInfo.xcprivacy</code> y etiquetas de privacidad de App Store</td><td class="num">1 d</td></tr>
+      <tr><td class="mono-cell">R4</td><td>Formulario Data Safety de Google Play</td><td class="num">0,5 d</td></tr>
+      <tr><td class="mono-cell">R5</td><td>Capturas por tamaño de dispositivo, iconos de tienda, textos y palabras clave</td><td class="num">2 d</td></tr>
+      <tr><td class="mono-cell">R6</td><td>Privacidad y términos en URL pública — ya existen como pantallas, hay que exponerlas como web</td><td class="num">0,5 d</td></tr>
+      <tr><td class="mono-cell">R7</td><td>Pausar animaciones en segundo plano (C5) — sin el salvavidas del navegador, drena batería con la app minimizada</td><td class="num">en P0.4</td></tr>
+      <tr><td class="mono-cell">R8</td><td>Push con <code>expo-notifications</code> — hoy las notificaciones son solo in-app. No bloquea, pero es la mitad del valor de una app instalada</td><td class="num">2 d</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Calendario</h3>
+  <p>Un desarrollador a tiempo completo. Las altas de cuenta arrancan <b>hoy</b>: son las que tienen esperas que no dependen de nosotros.</p>
+  <div class="weeks">
+    <div class="week"><div class="week-n">Semana 0</div><div class="week-body"><span class="task">Altas de Apple Developer y Play Console. En paralelo: P0 de rendimiento</span><span class="hit">→ cuentas en trámite</span></div></div>
+    <div class="week"><div class="week-n">Semana 1</div><div class="week-body"><span class="task">RevenueCat + IAP (B1) · Sign in with Apple (B4)</span><span class="hit">→ primer build de EAS en un dispositivo real</span></div></div>
+    <div class="week"><div class="week-n">Semana 2</div><div class="week-body"><span class="task">Borrado de cuenta (B2) · <code>scanReceipt</code> nativo · informes en Cloud Function (B3)</span><span class="hit">→ paridad de funciones con la PWA</span></div></div>
+    <div class="week"><div class="week-n">Semana 3</div><div class="week-body"><span class="task">Push (R8) · privacidad, Data Safety, manifiestos · capturas y fichas</span><span class="hit">→ build de producción listo</span></div></div>
+    <div class="week"><div class="week-n">Semana 4</div><div class="week-body"><span class="task">TestFlight y pista interna de Play. Corrección de lo que salga en dispositivo real</span><span class="hit">→ beta con usuarios reales</span></div></div>
+    <div class="week"><div class="week-n">Semana 5</div><div class="week-body"><span class="task">Envío a revisión en ambas tiendas</span><span class="hit">→ en revisión</span></div></div>
+    <div class="week ship"><div class="week-n">Semana 6</div><div class="week-body"><span class="task">Respuesta a observaciones de revisión</span><span class="hit">→ publicadas</span></div></div>
+  </div>
+  <p><b>Cinco a seis semanas</b>, con la semana 6 como colchón para el rechazo de la primera revisión, que conviene dar por descontado. Si «las siguientes semanas» significa dos o tres, la única forma de llegar es la opción <b>C</b> de B1 más la opción <b>3</b> de B3: el camino crítico se reduce a B2 + B4 + requisitos de tienda, unas tres semanas, a cambio de lanzar sin ingresos y sin paridad.</p>
+</section>
+
+<!-- ══ DECISIONES ═══════════════════════════════════════════ -->
+<section>
+  <div class="sec-head">
+    <span class="eyebrow">Lo que hay que decidir</span>
+    <h2>Cuatro decisiones</h2>
+  </div>
+
+  <div class="stack">
+    <div class="decision">
+      <div class="q">1 · ¿Cómo se cobra el premium en móvil?</div>
+      <div class="a">Decide el calendario más que ninguna otra cosa. Recomendación: <b>IAP con RevenueCat</b>, 15 % de comisión y 2–3 días de trabajo.</div>
+    </div>
+    <div class="decision">
+      <div class="q">2 · ¿Qué pasa con los informes anuales y de amigo en nativo?</div>
+      <div class="a">Servidor, Skia, u ocultarlos en la v1. Recomendación: <b>servidor</b> — reutiliza el código de dibujo y sirve a los dos canales.</div>
+    </div>
+    <div class="decision">
+      <div class="q">3 · ¿Las dos tiendas a la vez, o Android primero?</div>
+      <div class="a">Play revisa más rápido y su pista interna permite iterar antes. <b>Salir primero en Android</b> da un ciclo de aprendizaje real antes de exponerse a la revisión de Apple.</div>
+    </div>
+    <div class="decision">
+      <div class="q">4 · ¿Qué pasa con la PWA?</div>
+      <div class="a"><b>Se queda.</b> Es el canal de captación sin fricción y el sitio donde el pago no paga comisión. La app nativa se posiciona como el canal de uso diario.</div>
+    </div>
+  </div>
+
+  <div class="note">El rendimiento va primero, y no por perfeccionismo: una app que calienta el teléfono recibe reseñas de una estrella desde el primer día, y en nativo desaparece el salvavidas del navegador que hoy congela las animaciones en segundo plano. <b>Los P0 son prerrequisito del lanzamiento, no una mejora posterior.</b></div>
+</section>
+
+<footer>
+  <span>Spendia 2.56.0</span>
+  <span>15 ago 2026</span>
+  <span>docs/auditoria-performance-2026-08-15.md</span>
+  <span>docs/plan-ios-android-2026-08-15.md</span>
+</footer>
+
+</div>

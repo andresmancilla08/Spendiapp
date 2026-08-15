@@ -1,7 +1,8 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet, useWindowDimensions, Platform } from 'react-native';
+import { useState, useMemo } from 'react';
+import { View, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import type { AuroraIntensity } from './AuroraBackground';
+import FxLayer, { type FxFrame } from './fx/FxLayer';
 
 // La intensidad cambia densidad, brillo y velocidad de forma perceptible.
 const CONFIG: Record<AuroraIntensity, { count: number; opacity: number; speed: number }> = {
@@ -28,8 +29,11 @@ interface Props {
 
 /**
  * Luciérnagas premium: ascienden con deriva senoidal, parpadean (twinkle) y
- * llevan un halo suave. El color se toma de la paleta activa (tema de
- * partículas por paleta), no de un único acento.
+ * llevan un halo suave. El color se toma de la paleta activa.
+ *
+ * El movimiento va por `FxLayer` (compositor en web, hilo de UI en nativo). El
+ * halo es un `boxShadow` estático: al animarse solo `transform` y `opacity`, se
+ * pinta una vez y la capa se reutiliza en cada frame.
  */
 export default function ParticlesBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
@@ -78,35 +82,19 @@ export default function ParticlesBackground({ intensity = 'default', speed = 1 }
 }
 
 function Particle({ config, travel }: { config: ParticleConfig; travel: number }) {
-  const anim = useRef(new Animated.Value(0)).current;
+  const o = config.baseOpacity;
+  const s = config.sway;
 
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(anim, { toValue: 1, duration: config.duration, easing: Easing.linear, useNativeDriver: false }),
-        Animated.timing(anim, { toValue: 0, duration: 0, useNativeDriver: false }),
-      ])
-    );
-    // El desfase se aplica UNA vez, no en cada vuelta: con el `Animated.delay`
-    // dentro del loop la pausa se repetía en cada ciclo y el efecto se leía
-    // como un reinicio a tirones en vez de un movimiento continuo.
-    const kickoff = setTimeout(() => loop.start(), config.delay);
-    return () => { clearTimeout(kickoff); loop.stop(); };
-    // Reinicia in-place al cambiar velocidad/intensidad (duración/delay nuevos)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.duration, config.delay]);
-
-  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [0, -travel] });
-  const translateX = anim.interpolate({
-    inputRange: [0, 0.25, 0.5, 0.75, 1],
-    outputRange: [0, config.sway, 0, -config.sway, 0],
-  });
-  // Twinkle: la opacidad late mientras sube, en vez de un simple fade lineal.
-  const opacity = anim.interpolate({
-    inputRange: [0, 0.12, 0.35, 0.55, 0.78, 0.92, 1],
-    outputRange: [0, config.baseOpacity, config.baseOpacity * 0.55, config.baseOpacity, config.baseOpacity * 0.6, config.baseOpacity, 0],
-  });
-  const scale = anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.7, 1, 0.7] });
+  const frames: FxFrame[] = [
+    { at: 0,    opacity: 0,        x: 0,  y: 0,                 scale: 0.7 },
+    { at: 0.12, opacity: o,        x: s * 0.5, y: -travel * 0.12, scale: 0.82 },
+    { at: 0.25, opacity: o * 0.78, x: s,  y: -travel * 0.25,     scale: 0.88 },
+    { at: 0.35, opacity: o * 0.55, x: s * 0.6, y: -travel * 0.35, scale: 0.94 },
+    { at: 0.5,  opacity: o,        x: 0,  y: -travel * 0.5,      scale: 1 },
+    { at: 0.75, opacity: o * 0.62, x: -s, y: -travel * 0.75,     scale: 0.88 },
+    { at: 0.92, opacity: o,        x: -s * 0.4, y: -travel * 0.92, scale: 0.76 },
+    { at: 1,    opacity: 0,        x: 0,  y: -travel,            scale: 0.7 },
+  ];
 
   const halo = config.size * 2.4;
   const glowStyle = Platform.OS === 'web'
@@ -114,7 +102,11 @@ function Particle({ config, travel }: { config: ParticleConfig; travel: number }
     : { shadowColor: config.color, shadowOpacity: 0.9, shadowRadius: halo, shadowOffset: { width: 0, height: 0 } };
 
   return (
-    <Animated.View
+    <FxLayer
+      frames={frames}
+      duration={config.duration}
+      delay={config.delay}
+      easing="linear"
       style={[
         styles.particle,
         glowStyle,
@@ -124,8 +116,6 @@ function Particle({ config, travel }: { config: ParticleConfig; travel: number }
           height: config.size,
           borderRadius: config.size / 2,
           backgroundColor: config.color,
-          opacity,
-          transform: [{ translateY }, { translateX }, { scale }],
         },
       ]}
     />

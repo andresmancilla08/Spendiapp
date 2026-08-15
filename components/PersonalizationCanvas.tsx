@@ -16,12 +16,12 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { useTheme, BACKGROUND_BLUR_PX } from '../context/ThemeContext';
+import { useTheme, BACKGROUND_SOFTNESS } from '../context/ThemeContext';
 import { useProMotion } from '../hooks/useProMotion';
 import { readableTint } from '../utils/contrast';
 import { formatMoney } from '../utils/formatMoney';
 import { Fonts } from '../config/fonts';
-import { BackgroundEffect, backgroundBlurStyle, CLIP_BLURRED_CHILD } from './AppBackground';
+import { BackgroundEffect, CLIP_BLURRED_CHILD } from './AppBackground';
 import { Sparkline, resolveChartAccent, resolveChartAccent2 } from './BalanceCard';
 import ProSheen from './ProSheen';
 import AppIcon from './AppIcon';
@@ -63,8 +63,8 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
   // donde manda el modo que se está editando.
   const shownDark = bgTarget ? bgTarget === 'dark' : isDark;
   const styleKey = shownDark ? backgroundStyleDark : backgroundStyleLight;
-  // El lienzo mide casi el ancho real de la pantalla: el desenfoque va a escala 1:1.
-  const canvasBlur = backgroundBlurStyle(BACKGROUND_BLUR_PX[shownDark ? backgroundBlurDark : backgroundBlurLight]);
+  // El lienzo mide casi el ancho real de la pantalla: la suavidad va a escala 1:1.
+  const canvasSoftness = BACKGROUND_SOFTNESS[shownDark ? backgroundBlurDark : backgroundBlurLight];
   const gradient = shownDark ? activePalette.gradientDark : activePalette.gradientLight;
   const themed = shownDark ? activePalette.colors.dark : activePalette.colors.light;
 
@@ -93,11 +93,12 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
       )}
       {shownDark && <View style={[StyleSheet.absoluteFillObject, styles.scrim]} />}
       {animate && (
-        <View style={canvasBlur ?? StyleSheet.absoluteFill} pointerEvents="none">
-          <BackgroundEffect styleKey={styleKey} intensity={backgroundIntensity} speed={
-            backgroundSpeed === 'slow' ? 1.6 : backgroundSpeed === 'fast' ? 0.62 : 1
-          } />
-        </View>
+        <BackgroundEffect
+          styleKey={styleKey}
+          intensity={backgroundIntensity}
+          speed={backgroundSpeed === 'slow' ? 1.6 : backgroundSpeed === 'fast' ? 0.62 : 1}
+          softness={canvasSoftness}
+        />
       )}
 
       <View style={styles.content}>
@@ -178,9 +179,12 @@ export function PersonalizationCanvasBar({ onExpand }: { onExpand: () => void })
       <LinearGradient colors={gradient} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={StyleSheet.absoluteFillObject} />
       {isDark && <View style={[StyleSheet.absoluteFillObject, styles.scrim]} />}
       {animate && (
-        <View style={backgroundBlurStyle(BACKGROUND_BLUR_PX[backgroundBlur]) ?? StyleSheet.absoluteFill} pointerEvents="none">
-          <BackgroundEffect styleKey={isDark ? backgroundStyleDark : backgroundStyleLight} intensity={backgroundIntensity} speed={1} />
-        </View>
+        <BackgroundEffect
+          styleKey={isDark ? backgroundStyleDark : backgroundStyleLight}
+          intensity={backgroundIntensity}
+          speed={1}
+          softness={BACKGROUND_SOFTNESS[backgroundBlur]}
+        />
       )}
       <Text style={[styles.barAmount, { color: themed.textPrimary }]} numberOfLines={1}>
         {formatMoney(PREVIEW_BALANCE)}

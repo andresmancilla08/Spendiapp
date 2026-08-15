@@ -1,7 +1,9 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
-import { View, Animated, Easing, StyleSheet, useWindowDimensions, Platform } from 'react-native';
+import { useState, useMemo } from 'react';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import type { AuroraIntensity } from './AuroraBackground';
+import FxLayer, { type FxFrame } from './fx/FxLayer';
+import SoftOrb from './fx/SoftOrb';
 
 const CONFIG: Record<AuroraIntensity, { count: number; opacity: number }> = {
   subtle:  { count: 6,  opacity: 0.6 },
@@ -18,9 +20,12 @@ interface Props {
 interface Orb { left: `${number}%`; size: number; color: string; dur: number; delay: number; base: number; drift: number }
 
 /**
- * Bokeh: círculos grandes y desenfocados (fuera de foco) que flotan hacia
- * arriba y derivan lento, con parpadeo suave. Distinto de Partículas (puntos
- * pequeños y nítidos): aquí prima la profundidad de campo.
+ * Bokeh: círculos grandes y fuera de foco que flotan hacia arriba y derivan
+ * lento, con parpadeo suave. Distinto de Partículas (puntos pequeños y
+ * nítidos): aquí prima la profundidad de campo.
+ *
+ * El «fuera de foco» lo da el degradado radial de `SoftOrb`, no un
+ * `filter: blur()`. Con 18 orbes a la vez, el blur era insostenible en móvil.
  */
 export default function BokehBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
@@ -58,59 +63,33 @@ export default function BokehBackground({ intensity = 'default', speed = 1 }: Pr
       onLayout={(e) => { const h = e.nativeEvent.layout.height; if (h && Math.abs(h - ownHeight) > 1) setOwnHeight(h); }}
     >
       {orbs.map((o, i) => (
-        <OrbView key={i} orb={o} dark={isDark} travel={travel} />
+        <OrbView key={i} orb={o} travel={travel} />
       ))}
     </View>
   );
 }
 
-function OrbView({ orb, dark, travel }: { orb: Orb; dark: boolean; travel: number }) {
-  const anim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(anim, { toValue: 1, duration: orb.dur, easing: Easing.linear, useNativeDriver: false }),
-        Animated.timing(anim, { toValue: 0, duration: 0, useNativeDriver: false }),
-      ])
-    );
-    // El desfase se aplica UNA vez, no en cada vuelta: con el `Animated.delay`
-    // dentro del loop la pausa se repetía en cada ciclo y el efecto se leía
-    // como un reinicio a tirones en vez de un movimiento continuo.
-    const kickoff = setTimeout(() => loop.start(), orb.delay);
-    return () => { clearTimeout(kickoff); loop.stop(); };
-    // Reinicia in-place al cambiar velocidad/intensidad (duración/delay nuevos)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orb.dur, orb.delay]);
-
-  const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [40, -travel] });
-  const translateX = anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, orb.drift, 0] });
-  const opacity = anim.interpolate({
-    inputRange: [0, 0.18, 0.5, 0.82, 1],
-    outputRange: [0, orb.base, orb.base * 0.7, orb.base, 0],
-  });
-
-  const blur = Platform.OS === 'web'
-    ? ({ filter: `blur(${Math.round(orb.size * 0.09)}px)` } as any)
-    : {};
+function OrbView({ orb, travel }: { orb: Orb; travel: number }) {
+  const b = orb.base;
+  const frames: FxFrame[] = [
+    { at: 0,    opacity: 0,       x: 0,          y: 40 },
+    { at: 0.18, opacity: b,       x: orb.drift * 0.36, y: 40 - travel * 0.18 },
+    { at: 0.5,  opacity: b * 0.7, x: orb.drift,  y: 40 - travel * 0.5 },
+    { at: 0.82, opacity: b,       x: orb.drift * 0.36, y: 40 - travel * 0.82 },
+    { at: 1,    opacity: 0,       x: 0,          y: -travel },
+  ];
 
   return (
-    <Animated.View
-      style={[
-        styles.orb,
-        blur,
-        {
-          left: orb.left,
-          width: orb.size,
-          height: orb.size,
-          borderRadius: orb.size / 2,
-          backgroundColor: orb.color,
-          opacity,
-          transform: [{ translateY }, { translateX }],
-          ...(Platform.OS !== 'web' && { shadowColor: orb.color, shadowOpacity: dark ? 0.7 : 0.4, shadowRadius: orb.size * 0.5, shadowOffset: { width: 0, height: 0 } }),
-        },
-      ]}
-    />
+    <FxLayer
+      frames={frames}
+      duration={orb.dur}
+      delay={orb.delay}
+      easing="linear"
+      style={[styles.orb, { left: orb.left, width: orb.size, height: orb.size }]}
+    >
+      {/* Muy suave: un orbe de bokeh es, por definición, un punto desenfocado. */}
+      <SoftOrb color={orb.color} softness={0.85} />
+    </FxLayer>
   );
 }
 

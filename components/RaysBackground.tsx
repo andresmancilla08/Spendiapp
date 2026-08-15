@@ -1,9 +1,9 @@
-import { useRef, useMemo } from 'react';
-import { View, Animated, StyleSheet, Platform } from 'react-native';
+import { useMemo } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
-import { usePhasedLoop } from '../hooks/usePhasedLoop';
 import type { AuroraIntensity } from './AuroraBackground';
+import FxLayer, { type FxFrame } from './fx/FxLayer';
 
 const CONFIG: Record<AuroraIntensity, { opacity: number; count: number }> = {
   subtle:  { opacity: 0.5, count: 3 },
@@ -19,7 +19,11 @@ interface Props {
 /**
  * Haces de luz: rayos anchos que caen desde arriba en distintos ángulos y se
  * mecen lentamente mientras su brillo respira, como luz entrando por una
- * ventana. Lenguaje vertical y direccional, distinto de blobs y bandas.
+ * ventana.
+ *
+ * El haz llevaba `filter: blur(16px)` para deshacer sus bordes laterales. Ahora
+ * en web es un degradado elíptico anclado arriba, que se abre y se apaga solo;
+ * en nativo, el degradado vertical de siempre. Ningún desenfoque.
  */
 export default function RaysBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
@@ -34,44 +38,57 @@ export default function RaysBackground({ intensity = 'default', speed = 1 }: Pro
     { color: colors.success,   left: '22%', width: 70,  rotate: 3,   base: 0.11, dur: 16000, sway: 30, phase: 0.84 },
   ].slice(0, cfg.count)), [colors.primary, colors.secondary, colors.tertiary, colors.info, colors.success, cfg.count]);
 
+  const opacityMul = cfg.opacity * glow;
+
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-      {rays.map((r, i) => (
-        <Ray key={i} ray={r} opacityMul={cfg.opacity * glow} speed={speed} />
-      ))}
+      {rays.map((r, i) => {
+        const lo = r.base * opacityMul * 0.4;
+        const hi = Math.min(r.base * opacityMul * 1.35, 0.5);
+        const frames: FxFrame[] = [
+          { at: 0,   opacity: lo, x: -r.sway },
+          { at: 0.5, opacity: hi, x: r.sway },
+          { at: 1,   opacity: lo, x: -r.sway },
+        ];
+        return (
+          <FxLayer
+            key={i}
+            frames={frames}
+            duration={r.dur * speed}
+            phase={r.phase}
+            easing="sin"
+            rotate={`${r.rotate}deg`}
+            style={[styles.ray, { left: r.left as any, width: r.width }]}
+          >
+            <Beam color={r.color} />
+          </FxLayer>
+        );
+      })}
     </View>
   );
 }
 
-function Ray({ ray, opacityMul, speed }: {
-  ray: { color: string; left: string; width: number; rotate: number; base: number; dur: number; sway: number; phase: number };
-  opacityMul: number; speed: number;
-}) {
-  const v = useRef(new Animated.Value(0)).current;
-  usePhasedLoop(v, ray.dur * speed, ray.phase);
-
-  const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-ray.sway, ray.sway, -ray.sway] });
-  const opacity = v.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [ray.base * opacityMul * 0.4, Math.min(ray.base * opacityMul * 1.35, 0.5), ray.base * opacityMul * 0.4],
-  });
-
-  return (
-    <Animated.View
-      style={[
-        styles.ray,
-        Platform.OS === 'web' ? ({ filter: 'blur(16px)' } as any) : {},
-        { left: ray.left as any, width: ray.width, opacity, transform: [{ translateX: tx }, { rotate: `${ray.rotate}deg` }] },
-      ]}
-    >
-      <LinearGradient
-        colors={[ray.color, ray.color + '66', 'transparent']}
-        locations={[0, 0.45, 1]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={StyleSheet.absoluteFillObject}
+/** El haz: elíptico y anclado al borde superior, para que nazca fuera de cuadro. */
+function Beam({ color }: { color: string }) {
+  if (Platform.OS === 'web') {
+    return (
+      <View
+        pointerEvents="none"
+        style={[
+          StyleSheet.absoluteFillObject,
+          { backgroundImage: `radial-gradient(ellipse 72% 108% at 50% -6%, ${color} 0%, ${color}66 42%, transparent 76%)` } as any,
+        ]}
       />
-    </Animated.View>
+    );
+  }
+  return (
+    <LinearGradient
+      colors={[color, color + '66', 'transparent']}
+      locations={[0, 0.45, 1]}
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+      style={StyleSheet.absoluteFillObject}
+    />
   );
 }
 

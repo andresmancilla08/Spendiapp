@@ -1,9 +1,9 @@
-import { useRef, useMemo } from 'react';
-import { View, Animated, StyleSheet } from 'react-native';
+import { useMemo } from 'react';
+import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, Line } from 'react-native-svg';
 import { useTheme } from '../context/ThemeContext';
-import { usePhasedLoop } from '../hooks/usePhasedLoop';
 import type { AuroraIntensity } from './AuroraBackground';
+import FxLayer, { type FxFrame } from './fx/FxLayer';
 
 const CONFIG: Record<AuroraIntensity, { clusters: number; opacity: number }> = {
   subtle:  { clusters: 3, opacity: 0.55 },
@@ -78,22 +78,21 @@ function Cluster({ cluster, lineColor, speed }: {
   };
   lineColor: string; speed: number;
 }) {
-  const v = useRef(new Animated.Value(0)).current;
-  usePhasedLoop(v, cluster.dur * speed, cluster.phase);
-
-  const opacity = v.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [cluster.base * 0.3, Math.min(cluster.base, 0.85), cluster.base * 0.3],
-  });
-  const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, cluster.driftX, 0] });
-  const ty = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, cluster.driftY, 0] });
+  const lo = cluster.base * 0.3;
+  const hi = Math.min(cluster.base, 0.85);
+  const frames: FxFrame[] = [
+    { at: 0,   opacity: lo, x: 0, y: 0 },
+    { at: 0.5, opacity: hi, x: cluster.driftX, y: cluster.driftY },
+    { at: 1,   opacity: lo, x: 0, y: 0 },
+  ];
 
   return (
-    <Animated.View
-      style={[
-        styles.cluster,
-        { left: cluster.left as any, top: cluster.top as any, opacity, transform: [{ translateX: tx }, { translateY: ty }] },
-      ]}
+    <FxLayer
+      frames={frames}
+      duration={cluster.dur * speed}
+      phase={cluster.phase}
+      easing="sin"
+      style={[styles.cluster, { left: cluster.left as any, top: cluster.top as any }]}
     >
       <Svg width={CLUSTER_SIZE} height={CLUSTER_SIZE} viewBox={`0 0 ${CLUSTER_SIZE} ${CLUSTER_SIZE}`}>
         {cluster.points.slice(0, -1).map((p, i) => {
@@ -104,7 +103,7 @@ function Cluster({ cluster, lineColor, speed }: {
           <Circle key={i} cx={p.x} cy={p.y} r={p.r} fill={i === 0 ? cluster.accent : lineColor} />
         ))}
       </Svg>
-    </Animated.View>
+    </FxLayer>
   );
 }
 

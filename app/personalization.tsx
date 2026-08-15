@@ -17,9 +17,10 @@ import PersonalizationCanvas, { PersonalizationCanvasBar, CANVAS_HEIGHT, CANVAS_
 import { PALETTE_MAP } from '../config/palettes';
 import { LOOKS, matchLook, type Look } from '../config/looks';
 import { accentInk } from '../utils/contrast';
-import { BackgroundEffect, backgroundBlurStyle, CLIP_BLURRED_CHILD } from '../components/AppBackground';
+import { BackgroundEffect, CLIP_BLURRED_CHILD } from '../components/AppBackground';
+import { FxFrozen } from '../components/fx/FxLayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_SOFTNESS, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
   GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
 } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
@@ -60,8 +61,8 @@ const BACKGROUND_STYLES: BackgroundStyle[] = BACKGROUND_STYLE_VALUES;
 
 // ── Tarjeta de fondo con vista previa EN VIVO (renderiza el efecto real a la
 // intensidad y velocidad seleccionadas, no un mockup) ──
-function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, blurPx, onPress }: {
-  styleKey: BackgroundStyle; label: string; selected: boolean; intensity: AuroraIntensity; speed: number; blurPx: number; onPress: () => void;
+function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, softness, onPress }: {
+  styleKey: BackgroundStyle; label: string; selected: boolean; intensity: AuroraIntensity; speed: number; softness: number; onPress: () => void;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -86,11 +87,11 @@ function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, bl
             <AppIcon name="close-outline" size={18} color={colors.textTertiary} />
           </View>
         ) : (
-          // La miniatura mide ~1/4 del ancho real: el desenfoque se escala igual
-          // o "suave" se vería como "fuerte" en la tarjeta.
-          <View style={backgroundBlurStyle(blurPx / 4) ?? StyleSheet.absoluteFill} pointerEvents="none">
-            <BackgroundEffect styleKey={styleKey} intensity={intensity} speed={speed} />
-          </View>
+          // Solo la miniatura seleccionada se anima. Antes se movían las 13 a la
+          // vez (unos 144 elementos) y era el peor caso de consumo de la app.
+          <FxFrozen frozen={!selected}>
+            <BackgroundEffect styleKey={styleKey} intensity={intensity} speed={speed} softness={softness} />
+          </FxFrozen>
         )}
       </View>
       <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
@@ -756,7 +757,7 @@ export default function PersonalizationScreen() {
                     selected={targetBgStyle === key}
                     intensity={backgroundIntensity}
                     speed={BACKGROUND_SPEED_FACTOR[backgroundSpeed]}
-                    blurPx={BACKGROUND_BLUR_PX[targetBgBlur]}
+                    softness={BACKGROUND_SOFTNESS[targetBgBlur]}
                     onPress={() => setBackgroundStyleFor(bgTarget, key)}
                   />
                 ))}
