@@ -108,12 +108,20 @@ export default function HomeHeader({
 
   // El desplazamiento y la escala acompañan al desvanecido: sin ellos el avatar salta de
   // 56 a 40 px entre capas y el ojo lee un corte aunque la opacidad sea gradual.
+  //
+  // La escala, en web, NO: WebKit rasteriza la capa a la escala con la que la crea y el
+  // texto se queda borroso en iOS aunque el valor vuelva a 1 — la capa compacta nace en
+  // 0.96, así que era la peor de las dos. Fuera de web el escalado no rasteriza y se queda.
+  const scales = Platform.OS !== 'web';
+  const withScale = (from: number, to: number) =>
+    scales ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [from, to] }) }] : [];
+
   const expandedStyle = collapsible
     ? {
         opacity: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
         transform: [
           { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) },
-          { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0.96] }) },
+          ...withScale(1, 0.96),
         ],
       }
     : undefined;
@@ -123,7 +131,7 @@ export default function HomeHeader({
         opacity: progress,
         transform: [
           { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) },
-          { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) },
+          ...withScale(0.96, 1),
         ],
       }
     : { opacity: 0 };
