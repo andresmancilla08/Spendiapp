@@ -358,6 +358,10 @@
       "label": "Card shine",
       "sub": "Light sweep when the app loads"
     },
+    "batterySaver": {
+      "label": "Battery saver",
+      "sub": "Keeps the background and charts still"
+    },
     "chartSpeed": {
       "slow": "Slow",
       "normal": "Normal",

@@ -358,6 +358,10 @@
       "label": "Bagliore nelle schede",
       "sub": "Passaggio di luce all'avvio dell'app"
     },
+    "batterySaver": {
+      "label": "Risparmio batteria",
+      "sub": "Lascia fermi lo sfondo e i grafici"
+    },
     "chartSpeed": {
       "slow": "Lenta",
       "normal": "Normale",

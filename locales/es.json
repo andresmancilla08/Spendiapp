@@ -358,6 +358,10 @@
       "label": "Brillo en tarjetas",
       "sub": "Barrido de luz al cargar la app"
     },
+    "batterySaver": {
+      "label": "Ahorro de batería",
+      "sub": "Deja el fondo y los gráficos quietos"
+    },
     "chartSpeed": {
       "slow": "Lenta",
       "normal": "Normal",

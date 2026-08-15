@@ -445,6 +445,7 @@ export default function PersonalizationScreen() {
     backgroundSpeed, setBackgroundSpeed,
     backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
     cardSheen, setCardSheen,
+    batterySaver, setBatterySaver,
     iconStroke, setIconStroke,
     streakConfetti, setStreakConfetti,
     chartType, setChartType, chartAnimStyle, setChartAnimStyle,
@@ -853,6 +854,15 @@ export default function PersonalizationScreen() {
                   sub={t('personalization.cardSheen.sub')}
                   value={cardSheen}
                   onValueChange={setCardSheen}
+                />
+                {/* Detener el movimiento decorativo solo se podía haciéndolo
+                    para TODO el teléfono desde los ajustes del sistema. */}
+                <SwitchRow
+                  icon="flash-outline"
+                  label={t('personalization.batterySaver.label')}
+                  sub={t('personalization.batterySaver.sub')}
+                  value={batterySaver}
+                  onValueChange={setBatterySaver}
                   isLast
                 />
               </View>
