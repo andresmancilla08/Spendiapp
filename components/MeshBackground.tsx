@@ -58,6 +58,7 @@ export default function MeshBackground({ intensity = 'default', speed = 1, softn
               left: f.left as any,
               width: f.size,
               height: f.size,
+              borderRadius: f.size / 2,
             }}
           >
             {/* Un mesh gradient es color muy difuso: la suavidad va alta siempre. */}

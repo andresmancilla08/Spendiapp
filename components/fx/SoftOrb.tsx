@@ -17,11 +17,15 @@ import { LinearGradient } from 'expo-linear-gradient';
  * `opacity`. Coste por frame: prácticamente cero.
  *
  * CÓMO SE IMITA EL DESENFOQUE
- * Un degradado de dos paradas produce anillos concéntricos visibles: la
- * transición es lineal y el ojo detecta el corte. Un blur real cae como una
- * campana. Se aproxima con cinco paradas de alfa decreciente, y la última llega
- * a transparente MUY dentro de la caja (≤ 82 %) — si el color siguiera vivo en
- * la esquina, se vería el rectángulo del contenedor.
+ * El blob original era un DISCO de color uniforme cuyo borde suavizaba un blur
+ * pequeño, no un halo que se apaga desde el centro. Un degradado que empieza a
+ * caer en el centro se lee como un anillo y cambia el efecto por completo. Así
+ * que el color se mantiene pleno hasta `flat` y solo entonces cae, con varias
+ * paradas de alfa para que la transición no marque un borde.
+ *
+ * El degradado se ancla con `closest-side`: el 100 % cae en el borde de la
+ * figura inscrita en la caja, no en su esquina. Sin eso el color seguía vivo en
+ * las cuatro esquinas y el blob se leía como un cuadrado.
  */
 
 /** Aplica alfa a un color de la paleta. Acepta `#RGB`, `#RRGGBB` y `#RRGGBBAA`
@@ -55,20 +59,31 @@ interface Props {
 }
 
 export default function SoftOrb({ color, color2, softness = 0.5, opacity = 1, shape = 'circle', style }: Props) {
-  // Cuanto más suave, antes empieza a caer el color y más gradual es la caída.
-  // El último tramo siempre muere dentro de la caja.
-  const core = 4 + (1 - softness) * 16;   // 4 % → 20 %
-  const edge = 82 - softness * 14;        // 82 % → 68 %
-  const at = (k: number) => (core + (edge - core) * k).toFixed(1);
+  // `flat`: hasta dónde el color se mantiene pleno. Cuanto más suave, antes
+  // empieza a caer. `edge`: dónde llega a transparente.
+  const edge = 100;
+  // Núcleo pequeño y caída larga: es lo que distingue una mancha desenfocada de
+  // un disco con el borde degradado. Con la meseta alta el círculo se recorta
+  // demasiado limpio y el fondo deja de leerse como niebla de color.
+  const flat = Math.max(2, 64 * (1 - softness));
+  const at = (k: number) => (flat + (edge - flat) * k).toFixed(1);
   const c2 = color2 ?? color;
 
   if (Platform.OS === 'web') {
-    // Curva de caída de una campana, muestreada en cinco puntos.
+    // Meseta corta y después una caída de varias paradas: con solo dos el ojo
+    // detecta el corte y aparece un anillo.
+    //
+    // PEAK: un blur gaussiano no solo difumina el borde, también REPARTE la luz
+    // y baja el pico del centro. Un degradado no lo hace solo, y sin esta
+    // compensación el núcleo quedaba tan brillante en modo oscuro que el texto
+    // encima perdía contraste — justo lo que el fondo nunca debe hacer.
+    const PEAK = 0.74;
     const stops = [
-      `${withAlpha(color, 0.95)} ${at(0)}%`,
-      `${withAlpha(c2, 0.62)} ${at(0.3)}%`,
-      `${withAlpha(c2, 0.3)} ${at(0.55)}%`,
-      `${withAlpha(c2, 0.1)} ${at(0.78)}%`,
+      `${withAlpha(color, PEAK)} 0%`,
+      `${withAlpha(color, 0.92 * PEAK)} ${flat.toFixed(1)}%`,
+      `${withAlpha(c2, 0.55 * PEAK)} ${at(0.3)}%`,
+      `${withAlpha(c2, 0.24 * PEAK)} ${at(0.56)}%`,
+      `${withAlpha(c2, 0.07 * PEAK)} ${at(0.8)}%`,
       `${withAlpha(c2, 0)} ${edge.toFixed(1)}%`,
     ].join(', ');
     return (
@@ -76,7 +91,7 @@ export default function SoftOrb({ color, color2, softness = 0.5, opacity = 1, sh
         pointerEvents="none"
         style={[
           StyleSheet.absoluteFillObject,
-          { opacity, backgroundImage: `radial-gradient(${shape} at 50% 50%, ${stops})` } as any,
+          { opacity, backgroundImage: `radial-gradient(${shape} closest-side at 50% 50%, ${stops})` } as any,
           style,
         ]}
       />

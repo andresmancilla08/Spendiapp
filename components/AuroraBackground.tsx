@@ -23,12 +23,12 @@ interface Props {
 
 /** Geometría y ritmo de cada blob. `dur` en ms, `phase` desfasa el arranque. */
 const BLOBS = [
-  { key: 'b4', box: { width: 310, height: 310, top: '22%', left: '8%' },   dur: 14000, phase: 0.15, op: [0.14, 0.28] as const, lightOp: [0.04, 0.10] as const, x: 14,  y: 14,  ci: 3 },
-  { key: 'b1', box: { width: 280, height: 280, top: -60,   left: -70 },    dur:  9000, phase: 0.00, op: [0.28, 0.55] as const, lightOp: [0.08, 0.20] as const, x: 24,  y: -20, ci: 0 },
-  { key: 'b6', box: { width: 220, height: 220, top: '65%', left: -30 },    dur: 12800, phase: 0.82, op: [0.20, 0.46] as const, lightOp: [0.05, 0.12] as const, x: 18,  y: -20, ci: 5 },
-  { key: 'b2', box: { width: 180, height: 180, bottom: 110, right: -50 },  dur: 11500, phase: 0.33, op: [0.24, 0.50] as const, lightOp: [0.06, 0.16] as const, x: -22, y: 18,  ci: 1 },
-  { key: 'b5', box: { width: 130, height: 130, top: '12%', right: '4%' },  dur:  8500, phase: 0.50, op: [0.22, 0.50] as const, lightOp: [0.05, 0.14] as const, x: -16, y: 18,  ci: 4 },
-  { key: 'b3', box: { width: 110, height: 110, top: '42%', left: '28%' },  dur: 10200, phase: 0.67, op: [0.26, 0.54] as const, lightOp: [0.07, 0.18] as const, x: 20,  y: 30,  ci: 2 },
+  { key: 'b4', box: { width: 310, height: 310, borderRadius: 155, top: '22%', left: '8%' },   dur: 14000, phase: 0.15, op: [0.14, 0.28] as const, lightOp: [0.04, 0.10] as const, x: 14,  y: 14,  ci: 3 },
+  { key: 'b1', box: { width: 280, height: 280, borderRadius: 140, top: -60,   left: -70 },    dur:  9000, phase: 0.00, op: [0.28, 0.55] as const, lightOp: [0.08, 0.20] as const, x: 24,  y: -20, ci: 0 },
+  { key: 'b6', box: { width: 220, height: 220, borderRadius: 110, top: '65%', left: -30 },    dur: 12800, phase: 0.82, op: [0.20, 0.46] as const, lightOp: [0.05, 0.12] as const, x: 18,  y: -20, ci: 5 },
+  { key: 'b2', box: { width: 180, height: 180, borderRadius: 90,  bottom: 110, right: -50 },  dur: 11500, phase: 0.33, op: [0.24, 0.50] as const, lightOp: [0.06, 0.16] as const, x: -22, y: 18,  ci: 1 },
+  { key: 'b5', box: { width: 130, height: 130, borderRadius: 65,  top: '12%', right: '4%' },  dur:  8500, phase: 0.50, op: [0.22, 0.50] as const, lightOp: [0.05, 0.14] as const, x: -16, y: 18,  ci: 4 },
+  { key: 'b3', box: { width: 110, height: 110, borderRadius: 55,  top: '42%', left: '28%' },  dur: 10200, phase: 0.67, op: [0.26, 0.54] as const, lightOp: [0.07, 0.18] as const, x: 20,  y: 30,  ci: 2 },
 ] as const;
 
 /**

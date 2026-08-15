@@ -85,7 +85,7 @@ function OrbView({ orb, travel }: { orb: Orb; travel: number }) {
       duration={orb.dur}
       delay={orb.delay}
       easing="linear"
-      style={[styles.orb, { left: orb.left, width: orb.size, height: orb.size }]}
+      style={[styles.orb, { left: orb.left, width: orb.size, height: orb.size, borderRadius: orb.size / 2 }]}
     >
       {/* Muy suave: un orbe de bokeh es, por definición, un punto desenfocado. */}
       <SoftOrb color={orb.color} softness={0.85} />

@@ -51,7 +51,7 @@ export default function SpotlightBackground({ intensity = 'default', speed = 1 }
             duration={l.dur * speed}
             phase={l.phase}
             easing="sin"
-            style={{ position: 'absolute', left: l.left as any, top: l.top as any, width: l.size, height: l.size }}
+            style={{ position: 'absolute', left: l.left as any, top: l.top as any, width: l.size, height: l.size, borderRadius: l.size / 2 }}
           >
             {/* Un foco es luz difusa pura: la suavidad va al máximo. */}
             <SoftOrb color={l.color} softness={0.95} />
