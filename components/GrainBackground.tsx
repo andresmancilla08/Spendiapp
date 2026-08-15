@@ -1,8 +1,9 @@
-import { StyleSheet, Platform, View } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Animated, StyleSheet, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import type { AuroraIntensity } from './AuroraBackground';
-import FxLayer, { type FxFrame } from './fx/FxLayer';
-import SoftOrb from './fx/SoftOrb';
+import { FROZEN_AT } from '../hooks/useFrozenPhase';
 
 const CONFIG: Record<AuroraIntensity, { grain: number; wash: number }> = {
   subtle:  { grain: 0.5, wash: 0.5 },
@@ -28,53 +29,45 @@ interface Props {
 /**
  * Fondo con textura de grano sutil sobre un wash de color de la paleta que
  * deriva lento. El grano (ruido SVG) late apenas para no quedar estático.
- *
- * Los dos washes llevaban `filter: blur(26px)` sobre cajas del 90 % × 70 % de
- * la pantalla, animadas: se sustituye por degradado elíptico.
  */
 export default function GrainBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
 
+  const grainAnim = useRef(new Animated.Value(0)).current;
+  const washAnim = useRef(new Animated.Value(0)).current;
+
+  // Grano y wash quedan quietos: el ruido SVG y el desenfoque se pintan una vez.
+  useEffect(() => {
+    grainAnim.setValue(FROZEN_AT);
+    washAnim.setValue(FROZEN_AT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const grainBase = (isDark ? 0.14 : 0.13) * cfg.grain;
+  const grainOpacity = grainAnim.interpolate({ inputRange: [0, 1], outputRange: [grainBase * 0.45, grainBase] });
   const washMul = (isDark ? 1.35 : 1.4) * cfg.wash;
 
-  const op1 = 0.22 * washMul;
-  const op2 = 0.18 * washMul;
+  const tx1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-52, 52, -52] });
+  const ty1 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 42, 0] });
+  const tx2 = washAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [52, -52, 52] });
 
-  const wash1: FxFrame[] = [
-    { at: 0,   opacity: op1, x: -52, y: 0 },
-    { at: 0.5, opacity: op1, x: 52,  y: 42 },
-    { at: 1,   opacity: op1, x: -52, y: 0 },
-  ];
-  const wash2: FxFrame[] = [
-    { at: 0,   opacity: op2, x: 52 },
-    { at: 0.5, opacity: op2, x: -52 },
-    { at: 1,   opacity: op2, x: 52 },
-  ];
-  const grain: FxFrame[] = [
-    { at: 0,   opacity: grainBase * 0.45 },
-    { at: 0.5, opacity: grainBase },
-    { at: 1,   opacity: grainBase * 0.45 },
-  ];
+  const softBlur = Platform.OS === 'web' ? ({ filter: 'blur(26px)' } as any) : {};
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {/* Wash de color: dos campos suaves de la paleta que derivan lento */}
-      <FxLayer frames={wash1} duration={11000 * speed} easing="sin" style={[styles.wash, { top: '-10%', left: '-15%' }]}>
-        <SoftOrb color={colors.primary} softness={0.8} shape="ellipse" />
-      </FxLayer>
-      <FxLayer frames={wash2} duration={11000 * speed} easing="sin" style={[styles.wash, { bottom: '-10%', right: '-15%' }]}>
-        <SoftOrb color={colors.tertiary} softness={0.8} shape="ellipse" />
-      </FxLayer>
+      <Animated.View style={[styles.wash, softBlur, { top: '-10%', left: '-15%', opacity: 0.22 * washMul, transform: [{ translateX: tx1 }, { translateY: ty1 }] }]}>
+        <LinearGradient colors={[colors.primary, 'transparent']} start={{ x: 0.4, y: 0.3 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFillObject} />
+      </Animated.View>
+      <Animated.View style={[styles.wash, softBlur, { bottom: '-10%', right: '-15%', opacity: 0.18 * washMul, transform: [{ translateX: tx2 }] }]}>
+        <LinearGradient colors={[colors.tertiary, 'transparent']} start={{ x: 0.6, y: 0.7 }} end={{ x: 0, y: 0 }} style={StyleSheet.absoluteFillObject} />
+      </Animated.View>
 
       {/* Grano (solo web) */}
       {Platform.OS === 'web' && (
-        <FxLayer
-          frames={grain}
-          duration={3600 * speed}
-          easing="sin"
-          style={[StyleSheet.absoluteFillObject, { backgroundImage: NOISE_URI, backgroundRepeat: 'repeat', backgroundSize: '160px 160px' } as any]}
+        <Animated.View
+          style={[StyleSheet.absoluteFillObject, { opacity: grainOpacity, backgroundImage: NOISE_URI, backgroundRepeat: 'repeat', backgroundSize: '160px 160px' } as any]}
         />
       )}
     </View>
@@ -82,5 +75,5 @@ export default function GrainBackground({ intensity = 'default', speed = 1 }: Pr
 }
 
 const styles = StyleSheet.create({
-  wash: { position: 'absolute', width: '90%', height: '70%' },
+  wash: { position: 'absolute', width: '90%', height: '70%', borderRadius: 400, overflow: 'hidden' },
 });

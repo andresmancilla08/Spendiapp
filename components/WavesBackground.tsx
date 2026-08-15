@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { useRef, useState, useMemo } from 'react';
+import { View, Animated, StyleSheet, useWindowDimensions, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import { useFrozenPhase } from '../hooks/useFrozenPhase';
 import type { AuroraIntensity } from './AuroraBackground';
-import FxLayer, { type FxFrame } from './fx/FxLayer';
-import SoftOrb from './fx/SoftOrb';
 
 const CONFIG: Record<AuroraIntensity, { opacity: number; amp: number }> = {
   subtle:  { opacity: 0.5, amp: 0.6 },
@@ -15,18 +15,14 @@ interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
   speed?: number;
-  softness?: number;
 }
 
 /**
  * Bandas de gradiente fluidas que se deslizan en diagonal y ondulan
  * verticalmente. Cuatro capas de distinto color de la paleta y velocidad crean
  * un lenguaje visual propio, distinto de blobs y partículas.
- *
- * El difuminado de los bordes lo da un degradado elíptico en lugar del antiguo
- * `filter: blur(9px)` sobre una banda del 170 % de ancho.
  */
-export default function WavesBackground({ intensity = 'default', speed = 1, softness = 0.6 }: Props) {
+export default function WavesBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const glow = isDark ? 1.3 : 1.4;
@@ -43,40 +39,46 @@ export default function WavesBackground({ intensity = 'default', speed = 1, soft
     { top: '78%', color: colors.success,   rotate: 7,  height: 160, opacity: 0.12, dur: 19000, dir: -1, bob: 18, phase: 0.83 },
   ]), [colors.primary, colors.tertiary, colors.secondary, colors.success]);
 
-  const opacityMul = cfg.opacity * glow;
-
   return (
     <View
       style={StyleSheet.absoluteFillObject}
       pointerEvents="none"
       onLayout={(e) => { const w = e.nativeEvent.layout.width; if (w && Math.abs(w - ownWidth) > 1) setOwnWidth(w); }}
     >
-      {bands.map((b, i) => {
-        const shift = width * 0.32 * cfg.amp * b.dir;
-        const bob = b.bob * cfg.amp;
-        const op = Math.min(b.opacity * opacityMul, 0.6);
-        const frames: FxFrame[] = [
-          { at: 0,    opacity: op, x: -shift, y: 0 },
-          { at: 0.25, opacity: op, x: 0,      y: bob },
-          { at: 0.5,  opacity: op, x: shift,  y: 0 },
-          { at: 0.75, opacity: op, x: 0,      y: -bob },
-          { at: 1,    opacity: op, x: -shift, y: 0 },
-        ];
-        return (
-          <FxLayer
-            key={i}
-            frames={frames}
-            duration={b.dur * speed}
-            phase={b.phase}
-            easing="sin"
-            rotate={`${b.rotate}deg`}
-            style={[styles.wave, { top: b.top as any, height: b.height }]}
-          >
-            <SoftOrb color={b.color} softness={Math.max(0.35, softness)} shape="ellipse" />
-          </FxLayer>
-        );
-      })}
+      {bands.map((b, i) => (
+        <Band key={i} band={b} width={width} opacityMul={cfg.opacity * glow} ampMul={cfg.amp} speed={speed} />
+      ))}
     </View>
+  );
+}
+
+function Band({ band, width, opacityMul, ampMul, speed }: {
+  band: { top: string; color: string; rotate: number; height: number; opacity: number; dur: number; dir: number; bob: number; phase: number };
+  width: number; opacityMul: number; ampMul: number; speed: number;
+}) {
+  const v = useRef(new Animated.Value(0)).current;
+  useFrozenPhase(v, band.dur * speed, band.phase);
+
+  const shift = width * 0.32 * ampMul * band.dir;
+  const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-shift, shift, -shift] });
+  const ty = v.interpolate({ inputRange: [0, 0.25, 0.5, 0.75, 1], outputRange: [0, band.bob * ampMul, 0, -band.bob * ampMul, 0] });
+
+  return (
+    <Animated.View
+      style={[
+        styles.wave,
+        Platform.OS === 'web' ? ({ filter: 'blur(9px)' } as any) : {},
+        { top: band.top as any, height: band.height, opacity: Math.min(band.opacity * opacityMul, 0.6), transform: [{ translateX: tx }, { translateY: ty }, { rotate: `${band.rotate}deg` }] },
+      ]}
+    >
+      <LinearGradient
+        colors={['transparent', band.color, 'transparent']}
+        locations={[0, 0.5, 1]}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={StyleSheet.absoluteFillObject}
+      />
+    </Animated.View>
   );
 }
 

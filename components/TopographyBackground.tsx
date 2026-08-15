@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useRef, useMemo } from 'react';
+import { View, Animated, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../context/ThemeContext';
+import { useFrozenPhase } from '../hooks/useFrozenPhase';
 import type { AuroraIntensity } from './AuroraBackground';
-import FxLayer, { type FxFrame } from './fx/FxLayer';
 
 const CONFIG: Record<AuroraIntensity, { opacity: number; count: number }> = {
   subtle:  { opacity: 0.5, count: 5 },
@@ -48,11 +48,10 @@ function Contour({ layer, opacityMul, speed }: {
   opacityMul: number;
   speed: number;
 }) {
-  const opacity = Math.min(0.4, 0.16 * opacityMul);
-  const frames: FxFrame[] = [
-    { at: 0, opacity, x: -30 },
-    { at: 1, opacity, x: 30 },
-  ];
+  const t = useRef(new Animated.Value(layer.phase)).current;
+  useFrozenPhase(t, layer.dur * speed, layer.phase);
+
+  const translateX = t.interpolate({ inputRange: [0, 1], outputRange: [-30, 30] });
   const W = 420;
   const a = layer.amp;
   const y = layer.y;
@@ -61,16 +60,12 @@ function Contour({ layer, opacityMul, speed }: {
     + ` C${W * 0.66},${y - a * 0.8} ${W * 0.84},${y + a * 1.1} ${W + 40},${y - a * 0.3}`;
 
   return (
-    <FxLayer
-      frames={frames}
-      duration={layer.dur * speed}
-      phase={layer.phase}
-      easing="sin"
-      style={StyleSheet.absoluteFillObject}
+    <Animated.View
+      style={[StyleSheet.absoluteFillObject, { opacity: Math.min(0.4, 0.16 * opacityMul), transform: [{ translateX }] }]}
     >
       <Svg width="100%" height="100%" viewBox={`0 0 ${W} 900`} preserveAspectRatio="xMidYMid slice">
         <Path d={d} fill="none" stroke={layer.color} strokeWidth={layer.width} strokeLinecap="round" />
       </Svg>
-    </FxLayer>
+    </Animated.View>
   );
 }

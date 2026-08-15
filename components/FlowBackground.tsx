@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { useRef, useState, useMemo } from 'react';
+import { View, Animated, StyleSheet, useWindowDimensions, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import { useFrozenPhase } from '../hooks/useFrozenPhase';
 import type { AuroraIntensity } from './AuroraBackground';
-import FxLayer, { type FxFrame } from './fx/FxLayer';
-import SoftOrb from './fx/SoftOrb';
 
 const CONFIG: Record<AuroraIntensity, { opacity: number; amp: number }> = {
   subtle:  { opacity: 0.55, amp: 0.7 },
@@ -15,18 +15,15 @@ interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
   speed?: number;
-  softness?: number;
 }
 
 /**
  * Seda: sábanas de gradiente a pantalla completa que cruzan la vista en
  * diagonal, difuminadas, como tela fluida. A diferencia de Ondas (bandas
- * angostas que ondulan en su sitio), aquí el color VIAJA de lado a lado.
- *
- * Eran tres capas del 220 % de ancho con `filter: blur(22px)` animadas — de las
- * superficies desenfocadas más grandes de la app.
+ * angostas que ondulan en su sitio), aquí el color VIAJA de lado a lado y
+ * ocupa toda la altura — un lenguaje de "corriente" continua.
  */
-export default function FlowBackground({ intensity = 'default', speed = 1, softness = 0.75 }: Props) {
+export default function FlowBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const glow = isDark ? 1.3 : 1.45;
@@ -42,38 +39,49 @@ export default function FlowBackground({ intensity = 'default', speed = 1, softn
     { colorA: colors.success,   colorB: colors.primary,  rotate: -7,  top: '58%',  height: '60%', base: 0.11, dur: 20000, dir: 1,  phase: 0.71 },
   ]), [colors.primary, colors.secondary, colors.tertiary, colors.success, colors.info]);
 
-  const opacityMul = cfg.opacity * glow;
-
   return (
     <View
       style={StyleSheet.absoluteFillObject}
       pointerEvents="none"
       onLayout={(e) => { const w = e.nativeEvent.layout.width; if (w && Math.abs(w - ownWidth) > 1) setOwnWidth(w); }}
     >
-      {sheets.map((s, i) => {
-        const travel = width * 0.55 * cfg.amp * s.dir;
-        const lo = s.base * opacityMul * 0.7;
-        const hi = Math.min(s.base * opacityMul * 1.3, 0.5);
-        const frames: FxFrame[] = [
-          { at: 0,   opacity: lo, x: -travel },
-          { at: 0.5, opacity: hi, x: travel },
-          { at: 1,   opacity: lo, x: -travel },
-        ];
-        return (
-          <FxLayer
-            key={i}
-            frames={frames}
-            duration={s.dur * speed}
-            phase={s.phase}
-            easing="sin"
-            rotate={`${s.rotate}deg`}
-            style={[styles.sheet, { top: s.top as any, height: s.height as any }]}
-          >
-            <SoftOrb color={s.colorA} color2={s.colorB} softness={Math.max(0.5, softness)} shape="ellipse" />
-          </FxLayer>
-        );
-      })}
+      {sheets.map((s, i) => (
+        <Sheet key={i} sheet={s} width={width} opacityMul={cfg.opacity * glow} ampMul={cfg.amp} speed={speed} />
+      ))}
     </View>
+  );
+}
+
+function Sheet({ sheet, width, opacityMul, ampMul, speed }: {
+  sheet: { colorA: string; colorB: string; rotate: number; top: string; height: string; base: number; dur: number; dir: number; phase: number };
+  width: number; opacityMul: number; ampMul: number; speed: number;
+}) {
+  const v = useRef(new Animated.Value(0)).current;
+  useFrozenPhase(v, sheet.dur * speed, sheet.phase);
+
+  const travel = width * 0.55 * ampMul * sheet.dir;
+  const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-travel, travel, -travel] });
+  const opacity = v.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [sheet.base * opacityMul * 0.7, Math.min(sheet.base * opacityMul * 1.3, 0.5), sheet.base * opacityMul * 0.7],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.sheet,
+        Platform.OS === 'web' ? ({ filter: 'blur(22px)' } as any) : {},
+        { top: sheet.top as any, height: sheet.height as any, opacity, transform: [{ translateX: tx }, { rotate: `${sheet.rotate}deg` }] },
+      ]}
+    >
+      <LinearGradient
+        colors={['transparent', sheet.colorA, sheet.colorB, 'transparent']}
+        locations={[0, 0.35, 0.65, 1]}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={StyleSheet.absoluteFillObject}
+      />
+    </Animated.View>
   );
 }
 

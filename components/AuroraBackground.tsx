@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Animated, StyleSheet, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
-import FxLayer, { type FxFrame } from './fx/FxLayer';
-import SoftOrb from './fx/SoftOrb';
+import { FROZEN_AT } from '../hooks/useFrozenPhase';
 
 export type AuroraIntensity = 'intense' | 'default' | 'subtle';
 
@@ -16,70 +16,111 @@ interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
   speed?: number;
-  /** 0 → 1. Sustituye al antiguo desenfoque en píxeles: ahora la suavidad la
-   *  da el propio degradado del blob, sin coste de GPU por frame. */
-  softness?: number;
 }
 
-/** Geometría y ritmo de cada blob. `dur` en ms, `phase` desfasa el arranque. */
-const BLOBS = [
-  { key: 'b4', box: { width: 310, height: 310, borderRadius: 155, top: '22%', left: '8%' },   dur: 14000, phase: 0.15, op: [0.14, 0.28] as const, lightOp: [0.04, 0.10] as const, x: 14,  y: 14,  ci: 3 },
-  { key: 'b1', box: { width: 280, height: 280, borderRadius: 140, top: -60,   left: -70 },    dur:  9000, phase: 0.00, op: [0.28, 0.55] as const, lightOp: [0.08, 0.20] as const, x: 24,  y: -20, ci: 0 },
-  { key: 'b6', box: { width: 220, height: 220, borderRadius: 110, top: '65%', left: -30 },    dur: 12800, phase: 0.82, op: [0.20, 0.46] as const, lightOp: [0.05, 0.12] as const, x: 18,  y: -20, ci: 5 },
-  { key: 'b2', box: { width: 180, height: 180, borderRadius: 90,  bottom: 110, right: -50 },  dur: 11500, phase: 0.33, op: [0.24, 0.50] as const, lightOp: [0.06, 0.16] as const, x: -22, y: 18,  ci: 1 },
-  { key: 'b5', box: { width: 130, height: 130, borderRadius: 65,  top: '12%', right: '4%' },  dur:  8500, phase: 0.50, op: [0.22, 0.50] as const, lightOp: [0.05, 0.14] as const, x: -16, y: 18,  ci: 4 },
-  { key: 'b3', box: { width: 110, height: 110, borderRadius: 55,  top: '42%', left: '28%' },  dur: 10200, phase: 0.67, op: [0.26, 0.54] as const, lightOp: [0.07, 0.18] as const, x: 20,  y: 30,  ci: 2 },
-] as const;
-
-/**
- * Aurora: blobs de color que derivan y laten. Es el efecto de la marca y el
- * único que ven los usuarios gratuitos.
- *
- * El movimiento lo ejecuta el compositor (`FxLayer`) y el borde difuso lo da un
- * degradado radial (`SoftOrb`), no un `filter: blur()`. Antes eran seis capas
- * desenfocadas animadas desde JS; era el efecto que más calentaba el teléfono.
- */
-export default function AuroraBackground({ intensity = 'default', speed = 1, softness = 0.5 }: Props) {
+export default function AuroraBackground({ intensity = 'default', speed = 1 }: Props) {
   const { isDark, activePalette } = useTheme();
   // En dark el scrim del fondo va DEBAJO de los efectos (AppBackground), así
   // que el multiplicador solo compensa el menor contraste, no un overlay.
-  // En light las opacidades base son muy tímidas → boost mayor.
+  // En light las opacidades base (lightOp) son muy tímidas → boost mayor.
   const m = MULTIPLIER[intensity] * (isDark ? 1.35 : 1.7);
+
+  const b1 = useRef(new Animated.Value(0.00)).current;
+  const b2 = useRef(new Animated.Value(0.33)).current;
+  const b3 = useRef(new Animated.Value(0.67)).current;
+  const b4 = useRef(new Animated.Value(0.15)).current;
+  const b5 = useRef(new Animated.Value(0.50)).current;
+  const b6 = useRef(new Animated.Value(0.82)).current;
+
+  // Los blobs conservan su geometría, su degradado y su desenfoque: solo dejan
+  // de recorrer el ciclo. Cada uno se congela en un punto distinto (su desfase
+  // original + FROZEN_AT), así el conjunto se ve tan variado como un fotograma
+  // del efecto en movimiento y no todos en la misma fase.
+  useEffect(() => {
+    b1.setValue(0.00 + FROZEN_AT);
+    b2.setValue(0.33 + FROZEN_AT);
+    b3.setValue(0.67 + FROZEN_AT);
+    b4.setValue(0.15 + FROZEN_AT);
+    b5.setValue(0.50 + FROZEN_AT);
+    b6.setValue(0.82 + FROZEN_AT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Blob 1 — grande, top-left
+  const op1      = b1.interpolate({ inputRange: [0, 0.5, 1],              outputRange: [0.28 * m, 0.55 * m, 0.28 * m], extrapolate: 'clamp' });
+  const tx1      = b1.interpolate({ inputRange: [0, 0.5, 1],              outputRange: [0, 24, 0],                      extrapolate: 'clamp' });
+  const ty1      = b1.interpolate({ inputRange: [0, 0.25, 0.75, 1],       outputRange: [0, -20, 20, 0],                 extrapolate: 'clamp' });
+  const lightOp1 = b1.interpolate({ inputRange: [0, 0.5, 1],              outputRange: [0.08 * m, 0.20 * m, 0.08 * m], extrapolate: 'clamp' });
+
+  // Blob 2 — mediano, bottom-right
+  const op2      = b2.interpolate({ inputRange: [0.33, 0.83, 1.33],       outputRange: [0.24 * m, 0.50 * m, 0.24 * m], extrapolate: 'clamp' });
+  const tx2      = b2.interpolate({ inputRange: [0.33, 0.83, 1.33],       outputRange: [0, -22, 0],                     extrapolate: 'clamp' });
+  const ty2      = b2.interpolate({ inputRange: [0.33, 0.58, 1.08, 1.33], outputRange: [0, 18, -16, 0],                 extrapolate: 'clamp' });
+  const lightOp2 = b2.interpolate({ inputRange: [0.33, 0.83, 1.33],       outputRange: [0.06 * m, 0.16 * m, 0.06 * m], extrapolate: 'clamp' });
+
+  // Blob 3 — pequeño, centro
+  const op3      = b3.interpolate({ inputRange: [0.67, 1.17, 1.67],       outputRange: [0.26 * m, 0.54 * m, 0.26 * m], extrapolate: 'clamp' });
+  const tx3      = b3.interpolate({ inputRange: [0.67, 1.17, 1.67],       outputRange: [0, 20, 0],                      extrapolate: 'clamp' });
+  const ty3      = b3.interpolate({ inputRange: [0.67, 0.92, 1.42, 1.67], outputRange: [0, 30, -30, 0],                 extrapolate: 'clamp' });
+  const lightOp3 = b3.interpolate({ inputRange: [0.67, 1.17, 1.67],       outputRange: [0.07 * m, 0.18 * m, 0.07 * m], extrapolate: 'clamp' });
+
+  // Blob 4 — grande, centro-izquierda (ambient visible, no imperceptible)
+  const op4      = b4.interpolate({ inputRange: [0.15, 0.65, 1.15],       outputRange: [0.14 * m, 0.28 * m, 0.14 * m], extrapolate: 'clamp' });
+  const tx4      = b4.interpolate({ inputRange: [0.15, 0.65, 1.15],       outputRange: [0, 14, 0],                      extrapolate: 'clamp' });
+  const ty4      = b4.interpolate({ inputRange: [0.15, 0.65, 1.15],       outputRange: [0, 14, 0],                      extrapolate: 'clamp' });
+  const lightOp4 = b4.interpolate({ inputRange: [0.15, 0.65, 1.15],       outputRange: [0.04 * m, 0.10 * m, 0.04 * m], extrapolate: 'clamp' });
+
+  // Blob 5 — pequeño, top-right
+  const op5      = b5.interpolate({ inputRange: [0.50, 1.00, 1.50],       outputRange: [0.22 * m, 0.50 * m, 0.22 * m], extrapolate: 'clamp' });
+  const tx5      = b5.interpolate({ inputRange: [0.50, 1.00, 1.50],       outputRange: [0, -16, 0],                     extrapolate: 'clamp' });
+  const ty5      = b5.interpolate({ inputRange: [0.50, 0.75, 1.25, 1.50], outputRange: [0, 18, -14, 0],                 extrapolate: 'clamp' });
+  const lightOp5 = b5.interpolate({ inputRange: [0.50, 1.00, 1.50],       outputRange: [0.05 * m, 0.14 * m, 0.05 * m], extrapolate: 'clamp' });
+
+  // Blob 6 — mediano-grande, lower-left
+  const op6      = b6.interpolate({ inputRange: [0.82, 1.32, 1.82],       outputRange: [0.20 * m, 0.46 * m, 0.20 * m], extrapolate: 'clamp' });
+  const tx6      = b6.interpolate({ inputRange: [0.82, 1.32, 1.82],       outputRange: [0, 18, 0],                      extrapolate: 'clamp' });
+  const ty6      = b6.interpolate({ inputRange: [0.82, 1.07, 1.57, 1.82], outputRange: [0, -20, 18, 0],                 extrapolate: 'clamp' });
+  const lightOp6 = b6.interpolate({ inputRange: [0.82, 1.32, 1.82],       outputRange: [0.05 * m, 0.12 * m, 0.05 * m], extrapolate: 'clamp' });
+
   const blobColors = isDark ? activePalette.auroraBlobs.dark : activePalette.auroraBlobs.light;
 
-  const layers = useMemo(() => BLOBS.map((b) => {
-    const [lo, hi] = isDark ? b.op : b.lightOp;
-    const frames: FxFrame[] = [
-      { at: 0,    opacity: lo * m, x: 0,     y: 0 },
-      { at: 0.25, opacity: (lo + hi) / 2 * m, x: b.x / 2, y: b.y },
-      { at: 0.5,  opacity: hi * m, x: b.x,   y: 0 },
-      { at: 0.75, opacity: (lo + hi) / 2 * m, x: b.x / 2, y: -b.y },
-      { at: 1,    opacity: lo * m, x: 0,     y: 0 },
-    ];
-    return { ...b, frames };
-  }), [isDark, m]);
+  const webBlur = Platform.OS === 'web' ? ({ filter: `blur(${isDark ? 7 : 3}px)` } as any) : {};
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-      {layers.map((b) => {
-        const pair = blobColors[b.ci];
-        return (
-          <FxLayer
-            key={b.key}
-            frames={b.frames}
-            duration={b.dur * speed}
-            phase={b.phase}
-            easing="sin"
-            style={[styles.blob, b.box as any]}
-          >
-            <SoftOrb color={pair[0]} color2={pair[1]} softness={softness} />
-          </FxLayer>
-        );
-      })}
+      {/* Blob 4 — grande ambient, centro-izquierda */}
+      <Animated.View style={[styles.blob4, webBlur, { opacity: isDark ? op4 : lightOp4, transform: [{ translateX: tx4 }, { translateY: ty4 }] }]}>
+        <LinearGradient colors={blobColors[3]} style={StyleSheet.absoluteFillObject} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} />
+      </Animated.View>
+      {/* Blob 1 — grande, top-left */}
+      <Animated.View style={[styles.blob1, webBlur, { opacity: isDark ? op1 : lightOp1, transform: [{ translateX: tx1 }, { translateY: ty1 }] }]}>
+        <LinearGradient colors={blobColors[0]} style={StyleSheet.absoluteFillObject} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
+      </Animated.View>
+      {/* Blob 6 — mediano-grande, lower-left */}
+      <Animated.View style={[styles.blob6, webBlur, { opacity: isDark ? op6 : lightOp6, transform: [{ translateX: tx6 }, { translateY: ty6 }] }]}>
+        <LinearGradient colors={blobColors[5]} style={StyleSheet.absoluteFillObject} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} />
+      </Animated.View>
+      {/* Blob 2 — mediano, bottom-right */}
+      <Animated.View style={[styles.blob2, webBlur, { opacity: isDark ? op2 : lightOp2, transform: [{ translateX: tx2 }, { translateY: ty2 }] }]}>
+        <LinearGradient colors={blobColors[1]} style={StyleSheet.absoluteFillObject} start={{ x: 0.5, y: 0 }} end={{ x: 0, y: 1 }} />
+      </Animated.View>
+      {/* Blob 5 — pequeño, top-right */}
+      <Animated.View style={[styles.blob5, webBlur, { opacity: isDark ? op5 : lightOp5, transform: [{ translateX: tx5 }, { translateY: ty5 }] }]}>
+        <LinearGradient colors={blobColors[4]} style={StyleSheet.absoluteFillObject} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} />
+      </Animated.View>
+      {/* Blob 3 — pequeño, centro */}
+      <Animated.View style={[styles.blob3, webBlur, { opacity: isDark ? op3 : lightOp3, transform: [{ translateX: tx3 }, { translateY: ty3 }] }]}>
+        <LinearGradient colors={blobColors[2]} style={StyleSheet.absoluteFillObject} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} />
+      </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  blob: { position: 'absolute' },
+  blob1: { position: 'absolute', width: 280, height: 280, borderRadius: 140, top: -60,    left: -70,   overflow: 'hidden' },
+  blob2: { position: 'absolute', width: 180, height: 180, borderRadius: 90,  bottom: 110, right: -50,  overflow: 'hidden' },
+  blob3: { position: 'absolute', width: 110, height: 110, borderRadius: 55,  top: '42%',  left: '28%', overflow: 'hidden' },
+  blob4: { position: 'absolute', width: 310, height: 310, borderRadius: 155, top: '22%',  left: '8%',  overflow: 'hidden' },
+  blob5: { position: 'absolute', width: 130, height: 130, borderRadius: 65,  top: '12%',  right: '4%', overflow: 'hidden' },
+  blob6: { position: 'absolute', width: 220, height: 220, borderRadius: 110, top: '65%',  left: -30,   overflow: 'hidden' },
 });

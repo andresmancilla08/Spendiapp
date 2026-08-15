@@ -14,14 +14,19 @@ import { Platform } from 'react-native';
  * Solo web (la app se distribuye como PWA); en nativo devuelve `null` y la
  * lista se comporta como siempre.
  */
-export function scrollFadeMask(top: number, bottom: number) {
+export function scrollFadeMask(_top: number, bottom: number) {
   if (Platform.OS !== 'web') return null;
-  // Tramos de desvanecido: cortos, para que solo afecten al contenido que ya
-  // está saliendo y no aclaren tarjetas que se leen enteras.
+  // ARRIBA NO SE DESVANECE. El tramo superior atenuaba el contenido justo bajo
+  // la cabecera: importes, porcentajes y títulos llegaban al borde ya medio
+  // borrados y no se podían leer. El borde de arriba es donde el usuario mira
+  // primero, así que ahí manda la legibilidad, no el acabado.
+  //
+  // Abajo sí: el contenido se desvanece al acercarse a la barra de pestañas en
+  // vez de cortarse contra una línea, y ahí lo que sale de cuadro ya se leyó.
   const fade = 26;
   const mask =
     'linear-gradient(to bottom, ' +
-    `transparent 0px, rgba(0,0,0,1) ${top + fade}px, ` +
+    'rgba(0,0,0,1) 0px, ' +
     `rgba(0,0,0,1) calc(100% - ${bottom + fade}px), transparent calc(100% - ${bottom}px))`;
   return { maskImage: mask, WebkitMaskImage: mask } as any;
 }

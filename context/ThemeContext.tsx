@@ -43,15 +43,10 @@ export const BACKGROUND_SPEED_FACTOR: Record<BackgroundSpeed, number> = { slow: 
  *  más desenfoque sobre un fondo claro que sobre uno oscuro. */
 export type BackgroundBlur = 'none' | 'soft' | 'medium' | 'strong';
 export const BACKGROUND_BLUR_VALUES: BackgroundBlur[] = ['none', 'soft', 'medium', 'strong'];
-/** Suavidad del borde del efecto, 0 → 1.
- *
- *  Sustituye a los píxeles de `filter: blur()` que se aplicaban antes. El
- *  desenfoque real obligaba a la GPU a rehacer un blur gaussiano a pantalla
- *  completa en cada frame — se midieron 2,95 pantallas de superficie
- *  desenfocada a la vez, y era la causa principal del calentamiento. La misma
- *  intención (que el fondo no compita con el contenido) la da ahora el propio
- *  degradado del efecto, que se pinta una sola vez. */
-export const BACKGROUND_SOFTNESS: Record<BackgroundBlur, number> = { none: 0.15, soft: 0.45, medium: 0.65, strong: 0.9 };
+/** El desenfoque vuelve a ser real: con los efectos QUIETOS, el `filter: blur()`
+ *  se pinta una vez y el compositor reutiliza la capa. Lo insostenible era
+ *  rehacerlo en cada frame porque debajo algo se movía. */
+export const BACKGROUND_BLUR_PX: Record<BackgroundBlur, number> = { none: 0, soft: 6, medium: 14, strong: 26 };
 export type IconStroke = 1.5 | 2 | 2.5;
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type ChartType = 'line' | 'bars' | 'area' | 'dots' | 'stepped' | 'lollipop';

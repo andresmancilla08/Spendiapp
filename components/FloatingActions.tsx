@@ -13,6 +13,17 @@ export const FAB_BOTTOM = TAB_BAR_SPACE + 18;
 export const FAB_SPACE = FAB_BOTTOM + FAB_SIZE + 16;
 
 /**
+ * Reserva al final de una LISTA de tarjetas anchas (inicio, historial).
+ *
+ * `FAB_SPACE` reserva la altura completa del FAB, y eso deja un hueco de 182 px
+ * bajo la última tarjeta: media pantalla vacía al llegar al final. El FAB flota
+ * en una esquina, no ocupa el ancho — lo único que la lista necesita librar es
+ * la barra de pestañas. Si la última tarjeta llega hasta abajo, el FAB se le
+ * superpone en una esquina, que es justo lo que hace un botón flotante.
+ */
+export const LIST_BOTTOM_SPACE = TAB_BAR_SPACE + 24;
+
+/**
  * Capa para lo que flota sobre el scroll: el FAB redondo y el botón de acción
  * fijo al fondo. En tablet/desktop se alinea con el ANCHO DEL CONTENIDO, el
  * mismo que usa la tab bar.

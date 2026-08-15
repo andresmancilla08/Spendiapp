@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useMemo, useId, type ReactNode } from 'react';
 import { scrollFadeMask } from '../components/ScrollFadeEdges';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Animated, Easing, Platform, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,10 +17,9 @@ import PersonalizationCanvas, { PersonalizationCanvasBar, CANVAS_HEIGHT, CANVAS_
 import { PALETTE_MAP } from '../config/palettes';
 import { LOOKS, matchLook, type Look } from '../config/looks';
 import { accentInk } from '../utils/contrast';
-import { BackgroundEffect, CLIP_BLURRED_CHILD } from '../components/AppBackground';
-import { FxFrozen } from '../components/fx/FxLayer';
+import { BackgroundEffect, backgroundBlurStyle, CLIP_BLURRED_CHILD, DARK_SCRIM } from '../components/AppBackground';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_SOFTNESS, CHART_ANIM_VALUES, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, CHART_ANIM_VALUES, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
   GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
 } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
@@ -58,51 +57,153 @@ function SwitchRow({ icon, label, sub, value, onValueChange, isLast }: {
 }
 
 const BACKGROUND_STYLES: BackgroundStyle[] = BACKGROUND_STYLE_VALUES;
+/** Ancho máximo del contenido en tablet/escritorio (igual que ScreenBackground). */
+const CONTENT_MAX = 720;
 
-// ── Tarjeta de fondo con vista previa EN VIVO (renderiza el efecto real a la
-// intensidad y velocidad seleccionadas, no un mockup) ──
-function BackgroundPreviewCard({ styleKey, label, selected, intensity, speed, softness, onPress }: {
-  styleKey: BackgroundStyle; label: string; selected: boolean; intensity: AuroraIntensity; speed: number; softness: number; onPress: () => void;
+/**
+ * Carrusel de fondos, con la forma del selector de fondos de iOS: una tarjeta
+ * grande centrada con las vecinas asomando, y la elección se hace deslizando.
+ *
+ * Antes eran trece miniaturas de 64 px en una rejilla. Un fondo se juzga por
+ * cómo llena una pantalla, no por un recorte del tamaño de un sello: cada
+ * tarjeta es ahora una maqueta con la proporción real del teléfono, con el
+ * degradado, el scrim y el efecto tal y como se verán.
+ *
+ * Al detenerse en una tarjeta, ese fondo se aplica: la app entera queda de
+ * fondo mientras deslizas, así que la decisión se toma viendo el resultado y no
+ * una vista previa.
+ */
+function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSelect, labelFor }: {
+  keys: BackgroundStyle[];
+  selectedKey: BackgroundStyle;
+  intensity: AuroraIntensity;
+  speed: number;
+  blurPx: number;
+  onSelect: (key: BackgroundStyle) => void;
+  labelFor: (key: BackgroundStyle) => string;
 }) {
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, activePalette, gradientStyle } = useTheme();
+  const { width: winWidth } = useWindowDimensions();
+  const scrollRef = useRef<ScrollView>(null);
+
+  // La tarjeta ocupa el 62 % del ancho útil: deja ver a los lados lo justo para
+  // que se entienda que hay más y se pueda deslizar.
+  const outer = Math.min(winWidth, CONTENT_MAX) - 40;
+  const cardW = Math.round(outer * 0.62);
+  const gap = 12;
+  const step = cardW + gap;
+  const sidePad = Math.round((outer - cardW) / 2);
+  const cardH = Math.round(cardW * 1.72);
+
+  const index = Math.max(0, keys.indexOf(selectedKey));
+  const gradient = isDark ? activePalette.gradientDark : activePalette.gradientLight;
+
+  // Centra la tarjeta activa al abrir y cuando el fondo cambia desde fuera
+  // (por ejemplo al elegir un "look" completo en el capítulo de color).
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ x: index * step, animated: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  const onMomentumEnd = (e: any) => {
+    const i = Math.round(e.nativeEvent.contentOffset.x / step);
+    const key = keys[Math.max(0, Math.min(keys.length - 1, i))];
+    if (key && key !== selectedKey) onSelect(key);
+  };
+
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.85}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ selected }}
-      style={[
-        styles.bgCard,
-        {
-          backgroundColor: colors.surfaceSecondary,
-          borderColor: selected ? colors.primary : 'transparent',
-        },
-      ]}
-    >
-      <View style={[styles.bgPreviewBox, CLIP_BLURRED_CHILD, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
-        {/* Los efectos reinician sus loops in-place al cambiar intensidad/velocidad — sin remount */}
-        {styleKey === 'none' ? (
-          <View style={styles.bgNoneWrap}>
-            <AppIcon name="close-outline" size={18} color={colors.textTertiary} />
-          </View>
-        ) : (
-          // Solo la miniatura seleccionada se anima. Antes se movían las 13 a la
-          // vez (unos 144 elementos) y era el peor caso de consumo de la app.
-          <FxFrozen frozen={!selected}>
-            <BackgroundEffect styleKey={styleKey} intensity={intensity} speed={speed} softness={softness} />
-          </FxFrozen>
-        )}
+    <View style={styles.carouselWrap}>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        decelerationRate="fast"
+        snapToInterval={step}
+        snapToAlignment="start"
+        disableIntervalMomentum
+        onMomentumScrollEnd={onMomentumEnd}
+        contentContainerStyle={{ paddingHorizontal: sidePad, gap }}
+      >
+        {keys.map((key) => {
+          const active = key === selectedKey;
+          return (
+            <TouchableOpacity
+              key={key}
+              activeOpacity={0.9}
+              onPress={() => onSelect(key)}
+              accessibilityRole="button"
+              accessibilityLabel={labelFor(key)}
+              accessibilityState={{ selected: active }}
+              style={{ width: cardW }}
+            >
+              <View
+                style={[
+                  styles.carouselCard,
+                  CLIP_BLURRED_CHILD,
+                  {
+                    height: cardH,
+                    borderColor: active ? colors.primary : colors.border,
+                    borderWidth: active ? 2 : 1,
+                    backgroundColor: isDark ? colors.background : colors.backgroundSecondary,
+                  },
+                ]}
+              >
+                {/* Mismo orden de capas que el fondo real: degradado → scrim → efecto */}
+                {gradientStyle === 'flat' ? (
+                  <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradient[0] }]} />
+                ) : (
+                  <LinearGradient
+                    colors={gradient}
+                    start={gradientStyle === 'linear' ? { x: 0.5, y: 0 } : { x: 0.1, y: 0 }}
+                    end={gradientStyle === 'linear' ? { x: 0.5, y: 1 } : { x: 0.9, y: 1 }}
+                    style={StyleSheet.absoluteFillObject}
+                  />
+                )}
+                {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
+                {key === 'none' ? (
+                  <View style={styles.bgNoneWrap}>
+                    <AppIcon name="close-outline" size={26} color={colors.textTertiary} />
+                  </View>
+                ) : (
+                  // La tarjeta mide ~2/3 del ancho real: el desenfoque se escala
+                  // igual, o "suave" se leería como "fuerte" en la maqueta.
+                  <View style={backgroundBlurStyle(blurPx * 0.66) ?? StyleSheet.absoluteFill} pointerEvents="none">
+                    <BackgroundEffect styleKey={key} intensity={intensity} speed={speed} />
+                  </View>
+                )}
+                {active && (
+                  <View style={[styles.carouselCheck, { backgroundColor: colors.primary }]}>
+                    <AppIcon name="checkmark" size={12} color="#FFFFFF" />
+                  </View>
+                )}
+              </View>
+              <Text
+                style={[styles.carouselLabel, { color: active ? colors.primary : colors.textSecondary }]}
+                numberOfLines={1}
+              >
+                {labelFor(key)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
+      {/* Puntos de página: dicen cuántos fondos hay y por dónde vas. */}
+      <View style={styles.carouselDots} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        {keys.map((key, i) => (
+          <View
+            key={key}
+            style={[
+              styles.carouselDot,
+              {
+                backgroundColor: i === index ? colors.primary : colors.border,
+                width: i === index ? 16 : 6,
+              },
+            ]}
+          />
+        ))}
       </View>
-      <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>
-        {label}
-      </Text>
-      {selected && (
-        <View style={[styles.bgCheckBadge, { backgroundColor: colors.primary }]}>
-          <AppIcon name="checkmark" size={9} color="#FFFFFF" />
-        </View>
-      )}
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -749,20 +850,15 @@ export default function PersonalizationScreen() {
                 onChange={(key) => setGradientStyle(key as GradientStyle)}
                 style={styles.bgGridSpacing}
               />
-              <View style={styles.bgGrid}>
-                {BACKGROUND_STYLES.map((key) => (
-                  <BackgroundPreviewCard
-                    key={key}
-                    styleKey={key}
-                    label={t(`personalization.background.${key}`)}
-                    selected={targetBgStyle === key}
-                    intensity={backgroundIntensity}
-                    speed={BACKGROUND_SPEED_FACTOR[backgroundSpeed]}
-                    softness={BACKGROUND_SOFTNESS[targetBgBlur]}
-                    onPress={() => setBackgroundStyleFor(bgTarget, key)}
-                  />
-                ))}
-              </View>
+              <BackgroundCarousel
+                keys={BACKGROUND_STYLES}
+                selectedKey={targetBgStyle}
+                intensity={backgroundIntensity}
+                speed={BACKGROUND_SPEED_FACTOR[backgroundSpeed]}
+                blurPx={BACKGROUND_BLUR_PX[targetBgBlur]}
+                onSelect={(key) => setBackgroundStyleFor(bgTarget, key)}
+                labelFor={(key) => t(`personalization.background.${key}`)}
+              />
               </>
             )}
 
@@ -937,6 +1033,12 @@ const styles = StyleSheet.create({
   bgGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   // flexGrow 0: con 11 tarjetas, la impar final NO debe estirarse a ancho completo
   bgCard: { width: '47%', flexGrow: 0, borderRadius: 16, borderWidth: 2, padding: 8, alignItems: 'center' },
+  carouselWrap: { marginHorizontal: -20 },
+  carouselCard: { borderRadius: 22, overflow: 'hidden', position: 'relative' },
+  carouselLabel: { fontSize: 13, fontFamily: Fonts.semiBold, textAlign: 'center', marginTop: 10 },
+  carouselCheck: { position: 'absolute', top: 10, right: 10, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  carouselDots: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 14 },
+  carouselDot: { height: 6, borderRadius: 3 },
   bgPreviewBox: { width: '100%', height: 64, borderRadius: 10, overflow: 'hidden', position: 'relative', marginBottom: 8 },
   bgNoneWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   bgCardLabel: { fontSize: 12, fontFamily: Fonts.semiBold },
