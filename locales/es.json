@@ -1082,15 +1082,15 @@
     "title": "¿Qué puedes hacer?",
     "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
-    "cooler": {
-      "title": "El móvil ya no se calienta",
-      "item1": "Los fondos y los gráficos se movían gastando batería a cada instante: ahora el movimiento es prácticamente gratis",
-      "item2": "Con la app en segundo plano, las animaciones se detienen del todo"
+    "bgCarousel": {
+      "title": "Elige tu fondo deslizando",
+      "item1": "Los fondos se ven ahora a tamaño real en un carrusel, no en miniaturas de un centímetro",
+      "item2": "Se aplican al pasar de uno a otro, así decides viendo cómo queda tu app"
     },
-    "batterySaver": {
-      "title": "Ahorro de batería",
-      "item1": "Nuevo ajuste en Personalización para dejar el fondo y los gráficos quietos",
-      "item2": "Antes solo podías conseguirlo apagando el movimiento en todo el teléfono"
+    "cleaner": {
+      "title": "Se ve más limpio",
+      "item1": "El contenido ya no se difumina al pasar bajo la cabecera: los importes se leen hasta el borde",
+      "item2": "Menos hueco vacío al final de las listas"
     }
   },
   "incomeClaim": {

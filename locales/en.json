@@ -1082,15 +1082,15 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "cooler": {
-      "title": "Your phone stays cool",
-      "item1": "Backgrounds and charts were burning battery every instant: now the motion is practically free",
-      "item2": "With the app in the background, animations stop completely"
+    "bgCarousel": {
+      "title": "Pick your background by swiping",
+      "item1": "Backgrounds now show at full size in a carousel instead of thumbnails the size of a stamp",
+      "item2": "They apply as you swipe, so you decide while seeing how your app looks"
     },
-    "batterySaver": {
-      "title": "Battery saver",
-      "item1": "New setting in Personalization to keep the background and charts still",
-      "item2": "Before, the only way was turning off motion for the whole phone"
+    "cleaner": {
+      "title": "Cleaner to read",
+      "item1": "Content no longer fades under the header — amounts stay readable all the way to the edge",
+      "item2": "Less empty space at the end of lists"
     }
   },
   "incomeClaim": {
