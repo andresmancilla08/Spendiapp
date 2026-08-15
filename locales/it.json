@@ -1079,6 +1079,10 @@
       "title": "La ripartizione, bene in vista",
       "item1": "La scheda del movimento mostra quale percentuale e quale importo si assume ciascuno",
       "item2": "Con le rate, quella di questo mese e la spesa intera"
+    },
+    "crispHeader": {
+      "title": "Intestazione nitida su iPhone",
+      "item1": "La barra con la tua foto non appare più sfocata mentre scorri"
     }
   },
   "incomeClaim": {

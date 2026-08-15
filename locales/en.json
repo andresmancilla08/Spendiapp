@@ -1079,6 +1079,10 @@
       "title": "The split, in plain sight",
       "item1": "The movement details show what percentage and what amount each person takes on",
       "item2": "With installments, this month's and the whole expense"
+    },
+    "crispHeader": {
+      "title": "Crisp header on iPhone",
+      "item1": "The bar with your photo no longer looks blurry while you scroll"
     }
   },
   "incomeClaim": {

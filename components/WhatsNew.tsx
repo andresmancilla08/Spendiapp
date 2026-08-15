@@ -55,6 +55,12 @@ const APP_FEATURES: Feature[] = [
     titleKey: 'whatsNew.splitDetail.title',
     items: ['whatsNew.splitDetail.item1', 'whatsNew.splitDetail.item2'],
   },
+  {
+    icon: 'phone-portrait-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.crispHeader.title',
+    items: ['whatsNew.crispHeader.item1'],
+  },
 ];
 
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {

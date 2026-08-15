@@ -1079,6 +1079,10 @@
       "title": "El reparto, a la vista",
       "item1": "La ficha del movimiento enseña qué porcentaje y qué importe asume cada persona",
       "item2": "En cuotas, la de este mes y el total del gasto entero"
+    },
+    "crispHeader": {
+      "title": "Cabecera nítida en iPhone",
+      "item1": "La barra con tu foto ya no se ve borrosa al desplazarte"
     }
   },
   "incomeClaim": {
