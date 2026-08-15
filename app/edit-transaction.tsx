@@ -43,7 +43,7 @@ import { FALLBACK_ICON } from '../constants/categoryIconData';
 import IconPicker from '../components/IconPicker';
 import CategoryIcon from '../components/CategoryIcon';
 import type { SharedParticipant, SharedTransaction } from '../types/sharedTransaction';
-import { calcSharedAmount, calcEqualPercentages } from '../utils/sharedCalc';
+import { calcSharedAmount, calcEqualPercentages, installmentPortion } from '../utils/sharedCalc';
 import { categoryForOtherUser } from '../utils/sharedCategory';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
@@ -602,7 +602,7 @@ export default function EditTransactionScreen() {
                     // porcentaje: aplicarle el del otro daba la mitad de la mitad. Se
                     // reescala igual que en el reporte entre amigos.
                     const portionAmt = transaction.isInstallment
-                      ? (myEditPct > 0 ? Math.round(((parsedAmount || 0) * p.percentage) / myEditPct) : 0)
+                      ? installmentPortion({ ...transaction, amount: parsedAmount || 0 }, p.percentage, myEditPct)
                       : calcSharedAmount(parsedAmount || 0, 0, 1, p.percentage);
                     return (
                       <View key={p.uid} style={styles.sharedPreviewRow}>

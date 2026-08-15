@@ -13,7 +13,7 @@
  * `net > 0` significa que la otra persona me debe.
  */
 import type { Transaction } from '../types/transaction';
-import { effectiveAmount } from './sharedCalc';
+import { effectiveAmount, installmentPortion } from './sharedCalc';
 
 export type EntryKind = 'sent' | 'received' | 'shared_i_owe' | 'shared_they_owe';
 
@@ -108,8 +108,9 @@ function friendPortion(tx: Transaction, friendUid: string, myUid: string): numbe
       .filter((p) => p.uid !== myUid)
       .reduce((acc, p) => acc + p.percentage, 0);
     const myPct = pctOf(tx, myUid) ?? (others > 0 && others < 100 ? 100 - others : undefined);
-    if (myPct && myPct > 0) return Math.round((tx.amount * friendPct) / myPct);
-    return 0;
+    // Si voy al 0% mis cuotas son de cero y no escalan: `installmentPortion` reconstruye
+    // la del amigo desde el total del grupo guardado en el doc.
+    return installmentPortion(tx, friendPct, myPct);
   }
   return Math.round((tx.amount * friendPct) / 100);
 }

@@ -33,6 +33,11 @@ export interface Transaction {
   sharedOwnerUserName?: string;
   sharedParticipants?: SharedParticipant[];
   sharedAmount?: number; // monto calculado para ESTE usuario específico
+  // Solo en gastos compartidos A CUOTAS: total del grupo y TEA aplicada. `amount` es
+  // la cuota de ESTE usuario, así que sin esto no se puede reconstruir la parte ajena
+  // cuando la propia es 0% (pagué con la tarjeta de otro).
+  sharedGroupAmount?: number;
+  sharedInterestRate?: number;
   // Ingreso enviado a un amigo
   // En el gasto del remitente:
   sentIncomeToUid?: string;

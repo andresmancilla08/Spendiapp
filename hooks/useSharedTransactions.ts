@@ -59,9 +59,14 @@ export function useSharedTransactions() {
     const isInstallment = installmentCount > 1;
     const isIncomeClaim = sharedType === 'income_claim';
 
-    // Separar participantes con cuenta de externos
-    const realParticipants = participants.filter((p) => !p.isExternal);
-    const externalParticipants = participants.filter((p) => p.isExternal);
+    // Separar participantes con cuenta de externos.
+    // Quien va al 0% y no es el dueño no asume nada: escribirle un documento de cero
+    // pesos (o N de cero, con cuotas) solo le ensucia el historial. El DUEÑO sí conserva
+    // el suyo aunque vaya al 0% —pagó con su tarjeta y de sus documentos sale su reporte
+    // de deudas—, con importe 0 para que no le toque el balance.
+    const assumes = (p: SharedParticipant) => p.percentage > 0 || p.uid === ownerUid || isIncomeClaim;
+    const realParticipants = participants.filter((p) => !p.isExternal && assumes(p));
+    const externalParticipants = participants.filter((p) => p.isExternal && assumes(p));
     const participantUids = realParticipants.map((p) => p.uid);
 
     // Extraer cardId para no propagarlo a mirrors
@@ -117,6 +122,11 @@ export function useSharedTransactions() {
             installmentTotal: installmentCount,
             isInstallment: true,
             ...sharedFields,
+            // En cuotas el documento guarda MI cuota, no el total del grupo. Quien va
+            // al 0% tiene cuotas de cero, y de un cero no se deduce lo que le deben:
+            // sin estos dos campos su reporte de amigos mostraría 0.
+            sharedGroupAmount: amount,
+            sharedInterestRate: interestRate,
           });
           mirrorRefs.push({
             uid: participant.uid,

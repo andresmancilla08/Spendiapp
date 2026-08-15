@@ -406,14 +406,14 @@ export default function AddTransactionScreen() {
 
   const sharedParticipantRequired = !isShared || sharedParticipants.length > 0;
 
-  // Además de sumar 100, nadie puede quedar al 0%: se le escribía un documento de
-  // cero pesos (o N de cero, con cuotas) que solo ensucia su historial.
+  // Solo se exige que el reparto sume 100. El 0% es legítimo: pagué con la tarjeta
+  // de otra persona (o al revés) y quien registra no asume nada del gasto.
+  // A quien va al 0% y NO es el dueño no se le escribe documento —
+  // `createSharedTransaction` lo omite en vez de ensuciarle el historial con ceros.
   const sharedPercentageValid = !isShared
     || type === 'income'  // income_claim no usa porcentajes
     || sharedParticipants.length === 0
-    || (Math.round(ownerPercentage + sharedParticipants.reduce((s, p) => s + p.percentage, 0)) === 100
-        && ownerPercentage > 0
-        && sharedParticipants.every((p) => p.percentage > 0));
+    || Math.round(ownerPercentage + sharedParticipants.reduce((s, p) => s + p.percentage, 0)) === 100;
 
   const sentIncomeValid = !isSentIncome || sentIncomeRecipient !== null;
 

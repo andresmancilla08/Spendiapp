@@ -1,3 +1,5 @@
+import { calculateInstallments } from './installmentCalc';
+
 /**
  * Calcula el monto mensual que corresponde a un participante.
  *
@@ -34,6 +36,35 @@ export function calcEqualPercentages(count: number): number[] {
   const base = Math.floor(100 / count);
   const remainder = 100 - base * count;
   return Array.from({ length: count }, (_, i) => base + (i < remainder ? 1 : 0));
+}
+
+/**
+ * Cuota que le corresponde a `percentage` en un gasto compartido A CUOTAS, leída
+ * desde el documento de OTRO participante.
+ *
+ * Mi documento guarda MI cuota, ya amortizada sobre mi porcentaje, así que la del
+ * otro se obtiene reescalando por el mío. Cuando el mío es 0 —registré el gasto pero
+ * lo asume la otra persona: pagué con su tarjeta, o ella con la mía— mis cuotas son
+ * de cero y no escalan a nada: entonces se reconstruye desde el total del grupo que
+ * `createSharedTransaction` guarda en el doc (`sharedGroupAmount` / `sharedInterestRate`),
+ * con la misma amortización que se escribió en el documento del otro.
+ */
+export function installmentPortion(
+  tx: {
+    amount: number;
+    installmentTotal?: number;
+    installmentNumber?: number;
+    sharedGroupAmount?: number;
+    sharedInterestRate?: number;
+  },
+  percentage: number,
+  myPct: number | undefined,
+): number {
+  if (myPct && myPct > 0) return Math.round((tx.amount * percentage) / myPct);
+  if (!tx.sharedGroupAmount) return 0; // docs anteriores a este campo: sin base no se inventa cifra
+  const base = Math.round((tx.sharedGroupAmount * percentage) / 100);
+  const cuotas = calculateInstallments(base, tx.installmentTotal ?? 1, tx.sharedInterestRate || null);
+  return cuotas[(tx.installmentNumber ?? 1) - 1] ?? 0;
 }
 
 /**

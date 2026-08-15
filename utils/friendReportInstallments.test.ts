@@ -17,7 +17,7 @@ import assert from 'node:assert';
 import { calculateInstallments } from './installmentCalc';
 import { calcSharedAmount } from './sharedCalc';
 import { buildFriendReport } from './friendReportModel';
-import { effectiveAmount } from './sharedCalc';
+import { effectiveAmount, installmentPortion } from './sharedCalc';
 import type { Transaction } from '../types/transaction';
 
 const ME = 'uid-yo';
@@ -63,6 +63,10 @@ function createSharedInstallments(opts: {
       isInstallment: true,
       installmentNumber: i + 1,
       installmentTotal: installments,
+      // El doc guarda la cuota de cada uno; el total del grupo va aparte para poder
+      // reconstruir la parte ajena cuando la propia es 0%.
+      sharedGroupAmount: total,
+      sharedInterestRate: tea ?? 0,
     } as unknown as Transaction));
   }
   return byUser;
@@ -251,7 +255,56 @@ function createSharedInstallments(opts: {
   assert.strictEqual(comoDebe, docs[FRIEND][0].amount, 'y coincide con la cuota real del amigo');
 }
 
+// ── Caso 7: registro yo, lo asume el otro (0% / 100%) ────────────────────────
+// Presté mi tarjeta: el gasto se registra en mis cuotas —y mis documentos son de
+// cero— pero el 100% lo asume la otra persona. De un cero no se deduce nada
+// escalando, así que el reporte tiene que reconstruirlo desde el total del grupo.
+{
+  const total = 1_200_000;
+  const docs = createSharedInstallments({
+    total, installments: 12, tea: 26.4, ownerUid: ME,
+    participants: [
+      { uid: ME, displayName: 'Yo', percentage: 0 },
+      { uid: FRIEND, displayName: 'Amigo', percentage: 100 },
+    ],
+    description: 'Portátil', startDay: 3,
+  });
+
+  const miCuota = docs[ME][0];
+  assert.strictEqual(miCuota.amount, 0, 'no asumo nada: mi cuota es cero');
+
+  const model = buildFriendReport({
+    myName: 'Yo', myUid: ME, friendName: 'Amigo', friendUid: FRIEND,
+    month: 7, year: 2026,
+    sentToFriend: [], receivedFromFriend: [], sharedIOwe: [], sharedTheyOwe: [miCuota],
+  });
+
+  assert.strictEqual(
+    model.entries[0].amount, docs[FRIEND][0].amount,
+    'me debe SU cuota completa, no cero',
+  );
+  assert.strictEqual(model.entries[0].percentage, 100, 'el badge muestra su 100%');
+  assert.strictEqual(model.net, docs[FRIEND][0].amount, 'el saldo del mes es su cuota entera');
+  // Y sin cuotas el documento ya guarda el total del grupo, así que sale solo.
+  assert.strictEqual(
+    effectiveAmount({ amount: total, isShared: true, sharedAmount: 0 }), 0,
+    'sin cuotas mi parte es 0 aunque el doc guarde el total del grupo',
+  );
+}
+
+// ── Caso 8: docs anteriores al total del grupo ───────────────────────────────
+// Los compartidos a cuotas creados antes de guardar `sharedGroupAmount` siguen
+// funcionando; solo el reparto 0% —que antes ni se podía guardar— devuelve 0.
+{
+  const legacy = {
+    amount: 50_000, installmentTotal: 10, installmentNumber: 1,
+  };
+  assert.strictEqual(installmentPortion(legacy, 50, 50), 50_000, 'legacy con mi 50% intacto');
+  assert.strictEqual(installmentPortion(legacy, 100, 0), 0, 'legacy al 0%: sin base, no se inventa');
+}
+
 console.log(
   '✓ cuotas compartidas: 50/50, 70/30 con interés, tres personas, mes mixto, la ficha del ' +
-  'movimiento y el editor cuadran con lo que escribe createSharedTransaction',
+  'movimiento, el editor, el reparto 0/100 y los docs legacy cuadran con lo que escribe ' +
+  'createSharedTransaction',
 );
