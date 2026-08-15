@@ -1070,15 +1070,15 @@
     "title": "Cosa puoi fare?",
     "subtitle": "Esplora le funzionalità principali di Spendia.",
     "dismiss": "Capito",
-    "edgeFade": {
-      "title": "Niente più bordi netti",
-      "item1": "Il contenuto sfuma sotto l'intestazione e la barra, invece di essere tagliato",
-      "item2": "Lo sfondo arriva ai bordi del telefono, zone sicure incluse"
+    "sharedZero": {
+      "title": "Spese condivise allo 0%",
+      "item1": "Ora puoi registrare una spesa che un'altra persona si assume per intero: hai prestato la tua carta o ti hanno prestato la loro",
+      "item2": "Chi sta allo 0% riceve comunque il movimento e la notifica, ma non si somma alle sue spese"
     },
-    "shrinkTabBar": {
-      "title": "La barra si fa da parte mentre leggi",
-      "item1": "Scorrendo verso il basso si restringe e lascia solo le icone; risalendo torna intera",
-      "item2": "Gli sfondi animati non hanno più lo scatto del riavvio"
+    "splitDetail": {
+      "title": "La ripartizione, bene in vista",
+      "item1": "La scheda del movimento mostra quale percentuale e quale importo si assume ciascuno",
+      "item2": "Con le rate, quella di questo mese e la spesa intera"
     }
   },
   "incomeClaim": {

@@ -1070,15 +1070,15 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "edgeFade": {
-      "title": "No more hard edges",
-      "item1": "Content fades out under the header and the bar instead of being cut off",
-      "item2": "The background now reaches the edges of the phone, safe areas included"
+    "sharedZero": {
+      "title": "Shared expenses at 0%",
+      "item1": "You can now record an expense someone else takes on in full — you lent your card, or they lent you theirs",
+      "item2": "Whoever is at 0% still gets the movement and the notification, but it doesn't add to their expenses"
     },
-    "shrinkTabBar": {
-      "title": "The bar steps aside while you read",
-      "item1": "Scrolling down shrinks it to icons only; scrolling up brings it back",
-      "item2": "Animated backgrounds no longer jump when the loop restarts"
+    "splitDetail": {
+      "title": "The split, in plain sight",
+      "item1": "The movement details show what percentage and what amount each person takes on",
+      "item2": "With installments, this month's and the whole expense"
     }
   },
   "incomeClaim": {
