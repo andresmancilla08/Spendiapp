@@ -321,15 +321,43 @@ footer {
 <div class="wrap">
 
 <header>
-  <span class="eyebrow">Informe técnico · Spendia 2.56.0</span>
+  <span class="eyebrow">Informe técnico · Spendia 2.57.0</span>
   <h1>Sala de máquinas</h1>
-  <p>Por qué la app calienta el móvil, y qué hace falta para publicarla en App Store y Google Play.</p>
+  <p>Por qué la app calentaba el móvil, cómo se arregló, y qué hace falta para publicarla en App Store y Google Play.</p>
   <div class="meta">
     <span><b>Fecha</b> 15 ago 2026</span>
-    <span><b>Medido sobre</b> build de producción <code>dist/</code></span>
+    <span><b>Medido sobre</b> build de producción</span>
     <span><b>Método</b> Chrome CDP · 390×844 @3x · CPU 4×</span>
+    <span><b>Estado</b> <span style="color:var(--ok)">rendimiento corregido y desplegado</span></span>
   </div>
 </header>
+
+<div class="gauge" style="margin-top:34px">
+  <div class="gauge-title">Resultado · misma medición, antes y después</div>
+  <div class="figures" style="border:none">
+    <div class="fig" style="padding-left:0">
+      <span class="fig-n" style="color:var(--ok)">7,2 % → 0 %</span>
+      <span class="fig-k">CPU en reposo</span>
+      <span class="fig-s">throttle 4×, pantalla de login</span>
+    </div>
+    <div class="fig">
+      <span class="fig-n" style="color:var(--ok)">1 440 → 0</span>
+      <span class="fig-k">escrituras de <code>style</code> por segundo</span>
+      <span class="fig-s">ya no hay JS por frame</span>
+    </div>
+    <div class="fig">
+      <span class="fig-n" style="color:var(--ok)">13 → 0</span>
+      <span class="fig-k">capas con <code>filter: blur()</code></span>
+      <span class="fig-s">de 2,95 pantallas a ninguna</span>
+    </div>
+    <div class="fig">
+      <span class="fig-n" style="color:var(--ok)">137 → 136</span>
+      <span class="fig-k">nodos del DOM</span>
+      <span class="fig-s">el efecto sigue ahí</span>
+    </div>
+  </div>
+  <div class="gauge-foot">El coste del fondo animado ya no se distingue del ruido de medición. Los nodos del DOM no cambian: <b>el efecto no se apagó, se movió al compositor.</b> Publicado en producción como v2.57.0. Lo que sigue explica qué se encontró y qué se hizo.</div>
+</div>
 
 <!-- ══ PARTE 1 ══════════════════════════════════════════════ -->
 <section>
@@ -441,7 +469,7 @@ footer {
 
   <div class="stack">
     <div class="phase">
-      <div class="phase-head"><h3>P0</h3><span class="pill acc">2–3 días</span><span class="pill ok">&gt;80 % del calor medido</span></div>
+      <div class="phase-head"><h3>P0</h3><span class="pill ok">Hecho</span><span class="pill acc">v2.57.0</span></div>
       <ul class="steps">
         <li><span class="k">P0.1</span><span class="v"><b>Sacar los fondos del hilo de JS.</b> En web, reescribir los 13 efectos como <code>@keyframes</code> CSS sobre <code>transform</code> y <code>opacity</code>: el compositor las ejecuta sin JS. En nativo, <code>useNativeDriver: true</code> — que obliga a limitarse justo a esas dos propiedades, que son las que ya animan.</span></li>
         <li><span class="k">P0.2</span><span class="v"><b>Eliminar el blur animado.</b> Un blob desenfocado es un <code>radial-gradient</code> con parada suave: mismo resultado visual, coste GPU cercano a cero. Donde el blur sea imprescindible, aplicarlo a una capa estática y animar solo un padre con <code>transform</code>.</span></li>
@@ -451,32 +479,41 @@ footer {
     </div>
 
     <div class="phase">
-      <div class="phase-head"><h3>P1</h3><span class="pill acc">2–3 días</span></div>
+      <div class="phase-head"><h3>P1</h3><span class="pill ok">Hecho, salvo P1.3</span></div>
       <ul class="steps">
-        <li><span class="k">P1.1</span><span class="v">En Personalización, <b>solo el efecto seleccionado se anima</b>; el resto, primer frame estático.</span></li>
-        <li><span class="k">P1.2</span><span class="v">Quitar la respiración de la barra de pestañas.</span></li>
-        <li><span class="k">P1.3</span><span class="v"><code>web.output: "static"</code> en <code>app.json</code> → división por rutas.</span></li>
-        <li><span class="k">P1.4</span><span class="v">Ajuste <b>«Ahorro de batería»</b> en Personalización: apaga efecto y blur, deja el degradado. Hoy eso solo se consigue activando reduce-motion en todo el sistema.</span></li>
+        <li><span class="k">P1.1</span><span class="v">En Personalización, <b>solo el efecto seleccionado se anima</b>; el resto se congela en su primer fotograma.</span></li>
+        <li><span class="k">P1.2</span><span class="v">Retirada la respiración de la barra de pestañas.</span></li>
+        <li><span class="k">P1.3</span><span class="v"><b>Pendiente.</b> <code>web.output: "static"</code> dividiría el bundle por rutas, pero <code>vercel.json</code> reescribe todo a <code>/index.html</code> y <code>patch-html.js</code> solo parchea ese fichero: es un cambio de despliegue, no un ajuste. Afecta al arranque (~2,7 s de CPU), no a la temperatura sostenida.</span></li>
+        <li><span class="k">P1.4</span><span class="v">Ajuste <b>«Ahorro de batería»</b> en Personalización. Antes, tener la app quieta exigía apagar el movimiento en todo el teléfono.</span></li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-head"><h3>De propina</h3><span class="pill ok">Hecho</span></div>
+      <ul class="steps">
+        <li><span class="k">Fuga</span><span class="v"><code>Skeleton</code> y el punto «en vivo» arrancaban un bucle infinito <b>sin limpieza</b>: cada componente desmontado dejaba su animación corriendo. El Home muestra unos quince skeletons mientras carga.</span></li>
       </ul>
     </div>
   </div>
 
-  <h3>Criterio de aceptación</h3>
+  <h3>Verificación</h3>
   <div class="tw"><table>
-    <thead><tr><th>Métrica</th><th class="num">Hoy</th><th class="num">Objetivo</th></tr></thead>
+    <thead><tr><th>Métrica</th><th class="num">Antes</th><th class="num">Después</th><th class="num">Objetivo</th></tr></thead>
     <tbody>
-      <tr><td>CPU en reposo · login · throttle 4×</td><td class="num">7,2 %</td><td class="num">&lt; 1 %</td></tr>
-      <tr><td>Mutaciones de estilo por segundo</td><td class="num">1 440</td><td class="num">&lt; 60</td></tr>
-      <tr><td>Superficie con blur animado</td><td class="num">2,95 pantallas</td><td class="num">0</td></tr>
-      <tr><td>CPU de script al arranque</td><td class="num">2,72 s</td><td class="num">&lt; 1,2 s</td></tr>
+      <tr><td>CPU en reposo · login · throttle 4×</td><td class="num">7,2 %</td><td class="num" style="color:var(--ok)">0 %</td><td class="num">&lt; 1 %</td></tr>
+      <tr><td>Mutaciones de estilo por segundo</td><td class="num">1 440</td><td class="num" style="color:var(--ok)">0</td><td class="num">&lt; 60</td></tr>
+      <tr><td>Superficie con blur animado</td><td class="num">2,95 pantallas</td><td class="num" style="color:var(--ok)">0</td><td class="num">0</td></tr>
+      <tr><td>CPU de script al arranque</td><td class="num">2,72 s</td><td class="num">sin cambio</td><td class="num">&lt; 1,2 s</td></tr>
     </tbody>
   </table></div>
-  <p style="font-size:.87rem; color: var(--ink-3)">Se vuelve a medir con los mismos scripts: <code>measure.mjs</code>, <code>mutations.mjs</code>, <code>boot.mjs</code>.</p>
+  <p style="font-size:.87rem; color: var(--ink-3)">Se comparó además el aspecto con capturas del bundle de producción antes y después, en claro y en oscuro: el degradado necesitó tres ajustes hasta ser fiel al desenfoque original — <code>closest-side</code>, núcleo pequeño con caída larga, y un factor de pico de 0,74 para que en modo oscuro el texto no perdiera contraste sobre el blob.</p>
+  <div class="note">Todo esto está medido en Chrome con throttling de CPU, que aproxima un móvil pero no lo sustituye. <b>Antes de publicar en tiendas hay que repetirlo en un Android de gama media y en un iPhone reales</b>, sobre todo la pausa en segundo plano: en nativo no existe el salvavidas del navegador que congela las animaciones.</div>
 
   <div class="decision">
-    <div class="q">¿Hay que quitar los movimientos del fondo y los gráficos?</div>
-    <div class="a"><b>No.</b> El calor no viene de que haya animación: viene de animar por JS y de desenfocar en cada frame. Los mismos efectos, ejecutados en el compositor y sin blur animado, cuestan una fracción. Los fondos configurables son parte de la propuesta premium; borrarlos es pagar con producto una factura que es técnica.</div>
-    <div class="a">Lo que sí conviene cambiar de producto: <b>efecto apagado por defecto en móvil</b> (activable por quien lo quiera), <b>ajuste explícito de ahorro de batería</b>, y que <b>los gráficos animen una vez al entrar y se detengan</b> — el bucle infinito de «trazo vivo» y «marea» no añade información después del primer ciclo.</div>
+    <div class="q">¿Había que quitar los movimientos del fondo y los gráficos?</div>
+    <div class="a"><b>No, y no se quitaron.</b> El calor no venía de que hubiera animación: venía de animar por JS y de desenfocar en cada frame. Los mismos efectos, ejecutados en el compositor y sin blur animado, cuestan una fracción. Los fondos configurables son parte de la propuesta premium; borrarlos habría sido pagar con producto una factura que era técnica.</div>
+    <div class="a">Sí cambió una cosa de producto: <b>el «trazo vivo» del gráfico se dibuja una vez al entrar en lugar de repetirse en bucle</b>, porque pasado el primer ciclo no añade información. Y ahora hay un <b>ajuste de ahorro de batería</b> para quien prefiera la app quieta.</div>
+    <div class="a">Queda una decisión tuya: <b>si el efecto debería venir apagado por defecto en móvil</b>. Ya no hace falta por consumo — es una elección de qué ve alguien la primera vez que abre la app.</div>
   </div>
 </section>
 
@@ -608,14 +645,15 @@ footer {
     </div>
   </div>
 
-  <div class="note">El rendimiento va primero, y no por perfeccionismo: una app que calienta el teléfono recibe reseñas de una estrella desde el primer día, y en nativo desaparece el salvavidas del navegador que hoy congela las animaciones en segundo plano. <b>Los P0 son prerrequisito del lanzamiento, no una mejora posterior.</b></div>
+  <div class="note">El rendimiento iba primero, y no por perfeccionismo: una app que calienta el teléfono recibe reseñas de una estrella desde el primer día, y en nativo desaparece el salvavidas del navegador que congelaba las animaciones en segundo plano. <b>Ya está hecho y desplegado: el camino a las tiendas arranca sin esa deuda.</b> La checklist ejecutable está en <code>docs/checklist-tiendas.md</code>.</div>
 </section>
 
 <footer>
-  <span>Spendia 2.56.0</span>
+  <span>Spendia 2.57.0</span>
   <span>15 ago 2026</span>
   <span>docs/auditoria-performance-2026-08-15.md</span>
   <span>docs/plan-ios-android-2026-08-15.md</span>
+  <span>docs/checklist-tiendas.md</span>
 </footer>
 
 </div>

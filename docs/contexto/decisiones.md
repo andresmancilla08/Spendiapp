@@ -1,5 +1,33 @@
 # Decisiones
 
+### El movimiento decorativo NUNCA se anima desde JS — Vigente (CRÍTICA, 2026-08-15)
+- **Qué:** todo efecto de fondo y toda animación decorativa en bucle pasa por `components/fx/FxLayer.tsx`. En web emite animación CSS (`animationKeyframes` de react-native-web), que ejecuta el compositor; en nativo, `Animated` con `useNativeDriver: true`. Prohibido `Animated.loop` con `useNativeDriver: false` para decoración.
+- **Por qué:** medido sobre el bundle de producción, el patrón anterior generaba 1.440 escrituras del atributo `style` por segundo con la app EN REPOSO en la pantalla de login, y 19× más CPU que con reduce-motion. Era la causa principal de que la app calentara el teléfono.
+- **Descartado:** subir todo a `useNativeDriver: true` sin más — en web ese driver no existe y solo produce un aviso; y `react-native-reanimated`, que habría añadido una dependencia grande para lo que resuelven unos keyframes.
+
+### El borde difuso se pinta, no se desenfoca — Vigente (CRÍTICA, 2026-08-15)
+- **Qué:** nada de `filter: blur()` sobre capas que se animan. El borde suave lo da un degradado radial (`components/fx/SoftOrb.tsx`). El ajuste "Desenfoque" de Personalización es ahora `BACKGROUND_SOFTNESS`, no píxeles de blur.
+- **Por qué:** había 13 capas desenfocadas simultáneas cubriendo 2,95 veces la pantalla, y como se animaban, la GPU rehacía un blur gaussiano en cada frame.
+- **Detalles que costaron tres iteraciones:** el degradado necesita `closest-side` (si no, llega a la esquina y el blob se lee como un cuadrado), núcleo pequeño con caída larga (una meseta amplia recorta el círculo demasiado limpio) y un factor de pico ~0,74 (un blur también reparte la luz y baja el pico; sin compensarlo, en oscuro el texto pierde contraste).
+- **Descartado:** mantener el blur solo en capas estáticas — sigue costando en el primer pintado y complica el código por poco.
+
+### El valor de una animación nunca pasa por el estado de React — Vigente (CRÍTICA, 2026-08-15)
+- **Qué:** prohibido `animatedValue.addListener(({value}) => setState(value))`. Los valores viajan por `Animated` hasta la propiedad, o por keyframes. Para atributos SVG, `Animated.createAnimatedComponent(Path)`.
+- **Por qué:** `BalanceCard` lo hacía en tres bucles infinitos: re-renderizaba el gráfico entero —muestreo de curva y SVG incluidos— 60 veces por segundo mientras el Home estuviera abierto. Era el mayor foco de calor de la pantalla.
+- **Excepción legítima:** un contador numérico que se muestra como texto (el balance del Home) necesita el estado, y es transitorio, no un bucle.
+
+### El movimiento se pausa fuera de foco — Vigente (2026-08-15)
+- **Qué:** `hooks/useIsActive.ts` (store de módulo con `useSyncExternalStore`, un solo par de listeners para toda la app) apaga los efectos con la app en segundo plano.
+- **Por qué:** en web el navegador congela `requestAnimationFrame` y tapaba el problema. En iOS y Android no hay ese salvavidas: sin esto, el fondo drenaría batería con la app minimizada.
+
+### Ahorro de batería es preferencia LOCAL — Vigente (2026-08-15)
+- **Qué:** `batterySaver` en ThemeContext se guarda en AsyncStorage y NO se sincroniza a Firestore, a diferencia del resto de Personalización.
+- **Por qué:** depende del teléfono en el que estés, no de la cuenta.
+
+### El bundle web sigue siendo único — En revisión (2026-08-15)
+- **Qué:** 8,5 MB en un solo archivo (~2,7 s de CPU al arrancar con throttle 4×). `web.output: "static"` lo dividiría por rutas.
+- **Por qué no se ha hecho:** `vercel.json` reescribe todo a `/index.html` (arquitectura SPA) y `scripts/patch-html.js` solo parchea ese fichero. Es un cambio de despliegue, no un ajuste.
+
 ### Bump sincronizado package.json + app.json — Vigente (CRÍTICA)
 - **Qué:** antes de `npm run deploy`, bump de `package.json` Y `app.json` al MISMO valor.
 - **Por qué:** si no coinciden, el modal de novedades (WhatsNew) no aparece.

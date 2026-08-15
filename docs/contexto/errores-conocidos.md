@@ -9,10 +9,21 @@
 ### Datos sensibles
 - **A propósito:** se guardan en secure-store, no en AsyncStorage plano.
 
-### Personalización: 10 previews animados simultáneos
-- **Síntoma:** posible jank al abrir la sección "Fondo animado" en dispositivos modestos (10 efectos en vivo + fondo global, todos `useNativeDriver:false`).
-- **Causa real:** los previews renderizan el efecto REAL (fidelidad > coste); decisión consciente.
-- **Solución (si duele):** renderizar estático todo salvo la tarjeta seleccionada/visible.
+### Personalización: 13 previews animados simultáneos (resuelto en v2.57.0)
+- **Síntoma:** la sección "Fondo animado" era el peor caso de consumo de la app.
+- **Causa real:** cada tarjeta renderizaba el efecto REAL y animado — unos 144 elementos en movimiento a la vez, cada uno con su blur.
+- **Solución:** `FxFrozen` (contexto de `components/fx/FxLayer.tsx`) congela en su primer fotograma todo el subárbol; solo se anima la miniatura seleccionada.
+
+### El móvil se calentaba con la app abierta (resuelto en v2.57.0)
+- **Síntoma:** el teléfono se calentaba usando Spendia, sobre todo en el Home.
+- **Causa real:** tres a la vez, todas de implementación, no de diseño. (1) Los 13 efectos animaban desde JS con `useNativeDriver: false` → 1.440 escrituras de `style` por segundo en reposo. (2) 13 capas con `filter: blur()` que se animaban, cubriendo 2,95 pantallas → la GPU rehacía el desenfoque cada frame. (3) `BalanceCard` volcaba tres animaciones en bucle al estado de React con `addListener` → re-render completo del gráfico 60 veces por segundo, para siempre.
+- **Solución:** ver las decisiones de 2026-08-15. Medido después: 0 mutaciones de estilo, 0 capas de blur, CPU en reposo indistinguible del ruido.
+- **Cómo medirlo otra vez:** Chrome headless por CDP contra el bundle de producción, viewport 390×844 y CPU 4×. Contar mutaciones del atributo `style` con un `MutationObserver` y capas con `filter` por `getComputedStyle`. **Ojo:** el service worker sirve el bundle viejo desde caché — hay que borrar el perfil de Chrome entre medidas o se comparan dos builds idénticos sin darse cuenta.
+
+### Bucles de animación sin limpieza (resuelto en v2.57.0)
+- **Síntoma:** ninguno visible; consumo que no se explicaba por lo que había en pantalla.
+- **Causa real:** `Skeleton` y el punto "en vivo" de `ExchangeRateChips` arrancaban un `Animated.loop` infinito sin `return` de limpieza en su `useEffect`. Cada componente desmontado dejaba su bucle corriendo. El Home muestra unos quince skeletons mientras carga.
+- **Solución:** ambos pasan por `FxLayer`, que limpia siempre.
 
 ### Contactos no cargan en ningún lado (resuelto)
 - **Síntoma:** los amigos no aparecen en `friends`, ni en compartir gasto / enviar ingreso (muestra "no tienes amigos"), ni en `friend-report`; a veces spinner pegado.
