@@ -20,6 +20,12 @@
 - **Solución:** ver las decisiones de 2026-08-15. Medido después: 0 mutaciones de estilo, 0 capas de blur, CPU en reposo indistinguible del ruido.
 - **Cómo medirlo otra vez:** Chrome headless por CDP contra el bundle de producción, viewport 390×844 y CPU 4×. Contar mutaciones del atributo `style` con un `MutationObserver` y capas con `filter` por `getComputedStyle`. **Ojo:** el service worker sirve el bundle viejo desde caché — hay que borrar el perfil de Chrome entre medidas o se comparan dos builds idénticos sin darse cuenta.
 
+### Los fondos se rompieron al sustituir el blur por degradados (resuelto en v2.58.0)
+- **Síntoma:** tras la v2.57.0 los fondos se veían mal: cuadrados de color, anillos concéntricos, bandas con bordes rectos, y en oscuro un halo tan brillante que el texto encima no se leía.
+- **Causa real:** para quitar el coste del blur animado se cambiaron los `LinearGradient` + `filter: blur()` por degradados radiales. Un degradado radial NO reproduce un blur gaussiano: hizo falta `closest-side` (si no, el color llega a la esquina de la caja y el blob se lee como un cuadrado), un núcleo pequeño con caída larga, y un factor de pico — y aun así no era fiel.
+- **Solución:** revertir a los efectos originales y quitar SOLO el movimiento (`hooks/useFrozenPhase.ts`). Un blur estático se pinta una vez; lo caro era rehacerlo en cada frame. Mismo resultado (0 mutaciones, 0 % de CPU) con el aspecto intacto.
+- **Lección:** cuando el problema es el COSTE de repetir algo, la primera opción es dejar de repetirlo, no sustituir la técnica.
+
 ### Bucles de animación sin limpieza (resuelto en v2.57.0)
 - **Síntoma:** ninguno visible; consumo que no se explicaba por lo que había en pantalla.
 - **Causa real:** `Skeleton` y el punto "en vivo" de `ExchangeRateChips` arrancaban un `Animated.loop` infinito sin `return` de limpieza en su `useEffect`. Cada componente desmontado dejaba su bucle corriendo. El Home muestra unos quince skeletons mientras carga.

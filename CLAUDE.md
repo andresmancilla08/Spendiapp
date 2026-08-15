@@ -45,10 +45,15 @@ Prohibido `Animated.loop` con `useNativeDriver: false` para decoración. En web
 ese driver no existe: si pides `true` sin `Platform.OS !== 'web'`, solo obtienes
 un aviso en consola y cae a JS igual.
 
-**2. El borde difuso se pinta, no se desenfoca.**
-Nada de `filter: blur()` sobre capas que se animan — la GPU rehace el desenfoque
-en cada frame. Usar `components/fx/SoftOrb.tsx` (degradado radial). El ajuste de
-Personalización es `BACKGROUND_SOFTNESS`, no píxeles de blur.
+**2. Nada de `filter: blur()` sobre una capa que se MUEVE.**
+La GPU rehace el desenfoque en cada frame. Un blur sobre algo quieto, en cambio,
+se pinta una vez y no cuesta nada: por eso los 13 fondos conservan el suyo y lo
+que se retiró fue el movimiento (`hooks/useFrozenPhase.ts`).
+
+Se intentó sustituir el blur por degradados radiales y ROMPIÓ las formas
+—cuadrados, anillos, bandas con bordes rectos—. Un degradado no reproduce un
+blur gaussiano. Si el problema es el coste de repetir algo, la primera opción es
+dejar de repetirlo, no cambiar la técnica.
 
 **3. El valor de una animación nunca pasa por el estado de React.**
 Prohibido `animatedValue.addListener(({ value }) => setState(value))`: eso

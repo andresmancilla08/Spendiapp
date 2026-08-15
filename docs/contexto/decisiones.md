@@ -1,15 +1,16 @@
 # Decisiones
 
 ### El movimiento decorativo NUNCA se anima desde JS — Vigente (CRÍTICA, 2026-08-15)
-- **Qué:** todo efecto de fondo y toda animación decorativa en bucle pasa por `components/fx/FxLayer.tsx`. En web emite animación CSS (`animationKeyframes` de react-native-web), que ejecuta el compositor; en nativo, `Animated` con `useNativeDriver: true`. Prohibido `Animated.loop` con `useNativeDriver: false` para decoración.
+- **Qué:** los fondos no se mueven (ver la decisión siguiente). Para el movimiento decorativo que SÍ queda —el pulso del skeleton, el punto "en vivo"— se usa `components/fx/FxLayer.tsx`: en web emite animación CSS (`animationKeyframes` de react-native-web), que ejecuta el compositor; en nativo, `Animated` con `useNativeDriver: true`. Prohibido `Animated.loop` con `useNativeDriver: false` para decoración.
 - **Por qué:** medido sobre el bundle de producción, el patrón anterior generaba 1.440 escrituras del atributo `style` por segundo con la app EN REPOSO en la pantalla de login, y 19× más CPU que con reduce-motion. Era la causa principal de que la app calentara el teléfono.
 - **Descartado:** subir todo a `useNativeDriver: true` sin más — en web ese driver no existe y solo produce un aviso; y `react-native-reanimated`, que habría añadido una dependencia grande para lo que resuelven unos keyframes.
 
-### El borde difuso se pinta, no se desenfoca — Vigente (CRÍTICA, 2026-08-15)
-- **Qué:** nada de `filter: blur()` sobre capas que se animan. El borde suave lo da un degradado radial (`components/fx/SoftOrb.tsx`). El ajuste "Desenfoque" de Personalización es ahora `BACKGROUND_SOFTNESS`, no píxeles de blur.
-- **Por qué:** había 13 capas desenfocadas simultáneas cubriendo 2,95 veces la pantalla, y como se animaban, la GPU rehacía un blur gaussiano en cada frame.
-- **Detalles que costaron tres iteraciones:** el degradado necesita `closest-side` (si no, llega a la esquina y el blob se lee como un cuadrado), núcleo pequeño con caída larga (una meseta amplia recorta el círculo demasiado limpio) y un factor de pico ~0,74 (un blur también reparte la luz y baja el pico; sin compensarlo, en oscuro el texto pierde contraste).
-- **Descartado:** mantener el blur solo en capas estáticas — sigue costando en el primer pintado y complica el código por poco.
+### Los fondos están QUIETOS, y por eso conservan su desenfoque — Vigente (CRÍTICA, 2026-08-15)
+- **Qué:** los 13 efectos mantienen su geometría, sus degradados y su `filter: blur()` originales. Lo único que se retiró es el movimiento: `hooks/useFrozenPhase.ts` congela el valor animado en un punto del ciclo en vez de recorrerlo.
+- **Por qué:** lo caro nunca fue el desenfoque en sí, sino REHACERLO en cada frame porque debajo algo cambiaba. Con el efecto quieto, el blur se pinta una vez y el compositor reutiliza la capa. Medido: 0 mutaciones de estilo por segundo y 0 % de CPU en reposo, con las 13 capas de blur intactas.
+- **Punto de congelado:** un tercio del ciclo (`FROZEN_AT = 0.3`), no el pico. Casi todos los efectos interpolan la opacidad valle → pico → valle: en el arranque quedarían apagados, y en el pico compiten con el texto de encima.
+- **Descartado (y revertido):** sustituir el blur por degradados radiales. Se probó y ROMPIÓ las formas — cuadrados, anillos concéntricos y bandas con bordes rectos. Un degradado no reproduce un blur gaussiano: hicieron falta tres correcciones y aun así no era fiel. El diagnóstico era correcto; la solución se pasó de alcance.
+- **Consecuencia:** el ajuste "Velocidad del fondo" ya no tiene efecto sobre el movimiento.
 
 ### El valor de una animación nunca pasa por el estado de React — Vigente (CRÍTICA, 2026-08-15)
 - **Qué:** prohibido `animatedValue.addListener(({value}) => setState(value))`. Los valores viajan por `Animated` hasta la propiedad, o por keyframes. Para atributos SVG, `Animated.createAnimatedComponent(Path)`.
