@@ -60,13 +60,11 @@ export function useSharedTransactions() {
     const isIncomeClaim = sharedType === 'income_claim';
 
     // Separar participantes con cuenta de externos.
-    // Quien va al 0% y no es el dueño no asume nada: escribirle un documento de cero
-    // pesos (o N de cero, con cuotas) solo le ensucia el historial. El DUEÑO sí conserva
-    // el suyo aunque vaya al 0% —pagó con su tarjeta y de sus documentos sale su reporte
-    // de deudas—, con importe 0 para que no le toque el balance.
-    const assumes = (p: SharedParticipant) => p.percentage > 0 || p.uid === ownerUid || isIncomeClaim;
-    const realParticipants = participants.filter((p) => !p.isExternal && assumes(p));
-    const externalParticipants = participants.filter((p) => p.isExternal && assumes(p));
+    // Quien va al 0% también recibe su documento y su notificación: es la trazabilidad
+    // del gasto ("esto se compró contigo, pero lo asume el otro"). Su importe efectivo
+    // es 0, así que aparece en su historial sin tocarle balance ni presupuesto.
+    const realParticipants = participants.filter((p) => !p.isExternal);
+    const externalParticipants = participants.filter((p) => p.isExternal);
     const participantUids = realParticipants.map((p) => p.uid);
 
     // Extraer cardId para no propagarlo a mirrors

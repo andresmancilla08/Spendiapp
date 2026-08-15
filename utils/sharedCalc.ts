@@ -67,6 +67,76 @@ export function installmentPortion(
   return cuotas[(tx.installmentNumber ?? 1) - 1] ?? 0;
 }
 
+/** Forma mínima de un documento compartido para repartirlo entre sus participantes. */
+interface SplittableTx {
+  userId?: string;
+  amount: number;
+  isShared?: boolean;
+  isInstallment?: boolean;
+  installmentTotal?: number;
+  installmentNumber?: number;
+  sharedType?: 'expense_share' | 'income_claim';
+  sharedParticipants?: { uid: string; percentage: number }[];
+  sharedGroupAmount?: number;
+  sharedInterestRate?: number;
+}
+
+const pctIn = (tx: SplittableTx, uid?: string): number | undefined =>
+  tx.sharedParticipants?.find((p) => p.uid === uid)?.percentage;
+
+/**
+ * Importe del GRUPO que representa esta fila, no solo mi parte.
+ *
+ * Sin cuotas el documento ya guarda el total del grupo en `amount`. En cuotas guarda
+ * MI cuota, así que la del grupo se reconstruye igual que la de cualquier otro
+ * participante, pidiendo el 100%.
+ */
+export function groupAmount(tx: SplittableTx): number {
+  if (!tx.isShared || tx.sharedType === 'income_claim') return tx.amount;
+  if (!tx.isInstallment) return tx.amount;
+  return installmentPortion(tx, 100, pctIn(tx, tx.userId));
+}
+
+export interface ShareLine {
+  uid: string;
+  percentage: number;
+  /** Lo que le toca en CADA cuota — igual al total si el gasto no va a cuotas. */
+  perInstallment: number;
+  /** Lo que le toca por el gasto entero, sumadas todas las cuotas. */
+  total: number;
+}
+
+/**
+ * Reparto del gasto persona a persona, visto desde MI documento: cuánto asume cada
+ * uno en la cuota de este mes y en el total. Con 0% las cifras son cero, que es
+ * justamente el dato: el movimiento se le registra para que sepa que existe, pero no
+ * lo asume.
+ */
+export function splitBreakdown(tx: SplittableTx): ShareLine[] {
+  const participants = tx.sharedParticipants ?? [];
+  if (!tx.isShared || tx.sharedType === 'income_claim') return [];
+  const myPct = pctIn(tx, tx.userId);
+  const n = tx.isInstallment ? Math.max(1, tx.installmentTotal ?? 1) : 1;
+
+  return participants.map((p) => {
+    if (!tx.isInstallment) {
+      const total = Math.round((tx.amount * p.percentage) / 100);
+      return { uid: p.uid, percentage: p.percentage, perInstallment: total, total };
+    }
+    const perInstallment = installmentPortion(tx, p.percentage, myPct);
+    // Con el total del grupo se suma la amortización real (la última cuota absorbe el
+    // redondeo); sin él —docs viejos— se estima multiplicando, que es lo único que hay.
+    const total = tx.sharedGroupAmount
+      ? calculateInstallments(
+          Math.round((tx.sharedGroupAmount * p.percentage) / 100),
+          n,
+          tx.sharedInterestRate || null,
+        ).reduce((s, c) => s + c, 0)
+      : perInstallment * n;
+    return { uid: p.uid, percentage: p.percentage, perInstallment, total };
+  });
+}
+
 /**
  * Importe que esta transacción representa PARA EL USUARIO dueño del doc.
  *

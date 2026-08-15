@@ -139,6 +139,9 @@ export function buildFriendReport(input: BuildFriendReportInput): FriendReportMo
   for (const tx of input.sharedIOwe) {
     const participants = tx.sharedParticipants?.length;
     const myPart = isFullClaim(tx) ? tx.amount : effectiveAmount(tx);
+    // Al 0% el gasto se comparte solo como trazabilidad —queda en el historial y en la
+    // ficha del movimiento— pero entre los dos no hay dinero: fuera del saldo.
+    if (myPart === 0) continue;
     entries.push({
       id: tx.id, date: tx.date, description: tx.description,
       amount: myPart, side: 'them', kind: 'shared_i_owe', category: tx.category,
@@ -153,6 +156,7 @@ export function buildFriendReport(input: BuildFriendReportInput): FriendReportMo
   for (const tx of input.sharedTheyOwe) {
     const participants = tx.sharedParticipants?.length;
     const theirPart = friendPortion(tx, friendUid, input.myUid);
+    if (theirPart === 0) continue; // su 0%: se lo comparto para que lo vea, no porque me deba
     entries.push({
       id: tx.id, date: tx.date, description: tx.description,
       amount: theirPart, side: 'me', kind: 'shared_they_owe', category: tx.category,

@@ -1,0 +1,107 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Reparto en la ficha del movimiento</title>
+<style>
+  :root { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { margin: 0; padding: 28px; background: #0D1A1C; color: #EEF6F8; display: flex; gap: 28px; flex-wrap: wrap; }
+  .pane { flex: 1 1 340px; max-width: 420px; }
+  .pane h2 { font-size: 12px; letter-spacing: .8px; text-transform: uppercase; opacity: .55; margin: 0 0 10px; font-weight: 800; }
+  .light { background: #FFFFFF; color: #1A2428; padding: 18px; border-radius: 18px; }
+  .dark  { background: #0D1A1C; color: #EEF6F8; padding: 18px; border-radius: 18px; }
+
+  .module { border-radius: 16px; padding: 14px; border: 1px solid var(--bd); background: var(--sf); }
+  .light .module { --sf: #FFFFFF; --bd: #DDE8EA; }
+  .dark  .module { --sf: #162428; --bd: #243438; }
+
+  .label { font-size: 9.5px; font-weight: 800; letter-spacing: .7px; opacity: .7; }
+  .avatars { display: flex; align-items: center; margin-top: 10px; }
+  .av { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+        font-size: 11px; font-weight: 800; color: #fff; border: 2px solid var(--sf); }
+  .av + .av { margin-left: -8px; }
+  .names { font-size: 12px; font-weight: 700; margin-left: 10px; }
+  .pill { display: inline-block; border-radius: 50px; padding: 5px 11px; margin-top: 9px;
+          font-size: 11px; font-weight: 800; }
+  .light .pill { background: #E0F7FA; color: #00838F; }
+  .dark  .pill { background: #003840; color: #4DD0E1; }
+
+  .split { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--bd); }
+  .row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+  .nm { flex: 1; font-size: 12.5px; font-weight: 700; }
+  .pct { font-size: 10.5px; font-weight: 800; border-radius: 50px; padding: 3px 8px; }
+  .light .pct { background: #E0F7FA; color: #00838F; }
+  .dark  .pct { background: #003840; color: #4DD0E1; }
+  .pct.zero { background: transparent; opacity: .55; font-weight: 700; }
+  .amts { text-align: right; }
+  .amt { font-size: 12.5px; font-weight: 800; letter-spacing: -.2px; }
+  .amt.zero { opacity: .55; font-weight: 700; }
+  .sub { font-size: 10px; opacity: .55; margin-top: 1px; }
+  .foot { font-size: 10.5px; opacity: .55; line-height: 1.45; margin-top: 6px; }
+</style>
+
+<div class="pane">
+  <h2>Claro · sin cuotas (0 / 100)</h2>
+  <div class="light">
+    <div class="module">
+      <div class="label">COMPARTIDO CON</div>
+      <div class="avatars">
+        <div class="av" style="background:#00ACC1">V</div>
+        <div class="av" style="background:#00897B">A</div>
+        <div class="names">Tú, Andrés</div>
+      </div>
+      <div class="pill">A partes iguales · $0 c/u</div>
+      <div class="split">
+        <div class="label">REPARTO</div>
+        <div class="row"><div class="nm">Tú</div><div class="pct zero">0%</div>
+          <div class="amts"><div class="amt zero">$0</div></div></div>
+        <div class="row"><div class="nm">@andres</div><div class="pct">100%</div>
+          <div class="amts"><div class="amt">$300.000</div></div></div>
+        <div class="foot">Con 0% el movimiento se registra igual y queda a la vista, pero no suma a los gastos de esa persona.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pane">
+  <h2>Oscuro · 12 cuotas con interés (0 / 100)</h2>
+  <div class="dark">
+    <div class="module">
+      <div class="label">COMPARTIDO CON</div>
+      <div class="avatars">
+        <div class="av" style="background:#00ACC1">V</div>
+        <div class="av" style="background:#00897B">A</div>
+        <div class="names">Tú, Andrés</div>
+      </div>
+      <div class="pill">A partes iguales · $0 c/u</div>
+      <div class="split">
+        <div class="label">REPARTO · CUOTA 1 DE 12</div>
+        <div class="row"><div class="nm">Tú</div><div class="pct zero">0%</div>
+          <div class="amts"><div class="amt zero">$0</div><div class="sub">$0 en total</div></div></div>
+        <div class="row"><div class="nm">@andres</div><div class="pct">100%</div>
+          <div class="amts"><div class="amt">$113.474</div><div class="sub">$1.361.688 en total</div></div></div>
+        <div class="foot">Con 0% el movimiento se registra igual y queda a la vista, pero no suma a los gastos de esa persona.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pane">
+  <h2>Oscuro · reparto normal 70 / 30</h2>
+  <div class="dark">
+    <div class="module">
+      <div class="label">COMPARTIDO CON</div>
+      <div class="avatars">
+        <div class="av" style="background:#00ACC1">V</div>
+        <div class="av" style="background:#00897B">A</div>
+        <div class="names">Tú, Andrés</div>
+      </div>
+      <div class="pill">A partes iguales · $140.000 c/u</div>
+      <div class="split">
+        <div class="label">REPARTO · CUOTA 3 DE 6</div>
+        <div class="row"><div class="nm">Tú</div><div class="pct">70%</div>
+          <div class="amts"><div class="amt">$140.000</div><div class="sub">$840.000 en total</div></div></div>
+        <div class="row"><div class="nm">@andres</div><div class="pct">30%</div>
+          <div class="amts"><div class="amt">$60.000</div><div class="sub">$360.000 en total</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>

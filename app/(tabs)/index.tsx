@@ -16,7 +16,7 @@ import AppIcon from '../../components/AppIcon';
 import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components/TxRelation';
 import HomeHeader, { HOME_HEADER_HEIGHT } from '../../components/HomeHeader';
 import { useProMotion } from '../../hooks/useProMotion';
-import { effectiveAmount } from '../../utils/sharedCalc';
+import { effectiveAmount, groupAmount } from '../../utils/sharedCalc';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from 'react';
@@ -111,8 +111,11 @@ function TransactionRow({ item, isLast, cardsMap, onPress, customCatMap }: {
   // `amount` ya es la cuota que te toca).
   // Misma función que usan el balance y los agregados: la fila y el total nunca se contradicen.
   const shownAmount = effectiveAmount(item);
-  const ofTotal = shownAmount !== item.amount
-    ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
+  // `groupAmount` y no `item.amount`: en cuotas el documento guarda MI cuota, así que si
+  // no asumo nada la fila se quedaba en un "$0" sin contexto en vez de "de $X".
+  const total = groupAmount(item);
+  const ofTotal = shownAmount !== total
+    ? t('sharedExpense.ofTotal', { amount: formatCurrency(total) })
     : null;
   const descLabel = item.isInstallment
     ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`

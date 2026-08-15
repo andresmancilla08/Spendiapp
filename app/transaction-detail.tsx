@@ -43,7 +43,7 @@ import { useCategories } from '../hooks/useCategories';
 import { useCards } from '../hooks/useCards';
 import { useTransactions } from '../hooks/useTransactions';
 import { localeFor } from '../utils/dateLocale';
-import { effectiveAmount } from '../utils/sharedCalc';
+import { effectiveAmount, splitBreakdown } from '../utils/sharedCalc';
 import { initialsOf } from '../utils/txRelation';
 import { amountInk, blend, inkOn, inkOnFill } from '../utils/detailInk';
 import { addMonths, fixedTimeline, installmentPlan, nextMonthSameDay, type ChipState } from '../utils/detailFacts';
@@ -641,7 +641,21 @@ export default function TransactionDetailScreen() {
         ? (isOwner ? t('history.detail.owedEach', { amount: formatCurrency(share) })
                    : t('history.detail.owePending', { amount: formatCurrency(share) }))
         : t('history.detail.equalSplit', { amount: formatCurrency(share) });
-      return { label, names: peopleNames, pill, people: participants.map((p) => p.displayName || p.userName || '') };
+      // Reparto persona a persona: quién asume qué de cada cuota y del gasto entero.
+      // Un 0% se enseña igual —es el dato: le llega el movimiento pero no lo asume.
+      const lines = splitBreakdown(transaction).map((line) => {
+        const p = participants.find((pp) => pp.uid === line.uid);
+        return {
+          ...line,
+          name: line.uid === currentUserUid
+            ? t('sharedExpense.you')
+            : (p?.displayName || p?.userName || '…'),
+        };
+      });
+      return {
+        label, names: peopleNames, pill, lines,
+        people: participants.map((p) => p.displayName || p.userName || ''),
+      };
     }
     if (isReceivedSentIncome && transaction.sentByName) {
       return {
@@ -910,6 +924,47 @@ export default function TransactionDetailScreen() {
               <View style={[styles.pill, { backgroundColor: ink.pillBg }]}>
                 <Text style={[styles.pillText, { color: ink.pillInk }]}>{peopleModule.pill}</Text>
               </View>
+
+              {/* Reparto: qué porcentaje y qué importe asume cada uno */}
+              {!!peopleModule.lines?.length && (
+                <View style={[styles.splitBox, { borderTopColor: colors.border }]}>
+                  <Text style={[styles.splitLabel, { color: ink.label }]}>
+                    {transaction.isInstallment
+                      ? t('history.detail.splitLabelInstallment', { current: instNum, total: instTotal })
+                      : t('history.detail.splitLabel')}
+                  </Text>
+                  {peopleModule.lines.map((line) => (
+                    <View key={line.uid} style={styles.splitRow}>
+                      <Text style={[styles.splitName, { color: colors.textPrimary }]} numberOfLines={1}>
+                        {line.name}
+                      </Text>
+                      <Text style={[styles.splitPct, {
+                        color: line.percentage === 0 ? ink.soft : ink.pillInk,
+                        backgroundColor: line.percentage === 0 ? 'transparent' : ink.pillBg,
+                      }]}>
+                        {t('history.detail.splitPct', { pct: line.percentage })}
+                      </Text>
+                      <View style={styles.splitAmounts}>
+                        <Text style={[styles.splitAmount, {
+                          color: line.percentage === 0 ? ink.soft : colors.textPrimary,
+                        }]} numberOfLines={1}>
+                          {formatCurrency(line.perInstallment)}
+                        </Text>
+                        {transaction.isInstallment && (
+                          <Text style={[styles.splitSub, { color: ink.soft }]} numberOfLines={1}>
+                            {t('history.detail.splitOfTotal', { amount: formatCurrency(line.total) })}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  ))}
+                  {peopleModule.lines.some((l) => l.percentage === 0) && (
+                    <Text style={[styles.splitFoot, { color: ink.soft }]}>
+                      {t('history.detail.splitZeroFoot')}
+                    </Text>
+                  )}
+                </View>
+              )}
             </Module>
           )}
 
@@ -1316,6 +1371,20 @@ const styles = StyleSheet.create({
   avatarNames: { flex: 1, fontSize: 12, fontFamily: Fonts.semiBold, marginLeft: 10 },
   pill: { alignSelf: 'flex-start', borderRadius: 50, paddingHorizontal: 11, paddingVertical: 5, marginTop: 9 },
   pillText: { fontSize: 11, fontFamily: Fonts.bold, fontVariant: ['tabular-nums'] },
+
+  // Reparto por persona
+  splitBox: { marginTop: 12, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth },
+  splitLabel: { fontSize: 9.5, fontFamily: Fonts.bold, letterSpacing: 0.7 },
+  splitRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  splitName: { flex: 1, minWidth: 0, fontSize: 12.5, fontFamily: Fonts.semiBold },
+  splitPct: {
+    fontSize: 10.5, fontFamily: Fonts.bold, fontVariant: ['tabular-nums'],
+    borderRadius: 50, paddingHorizontal: 8, paddingVertical: 3, overflow: 'hidden',
+  },
+  splitAmounts: { alignItems: 'flex-end', maxWidth: '42%' },
+  splitAmount: { fontSize: 12.5, fontFamily: Fonts.bold, letterSpacing: -0.2, fontVariant: ['tabular-nums'] },
+  splitSub: { fontSize: 10, fontFamily: Fonts.regular, marginTop: 1, fontVariant: ['tabular-nums'] },
+  splitFoot: { fontSize: 10.5, fontFamily: Fonts.regular, lineHeight: 15, marginTop: 6 },
 
   // Barra de la categoría
   barTrack: { height: 8, borderRadius: 4, marginTop: 10, overflow: 'hidden' },

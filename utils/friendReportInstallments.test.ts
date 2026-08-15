@@ -17,7 +17,7 @@ import assert from 'node:assert';
 import { calculateInstallments } from './installmentCalc';
 import { calcSharedAmount } from './sharedCalc';
 import { buildFriendReport } from './friendReportModel';
-import { effectiveAmount, installmentPortion } from './sharedCalc';
+import { effectiveAmount, installmentPortion, splitBreakdown, groupAmount } from './sharedCalc';
 import type { Transaction } from '../types/transaction';
 
 const ME = 'uid-yo';
@@ -290,6 +290,51 @@ function createSharedInstallments(opts: {
     effectiveAmount({ amount: total, isShared: true, sharedAmount: 0 }), 0,
     'sin cuotas mi parte es 0 aunque el doc guarde el total del grupo',
   );
+}
+
+// ── Caso 7b: el desglose que enseña la ficha del movimiento ─────────────────
+{
+  const total = 1_200_000;
+  const docs = createSharedInstallments({
+    total, installments: 12, tea: 26.4, ownerUid: ME,
+    participants: [
+      { uid: ME, displayName: 'Yo', percentage: 0 },
+      { uid: FRIEND, displayName: 'Amigo', percentage: 100 },
+    ],
+    description: 'Portátil', startDay: 3,
+  });
+  const miCuota = { ...docs[ME][0], userId: ME };
+  const lines = splitBreakdown(miCuota);
+
+  assert.strictEqual(lines.length, 2, 'salen las dos personas, también la del 0%');
+  const yo = lines.find((l) => l.uid === ME)!;
+  const amigo = lines.find((l) => l.uid === FRIEND)!;
+  assert.deepStrictEqual(
+    { pct: yo.percentage, cuota: yo.perInstallment, total: yo.total },
+    { pct: 0, cuota: 0, total: 0 },
+    'yo: 0% y nada que pagar',
+  );
+  assert.strictEqual(amigo.percentage, 100);
+  assert.strictEqual(amigo.perInstallment, docs[FRIEND][0].amount, 'su cuota es la real');
+  assert.ok(amigo.total > total, 'su total incluye el interés de las 12 cuotas');
+
+  // Y la fila del historial enseña la cuota del GRUPO, no un "$0" a secas.
+  assert.strictEqual(groupAmount(miCuota), docs[FRIEND][0].amount);
+}
+
+// ── Caso 7c: desglose sin cuotas (el doc guarda el total del grupo) ─────────
+{
+  const tx = {
+    userId: ME, amount: 300_000, isShared: true,
+    sharedParticipants: [
+      { uid: ME, percentage: 0 },
+      { uid: FRIEND, percentage: 100 },
+    ],
+  };
+  const lines = splitBreakdown(tx);
+  assert.strictEqual(lines[0].total, 0, 'no asumo nada');
+  assert.strictEqual(lines[1].total, 300_000, 'lo asume entero el otro');
+  assert.strictEqual(groupAmount(tx), 300_000, 'sin cuotas el total del grupo es `amount`');
 }
 
 // ── Caso 8: docs anteriores al total del grupo ───────────────────────────────

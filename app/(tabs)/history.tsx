@@ -57,7 +57,7 @@ import { useTxRelation, TxRelationNotch, TxRelationTier } from '../../components
 import { readableOn } from '../../utils/txRelation';
 import { accentInk } from '../../utils/contrast';
 import { applyHistoryFilters, activeFilterCount, type HistoryFilters } from '../../utils/historyFilters';
-import { effectiveAmount } from '../../utils/sharedCalc';
+import { effectiveAmount, groupAmount } from '../../utils/sharedCalc';
 import CategoryBars, { CategorySegment } from '../../components/premium/CategoryBars';
 import { categoryLabel } from '../../constants/categories';
 import { categoryColor } from '../../constants/categoryColors';
@@ -181,8 +181,11 @@ function TransactionRow({ item, isLast, onPress, onLongPress, cardsMap, onToggle
   // un gemelo redondeado de esa misma cuota, no el total del grupo.
   // Misma función que usan el balance y los agregados: la fila y el total nunca se contradicen.
   const shownAmount = effectiveAmount(item);
-  const ofTotal = shownAmount !== item.amount
-    ? t('sharedExpense.ofTotal', { amount: formatCurrency(item.amount) })
+  // `groupAmount` y no `item.amount`: en cuotas el documento guarda MI cuota, así que si
+  // no asumo nada la fila se quedaba en un "$0" sin contexto en vez de "de $X".
+  const rowTotal = groupAmount(item);
+  const ofTotal = shownAmount !== rowTotal
+    ? t('sharedExpense.ofTotal', { amount: formatCurrency(rowTotal) })
     : null;
   const descLabel = item.isInstallment
     ? `${item.description} (${t('history.installmentChip', { n: item.installmentNumber, total: item.installmentTotal })})`
