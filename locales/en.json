@@ -393,7 +393,6 @@
     },
     "chartAnimLabel": "Animation",
     "chartAnim": {
-      "pulse": "Pulse",
       "draw": "Live trace",
       "tide": "Tide",
       "none": "None"

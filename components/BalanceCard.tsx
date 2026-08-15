@@ -250,9 +250,9 @@ interface SparklineProps {
 }
 
 /**
- * Mini-tendencia estilo "Aurora Ledger": la tendencia es paisaje. Soporta 4
- * tipos (línea/barras/área/puntos) × 4 animaciones (pulso/trazo vivo/marea/
- * ninguna) — elegibles en Personalización. Respeta reduce-motion
+ * Mini-tendencia estilo "Aurora Ledger": la tendencia es paisaje. Soporta 6
+ * tipos (línea/área/barras/puntos/escalonado/piruleta) × 3 animaciones (trazo
+ * vivo/marea/ninguna) — elegibles en Personalización. Respeta reduce-motion
  * (animate=false → siempre estático, cualquiera sea el estilo). Con `accent2`,
  * el relleno/contenido del área usa ese color mientras la línea/borde se queda
  * en `accent` — dos colores con roles distintos, no un degradado entre ambos.
@@ -260,7 +260,7 @@ interface SparklineProps {
  * usado para componer capas de cruce de color parciales (línea dinámica con
  * contenido fijo, o viceversa) sin duplicar el canal que debe quedar estático.
  */
-export function Sparkline({ values, color, accent, accent2, height = 56, animate = true, duration = 6500, chartType = 'line', animStyle = 'pulse', renderFill = true, renderStroke = true }: SparklineProps) {
+export function Sparkline({ values, color, accent, accent2, height = 56, animate = true, duration = 6500, chartType = 'line', animStyle = 'draw', renderFill = true, renderStroke = true }: SparklineProps) {
   const W = 100, H = 36, P = 4;
   const [boxW, setBoxW] = useState(0);
   const stroke = accent ?? color;
@@ -290,9 +290,6 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
     for (let i = 1; i < samples.length; i++) len += Math.hypot(samples[i].x - samples[i - 1].x, samples[i].y - samples[i - 1].y);
     return len;
   }, [samples]);
-
-  // ── Pulso: cometa nativo (View, no SVG — evita el óvalo y el warning de RN Web) ──
-  const pulseActive = animate && animStyle === 'pulse' && chartType !== 'bars';
 
   // ── Trazo vivo: revela el trazo (o el área, si no hay línea) UNA vez ──
   // Antes era un bucle infinito con `addListener` → `setState` en cada frame:
@@ -351,17 +348,6 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // El punto animado (pulso) y el halo de "trazo vivo" viven FUERA del SVG,
   // como Views nativas: el viewBox usa preserveAspectRatio="none" (deforma X e
   // Y por separado), así que un círculo DENTRO del SVG saldría ovalado.
-  //
-  // El cometa recorre la curva con `transform`, no con `left`/`top`: así el
-  // recorrido entero cabe en unos keyframes y lo ejecuta el compositor.
-  const cometFrames: FxFrame[] = samples.length >= 2 && boxW > 0
-    ? samples.map((p, i) => ({
-        at: i / (samples.length - 1),
-        x: (p.x / W) * boxW,
-        y: (p.y / H) * height,
-      }))
-    : [];
-  const glowShadow = Platform.OS === 'web' ? ({ boxShadow: `0 0 10px ${stroke}` } as any) : { shadowColor: stroke, shadowOpacity: 1, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } };
 
   return (
     <View style={{ width: '100%', height }} onLayout={(e) => setBoxW(e.nativeEvent.layout.width)}>
@@ -443,16 +429,6 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
         );
       })}
 
-      {/* Pulso: cometa con estela de glow de 3 capas. Recorre la curva con
-          `transform`; el compositor lo ejecuta sin tocar el hilo de JS. */}
-      {renderStroke && pulseActive && cometFrames.length >= 2 && (
-        <>
-          <Comet frames={cometFrames} duration={duration} size={26} color={stroke} opacity={0.12} />
-          <Comet frames={cometFrames} duration={duration} size={17} color={stroke} opacity={0.28} />
-          <Comet frames={cometFrames} duration={duration} size={7.5} color="#FFFFFF" opacity={1} glow={glowShadow} />
-        </>
-      )}
-
       {/* Trazo vivo: halo respirando en el punto de hoy */}
       {renderStroke && drawActive && boxW > 0 && (
         <FxLayer
@@ -474,25 +450,6 @@ const HALO_FRAMES: FxFrame[] = [
   { at: 0.5, opacity: 0.4,  scale: 1.3 },
   { at: 1,   opacity: 0.16, scale: 0.8 },
 ];
-
-/** Una de las tres capas del cometa. El recorrido ya viene muestreado sobre la
- *  curva, así que basta con centrar cada fotograma en el tamaño de la capa. */
-function Comet({ frames, duration, size, color, opacity, glow }: {
-  frames: FxFrame[]; duration: number; size: number; color: string; opacity: number; glow?: object;
-}) {
-  const centered = frames.map((f) => ({ ...f, x: (f.x ?? 0) - size / 2, y: (f.y ?? 0) - size / 2 }));
-  return (
-    <FxLayer
-      frames={centered}
-      duration={duration}
-      easing="out"
-      style={[
-        { position: 'absolute', width: size, height: size, borderRadius: size / 2, backgroundColor: color, opacity },
-        glow as any,
-      ]}
-    />
-  );
-}
 
 /** El latido de "marea": una capa animada que envuelve al gráfico entero, en
  *  lugar de recalcular la opacidad de cada `Path` desde el estado de React. */

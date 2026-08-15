@@ -11,7 +11,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
+import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, normalizeChartAnim, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
   CHART_TYPE_VALUES, GRADIENT_STYLE_VALUES, BACKGROUND_BLUR_VALUES, type GradientStyle, type BackgroundBlur,
 } from '../context/ThemeContext';
 import { PALETTE_MAP } from '../config/palettes';
@@ -71,7 +71,8 @@ function PaletteLoader() {
         // escrita a mano aquí, cada tipo nuevo (stepped, lollipop) se descartaba al
         // llegar desde otro dispositivo y parecía que la elección no se guardaba.
         if (CHART_TYPE_VALUES.includes(p.chartType as ChartType)) setChartType(p.chartType as ChartType);
-        if (['pulse', 'draw', 'tide', 'none'].includes(p.chartAnimStyle as string)) setChartAnimStyle(p.chartAnimStyle as ChartAnimStyle);
+        const migratedAnim = normalizeChartAnim(p.chartAnimStyle);
+        if (migratedAnim) setChartAnimStyle(migratedAnim);
         if (['slow', 'normal', 'fast'].includes(p.chartSpeed as string)) setChartSpeed(p.chartSpeed as ChartSpeed);
         // Validado como sus hermanos: un acento remoto viejo o retirado se
         // colaba en el contexto y `resolveChartAccent` caía al color del tema —

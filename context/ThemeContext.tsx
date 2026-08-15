@@ -56,7 +56,17 @@ export type IconStroke = 1.5 | 2 | 2.5;
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type ChartType = 'line' | 'bars' | 'area' | 'dots' | 'stepped' | 'lollipop';
 export const CHART_TYPE_VALUES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
-export type ChartAnimStyle = 'pulse' | 'draw' | 'tide' | 'none';
+/** El "pulso" (un punto recorriendo la línea en bucle) se retiró en la v2.58.0:
+ *  su único contenido era el punto en movimiento, y el movimiento perpetuo no
+ *  aporta información una vez leída la tendencia. Los ajustes guardados con ese
+ *  valor migran a 'draw', que es el más cercano — dibuja el trazo al entrar. */
+export type ChartAnimStyle = 'draw' | 'tide' | 'none';
+export const CHART_ANIM_VALUES: ChartAnimStyle[] = ['draw', 'tide', 'none'];
+/** Normaliza un valor guardado (local o de Firestore), migrando el legado. */
+export function normalizeChartAnim(v: unknown): ChartAnimStyle | null {
+  if (v === 'pulse') return 'draw';
+  return CHART_ANIM_VALUES.includes(v as ChartAnimStyle) ? (v as ChartAnimStyle) : null;
+}
 /** Forma del degradado del fondo: la misma paleta cae distinto según la dirección. */
 export type GradientStyle = 'linear' | 'diagonal' | 'radial' | 'flat';
 export const GRADIENT_STYLE_VALUES: GradientStyle[] = ['linear', 'diagonal', 'radial', 'flat'];
@@ -144,7 +154,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   setStreakConfetti: () => {},
   chartType: 'line',
   setChartType: () => {},
-  chartAnimStyle: 'pulse',
+  chartAnimStyle: 'draw',
   setChartAnimStyle: () => {},
   chartSpeed: 'slow',
   setChartSpeed: () => {},
@@ -170,7 +180,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [iconStroke, setIconStrokeState] = useState<IconStroke>(2);
   const [streakConfetti, setStreakConfettiState] = useState(true);
   const [chartType, setChartTypeState] = useState<ChartType>('line');
-  const [chartAnimStyle, setChartAnimStyleState] = useState<ChartAnimStyle>('pulse');
+  const [chartAnimStyle, setChartAnimStyleState] = useState<ChartAnimStyle>('draw');
   const [chartSpeed, setChartSpeedState] = useState<ChartSpeed>('slow');
   const [chartAccent, setChartAccentState] = useState<ChartAccent>('theme');
   // 'diagonal' es lo que la app pintaba antes de que esto fuera configurable.
@@ -230,7 +240,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (storedStroke === '1.5' || storedStroke === '2' || storedStroke === '2.5') setIconStrokeState(Number(storedStroke) as IconStroke);
       if (storedConfetti != null) setStreakConfettiState(storedConfetti === '1');
       if (CHART_TYPE_VALUES.includes(storedChartType as ChartType)) setChartTypeState(storedChartType as ChartType);
-      if (storedChartAnim === 'pulse' || storedChartAnim === 'draw' || storedChartAnim === 'tide' || storedChartAnim === 'none') setChartAnimStyleState(storedChartAnim);
+      const migratedAnim = normalizeChartAnim(storedChartAnim);
+      if (migratedAnim) setChartAnimStyleState(migratedAnim);
       if (storedChartSpeed === 'slow' || storedChartSpeed === 'normal' || storedChartSpeed === 'fast') setChartSpeedState(storedChartSpeed);
       if (CHART_ACCENT_VALUES.includes(storedChartAccent as ChartAccent)) setChartAccentState(storedChartAccent as ChartAccent);
       if (GRADIENT_STYLE_VALUES.includes(storedGradientStyle as GradientStyle)) setGradientStyleState(storedGradientStyle as GradientStyle);

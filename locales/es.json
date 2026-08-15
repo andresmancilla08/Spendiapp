@@ -393,7 +393,6 @@
     },
     "chartAnimLabel": "Animación",
     "chartAnim": {
-      "pulse": "Pulso",
       "draw": "Trazo vivo",
       "tide": "Marea",
       "none": "Ninguna"

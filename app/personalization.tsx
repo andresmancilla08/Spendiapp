@@ -20,7 +20,7 @@ import { accentInk } from '../utils/contrast';
 import { BackgroundEffect, CLIP_BLURRED_CHILD } from '../components/AppBackground';
 import { FxFrozen } from '../components/fx/FxLayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_SOFTNESS, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_SOFTNESS, CHART_ANIM_VALUES, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
   GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
 } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
@@ -190,7 +190,7 @@ function LooksStrip({ looks, activeId, colors, t, onPick }: {
     </ScrollView>
   );
 }
-const CHART_ANIM_STYLES: ChartAnimStyle[] = ['pulse', 'draw', 'tide', 'none'];
+const CHART_ANIM_STYLES: ChartAnimStyle[] = CHART_ANIM_VALUES;
 // Orden candidato — algunas paletas definen "secondary" igual a "success" (p.ej.
 // deepWater), así que la lista real se deduplica por color en tiempo de render;
 // "success" va antes que "secondary" para que gane el nombre más reconocible si chocan.
