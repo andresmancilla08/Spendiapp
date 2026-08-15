@@ -16,10 +16,29 @@ import { LinearGradient } from 'expo-linear-gradient';
  * compositor puede reutilizar la capa mientras solo cambian `transform` y
  * `opacity`. Coste por frame: prácticamente cero.
  *
- * En nativo no hay degradado radial, así que se aproxima con dos capas lineales
- * cruzadas — el resultado a estas opacidades es indistinguible, y sigue sin
- * costar un solo blur.
+ * CÓMO SE IMITA EL DESENFOQUE
+ * Un degradado de dos paradas produce anillos concéntricos visibles: la
+ * transición es lineal y el ojo detecta el corte. Un blur real cae como una
+ * campana. Se aproxima con cinco paradas de alfa decreciente, y la última llega
+ * a transparente MUY dentro de la caja (≤ 82 %) — si el color siguiera vivo en
+ * la esquina, se vería el rectángulo del contenedor.
  */
+
+/** Aplica alfa a un color de la paleta. Acepta `#RGB`, `#RRGGBB` y `#RRGGBBAA`
+ *  (en cuyo caso el alfa existente se multiplica por el pedido). */
+function withAlpha(color: string, alpha: number): string {
+  if (!color.startsWith('#')) return color;
+  let hex = color.slice(1);
+  if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+  if (hex.length === 8) {
+    alpha *= parseInt(hex.slice(6, 8), 16) / 255;
+    hex = hex.slice(0, 6);
+  }
+  if (hex.length !== 6) return color;
+  const n = parseInt(hex, 16);
+  const a = Math.max(0, Math.min(1, alpha));
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a.toFixed(3)})`;
+}
 
 interface Props {
   color: string;
@@ -36,15 +55,22 @@ interface Props {
 }
 
 export default function SoftOrb({ color, color2, softness = 0.5, opacity = 1, shape = 'circle', style }: Props) {
-  // Cuanto más suave, antes empieza a desvanecer y más lejos llega la cola.
-  const core = Math.round(6 + (1 - softness) * 26);      // 6 % → 32 %
-  const mid = Math.round(core + 18 + softness * 16);     // parada intermedia
-  const edge = Math.round(Math.min(96, mid + 22 + softness * 20));
+  // Cuanto más suave, antes empieza a caer el color y más gradual es la caída.
+  // El último tramo siempre muere dentro de la caja.
+  const core = 4 + (1 - softness) * 16;   // 4 % → 20 %
+  const edge = 82 - softness * 14;        // 82 % → 68 %
+  const at = (k: number) => (core + (edge - core) * k).toFixed(1);
+  const c2 = color2 ?? color;
 
   if (Platform.OS === 'web') {
-    const stops = color2
-      ? `${color} ${core}%, ${color2} ${mid}%, transparent ${edge}%`
-      : `${color} ${core}%, transparent ${edge}%`;
+    // Curva de caída de una campana, muestreada en cinco puntos.
+    const stops = [
+      `${withAlpha(color, 0.95)} ${at(0)}%`,
+      `${withAlpha(c2, 0.62)} ${at(0.3)}%`,
+      `${withAlpha(c2, 0.3)} ${at(0.55)}%`,
+      `${withAlpha(c2, 0.1)} ${at(0.78)}%`,
+      `${withAlpha(c2, 0)} ${edge.toFixed(1)}%`,
+    ].join(', ');
     return (
       <View
         pointerEvents="none"
@@ -57,22 +83,23 @@ export default function SoftOrb({ color, color2, softness = 0.5, opacity = 1, sh
     );
   }
 
-  // Nativo: dos degradados lineales cruzados aproximan el radial sin blur.
+  // Nativo: dos degradados lineales cruzados aproximan el radial sin blur. El
+  // recorte circular lo pone el contenedor (borderRadius), que el efecto ya fija.
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { opacity }, style]}>
       <LinearGradient
-        colors={[color, color2 ?? color, 'transparent']}
-        locations={[0, Math.min(0.85, mid / 100), 1]}
+        colors={[withAlpha(color, 0.9), withAlpha(c2, 0.35), 'transparent']}
+        locations={[0, 0.55, 1]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         style={StyleSheet.absoluteFillObject}
       />
       <LinearGradient
-        colors={['transparent', color2 ?? color, 'transparent']}
+        colors={['transparent', withAlpha(c2, 0.55), 'transparent']}
         locations={[0, 0.5, 1]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
-        style={[StyleSheet.absoluteFillObject, { opacity: 0.75 }]}
+        style={StyleSheet.absoluteFillObject}
       />
     </View>
   );
