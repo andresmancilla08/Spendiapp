@@ -22,8 +22,6 @@ const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
  *  conseguía activando "reducir movimiento" en los ajustes del sistema, que
  *  afecta a todas las apps del teléfono. */
 const BATTERY_SAVER_KEY = '@spendiapp_battery_saver';
-const ICON_STROKE_KEY = '@spendiapp_icon_stroke';
-const STREAK_CONFETTI_KEY = '@spendiapp_streak_confetti';
 const CHART_TYPE_KEY = '@spendiapp_chart_type';
 const CHART_ANIM_KEY = '@spendiapp_chart_anim';
 const CHART_SPEED_KEY = '@spendiapp_chart_speed';
@@ -43,7 +41,6 @@ export const BACKGROUND_BLUR_VALUES: BackgroundBlur[] = ['none', 'soft', 'medium
  *  se pinta una vez y el compositor reutiliza la capa. Lo insostenible era
  *  rehacerlo en cada frame porque debajo algo se movía. */
 export const BACKGROUND_BLUR_PX: Record<BackgroundBlur, number> = { none: 0, soft: 6, medium: 14, strong: 26 };
-export type IconStroke = 1.5 | 2 | 2.5;
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type ChartType = 'line' | 'bars' | 'area' | 'dots' | 'stepped' | 'lollipop';
 export const CHART_TYPE_VALUES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
@@ -103,10 +100,6 @@ interface ThemeContextValue {
   setCardSheen: (v: boolean) => void;
   batterySaver: boolean;
   setBatterySaver: (v: boolean) => void;
-  iconStroke: IconStroke;
-  setIconStroke: (v: IconStroke) => void;
-  streakConfetti: boolean;
-  setStreakConfetti: (v: boolean) => void;
   chartType: ChartType;
   setChartType: (v: ChartType) => void;
   chartAnimStyle: ChartAnimStyle;
@@ -144,10 +137,6 @@ const ThemeContext = createContext<ThemeContextValue>({
   setCardSheen: () => {},
   batterySaver: false,
   setBatterySaver: () => {},
-  iconStroke: 2,
-  setIconStroke: () => {},
-  streakConfetti: true,
-  setStreakConfetti: () => {},
   chartType: 'line',
   setChartType: () => {},
   chartAnimStyle: 'draw',
@@ -172,8 +161,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [backgroundBlurDark, setBackgroundBlurDarkState] = useState<BackgroundBlur>('medium');
   const [cardSheen, setCardSheenState] = useState(true);
   const [batterySaver, setBatterySaverState] = useState(false);
-  const [iconStroke, setIconStrokeState] = useState<IconStroke>(2);
-  const [streakConfetti, setStreakConfettiState] = useState(true);
   const [chartType, setChartTypeState] = useState<ChartType>('line');
   const [chartAnimStyle, setChartAnimStyleState] = useState<ChartAnimStyle>('draw');
   const [chartSpeed, setChartSpeedState] = useState<ChartSpeed>('slow');
@@ -193,14 +180,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(BG_BLUR_DARK_KEY),
       AsyncStorage.getItem(CARD_SHEEN_KEY),
       AsyncStorage.getItem(BATTERY_SAVER_KEY),
-      AsyncStorage.getItem(ICON_STROKE_KEY),
-      AsyncStorage.getItem(STREAK_CONFETTI_KEY),
       AsyncStorage.getItem(CHART_TYPE_KEY),
       AsyncStorage.getItem(CHART_ANIM_KEY),
       AsyncStorage.getItem(CHART_SPEED_KEY),
       AsyncStorage.getItem(CHART_ACCENT_KEY),
       AsyncStorage.getItem(GRADIENT_STYLE_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBlurLight, storedBlurDark, storedSheen, storedBattery, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBlurLight, storedBlurDark, storedSheen, storedBattery, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
@@ -228,8 +213,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (BACKGROUND_BLUR_VALUES.includes(storedBlurDark as BackgroundBlur)) setBackgroundBlurDarkState(storedBlurDark as BackgroundBlur);
       if (storedSheen != null) setCardSheenState(storedSheen === '1');
       if (storedBattery != null) setBatterySaverState(storedBattery === '1');
-      if (storedStroke === '1.5' || storedStroke === '2' || storedStroke === '2.5') setIconStrokeState(Number(storedStroke) as IconStroke);
-      if (storedConfetti != null) setStreakConfettiState(storedConfetti === '1');
       if (CHART_TYPE_VALUES.includes(storedChartType as ChartType)) setChartTypeState(storedChartType as ChartType);
       const migratedAnim = normalizeChartAnim(storedChartAnim);
       if (migratedAnim) setChartAnimStyleState(migratedAnim);
@@ -284,16 +267,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(CARD_SHEEN_KEY, v ? '1' : '0');
   };
 
-  const setIconStroke = async (v: IconStroke) => {
-    setIconStrokeState(v);
-    await AsyncStorage.setItem(ICON_STROKE_KEY, String(v));
-  };
-
-  const setStreakConfetti = async (v: boolean) => {
-    setStreakConfettiState(v);
-    await AsyncStorage.setItem(STREAK_CONFETTI_KEY, v ? '1' : '0');
-  };
-
   const setChartType = async (v: ChartType) => {
     setChartTypeState(v);
     await AsyncStorage.setItem(CHART_TYPE_KEY, v);
@@ -339,8 +312,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       backgroundBlur, backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
       cardSheen, setCardSheen,
       batterySaver, setBatterySaver,
-      iconStroke, setIconStroke,
-      streakConfetti, setStreakConfetti,
       chartType, setChartType, chartAnimStyle, setChartAnimStyle,
       chartSpeed, setChartSpeed, chartAccent, setChartAccent,
       gradientStyle, setGradientStyle,

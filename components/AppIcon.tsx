@@ -238,8 +238,8 @@ interface AppIconProps {
 }
 
 export default function AppIcon({ name, size = 24, color = '#000', style, strokeWidth }: AppIconProps) {
-  const { iconStroke } = useTheme();
+
   const Icon = ICON_MAP[name];
   if (!Icon) return null;
-  return <Icon size={size} color={color} strokeWidth={strokeWidth ?? iconStroke} style={style} />;
+  return <Icon size={size} color={color} strokeWidth={strokeWidth ?? 2} style={style} />;
 }

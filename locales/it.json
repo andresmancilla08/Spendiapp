@@ -368,15 +368,6 @@
       "normal": "Normale",
       "fast": "Veloce"
     },
-    "iconStroke": {
-      "thin": "Sottile",
-      "regular": "Normale",
-      "bold": "Spesso"
-    },
-    "confetti": {
-      "label": "Coriandoli per serie di risparmio",
-      "sub": "Una piccola festa quando la tua serie sale"
-    },
     "roadmapTitle": "Altra personalizzazione in arrivo",
     "roadmapItems": [
       "Suoni discreti quando registri i movimenti",
@@ -438,8 +429,7 @@
     "chapter": {
       "color": "Colore",
       "background": "Sfondo",
-      "data": "Dati",
-      "detail": "Dettaglio"
+      "data": "Dati"
     },
     "looksLabel": "Looks · palette, sfondo e grafico in un tocco",
     "customLook": "Su misura",

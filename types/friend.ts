@@ -32,8 +32,6 @@ export interface UserProfile {
     backgroundBlurLight?: string;
     backgroundBlurDark?: string;
     cardSheen?: boolean;
-    iconStroke?: number;
-    streakConfetti?: boolean;
     chartType?: string;
     chartAnimStyle?: string;
     chartSpeed?: string;

@@ -368,15 +368,6 @@
       "normal": "Normal",
       "fast": "Fast"
     },
-    "iconStroke": {
-      "thin": "Thin",
-      "regular": "Regular",
-      "bold": "Bold"
-    },
-    "confetti": {
-      "label": "Confetti on savings streak",
-      "sub": "A little celebration when your streak goes up"
-    },
     "roadmapTitle": "More personalization coming",
     "roadmapItems": [
       "Subtle sounds when logging transactions",
@@ -438,8 +429,7 @@
     "chapter": {
       "color": "Color",
       "background": "Background",
-      "data": "Data",
-      "detail": "Detail"
+      "data": "Data"
     },
     "looksLabel": "Looks · palette, background and chart in one tap",
     "customLook": "Custom",

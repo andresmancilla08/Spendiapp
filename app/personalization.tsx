@@ -20,7 +20,7 @@ import { accentInk } from '../utils/contrast';
 import { BackgroundEffect, backgroundBlurStyle, CLIP_BLURRED_CHILD, DARK_SCRIM } from '../components/AppBackground';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, CHART_ANIM_VALUES, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, CHART_ANIM_VALUES, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundBlur, type AuroraIntensity, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
   GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
 } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
@@ -250,12 +250,6 @@ function BackgroundCardBody({ styleKey, intensity, blurPx, target, width }: {
   );
 }
 
-const ICON_STROKE_OPTIONS: { key: IconStroke; labelKey: string }[] = [
-  { key: 1.5, labelKey: 'thin' },
-  { key: 2, labelKey: 'regular' },
-  { key: 2.5, labelKey: 'bold' },
-];
-
 // ── Vista previa en vivo del brillo (barrido de luz) — réplica fiel de la
 // tarjeta real que lo recibe hoy en Home: "Gastos por categoría" (el balance
 // premium ya no tiene caja, así que ya no es el ejemplo correcto). ──
@@ -265,12 +259,15 @@ const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
 const CHART_TYPES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
 
-/** Los cuatro capítulos, en orden del cambio más notorio al más fino. */
-const CHAPTERS = ['color', 'background', 'data', 'detail'] as const;
+/** Los tres capítulos, en orden del cambio más notorio al más fino.
+ *  Había un cuarto, "Detalle", que solo guardaba dos interruptores y un ajuste
+ *  de grosor de iconos que había que mirar de cerca para notar. Los dos
+ *  interruptores viven ahora al final, siempre visibles. */
+const CHAPTERS = ['color', 'background', 'data'] as const;
 type Chapter = typeof CHAPTERS[number];
 /** Qué enseña el lienzo en cada capítulo cuando se encoge. */
 const CANVAS_FOCUS: Record<Chapter, CanvasFocus> = {
-  color: 'all', background: 'bg', data: 'chart', detail: 'card',
+  color: 'all', background: 'bg', data: 'chart',
 };
 
 /** Tira de looks: una combinación completa por tarjeta, más el estado "A medida". */
@@ -537,8 +534,6 @@ export default function PersonalizationScreen() {
     backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
     cardSheen, setCardSheen,
     batterySaver, setBatterySaver,
-    iconStroke, setIconStroke,
-    streakConfetti, setStreakConfetti,
     chartType, setChartType, chartAnimStyle, setChartAnimStyle,
     chartSpeed, setChartSpeed, chartAccent, setChartAccent,
     gradientStyle, setGradientStyle,
@@ -698,7 +693,7 @@ export default function PersonalizationScreen() {
   prefsRef.current = {
     backgroundStyleLight, backgroundStyleDark, backgroundIntensity,
     backgroundBlurLight, backgroundBlurDark,
-    cardSheen, iconStroke, streakConfetti,
+    cardSheen,
     chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle,
   };
   const dirtyRef = useRef(false);
@@ -716,7 +711,7 @@ export default function PersonalizationScreen() {
     const timer = setTimeout(() => syncNow(user.uid), 800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundBlurLight, backgroundBlurDark, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle]);
+  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundBlurLight, backgroundBlurDark, cardSheen, chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle]);
   // Flush al desmontar: antes el debounce pendiente se CANCELABA al salir de la
   // pantalla y los últimos cambios nunca llegaban a Firestore.
   useEffect(() => () => {
@@ -940,61 +935,26 @@ export default function PersonalizationScreen() {
               </>
             )}
 
-            {chapter === 'detail' && (
-              <>
-                <View style={styles.iconPreviewRow}>
-                  {(['home-outline', 'wallet-outline', 'card-outline', 'star-outline', 'person-outline'] as const).map((n) => (
-                    <AppIcon key={n} name={n} size={24} color={colors.primary} strokeWidth={iconStroke} />
-                  ))}
-                </View>
-                <AppSegmentedControl
-                segments={ICON_STROKE_OPTIONS.map((o) => ({ key: String(o.key), label: t(`personalization.iconStroke.${o.labelKey}`) }))}
-                activeKey={String(iconStroke)}
-                onChange={(key) => setIconStroke(Number(key) as IconStroke)}
-                style={styles.intensitySpacing}
+            {/* Ajustes generales: no pertenecen a ningún capítulo —afectan a toda
+                la app— así que se quedan siempre visibles al final en vez de
+                escondidos tras una pestaña que nadie sabía para qué era. */}
+            <View style={styles.rowsWrap}>
+              <SwitchRow
+                icon="sparkles-outline"
+                label={t('personalization.cardSheen.label')}
+                sub={t('personalization.cardSheen.sub')}
+                value={cardSheen}
+                onValueChange={setCardSheen}
               />
-                <View style={styles.rowsWrap}>
-                <SwitchRow
-                  icon="sparkles-outline"
-                  label={t('personalization.cardSheen.label')}
-                  sub={t('personalization.cardSheen.sub')}
-                  value={cardSheen}
-                  onValueChange={setCardSheen}
-                />
-                {/* Detener el movimiento decorativo solo se podía haciéndolo
-                    para TODO el teléfono desde los ajustes del sistema. */}
-                <SwitchRow
-                  icon="flash-outline"
-                  label={t('personalization.batterySaver.label')}
-                  sub={t('personalization.batterySaver.sub')}
-                  value={batterySaver}
-                  onValueChange={setBatterySaver}
-                  isLast
-                />
-              </View>
-                <View style={styles.rowsWrap}>
-                  <SwitchRow
-                    icon="gift-outline"
-                    label={t('personalization.confetti.label')}
-                    sub={t('personalization.confetti.sub')}
-                    value={streakConfetti}
-                    onValueChange={setStreakConfetti}
-                    isLast
-                  />
-                </View>
-                <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>
-                  {t('personalization.roadmapTitle')}
-                </Text>
-                <View style={styles.roadmapWrap}>
-                {(t('personalization.roadmapItems', { returnObjects: true }) as string[]).map((item, i) => (
-                  <View key={i} style={styles.roadmapRow}>
-                    <AppIcon name="star-outline" size={13} color={colors.textTertiary} />
-                    <Text style={[styles.roadmapText, { color: colors.textSecondary }]}>{item}</Text>
-                  </View>
-                ))}
-              </View>
-              </>
-            )}
+              <SwitchRow
+                icon="flash-outline"
+                label={t('personalization.batterySaver.label')}
+                sub={t('personalization.batterySaver.sub')}
+                value={batterySaver}
+                onValueChange={setBatterySaver}
+                isLast
+              />
+            </View>
             <View style={{ height: 28 }} />
           </Animated.ScrollView>
 

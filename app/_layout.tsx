@@ -11,7 +11,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, normalizeChartAnim, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
+import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, normalizeChartAnim, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, AuroraIntensity, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
   CHART_TYPE_VALUES, GRADIENT_STYLE_VALUES, BACKGROUND_BLUR_VALUES, type GradientStyle, type BackgroundBlur,
 } from '../context/ThemeContext';
 import { PALETTE_MAP } from '../config/palettes';
@@ -31,7 +31,7 @@ function PaletteLoader() {
   const { user } = useAuthStore();
   const {
     setPaletteId, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundBlurFor,
-    setCardSheen, setIconStroke, setStreakConfetti,
+    setCardSheen,
     setChartType, setChartAnimStyle, setChartSpeed, setChartAccent, setGradientStyle,
   } = useTheme();
 
@@ -64,8 +64,6 @@ function PaletteLoader() {
         if (BACKGROUND_BLUR_VALUES.includes(p.backgroundBlurLight as BackgroundBlur)) setBackgroundBlurFor('light', p.backgroundBlurLight as BackgroundBlur);
         if (BACKGROUND_BLUR_VALUES.includes(p.backgroundBlurDark as BackgroundBlur)) setBackgroundBlurFor('dark', p.backgroundBlurDark as BackgroundBlur);
         if (typeof p.cardSheen === 'boolean') setCardSheen(p.cardSheen);
-        if (p.iconStroke === 1.5 || p.iconStroke === 2 || p.iconStroke === 2.5) setIconStroke(p.iconStroke as IconStroke);
-        if (typeof p.streakConfetti === 'boolean') setStreakConfetti(p.streakConfetti);
         // Se valida contra la lista EXPORTADA, no contra una copia: con la lista
         // escrita a mano aquí, cada tipo nuevo (stepped, lollipop) se descartaba al
         // llegar desde otro dispositivo y parecía que la elección no se guardaba.

@@ -16,7 +16,7 @@ interface PieceConfig {
 }
 
 /**
- * Micro-celebración de una sola vez (premium, opcional vía streakConfetti):
+ * Micro-celebración de una sola vez (premium; no se muestra con el ahorro de batería activo):
  * ráfaga de confeti cayendo desde arriba. Se monta cuando `trigger` cambia y
  * se desmonta sola al terminar — no deja nada corriendo en segundo plano.
  */
