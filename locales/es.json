@@ -1053,6 +1053,15 @@
     "notifMonth": {
       "title": "La notificación te lleva al mes correcto",
       "item1": "Si un amigo te comparte un movimiento con fecha de otro mes, al tocar el aviso el historial se abre justo ahí"
+    },
+    "backNav": {
+      "title": "Volver te deja donde estabas",
+      "item1": "Entrar a Presupuesto desde Herramientas y volver te llevaba a Inicio; ahora regresas a Herramientas",
+      "item2": "Y si recargas la página, el botón de volver ya no se queda sin hacer nada"
+    },
+    "incomeField": {
+      "title": "Registrar un ingreso",
+      "item1": "El campo de descripción ya no pregunta en qué gastaste cuando lo que registras es un ingreso"
     }
   },
   "incomeClaim": {

@@ -1053,6 +1053,15 @@
     "notifMonth": {
       "title": "Notifications take you to the right month",
       "item1": "If a friend shares a movement dated in another month, tapping the alert opens your history right there"
+    },
+    "backNav": {
+      "title": "Back takes you where you were",
+      "item1": "Opening Budget from Tools and going back dropped you on Home; now you return to Tools",
+      "item2": "And if you reload the page, the back button no longer does nothing"
+    },
+    "incomeField": {
+      "title": "Logging income",
+      "item1": "The description field no longer asks what you spent it on when you're logging income"
     }
   },
   "incomeClaim": {

@@ -55,6 +55,20 @@ const APP_FEATURES: Feature[] = [
     titleKey: 'whatsNew.notifMonth.title',
     items: ['whatsNew.notifMonth.item1'],
   },
+  // 2.61.0 estuvo en producción media hora: se anuncia aquí porque casi nadie
+  // llegó a ver su modal, no porque la lista sea un historial.
+  {
+    icon: 'arrow-back',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.backNav.title',
+    items: ['whatsNew.backNav.item1', 'whatsNew.backNav.item2'],
+  },
+  {
+    icon: 'create-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.incomeField.title',
+    items: ['whatsNew.incomeField.item1'],
+  },
 ];
 
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
