@@ -742,6 +742,10 @@ export async function generateAnnualReportImage(
   labels: AnnualReportImageLabels,
   logoUri?: string,
 ): Promise<AnnualReportImageResult[]> {
+  // Todo el dibujo va contra el <canvas> del navegador. En la app nativa no
+  // existe: la entrada está oculta en Herramientas, y esto corta en seco un
+  // deep link a /reports en vez de reventar dentro con un error ilegible.
+  if (typeof document === 'undefined') throw new Error('canvas_unavailable');
   const logoImg = logoUri ? await loadImg(logoUri) : null;
 
   const incomeCount  = data.transactions.filter(t => t.type === 'income').length;

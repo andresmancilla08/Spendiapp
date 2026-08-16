@@ -712,6 +712,8 @@ export async function generateFriendReportImage(
   labels: FriendReportImageLabels,
   options: FriendReportImageOptions,
 ): Promise<FriendReportImageResult[]> {
+  // Ver la nota de generateAnnualReportImage: esto es canvas de navegador.
+  if (typeof document === 'undefined') throw new Error('canvas_unavailable');
   await ensureFonts();
   P = options.palette ?? DEFAULT_REPORT_PALETTE;
   const logo = options.logoUri ? await loadImg(options.logoUri) : null;

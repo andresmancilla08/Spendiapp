@@ -183,15 +183,20 @@ export default function ToolsScreen() {
                 disabled={!flags.categoriesEnabled}
                 colors={colors} isDark={isDark}
               />
-              <ToolTile
-                icon="document-text-outline"
-                title={t('tools.reportsCard.title')}
-                description={t('tools.reportsCard.description')}
-                onPress={flags.reportsEnabled ? () => router.push('/reports') : paused(t('tools.reportsCard.title'))}
-                disabled={!flags.reportsEnabled}
-                colors={colors} isDark={isDark}
-                wide
-              />
+              {/* El informe anual se dibuja en un <canvas> del navegador
+                  (utils/generateAnnualReportImage). En la app nativa esa API no
+                  existe: se oculta hasta que el render viva en el servidor. */}
+              {Platform.OS === 'web' && (
+                <ToolTile
+                  icon="document-text-outline"
+                  title={t('tools.reportsCard.title')}
+                  description={t('tools.reportsCard.description')}
+                  onPress={flags.reportsEnabled ? () => router.push('/reports') : paused(t('tools.reportsCard.title'))}
+                  disabled={!flags.reportsEnabled}
+                  colors={colors} isDark={isDark}
+                  wide
+                />
+              )}
             </View>
 
             {/* Compartido (premium) */}
@@ -199,14 +204,17 @@ export default function ToolsScreen() {
               <>
                 <GroupHeader label={t('tools.groupShared')} colors={colors} />
                 <View style={styles.grid}>
-                  <ToolTile
-                    icon="people-outline"
-                    title={t('tools.friendReportCard.title')}
-                    description={t('tools.friendReportCard.description')}
-                    onPress={flags.friendsEnabled ? () => router.push('/friend-report') : paused(t('tools.friendReportCard.title'))}
-                    disabled={!flags.friendsEnabled}
-                    colors={colors} isDark={isDark}
-                  />
+                  {/* Mismo caso que el informe anual: se dibuja en <canvas>. */}
+                  {Platform.OS === 'web' && (
+                    <ToolTile
+                      icon="people-outline"
+                      title={t('tools.friendReportCard.title')}
+                      description={t('tools.friendReportCard.description')}
+                      onPress={flags.friendsEnabled ? () => router.push('/friend-report') : paused(t('tools.friendReportCard.title'))}
+                      disabled={!flags.friendsEnabled}
+                      colors={colors} isDark={isDark}
+                    />
+                  )}
                   <ToolTile
                     icon="people-circle-outline"
                     title={t('tools.expenseGroupsCard.title')}

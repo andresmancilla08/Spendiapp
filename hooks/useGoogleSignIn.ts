@@ -18,6 +18,11 @@ const IOS_CLIENT_ID =
   '859030212165-v702d1qr3aat8qr6ug2m0o0f338rla7b.apps.googleusercontent.com';
 const WEB_CLIENT_ID =
   '859030212165-oaco2j799adi2r2fpbdo3u1q5qdj3s3n.apps.googleusercontent.com';
+// Android necesita SU PROPIO cliente OAuth (tipo Android, con el SHA-1 del
+// keystore con el que firma EAS). Sin él, el botón de Google no completa el
+// login en Android. Va por env para no fijar en el código un id que depende
+// del certificado de firma: mientras no exista, Android queda como estaba.
+const ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || undefined;
 
 // Key used to preserve loading state across the page navigation caused by signInWithRedirect
 const REDIRECT_PENDING_KEY = 'spendia_google_redirect_pending';
@@ -49,6 +54,7 @@ export function useGoogleSignIn() {
   const [, response, nativePromptAsync] = Google.useIdTokenAuthRequest({
     iosClientId: IOS_CLIENT_ID,
     webClientId: WEB_CLIENT_ID,
+    androidClientId: ANDROID_CLIENT_ID,
   });
 
   // Process the pending redirect result when returning from iOS Google auth.
