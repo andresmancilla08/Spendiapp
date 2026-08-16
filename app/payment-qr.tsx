@@ -8,7 +8,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import AppIcon, { AppIconName } from '../components/AppIcon';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as Clipboard from 'expo-clipboard';
@@ -77,7 +77,7 @@ export default function PaymentQrScreen() {
     return () => shimmerLoop.stop();
   }, []);
 
-  const handleBack = () => transitionRef.current?.animateOut(() => router.back());
+  const handleBack = () => transitionRef.current?.animateOut(() => goBack('/upgrade'));
 
   const handleCopy = async () => {
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

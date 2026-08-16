@@ -31,7 +31,7 @@ import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import { Fonts } from '../config/fonts';
 import { useToast } from '../context/ToastContext';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { formatMoney } from '../utils/formatMoney';
 
 type TabType = 'active' | 'completed';
@@ -305,7 +305,7 @@ export default function GoalsScreen() {
     <ScreenTransition ref={transitionRef}>
       <SafeAreaView style={styles.safe}>
         <ScreenBackground>
-          <AppHeader showBack onBack={() => transitionRef.current?.animateOut(() => router.back())} />
+          <AppHeader showBack onBack={() => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'))} />
           <PageTitle title={t('goals.title')} description={t('goals.pageDesc')} />
 
           {/* Tabs */}

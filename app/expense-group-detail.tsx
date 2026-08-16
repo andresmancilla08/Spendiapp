@@ -17,6 +17,7 @@ import AppIcon from '../components/AppIcon';
 import FloatingActions from '../components/FloatingActions';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
@@ -189,7 +190,7 @@ export default function ExpenseGroupDetailScreen() {
       await deleteGroup(groupId);
       showToast(t('expenseGroups.deleteGroup'), 'success');
       closeDialog();
-      transitionRef.current?.animateOut(() => router.back());
+      transitionRef.current?.animateOut(() => goBack('/expense-groups'));
     } catch (e) {
       console.error('[handleDeleteGroup]', e);
       showToast(t('common.genericError'), 'error');
@@ -244,7 +245,7 @@ export default function ExpenseGroupDetailScreen() {
         <ScreenBackground>
           <AppHeader
             showBack
-            onBack={() => transitionRef.current?.animateOut(() => router.back())}
+            onBack={() => transitionRef.current?.animateOut(() => goBack('/expense-groups'))}
             rightAction={
               <TouchableOpacity
                 onPress={() => setDialogMode('options')}

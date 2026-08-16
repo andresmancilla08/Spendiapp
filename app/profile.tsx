@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { scrollFadeMask } from '../../components/ScrollFadeEdges';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import {
   View,
   Text,
@@ -16,30 +16,30 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppIcon, { AppIconName } from '../../components/AppIcon';
+import AppIcon, { AppIconName } from '../components/AppIcon';
 import { useState, useRef, useEffect } from 'react';
 import { Animated } from 'react-native';
-import { useAuthStore } from '../../store/authStore';
-import { useTheme } from '../../context/ThemeContext';
-import { accentInk } from '../../utils/contrast';
-import { signOut, updateDisplayName, changePin } from '../../hooks/useAuth';
-import { ThemeMode } from '../../context/ThemeContext';
+import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
+import { signOut, updateDisplayName, changePin } from '../hooks/useAuth';
+import { ThemeMode } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { LANGUAGES, changeLanguage } from '../../config/i18n';
-import AppHeader from '../../components/AppHeader';
+import { LANGUAGES, changeLanguage } from '../config/i18n';
+import AppHeader from '../components/AppHeader';
 import { router } from 'expo-router';
-import AppDialog, { DialogType } from '../../components/AppDialog';
-import ScreenBackground from '../../components/ScreenBackground';
-import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
-import ProSheen from '../../components/ProSheen';
-import { Fonts } from '../../config/fonts';
-import { getUserProfile, updateUserDisplayName } from '../../hooks/useUserProfile';
-import { useFriends } from '../../hooks/useFriends';
+import { goBack } from '../utils/nav';
+import AppDialog, { DialogType } from '../components/AppDialog';
+import ScreenBackground from '../components/ScreenBackground';
+import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
+import ProSheen from '../components/ProSheen';
+import { Fonts } from '../config/fonts';
+import { getUserProfile, updateUserDisplayName } from '../hooks/useUserProfile';
+import { useFriends } from '../hooks/useFriends';
 import * as Clipboard from 'expo-clipboard';
-import { useToast } from '../../context/ToastContext';
-import { useFlags } from '../../context/FeatureFlagsContext';
-import appConfig from '../../app.json';
-import { TAB_BAR_SPACE } from '../../components/AppTabBar';
+import { useToast } from '../context/ToastContext';
+import { useFlags } from '../context/FeatureFlagsContext';
+import appConfig from '../app.json';
 
 
 // ── Icon chip con glow — firma Aurora Ledger ───────────────────────────────
@@ -465,9 +465,9 @@ export default function ProfileScreen() {
 
   const handleBack = () => {
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(() => goBack());
     } else {
-      router.back();
+      goBack();
     }
   };
 
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: TAB_BAR_SPACE,
+    paddingBottom: 40,
     width: '100%',
     maxWidth: 640,
     alignSelf: 'center',

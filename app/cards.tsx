@@ -21,7 +21,7 @@ import CardFormSheet from '../components/CardFormSheet';
 import CardEditSheet from '../components/CardEditSheet';
 import BankLogo from '../components/BankLogo';
 import AppDialog from '../components/AppDialog';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
@@ -58,9 +58,9 @@ export default function CardsScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const handleBack = () => {
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(() => goBack('/profile'));
     } else {
-      router.back();
+      goBack('/profile');
     }
   };
 

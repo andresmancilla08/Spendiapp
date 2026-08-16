@@ -4,7 +4,7 @@ import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
@@ -29,7 +29,7 @@ export default function RecurringScreen() {
   const { categories } = useCategories(user?.uid ?? '');
   const { data, loading, error } = useRecurring(user?.uid ?? '');
   const transitionRef = useRef<ScreenTransitionRef>(null);
-  const back = () => transitionRef.current?.animateOut(() => router.back());
+  const back = () => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'));
 
   const daysAgo = (ms: number) => Math.max(0, Math.round((Date.now() - ms) / 86400000));
 

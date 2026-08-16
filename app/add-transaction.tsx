@@ -33,6 +33,7 @@ import { scanReceipt } from '../utils/scanReceipt';
 import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
 import { router, useLocalSearchParams } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppHeader from '../components/AppHeader';
 import NoteField from '../components/NoteField';
 import PageTitle from '../components/PageTitle';
@@ -580,7 +581,7 @@ export default function AddTransactionScreen() {
       }
       showToast(t('home.transactionSaved'), 'success');
       resetForm();
-      router.back();
+      goBack();
     } catch (err) {
       setError(t('addTransaction.errors.saveFailed'));
       setLoading(false);

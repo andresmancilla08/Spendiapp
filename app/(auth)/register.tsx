@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { goBack } from '../../utils/nav';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
@@ -100,9 +101,9 @@ export default function RegisterScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const handleBack = () => {
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(() => goBack('/(auth)/login'));
     } else {
-      router.back();
+      goBack('/(auth)/login');
     }
   };
 

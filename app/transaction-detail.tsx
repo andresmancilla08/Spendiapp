@@ -9,6 +9,7 @@ import {
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { useRouter } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppHeader from '../components/AppHeader';
 import CategoryIcon from '../components/CategoryIcon';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -210,7 +211,7 @@ export default function TransactionDetailScreen() {
       });
       setDeleteLoading(false);
       setLastAction('deleted');
-      router.back();
+      goBack();
       showToast(t('sharedExpense.deleteRequestSent'), 'success');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -240,7 +241,7 @@ export default function TransactionDetailScreen() {
       });
       setDeleteLoading(false);
       setLastAction('deleted');
-      router.back();
+      goBack();
       showToast(t('sentIncome.deleteRequestSent'), 'success');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -256,7 +257,7 @@ export default function TransactionDetailScreen() {
       ? { ...transaction, id: getActualId(transaction) }
       : transaction;
     setPendingEditTx(txForEdit);
-    router.back();
+    goBack();
   }, [transaction, setPendingEditTx, router]);
 
   const handleDuplicate = useCallback(async () => {
@@ -278,7 +279,7 @@ export default function TransactionDetailScreen() {
       });
       setDuplicateLoading(false);
       setLastAction('duplicated');
-      router.back();
+      goBack();
     } catch {
       setDuplicateLoading(false);
       showToast(t('history.edit.duplicateError'), 'error');
@@ -331,7 +332,7 @@ export default function TransactionDetailScreen() {
           showToast(t('sharedExpense.deletePartial'), 'error');
           setDeleteLoading(false);
           setLastAction('deleted');
-          router.back();
+          goBack();
           return;
         }
       } else if (transaction.sentIncomeTransactionId) {
@@ -384,7 +385,7 @@ export default function TransactionDetailScreen() {
       }
       setDeleteLoading(false);
       setLastAction('deleted');
-      router.back();
+      goBack();
       setTimeout(() => showToast(t('history.edit.deleteSuccess'), 'success'), 350);
     } catch (e) {
       console.error('[handleDelete]', e);
@@ -397,7 +398,7 @@ export default function TransactionDetailScreen() {
   useEffect(() => {
     if (!transaction) {
       if (router.canGoBack()) {
-        router.back();
+        goBack();
       } else {
         router.replace('/(tabs)/');
       }
@@ -697,8 +698,8 @@ export default function TransactionDetailScreen() {
       : t('history.detail.ctxOnly', { category: catName, month: monthLabel });
 
   const handleBack = () => {
-    if (transitionRef.current) transitionRef.current.animateOut(() => router.back());
-    else router.back();
+    if (transitionRef.current) transitionRef.current.animateOut(() => goBack());
+    else goBack();
   };
 
   const tiles: React.ReactNode[] = [

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -259,7 +259,7 @@ export default function FriendReportScreen() {
     handleDownload();
   };
 
-  const handleBack = () => transitionRef.current?.animateOut(() => router.back());
+  const handleBack = () => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'));
 
   const c = sideColors(colors);
   const tiltValue = model ? scaleTilt(model.totals) : 0;

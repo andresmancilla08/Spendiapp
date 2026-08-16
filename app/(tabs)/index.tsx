@@ -523,7 +523,7 @@ export default function HomeScreen() {
         loading={loading || refreshing}
         scrollY={scrollY}
         collapsible={!reduceMotion}
-        onPressProfile={() => router.push('/(tabs)/profile')}
+        onPressProfile={() => router.push('/profile')}
       />
       </View>
 

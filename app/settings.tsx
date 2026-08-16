@@ -1,18 +1,17 @@
 import { useRef } from 'react';
-import { scrollFadeMask } from '../../components/ScrollFadeEdges';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppIcon, { AppIconName } from '../../components/AppIcon';
-import { useTheme, ThemeMode } from '../../context/ThemeContext';
+import AppIcon, { AppIconName } from '../components/AppIcon';
+import { useTheme, ThemeMode } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { LANGUAGES, changeLanguage } from '../../config/i18n';
-import { router } from 'expo-router';
-import AppHeader from '../../components/AppHeader';
-import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
-import PageTitle from '../../components/PageTitle';
-import ScreenBackground from '../../components/ScreenBackground';
-import { Fonts } from '../../config/fonts';
-import { TAB_BAR_SPACE } from '../../components/AppTabBar';
+import { LANGUAGES, changeLanguage } from '../config/i18n';
+import { goBack } from '../utils/nav';
+import AppHeader from '../components/AppHeader';
+import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
+import PageTitle from '../components/PageTitle';
+import ScreenBackground from '../components/ScreenBackground';
+import { Fonts } from '../config/fonts';
 
 
 function SectionTitle({ label }: { label: string }) {
@@ -76,9 +75,9 @@ export default function SettingsScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const handleBack = () => {
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(() => goBack());
     } else {
-      router.back();
+      goBack();
     }
   };
 
@@ -150,7 +149,7 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: TAB_BAR_SPACE, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
   sectionTitle: { fontSize: 11, fontFamily: Fonts.bold, marginBottom: 8, marginLeft: 4 },
   card: { borderRadius: 20, marginBottom: 24, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 },

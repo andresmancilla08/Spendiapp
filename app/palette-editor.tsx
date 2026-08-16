@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
@@ -91,7 +92,7 @@ export default function PaletteEditor() {
     await setPaletteId(id);
     if (user?.uid) updateUserColorPalette(user.uid, id).catch(() => {});
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    router.back();
+    goBack('/personalization');
   };
 
   const onDelete = async () => {
@@ -102,7 +103,7 @@ export default function PaletteEditor() {
         updateCustomPalettes(user.uid, customPalettes.filter((c) => c.id !== editing.id)).catch(() => {});
       }
     }
-    router.back();
+    goBack('/personalization');
   };
 
   const previewCard = (mode: 'light' | 'dark') => {

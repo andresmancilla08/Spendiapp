@@ -7,6 +7,7 @@ import AppIcon, { AppIconName } from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { Timestamp } from 'firebase/firestore';
 import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
@@ -177,9 +178,9 @@ export default function NotificationsScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const handleBack = () => {
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(() => goBack());
     } else {
-      router.back();
+      goBack();
     }
   };
 

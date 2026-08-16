@@ -9,7 +9,7 @@ import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
@@ -123,9 +123,9 @@ export default function SupportScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const handleBack = () => {
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(() => goBack('/profile'));
     } else {
-      router.back();
+      goBack('/profile');
     }
   };
 

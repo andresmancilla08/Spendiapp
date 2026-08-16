@@ -16,6 +16,7 @@ import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
 import { randomUUID } from 'expo-crypto';
 import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 
 import { useExpenseGroups } from '../hooks/useExpenseGroups';
 import { ExpenseGroup, ExpenseGroupParticipant } from '../types/expenseGroup';
@@ -192,7 +193,7 @@ export default function ExpenseGroupsScreen() {
     <ScreenTransition ref={transitionRef}>
       <SafeAreaView style={styles.safe}>
         <ScreenBackground>
-          <AppHeader showBack onBack={() => transitionRef.current?.animateOut(() => router.back())} />
+          <AppHeader showBack onBack={() => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'))} />
           <PageTitle title={t('expenseGroups.title')} description={t('expenseGroups.pageDesc')} />
 
           {loading ? (

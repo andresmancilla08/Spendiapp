@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
+import { goBack } from '../../utils/nav';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
@@ -76,7 +77,7 @@ export default function ForgotPinResetScreen() {
   };
 
   const handleBack = () => {
-    transitionRef.current?.animateOut(() => router.back());
+    transitionRef.current?.animateOut(() => goBack('/(auth)/login'));
   };
 
   return (

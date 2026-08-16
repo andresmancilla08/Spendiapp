@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import AppIcon, { AppIconName } from '../components/AppIcon';
 import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -115,7 +116,7 @@ export default function UpgradeScreen() {
   }, []);
 
   const handleBack = () => {
-    transitionRef.current?.animateOut(() => router.back());
+    transitionRef.current?.animateOut(() => goBack());
   };
 
   const handlePressIn = () => {

@@ -31,6 +31,7 @@ import type { CategoryType } from '../types/category';
 import { useCategories } from '../hooks/useCategories';
 import { filterCategories } from '../constants/categories';
 import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppHeader from '../components/AppHeader';
 import PageTitle from '../components/PageTitle';
 import NoteField from '../components/NoteField';
@@ -202,7 +203,7 @@ export default function EditTransactionScreen() {
   // Init from pendingEditTx on mount
   useEffect(() => {
     const tx = pendingEditTx;
-    if (!tx) { router.back(); return; }
+    if (!tx) { goBack(); return; }
     setTransaction(tx);
     setType(tx.type);
     setAmount(String(Math.round(tx.amount)));
@@ -428,7 +429,7 @@ export default function EditTransactionScreen() {
       }
       setLastAction('saved');
       showToast(t('history.toasts.saved'), 'success');
-      router.back();
+      goBack();
     } catch {
       setError(t('history.edit.saveError'));
       setLoading(false);

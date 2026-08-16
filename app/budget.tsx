@@ -11,32 +11,31 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { scrollFadeMask } from '../../components/ScrollFadeEdges';
+import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppIcon from '../../components/AppIcon';
-import CategoryIcon from '../../components/CategoryIcon';
-import { DEFAULT_CATEGORIES, categoryLabel } from '../../constants/categories';
+import AppIcon from '../components/AppIcon';
+import CategoryIcon from '../components/CategoryIcon';
+import { DEFAULT_CATEGORIES, categoryLabel } from '../constants/categories';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useRef, useEffect } from 'react';
-import PressableScale from '../../components/PressableScale';
+import PressableScale from '../components/PressableScale';
 import Svg, { Circle } from 'react-native-svg';
-import { useAuthStore } from '../../store/authStore';
-import { useTheme } from '../../context/ThemeContext';
-import { accentInk } from '../../utils/contrast';
-import { useBudgets } from '../../hooks/useBudgets';
-import { useTransactions } from '../../hooks/useTransactions';
-import { Budget } from '../../types/budget';
-import AppDialog from '../../components/AppDialog';
-import ScreenBackground from '../../components/ScreenBackground';
-import AppHeader from '../../components/AppHeader';
-import PageTitle from '../../components/PageTitle';
-import { Fonts } from '../../config/fonts';
-import { useToast } from '../../context/ToastContext';
-import ScreenTransition from '../../components/ScreenTransition';
-import { useFlags } from '../../context/FeatureFlagsContext';
-import { effectiveAmount } from '../../utils/sharedCalc';
-import { formatMoney } from '../../utils/formatMoney';
-import { TAB_BAR_SPACE } from '../../components/AppTabBar';
+import { useAuthStore } from '../store/authStore';
+import { useTheme } from '../context/ThemeContext';
+import { accentInk } from '../utils/contrast';
+import { useBudgets } from '../hooks/useBudgets';
+import { useTransactions } from '../hooks/useTransactions';
+import { Budget } from '../types/budget';
+import AppDialog from '../components/AppDialog';
+import ScreenBackground from '../components/ScreenBackground';
+import AppHeader from '../components/AppHeader';
+import PageTitle from '../components/PageTitle';
+import { Fonts } from '../config/fonts';
+import { useToast } from '../context/ToastContext';
+import ScreenTransition from '../components/ScreenTransition';
+import { useFlags } from '../context/FeatureFlagsContext';
+import { effectiveAmount } from '../utils/sharedCalc';
+import { formatMoney } from '../utils/formatMoney';
 
 
 // Las categorías presupuestables salen del catálogo oficial (`DEFAULT_CATEGORIES`):
@@ -266,7 +265,7 @@ export default function BudgetScreen() {
     <ScreenTransition>
     <SafeAreaView style={styles.safe}>
       <ScreenBackground>
-      <AppHeader showBack />
+      <AppHeader showBack backFallback="/(tabs)/tools" />
       <PageTitle title={t('budget.title')} description={t('budget.pageDesc')} />
 
       {/* Month nav */}
@@ -539,7 +538,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scroll: { padding: 16, paddingTop: 12, paddingBottom: TAB_BAR_SPACE, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  scroll: { padding: 16, paddingTop: 12, paddingBottom: 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
   monthRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 8, paddingVertical: 10,

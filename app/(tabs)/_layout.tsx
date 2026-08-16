@@ -11,12 +11,13 @@ export default function TabsLayout() {
         sceneStyle: { backgroundColor: 'transparent' },
       }}
     >
+      {/* Solo las tres pantallas que la barra muestra. Budget, Profile y Settings
+          se abren desde otra pantalla y necesitan volver a ella: dentro del Tab
+          navigator, `router.back()` caía siempre al primer tab (Home). Viven en
+          `app/` como pantallas del Stack. */}
       <Tabs.Screen name="index" />
-      <Tabs.Screen name="budget" options={{ href: null }} />
       <Tabs.Screen name="history" />
       <Tabs.Screen name="tools" />
-      <Tabs.Screen name="profile" options={{ href: null }} />
-      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }

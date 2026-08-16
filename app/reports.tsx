@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -149,7 +149,7 @@ export default function ReportsScreen() {
   };
 
   const handleBack = () => {
-    transitionRef.current?.animateOut(() => router.back());
+    transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'));
   };
 
   return (

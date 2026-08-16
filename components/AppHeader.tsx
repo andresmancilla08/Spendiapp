@@ -1,6 +1,7 @@
 // components/AppHeader.tsx
 import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
@@ -15,6 +16,8 @@ interface AppHeaderProps {
   onBack?: () => void;
   showNotifications?: boolean;
   rightAction?: React.ReactNode;
+  /** A dónde ir si no hay historial (recarga o enlace directo en web). */
+  backFallback?: string;
 }
 
 export default function AppHeader({
@@ -22,6 +25,7 @@ export default function AppHeader({
   onBack,
   showNotifications = false,
   rightAction,
+  backFallback,
 }: AppHeaderProps) {
   const { colors } = useTheme();
   const { user } = useAuthStore();
@@ -29,7 +33,7 @@ export default function AppHeader({
 
   const handleBack = () => {
     if (onBack) onBack();
-    else router.back();
+    else goBack(backFallback);
   };
 
   // Vistas secundarias con usuario autenticado: mostrar acciones de navegación rápida
@@ -58,7 +62,7 @@ export default function AppHeader({
             {rightAction}
             {flags.notificationsEnabled && <NotificationBell uid={user!.uid} />}
             <TouchableOpacity
-              onPress={() => router.push('/(tabs)/profile')}
+              onPress={() => router.push('/profile')}
               activeOpacity={0.7}
               style={styles.iconButton}
             >

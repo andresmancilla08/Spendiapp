@@ -25,7 +25,7 @@ import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { useAuthStore } from '../store/authStore';
 import { useCategories } from '../hooks/useCategories';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppDialog from '../components/AppDialog';
 import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -262,9 +262,9 @@ export default function CategoriesScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const handleBack = () => {
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(() => goBack('/(tabs)/tools'));
     } else {
-      router.back();
+      goBack('/(tabs)/tools');
     }
   };
 

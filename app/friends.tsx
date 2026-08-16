@@ -19,6 +19,7 @@ import {
 import { getUserProfile, getPublicProfile, searchUserByUserName } from '../hooks/useUserProfile';
 import { UserProfile, PublicProfile, Friendship } from '../types/friend';
 import { useLocalSearchParams, router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppHeader from '../components/AppHeader';
 import AppSegmentedControl from '../components/AppSegmentedControl';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -238,9 +239,9 @@ export default function FriendsScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const handleBack = () => {
     if (transitionRef.current) {
-      transitionRef.current.animateOut(() => router.back());
+      transitionRef.current.animateOut(() => goBack('/profile'));
     } else {
-      router.back();
+      goBack('/profile');
     }
   };
 

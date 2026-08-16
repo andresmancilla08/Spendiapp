@@ -2,7 +2,7 @@ import { useRef, type ReactNode } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { goBack } from '../utils/nav';
 import AppIcon from '../components/AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
@@ -46,11 +46,11 @@ export default function PrivacyScreen() {
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
   const handleBack = () => {
-    const go = () => router.canGoBack() ? router.back() : router.replace('/(auth)/login' as any);
+    const go = () => goBack('/(auth)/login');
     if (transitionRef.current) {
       transitionRef.current.animateOut(go);
     } else {
-      router.back();
+      goBack('/(auth)/login');
     }
   };
 
