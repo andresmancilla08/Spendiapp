@@ -15,10 +15,9 @@ const MULTIPLIER: Record<AuroraIntensity, number> = {
 interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
-  speed?: number;
 }
 
-export default function AuroraBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function AuroraBackground({ intensity = 'default' }: Props) {
   const { isDark, activePalette } = useTheme();
   // En dark el scrim del fondo va DEBAJO de los efectos (AppBackground), así
   // que el multiplicador solo compensa el menor contraste, no un overlay.

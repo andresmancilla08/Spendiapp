@@ -12,7 +12,6 @@ const CONFIG: Record<AuroraIntensity, { opacity: number; count: number }> = {
 
 interface Props {
   intensity?: AuroraIntensity;
-  speed?: number;
 }
 
 /**
@@ -21,7 +20,7 @@ interface Props {
  * respire sin que se note de dónde viene la luz. Nada de formas reconocibles: solo
  * un degradado radial enorme.
  */
-export default function SpotlightBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function SpotlightBackground({ intensity = 'default' }: Props) {
   const { colors, isDark } = useTheme();
   const cfg = CONFIG[intensity];
 
@@ -34,19 +33,18 @@ export default function SpotlightBackground({ intensity = 'default', speed = 1 }
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {lights.map((l, i) => (
-        <Light key={i} light={l} opacityMul={cfg.opacity * (isDark ? 1 : 0.7)} speed={speed} />
+        <Light key={i} light={l} opacityMul={cfg.opacity * (isDark ? 1 : 0.7)} />
       ))}
     </View>
   );
 }
 
-function Light({ light, opacityMul, speed }: {
+function Light({ light, opacityMul }: {
   light: { color: string; size: number; left: string; top: string; dx: number; dy: number; dur: number; phase: number };
   opacityMul: number;
-  speed: number;
 }) {
   const t = useRef(new Animated.Value(light.phase)).current;
-  useFrozenPhase(t, light.dur * speed, light.phase);
+  useFrozenPhase(t, light.dur, light.phase);
 
   const translateX = t.interpolate({ inputRange: [0, 1], outputRange: [0, light.dx] });
   const translateY = t.interpolate({ inputRange: [0, 1], outputRange: [0, light.dy] });

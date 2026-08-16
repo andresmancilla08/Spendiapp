@@ -24,7 +24,6 @@ const CLUSTER_SLOTS = [
 
 interface Props {
   intensity?: AuroraIntensity;
-  speed?: number;
 }
 
 /**
@@ -32,7 +31,7 @@ interface Props {
  * derivan muy lento y laten en fase alterna. Es el fondo más "dibujado" —
  * geometría visible, no solo manchas de color.
  */
-export default function ConstellationBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function ConstellationBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const starColor = isDark ? '#E7ECFF' : colors.textSecondary;
@@ -65,21 +64,21 @@ export default function ConstellationBackground({ intensity = 'default', speed =
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {clusters.map((c, i) => (
-        <Cluster key={`${intensity}-${i}`} cluster={c} lineColor={starColor} speed={speed} />
+        <Cluster key={`${intensity}-${i}`} cluster={c} lineColor={starColor} />
       ))}
     </View>
   );
 }
 
-function Cluster({ cluster, lineColor, speed }: {
+function Cluster({ cluster, lineColor }: {
   cluster: {
     left: string; top: string; base: number; dur: number; phase: number; driftX: number; driftY: number;
     accent: string; points: { x: number; y: number; r: number }[];
   };
-  lineColor: string; speed: number;
+  lineColor: string;
 }) {
   const v = useRef(new Animated.Value(0)).current;
-  useFrozenPhase(v, cluster.dur * speed, cluster.phase);
+  useFrozenPhase(v, cluster.dur, cluster.phase);
 
   const opacity = v.interpolate({
     inputRange: [0, 0.5, 1],

@@ -13,7 +13,6 @@ const CONFIG: Record<AuroraIntensity, { opacity: number; count: number }> = {
 
 interface Props {
   intensity?: AuroraIntensity;
-  speed?: number;
 }
 
 /**
@@ -21,7 +20,7 @@ interface Props {
  * mecen lentamente mientras su brillo respira, como luz entrando por una
  * ventana. Lenguaje vertical y direccional, distinto de blobs y bandas.
  */
-export default function RaysBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function RaysBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const glow = isDark ? 1.25 : 1.4;
@@ -37,18 +36,18 @@ export default function RaysBackground({ intensity = 'default', speed = 1 }: Pro
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {rays.map((r, i) => (
-        <Ray key={i} ray={r} opacityMul={cfg.opacity * glow} speed={speed} />
+        <Ray key={i} ray={r} opacityMul={cfg.opacity * glow} />
       ))}
     </View>
   );
 }
 
-function Ray({ ray, opacityMul, speed }: {
+function Ray({ ray, opacityMul }: {
   ray: { color: string; left: string; width: number; rotate: number; base: number; dur: number; sway: number; phase: number };
-  opacityMul: number; speed: number;
+  opacityMul: number;
 }) {
   const v = useRef(new Animated.Value(0)).current;
-  useFrozenPhase(v, ray.dur * speed, ray.phase);
+  useFrozenPhase(v, ray.dur, ray.phase);
 
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-ray.sway, ray.sway, -ray.sway] });
   const opacity = v.interpolate({

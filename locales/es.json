@@ -1077,15 +1077,15 @@
     "title": "¿Qué puedes hacer?",
     "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
-    "bgCarousel": {
-      "title": "Elige tu fondo deslizando",
-      "item1": "Los fondos se ven ahora a tamaño real en un carrusel, no en miniaturas de un centímetro",
-      "item2": "Se aplican al pasar de uno a otro, así decides viendo cómo queda tu app"
+    "bgPicker": {
+      "title": "Elige tu fondo viendo tu app",
+      "item1": "El carrusel pasa de uno en uno y cada tarjeta enseña tu saldo encima, para que veas si se lee bien antes de elegir",
+      "item2": "Si estás ajustando el modo oscuro, las tarjetas se ven en oscuro aunque la app esté en claro"
     },
-    "cleaner": {
-      "title": "Se ve más limpio",
-      "item1": "El contenido ya no se difumina al pasar bajo la cabecera: los importes se leen hasta el borde",
-      "item2": "Menos hueco vacío al final de las listas"
+    "polish": {
+      "title": "Detalles del inicio",
+      "item1": "El saldo del mes ya no muestra un recuadro alrededor: el resplandor se difumina limpio",
+      "item2": "Ahora puedes tocar tu nombre, no solo la foto, para ir a tu perfil"
     }
   },
   "incomeClaim": {

@@ -1,38 +1,25 @@
-import React, { useMemo, useRef, useEffect, createContext, useContext } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { View, Animated, Easing, Platform, type ViewStyle } from 'react-native';
 import { useIsActive } from '../../hooks/useIsActive';
 
-/**
- * Congela los efectos de un subárbol en su primer fotograma.
- *
- * La pantalla de Personalización mostraba los 13 efectos animados a la vez —
- * unos 144 elementos en movimiento — solo para que el usuario eligiera uno. Las
- * miniaturas no seleccionadas se envuelven aquí: se ven, pero no gastan nada.
- */
-const FxFrozenContext = createContext(false);
-
-export function FxFrozen({ frozen = true, children }: { frozen?: boolean; children: React.ReactNode }) {
-  return <FxFrozenContext.Provider value={frozen}>{children}</FxFrozenContext.Provider>;
-}
 
 /**
- * Capa animada de los efectos de fondo. Una sola pieza para los 13 efectos.
+ * Capa para el movimiento decorativo que SÍ queda en la app: el pulso del
+ * skeleton, el punto de "en vivo" y el trazo del gráfico. Los efectos de fondo
+ * ya no la usan — están quietos (ver `hooks/useFrozenPhase.ts`).
  *
  * POR QUÉ EXISTE
- * Antes cada efecto usaba `Animated` con `useNativeDriver: false`. En web eso
- * significa que RN interpola en JS y escribe estilos inline en el DOM en CADA
- * frame: se midieron 1.440 escrituras de `style` por segundo con la app en
- * reposo en la pantalla de login (6 blobs). Cada escritura invalida el estilo
- * del nodo y obliga a recomponer. Es la causa principal de que la app caliente
- * el teléfono.
+ * Un `Animated.loop` con `useNativeDriver: false` interpola en JS y escribe
+ * estilos inline en el DOM en CADA frame: se midieron 1.440 escrituras de
+ * `style` por segundo con la app en reposo. Era la causa de que la app
+ * calentara el teléfono.
  *
  * QUÉ HACE
  * - Web: emite una animación CSS (`animationKeyframes` de react-native-web). La
  *   ejecuta el compositor del navegador, fuera del hilo de JS. Coste por frame
  *   en JS: cero.
  * - Nativo: `Animated` con `useNativeDriver: true`, que corre en el hilo de UI
- *   sin cruzar el puente. Obliga a limitarse a `opacity` y `transform`, que es
- *   justo lo que estos efectos animan.
+ *   sin cruzar el puente. Obliga a limitarse a `opacity` y `transform`.
  *
  * Además se pausa sola cuando la app no está visible (ver `useIsActive`).
  */
@@ -94,9 +81,7 @@ export default function FxLayer({
   frames, duration, phase = 0, delay = 0, easing = 'linear',
   rotate, style, children, pointerEvents = 'none',
 }: Props) {
-  const visible = useIsActive();
-  const frozen = useContext(FxFrozenContext);
-  const active = visible && !frozen;
+  const active = useIsActive();
 
   // ── Web: animación CSS, cero JS por frame ──
   // El desfase se consigue con `animationDelay` NEGATIVO: la animación arranca

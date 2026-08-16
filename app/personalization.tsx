@@ -72,7 +72,8 @@ const MINI_TREND_VALUES = [1080, 1240, 1190, 1340, 1284];
  * Antes eran trece miniaturas de 64 px en una rejilla. Un fondo se juzga por
  * cómo llena una pantalla, no por un recorte del tamaño de un sello: cada
  * tarjeta es ahora una maqueta con la proporción real del teléfono, con el
- * degradado, el scrim y el efecto tal y como se verán.
+ * degradado, el scrim, el efecto y las dos señales del Home que deciden si un
+ * fondo sirve — el saldo y la tendencia (`HomeMiniPreview`).
  *
  * Al detenerse en una tarjeta, ese fondo se aplica: la app entera queda de
  * fondo mientras deslizas, así que la decisión se toma viendo el resultado y no
@@ -795,7 +796,7 @@ export default function PersonalizationScreen() {
             // ninguna propiedad de layout depende del scroll.
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-              { useNativeDriver: true },
+              { useNativeDriver: Platform.OS !== 'web' },
             )}
           >
             {/* Lienzo vivo: el conjunto del tema. Viaja DENTRO de la lista, así que

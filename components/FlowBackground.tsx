@@ -14,7 +14,6 @@ const CONFIG: Record<AuroraIntensity, { opacity: number; amp: number }> = {
 interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
-  speed?: number;
 }
 
 /**
@@ -23,7 +22,7 @@ interface Props {
  * angostas que ondulan en su sitio), aquí el color VIAJA de lado a lado y
  * ocupa toda la altura — un lenguaje de "corriente" continua.
  */
-export default function FlowBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function FlowBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const glow = isDark ? 1.3 : 1.45;
@@ -46,18 +45,18 @@ export default function FlowBackground({ intensity = 'default', speed = 1 }: Pro
       onLayout={(e) => { const w = e.nativeEvent.layout.width; if (w && Math.abs(w - ownWidth) > 1) setOwnWidth(w); }}
     >
       {sheets.map((s, i) => (
-        <Sheet key={i} sheet={s} width={width} opacityMul={cfg.opacity * glow} ampMul={cfg.amp} speed={speed} />
+        <Sheet key={i} sheet={s} width={width} opacityMul={cfg.opacity * glow} ampMul={cfg.amp} />
       ))}
     </View>
   );
 }
 
-function Sheet({ sheet, width, opacityMul, ampMul, speed }: {
+function Sheet({ sheet, width, opacityMul, ampMul }: {
   sheet: { colorA: string; colorB: string; rotate: number; top: string; height: string; base: number; dur: number; dir: number; phase: number };
-  width: number; opacityMul: number; ampMul: number; speed: number;
+  width: number; opacityMul: number; ampMul: number;
 }) {
   const v = useRef(new Animated.Value(0)).current;
-  useFrozenPhase(v, sheet.dur * speed, sheet.phase);
+  useFrozenPhase(v, sheet.dur, sheet.phase);
 
   const travel = width * 0.55 * ampMul * sheet.dir;
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-travel, travel, -travel] });

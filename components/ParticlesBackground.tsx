@@ -24,7 +24,6 @@ interface ParticleConfig {
 interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
-  speed?: number;
 }
 
 /**
@@ -32,7 +31,7 @@ interface Props {
  * llevan un halo suave. El color se toma de la paleta activa (tema de
  * partículas por paleta), no de un único acento.
  */
-export default function ParticlesBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function ParticlesBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const glow = isDark ? 1.3 : 1.35;
@@ -57,13 +56,13 @@ export default function ParticlesBackground({ intensity = 'default', speed = 1 }
     Array.from({ length: cfg.count }, (_, i) => ({
       left: `${(i * 137.5) % 100}%` as const,
       size: 2.5 + (i * 7) % 5,
-      duration: (6000 + (i % 5) * 1400) * cfg.speed * speed * durScale,
+      duration: (6000 + (i % 5) * 1400) * cfg.speed * durScale,
       delay: (i * 380) % 4200,
       baseOpacity: Math.min((0.28 + (i % 4) * 0.08) * cfg.opacity * glow, 0.95),
       sway: 10 + (i % 3) * 9,
       color: palette[i % palette.length],
     }))
-  ), [cfg.count, cfg.speed, cfg.opacity, glow, palette, speed, durScale]);
+  ), [cfg.count, cfg.speed, cfg.opacity, glow, palette, durScale]);
 
   return (
     <View

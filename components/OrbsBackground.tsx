@@ -12,7 +12,6 @@ const CONFIG: Record<AuroraIntensity, { opacity: number; count: number }> = {
 
 interface Props {
   intensity?: AuroraIntensity;
-  speed?: number;
 }
 
 /**
@@ -22,7 +21,7 @@ interface Props {
  * niebla. El contorno es lo que lo distingue, así que el relleno es tenue y el
  * borde lleva el color.
  */
-export default function OrbsBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function OrbsBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
 
@@ -38,19 +37,18 @@ export default function OrbsBackground({ intensity = 'default', speed = 1 }: Pro
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {orbs.map((o, i) => (
-        <Orb key={i} orb={o} opacityMul={cfg.opacity * (isDark ? 1 : 0.85)} speed={speed} />
+        <Orb key={i} orb={o} opacityMul={cfg.opacity * (isDark ? 1 : 0.85)} />
       ))}
     </View>
   );
 }
 
-function Orb({ orb, opacityMul, speed }: {
+function Orb({ orb, opacityMul }: {
   orb: { color: string; size: number; left: string; top: string; dx: number; dy: number; dur: number; phase: number };
   opacityMul: number;
-  speed: number;
 }) {
   const t = useRef(new Animated.Value(orb.phase)).current;
-  useFrozenPhase(t, orb.dur * speed, orb.phase);
+  useFrozenPhase(t, orb.dur, orb.phase);
 
   const translateX = t.interpolate({ inputRange: [0, 1], outputRange: [0, orb.dx] });
   const translateY = t.interpolate({ inputRange: [0, 1], outputRange: [0, orb.dy] });

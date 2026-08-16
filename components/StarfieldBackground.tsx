@@ -25,7 +25,6 @@ interface StarConfig {
 
 interface Props {
   intensity?: AuroraIntensity;
-  speed?: number;
 }
 
 /**
@@ -34,7 +33,7 @@ interface Props {
  * (puntos que ascienden): aquí nada viaja salvo la fugaz — es un cielo quieto
  * que respira.
  */
-export default function StarfieldBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function StarfieldBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
 

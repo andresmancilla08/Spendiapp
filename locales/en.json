@@ -1077,15 +1077,15 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "bgCarousel": {
-      "title": "Pick your background by swiping",
-      "item1": "Backgrounds now show at full size in a carousel instead of thumbnails the size of a stamp",
-      "item2": "They apply as you swipe, so you decide while seeing how your app looks"
+    "bgPicker": {
+      "title": "Pick your background seeing your app",
+      "item1": "The carousel moves one card at a time, and each one shows your balance on top so you can tell if it reads well before choosing",
+      "item2": "If you're tweaking dark mode, the cards show dark even when the app is light"
     },
-    "cleaner": {
-      "title": "Cleaner to read",
-      "item1": "Content no longer fades under the header — amounts stay readable all the way to the edge",
-      "item2": "Less empty space at the end of lists"
+    "polish": {
+      "title": "Home details",
+      "item1": "The month balance no longer shows a box around it — the glow fades out cleanly",
+      "item2": "You can now tap your name, not just your photo, to open your profile"
     }
   },
   "incomeClaim": {

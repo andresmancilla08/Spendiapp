@@ -79,19 +79,19 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
   styleKey: BackgroundStyle; intensity: AuroraIntensity; speed?: number;
 }) {
   switch (styleKey) {
-    case 'aurora':        return <AuroraBackground intensity={intensity} speed={speed} />;
-    case 'particles':     return <ParticlesBackground intensity={intensity} speed={speed} />;
-    case 'waves':         return <WavesBackground intensity={intensity} speed={speed} />;
-    case 'grain':         return <GrainBackground intensity={intensity} speed={speed} />;
-    case 'mesh':          return <MeshBackground intensity={intensity} speed={speed} />;
-    case 'bokeh':         return <BokehBackground intensity={intensity} speed={speed} />;
-    case 'flow':          return <FlowBackground intensity={intensity} speed={speed} />;
-    case 'starfield':     return <StarfieldBackground intensity={intensity} speed={speed} />;
-    case 'rays':          return <RaysBackground intensity={intensity} speed={speed} />;
-    case 'constellation': return <ConstellationBackground intensity={intensity} speed={speed} />;
-    case 'orbs':          return <OrbsBackground intensity={intensity} speed={speed} />;
-    case 'topography':    return <TopographyBackground intensity={intensity} speed={speed} />;
-    case 'spotlight':     return <SpotlightBackground intensity={intensity} speed={speed} />;
+    case 'aurora':        return <AuroraBackground intensity={intensity} />;
+    case 'particles':     return <ParticlesBackground intensity={intensity} />;
+    case 'waves':         return <WavesBackground intensity={intensity} />;
+    case 'grain':         return <GrainBackground intensity={intensity} />;
+    case 'mesh':          return <MeshBackground intensity={intensity} />;
+    case 'bokeh':         return <BokehBackground intensity={intensity} />;
+    case 'flow':          return <FlowBackground intensity={intensity} />;
+    case 'starfield':     return <StarfieldBackground intensity={intensity} />;
+    case 'rays':          return <RaysBackground intensity={intensity} />;
+    case 'constellation': return <ConstellationBackground intensity={intensity} />;
+    case 'orbs':          return <OrbsBackground intensity={intensity} />;
+    case 'topography':    return <TopographyBackground intensity={intensity} />;
+    case 'spotlight':     return <SpotlightBackground intensity={intensity} />;
     default:              return null;
   }
 }

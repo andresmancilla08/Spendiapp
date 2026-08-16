@@ -13,13 +13,12 @@ const CONFIG: Record<AuroraIntensity, { opacity: number; count: number }> = {
 
 interface Props {
   intensity?: AuroraIntensity;
-  speed?: number;
 }
 
 /** Curvas de nivel de un mapa: líneas concéntricas que se desplazan muy despacio.
  *  Es el único efecto de LÍNEA fina del catálogo — los demás son manchas, puntos
  *  o bandas. Cada capa va a su ritmo, así el relieve nunca se ve rígido. */
-export default function TopographyBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function TopographyBackground({ intensity = 'default' }: Props) {
   const { colors, isDark } = useTheme();
   const cfg = CONFIG[intensity];
 
@@ -37,19 +36,18 @@ export default function TopographyBackground({ intensity = 'default', speed = 1 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {layers.map((l, i) => (
-        <Contour key={i} layer={l} opacityMul={cfg.opacity * (isDark ? 1 : 0.8)} speed={speed} />
+        <Contour key={i} layer={l} opacityMul={cfg.opacity * (isDark ? 1 : 0.8)} />
       ))}
     </View>
   );
 }
 
-function Contour({ layer, opacityMul, speed }: {
+function Contour({ layer, opacityMul }: {
   layer: { color: string; amp: number; y: number; dur: number; phase: number; width: number };
   opacityMul: number;
-  speed: number;
 }) {
   const t = useRef(new Animated.Value(layer.phase)).current;
-  useFrozenPhase(t, layer.dur * speed, layer.phase);
+  useFrozenPhase(t, layer.dur, layer.phase);
 
   const translateX = t.interpolate({ inputRange: [0, 1], outputRange: [-30, 30] });
   const W = 420;

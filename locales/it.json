@@ -1077,15 +1077,15 @@
     "title": "Cosa puoi fare?",
     "subtitle": "Esplora le funzionalità principali di Spendia.",
     "dismiss": "Ho capito",
-    "bgCarousel": {
-      "title": "Scegli lo sfondo scorrendo",
-      "item1": "Gli sfondi ora si vedono a grandezza reale in un carosello, non in miniature grandi come un francobollo",
-      "item2": "Si applicano mentre scorri, così decidi vedendo com'è la tua app"
+    "bgPicker": {
+      "title": "Scegli lo sfondo vedendo la tua app",
+      "item1": "Il carosello passa una scheda alla volta e ognuna mostra il tuo saldo sopra, così vedi se si legge bene prima di scegliere",
+      "item2": "Se stai regolando la modalità scura, le schede si vedono scure anche con l'app in chiaro"
     },
-    "cleaner": {
-      "title": "Più pulito da leggere",
-      "item1": "Il contenuto non sfuma più sotto l'intestazione: gli importi si leggono fino al bordo",
-      "item2": "Meno spazio vuoto in fondo agli elenchi"
+    "polish": {
+      "title": "Dettagli della home",
+      "item1": "Il saldo del mese non mostra più un riquadro attorno: il bagliore sfuma pulito",
+      "item2": "Ora puoi toccare il tuo nome, non solo la foto, per aprire il profilo"
     }
   },
   "incomeClaim": {

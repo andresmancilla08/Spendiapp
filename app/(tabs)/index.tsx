@@ -532,7 +532,7 @@ export default function HomeScreen() {
         scrollEventThrottle={16}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true },
+          { useNativeDriver: Platform.OS !== 'web' },
         )}
         refreshControl={
           <RefreshControl

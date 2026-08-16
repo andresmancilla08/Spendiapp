@@ -29,7 +29,6 @@ export interface UserProfile {
     backgroundStyleLight?: string;
     backgroundStyleDark?: string;
     backgroundIntensity?: string;
-    backgroundSpeed?: string;
     backgroundBlurLight?: string;
     backgroundBlurDark?: string;
     cardSheen?: boolean;

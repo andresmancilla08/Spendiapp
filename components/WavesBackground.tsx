@@ -14,7 +14,6 @@ const CONFIG: Record<AuroraIntensity, { opacity: number; amp: number }> = {
 interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
-  speed?: number;
 }
 
 /**
@@ -22,7 +21,7 @@ interface Props {
  * verticalmente. Cuatro capas de distinto color de la paleta y velocidad crean
  * un lenguaje visual propio, distinto de blobs y partículas.
  */
-export default function WavesBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function WavesBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
   const glow = isDark ? 1.3 : 1.4;
@@ -46,18 +45,18 @@ export default function WavesBackground({ intensity = 'default', speed = 1 }: Pr
       onLayout={(e) => { const w = e.nativeEvent.layout.width; if (w && Math.abs(w - ownWidth) > 1) setOwnWidth(w); }}
     >
       {bands.map((b, i) => (
-        <Band key={i} band={b} width={width} opacityMul={cfg.opacity * glow} ampMul={cfg.amp} speed={speed} />
+        <Band key={i} band={b} width={width} opacityMul={cfg.opacity * glow} ampMul={cfg.amp} />
       ))}
     </View>
   );
 }
 
-function Band({ band, width, opacityMul, ampMul, speed }: {
+function Band({ band, width, opacityMul, ampMul }: {
   band: { top: string; color: string; rotate: number; height: number; opacity: number; dur: number; dir: number; bob: number; phase: number };
-  width: number; opacityMul: number; ampMul: number; speed: number;
+  width: number; opacityMul: number; ampMul: number;
 }) {
   const v = useRef(new Animated.Value(0)).current;
-  useFrozenPhase(v, band.dur * speed, band.phase);
+  useFrozenPhase(v, band.dur, band.phase);
 
   const shift = width * 0.32 * ampMul * band.dir;
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [-shift, shift, -shift] });

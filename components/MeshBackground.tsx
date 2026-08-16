@@ -10,7 +10,6 @@ const CONFIG: Record<AuroraIntensity, number> = { subtle: 0.45, default: 1.0, in
 interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
-  speed?: number;
 }
 
 /**
@@ -18,7 +17,7 @@ interface Props {
  * que se solapan, respiran (escala) y derivan lento. A diferencia de Aurora
  * (blobs pequeños que viajan), aquí el color llena la pantalla como una tela.
  */
-export default function MeshBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function MeshBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const m = CONFIG[intensity] * (isDark ? 1.3 : 1.45);
 
@@ -35,19 +34,19 @@ export default function MeshBackground({ intensity = 'default', speed = 1 }: Pro
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       {fields.map((f, i) => (
-        <Field key={i} field={f} opacityMul={m} blurStyle={blur} phase={i} speed={speed} />
+        <Field key={i} field={f} opacityMul={m} blurStyle={blur} phase={i} />
       ))}
     </View>
   );
 }
 
-function Field({ field, opacityMul, blurStyle, phase, speed }: {
+function Field({ field, opacityMul, blurStyle, phase }: {
   field: { color: string; top: string; left: string; size: number; base: number; dur: number };
-  opacityMul: number; blurStyle: object; phase: number; speed: number;
+  opacityMul: number; blurStyle: object; phase: number;
 }) {
   const v = useRef(new Animated.Value(0)).current;
   // Cada campo arranca en una fase distinta — sin esto los 5 respiran al unísono.
-  useFrozenPhase(v, field.dur * speed, (phase * 0.21) % 1);
+  useFrozenPhase(v, field.dur, (phase * 0.21) % 1);
 
   const dir = phase % 2 === 0 ? 1 : -1;
   const tx = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 64 * dir, 0] });

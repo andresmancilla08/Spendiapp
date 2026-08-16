@@ -37,19 +37,19 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
   useEffect(() => {
     if (visible) {
       Animated.parallel([
-        Animated.timing(overlayOpacity, { toValue: 1, duration: 220, useNativeDriver: true }),
+        Animated.timing(overlayOpacity, { toValue: 1, duration: 220, useNativeDriver: Platform.OS !== 'web' }),
         Animated.spring(cardTranslateY, {
           toValue: 0,
           damping: 22,
           stiffness: 280,
           mass: 0.9,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
       ]).start();
     } else {
       Animated.parallel([
-        Animated.timing(overlayOpacity, { toValue: 0, duration: 180, useNativeDriver: true }),
-        Animated.timing(cardTranslateY, { toValue: 340, duration: 180, useNativeDriver: true }),
+        Animated.timing(overlayOpacity, { toValue: 0, duration: 180, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(cardTranslateY, { toValue: 340, duration: 180, useNativeDriver: Platform.OS !== 'web' }),
       ]).start();
     }
   }, [visible]);

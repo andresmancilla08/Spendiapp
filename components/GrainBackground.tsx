@@ -23,14 +23,13 @@ const NOISE_URI = `url("data:image/svg+xml,${encodeURIComponent(NOISE_SVG)}")`;
 interface Props {
   intensity?: AuroraIntensity;
   /** Multiplicador de duración (1 = normal, >1 más lento, <1 más rápido). */
-  speed?: number;
 }
 
 /**
  * Fondo con textura de grano sutil sobre un wash de color de la paleta que
  * deriva lento. El grano (ruido SVG) late apenas para no quedar estático.
  */
-export default function GrainBackground({ intensity = 'default', speed = 1 }: Props) {
+export default function GrainBackground({ intensity = 'default' }: Props) {
   const { isDark, colors } = useTheme();
   const cfg = CONFIG[intensity];
 
