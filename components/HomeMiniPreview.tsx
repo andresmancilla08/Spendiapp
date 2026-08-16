@@ -16,6 +16,10 @@ import type { AppColors } from '../config/colors';
  * ancho de la tarjeta, así que encoge entera sin romperse. El texto real se
  * limita al importe —la única cifra que hay que poder leer para juzgar— y el
  * resto son bloques: a este tamaño, escribir de verdad sería ruido ilegible.
+ *
+ * Las superficies van TRANSLÚCIDAS y son pocas a propósito. Con las tarjetas
+ * opacas de la app real, la maqueta tapaba justo lo que se está eligiendo y
+ * todos los fondos acababan pareciendo el mismo.
  */
 
 interface Props {
@@ -54,7 +58,7 @@ export default function HomeMiniPreview({ themed, chartColor, width }: Props) {
       </View>
 
       {/* ── Saldo del mes: la pieza que decide si el fondo deja leer ── */}
-      <View style={{ alignItems: 'center', marginTop: s(14) }}>
+      <View style={{ alignItems: 'center', marginTop: s(16) }}>
         <View style={[styles.row, { gap: s(6) }]}>
           {bar(s(4), 4, 0.28)}
           {bar(s(30), 3.5, 0.34)}
@@ -86,7 +90,7 @@ export default function HomeMiniPreview({ themed, chartColor, width }: Props) {
       </View>
 
       {/* ── Tendencia: dice si el acento sobrevive sobre el fondo ── */}
-      <View style={{ height: s(30), marginTop: s(8) }}>
+      <View style={{ height: s(32), marginTop: s(10) }}>
         <Svg width="100%" height="100%" viewBox="0 0 100 26" preserveAspectRatio="none">
           <Path d={TREND} fill="none" stroke={chartColor} strokeWidth={2.2} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         </Svg>
@@ -94,12 +98,12 @@ export default function HomeMiniPreview({ themed, chartColor, width }: Props) {
 
       {/* ── Tarjeta de resumen ── */}
       <View style={{
-        marginTop: s(10),
+        marginTop: s(12),
         padding: s(8),
         borderRadius: s(8),
         gap: s(4),
         backgroundColor: themed.surface,
-        opacity: 0.9,
+        opacity: 0.76,
       }}>
         {bar('44%', 3, 0.42, { backgroundColor: themed.primary, opacity: 0.75 })}
         {bar('92%', 3.5, 0.4)}
@@ -108,7 +112,7 @@ export default function HomeMiniPreview({ themed, chartColor, width }: Props) {
 
       {/* ── Movimientos: lo que el fondo no debe ensuciar ── */}
       <View style={{ gap: s(6), marginTop: s(8) }}>
-        {[0.9, 0.9, 0.9].map((op, i) => (
+        {[0.78, 0.72].map((op, i) => (
           <View
             key={i}
             style={[styles.row, {
@@ -134,7 +138,7 @@ export default function HomeMiniPreview({ themed, chartColor, width }: Props) {
         paddingVertical: s(6),
         borderRadius: s(13),
         backgroundColor: themed.surface,
-        opacity: 0.95,
+        opacity: 0.82,
       }]}>
         {[0.95, 0.3, 0.3].map((op, i) => (
           <View key={i} style={{ width: s(10), height: s(10), borderRadius: s(3), backgroundColor: themed.primary, opacity: op }} />

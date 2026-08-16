@@ -316,6 +316,18 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // ── Marea: el área y la línea respiran juntas, sin desplazamiento ──
   const tideActive = animate && animStyle === 'tide' && chartType !== 'bars';
 
+  // ── Entradas por compositor: `rise` crece desde la base, `fade` se funde y
+  // `sweep` deja pasar un destello por encima. Las tres son una sola pasada
+  // sobre `transform`/`opacity`, así que no cuestan nada por frame. ──
+  const entryStyle = animate && chartType !== 'bars'
+    ? animStyle === 'rise'
+      ? ENTRY_RISE
+      : animStyle === 'fade'
+        ? ENTRY_FADE
+        : null
+    : null;
+  const sweepActive = animate && animStyle === 'sweep' && chartType !== 'bars';
+
   if (chartType === 'bars') {
     // Las barras no tienen un canal de "contenido" separado — viven en el canal
     // de línea/trazo; si esa capa no debe dibujar el canal de línea, no hay nada que mostrar aquí.
@@ -330,7 +342,6 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   const showLine = chartType !== 'area' && !isLollipop;
   // La piruleta marca cada dato con su punto, igual que "puntos", pero con tallo.
   const showDots = chartType === 'dots' || isLollipop;
-  const end = samples.length ? samples[samples.length - 1] : pts[pts.length - 1];
 
   // La marea ya no late por estado de React: el latido lo lleva `TideLayer`,
   // que envuelve el SVG entero en una capa animada por el compositor. Aquí solo
@@ -350,7 +361,7 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // Y por separado), así que un círculo DENTRO del SVG saldría ovalado.
 
   return (
-    <View style={{ width: '100%', height }} onLayout={(e) => setBoxW(e.nativeEvent.layout.width)}>
+    <View style={[{ width: '100%', height }, entryStyle]} onLayout={(e) => setBoxW(e.nativeEvent.layout.width)}>
       <TideLayer active={tideActive} duration={Math.max(1400, duration * 0.4)}>
       <Svg width="100%" height={height} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
         <Defs>
@@ -429,27 +440,25 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
         );
       })}
 
-      {/* Trazo vivo: halo respirando en el punto de hoy */}
-      {renderStroke && drawActive && boxW > 0 && (
-        <FxLayer
-          frames={HALO_FRAMES}
-          duration={1800}
-          easing="sin"
-          style={{
-            position: 'absolute', width: 16, height: 16, borderRadius: 8, backgroundColor: stroke,
-            left: (end.x / W) * boxW - 8, top: (end.y / H) * height - 8,
-          }}
-        />
+      {/* Destello: la banda cruza una vez al entrar y desaparece. */}
+      {renderStroke && sweepActive && boxW > 0 && (
+        <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { overflow: 'hidden' }]}>
+          <FxLayer
+            frames={SWEEP_FRAMES}
+            duration={Math.max(900, duration * 0.28)}
+            easing="linear"
+            rotate="14deg"
+            style={{ position: 'absolute', top: -20, bottom: -20, width: 46, backgroundColor: stroke, opacity: 0.18 }}
+          />
+        </View>
       )}
+
+      {/* Aquí había un círculo latiendo en el punto de hoy. La curva ya termina
+          donde termina: un disco al final compite con el dato y ensucia el
+          remate de la línea. */}
     </View>
   );
 }
-
-const HALO_FRAMES: FxFrame[] = [
-  { at: 0,   opacity: 0.16, scale: 0.8 },
-  { at: 0.5, opacity: 0.4,  scale: 1.3 },
-  { at: 1,   opacity: 0.16, scale: 0.8 },
-];
 
 /** El latido de "marea": una capa animada que envuelve al gráfico entero, en
  *  lugar de recalcular la opacidad de cada `Path` desde el estado de React. */
@@ -461,6 +470,36 @@ function TideLayer({ active, duration, children }: { active: boolean; duration: 
     </FxLayer>
   );
 }
+
+/** Entrada "ascenso": el gráfico crece desde su base, como si el dato subiera.
+ *  Es `scaleY` con origen abajo — una transformación, nada de layout. */
+const ENTRY_RISE = Platform.OS === 'web'
+  ? ({
+      transformOrigin: 'bottom',
+      animationKeyframes: [{ '0%': { transform: [{ scaleY: 0.05 }], opacity: 0 }, '100%': { transform: [{ scaleY: 1 }], opacity: 1 } }],
+      animationDuration: '620ms',
+      animationTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      animationFillMode: 'both',
+    } as any)
+  : null;
+
+/** Entrada "aparición": el gráfico se funde. La más discreta del catálogo. */
+const ENTRY_FADE = Platform.OS === 'web'
+  ? ({
+      animationKeyframes: [{ '0%': { opacity: 0 }, '100%': { opacity: 1 } }],
+      animationDuration: '520ms',
+      animationTimingFunction: 'ease-out',
+      animationFillMode: 'both',
+    } as any)
+  : null;
+
+/** Destello: una banda de luz cruza la curva UNA vez y se va. */
+const SWEEP_FRAMES: FxFrame[] = [
+  { at: 0,    opacity: 0,    x: -60 },
+  { at: 0.12, opacity: 0.85, x: -20 },
+  { at: 0.8,  opacity: 0.85, x: 220 },
+  { at: 1,    opacity: 0,    x: 280 },
+];
 
 const TIDE_FRAMES: FxFrame[] = [
   { at: 0,   opacity: 0.72 },

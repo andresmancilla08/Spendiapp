@@ -395,7 +395,10 @@
     "chartAnimLabel": "Animazione",
     "chartAnim": {
       "draw": "Traccia viva",
+      "rise": "Ascesa",
+      "sweep": "Bagliore",
       "tide": "Marea",
+      "fade": "Dissolvenza",
       "none": "Nessuna"
     },
     "chartAccentLabel": "Colore accento",

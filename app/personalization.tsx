@@ -66,53 +66,44 @@ const CONTENT_MAX = 720;
 const MINI_TREND_VALUES = [1080, 1240, 1190, 1340, 1284];
 
 /**
- * Carrusel de fondos, con la forma del selector de fondos de iOS: una tarjeta
- * grande centrada con las vecinas asomando, y la elección se hace deslizando.
+ * Carrusel de vistas previas, con la forma del selector de fondos de iOS: una
+ * tarjeta grande centrada, las vecinas asomando incompletas a los lados, y la
+ * elección se hace deslizando de una en una.
  *
- * Antes eran trece miniaturas de 64 px en una rejilla. Un fondo se juzga por
- * cómo llena una pantalla, no por un recorte del tamaño de un sello: cada
- * tarjeta es ahora una maqueta con la proporción real del teléfono, con el
- * degradado, el scrim, el efecto y las dos señales del Home que deciden si un
- * fondo sirve — el saldo y la tendencia (`HomeMiniPreview`).
+ * Lo usan el capítulo Fondo (cada tarjeta es el Home con ese fondo) y el de
+ * Datos (cada tarjeta es el gráfico de ese tipo). Sustituyó a rejillas de
+ * miniaturas: una vista previa del tamaño de un sello no deja juzgar nada.
  *
- * Al detenerse en una tarjeta, ese fondo se aplica: la app entera queda de
- * fondo mientras deslizas, así que la decisión se toma viendo el resultado y no
- * una vista previa.
+ * Al detenerse en una tarjeta se aplica: la app entera cambia mientras
+ * deslizas, así que la decisión se toma viendo el resultado.
  */
-function BackgroundCarousel({ keys, selectedKey, intensity, blurPx, onSelect, labelFor, target }: {
-  keys: BackgroundStyle[];
-  selectedKey: BackgroundStyle;
-  intensity: AuroraIntensity;
-  blurPx: number;
-  onSelect: (key: BackgroundStyle) => void;
-  labelFor: (key: BackgroundStyle) => string;
-  /** Modo que se está editando. Manda sobre el tema activo de la app: si estás
-   *  ajustando el fondo del modo oscuro con la app en claro, las tarjetas tienen
-   *  que enseñarte el modo oscuro — si no, decides a ciegas. */
-  target: 'light' | 'dark';
+function PreviewCarousel<K extends string>({
+  keys, selectedKey, onSelect, labelFor, ratio, widthFactor, renderItem,
+}: {
+  keys: readonly K[];
+  selectedKey: K;
+  onSelect: (key: K) => void;
+  labelFor: (key: K) => string;
+  /** alto ÷ ancho de la tarjeta. 1.72 imita un teléfono; <1 apaisa. */
+  ratio: number;
+  /** Parte del ancho útil que ocupa la tarjeta. Lo que sobra deja ver las vecinas. */
+  widthFactor: number;
+  renderItem: (key: K, size: { width: number; height: number }) => React.ReactNode;
 }) {
-  const { colors, activePalette, gradientStyle, chartAccent } = useTheme();
-  const isDark = target === 'dark';
+  const { colors } = useTheme();
   const { width: winWidth } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
 
-  // La tarjeta ocupa el 62 % del ancho útil: deja ver a los lados lo justo para
-  // que se entienda que hay más y se pueda deslizar.
   const outer = Math.min(winWidth, CONTENT_MAX) - 40;
-  const cardW = Math.round(outer * 0.62);
+  const cardW = Math.round(outer * widthFactor);
   const gap = 12;
   const step = cardW + gap;
   const sidePad = Math.round((outer - cardW) / 2);
-  const cardH = Math.round(cardW * 1.72);
+  const cardH = Math.round(cardW * ratio);
 
   const index = Math.max(0, keys.indexOf(selectedKey));
-  const gradient = isDark ? activePalette.gradientDark : activePalette.gradientLight;
-  // La maqueta se pinta con los colores del modo EDITADO, no con los de la app.
-  const themed = isDark ? activePalette.colors.dark : activePalette.colors.light;
-  const miniChartColor = resolveChartAccent(chartAccent, themed, MINI_TREND_VALUES);
 
-  // Centra la tarjeta activa al abrir y cuando el fondo cambia desde fuera
-  // (por ejemplo al elegir un "look" completo en el capítulo de color).
+  // Centra la tarjeta activa al abrir y al cambiar de tamaño.
   useEffect(() => {
     scrollRef.current?.scrollTo({ x: index * step, animated: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,13 +111,12 @@ function BackgroundCarousel({ keys, selectedKey, intensity, blurPx, onSelect, la
 
   // `onMomentumScrollEnd` no dispara si el arrastre es corto y se suelta sin
   // inercia — un gesto muy normal al pasar de una tarjeta a la siguiente. Sin el
-  // respaldo de `onScrollEndDrag`, el fondo no se aplicaba en ese caso.
+  // respaldo de `onScrollEndDrag`, la elección no se aplicaba en ese caso.
   const settleOn = (e: any) => {
     const i = Math.round(e.nativeEvent.contentOffset.x / step);
     const key = keys[Math.max(0, Math.min(keys.length - 1, i))];
     if (!key || key === selectedKey) return;
-    // Un toque háptico al encajar: confirma que la tarjeta quedó elegida sin
-    // tener que mirar el check.
+    // Un toque háptico al encajar: confirma la elección sin mirar el check.
     Haptics.selectionAsync().catch(() => {});
     onSelect(key);
   };
@@ -145,9 +135,9 @@ function BackgroundCarousel({ keys, selectedKey, intensity, blurPx, onSelect, la
         disableIntervalMomentum
         onMomentumScrollEnd={settleOn}
         onScrollEndDrag={settleOn}
-        // Web: react-native-web IGNORA `snapToInterval`, así que el carrusel se
-        // movía en scroll libre y quedaba a medio camino entre dos tarjetas. En
-        // el navegador el que manda es `scroll-snap` de CSS.
+        // Web: react-native-web IGNORA `snapToInterval`, así que el carrusel iba
+        // en scroll libre y quedaba a medio camino entre dos tarjetas. En el
+        // navegador el que manda es `scroll-snap` de CSS.
         style={Platform.OS === 'web' ? ({ scrollSnapType: 'x mandatory', overscrollBehaviorX: 'contain' } as any) : undefined}
         contentContainerStyle={{ paddingHorizontal: sidePad, gap }}
       >
@@ -164,8 +154,8 @@ function BackgroundCarousel({ keys, selectedKey, intensity, blurPx, onSelect, la
               style={[
                 { width: cardW },
                 // Cada tarjeta es una parada, y para en el CENTRO: así la de al
-                // lado siempre asoma a izquierda y derecha, incompleta, diciendo
-                // que hay más.
+                // lado siempre asoma a izquierda y derecha, incompleta,
+                // diciendo que hay más.
                 Platform.OS === 'web' ? ({ scrollSnapAlign: 'center', scrollSnapStop: 'always' } as any) : null,
               ]}
             >
@@ -177,36 +167,10 @@ function BackgroundCarousel({ keys, selectedKey, intensity, blurPx, onSelect, la
                     height: cardH,
                     borderColor: active ? colors.primary : colors.border,
                     borderWidth: active ? 2 : 1,
-                    backgroundColor: themed.background,
                   },
                 ]}
               >
-                {/* Mismo orden de capas que el fondo real: degradado → scrim → efecto */}
-                {gradientStyle === 'flat' ? (
-                  <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradient[0] }]} />
-                ) : (
-                  <LinearGradient
-                    colors={gradient}
-                    start={gradientStyle === 'linear' ? { x: 0.5, y: 0 } : { x: 0.1, y: 0 }}
-                    end={gradientStyle === 'linear' ? { x: 0.5, y: 1 } : { x: 0.9, y: 1 }}
-                    style={StyleSheet.absoluteFillObject}
-                  />
-                )}
-                {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
-                {key === 'none' ? (
-                  <View style={styles.bgNoneWrap}>
-                    <AppIcon name="close-outline" size={26} color={themed.textTertiary} />
-                  </View>
-                ) : (
-                  // La tarjeta mide ~2/3 del ancho real: el desenfoque se escala
-                  // igual, o "suave" se leería como "fuerte" en la maqueta.
-                  <View style={backgroundBlurStyle(blurPx * 0.66) ?? StyleSheet.absoluteFill} pointerEvents="none">
-                    <BackgroundEffect styleKey={key} intensity={intensity} />
-                  </View>
-                )}
-                {/* Encima del fondo, la silueta del Home: un fondo se elige por
-                    si TU pantalla se lee sobre él, no por cómo luce a solas. */}
-                <HomeMiniPreview themed={themed} chartColor={miniChartColor} width={cardW} />
+                {renderItem(key, { width: cardW, height: cardH })}
                 {active && (
                   <View style={[styles.carouselCheck, { backgroundColor: colors.primary }]}>
                     <AppIcon name="checkmark" size={12} color="#FFFFFF" />
@@ -224,22 +188,65 @@ function BackgroundCarousel({ keys, selectedKey, intensity, blurPx, onSelect, la
         })}
       </ScrollView>
 
-      {/* Puntos de página: dicen cuántos fondos hay y por dónde vas. */}
+      {/* Puntos de página: dicen cuántas opciones hay y por dónde vas. */}
       <View style={styles.carouselDots} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         {keys.map((key, i) => (
           <View
             key={key}
             style={[
               styles.carouselDot,
-              {
-                backgroundColor: i === index ? colors.primary : colors.border,
-                width: i === index ? 16 : 6,
-              },
+              { backgroundColor: i === index ? colors.primary : colors.border, width: i === index ? 16 : 6 },
             ]}
           />
         ))}
       </View>
     </View>
+  );
+}
+
+/** Contenido de una tarjeta del carrusel de FONDOS: el Home con ese fondo. */
+function BackgroundCardBody({ styleKey, intensity, blurPx, target, width }: {
+  styleKey: BackgroundStyle; intensity: AuroraIntensity; blurPx: number;
+  target: 'light' | 'dark'; width: number;
+}) {
+  const { colors, activePalette, gradientStyle, chartAccent } = useTheme();
+  const isDark = target === 'dark';
+  const gradient = isDark ? activePalette.gradientDark : activePalette.gradientLight;
+  // La maqueta se pinta con los colores del modo EDITADO, no con los de la app:
+  // si ajustas el fondo oscuro con la app en claro, tienes que ver el oscuro.
+  const themed = isDark ? activePalette.colors.dark : activePalette.colors.light;
+  const chartColor = resolveChartAccent(chartAccent, themed, MINI_TREND_VALUES);
+
+  return (
+    <>
+      <View style={[StyleSheet.absoluteFillObject, { backgroundColor: themed.background }]} />
+      {/* Mismo orden de capas que el fondo real: degradado → scrim → efecto */}
+      {gradientStyle === 'flat' ? (
+        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradient[0] }]} />
+      ) : (
+        <LinearGradient
+          colors={gradient}
+          start={gradientStyle === 'linear' ? { x: 0.5, y: 0 } : { x: 0.1, y: 0 }}
+          end={gradientStyle === 'linear' ? { x: 0.5, y: 1 } : { x: 0.9, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+      )}
+      {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
+      {styleKey === 'none' ? (
+        <View style={styles.bgNoneWrap}>
+          <AppIcon name="close-outline" size={26} color={themed.textTertiary} />
+        </View>
+      ) : (
+        // Menos desenfoque que en la app: a este tamaño el blur real difumina el
+        // efecto hasta que todos los fondos se parecen entre sí.
+        <View style={backgroundBlurStyle(blurPx * 0.4) ?? StyleSheet.absoluteFill} pointerEvents="none">
+          <BackgroundEffect styleKey={styleKey} intensity={intensity} />
+        </View>
+      )}
+      {/* Encima del fondo, el Home en pequeño: un fondo se elige por si TU
+          pantalla se lee sobre él, no por cómo luce a solas. */}
+      <HomeMiniPreview themed={themed} chartColor={chartColor} width={width} />
+    </>
   );
 }
 
@@ -326,7 +333,7 @@ function LooksStrip({ looks, activeId, colors, t, onPick }: {
     </ScrollView>
   );
 }
-const CHART_ANIM_STYLES: ChartAnimStyle[] = CHART_ANIM_VALUES;
+const CHART_ANIM_STYLES: readonly ChartAnimStyle[] = CHART_ANIM_VALUES;
 // Orden candidato — algunas paletas definen "secondary" igual a "success" (p.ej.
 // deepWater), así que la lista real se deduplica por color en tiempo de render;
 // "success" va antes que "secondary" para que gane el nombre más reconocible si chocan.
@@ -411,87 +418,36 @@ function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade,
   );
 }
 
-// ── Tarjeta de tipo de gráfico — vista previa EN VIVO con la animación y color actuales ──
-function ChartTypeCard({ type, label, selected, animStyle, color, color2, crossfade, motion, onPress }: {
-  type: ChartType; label: string; selected: boolean; animStyle: ChartAnimStyle; color: string; color2?: string; crossfade?: SignedCrossfade; motion: boolean; onPress: () => void;
+/** Contenido de una tarjeta del carrusel de GRÁFICOS: solo la curva.
+ *  Aquí no se juzga la pantalla entera como en Fondo, sino la forma con la que
+ *  vas a leer tus datos, así que la tarjeta se queda con el gráfico y nada más. */
+function ChartCardBody({ type, animStyle, color, color2, crossfade, motion, height }: {
+  type: ChartType; animStyle: ChartAnimStyle; color: string; color2?: string;
+  crossfade?: SignedCrossfade; motion: boolean; height: number;
 }) {
   const { colors, isDark } = useTheme();
+  // El gráfico ocupa la mitad inferior: arriba queda aire, como en el Home,
+  // donde la curva vive bajo el saldo y no centrada en su caja.
+  const chartH = Math.round(height * 0.52);
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.85}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ selected }}
-      style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
-    >
-      <View style={[styles.bgPreviewBox, CLIP_BLURRED_CHILD, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
-        {crossfade ? (
-          <CrossfadeSparkline chartType={type} animStyle={animStyle} height={64} duration={4200} crossfade={crossfade} motion={motion} />
-        ) : (
-          <Sparkline
-            key={`${type}-${animStyle}`}
-            values={CHART_PREVIEW_VALUES}
-            color={color}
-            accent={color}
-            accent2={color2}
-            height={64}
-            animate={motion && animStyle !== 'none'}
-            duration={4200}
-            chartType={type}
-            animStyle={animStyle}
-          />
-        )}
-      </View>
-      <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{label}</Text>
-      {selected && (
-        <View style={[styles.bgCheckBadge, { backgroundColor: colors.primary }]}>
-          <AppIcon name="checkmark" size={9} color="#FFFFFF" />
-        </View>
+    <View style={[StyleSheet.absoluteFillObject, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary, justifyContent: 'flex-end', paddingBottom: Math.round(height * 0.16) }]}>
+      {crossfade ? (
+        <CrossfadeSparkline chartType={type} animStyle={animStyle} height={chartH} duration={4200} crossfade={crossfade} motion={motion} />
+      ) : (
+        <Sparkline
+          key={`${type}-${animStyle}`}
+          values={CHART_PREVIEW_VALUES}
+          color={color}
+          accent={color}
+          accent2={color2}
+          height={chartH}
+          animate={motion && animStyle !== 'none'}
+          duration={4200}
+          chartType={type}
+          animStyle={animStyle}
+        />
       )}
-    </TouchableOpacity>
-  );
-}
-
-// ── Tarjeta de estilo de animación — vista previa EN VIVO con el tipo de gráfico actual ──
-function ChartAnimCard({ anim, label, selected, chartType, color, color2, crossfade, motion, onPress }: {
-  anim: ChartAnimStyle; label: string; selected: boolean; chartType: ChartType; color: string; color2?: string; crossfade?: SignedCrossfade; motion: boolean; onPress: () => void;
-}) {
-  const { colors, isDark } = useTheme();
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.85}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ selected }}
-      style={[styles.bgCard, { backgroundColor: colors.surfaceSecondary, borderColor: selected ? colors.primary : 'transparent' }]}
-    >
-      <View style={[styles.bgPreviewBox, CLIP_BLURRED_CHILD, { backgroundColor: isDark ? colors.background : colors.backgroundSecondary }]}>
-        {crossfade ? (
-          <CrossfadeSparkline chartType={chartType} animStyle={anim} height={64} duration={4200} crossfade={crossfade} motion={motion} />
-        ) : (
-          <Sparkline
-            key={`${chartType}-${anim}`}
-            values={CHART_PREVIEW_VALUES}
-            color={color}
-            accent={color}
-            accent2={color2}
-            height={64}
-            animate={motion && anim !== 'none'}
-            duration={4200}
-            chartType={chartType}
-            animStyle={anim}
-          />
-        )}
-      </View>
-      <Text style={[styles.bgCardLabel, { color: selected ? colors.primary : colors.textSecondary }]} numberOfLines={1}>{label}</Text>
-      {selected && (
-        <View style={[styles.bgCheckBadge, { backgroundColor: colors.primary }]}>
-          <AppIcon name="checkmark" size={9} color="#FFFFFF" />
-        </View>
-      )}
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -629,7 +585,11 @@ export default function PersonalizationScreen() {
 
   // Alto del lienzo del capítulo activo: la barra entra justo cuando el lienzo
   // termina de salir por arriba, sea 292 px (Color) o 196 (el resto).
-  const fullHeight = CANVAS_HEIGHT[CANVAS_FOCUS[chapter]];
+  // El lienzo solo aporta en Color, donde no hay carrusel: en Fondo y en Datos
+  // cada tarjeta ES ya la vista previa —decía dos veces lo mismo y robaba la
+  // altura que necesitan— y en Detalle los ajustes se ven en sus propias filas.
+  const showCanvas = chapter === 'color';
+  const fullHeight = showCanvas ? CANVAS_HEIGHT[CANVAS_FOCUS[chapter]] : 0;
 
   // UN nodo por interpolación para toda la vida del componente. Dependen del alto
   // del capítulo, así que se rehacen SOLO al cambiar de capítulo, nunca por render.
@@ -811,7 +771,7 @@ export default function PersonalizationScreen() {
                 },
               ]}
             >
-              <PersonalizationCanvas focus={CANVAS_FOCUS[chapter]} bgTarget={chapter === 'background' ? bgTarget : undefined} />
+              {showCanvas && <PersonalizationCanvas focus={CANVAS_FOCUS[chapter]} />}
             </Animated.View>
 
             {chapter === 'color' && (
@@ -846,29 +806,9 @@ export default function PersonalizationScreen() {
                 onChange={(key) => setBgTarget(key as 'light' | 'dark')}
                 style={styles.bgGridSpacing}
               />
-              {/* La forma del degradado va ANTES de la grilla: afecta a la pantalla
-                  entera, no a un efecto concreto. */}
-              <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>
-                {t('personalization.gradientStyleLabel')}
-              </Text>
-              <AppSegmentedControl
-                segments={GRADIENT_STYLE_VALUES.map((g) => ({ key: g, label: t(`personalization.gradientStyle.${g}`) }))}
-                activeKey={gradientStyle}
-                onChange={(key) => setGradientStyle(key as GradientStyle)}
-                style={styles.bgGridSpacing}
-              />
-              <BackgroundCarousel
-                keys={BACKGROUND_STYLES}
-                selectedKey={targetBgStyle}
-                intensity={backgroundIntensity}
-                blurPx={BACKGROUND_BLUR_PX[targetBgBlur]}
-                onSelect={(key) => setBackgroundStyleFor(bgTarget, key)}
-                labelFor={(key) => t(`personalization.background.${key}`)}
-                target={bgTarget}
-              />
-              {/* Los ajustes finos van DESPUÉS del carrusel: primero se elige el
-                  efecto, que es la decisión grande, y luego se afina. Antes iban
-                  antes y había que bajar hasta el final para ver los fondos. */}
+              {/* Los ajustes finos van ANTES del carrusel: el carrusel es lo
+                  último de la sección, para que la elección del efecto cierre el
+                  capítulo y no queden controles colgando debajo. */}
               {targetBgStyle !== 'none' && (
                 <>
                   <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgIntensityLabel')}</Text>
@@ -888,46 +828,87 @@ export default function PersonalizationScreen() {
                   <Text style={[styles.chartAccentHint, { color: colors.textTertiary }]}>{t('personalization.bgBlurHint')}</Text>
                 </>
               )}
+              {/* La forma del degradado va ANTES de la grilla: afecta a la pantalla
+                  entera, no a un efecto concreto. */}
+              <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>
+                {t('personalization.gradientStyleLabel')}
+              </Text>
+              <AppSegmentedControl
+                segments={GRADIENT_STYLE_VALUES.map((g) => ({ key: g, label: t(`personalization.gradientStyle.${g}`) }))}
+                activeKey={gradientStyle}
+                onChange={(key) => setGradientStyle(key as GradientStyle)}
+                style={styles.bgGridSpacing}
+              />
+              <PreviewCarousel
+                keys={BACKGROUND_STYLES}
+                selectedKey={targetBgStyle}
+                onSelect={(key) => setBackgroundStyleFor(bgTarget, key)}
+                labelFor={(key) => t(`personalization.background.${key}`)}
+                ratio={1.72}
+                widthFactor={0.62}
+                renderItem={(key, size) => (
+                  <BackgroundCardBody
+                    styleKey={key}
+                    intensity={backgroundIntensity}
+                    blurPx={BACKGROUND_BLUR_PX[targetBgBlur]}
+                    target={bgTarget}
+                    width={size.width}
+                  />
+                )}
+              />
               </>
             )}
 
             {chapter === 'data' && (
               <>
                 <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartTypeLabel')}</Text>
-              <View style={styles.bgGrid}>
-                {CHART_TYPES.map((type) => (
-                  <ChartTypeCard
-                    key={type}
+              {/* Mismo carrusel que en Fondo, pero la tarjeta es SOLO el gráfico:
+                  aquí no se juzga la pantalla entera, se juzga la forma de la
+                  curva. Por eso va apaisada y no con forma de teléfono. */}
+              <PreviewCarousel
+                keys={CHART_TYPES}
+                selectedKey={chartType}
+                onSelect={setChartType}
+                labelFor={(type) => t(`personalization.chartType.${type}`)}
+                ratio={0.68}
+                widthFactor={0.72}
+                renderItem={(type, size) => (
+                  <ChartCardBody
                     type={type}
-                    label={t(`personalization.chartType.${type}`)}
-                    selected={chartType === type}
                     animStyle={chartAnimStyle}
                     color={chartPreviewColor}
                     color2={chartPreviewColor2}
                     crossfade={SIGNED_FAMILY.includes(chartAccent) ? signedCrossfade : undefined}
                     motion={motionEnabled}
-                    onPress={() => setChartType(type)}
+                    height={size.height}
                   />
-                ))}
-              </View>
+                )}
+              />
 
               <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.chartAnimLabel')}</Text>
-              <View style={styles.bgGrid}>
-                {CHART_ANIM_STYLES.map((anim) => (
-                  <ChartAnimCard
-                    key={anim}
-                    anim={anim}
-                    label={t(`personalization.chartAnim.${anim}`)}
-                    selected={chartAnimStyle === anim}
-                    chartType={chartType}
+              {/* Igual que el tipo: la animación se juzga viéndola grande. La
+                  tarjeta se re-monta con la clave del estilo, así la entrada se
+                  reproduce cada vez que pasas a ella. */}
+              <PreviewCarousel
+                keys={CHART_ANIM_STYLES}
+                selectedKey={chartAnimStyle}
+                onSelect={setChartAnimStyle}
+                labelFor={(anim) => t(`personalization.chartAnim.${anim}`)}
+                ratio={0.68}
+                widthFactor={0.72}
+                renderItem={(anim, size) => (
+                  <ChartCardBody
+                    key={`${anim}-${chartType}`}
+                    type={chartType}
+                    animStyle={anim}
                     color={chartPreviewColor}
                     color2={chartPreviewColor2}
                     crossfade={SIGNED_FAMILY.includes(chartAccent) ? signedCrossfade : undefined}
                     motion={motionEnabled}
-                    onPress={() => setChartAnimStyle(anim)}
+                    height={size.height}
                   />
-                ))}
-              </View>
+                )}
+              />
               {chartAnimStyle !== 'none' && (
                 <AppSegmentedControl
                   segments={CHART_SPEED_OPTIONS.map((s) => ({ key: s, label: t(`personalization.chartSpeed.${s}`) }))}
@@ -1021,7 +1002,7 @@ export default function PersonalizationScreen() {
               para no perder de vista el resultado mientras se tocan los ajustes.
               Solo opacidad y translateY (compositor). Fuera de rango queda
               escondida tras el recorte del hueco: ni se ve ni recibe toques. */}
-          {!reduceMotion && (
+          {!reduceMotion && showCanvas && (
             <View style={styles.barSlot} pointerEvents="box-none">
               <Animated.View
                 style={[styles.barInner, { opacity: barOpacity, transform: [{ translateY: barShift }] }]}

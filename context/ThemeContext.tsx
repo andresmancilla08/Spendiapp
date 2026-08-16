@@ -47,12 +47,21 @@ export type IconStroke = 1.5 | 2 | 2.5;
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
 export type ChartType = 'line' | 'bars' | 'area' | 'dots' | 'stepped' | 'lollipop';
 export const CHART_TYPE_VALUES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
-/** El "pulso" (un punto recorriendo la línea en bucle) se retiró en la v2.58.0:
- *  su único contenido era el punto en movimiento, y el movimiento perpetuo no
- *  aporta información una vez leída la tendencia. Los ajustes guardados con ese
- *  valor migran a 'draw', que es el más cercano — dibuja el trazo al entrar. */
-export type ChartAnimStyle = 'draw' | 'tide' | 'none';
-export const CHART_ANIM_VALUES: ChartAnimStyle[] = ['draw', 'tide', 'none'];
+/** Cómo entra el gráfico al abrir la pantalla. Todas se ejecutan UNA vez y se
+ *  detienen: un bucle perpetuo no añade información una vez leída la tendencia,
+ *  y era lo que calentaba el teléfono.
+ *
+ *  - `draw`  trazo vivo: la línea se dibuja de izquierda a derecha
+ *  - `rise`  ascenso: el gráfico crece desde la base
+ *  - `sweep` destello: un brillo recorre la curva una vez
+ *  - `tide`  marea: el gráfico entra respirando
+ *  - `fade`  aparición: entra fundiéndose
+ *  - `none`  sin animación
+ *
+ *  El "pulso" (un punto recorriendo la línea en bucle) se retiró en la v2.58.0;
+ *  los ajustes guardados con ese valor migran a `draw`. */
+export type ChartAnimStyle = 'draw' | 'rise' | 'sweep' | 'tide' | 'fade' | 'none';
+export const CHART_ANIM_VALUES: ChartAnimStyle[] = ['draw', 'rise', 'sweep', 'tide', 'fade', 'none'];
 /** Normaliza un valor guardado (local o de Firestore), migrando el legado. */
 export function normalizeChartAnim(v: unknown): ChartAnimStyle | null {
   if (v === 'pulse') return 'draw';
