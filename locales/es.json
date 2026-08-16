@@ -453,6 +453,7 @@
     "typeExpense": "Gasto",
     "typeIncome": "Ingreso",
     "descriptionPlaceholder": "¿En qué lo usaste?",
+    "descriptionPlaceholderIncome": "Ej.: Salario, venta, préstamo",
     "scanReceipt": "Escanear recibo",
     "scanning": "Leyendo recibo…",
     "scanDone": "Recibo leído — revisa los datos",

@@ -536,7 +536,9 @@ export default function EditTransactionScreen() {
                   style={[styles.descriptionInput, { color: colors.textPrimary }]}
                   value={description}
                   onChangeText={setDescription}
-                  placeholder={t('addTransaction.descriptionPlaceholder')}
+                  placeholder={t(type === 'income'
+                    ? 'addTransaction.descriptionPlaceholderIncome'
+                    : 'addTransaction.descriptionPlaceholder')}
                   placeholderTextColor={colors.textSecondary}
                   returnKeyType="done"
                   autoCorrect={false}

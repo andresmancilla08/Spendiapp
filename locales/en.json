@@ -453,6 +453,7 @@
     "typeExpense": "Expense",
     "typeIncome": "Income",
     "descriptionPlaceholder": "What did you spend it on?",
+    "descriptionPlaceholderIncome": "E.g.: Salary, sale, loan",
     "scanReceipt": "Scan receipt",
     "scanning": "Reading receipt…",
     "scanDone": "Receipt read — check the details",
