@@ -72,6 +72,29 @@ export function backgroundBlurStyle(px: number) {
   ];
 }
 
+/**
+ * Deja la franja de la cabecera libre de efecto.
+ *
+ * Mientras los efectos se movían, un blob que tapaba el avatar o el saludo se
+ * iba solo. Quietos, el que cae ahí se queda para siempre: en la PWA se veía un
+ * halo permanente detrás del header que parecía un desenfoque del sistema.
+ *
+ * La máscara actúa sobre el EFECTO, no sobre el contenido — el degradado de
+ * color sigue llegando hasta arriba, y los importes y títulos se leen nítidos.
+ * Es lo contrario del `scrollFadeMask` que se retiró: aquel atenuaba lo que el
+ * usuario quiere leer.
+ *
+ * 150 px cubren la barra de estado más la cabecera más alta (la del inicio, de
+ * 70 px), y el desvanecido es largo para que no se vea dónde acaba.
+ */
+const HEADER_CLEARANCE = Platform.OS === 'web'
+  ? ({
+      ...StyleSheet.absoluteFillObject,
+      maskImage: 'linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.35) 96px, rgba(0,0,0,1) 190px)',
+      WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.35) 96px, rgba(0,0,0,1) 190px)',
+    } as any)
+  : StyleSheet.absoluteFillObject;
+
 /** Renderiza el efecto animado correspondiente a un estilo de fondo.
  * Compartido por el fondo global (AppBackground) y las vistas previas de
  * personalización — una sola fuente de verdad para el mapa estilo→componente. */
@@ -190,13 +213,15 @@ export default function AppBackground() {
           era una animación permanente.
           Va desenfocado (según Personalización) para que nunca compita con el
           contenido; el gradiente queda nítido, es el que da el color. */}
-      {blurStyle ? (
-        <View style={blurStyle} pointerEvents="none">
+      <View style={HEADER_CLEARANCE} pointerEvents="none">
+        {blurStyle ? (
+          <View style={blurStyle} pointerEvents="none">
+            <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} />
+          </View>
+        ) : (
           <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} />
-        </View>
-      ) : (
-        <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} />
-      )}
+        )}
+      </View>
     </View>
   );
 }
