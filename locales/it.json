@@ -329,7 +329,8 @@
       "label": "I miei amici"
     },
     "version": "Spendia v{{version}}",
-    "userNameCopied": "Utente copiato"
+    "userNameCopied": "Utente copiato",
+    "openProfile": "Vai al tuo profilo"
   },
   "personalization": {
     "sectionPalette": "Tavolozza colori",

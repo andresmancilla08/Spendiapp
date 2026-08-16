@@ -614,21 +614,42 @@ export default function BalanceCard({
         letterSpacing: hidden ? 4 : proStyle ? -1.5 : -0.5,
       },
       // Glow solo en tema oscuro: en claro genera un halo turbio ("recuadro").
-      proStyle && !hidden && isDark && (Platform.OS === 'web'
-        ? ({ textShadow: `0 0 38px ${amountColor}80` } as any)
-        : { textShadowColor: amountColor + '80', textShadowRadius: 24, textShadowOffset: { width: 0, height: 0 } }),
+      // En web el resplandor NO va aquí — ver `glowInWeb` más abajo.
+      proStyle && !hidden && isDark && Platform.OS !== 'web' &&
+        { textShadowColor: amountColor + '80', textShadowRadius: 24, textShadowOffset: { width: 0, height: 0 } },
     ];
-    if (hidden) {
-      return (
-        <Text style={amountStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-          {HIDDEN_MASK}
-        </Text>
-      );
-    }
-    return (
+
+    /**
+     * En web el resplandor era un `text-shadow` de 38 px de radio, y se veía un
+     * RECTÁNGULO con el borde marcado alrededor del importe (sobre todo en la
+     * PWA de iOS). El motivo: la caja de la línea de texto mide `lineHeight`
+     * (~58 px para un cuerpo de 54) y el halo pide 38 px por arriba y por abajo,
+     * así que WebKit lo recorta en seco justo en el borde de esa caja. A los
+     * lados sobra sitio y ahí sí se difuminaba — de ahí que se leyera como dos
+     * líneas horizontales.
+     *
+     * El resplandor pasa a ser una capa PROPIA detrás del número, con un
+     * degradado que muere antes de llegar a sus bordes: se difumina en las
+     * cuatro direcciones y no hay caja que lo corte.
+     */
+    const glowInWeb = Platform.OS === 'web' && proStyle && !hidden && isDark;
+    const amount = (
       <Text style={amountStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-        {formatCurrency(displayBalance)}
+        {hidden ? HIDDEN_MASK : formatCurrency(displayBalance)}
       </Text>
+    );
+    if (!glowInWeb) return amount;
+    return (
+      <View style={styles.amountGlowWrap}>
+        <View
+          pointerEvents="none"
+          style={[
+            styles.amountGlow,
+            { backgroundImage: `radial-gradient(ellipse 46% 58% at 50% 50%, ${amountColor}59 0%, ${amountColor}21 45%, transparent 72%)` } as any,
+          ]}
+        />
+        {amount}
+      </View>
     );
   })();
 
@@ -923,6 +944,11 @@ const styles = StyleSheet.create({
   balanceAmount: { fontSize: 40, fontFamily: Fonts.extraBold, marginBottom: 16, includeFontPadding: false, minHeight: 52, textAlign: 'center' },
   balanceAmountPro: { fontSize: 44, lineHeight: 48, fontFamily: Fonts.extraBold, fontVariant: ['tabular-nums'], marginBottom: 14 },
   amountLoader: { minHeight: 52, marginBottom: 16, alignItems: 'center', justifyContent: 'center' },
+  // El resplandor del importe vive en su propia capa (ver `glowInWeb`). El
+  // contenedor se estira para que el halo tenga sitio a los lados; el `inset`
+  // negativo se lo da por arriba y por abajo, que es donde antes se cortaba.
+  amountGlowWrap: { alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center', position: 'relative' },
+  amountGlow: { position: 'absolute', top: -34, bottom: -34, left: -24, right: -24 },
   netFlowRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 14, marginTop: -4 },
   flowChip: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 20 },
   flowChipText: { fontSize: 11, fontFamily: Fonts.bold },

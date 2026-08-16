@@ -9,6 +9,7 @@
 // `height` no). Con reduce-motion activo no se colapsa — se queda expandido, sin movimiento y
 // sin perder información.
 import { View, Text, StyleSheet, TouchableOpacity, Image, Animated, Easing, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState, type ReactNode } from 'react';
 import Svg, { Circle } from 'react-native-svg';
 import AppIcon from './AppIcon';
@@ -78,7 +79,9 @@ export default function HomeHeader({
   onPressProfile,
 }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const profileLabel = t('profile.openProfile');
   const [compact, setCompact] = useState(false);
 
   // Un solo re-render por cruce del umbral: el resto del colapso es interpolación nativa.
@@ -197,22 +200,33 @@ export default function HomeHeader({
     <View style={[styles.root, { height: HOME_HEADER_HEIGHT }]}>
       {/* Al abrir */}
       <Animated.View style={[styles.layer, expandedStyle]} pointerEvents={compact ? 'none' : 'auto'}>
-        <TouchableOpacity onPress={onPressProfile} activeOpacity={0.8} style={styles.avatarHit}>
-          <View>
-            {ringAvatar(56)}
-            {premiumDot}
+        {/* El saludo entra en el área táctil junto al avatar: el bloque entero
+            se lee como una sola cosa —"tú"— y tocar el nombre para ir a tu
+            perfil es lo que espera cualquiera. Antes solo respondía la foto. */}
+        <TouchableOpacity
+          onPress={onPressProfile}
+          activeOpacity={0.8}
+          style={styles.identityHit}
+          accessibilityRole="button"
+          accessibilityLabel={profileLabel}
+        >
+          <View style={styles.avatarHit}>
+            <View>
+              {ringAvatar(56)}
+              {premiumDot}
+            </View>
+          </View>
+          <View style={styles.texts}>
+            <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
+              {firstName}
+            </Text>
+            {!loading && (
+              <Text style={[styles.context, { color: contextColor }]} numberOfLines={2}>
+                {context}
+              </Text>
+            )}
           </View>
         </TouchableOpacity>
-        <View style={styles.texts}>
-          <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
-            {firstName}
-          </Text>
-          {!loading && (
-            <Text style={[styles.context, { color: contextColor }]} numberOfLines={2}>
-              {context}
-            </Text>
-          )}
-        </View>
       </Animated.View>
 
       {/* Al bajar */}
@@ -226,17 +240,24 @@ export default function HomeHeader({
               : { shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
           ]}
         >
-          <TouchableOpacity onPress={onPressProfile} activeOpacity={0.8}>
+          {/* Misma regla en la barra compacta: avatar y nombre son un solo destino. */}
+          <TouchableOpacity
+            onPress={onPressProfile}
+            activeOpacity={0.8}
+            style={styles.identityHitCompact}
+            accessibilityRole="button"
+            accessibilityLabel={profileLabel}
+          >
             <View>
               {ringAvatar(40)}
               {isPremium && (
                 <View style={[styles.premiumDotSm, { backgroundColor: colors.warning, borderColor: colors.surface }]} />
               )}
             </View>
+            <Text style={[styles.compactName, { color: colors.textPrimary }]} numberOfLines={1}>
+              {firstName}
+            </Text>
           </TouchableOpacity>
-          <Text style={[styles.compactName, { color: colors.textPrimary }]} numberOfLines={1}>
-            {firstName}
-          </Text>
           <Text style={[styles.compactMonth, { color: colors.textTertiary }]}>{monthShort}</Text>
         </View>
       </Animated.View>
@@ -273,6 +294,9 @@ const styles = StyleSheet.create({
     width: 11, height: 11, borderRadius: 6, borderWidth: 1.5,
   },
   texts: { flex: 1, minWidth: 0 },
+  // Avatar + saludo son un solo destino táctil hacia el perfil.
+  identityHit: { flexDirection: 'row', alignItems: 'center', flex: 1, minWidth: 0 },
+  identityHitCompact: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 },
   name: { fontSize: 21, fontFamily: Fonts.bold, letterSpacing: -0.5 },
   context: { fontSize: 12.5, fontFamily: Fonts.semiBold, marginTop: 3, lineHeight: 17 },
   pill: {

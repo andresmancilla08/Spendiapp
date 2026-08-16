@@ -121,11 +121,17 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
         horizontal
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
+        // Nativo: parada por tarjeta. `disableIntervalMomentum` impide que un
+        // impulso fuerte se salte varias de golpe — se pasa de una en una.
         snapToInterval={step}
         snapToAlignment="start"
         disableIntervalMomentum
         onMomentumScrollEnd={settleOn}
         onScrollEndDrag={settleOn}
+        // Web: react-native-web IGNORA `snapToInterval`, así que el carrusel se
+        // movía en scroll libre y quedaba a medio camino entre dos tarjetas. En
+        // el navegador el que manda es `scroll-snap` de CSS.
+        style={Platform.OS === 'web' ? ({ scrollSnapType: 'x mandatory', overscrollBehaviorX: 'contain' } as any) : undefined}
         contentContainerStyle={{ paddingHorizontal: sidePad, gap }}
       >
         {keys.map((key) => {
@@ -138,7 +144,13 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
               accessibilityRole="button"
               accessibilityLabel={labelFor(key)}
               accessibilityState={{ selected: active }}
-              style={{ width: cardW }}
+              style={[
+                { width: cardW },
+                // Cada tarjeta es una parada, y para en el CENTRO: así la de al
+                // lado siempre asoma a izquierda y derecha, incompleta, diciendo
+                // que hay más.
+                Platform.OS === 'web' ? ({ scrollSnapAlign: 'center', scrollSnapStop: 'always' } as any) : null,
+              ]}
             >
               <View
                 style={[

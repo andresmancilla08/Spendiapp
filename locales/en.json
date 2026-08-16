@@ -329,7 +329,8 @@
       "label": "My friends"
     },
     "version": "Spendia v{{version}}",
-    "userNameCopied": "Username copied"
+    "userNameCopied": "Username copied",
+    "openProfile": "Go to your profile"
   },
   "personalization": {
     "sectionPalette": "Color palette",
