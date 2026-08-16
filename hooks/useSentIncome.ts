@@ -75,6 +75,9 @@ export function useSentIncome() {
         fromUserName: senderName,
         description,
         amount,
+        // Para abrir el historial en el mes del ingreso, no en el actual.
+        txYear: date.getFullYear(),
+        txMonth: date.getMonth(),
       },
       read: false,
       createdAt: Timestamp.fromDate(now),

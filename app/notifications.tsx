@@ -12,7 +12,7 @@ import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
 import { useNotifications } from '../hooks/useNotifications';
-import { NotificationDoc, NotificationType } from '../types/friend';
+import { NotificationDoc, NotificationType, SharedTransactionNotificationData } from '../types/friend';
 import AppHeader from '../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
 import PageTitle from '../components/PageTitle';
@@ -76,8 +76,14 @@ function getNotificationRoute(notif: NotificationDoc): string | null {
     case 'sent_income':
     case 'sent_income_deleted':
     case 'sent_income_delete_request':
-    case 'external_participant_joined':
-      return '/(tabs)/history';
+    case 'external_participant_joined': {
+      // Al mes en el que está el movimiento, no al actual: un gasto que un amigo
+      // te comparte con fecha de otro mes no aparece al abrir el historial.
+      const { txYear, txMonth } = notif.data as SharedTransactionNotificationData;
+      return txYear != null && txMonth != null
+        ? `/(tabs)/history?year=${txYear}&month=${txMonth}`
+        : '/(tabs)/history';
+    }
     case 'goal_monthly_reminder':
       return '/goals';
     default:

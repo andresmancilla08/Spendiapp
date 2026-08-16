@@ -16,7 +16,7 @@ import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import CategoryIcon from '../../components/CategoryIcon';
 import AppSegmentedControl from '../../components/AppSegmentedControl';
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useFocusEffect, router } from 'expo-router';
+import { useFocusEffect, router, useLocalSearchParams } from 'expo-router';
 import { useHistoryStore } from '../../store/historyStore';
 import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
@@ -506,6 +506,8 @@ export default function HistoryScreen() {
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const MIN_YEAR = 2020;
+  /** Mes al que abrir, si se llega desde una notificación. */
+  const { year: paramYear, month: paramMonth } = useLocalSearchParams<{ year?: string; month?: string }>();
 
   const { setSelectedTransaction, pendingEditTx, setPendingEditTx, lastAction, setLastAction } = useHistoryStore();
 
@@ -514,11 +516,17 @@ export default function HistoryScreen() {
   const [pendingDeleteTx, setPendingDeleteTx] = useState<Transaction | null>(null);
   const [deleteScope, setDeleteScope] = useState<'single' | 'fromNow' | 'all'>('fromNow');
 
-  // Siempre volver al mes actual al entrar
+  // Al entrar se vuelve al mes actual — salvo que se llegue con ?year&month
+  // (desde una notificación de un movimiento que un amigo puso en otro mes:
+  // abrir en el mes actual no lo mostraría).
   useFocusEffect(useCallback(() => {
     const n = new Date();
-    setYear(n.getFullYear());
-    setMonth(n.getMonth());
+    const py = paramYear ? parseInt(paramYear, 10) : NaN;
+    const pm = paramMonth ? parseInt(paramMonth, 10) : NaN;
+    const hasParams = Number.isInteger(py) && Number.isInteger(pm)
+      && py >= MIN_YEAR && py <= n.getFullYear() + 2 && pm >= 0 && pm <= 11;
+    setYear(hasParams ? py : n.getFullYear());
+    setMonth(hasParams ? pm : n.getMonth());
     setActiveFilter('all');
     setSearchQuery('');
     setPaidFilter('unpaid');
@@ -528,7 +536,7 @@ export default function HistoryScreen() {
     setFriendFilter('all');
     setFilterPanelOpen(false);
     setMonthPickerOpen(false);
-  }, []));
+  }, [paramYear, paramMonth]));
 
   // Manejar acciones pendientes desde la pantalla de detalle
   useFocusEffect(useCallback(() => {

@@ -205,6 +205,9 @@ export default function TransactionDetailScreen() {
           sharedId: transaction.sharedId,
           description: transaction.description,
           sharedAmount: transaction.sharedAmount ?? 0,
+          // Para que el dueño abra el historial en el mes del movimiento.
+          txYear: transaction.date.getFullYear(),
+          txMonth: transaction.date.getMonth(),
         },
         read: false,
         createdAt: Timestamp.now(),
@@ -235,6 +238,8 @@ export default function TransactionDetailScreen() {
           transactionId: getActualId(transaction),
           description: transaction.description,
           amount: transaction.amount,
+          txYear: transaction.date.getFullYear(),
+          txMonth: transaction.date.getMonth(),
         },
         read: false,
         createdAt: Timestamp.now(),

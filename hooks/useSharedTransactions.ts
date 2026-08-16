@@ -204,6 +204,9 @@ export function useSharedTransactions() {
           fromUserName: ownerUserName,
           fromDisplayName: ownerDisplayName,
           sharedId,
+          // Para abrir el historial en el mes del movimiento, no en el actual.
+          txYear: selectedDate.getFullYear(),
+          txMonth: selectedDate.getMonth(),
           description: baseDoc.description,
           // La misma cifra que se le escribió en su documento: `calcSharedAmount` a
           // secas guardaba el reparto plano incluso en reclamos de ingreso (que van

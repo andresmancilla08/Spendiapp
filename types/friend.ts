@@ -95,6 +95,10 @@ export interface SharedTransactionNotificationData {
   sharedId: string;
   description: string;
   sharedAmount: number;
+  /** Mes de la transacción, para abrir el historial donde está y no en el mes
+   *  actual. Opcional: las notificaciones creadas antes de 2.62.0 no lo traen. */
+  txYear?: number;
+  txMonth?: number; // 0-11
 }
 
 export interface GoalReminderData {
