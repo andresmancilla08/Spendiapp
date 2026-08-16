@@ -73,7 +73,7 @@ const CONTENT_MAX = 720;
  * fondo mientras deslizas, así que la decisión se toma viendo el resultado y no
  * una vista previa.
  */
-function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSelect, labelFor }: {
+function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSelect, labelFor, target }: {
   keys: BackgroundStyle[];
   selectedKey: BackgroundStyle;
   intensity: AuroraIntensity;
@@ -81,8 +81,13 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
   blurPx: number;
   onSelect: (key: BackgroundStyle) => void;
   labelFor: (key: BackgroundStyle) => string;
+  /** Modo que se está editando. Manda sobre el tema activo de la app: si estás
+   *  ajustando el fondo del modo oscuro con la app en claro, las tarjetas tienen
+   *  que enseñarte el modo oscuro — si no, decides a ciegas. */
+  target: 'light' | 'dark';
 }) {
-  const { colors, isDark, activePalette, gradientStyle } = useTheme();
+  const { colors, activePalette, gradientStyle } = useTheme();
+  const isDark = target === 'dark';
   const { width: winWidth } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -97,6 +102,8 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
 
   const index = Math.max(0, keys.indexOf(selectedKey));
   const gradient = isDark ? activePalette.gradientDark : activePalette.gradientLight;
+  // La maqueta se pinta con los colores del modo EDITADO, no con los de la app.
+  const themed = isDark ? activePalette.colors.dark : activePalette.colors.light;
 
   // Centra la tarjeta activa al abrir y cuando el fondo cambia desde fuera
   // (por ejemplo al elegir un "look" completo en el capítulo de color).
@@ -160,7 +167,7 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
                     height: cardH,
                     borderColor: active ? colors.primary : colors.border,
                     borderWidth: active ? 2 : 1,
-                    backgroundColor: isDark ? colors.background : colors.backgroundSecondary,
+                    backgroundColor: themed.background,
                   },
                 ]}
               >
@@ -178,7 +185,7 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
                 {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
                 {key === 'none' ? (
                   <View style={styles.bgNoneWrap}>
-                    <AppIcon name="close-outline" size={26} color={colors.textTertiary} />
+                    <AppIcon name="close-outline" size={26} color={themed.textTertiary} />
                   </View>
                 ) : (
                   // La tarjeta mide ~2/3 del ancho real: el desenfoque se escala
@@ -870,6 +877,7 @@ export default function PersonalizationScreen() {
                 blurPx={BACKGROUND_BLUR_PX[targetBgBlur]}
                 onSelect={(key) => setBackgroundStyleFor(bgTarget, key)}
                 labelFor={(key) => t(`personalization.background.${key}`)}
+                target={bgTarget}
               />
               </>
             )}
