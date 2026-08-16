@@ -47,7 +47,7 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
 }) {
   const {
     colors, isDark, activePalette, gradientStyle,
-    backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed,
+    backgroundStyleLight, backgroundStyleDark, backgroundIntensity,
     backgroundBlurLight, backgroundBlurDark,
     chartType, chartAnimStyle, chartSpeed, chartAccent,
   } = useTheme();
@@ -94,9 +94,7 @@ export default function PersonalizationCanvas({ focus = 'all', bgTarget }: {
       {shownDark && <View style={[StyleSheet.absoluteFillObject, styles.scrim]} />}
       {animate && (
         <View style={canvasBlur ?? StyleSheet.absoluteFill} pointerEvents="none">
-          <BackgroundEffect styleKey={styleKey} intensity={backgroundIntensity} speed={
-            backgroundSpeed === 'slow' ? 1.6 : backgroundSpeed === 'fast' ? 0.62 : 1
-          } />
+          <BackgroundEffect styleKey={styleKey} intensity={backgroundIntensity} />
         </View>
       )}
 

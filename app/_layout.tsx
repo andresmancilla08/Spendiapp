@@ -11,7 +11,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
 import '../config/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, normalizeChartAnim, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, BackgroundSpeed, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
+import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, normalizeChartAnim, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, AuroraIntensity, IconStroke, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
   CHART_TYPE_VALUES, GRADIENT_STYLE_VALUES, BACKGROUND_BLUR_VALUES, type GradientStyle, type BackgroundBlur,
 } from '../context/ThemeContext';
 import { PALETTE_MAP } from '../config/palettes';
@@ -30,7 +30,7 @@ import { FeatureFlagsProvider, useFlags } from '../context/FeatureFlagsContext';
 function PaletteLoader() {
   const { user } = useAuthStore();
   const {
-    setPaletteId, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundSpeed, setBackgroundBlurFor,
+    setPaletteId, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundBlurFor,
     setCardSheen, setIconStroke, setStreakConfetti,
     setChartType, setChartAnimStyle, setChartSpeed, setChartAccent, setGradientStyle,
   } = useTheme();
@@ -61,7 +61,6 @@ function PaletteLoader() {
         if (bgLight) setBackgroundStyleFor('light', bgLight);
         if (bgDark) setBackgroundStyleFor('dark', bgDark);
         if (['subtle', 'default', 'intense'].includes(p.backgroundIntensity as string)) setBackgroundIntensity(p.backgroundIntensity as AuroraIntensity);
-        if (['slow', 'normal', 'fast'].includes(p.backgroundSpeed as string)) setBackgroundSpeed(p.backgroundSpeed as BackgroundSpeed);
         if (BACKGROUND_BLUR_VALUES.includes(p.backgroundBlurLight as BackgroundBlur)) setBackgroundBlurFor('light', p.backgroundBlurLight as BackgroundBlur);
         if (BACKGROUND_BLUR_VALUES.includes(p.backgroundBlurDark as BackgroundBlur)) setBackgroundBlurFor('dark', p.backgroundBlurDark as BackgroundBlur);
         if (typeof p.cardSheen === 'boolean') setCardSheen(p.cardSheen);

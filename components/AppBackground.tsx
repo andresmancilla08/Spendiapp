@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_PX, type BackgroundStyle } from '../context/ThemeContext';
+import { useTheme, BACKGROUND_BLUR_PX, type BackgroundStyle } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
 import ParticlesBackground from './ParticlesBackground';
@@ -107,12 +107,11 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
  * animación (antes iba encima al 70% y los efectos casi no se veían en dark).
  */
 export default function AppBackground() {
-  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundSpeed, backgroundBlur, gradientStyle } = useTheme();
+  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundBlur, gradientStyle } = useTheme();
   const { isPremium } = useAuthStore();
 
   // Gate premium: usuarios free siempre ven Aurora (el efecto de la marca).
   const effectiveStyle: BackgroundStyle = isPremium ? backgroundStyle : 'aurora';
-  const speedFactor = BACKGROUND_SPEED_FACTOR[backgroundSpeed];
   const gradientColors = isDark ? activePalette.gradientDark : activePalette.gradientLight;
   const blurStyle = backgroundBlurStyle(BACKGROUND_BLUR_PX[backgroundBlur]);
 
@@ -193,10 +192,10 @@ export default function AppBackground() {
           contenido; el gradiente queda nítido, es el que da el color. */}
       {blurStyle ? (
         <View style={blurStyle} pointerEvents="none">
-          <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
+          <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} />
         </View>
       ) : (
-        <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} speed={speedFactor} />
+        <BackgroundEffect styleKey={effectiveStyle} intensity={backgroundIntensity} />
       )}
     </View>
   );

@@ -18,14 +18,16 @@ import { PALETTE_MAP } from '../config/palettes';
 import { LOOKS, matchLook, type Look } from '../config/looks';
 import { accentInk } from '../utils/contrast';
 import { BackgroundEffect, backgroundBlurStyle, CLIP_BLURRED_CHILD, DARK_SCRIM } from '../components/AppBackground';
+import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_SPEED_FACTOR, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, CHART_ANIM_VALUES, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundSpeed, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
+import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, CHART_ANIM_VALUES, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundBlur, type AuroraIntensity, type IconStroke, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
   GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
 } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { useProMotion } from '../hooks/useProMotion';
 import { updateUserColorPalette, updateUserPersonalization } from '../hooks/useUserProfile';
 import { Sparkline, resolveChartAccent, resolveChartAccent2 } from '../components/BalanceCard';
+import HomeMiniPreview from '../components/HomeMiniPreview';
 import { Fonts } from '../config/fonts';
 
 // ── Acordeón — exclusivo: abrir una sección cierra la anterior; ninguna abierta al entrar ──
@@ -59,6 +61,9 @@ function SwitchRow({ icon, label, sub, value, onValueChange, isLast }: {
 const BACKGROUND_STYLES: BackgroundStyle[] = BACKGROUND_STYLE_VALUES;
 /** Ancho máximo del contenido en tablet/escritorio (igual que ScreenBackground). */
 const CONTENT_MAX = 720;
+/** Serie de la tendencia en la maqueta: solo decide si el acento "con signo" se
+ *  pinta en verde o en rojo. */
+const MINI_TREND_VALUES = [1080, 1240, 1190, 1340, 1284];
 
 /**
  * Carrusel de fondos, con la forma del selector de fondos de iOS: una tarjeta
@@ -73,11 +78,10 @@ const CONTENT_MAX = 720;
  * fondo mientras deslizas, así que la decisión se toma viendo el resultado y no
  * una vista previa.
  */
-function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSelect, labelFor, target }: {
+function BackgroundCarousel({ keys, selectedKey, intensity, blurPx, onSelect, labelFor, target }: {
   keys: BackgroundStyle[];
   selectedKey: BackgroundStyle;
   intensity: AuroraIntensity;
-  speed: number;
   blurPx: number;
   onSelect: (key: BackgroundStyle) => void;
   labelFor: (key: BackgroundStyle) => string;
@@ -86,7 +90,7 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
    *  que enseñarte el modo oscuro — si no, decides a ciegas. */
   target: 'light' | 'dark';
 }) {
-  const { colors, activePalette, gradientStyle } = useTheme();
+  const { colors, activePalette, gradientStyle, chartAccent } = useTheme();
   const isDark = target === 'dark';
   const { width: winWidth } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
@@ -104,6 +108,7 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
   const gradient = isDark ? activePalette.gradientDark : activePalette.gradientLight;
   // La maqueta se pinta con los colores del modo EDITADO, no con los de la app.
   const themed = isDark ? activePalette.colors.dark : activePalette.colors.light;
+  const miniChartColor = resolveChartAccent(chartAccent, themed, MINI_TREND_VALUES);
 
   // Centra la tarjeta activa al abrir y cuando el fondo cambia desde fuera
   // (por ejemplo al elegir un "look" completo en el capítulo de color).
@@ -118,7 +123,11 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
   const settleOn = (e: any) => {
     const i = Math.round(e.nativeEvent.contentOffset.x / step);
     const key = keys[Math.max(0, Math.min(keys.length - 1, i))];
-    if (key && key !== selectedKey) onSelect(key);
+    if (!key || key === selectedKey) return;
+    // Un toque háptico al encajar: confirma que la tarjeta quedó elegida sin
+    // tener que mirar el check.
+    Haptics.selectionAsync().catch(() => {});
+    onSelect(key);
   };
 
   return (
@@ -191,9 +200,12 @@ function BackgroundCarousel({ keys, selectedKey, intensity, speed, blurPx, onSel
                   // La tarjeta mide ~2/3 del ancho real: el desenfoque se escala
                   // igual, o "suave" se leería como "fuerte" en la maqueta.
                   <View style={backgroundBlurStyle(blurPx * 0.66) ?? StyleSheet.absoluteFill} pointerEvents="none">
-                    <BackgroundEffect styleKey={key} intensity={intensity} speed={speed} />
+                    <BackgroundEffect styleKey={key} intensity={intensity} />
                   </View>
                 )}
+                {/* Encima del fondo, la silueta del Home: un fondo se elige por
+                    si TU pantalla se lee sobre él, no por cómo luce a solas. */}
+                <HomeMiniPreview themed={themed} chartColor={miniChartColor} width={cardW} />
                 {active && (
                   <View style={[styles.carouselCheck, { backgroundColor: colors.primary }]}>
                     <AppIcon name="checkmark" size={12} color="#FFFFFF" />
@@ -565,7 +577,6 @@ export default function PersonalizationScreen() {
     colors, isDark, paletteId, setPaletteId,
     backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
     backgroundIntensity, setBackgroundIntensity,
-    backgroundSpeed, setBackgroundSpeed,
     backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
     cardSheen, setCardSheen,
     batterySaver, setBatterySaver,
@@ -724,7 +735,7 @@ export default function PersonalizationScreen() {
   // parecía que la personalización "no se aplicaba").
   const prefsRef = useRef<Parameters<typeof updateUserPersonalization>[1] | null>(null);
   prefsRef.current = {
-    backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed,
+    backgroundStyleLight, backgroundStyleDark, backgroundIntensity,
     backgroundBlurLight, backgroundBlurDark,
     cardSheen, iconStroke, streakConfetti,
     chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle,
@@ -744,7 +755,7 @@ export default function PersonalizationScreen() {
     const timer = setTimeout(() => syncNow(user.uid), 800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundSpeed, backgroundBlurLight, backgroundBlurDark, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle]);
+  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundBlurLight, backgroundBlurDark, cardSheen, iconStroke, streakConfetti, chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle]);
   // Flush al desmontar: antes el debounce pendiente se CANCELABA al salir de la
   // pantalla y los últimos cambios nunca llegaban a Firestore.
   useEffect(() => () => {
@@ -834,30 +845,6 @@ export default function PersonalizationScreen() {
                 onChange={(key) => setBgTarget(key as 'light' | 'dark')}
                 style={styles.bgGridSpacing}
               />
-              {/* Controles globales ANTES de la grilla: afectan a todos los
-                  previews y así se descubren sin scrollear 6 filas de tarjetas */}
-              {targetBgStyle !== 'none' && (
-                <>
-                  <Text style={[styles.chartGroupLabel, { color: colors.textTertiary }]}>{t('personalization.bgIntensityLabel')}</Text>
-                  <AppSegmentedControl
-                    segments={INTENSITY_OPTIONS.map((i) => ({ key: i, label: t(`personalization.intensity.${i}`) }))}
-                    activeKey={backgroundIntensity}
-                    onChange={(key) => setBackgroundIntensity(key as AuroraIntensity)}
-                  />
-                  {/* Aquí había un control de VELOCIDAD del fondo. Los efectos
-                      ya no se mueven, así que no regulaba nada: un ajuste que no
-                      hace nada es peor que no tenerlo. */}
-                  {/* Desenfoque: propio de CADA modo, como el efecto. Es lo que
-                      mantiene el fondo detrás del contenido en vez de encima. */}
-                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgBlurLabel')}</Text>
-                  <AppSegmentedControl
-                    segments={BACKGROUND_BLUR_VALUES.map((b) => ({ key: b, label: t(`personalization.bgBlur.${b}`) }))}
-                    activeKey={targetBgBlur}
-                    onChange={(key) => setBackgroundBlurFor(bgTarget, key as BackgroundBlur)}
-                  />
-                  <Text style={[styles.chartAccentHint, { color: colors.textTertiary }]}>{t('personalization.bgBlurHint')}</Text>
-                </>
-              )}
               {/* La forma del degradado va ANTES de la grilla: afecta a la pantalla
                   entera, no a un efecto concreto. */}
               <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>
@@ -873,12 +860,33 @@ export default function PersonalizationScreen() {
                 keys={BACKGROUND_STYLES}
                 selectedKey={targetBgStyle}
                 intensity={backgroundIntensity}
-                speed={BACKGROUND_SPEED_FACTOR[backgroundSpeed]}
                 blurPx={BACKGROUND_BLUR_PX[targetBgBlur]}
                 onSelect={(key) => setBackgroundStyleFor(bgTarget, key)}
                 labelFor={(key) => t(`personalization.background.${key}`)}
                 target={bgTarget}
               />
+              {/* Los ajustes finos van DESPUÉS del carrusel: primero se elige el
+                  efecto, que es la decisión grande, y luego se afina. Antes iban
+                  antes y había que bajar hasta el final para ver los fondos. */}
+              {targetBgStyle !== 'none' && (
+                <>
+                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgIntensityLabel')}</Text>
+                  <AppSegmentedControl
+                    segments={INTENSITY_OPTIONS.map((i) => ({ key: i, label: t(`personalization.intensity.${i}`) }))}
+                    activeKey={backgroundIntensity}
+                    onChange={(key) => setBackgroundIntensity(key as AuroraIntensity)}
+                  />
+                  {/* Desenfoque: propio de CADA modo, como el efecto. Es lo que
+                      mantiene el fondo detrás del contenido en vez de encima. */}
+                  <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>{t('personalization.bgBlurLabel')}</Text>
+                  <AppSegmentedControl
+                    segments={BACKGROUND_BLUR_VALUES.map((b) => ({ key: b, label: t(`personalization.bgBlur.${b}`) }))}
+                    activeKey={targetBgBlur}
+                    onChange={(key) => setBackgroundBlurFor(bgTarget, key as BackgroundBlur)}
+                  />
+                  <Text style={[styles.chartAccentHint, { color: colors.textTertiary }]}>{t('personalization.bgBlurHint')}</Text>
+                </>
+              )}
               </>
             )}
 

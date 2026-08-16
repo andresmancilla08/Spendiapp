@@ -14,7 +14,6 @@ const BG_STYLE_KEY = '@spendiapp_bg_style'; // legado — migra a light/dark
 const BG_STYLE_LIGHT_KEY = '@spendiapp_bg_style_light';
 const BG_STYLE_DARK_KEY = '@spendiapp_bg_style_dark';
 const BG_INTENSITY_KEY = '@spendiapp_bg_intensity';
-const BG_SPEED_KEY = '@spendiapp_bg_speed';
 const BG_BLUR_LIGHT_KEY = '@spendiapp_bg_blur_light';
 const BG_BLUR_DARK_KEY = '@spendiapp_bg_blur_dark';
 const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
@@ -34,9 +33,6 @@ const GRADIENT_STYLE_KEY = '@spendiapp_gradient_style';
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves' | 'grain' | 'mesh' | 'bokeh' | 'flow' | 'starfield' | 'rays' | 'constellation' | 'orbs' | 'topography' | 'spotlight';
 export const BACKGROUND_STYLE_VALUES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh', 'flow', 'starfield', 'rays', 'constellation', 'orbs', 'topography', 'spotlight'];
-export type BackgroundSpeed = 'slow' | 'normal' | 'fast';
-/** Multiplicador de duración de las animaciones de fondo por velocidad. */
-export const BACKGROUND_SPEED_FACTOR: Record<BackgroundSpeed, number> = { slow: 1.6, normal: 1, fast: 0.62 };
 /** Desenfoque del efecto de fondo. Existe para que el fondo NUNCA compita con el
  *  contenido: los efectos de trazo fino (orbs, constellation, topography) cruzaban
  *  las tarjetas y el texto quedaba sucio. Se elige por modo — el mismo efecto pide
@@ -89,8 +85,6 @@ interface ThemeContextValue {
   setBackgroundStyleFor: (mode: 'light' | 'dark', style: BackgroundStyle) => void;
   backgroundIntensity: AuroraIntensity;
   setBackgroundIntensity: (intensity: AuroraIntensity) => void;
-  backgroundSpeed: BackgroundSpeed;
-  setBackgroundSpeed: (speed: BackgroundSpeed) => void;
   /** Desenfoque del modo ACTIVO (derivado de light/dark). */
   backgroundBlur: BackgroundBlur;
   backgroundBlurLight: BackgroundBlur;
@@ -133,8 +127,6 @@ const ThemeContext = createContext<ThemeContextValue>({
   setBackgroundStyleFor: () => {},
   backgroundIntensity: 'default',
   setBackgroundIntensity: () => {},
-  backgroundSpeed: 'normal',
-  setBackgroundSpeed: () => {},
   backgroundBlur: 'medium',
   backgroundBlurLight: 'medium',
   backgroundBlurDark: 'medium',
@@ -166,7 +158,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [backgroundStyleLight, setBackgroundStyleLightState] = useState<BackgroundStyle>('aurora');
   const [backgroundStyleDark, setBackgroundStyleDarkState] = useState<BackgroundStyle>('aurora');
   const [backgroundIntensity, setBackgroundIntensityState] = useState<AuroraIntensity>('default');
-  const [backgroundSpeed, setBackgroundSpeedState] = useState<BackgroundSpeed>('normal');
   // 'medium' por defecto: un fondo animado sin desenfocar competía con el contenido.
   const [backgroundBlurLight, setBackgroundBlurLightState] = useState<BackgroundBlur>('medium');
   const [backgroundBlurDark, setBackgroundBlurDarkState] = useState<BackgroundBlur>('medium');
@@ -189,7 +180,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(BG_STYLE_LIGHT_KEY),
       AsyncStorage.getItem(BG_STYLE_DARK_KEY),
       AsyncStorage.getItem(BG_INTENSITY_KEY),
-      AsyncStorage.getItem(BG_SPEED_KEY),
       AsyncStorage.getItem(BG_BLUR_LIGHT_KEY),
       AsyncStorage.getItem(BG_BLUR_DARK_KEY),
       AsyncStorage.getItem(CARD_SHEEN_KEY),
@@ -201,7 +191,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(CHART_SPEED_KEY),
       AsyncStorage.getItem(CHART_ACCENT_KEY),
       AsyncStorage.getItem(GRADIENT_STYLE_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBgSpeed, storedBlurLight, storedBlurDark, storedSheen, storedBattery, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
+    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBlurLight, storedBlurDark, storedSheen, storedBattery, storedStroke, storedConfetti, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
@@ -224,9 +214,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
       if (storedBgIntensity === 'intense' || storedBgIntensity === 'default' || storedBgIntensity === 'subtle') {
         setBackgroundIntensityState(storedBgIntensity);
-      }
-      if (storedBgSpeed === 'slow' || storedBgSpeed === 'normal' || storedBgSpeed === 'fast') {
-        setBackgroundSpeedState(storedBgSpeed);
       }
       if (BACKGROUND_BLUR_VALUES.includes(storedBlurLight as BackgroundBlur)) setBackgroundBlurLightState(storedBlurLight as BackgroundBlur);
       if (BACKGROUND_BLUR_VALUES.includes(storedBlurDark as BackgroundBlur)) setBackgroundBlurDarkState(storedBlurDark as BackgroundBlur);
@@ -266,11 +253,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setBackgroundIntensity = async (intensity: AuroraIntensity) => {
     setBackgroundIntensityState(intensity);
     await AsyncStorage.setItem(BG_INTENSITY_KEY, intensity);
-  };
-
-  const setBackgroundSpeed = async (speed: BackgroundSpeed) => {
-    setBackgroundSpeedState(speed);
-    await AsyncStorage.setItem(BG_SPEED_KEY, speed);
   };
 
   const setBackgroundBlurFor = async (mode: 'light' | 'dark', blur: BackgroundBlur) => {
@@ -345,7 +327,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       colors, isDark, themeMode, setThemeMode, paletteId, setPaletteId, activePalette,
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
       backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
-      backgroundSpeed, setBackgroundSpeed,
       backgroundBlur, backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
       cardSheen, setCardSheen,
       batterySaver, setBatterySaver,
