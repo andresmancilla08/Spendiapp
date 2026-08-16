@@ -291,12 +291,18 @@ td.mono-cell { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size
 .week.ship .week-n, .week.ship .hit { color: var(--accent); }
 
 /* ── Decisiones ───────────────────────────────────────────── */
+/* Una decisión se distingue por su tipografía —la pregunta en mono, como el
+   resto de los rótulos del documento—, no por una banda de color al costado. */
 .decision {
   background: var(--surface); border: 1px solid var(--line);
-  border-left: 3px solid var(--accent); border-radius: 4px;
+  border-radius: 4px;
   padding: 18px 22px; display: flex; flex-direction: column; gap: 9px;
 }
-.decision .q { font-weight: 650; font-size: 1rem; }
+.decision .q {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-weight: 600; font-size: .98rem; letter-spacing: -.01em;
+  color: var(--accent);
+}
 .decision .a { font-size: .93rem; color: var(--ink-2); }
 .decision .a b { color: var(--ink); }
 
