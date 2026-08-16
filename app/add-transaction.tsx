@@ -678,6 +678,15 @@ export default function AddTransactionScreen() {
                 </Text>
               </TouchableOpacity>
             )}
+            {/* Sin esto nadie descubre que la foto no tiene que ser del momento. */}
+            {Platform.OS === 'web' && !scanning && (
+              <Text style={{
+                color: colors.textSecondary, fontFamily: Fonts.regular, fontSize: 12,
+                textAlign: 'center', marginTop: -10, marginBottom: 16,
+              }}>
+                {t('addTransaction.scanHint')}
+              </Text>
+            )}
 
             {/* Amount input — sin etiqueta a propósito: el importe gigante ES
                 su propio rótulo. Solo aparece aviso si falta tras intentar. */}

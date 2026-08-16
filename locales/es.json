@@ -555,7 +555,8 @@
     "fixedExpense": "Gasto fijo",
     "fixedHint": "Se repetirá automáticamente cada mes",
     "fixedNotWithInstallments": "Una compra a cuotas ya tiene fecha de fin",
-    "descriptionLabel": "Descripción"
+    "descriptionLabel": "Descripción",
+    "scanHint": "Haz una foto o elige una imagen de tu galería"
   },
   "editTransaction": {
     "title": "Editar movimiento",

@@ -555,7 +555,8 @@
     "fixedExpense": "Spesa fissa",
     "fixedHint": "Si ripeterà automaticamente ogni mese",
     "fixedNotWithInstallments": "Un acquisto a rate ha già una data di fine",
-    "descriptionLabel": "Descrizione"
+    "descriptionLabel": "Descrizione",
+    "scanHint": "Scatta una foto o scegli un'immagine dalla galleria"
   },
   "editTransaction": {
     "title": "Modifica movimento",

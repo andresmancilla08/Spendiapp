@@ -27,7 +27,9 @@ function pickImage(): Promise<File | null> {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.setAttribute('capture', 'environment'); // en móvil abre la cámara trasera
+    // Sin `capture`: con él, el móvil abría la cámara directamente y no había forma
+    // de usar una factura ya guardada. Sin él, iOS y Android muestran su propio menú
+    // — hacer foto o elegir de la galería — que es justo la elección que hace falta.
 
     let settled = false;
     const finish = (f: File | null) => {

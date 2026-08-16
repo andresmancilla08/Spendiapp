@@ -555,7 +555,8 @@
     "fixedExpense": "Fixed expense",
     "fixedHint": "It will repeat automatically every month",
     "fixedNotWithInstallments": "An instalment purchase already has an end date",
-    "descriptionLabel": "Description"
+    "descriptionLabel": "Description",
+    "scanHint": "Take a photo or pick an image from your gallery"
   },
   "editTransaction": {
     "title": "Edit transaction",
