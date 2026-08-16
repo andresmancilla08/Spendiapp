@@ -159,6 +159,28 @@ export async function setWhatsNewSeen(uid: string, version: string): Promise<voi
   await updateDoc(doc(db, 'users', uid), { whatsNewSeen: version });
 }
 
+/**
+ * Marca que el usuario ya creó su PIN de 6 dígitos. Mientras esto sea falso, el
+ * gate de `app/_layout.tsx` no le deja entrar a la app: sigue con el PIN por
+ * defecto de la migración.
+ */
+export async function markPinV2(uid: string): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { pinV2: true, pinSetAt: serverTimestamp() });
+}
+
+/** ¿Ya creó su propio PIN de 6 dígitos? Ante cualquier fallo de lectura se
+ *  responde `true`: dejar entrar a alguien que ya migró es preferible a
+ *  encerrar a toda la base de usuarios si Firestore falla. */
+export async function hasOwnPin(uid: string): Promise<boolean> {
+  try {
+    const snap = await getDoc(doc(db, 'users', uid));
+    if (!snap.exists()) return true;
+    return snap.data().pinV2 === true;
+  } catch {
+    return true;
+  }
+}
+
 /** Obtiene el perfil de un usuario por UID. */
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   const snap = await getDoc(doc(db, 'users', uid));

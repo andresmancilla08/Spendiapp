@@ -4,62 +4,23 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  Alert,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Link } from 'expo-router';
 import appConfig from '../../app.json';
-import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTheme } from '../../context/ThemeContext';
 import { accentInk } from '../../utils/contrast';
 import AppIcon from '../../components/AppIcon';
 import { Fonts } from '../../config/fonts';
-import Svg, { Path, G, ClipPath, Defs, Rect } from 'react-native-svg';
 import PressableScale from '../../components/PressableScale';
-import { type AuthMethod } from '../../hooks/useConsentLogger';
-
-function GoogleIcon({ size = 18 }: { size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Defs>
-        <ClipPath id="clip">
-          <Rect width="24" height="24" />
-        </ClipPath>
-      </Defs>
-      <G clipPath="url(#clip)">
-        <Path d="M23.52 12.27c0-.85-.07-1.67-.2-2.45H12v4.63h6.46a5.52 5.52 0 01-2.4 3.62v3h3.88c2.27-2.09 3.58-5.17 3.58-8.8z" fill="#4285F4" />
-        <Path d="M12 24c3.24 0 5.95-1.07 7.94-2.9l-3.88-3.01c-1.07.72-2.45 1.14-4.06 1.14-3.12 0-5.76-2.11-6.7-4.95H1.28v3.1A11.99 11.99 0 0012 24z" fill="#34A853" />
-        <Path d="M5.3 14.28A7.19 7.19 0 014.93 12c0-.79.14-1.56.37-2.28V6.62H1.28A11.99 11.99 0 000 12c0 1.93.46 3.76 1.28 5.38l4.02-3.1z" fill="#FBBC05" />
-        <Path d="M12 4.77c1.76 0 3.34.6 4.58 1.79l3.44-3.44C17.95 1.19 15.24 0 12 0A11.99 11.99 0 001.28 6.62l4.02 3.1C6.24 6.88 8.88 4.77 12 4.77z" fill="#EA4335" />
-      </G>
-    </Svg>
-  );
-}
 
 export default function LoginScreen() {
-  const { promptAsync, loading, error } = useGoogleSignIn();
-  const [pendingMethod, setPendingMethod] = useState<AuthMethod>('google');
   const { t } = useTranslation();
   const { colors, isDark, setThemeMode } = useTheme();
-
-  useEffect(() => {
-    if (error) Alert.alert('Error', error);
-  }, [error]);
-
-  const handleMethodPress = (method: AuthMethod) => {
-    setPendingMethod(method);
-    if (method === 'google') {
-      promptAsync();
-      return;
-    }
-    router.push('/(auth)/login-email');
-  };
 
   return (
     <>
@@ -92,35 +53,8 @@ export default function LoginScreen() {
 
           <View style={styles.buttonsSection}>
             <PressableScale
-              style={[styles.googleButton, {
-                borderColor: colors.border,
-                backgroundColor: isDark ? colors.surfaceElevated : colors.surface,
-              }]}
-              disabled={loading}
-              onPress={() => handleMethodPress('google')}
-            >
-              {loading && pendingMethod === 'google' ? (
-                <ActivityIndicator color={colors.textSecondary} />
-              ) : (
-                <>
-                  <GoogleIcon size={18} />
-                  <Text style={[styles.googleButtonText, { color: colors.textSecondary }]}>
-                    {t('login.googleButton')}
-                  </Text>
-                </>
-              )}
-            </PressableScale>
-
-            <View style={styles.dividerRow}>
-              <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : colors.border }]} />
-              <Text style={[styles.dividerText, { color: colors.textTertiary }]}>o</Text>
-              <View style={[styles.dividerLine, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : colors.border }]} />
-            </View>
-
-            <PressableScale
               style={[styles.emailButton, { backgroundColor: colors.primary }]}
-              disabled={loading}
-              onPress={() => handleMethodPress('email')}
+              onPress={() => router.push('/(auth)/login-email')}
             >
               <AppIcon name="mail-outline" size={18} color={colors.onPrimary} />
               <Text style={[styles.emailButtonText, { color: colors.onPrimary }]}>
@@ -211,36 +145,6 @@ const styles = StyleSheet.create({
   buttonsSection: {
     width: '100%',
     marginBottom: 32,
-  },
-  googleButton: {
-    width: '100%',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 50,
-    borderWidth: 1.5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    marginBottom: 20,
-  },
-  googleButtonText: {
-    fontSize: 16,
-    fontFamily: Fonts.semiBold,
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  },
-  dividerText: {
-    marginHorizontal: 12,
-    fontSize: 14,
-    fontFamily: Fonts.medium,
   },
   emailButton: {
     width: '100%',

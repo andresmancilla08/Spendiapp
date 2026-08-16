@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { isPinComplete } from '../../constants/pin';
 import { goBack } from '../../utils/nav';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
@@ -50,8 +51,8 @@ export default function RegisterScreen() {
   const isNameValid = name.trim().length >= 2;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const showEmailError = emailTouched && email.trim().length > 0 && !isEmailValid;
-  const isPinComplete = pin.length === 4;
-  const canSubmit = isNameValid && isEmailValid && isPinComplete && termsAccepted;
+  const pinComplete = isPinComplete(pin);
+  const canSubmit = isNameValid && isEmailValid && pinComplete && termsAccepted;
 
   const handleContinue = async () => {
     if (!isNameValid) { Alert.alert('Error', t('errors.fillAllFields')); return; }

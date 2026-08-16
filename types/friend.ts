@@ -18,6 +18,10 @@ export interface UserProfile {
   photoURL: string | null;
   createdAt: Timestamp;
   whatsNewSeen?: boolean | string;
+  /** El usuario ya creó su PIN de 6 dígitos. Si falta o es false, sigue con el
+   *  PIN por defecto de la migración y el gate le obliga a cambiarlo. */
+  pinV2?: boolean;
+  pinSetAt?: Timestamp;
   colorPalette?: string;
   /** Preferencias de personalización premium — espejo de ThemeContext; viaja
    * con la cuenta para sobrevivir reinstalaciones y cambios de dispositivo. */

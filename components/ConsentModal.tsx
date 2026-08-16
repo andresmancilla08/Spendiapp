@@ -54,8 +54,8 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
     }
   }, [visible]);
 
-  const methodIcon = method === 'google' ? 'logo-google' : 'mail-outline';
-  const methodLabel = t(`login.${method === 'google' ? 'googleButton' : 'emailButton'}`);
+  const methodIcon = 'mail-outline';
+  const methodLabel = t('login.emailButton');
 
   return (
     <Modal visible={visible} transparent animationType="none" statusBarTranslucent>

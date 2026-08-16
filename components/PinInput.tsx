@@ -3,9 +3,12 @@ import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-nativ
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
+import { PIN_LENGTH } from '../constants/pin';
 
 const SIZE_CONFIG = {
   md: { box: 60, radius: 16, fontSize: 28, gap: 12 },
+  /** 6 casillas de 60 px se salen de un móvil estrecho (360 dp). */
+  mdWide: { box: 46, radius: 14, fontSize: 22, gap: 8 },
   sm: { box: 44, radius: 12, fontSize: 18, gap: 8 },
 };
 
@@ -15,30 +18,42 @@ interface PinInputProps {
   error?: boolean;
   defaultVisible?: boolean;
   size?: 'sm' | 'md';
+  /** Nº de casillas. El PIN son 6; el código de recuperación sigue siendo de 4. */
+  length?: number;
 }
 
-export default function PinInput({ value, onChange, error = false, defaultVisible = false, size = 'md' }: PinInputProps) {
-  const cfg = SIZE_CONFIG[size];
+export default function PinInput({
+  value, onChange, error = false, defaultVisible = false, size = 'md', length = PIN_LENGTH,
+}: PinInputProps) {
+  // Con 6 casillas, las de 60 px no caben en un móvil estrecho.
+  const cfg = size === 'md' && length > 4 ? SIZE_CONFIG.mdWide : SIZE_CONFIG[size];
   const { colors } = useTheme();
-  const inputs = useRef<(TextInput | null)[]>([null, null, null, null]);
+  const inputs = useRef<(TextInput | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [showPin, setShowPin] = useState(defaultVisible);
 
   const handleChange = (text: string, index: number) => {
-    const digit = text.replace(/[^0-9]/g, '').slice(-1);
-    const chars = value.padEnd(4, '').split('');
-    chars[index] = digit;
+    const typed = text.replace(/[^0-9]/g, '');
+    // Pegar o autorrellenar mete el código entero en una casilla: repartirlo.
+    if (typed.length > 1) {
+      const next = typed.slice(0, length);
+      onChange(next);
+      inputs.current[Math.min(next.length, length - 1)]?.focus();
+      return;
+    }
+    const chars = value.padEnd(length, ' ').split('');
+    chars[index] = typed || ' ';
     const next = chars.join('').trimEnd();
     onChange(next);
-    if (digit && index < 3) {
+    if (typed && index < length - 1) {
       inputs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyPress = (key: string, index: number) => {
     if (key === 'Backspace' && !value[index] && index > 0) {
-      const chars = value.padEnd(4, '').split('');
-      chars[index - 1] = '';
+      const chars = value.padEnd(length, ' ').split('');
+      chars[index - 1] = ' ';
       onChange(chars.join('').trimEnd());
       inputs.current[index - 1]?.focus();
     }
@@ -49,8 +64,8 @@ export default function PinInput({ value, onChange, error = false, defaultVisibl
       {/* Grupo compacto: boxes + ícono ojo juntos, centrado en pantalla */}
       <View style={[styles.group, { gap: cfg.gap + 4 }]}>
         <View style={[styles.dotsRow, { gap: cfg.gap }]}>
-          {[0, 1, 2, 3].map((i) => {
-            const filled = !!value[i];
+          {Array.from({ length }, (_, i) => i).map((i) => {
+            const filled = /\d/.test(value[i] ?? '');
             const focused = focusedIndex === i;
             const borderColor = error
               ? colors.error
@@ -81,17 +96,17 @@ export default function PinInput({ value, onChange, error = false, defaultVisibl
                     },
                     focused && styles.boxFocused,
                   ]}
-                  value={value[i] ? '•' : ''}
+                  value={filled ? '•' : ''}
                   onChangeText={(t) => handleChange(t, i)}
                   onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
                   onFocus={() => setFocusedIndex(i)}
                   onBlur={() => setFocusedIndex(null)}
                   keyboardType="numeric"
-                  maxLength={1}
+                  maxLength={length}
                   textAlign="center"
                   caretHidden
                 />
-                {!!value[i] && (
+                {filled && (
                   <View style={styles.dotOverlay} pointerEvents="none">
                     <Text style={[
                       styles.dotText,

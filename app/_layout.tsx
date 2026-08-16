@@ -4,8 +4,6 @@ import { Stack, router, usePathname } from 'expo-router';
 import { ThemeProvider as NavigationThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { onAuthStateChanged, signOut } from '../hooks/useAuth';
 import { useAuthStore } from '../store/authStore';
-import { getRedirectResult } from 'firebase/auth';
-import { REDIRECT_PENDING_KEY } from '../hooks/useGoogleSignIn';
 import { auth, db } from '../config/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { initI18n } from '../config/i18n';
@@ -134,6 +132,9 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
   const { user, isLoading, justRegistered, setIsPremium } = useAuthStore();
   const [isBlockedChecked, setIsBlockedChecked] = useState(false);
   const [userIsBlocked, setUserIsBlocked] = useState(false);
+  /** Migración a PIN de 6 dígitos: mientras `pinV2` no sea true, la cuenta sigue
+   *  con el PIN por defecto (público) y no se deja entrar a ninguna pantalla. */
+  const [needsPin, setNeedsPin] = useState(false);
   const [versionChecked, setVersionChecked] = useState(false);
   const [needsUpdate, setNeedsUpdate] = useState(false);
   const knownSessionVersion = useRef<number | null>(null);
@@ -196,6 +197,7 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
           typeof data.blockedUntil.toDate === 'function' &&
           data.blockedUntil.toDate() > now;
         setUserIsBlocked(blockedByFlag || blockedByTime);
+        setNeedsPin(data.pinV2 !== true);
         setIsBlockedChecked(true);
         // Premium: activo si isPremium === true y (sin expiración o expiración futura)
         const premiumActive = !!data.isPremium && (
@@ -271,12 +273,18 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
         navigate('/blocked');
         return;
       }
+      // 3. PIN por defecto de la migración: no se entra a ningún sitio hasta
+      //    tener uno propio. Va después de "bloqueado" y antes que todo lo demás.
+      if (needsPin) {
+        navigate('/(auth)/set-pin');
+        return;
+      }
       navigate('/(tabs)/');
     } else {
       if (PUBLIC_ROUTES.has(pathname)) return;
       navigate('/(auth)/login');
     }
-  }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, flags.maintenanceMode, flagsLoading, userIsBlocked, isBlockedChecked, versionChecked, needsUpdate, pathname]);
+  }, [user, isLoading, i18nReady, fontsLoaded, justRegistered, flags.maintenanceMode, flagsLoading, userIsBlocked, isBlockedChecked, needsPin, versionChecked, needsUpdate, pathname]);
 
   return null;
 }
@@ -287,7 +295,7 @@ function ConsentGuard({ consentRequired, onAccept }: { consentRequired: boolean;
   return (
     <ConsentModal
       visible={visible}
-      method="google"
+      method="email"
       onAccept={onAccept}
       onCancel={() => {}}
       required
@@ -359,25 +367,9 @@ export default function RootLayout() {
     return unsubscribe;
   }, []);
 
-  // Procesar resultado de signInWithRedirect si el popup fue bloqueado y
-  // se usó redirect como fallback. onAuthStateChanged se dispara automáticamente
-  // cuando getRedirectResult completa con éxito.
-  // Skip when useGoogleSignIn is handling the result (iOS redirect flow).
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(REDIRECT_PENDING_KEY)) return;
-    getRedirectResult(auth).catch((err) => {
-      if (err?.code !== 'auth/no-auth-event') {
-        console.warn('[Auth] getRedirectResult error:', err?.code, err?.message);
-      }
-    });
-  }, []);
-
-
   const handleConsentAccept = () => {
     setConsentRequired(false);
-    const isGoogle = auth.currentUser?.providerData?.some(p => p.providerId === 'google.com') ?? false;
-    setPendingConsent(isGoogle ? 'google' : 'email');
+    setPendingConsent('email');
     if (consentUserUidRef.current) {
       savePendingConsent(consentUserUidRef.current).catch(() => {});
     }

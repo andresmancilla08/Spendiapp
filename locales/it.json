@@ -16,13 +16,9 @@
   "login": {
     "title": "Spendia",
     "subtitle": "Il tuo denaro, sempre sotto controllo",
-    "googleButton": "Continua con Google",
     "emailButton": "Accedi con email e PIN",
     "noAccount": "Non hai un account?",
     "registerLink": "Registrati",
-    "errors": {
-      "popupBlocked": "Il tuo browser ha bloccato la finestra di Google. Usa email e PIN."
-    },
     "consentPrefix": "Registrandoti, accetti i",
     "consentTerms": "Termini e Condizioni",
     "consentAnd": "e la",
@@ -78,7 +74,7 @@
   },
   "forgotPinReset": {
     "title": "Crea il tuo nuovo PIN",
-    "subtitle": "Scegli 4 cifre facili da ricordare",
+    "subtitle": "Scegli 6 cifre facili da ricordare",
     "newPinLabel": "NUOVO PIN",
     "confirmPinLabel": "CONFERMA PIN",
     "matchOk": "Corrispondono",
@@ -88,7 +84,7 @@
   },
   "pinEntry": {
     "createTitle": "Crea il tuo PIN di accesso",
-    "createSubtitle": "Scegli 4 cifre che ricorderai",
+    "createSubtitle": "Scegli 6 cifre che ricorderai",
     "enterTitle": "Inserisci il tuo PIN"
   },
   "dialogs": {
@@ -216,7 +212,7 @@
       "current": "Inserisci il tuo PIN attuale",
       "new": "Inserisci il tuo nuovo PIN",
       "confirm": "Conferma il tuo nuovo PIN",
-      "minLength": "Il PIN deve avere almeno 4 cifre",
+      "minLength": "Il PIN deve avere 6 cifre",
       "mismatch": "I PIN non corrispondono",
       "wrongCurrent": "PIN attuale errato",
       "genericError": "Si è verificato un errore. Riprova.",
@@ -229,7 +225,6 @@
       "label": "Email",
       "dialog": {
         "title": "Indirizzo email",
-        "google": "L'email è collegata al tuo account Google e non può essere modificata qui.",
         "pin": "Per cambiare la tua email contatta il supporto."
       }
     },
@@ -303,7 +298,6 @@
       "descPart2": "? Dovrai accedere di nuovo la prossima volta.",
       "confirm": "Disconnetti"
     },
-    "providerGoogle": "Google",
     "providerEmail": "Email & PIN",
     "userName": "@{{userName}}",
     "friends": {
@@ -1522,5 +1516,20 @@
     "deleteTitle": "Eliminare questa palette?",
     "deleteMessage": "Non si può annullare. Se è quella in uso, si torna alla palette predefinita.",
     "contrastWarning": "Con questo colore alcuni testi sono al limite del contrasto. Prova l'altra finitura."
+  },
+  "setPin": {
+    "title": "Crea il tuo PIN",
+    "subtitle": "Ora il PIN è di {{count}} cifre. Scegli il tuo per continuare a usare Spendia: quello che hai è temporaneo e lo conoscono tutti.",
+    "newLabel": "IL TUO NUOVO PIN",
+    "confirmLabel": "RIPETILO",
+    "save": "Salva e continua",
+    "signOut": "Esci",
+    "success": "PIN aggiornato",
+    "errors": {
+      "mismatch": "I PIN non coincidono",
+      "sameAsDefault": "Questo è il PIN temporaneo. Scegline uno tuo.",
+      "staleSession": "Per sicurezza, accedi di nuovo per cambiare il PIN.",
+      "generic": "Impossibile salvare il PIN. Riprova."
+    }
   }
 }

@@ -29,6 +29,7 @@ import { LANGUAGES, changeLanguage } from '../config/i18n';
 import AppHeader from '../components/AppHeader';
 import { router } from 'expo-router';
 import { goBack } from '../utils/nav';
+import { isPinComplete } from '../constants/pin';
 import AppDialog, { DialogType } from '../components/AppDialog';
 import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
@@ -162,7 +163,7 @@ function ChangePinModal({ visible, onClose, onSuccess }: ChangePinModalProps) {
   const handleNext = async (value: string) => {
     setError('');
 
-    if (value.length < 4) {
+    if (!isPinComplete(value)) {
       setError(t('profile.changePin.minLength'));
       return;
     }
@@ -402,7 +403,6 @@ export default function ProfileScreen() {
 
   const profileDisplayName = fullName || user?.displayName || 'Usuario';
   const photoUrl = user?.photoURL;
-  const isGoogleUser = !!photoUrl;
 
   const themeLabels: Record<ThemeMode, string> = {
     system: t('profile.theme.system'),
@@ -618,9 +618,9 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             ) : null}
             <View style={[styles.providerBadge, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <AppIcon name={isGoogleUser ? 'logo-google' : 'mail-outline'} size={12} color={colors.textSecondary} />
+              <AppIcon name="mail-outline" size={12} color={colors.textSecondary} />
               <Text style={[styles.providerText, { color: colors.textSecondary }]}>
-                {isGoogleUser ? t('profile.providerGoogle') : t('profile.providerEmail')}
+                {t('profile.providerEmail')}
               </Text>
             </View>
           </View>
@@ -678,13 +678,11 @@ export default function ProfileScreen() {
             value={user?.displayName ?? ''}
             onPress={() => { setNameInput(user?.displayName ?? ''); setNameInputError(''); setEditNameVisible(true); }}
           />
-          {!isGoogleUser && (
-            <OptionItem
-              icon="lock-closed-outline"
-              label={t('profile.changePin.label')}
-              onPress={() => setChangePinVisible(true)}
-            />
-          )}
+          <OptionItem
+            icon="lock-closed-outline"
+            label={t('profile.changePin.label')}
+            onPress={() => setChangePinVisible(true)}
+          />
           <OptionItem
             icon="mail-outline"
             label={t('profile.email.label')}
@@ -692,9 +690,7 @@ export default function ProfileScreen() {
             isLast
             onPress={() => showInfo(
               t('profile.email.dialog.title'),
-              isGoogleUser
-                ? t('profile.email.dialog.google')
-                : t('profile.email.dialog.pin'),
+              t('profile.email.dialog.pin'),
             )}
           />
         </View>

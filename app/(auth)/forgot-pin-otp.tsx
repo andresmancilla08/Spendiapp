@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { goBack } from '../../utils/nav';
+import { isPinComplete, OTP_LENGTH } from '../../constants/pin';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
@@ -51,7 +52,7 @@ export default function ForgotPinOtpScreen() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const isEmailValid = email.trim().length > 0 && email.includes('@');
-  const isOtpComplete = otp.length === 4;
+  const isOtpComplete = isPinComplete(otp, OTP_LENGTH);
 
   useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
 
@@ -255,6 +256,7 @@ export default function ForgotPinOtpScreen() {
                       onChange={(v) => { setOtp(v); setError(null); }}
                       error={!!error}
                       defaultVisible
+                      length={OTP_LENGTH}
                     />
                   </Animated.View>
 

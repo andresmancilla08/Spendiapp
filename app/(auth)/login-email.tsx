@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { isPinComplete } from '../../constants/pin';
 import { goBack } from '../../utils/nav';
 import ScreenBackground from '../../components/ScreenBackground';
 import { loginWithEmailAndPin } from '../../hooks/useAuth';
@@ -35,8 +36,8 @@ export default function LoginEmailScreen() {
   const { colors, isDark } = useTheme();
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  const isPinComplete = pin.length === 4;
-  const canSubmit = isEmailValid && isPinComplete;
+  const pinComplete = isPinComplete(pin);
+  const canSubmit = isEmailValid && pinComplete;
 
   const handleContinue = async () => {
     setLoginError(null);

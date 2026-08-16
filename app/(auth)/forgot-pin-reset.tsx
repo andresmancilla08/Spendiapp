@@ -15,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { goBack } from '../../utils/nav';
+import { isPinComplete } from '../../constants/pin';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
@@ -38,7 +39,7 @@ export default function ForgotPinResetScreen() {
   const [loading, setLoading] = useState(false);
 
   const matchStatus = useMemo<'idle' | 'match' | 'mismatch'>(() => {
-    if (confirmPin.length < 4) return 'idle';
+    if (!isPinComplete(confirmPin)) return 'idle';
     return pin === confirmPin ? 'match' : 'mismatch';
   }, [pin, confirmPin]);
 
@@ -58,7 +59,7 @@ export default function ForgotPinResetScreen() {
     }
   }, [matchStatus, matchAnim]);
 
-  const canSave = pin.length === 4 && matchStatus === 'match' && !loading;
+  const canSave = isPinComplete(pin) && matchStatus === 'match' && !loading;
 
   const handleSave = async () => {
     if (!canSave) return;
@@ -120,7 +121,7 @@ export default function ForgotPinResetScreen() {
             <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
             {/* Confirm PIN */}
-            <View style={[styles.section, { opacity: pin.length < 4 ? 0.45 : 1 }]}>
+            <View style={[styles.section, { opacity: isPinComplete(pin) ? 1 : 0.45 }]}>
               <View style={styles.confirmHeader}>
                 <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
                   {t('forgotPinReset.confirmPinLabel')}

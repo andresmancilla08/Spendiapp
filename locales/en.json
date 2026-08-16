@@ -16,13 +16,9 @@
   "login": {
     "title": "Spendia",
     "subtitle": "Your money, always in control",
-    "googleButton": "Continue with Google",
     "emailButton": "Sign in with email and PIN",
     "noAccount": "Don't have an account?",
     "registerLink": "Sign up",
-    "errors": {
-      "popupBlocked": "Your browser blocked the Google sign-in window. Use email and PIN instead."
-    },
     "consentPrefix": "By signing up, you accept the",
     "consentTerms": "Terms and Conditions",
     "consentAnd": "and the",
@@ -78,7 +74,7 @@
   },
   "forgotPinReset": {
     "title": "Create your new PIN",
-    "subtitle": "Choose 4 digits that are easy to remember",
+    "subtitle": "Choose 6 digits that are easy to remember",
     "newPinLabel": "NEW PIN",
     "confirmPinLabel": "CONFIRM PIN",
     "matchOk": "Match",
@@ -88,7 +84,7 @@
   },
   "pinEntry": {
     "createTitle": "Create your access PIN",
-    "createSubtitle": "Choose 4 digits you'll remember",
+    "createSubtitle": "Choose 6 digits you'll remember",
     "enterTitle": "Enter your PIN"
   },
   "dialogs": {
@@ -216,7 +212,7 @@
       "current": "Enter your current PIN",
       "new": "Enter your new PIN",
       "confirm": "Confirm your new PIN",
-      "minLength": "PIN must be at least 4 digits",
+      "minLength": "PIN must be 6 digits",
       "mismatch": "PINs do not match",
       "wrongCurrent": "Incorrect current PIN",
       "genericError": "An error occurred. Please try again.",
@@ -229,7 +225,6 @@
       "label": "Email",
       "dialog": {
         "title": "Email address",
-        "google": "This email is linked to your Google account and cannot be changed here.",
         "pin": "To change your email please contact support."
       }
     },
@@ -303,7 +298,6 @@
       "descPart2": "? You'll need to sign in again next time.",
       "confirm": "Sign out"
     },
-    "providerGoogle": "Google",
     "providerEmail": "Email & PIN",
     "userName": "@{{userName}}",
     "friends": {
@@ -1522,5 +1516,20 @@
     "deleteTitle": "Delete this palette?",
     "deleteMessage": "This can't be undone. If it's the one you're using, you'll go back to the default palette.",
     "contrastWarning": "With this colour some text sits close to the contrast limit. Try the other finish."
+  },
+  "setPin": {
+    "title": "Create your PIN",
+    "subtitle": "PINs are now {{count}} digits. Choose yours to keep using Spendia — the one you have is temporary and anyone knows it.",
+    "newLabel": "YOUR NEW PIN",
+    "confirmLabel": "REPEAT IT",
+    "save": "Save and continue",
+    "signOut": "Sign out",
+    "success": "PIN updated",
+    "errors": {
+      "mismatch": "PINs don't match",
+      "sameAsDefault": "That is the temporary PIN. Choose your own.",
+      "staleSession": "For security, sign in again to change your PIN.",
+      "generic": "Couldn't save your PIN. Please try again."
+    }
   }
 }

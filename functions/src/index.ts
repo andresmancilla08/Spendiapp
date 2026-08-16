@@ -133,6 +133,9 @@ export const verifyPinResetOtp = onCall(async (request) => {
 export const resetPinWithOtp = onCall(async (request) => {
   const { email, otp, newPin } = request.data as { email: string; otp: string; newPin: string };
   if (!email || !otp || !newPin) throw new HttpsError('invalid-argument', 'Datos incompletos');
+  // El cliente ya lo valida, pero esta función es una API pública: sin esto se
+  // podría dejar la cuenta con un PIN de un dígito.
+  if (!/^\d{6}$/.test(newPin)) throw new HttpsError('invalid-argument', 'El PIN debe tener 6 dígitos');
 
   let uid: string;
   try {
@@ -155,7 +158,13 @@ export const resetPinWithOtp = onCall(async (request) => {
     throw new HttpsError('deadline-exceeded', 'Sesión expirada');
   }
 
-  await admin.auth().updateUser(uid, { password: newPin + '00' });
+  await admin.auth().updateUser(uid, { password: newPin });
+  // Quien llega hasta aquí acaba de elegir un PIN suyo: no tiene sentido que el
+  // gate se lo vuelva a pedir al entrar.
+  await db.collection('users').doc(uid).set(
+    { pinV2: true, pinSetAt: admin.firestore.FieldValue.serverTimestamp() },
+    { merge: true },
+  );
   await resetRef.delete();
   return { success: true };
 });

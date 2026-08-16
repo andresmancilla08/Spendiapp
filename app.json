@@ -21,11 +21,6 @@
             "CFBundleURLSchemes": [
               "spendiapp"
             ]
-          },
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.859030212165-v702d1qr3aat8qr6ug2m0o0f338rla7b"
-            ]
           }
         ]
       }
