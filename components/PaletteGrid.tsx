@@ -1,13 +1,20 @@
-import { useRef, useState, useEffect, memo } from 'react';
+import { useRef, useState, useEffect, useMemo, memo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform, LayoutChangeEvent } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon from './AppIcon';
 import AppSegmentedControl from './AppSegmentedControl';
 import { Fonts } from '../config/fonts';
-import { PALETTES, PALETTE_GROUPS, type PaletteId } from '../config/palettes';
+import { PALETTES, type PaletteId } from '../config/palettes';
+import { router } from 'expo-router';
+import { useTheme } from '../context/ThemeContext';
+import { derivePalette } from '../utils/derivePalette';
 
 const COLUMNS = 3;
 const GRID_GAP = 10;
+/** Arcoíris tenue de la tarjeta de crear: dice "aquí se eligen colores" sin
+ *  necesidad de explicarlo, y no compite con las paletas reales de al lado. */
+const CREATE_SPECTRUM = ['#FF6B6B33', '#FFD93D33', '#6BCB7733', '#4D96FF33', '#B983FF33'] as unknown as readonly [string, string, ...string[]];
 
 // ── PaletteCard — 3 columnas, swatches solapados, glow, haptics ─────────────
 export const PaletteCard = memo(function PaletteCard({
@@ -149,15 +156,23 @@ const palCardStyles = StyleSheet.create({
   },
 });
 
-// ── PaletteGrid — tabs Clásico/Pastel + grid, embebible en cualquier pantalla ──
+// ── PaletteGrid — pestañas Clásicas / Mis paletas, embebible en cualquier pantalla ──
 interface PaletteGridProps {
   colors: any;
-  paletteId: PaletteId;
-  setPaletteId: (id: PaletteId) => void;
+  /** Del sistema o propia (`custom_…`). */
+  paletteId: string;
+  setPaletteId: (id: string) => void;
   t: any;
 }
 
 export default function PaletteGrid({ colors, paletteId, setPaletteId, t }: PaletteGridProps) {
+  // Las propias se derivan aquí mismo: se guardan como tres parámetros, no como
+  // sesenta colores (ver `utils/derivePalette.ts`).
+  const { customPalettes } = useTheme();
+  const mine = useMemo(
+    () => customPalettes.map((c) => ({ def: derivePalette(c, c.id), name: c.name })),
+    [customPalettes],
+  );
   const [activeIdx, setActiveIdx] = useState(0);
   const [displayIdx, setDisplayIdx] = useState(0);
   const [gridWidth, setGridWidth] = useState(0);
@@ -180,35 +195,104 @@ export default function PaletteGrid({ colors, paletteId, setPaletteId, t }: Pale
     });
   };
 
-  const currentGroup = PALETTE_GROUPS[displayIdx];
+  /**
+   * Dos pestañas y no cinco. Las cuatro familias del sistema (clásicas, pastel,
+   * carácter, neón) eran una taxonomía interna: quien busca un color no piensa
+   * "quiero una pastel", va pasando hasta que una le gusta. Repartirlas en
+   * cuatro cajones solo obligaba a mirar en cuatro sitios. Ahora la separación
+   * es la única que el usuario sí tiene en la cabeza: las de la app y las suyas.
+   */
+  const systemPalettes = PALETTES;
+  const showingMine = displayIdx === 1;
 
   return (
     <View>
       <AppSegmentedControl
-        segments={PALETTE_GROUPS.map((g) => ({ key: g.key, label: t(g.labelKey) }))}
-        activeKey={PALETTE_GROUPS[activeIdx].key}
-        onChange={(key) => {
-          const idx = PALETTE_GROUPS.findIndex((g) => g.key === key);
-          if (idx !== -1) switchGroup(idx);
-        }}
+        segments={[
+          { key: 'system', label: t('palette.tabSystem') },
+          { key: 'mine', label: t('palette.mine') },
+        ]}
+        activeKey={activeIdx === 1 ? 'mine' : 'system'}
+        onChange={(key) => switchGroup(key === 'mine' ? 1 : 0)}
         style={styles.tabBarSpacing}
       />
+
       <Animated.View onLayout={onGridLayout} style={[styles.grid, { opacity: contentOpacity }]}>
-        {gridWidth > 0 && currentGroup.ids.map((id) => {
-          const palette = PALETTES.find((p) => p.id === id)!;
-          return (
-            <PaletteCard
-              key={id}
-              palette={palette}
-              isSelected={paletteId === id}
-              onPress={() => setPaletteId(id)}
-              colors={colors}
-              label={t(`profile.palette.${id}`)}
-              cardWidth={cardWidth}
+        {gridWidth > 0 && showingMine && mine.length > 0 && (
+          /* Con paletas ya creadas, crear es una casilla más de la rejilla. */
+          <TouchableOpacity
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/palette-editor' as any);
+            }}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={t('palette.create')}
+            style={[styles.createCard, { width: cardWidth, borderColor: colors.primary }]}
+          >
+            <LinearGradient
+              colors={CREATE_SPECTRUM}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFillObject}
             />
-          );
-        })}
+            <View style={[styles.createPlus, { backgroundColor: colors.surface }]}>
+              <AppIcon name="add" size={20} color={colors.primary} />
+            </View>
+            <Text style={[styles.createLabel, { color: colors.textPrimary }]} numberOfLines={1}>
+              {t('palette.create')}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {gridWidth > 0 && showingMine && mine.map(({ def, name }) => (
+          <PaletteCard
+            key={def.id}
+            palette={def}
+            isSelected={paletteId === def.id}
+            onPress={() => setPaletteId(def.id)}
+            colors={colors}
+            label={name}
+            cardWidth={cardWidth}
+          />
+        ))}
+
+        {gridWidth > 0 && !showingMine && systemPalettes.map((palette) => (
+          <PaletteCard
+            key={palette.id}
+            palette={palette}
+            isSelected={paletteId === palette.id}
+            onPress={() => setPaletteId(palette.id)}
+            colors={colors}
+            label={t(`profile.palette.${palette.id}`)}
+            cardWidth={cardWidth}
+          />
+        ))}
       </Animated.View>
+
+      {/* Sin ninguna paleta propia, la rejilla no tiene nada que ordenar: lo que
+          toca es explicar qué es esto y ofrecer el único camino que hay. */}
+      {showingMine && mine.length === 0 && (
+        <View style={styles.emptyWrap}>
+          <View style={[styles.emptyIcon, { backgroundColor: colors.primary + '1A' }]}>
+            <AppIcon name="color-palette-outline" size={28} color={colors.primary} />
+          </View>
+          <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('palette.emptyTitle')}</Text>
+          <Text style={[styles.mineEmpty, { color: colors.textSecondary }]}>{t('palette.mineEmpty')}</Text>
+          <TouchableOpacity
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/palette-editor' as any);
+            }}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            style={[styles.emptyBtn, { backgroundColor: colors.primary }]}
+          >
+            <AppIcon name="add" size={18} color={colors.onPrimary} />
+            <Text style={[styles.emptyBtnText, { color: colors.onPrimary }]}>{t('palette.create')}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -216,4 +300,21 @@ export default function PaletteGrid({ colors, paletteId, setPaletteId, t }: Pale
 const styles = StyleSheet.create({
   tabBarSpacing: { marginBottom: 16 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  createCard: {
+    aspectRatio: 1.06,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  createPlus: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  createLabel: { fontSize: 12, fontFamily: Fonts.bold },
+  emptyWrap: { alignItems: 'center', paddingVertical: 26, paddingHorizontal: 12, gap: 10 },
+  emptyIcon: { width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
+  emptyTitle: { fontSize: 16, fontFamily: Fonts.bold, textAlign: 'center' },
+  mineEmpty: { fontSize: 13, fontFamily: Fonts.regular, lineHeight: 19, textAlign: 'center', maxWidth: 280 },
+  emptyBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 20, height: 46, borderRadius: 50, marginTop: 8 },
+  emptyBtnText: { fontSize: 15, fontFamily: Fonts.bold },
 });

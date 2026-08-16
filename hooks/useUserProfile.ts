@@ -137,6 +137,15 @@ export async function updateUserColorPalette(uid: string, paletteId: string): Pr
   await updateDoc(doc(db, 'users', uid), { colorPalette: paletteId });
 }
 
+/** Sincroniza las paletas propias con la cuenta, para que te sigan de un
+ *  dispositivo a otro. */
+export async function updateCustomPalettes(
+  uid: string,
+  palettes: NonNullable<UserProfile['customPalettes']>,
+): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { customPalettes: palettes });
+}
+
 /** Sincroniza las preferencias de personalización premium con la cuenta. */
 export async function updateUserPersonalization(
   uid: string,

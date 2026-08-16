@@ -19,7 +19,7 @@ const OTHER_KEYS = ['tertiary', 'secondary', 'success', 'info', 'achievement', '
 
 /**
  * Color de "la otra persona". Normalmente `tertiary`, pero en varias paletas
- * (nordic, mint, peachPastel, mochaPastel…) `tertiary` es casi el mismo color que
+ * (nordic, mint, peach, mocha…) `tertiary` es casi el mismo color que
  * `primary` —hasta 12 puntos de distancia sobre 441— y los dos lados del reporte
  * dejarían de leerse como dos. Cuando eso pasa gana el token de la paleta que MÁS
  * se aleja del propio: sigue siendo su paleta, pero se distingue.

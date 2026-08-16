@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
   texts: { flex: 1, minWidth: 0 },
   // Avatar + saludo son un solo destino táctil hacia el perfil.
-  identityHit: { flexDirection: 'row', alignItems: 'center', flex: 1, minWidth: 0 },
+  identityHit: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 },
   identityHitCompact: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 },
   name: { fontSize: 21, fontFamily: Fonts.bold, letterSpacing: -0.5 },
   context: { fontSize: 12.5, fontFamily: Fonts.semiBold, marginTop: 3, lineHeight: 17 },

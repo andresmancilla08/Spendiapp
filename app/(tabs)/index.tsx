@@ -204,7 +204,7 @@ export default function HomeScreen() {
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const cardsMap = Object.fromEntries(cards.map((c) => [c.id, c]));
   const { t } = useTranslation();
-  const { colors, isDark, batterySaver } = useTheme();
+  const { colors, isDark } = useTheme();
   const { flags } = useFlags();
   const { hidden, toggle: toggleHidden } = useAmountsVisibility();
   const { justLoggedIn, setJustLoggedIn } = useAuthStore();
@@ -411,9 +411,9 @@ export default function HomeScreen() {
   }
 
   useEffect(() => {
-    // El confeti lo gobierna el ahorro de batería: quien no quiere movimiento
-    // no quiere una celebración animada, y no hacía falta un toggle propio.
-    if (!isPremium || batterySaver || !user?.uid || loading) return;
+    // Lo gobierna reduce-motion del sistema (vía useProMotion): quien pide una
+    // app quieta no quiere una celebración animada.
+    if (!isPremium || reduceMotion || !user?.uid || loading) return;
     const storageKey = `@spendiapp_streak_seen_${user.uid}`;
     AsyncStorage.getItem(storageKey).then((stored) => {
       const seen = stored ? parseInt(stored, 10) : 0;
@@ -423,7 +423,7 @@ export default function HomeScreen() {
       }
     }).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [savingsStreak, isPremium, batterySaver, user?.uid, loading]);
+  }, [savingsStreak, isPremium, reduceMotion, user?.uid, loading]);
 
   const insights: InsightItem[] = [
     {

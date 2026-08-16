@@ -32,7 +32,7 @@ for (const p of PALETTES) {
 
     // Tarjeta: cifra ahorrada y objetivo sobre la superficie. La cifra además tiene
     // que SEGUIR SIENDO de color: se mide su distancia al gris secundario. El umbral
-    // es 18 y no más: el violeta de lavenderPastel oscurecido hasta 4,5:1 queda a 22
+    // es 18 y no más: el violeta de lavender oscurecido hasta 4,5:1 queda a 22
     // del gris y sigue leyéndose violeta — lo que se busca es el fallback literal a
     // `textSecondary` (distancia 0), que es como `accentInk` borraba la señal.
     const savedInk = readableTint(c.primary, c.surface, 4.5);

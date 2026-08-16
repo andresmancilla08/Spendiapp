@@ -10,12 +10,21 @@ import {
 } from 'react-native';
 import { useState, useEffect, useRef, useMemo, useId, type ReactNode } from 'react';
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
 import AppIcon from './AppIcon';
 import FxLayer, { type FxFrame } from './fx/FxLayer';
 
-/** `Path` con atributos animables: `Animated` escribe directamente sobre el
- *  nodo SVG, sin pasar por el estado de React ni re-renderizar el gráfico. */
-const AnimatedPath = Animated.createAnimatedComponent(Path);
+/**
+ * `Path` con atributos animables: `Animated` escribe directamente sobre el nodo
+ * SVG, sin pasar por el estado de React ni re-renderizar el gráfico.
+ *
+ * El envoltorio filtra `collapsable`, una optimización que
+ * `createAnimatedComponent` inyecta para el motor nativo. `react-native-svg`
+ * reenvía al `<path>` del DOM las props que no conoce, y React protesta en
+ * consola con "Received `false` for a non-boolean attribute `collapsable`".
+ */
+const SvgPath = ({ collapsable, ...rest }: React.ComponentProps<typeof Path> & { collapsable?: boolean }) => <Path {...rest} />;
+const AnimatedPath = Animated.createAnimatedComponent(SvgPath);
 import { useTheme, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
 import { useProMotion } from '../hooks/useProMotion';
@@ -316,9 +325,9 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // ── Marea: el área y la línea respiran juntas, sin desplazamiento ──
   const tideActive = animate && animStyle === 'tide' && chartType !== 'bars';
 
-  // ── Entradas por compositor: `rise` crece desde la base, `fade` se funde y
-  // `sweep` deja pasar un destello por encima. Las tres son una sola pasada
-  // sobre `transform`/`opacity`, así que no cuestan nada por frame. ──
+  // ── Entradas por compositor: `rise` crece desde la base y `fade` se funde.
+  // Ambas son una sola pasada sobre `transform`/`opacity`: no cuestan nada por
+  // frame y terminan solas. ──
   const entryStyle = animate && chartType !== 'bars'
     ? animStyle === 'rise'
       ? ENTRY_RISE
@@ -326,7 +335,6 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
         ? ENTRY_FADE
         : null
     : null;
-  const sweepActive = animate && animStyle === 'sweep' && chartType !== 'bars';
 
   if (chartType === 'bars') {
     // Las barras no tienen un canal de "contenido" separado — viven en el canal
@@ -440,18 +448,6 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
         );
       })}
 
-      {/* Destello: la banda cruza una vez al entrar y desaparece. */}
-      {renderStroke && sweepActive && boxW > 0 && (
-        <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { overflow: 'hidden' }]}>
-          <FxLayer
-            frames={SWEEP_FRAMES}
-            duration={Math.max(900, duration * 0.28)}
-            easing="linear"
-            rotate="14deg"
-            style={{ position: 'absolute', top: -20, bottom: -20, width: 46, backgroundColor: stroke, opacity: 0.18 }}
-          />
-        </View>
-      )}
 
       {/* Aquí había un círculo latiendo en el punto de hoy. La curva ya termina
           donde termina: un disco al final compite con el dato y ensucia el
@@ -492,14 +488,6 @@ const ENTRY_FADE = Platform.OS === 'web'
       animationFillMode: 'both',
     } as any)
   : null;
-
-/** Destello: una banda de luz cruza la curva UNA vez y se va. */
-const SWEEP_FRAMES: FxFrame[] = [
-  { at: 0,    opacity: 0,    x: -60 },
-  { at: 0.12, opacity: 0.85, x: -20 },
-  { at: 0.8,  opacity: 0.85, x: 220 },
-  { at: 1,    opacity: 0,    x: 280 },
-];
 
 const TIDE_FRAMES: FxFrame[] = [
   { at: 0,   opacity: 0.72 },

@@ -257,15 +257,6 @@
       "ember": "Ember",
       "lavender": "Lavender",
       "slate": "Slate",
-      "deepWaterPastel": "Deep Water Pastel",
-      "sunsetPastel": "Sunset Pastel",
-      "forestPastel": "Forest Pastel",
-      "midnightPastel": "Midnight Pastel",
-      "rosePastel": "Rose Pastel",
-      "oceanPastel": "Ocean Pastel",
-      "emberPastel": "Ember Pastel",
-      "lavenderPastel": "Lavender Pastel",
-      "slatePastel": "Slate Pastel",
       "sakura": "Sakura",
       "nordic": "Nordic",
       "cottonCandy": "Cotton Candy",
@@ -273,13 +264,6 @@
       "mint": "Mint",
       "aurora": "Aurora",
       "mocha": "Mocha",
-      "sakuraPastel": "Sakura Pastel",
-      "nordicPastel": "Nordic Pastel",
-      "cottonCandyPastel": "Cotton Candy Pastel",
-      "peachPastel": "Peach Pastel",
-      "mintPastel": "Mint Pastel",
-      "auroraPastel": "Aurora Pastel",
-      "mochaPastel": "Mocha Pastel",
       "group": {
         "classic": "Classic",
         "pastel": "Pastel",
@@ -288,7 +272,6 @@
       },
       "citrus": "Citrus",
       "graphite": "Graphite",
-      "wine": "Wine",
       "arctic": "Arctic",
       "jade": "Jade",
       "sandstone": "Sandstone",
@@ -297,7 +280,6 @@
       "cyberpunk": "Cyberpunk",
       "electricViolet": "Electric violet",
       "acidLime": "Acid lime",
-      "solarFlare": "Solar flare",
       "hotMagenta": "Hot magenta",
       "electricBlue": "Electric blue",
       "tangerine": "Tangerine",
@@ -355,14 +337,6 @@
       "default": "Medium",
       "intense": "Intense"
     },
-    "cardSheen": {
-      "label": "Card shine",
-      "sub": "Light sweep when the app loads"
-    },
-    "batterySaver": {
-      "label": "Battery saver",
-      "sub": "Keeps the background and charts still"
-    },
     "chartSpeed": {
       "slow": "Slow",
       "normal": "Normal",
@@ -387,7 +361,6 @@
     "chartAnim": {
       "draw": "Live trace",
       "rise": "Rise",
-      "sweep": "Shine",
       "tide": "Tide",
       "fade": "Fade in",
       "none": "None"
@@ -1070,15 +1043,15 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "bgPicker": {
-      "title": "Pick your background seeing your app",
-      "item1": "The carousel moves one card at a time, and each one shows your balance on top so you can tell if it reads well before choosing",
-      "item2": "If you're tweaking dark mode, the cards show dark even when the app is light"
+    "ownPalettes": {
+      "title": "Build your own palettes",
+      "item1": "Pick one colour and the app works out the rest — backgrounds, text and charts — for light and dark",
+      "item2": "Readability is checked for you, and your palettes follow you across devices"
     },
-    "polish": {
-      "title": "Home details",
-      "item1": "The month balance no longer shows a box around it — the glow fades out cleanly",
-      "item2": "You can now tap your name, not just your photo, to open your profile"
+    "lessClutter": {
+      "title": "Simpler personalization",
+      "item1": "Backgrounds and charts are chosen by swiping, at full size and over a view of your home screen",
+      "item2": "Gone: duplicate palettes and settings you could barely notice"
     }
   },
   "incomeClaim": {
@@ -1502,5 +1475,42 @@
     },
     "retry": "Try again",
     "signInAgain": "Sign in again"
+  },
+  "palette": {
+    "mine": "My palettes",
+    "emptyTitle": "No palettes of your own yet",
+    "tabSystem": "Classic",
+    "create": "Create",
+    "mineEmpty": "Build a palette from your own colors. Pick the main one and the rest is worked out for you.",
+    "newTitle": "New palette",
+    "editTitle": "Edit palette",
+    "subtitle": "Pick a colour and the rest of the app is built around it.",
+    "modeLight": "Light",
+    "modeDark": "Dark",
+    "nameLabel": "Name",
+    "namePlaceholder": "My palette",
+    "hueLabel": "Main colour",
+    "harmonyLabel": "Supporting colours",
+    "harmony": {
+      "analogous": "Neighbours",
+      "complementary": "Opposites",
+      "triadic": "Spread out"
+    },
+    "harmonyHint": {
+      "analogous": "Shades close to the main one. Calm, and it never competes with your data.",
+      "complementary": "The colour straight across. High contrast: income and spending tell apart at a glance.",
+      "triadic": "Three colours evenly spaced. Varied without turning loud."
+    },
+    "feelLabel": "Finish",
+    "feel": {
+      "vivid": "Vivid",
+      "soft": "Soft"
+    },
+    "save": "Save and apply",
+    "needName": "Give it a name",
+    "delete": "Delete palette",
+    "deleteTitle": "Delete this palette?",
+    "deleteMessage": "This can't be undone. If it's the one you're using, you'll go back to the default palette.",
+    "contrastWarning": "With this colour some text sits close to the contrast limit. Try the other finish."
   }
 }

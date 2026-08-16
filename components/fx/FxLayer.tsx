@@ -48,6 +48,9 @@ interface Props {
    *  que entran escalonados (partículas, bokeh). */
   delay?: number;
   easing?: FxEasing;
+  /** Una sola pasada en vez de bucle: para entradas que ocurren al abrir y no
+   *  se repiten. Sin esto, un "destello" volvería a cruzar cada pocos segundos. */
+  once?: boolean;
   /** Rotación fija; se aplica después de las transformaciones animadas. */
   rotate?: string;
   style?: ViewStyle | (ViewStyle | false | null | undefined)[];
@@ -78,7 +81,7 @@ function frameTransform(f: FxFrame, rotate?: string) {
 }
 
 export default function FxLayer({
-  frames, duration, phase = 0, delay = 0, easing = 'linear',
+  frames, duration, phase = 0, delay = 0, easing = 'linear', once = false,
   rotate, style, children, pointerEvents = 'none',
 }: Props) {
   const active = useIsActive();
@@ -102,12 +105,12 @@ export default function FxLayer({
       animationDuration: `${duration}ms`,
       animationDelay: `${delay - phase * duration}ms`,
       animationTimingFunction: CSS_EASING[easing],
-      animationIterationCount: 'infinite',
+      animationIterationCount: once ? 1 : 'infinite',
       animationPlayState: active ? 'running' : 'paused',
       // Sin esto el elemento salta a su estilo base durante el `delay`.
       animationFillMode: 'both',
     } as any;
-  }, [frames, duration, phase, delay, easing, rotate, active]);
+  }, [frames, duration, phase, delay, easing, rotate, active, once]);
 
   // ── Nativo: Animated en el hilo de UI ──
   const v = useRef(new Animated.Value(phase)).current;
@@ -131,7 +134,7 @@ export default function FxLayer({
         useNativeDriver: true,
       });
       head.start(({ finished }) => {
-        if (!finished) return;
+        if (!finished || once) return;
         v.setValue(0);
         loop = Animated.loop(full());
         loop.start();
@@ -147,7 +150,7 @@ export default function FxLayer({
       loop?.stop();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [duration, delay, easing, active]);
+  }, [duration, delay, easing, active, once]);
 
   const nativeStyle = useMemo(() => {
     if (Platform.OS === 'web') return null;

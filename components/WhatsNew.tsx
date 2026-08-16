@@ -46,14 +46,14 @@ const APP_FEATURES: Feature[] = [
   {
     icon: 'color-palette-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.bgPicker.title',
-    items: ['whatsNew.bgPicker.item1', 'whatsNew.bgPicker.item2'],
+    titleKey: 'whatsNew.ownPalettes.title',
+    items: ['whatsNew.ownPalettes.item1', 'whatsNew.ownPalettes.item2'],
   },
   {
     icon: 'eye-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.polish.title',
-    items: ['whatsNew.polish.item1', 'whatsNew.polish.item2'],
+    titleKey: 'whatsNew.lessClutter.title',
+    items: ['whatsNew.lessClutter.item1', 'whatsNew.lessClutter.item2'],
   },
 ];
 

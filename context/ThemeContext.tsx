@@ -1,12 +1,17 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppColors } from '../config/colors';
-import { PaletteId, PaletteDefinition, PALETTE_MAP, PALETTES } from '../config/palettes';
+import { PaletteId, PaletteDefinition, PALETTE_MAP, PALETTES, resolvePaletteId } from '../config/palettes';
+import { derivePalette, type CustomPalette } from '../utils/derivePalette';
 import type { AuroraIntensity } from '../components/AuroraBackground';
 
 const THEME_KEY = '@spendiapp_theme';
 const PALETTE_KEY = '@spendiapp_palette';
+/** Paletas creadas por el usuario. Se guardan como sus TRES parámetros, no como
+ *  los sesenta colores: así una mejora del generador alcanza también a las
+ *  paletas ya creadas, en vez de dejarlas congeladas con la versión vieja. */
+const CUSTOM_PALETTES_KEY = '@spendiapp_custom_palettes';
 /** Epoch ms de la última escritura LOCAL de personalización — el arranque solo
  * aplica lo de Firestore si es más reciente (evita pisar elecciones frescas). */
 export const PERSONALIZATION_SYNCED_AT_KEY = '@spendiapp_personalization_synced_at';
@@ -16,12 +21,6 @@ const BG_STYLE_DARK_KEY = '@spendiapp_bg_style_dark';
 const BG_INTENSITY_KEY = '@spendiapp_bg_intensity';
 const BG_BLUR_LIGHT_KEY = '@spendiapp_bg_blur_light';
 const BG_BLUR_DARK_KEY = '@spendiapp_bg_blur_dark';
-const CARD_SHEEN_KEY = '@spendiapp_card_sheen';
-/** Ahorro de batería: apaga TODO el movimiento decorativo (fondo animado y
- *  animaciones del gráfico) y deja el degradado. Hasta ahora eso solo se
- *  conseguía activando "reducir movimiento" en los ajustes del sistema, que
- *  afecta a todas las apps del teléfono. */
-const BATTERY_SAVER_KEY = '@spendiapp_battery_saver';
 const CHART_TYPE_KEY = '@spendiapp_chart_type';
 const CHART_ANIM_KEY = '@spendiapp_chart_anim';
 const CHART_SPEED_KEY = '@spendiapp_chart_speed';
@@ -50,18 +49,19 @@ export const CHART_TYPE_VALUES: ChartType[] = ['line', 'area', 'bars', 'dots', '
  *
  *  - `draw`  trazo vivo: la línea se dibuja de izquierda a derecha
  *  - `rise`  ascenso: el gráfico crece desde la base
- *  - `sweep` destello: un brillo recorre la curva una vez
  *  - `tide`  marea: el gráfico entra respirando
  *  - `fade`  aparición: entra fundiéndose
  *  - `none`  sin animación
  *
  *  El "pulso" (un punto recorriendo la línea en bucle) se retiró en la v2.58.0;
  *  los ajustes guardados con ese valor migran a `draw`. */
-export type ChartAnimStyle = 'draw' | 'rise' | 'sweep' | 'tide' | 'fade' | 'none';
-export const CHART_ANIM_VALUES: ChartAnimStyle[] = ['draw', 'rise', 'sweep', 'tide', 'fade', 'none'];
+export type ChartAnimStyle = 'draw' | 'rise' | 'tide' | 'fade' | 'none';
+export const CHART_ANIM_VALUES: ChartAnimStyle[] = ['draw', 'rise', 'tide', 'fade', 'none'];
 /** Normaliza un valor guardado (local o de Firestore), migrando el legado. */
 export function normalizeChartAnim(v: unknown): ChartAnimStyle | null {
-  if (v === 'pulse') return 'draw';
+  // `pulse` (v2.58) y `sweep` (v2.59) se retiraron: el punto en bucle no añadía
+  // información y el destello se leía como un bloque parado sobre el gráfico.
+  if (v === 'pulse' || v === 'sweep') return 'draw';
   return CHART_ANIM_VALUES.includes(v as ChartAnimStyle) ? (v as ChartAnimStyle) : null;
 }
 /** Forma del degradado del fondo: la misma paleta cae distinto según la dirección. */
@@ -77,9 +77,14 @@ interface ThemeContextValue {
   isDark: boolean;
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => void;
-  paletteId: PaletteId;
-  setPaletteId: (id: PaletteId) => void;
+  /** Puede ser una del sistema o el id de una paleta propia (`custom_…`). */
+  paletteId: string;
+  setPaletteId: (id: string) => void;
   activePalette: PaletteDefinition;
+  /** Paletas del usuario, de la más reciente a la más antigua. */
+  customPalettes: CustomPalette[];
+  saveCustomPalette: (p: CustomPalette) => Promise<void>;
+  removeCustomPalette: (id: string) => Promise<void>;
   // Efectos visuales premium — personalización más allá del color.
   /** Fondo del modo ACTIVO (derivado de light/dark según el tema actual). */
   backgroundStyle: BackgroundStyle;
@@ -96,10 +101,6 @@ interface ThemeContextValue {
   backgroundBlurLight: BackgroundBlur;
   backgroundBlurDark: BackgroundBlur;
   setBackgroundBlurFor: (mode: 'light' | 'dark', blur: BackgroundBlur) => void;
-  cardSheen: boolean;
-  setCardSheen: (v: boolean) => void;
-  batterySaver: boolean;
-  setBatterySaver: (v: boolean) => void;
   chartType: ChartType;
   setChartType: (v: ChartType) => void;
   chartAnimStyle: ChartAnimStyle;
@@ -120,6 +121,9 @@ const ThemeContext = createContext<ThemeContextValue>({
   themeMode: 'system',
   setThemeMode: () => {},
   paletteId: 'deepWater',
+  customPalettes: [],
+  saveCustomPalette: async () => {},
+  removeCustomPalette: async () => {},
   setPaletteId: () => {},
   activePalette: defaultPalette,
   backgroundStyle: 'aurora',
@@ -133,10 +137,6 @@ const ThemeContext = createContext<ThemeContextValue>({
   backgroundBlurLight: 'medium',
   backgroundBlurDark: 'medium',
   setBackgroundBlurFor: () => {},
-  cardSheen: true,
-  setCardSheen: () => {},
-  batterySaver: false,
-  setBatterySaver: () => {},
   chartType: 'line',
   setChartType: () => {},
   chartAnimStyle: 'draw',
@@ -152,15 +152,14 @@ const ThemeContext = createContext<ThemeContextValue>({
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  const [paletteId, setPaletteIdState] = useState<PaletteId>('deepWater');
+  const [paletteId, setPaletteIdState] = useState<string>('deepWater');
+  const [customPalettes, setCustomPalettes] = useState<CustomPalette[]>([]);
   const [backgroundStyleLight, setBackgroundStyleLightState] = useState<BackgroundStyle>('aurora');
   const [backgroundStyleDark, setBackgroundStyleDarkState] = useState<BackgroundStyle>('aurora');
   const [backgroundIntensity, setBackgroundIntensityState] = useState<AuroraIntensity>('default');
   // 'medium' por defecto: un fondo animado sin desenfocar competía con el contenido.
   const [backgroundBlurLight, setBackgroundBlurLightState] = useState<BackgroundBlur>('medium');
   const [backgroundBlurDark, setBackgroundBlurDarkState] = useState<BackgroundBlur>('medium');
-  const [cardSheen, setCardSheenState] = useState(true);
-  const [batterySaver, setBatterySaverState] = useState(false);
   const [chartType, setChartTypeState] = useState<ChartType>('line');
   const [chartAnimStyle, setChartAnimStyleState] = useState<ChartAnimStyle>('draw');
   const [chartSpeed, setChartSpeedState] = useState<ChartSpeed>('slow');
@@ -172,26 +171,34 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     Promise.all([
       AsyncStorage.getItem(THEME_KEY),
       AsyncStorage.getItem(PALETTE_KEY),
+      AsyncStorage.getItem(CUSTOM_PALETTES_KEY),
       AsyncStorage.getItem(BG_STYLE_KEY),
       AsyncStorage.getItem(BG_STYLE_LIGHT_KEY),
       AsyncStorage.getItem(BG_STYLE_DARK_KEY),
       AsyncStorage.getItem(BG_INTENSITY_KEY),
       AsyncStorage.getItem(BG_BLUR_LIGHT_KEY),
       AsyncStorage.getItem(BG_BLUR_DARK_KEY),
-      AsyncStorage.getItem(CARD_SHEEN_KEY),
-      AsyncStorage.getItem(BATTERY_SAVER_KEY),
       AsyncStorage.getItem(CHART_TYPE_KEY),
       AsyncStorage.getItem(CHART_ANIM_KEY),
       AsyncStorage.getItem(CHART_SPEED_KEY),
       AsyncStorage.getItem(CHART_ACCENT_KEY),
       AsyncStorage.getItem(GRADIENT_STYLE_KEY),
-    ]).then(([storedTheme, storedPalette, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBlurLight, storedBlurDark, storedSheen, storedBattery, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
+    ]).then(([storedTheme, storedPalette, storedCustom, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBlurLight, storedBlurDark, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
-      if (storedPalette && PALETTE_MAP[storedPalette as PaletteId]) {
-        setPaletteIdState(storedPalette as PaletteId);
+      // Las propias se leen ANTES de resolver la activa: si no, una paleta
+      // propia guardada como activa no existiría todavía y caería al default.
+      let custom: CustomPalette[] = [];
+      if (storedCustom) {
+        try { custom = JSON.parse(storedCustom) as CustomPalette[]; } catch {}
+        if (Array.isArray(custom)) setCustomPalettes(custom);
       }
+      // `resolvePaletteId` migra las retiradas en la v2.60 a su gemela: quien
+      // tuviera una pastel puesta no se queda sin colores.
+      const resolved = resolvePaletteId(storedPalette);
+      if (resolved) setPaletteIdState(resolved);
+      else if (storedPalette && custom.some((c) => c.id === storedPalette)) setPaletteIdState(storedPalette);
       // Migración: la preferencia única legada siembra ambos modos si aún no
       // tienen valor propio.
       const legacy = BACKGROUND_STYLE_VALUES.includes(storedBgStyle as BackgroundStyle)
@@ -211,8 +218,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
       if (BACKGROUND_BLUR_VALUES.includes(storedBlurLight as BackgroundBlur)) setBackgroundBlurLightState(storedBlurLight as BackgroundBlur);
       if (BACKGROUND_BLUR_VALUES.includes(storedBlurDark as BackgroundBlur)) setBackgroundBlurDarkState(storedBlurDark as BackgroundBlur);
-      if (storedSheen != null) setCardSheenState(storedSheen === '1');
-      if (storedBattery != null) setBatterySaverState(storedBattery === '1');
       if (CHART_TYPE_VALUES.includes(storedChartType as ChartType)) setChartTypeState(storedChartType as ChartType);
       const migratedAnim = normalizeChartAnim(storedChartAnim);
       if (migratedAnim) setChartAnimStyleState(migratedAnim);
@@ -227,9 +232,27 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(THEME_KEY, mode);
   };
 
-  const setPaletteId = async (id: PaletteId) => {
+  const setPaletteId = async (id: string) => {
     setPaletteIdState(id);
     await AsyncStorage.setItem(PALETTE_KEY, id);
+  };
+
+  const persistCustom = async (list: CustomPalette[]) => {
+    setCustomPalettes(list);
+    await AsyncStorage.setItem(CUSTOM_PALETTES_KEY, JSON.stringify(list));
+  };
+
+  /** Crea o actualiza: mismo id sobrescribe, id nuevo va al principio. */
+  const saveCustomPalette = async (p: CustomPalette) => {
+    const rest = customPalettes.filter((c) => c.id !== p.id);
+    await persistCustom([p, ...rest]);
+  };
+
+  const removeCustomPalette = async (id: string) => {
+    await persistCustom(customPalettes.filter((c) => c.id !== id));
+    // Si se borró la que estaba puesta, hay que salir de ella o la app se queda
+    // con una paleta que ya no existe.
+    if (paletteId === id) await setPaletteId('deepWater');
   };
 
   const setBackgroundStyleFor = async (mode: 'light' | 'dark', style: BackgroundStyle) => {
@@ -255,16 +278,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setBackgroundBlurLightState(blur);
       await AsyncStorage.setItem(BG_BLUR_LIGHT_KEY, blur);
     }
-  };
-
-  const setBatterySaver = async (v: boolean) => {
-    setBatterySaverState(v);
-    await AsyncStorage.setItem(BATTERY_SAVER_KEY, v ? '1' : '0');
-  };
-
-  const setCardSheen = async (v: boolean) => {
-    setCardSheenState(v);
-    await AsyncStorage.setItem(CARD_SHEEN_KEY, v ? '1' : '0');
   };
 
   const setChartType = async (v: ChartType) => {
@@ -301,17 +314,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setBackgroundStyle = (style: BackgroundStyle) =>
     setBackgroundStyleFor(isDark ? 'dark' : 'light', style);
 
-  const activePalette = PALETTE_MAP[paletteId];
+  // Una paleta propia se RECALCULA en cada arranque a partir de sus tres
+  // parámetros. Si la activa se borró desde otro dispositivo, se cae al default
+  // en vez de dejar la app sin colores.
+  const activePalette = useMemo<PaletteDefinition>(() => {
+    const system = PALETTE_MAP[paletteId as PaletteId];
+    if (system) return system;
+    const own = customPalettes.find((c) => c.id === paletteId);
+    return own ? derivePalette(own, own.id) : PALETTE_MAP['deepWater'];
+  }, [paletteId, customPalettes]);
   const colors = isDark ? activePalette.colors.dark : activePalette.colors.light;
 
   return (
     <ThemeContext.Provider value={{
       colors, isDark, themeMode, setThemeMode, paletteId, setPaletteId, activePalette,
+      customPalettes, saveCustomPalette, removeCustomPalette,
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
       backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
       backgroundBlur, backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
-      cardSheen, setCardSheen,
-      batterySaver, setBatterySaver,
       chartType, setChartType, chartAnimStyle, setChartAnimStyle,
       chartSpeed, setChartSpeed, chartAccent, setChartAccent,
       gradientStyle, setGradientStyle,

@@ -14,7 +14,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, normalizeChartAnim, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, AuroraIntensity, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
   CHART_TYPE_VALUES, GRADIENT_STYLE_VALUES, BACKGROUND_BLUR_VALUES, type GradientStyle, type BackgroundBlur,
 } from '../context/ThemeContext';
-import { PALETTE_MAP } from '../config/palettes';
+import { PALETTE_MAP, resolvePaletteId } from '../config/palettes';
+import type { CustomPalette } from '../utils/derivePalette';
 import AppBackground from '../components/AppBackground';
 import { ToastProvider } from '../context/ToastContext';
 import { useFonts, Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold, Montserrat_700Bold, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
@@ -30,8 +31,7 @@ import { FeatureFlagsProvider, useFlags } from '../context/FeatureFlagsContext';
 function PaletteLoader() {
   const { user } = useAuthStore();
   const {
-    setPaletteId, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundBlurFor,
-    setCardSheen,
+    setPaletteId, saveCustomPalette, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundBlurFor,
     setChartType, setChartAnimStyle, setChartSpeed, setChartAccent, setGradientStyle,
   } = useTheme();
 
@@ -39,9 +39,19 @@ function PaletteLoader() {
     if (!user?.uid) return;
     Promise.all([getUserProfile(user.uid), AsyncStorage.getItem(PERSONALIZATION_SYNCED_AT_KEY)])
       .then(([profile, localTsRaw]) => {
-        if (profile?.colorPalette && PALETTE_MAP[profile.colorPalette as PaletteId]) {
-          setPaletteId(profile.colorPalette as PaletteId);
+        // Las paletas propias PRIMERO: si la activa es una de ellas, tiene que
+        // existir ya cuando se resuelve, o caería a la de por defecto.
+        if (Array.isArray(profile?.customPalettes)) {
+          for (const c of profile.customPalettes) {
+            saveCustomPalette(c as CustomPalette).catch(() => {});
+          }
         }
+        const remoteId = profile?.colorPalette;
+        const isOwn = Array.isArray(profile?.customPalettes)
+          && profile.customPalettes.some((c) => c.id === remoteId);
+        const resolved = resolvePaletteId(remoteId);
+        if (resolved) setPaletteId(resolved);
+        else if (remoteId && isOwn) setPaletteId(remoteId);
         const p = profile?.personalization;
         if (!p) return;
         // Solo aplicar lo remoto si es MÁS RECIENTE que la última escritura
@@ -63,7 +73,6 @@ function PaletteLoader() {
         if (['subtle', 'default', 'intense'].includes(p.backgroundIntensity as string)) setBackgroundIntensity(p.backgroundIntensity as AuroraIntensity);
         if (BACKGROUND_BLUR_VALUES.includes(p.backgroundBlurLight as BackgroundBlur)) setBackgroundBlurFor('light', p.backgroundBlurLight as BackgroundBlur);
         if (BACKGROUND_BLUR_VALUES.includes(p.backgroundBlurDark as BackgroundBlur)) setBackgroundBlurFor('dark', p.backgroundBlurDark as BackgroundBlur);
-        if (typeof p.cardSheen === 'boolean') setCardSheen(p.cardSheen);
         // Se valida contra la lista EXPORTADA, no contra una copia: con la lista
         // escrita a mano aquí, cada tipo nuevo (stepped, lollipop) se descartaba al
         // llegar desde otro dispositivo y parecía que la elección no se guardaba.

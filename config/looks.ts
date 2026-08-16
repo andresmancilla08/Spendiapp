@@ -61,7 +61,8 @@ export const LOOKS: Look[] = [
 
 /** El look activo, o `null` si la combinación actual no es ninguno ("A medida"). */
 export function matchLook(current: {
-  paletteId: PaletteId;
+  /** Puede ser una paleta propia; en ese caso no casa con ningún look. */
+  paletteId: string;
   backgroundLight: BackgroundStyle;
   backgroundDark: BackgroundStyle;
   gradientStyle: GradientStyle;

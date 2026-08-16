@@ -257,15 +257,6 @@
       "ember": "Brace",
       "lavender": "Lavanda",
       "slate": "Ardesia",
-      "deepWaterPastel": "Acque Profonde Pastello",
-      "sunsetPastel": "Tramonto Pastello",
-      "forestPastel": "Foresta Pastello",
-      "midnightPastel": "Mezzanotte Pastello",
-      "rosePastel": "Rosa Pastello",
-      "oceanPastel": "Oceano Pastello",
-      "emberPastel": "Brace Pastello",
-      "lavenderPastel": "Lavanda Pastello",
-      "slatePastel": "Ardesia Pastello",
       "sakura": "Sakura",
       "nordic": "Nordica",
       "cottonCandy": "Cotone Dolce",
@@ -273,13 +264,6 @@
       "mint": "Menta",
       "aurora": "Aurora",
       "mocha": "Mocaccino",
-      "sakuraPastel": "Sakura Pastello",
-      "nordicPastel": "Nordica Pastello",
-      "cottonCandyPastel": "Cotone Dolce Pastello",
-      "peachPastel": "Pesca Pastello",
-      "mintPastel": "Menta Pastello",
-      "auroraPastel": "Aurora Pastello",
-      "mochaPastel": "Mocaccino Pastello",
       "group": {
         "classic": "Classiche",
         "pastel": "Pastello",
@@ -288,7 +272,6 @@
       },
       "citrus": "Agrumi",
       "graphite": "Grafite",
-      "wine": "Vino",
       "arctic": "Artico",
       "jade": "Giada",
       "sandstone": "Arenaria",
@@ -297,7 +280,6 @@
       "cyberpunk": "Cyberpunk",
       "electricViolet": "Viola elettrico",
       "acidLime": "Lime acido",
-      "solarFlare": "Brillamento solare",
       "hotMagenta": "Magenta acceso",
       "electricBlue": "Blu elettrico",
       "tangerine": "Mandarino",
@@ -355,14 +337,6 @@
       "default": "Media",
       "intense": "Intenso"
     },
-    "cardSheen": {
-      "label": "Bagliore nelle schede",
-      "sub": "Passaggio di luce all'avvio dell'app"
-    },
-    "batterySaver": {
-      "label": "Risparmio batteria",
-      "sub": "Lascia fermi lo sfondo e i grafici"
-    },
     "chartSpeed": {
       "slow": "Lenta",
       "normal": "Normale",
@@ -387,7 +361,6 @@
     "chartAnim": {
       "draw": "Traccia viva",
       "rise": "Ascesa",
-      "sweep": "Bagliore",
       "tide": "Marea",
       "fade": "Dissolvenza",
       "none": "Nessuna"
@@ -1070,15 +1043,15 @@
     "title": "Cosa puoi fare?",
     "subtitle": "Esplora le funzionalità principali di Spendia.",
     "dismiss": "Ho capito",
-    "bgPicker": {
-      "title": "Scegli lo sfondo vedendo la tua app",
-      "item1": "Il carosello passa una scheda alla volta e ognuna mostra il tuo saldo sopra, così vedi se si legge bene prima di scegliere",
-      "item2": "Se stai regolando la modalità scura, le schede si vedono scure anche con l'app in chiaro"
+    "ownPalettes": {
+      "title": "Crea le tue palette",
+      "item1": "Scegli un colore e l'app calcola gli altri — sfondi, testi e grafici — per chiaro e scuro",
+      "item2": "La leggibilità si verifica da sola e le tue palette ti seguono tra i dispositivi"
     },
-    "polish": {
-      "title": "Dettagli della home",
-      "item1": "Il saldo del mese non mostra più un riquadro attorno: il bagliore sfuma pulito",
-      "item2": "Ora puoi toccare il tuo nome, non solo la foto, per aprire il profilo"
+    "lessClutter": {
+      "title": "Personalizzazione più semplice",
+      "item1": "Sfondi e grafici si scelgono scorrendo, a grandezza reale e su una vista della tua home",
+      "item2": "Via le palette ripetute e le impostazioni che quasi non si notavano"
     }
   },
   "incomeClaim": {
@@ -1502,5 +1475,42 @@
     },
     "retry": "Riprova",
     "signInAgain": "Accedi di nuovo"
+  },
+  "palette": {
+    "mine": "Le mie palette",
+    "emptyTitle": "Non hai ancora palette tue",
+    "tabSystem": "Classiche",
+    "create": "Crea",
+    "mineEmpty": "Crea una palette con i tuoi colori. Scegli quello principale e il resto si calcola da solo.",
+    "newTitle": "Nuova palette",
+    "editTitle": "Modifica palette",
+    "subtitle": "Scegli un colore e il resto dell'app si costruisce attorno.",
+    "modeLight": "Chiaro",
+    "modeDark": "Scuro",
+    "nameLabel": "Nome",
+    "namePlaceholder": "La mia palette",
+    "hueLabel": "Colore principale",
+    "harmonyLabel": "Colori di supporto",
+    "harmony": {
+      "analogous": "Vicini",
+      "complementary": "Opposti",
+      "triadic": "Distribuiti"
+    },
+    "harmonyHint": {
+      "analogous": "Tonalità vicine a quella principale. Sereno, non compete con i tuoi dati.",
+      "complementary": "Il colore opposto. Molto contrasto: entrate e uscite si distinguono a colpo d'occhio.",
+      "triadic": "Tre colori equidistanti. Vario senza diventare chiassoso."
+    },
+    "feelLabel": "Finitura",
+    "feel": {
+      "vivid": "Vivace",
+      "soft": "Morbido"
+    },
+    "save": "Salva e applica",
+    "needName": "Dagli un nome",
+    "delete": "Elimina palette",
+    "deleteTitle": "Eliminare questa palette?",
+    "deleteMessage": "Non si può annullare. Se è quella in uso, si torna alla palette predefinita.",
+    "contrastWarning": "Con questo colore alcuni testi sono al limite del contrasto. Prova l'altra finitura."
   }
 }

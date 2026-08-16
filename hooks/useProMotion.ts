@@ -1,22 +1,24 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 import { useAuthStore } from '../store/authStore';
-import { useTheme } from '../context/ThemeContext';
+import { useEnergySaver } from './useEnergySaver';
 
 /**
  * Centraliza el "modo pro" visual: los usuarios premium reciben animaciones y
  * efectos extra; los gratuitos mantienen la UI actual. Respeta reduce-motion.
  *
  * - pro: aplica tratamientos visuales premium (gradientes, glow) — estáticos OK.
- * - animate: además habilita movimiento (entradas, sheen). false si reduce-motion.
+ * - animate: además habilita movimiento (entradas, sheen).
  *
- * El ahorro de batería de Personalización cuenta igual que reduce-motion: hasta
- * ahora, quien quería la app quieta tenía que activarlo en los ajustes del
- * sistema y afectaba a todo el teléfono.
+ * El movimiento se apaga por dos motivos, ninguno de los cuales exige que el
+ * usuario configure nada: porque ha pedido reducir movimiento en el sistema, o
+ * porque al teléfono le queda poca batería (ver `useEnergySaver`). Antes esto
+ * era un interruptor dentro de la app; que el usuario tenga que acordarse de
+ * apagar los efectos cuando se está quedando sin batería es hacerle a él el
+ * trabajo que puede hacer la app.
  */
 export function useProMotion() {
   const { isPremium } = useAuthStore();
-  const { batterySaver } = useTheme();
   const [systemReduceMotion, setSystemReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -28,6 +30,7 @@ export function useProMotion() {
     return () => { mounted = false; sub.remove(); };
   }, []);
 
-  const reduceMotion = systemReduceMotion || batterySaver;
+  const energySaver = useEnergySaver();
+  const reduceMotion = systemReduceMotion || energySaver;
   return { pro: isPremium, animate: isPremium && !reduceMotion, reduceMotion };
 }

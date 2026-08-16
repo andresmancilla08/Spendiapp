@@ -257,15 +257,6 @@
       "ember": "Brasa",
       "lavender": "Lavanda",
       "slate": "Pizarra",
-      "deepWaterPastel": "Aguas Profundas Pastel",
-      "sunsetPastel": "Atardecer Pastel",
-      "forestPastel": "Bosque Pastel",
-      "midnightPastel": "Medianoche Pastel",
-      "rosePastel": "Rosa Pastel",
-      "oceanPastel": "Océano Pastel",
-      "emberPastel": "Brasa Pastel",
-      "lavenderPastel": "Lavanda Pastel",
-      "slatePastel": "Pizarra Pastel",
       "sakura": "Sakura",
       "nordic": "Nórdica",
       "cottonCandy": "Algodón",
@@ -273,13 +264,6 @@
       "mint": "Menta",
       "aurora": "Aurora",
       "mocha": "Moca",
-      "sakuraPastel": "Sakura Pastel",
-      "nordicPastel": "Nórdica Pastel",
-      "cottonCandyPastel": "Algodón Pastel",
-      "peachPastel": "Melocotón Pastel",
-      "mintPastel": "Menta Pastel",
-      "auroraPastel": "Aurora Pastel",
-      "mochaPastel": "Moca Pastel",
       "group": {
         "classic": "Clásicas",
         "pastel": "Pastel",
@@ -288,7 +272,6 @@
       },
       "citrus": "Cítrico",
       "graphite": "Grafito",
-      "wine": "Vino",
       "arctic": "Ártico",
       "jade": "Jade",
       "sandstone": "Arenisca",
@@ -297,7 +280,6 @@
       "cyberpunk": "Cyberpunk",
       "electricViolet": "Violeta eléctrico",
       "acidLime": "Lima ácido",
-      "solarFlare": "Fulgor solar",
       "hotMagenta": "Magenta",
       "electricBlue": "Azul eléctrico",
       "tangerine": "Mandarina",
@@ -355,14 +337,6 @@
       "default": "Media",
       "intense": "Intenso"
     },
-    "cardSheen": {
-      "label": "Brillo en tarjetas",
-      "sub": "Barrido de luz al cargar la app"
-    },
-    "batterySaver": {
-      "label": "Ahorro de batería",
-      "sub": "Deja el fondo y los gráficos quietos"
-    },
     "chartSpeed": {
       "slow": "Lenta",
       "normal": "Normal",
@@ -387,7 +361,6 @@
     "chartAnim": {
       "draw": "Trazo vivo",
       "rise": "Ascenso",
-      "sweep": "Destello",
       "tide": "Marea",
       "fade": "Aparición",
       "none": "Ninguna"
@@ -1070,15 +1043,15 @@
     "title": "¿Qué puedes hacer?",
     "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
-    "bgPicker": {
-      "title": "Elige tu fondo viendo tu app",
-      "item1": "El carrusel pasa de uno en uno y cada tarjeta enseña tu saldo encima, para que veas si se lee bien antes de elegir",
-      "item2": "Si estás ajustando el modo oscuro, las tarjetas se ven en oscuro aunque la app esté en claro"
+    "ownPalettes": {
+      "title": "Crea tus propias paletas",
+      "item1": "Eliges un color y la app calcula los demás — fondos, textos y gráficos — para claro y oscuro",
+      "item2": "Se comprueba solo que todo se lea; tus paletas te siguen entre dispositivos"
     },
-    "polish": {
-      "title": "Detalles del inicio",
-      "item1": "El saldo del mes ya no muestra un recuadro alrededor: el resplandor se difumina limpio",
-      "item2": "Ahora puedes tocar tu nombre, no solo la foto, para ir a tu perfil"
+    "lessClutter": {
+      "title": "Personalización más simple",
+      "item1": "Fondos y gráficos se eligen deslizando, a tamaño real y sobre una vista de tu inicio",
+      "item2": "Fuera las paletas repetidas y los ajustes que casi no se notaban"
     }
   },
   "incomeClaim": {
@@ -1502,5 +1475,42 @@
     },
     "retry": "Reintentar",
     "signInAgain": "Volver a entrar"
+  },
+  "palette": {
+    "mine": "Mis paletas",
+    "emptyTitle": "Aún no tienes paletas propias",
+    "tabSystem": "Clásicas",
+    "create": "Crear",
+    "mineEmpty": "Crea una paleta con tus colores. Eliges el color principal y el resto se calcula solo.",
+    "newTitle": "Nueva paleta",
+    "editTitle": "Editar paleta",
+    "subtitle": "Elige un color y el resto de la app se construye a su alrededor.",
+    "modeLight": "Claro",
+    "modeDark": "Oscuro",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Mi paleta",
+    "hueLabel": "Color principal",
+    "harmonyLabel": "Colores de apoyo",
+    "harmony": {
+      "analogous": "Vecinos",
+      "complementary": "Opuestos",
+      "triadic": "Repartidos"
+    },
+    "harmonyHint": {
+      "analogous": "Tonos cercanos al principal. El resultado es sereno y no compite con tus datos.",
+      "complementary": "El color de enfrente. Mucho contraste: los ingresos y los gastos se distinguen de un vistazo.",
+      "triadic": "Tres colores repartidos por igual. Variado sin llegar a ser estridente."
+    },
+    "feelLabel": "Acabado",
+    "feel": {
+      "vivid": "Vivo",
+      "soft": "Suave"
+    },
+    "save": "Guardar y aplicar",
+    "needName": "Ponle un nombre",
+    "delete": "Eliminar paleta",
+    "deleteTitle": "¿Eliminar esta paleta?",
+    "deleteMessage": "No se puede deshacer. Si es la que tienes puesta, se volverá a la paleta por defecto.",
+    "contrastWarning": "Con este color algún texto queda justo de contraste. Prueba a cambiar el acabado."
   }
 }
