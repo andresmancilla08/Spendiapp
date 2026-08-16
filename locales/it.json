@@ -1045,14 +1045,14 @@
     "title": "Cosa puoi fare?",
     "subtitle": "Esplora le funzionalità principali di Spendia.",
     "dismiss": "Ho capito",
-    "backNav": {
-      "title": "Torna dov'eri",
-      "item1": "Aprire Budget da Strumenti e tornare indietro ti portava alla Home; ora torni a Strumenti",
-      "item2": "E se ricarichi la pagina, il pulsante indietro non resta più senza fare nulla"
+    "scanGallery": {
+      "title": "Scansiona una ricevuta che avevi già",
+      "item1": "Scansionando puoi scattare la foto sul momento o scegliere un'immagine dalla galleria",
+      "item2": "Importo, negozio, data e categoria si leggono da soli"
     },
-    "incomeField": {
-      "title": "Registrare un'entrata",
-      "item1": "Il campo descrizione non chiede più a cosa l'hai speso quando stai registrando un'entrata"
+    "notifMonth": {
+      "title": "La notifica ti porta al mese giusto",
+      "item1": "Se un amico condivide un movimento con data di un altro mese, toccando l’avviso lo storico si apre proprio lì"
     }
   },
   "incomeClaim": {
