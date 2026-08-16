@@ -1044,15 +1044,14 @@
     "title": "Cosa puoi fare?",
     "subtitle": "Esplora le funzionalità principali di Spendia.",
     "dismiss": "Ho capito",
-    "ownPalettes": {
-      "title": "Crea le tue palette",
-      "item1": "Scegli un colore e l'app calcola gli altri — sfondi, testi e grafici — per chiaro e scuro",
-      "item2": "La leggibilità si verifica da sola e le tue palette ti seguono tra i dispositivi"
+    "backNav": {
+      "title": "Torna dov'eri",
+      "item1": "Aprire Budget da Strumenti e tornare indietro ti portava alla Home; ora torni a Strumenti",
+      "item2": "E se ricarichi la pagina, il pulsante indietro non resta più senza fare nulla"
     },
-    "lessClutter": {
-      "title": "Personalizzazione più semplice",
-      "item1": "Sfondi e grafici si scelgono scorrendo, a grandezza reale e su una vista della tua home",
-      "item2": "Via le palette ripetute e le impostazioni che quasi non si notavano"
+    "incomeField": {
+      "title": "Registrare un'entrata",
+      "item1": "Il campo descrizione non chiede più a cosa l'hai speso quando stai registrando un'entrata"
     }
   },
   "incomeClaim": {

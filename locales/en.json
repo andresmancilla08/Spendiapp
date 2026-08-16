@@ -1044,15 +1044,14 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "ownPalettes": {
-      "title": "Build your own palettes",
-      "item1": "Pick one colour and the app works out the rest — backgrounds, text and charts — for light and dark",
-      "item2": "Readability is checked for you, and your palettes follow you across devices"
+    "backNav": {
+      "title": "Back takes you where you were",
+      "item1": "Opening Budget from Tools and going back dropped you on Home; now you return to Tools",
+      "item2": "And if you reload the page, the back button no longer does nothing"
     },
-    "lessClutter": {
-      "title": "Simpler personalization",
-      "item1": "Backgrounds and charts are chosen by swiping, at full size and over a view of your home screen",
-      "item2": "Gone: duplicate palettes and settings you could barely notice"
+    "incomeField": {
+      "title": "Logging income",
+      "item1": "The description field no longer asks what you spent it on when you're logging income"
     }
   },
   "incomeClaim": {

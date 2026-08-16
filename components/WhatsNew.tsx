@@ -44,16 +44,16 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'color-palette-outline',
+    icon: 'arrow-back',
     colorKey: 'primary',
-    titleKey: 'whatsNew.ownPalettes.title',
-    items: ['whatsNew.ownPalettes.item1', 'whatsNew.ownPalettes.item2'],
+    titleKey: 'whatsNew.backNav.title',
+    items: ['whatsNew.backNav.item1', 'whatsNew.backNav.item2'],
   },
   {
-    icon: 'eye-outline',
+    icon: 'create-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.lessClutter.title',
-    items: ['whatsNew.lessClutter.item1', 'whatsNew.lessClutter.item2'],
+    titleKey: 'whatsNew.incomeField.title',
+    items: ['whatsNew.incomeField.item1'],
   },
 ];
 
