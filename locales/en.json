@@ -1039,23 +1039,14 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "scanGallery": {
-      "title": "Scan a receipt you already had",
-      "item1": "When scanning you can take the photo right then or pick an image from your gallery",
-      "item2": "Amount, merchant, date and category are read for you"
+    "pin6": {
+      "title": "Your PIN is now 6 digits",
+      "item1": "Four digits are guessable; six, much less so. The app asks you to create yours the first time you sign in",
+      "item2": "Forgot it? You still get a code by email from \"Forgot your PIN?\""
     },
-    "notifMonth": {
-      "title": "Notifications take you to the right month",
-      "item1": "If a friend shares a movement dated in another month, tapping the alert opens your history right there"
-    },
-    "backNav": {
-      "title": "Back takes you where you were",
-      "item1": "Opening Budget from Tools and going back dropped you on Home; now you return to Tools",
-      "item2": "And if you reload the page, the back button no longer does nothing"
-    },
-    "incomeField": {
-      "title": "Logging income",
-      "item1": "The description field no longer asks what you spent it on when you're logging income"
+    "emailOnly": {
+      "title": "You always sign in with your email",
+      "item1": "Google sign-in has been removed. Your account, movements and groups are exactly as they were"
     }
   },
   "incomeClaim": {

@@ -1039,23 +1039,14 @@
     "title": "¿Qué puedes hacer?",
     "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
-    "scanGallery": {
-      "title": "Escanea una factura que ya tenías",
-      "item1": "Al escanear puedes hacer la foto en el momento o elegir una imagen de tu galería",
-      "item2": "Se leen solos el importe, el comercio, la fecha y la categoría"
+    "pin6": {
+      "title": "Tu PIN ahora es de 6 dígitos",
+      "item1": "Cuatro dígitos se adivinan; seis, no tanto. La app te pide crear el tuyo la primera vez que entras",
+      "item2": "Si lo olvidas, sigues teniendo el código por correo desde «¿Olvidaste tu PIN?»"
     },
-    "notifMonth": {
-      "title": "La notificación te lleva al mes correcto",
-      "item1": "Si un amigo te comparte un movimiento con fecha de otro mes, al tocar el aviso el historial se abre justo ahí"
-    },
-    "backNav": {
-      "title": "Volver te deja donde estabas",
-      "item1": "Entrar a Presupuesto desde Herramientas y volver te llevaba a Inicio; ahora regresas a Herramientas",
-      "item2": "Y si recargas la página, el botón de volver ya no se queda sin hacer nada"
-    },
-    "incomeField": {
-      "title": "Registrar un ingreso",
-      "item1": "El campo de descripción ya no pregunta en qué gastaste cuando lo que registras es un ingreso"
+    "emailOnly": {
+      "title": "Se entra siempre con tu correo",
+      "item1": "El acceso con Google se retiró. Tu cuenta, tus movimientos y tus grupos siguen exactamente igual"
     }
   },
   "incomeClaim": {

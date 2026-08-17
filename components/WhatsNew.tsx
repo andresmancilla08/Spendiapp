@@ -44,30 +44,16 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'receipt-outline',
+    icon: 'lock-closed-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.scanGallery.title',
-    items: ['whatsNew.scanGallery.item1', 'whatsNew.scanGallery.item2'],
+    titleKey: 'whatsNew.pin6.title',
+    items: ['whatsNew.pin6.item1', 'whatsNew.pin6.item2'],
   },
   {
-    icon: 'notifications-outline',
+    icon: 'mail-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.notifMonth.title',
-    items: ['whatsNew.notifMonth.item1'],
-  },
-  // 2.61.0 estuvo en producción media hora: se anuncia aquí porque casi nadie
-  // llegó a ver su modal, no porque la lista sea un historial.
-  {
-    icon: 'arrow-back',
-    colorKey: 'primary',
-    titleKey: 'whatsNew.backNav.title',
-    items: ['whatsNew.backNav.item1', 'whatsNew.backNav.item2'],
-  },
-  {
-    icon: 'create-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.incomeField.title',
-    items: ['whatsNew.incomeField.item1'],
+    titleKey: 'whatsNew.emailOnly.title',
+    items: ['whatsNew.emailOnly.item1'],
   },
 ];
 
