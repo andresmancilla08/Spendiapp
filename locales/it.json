@@ -1457,7 +1457,543 @@
       "terms": "Termini e condizioni"
     },
     "lastUpdated": "Ultimo aggiornamento",
-    "spanishOnlyNotice": "Questo documento è attualmente disponibile solo in spagnolo. È in corso una traduzione professionale."
+    "translationNotice": "Questa è una traduzione di cortesia. La versione spagnola è quella giuridicamente vincolante e prevale in caso di discrepanza.",
+    "privacySections": [
+      {
+        "title": "1. Titolare del trattamento",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Il titolare del trattamento dei suoi dati personali è Andrés Mancilla (di seguito \"Spendia\" o \"il Titolare\"), domiciliato in Colombia, raggiungibile su {{website}}, all'indirizzo email {{email}} e al telefono/WhatsApp {{phone}}."
+          }
+        ]
+      },
+      {
+        "title": "2. Quadro normativo applicabile",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "La presente informativa è disciplinata dalla legislazione colombiana vigente in materia di protezione dei dati personali, in particolare:"
+          },
+          {
+            "type": "li",
+            "text": "Legge 1581 del 2012 — Regime generale di protezione dei dati personali."
+          },
+          {
+            "type": "li",
+            "text": "Decreto 1377 del 2013 — Regolamento parziale della Legge 1581 del 2012."
+          },
+          {
+            "type": "li",
+            "text": "Legge 1266 del 2008 — Disposizioni generali sull'Habeas Data."
+          },
+          {
+            "type": "li",
+            "text": "Legge 527 del 1999 — Messaggi di dati e commercio elettronico."
+          },
+          {
+            "type": "p",
+            "text": "L'autorità di controllo competente è la Sovrintendenza dell'Industria e del Commercio (SIC) della Repubblica di Colombia."
+          }
+        ]
+      },
+      {
+        "title": "3. Dati personali raccolti",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia raccoglie i seguenti dati personali:"
+          },
+          {
+            "type": "li",
+            "text": "Dati identificativi: nome completo e indirizzo email, forniti dall'utente al momento della registrazione."
+          },
+          {
+            "type": "li",
+            "text": "Dati finanziari personali: registrazioni di entrate e uscite, categorie, importi, date e descrizioni inserite dall'utente."
+          },
+          {
+            "type": "li",
+            "text": "Dati dei gruppi di spesa: informazioni sui membri dei gruppi e sui debiti condivisi quando l'utente utilizza questa funzione."
+          },
+          {
+            "type": "li",
+            "text": "Dati di configurazione: preferenze di lingua, tema visivo e palette di colori selezionata."
+          },
+          {
+            "type": "li",
+            "text": "Dati tecnici: versione dell'app, piattaforma del dispositivo (Android/iOS/web) e data e ora dell'ultimo accesso."
+          },
+          {
+            "type": "p",
+            "text": "Spendia NON raccoglie dati di geolocalizzazione, dati biometrici a fini identificativi né informazioni su carte di credito o debito. L'app non accede a conti bancari reali."
+          }
+        ]
+      },
+      {
+        "title": "4. Finalità del trattamento",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "I dati personali raccolti sono trattati per le seguenti finalità:"
+          },
+          {
+            "type": "li",
+            "text": "Erogazione del servizio: autenticazione dell'utente e sincronizzazione delle sue registrazioni finanziarie personali."
+          },
+          {
+            "type": "li",
+            "text": "Personalizzazione: adattare l'interfaccia e la lingua alle preferenze dell'utente."
+          },
+          {
+            "type": "li",
+            "text": "Sicurezza: verifica dell'identità, recupero del PIN e rilevamento di accessi non autorizzati."
+          },
+          {
+            "type": "li",
+            "text": "Assistenza tecnica: gestione di richieste, domande e segnalazioni di errori."
+          },
+          {
+            "type": "li",
+            "text": "Miglioramento del servizio: analisi aggregata e anonima dell'uso delle funzioni per migliorare l'app."
+          },
+          {
+            "type": "li",
+            "text": "Comunicazioni transazionali: invio di email relative esclusivamente al funzionamento dell'account (recupero del PIN, avvisi di sicurezza)."
+          },
+          {
+            "type": "li",
+            "text": "Riepiloghi automatici: quando l'utente ha un abbonamento attivo, vengono inviate a un fornitore di intelligenza artificiale cifre AGGREGATE del suo mese (totali e nomi delle categorie) per redigere un riepilogo. Non vengono inviati movimenti singoli, nomi né dati di contatto."
+          }
+        ]
+      },
+      {
+        "title": "5. Base giuridica del trattamento",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Il trattamento dei suoi dati si fonda sul consenso libero, preventivo, espresso e informato dell'interessato, prestato al momento della registrazione e/o dell'accesso all'app Spendia, ai sensi dell'articolo 9 della Legge 1581 del 2012. Alcuni trattamenti ulteriori si fondano sull'esecuzione del contratto di servizio o su obblighi di legge applicabili."
+          }
+        ]
+      },
+      {
+        "title": "6. Diritti dell'interessato",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "In qualità di interessato, lei ha diritto a:"
+          },
+          {
+            "type": "li",
+            "text": "Conoscere, aggiornare e rettificare i suoi dati personali."
+          },
+          {
+            "type": "li",
+            "text": "Richiedere prova dell'autorizzazione prestata per il trattamento."
+          },
+          {
+            "type": "li",
+            "text": "Essere informato sull'uso fatto dei suoi dati personali."
+          },
+          {
+            "type": "li",
+            "text": "Presentare reclami alla Sovrintendenza dell'Industria e del Commercio (SIC) per violazioni della Legge 1581 del 2012."
+          },
+          {
+            "type": "li",
+            "text": "Revocare l'autorizzazione e/o richiedere la cancellazione dei suoi dati, salvo obbligo di legge di conservarli."
+          },
+          {
+            "type": "li",
+            "text": "Accedere gratuitamente ai suoi dati personali trattati."
+          },
+          {
+            "type": "p",
+            "text": "Per esercitare questi diritti può contattarci all'indirizzo {{email}} o via WhatsApp al {{phone}}. Rispondiamo entro un massimo di 15 giorni lavorativi per le richieste di informazioni e 15 giorni lavorativi per i reclami, prorogabili secondo la legge."
+          }
+        ]
+      },
+      {
+        "title": "7. Trasferimento internazionale dei dati",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "I dati personali sono conservati sull'infrastruttura di Google Firebase (Google LLC), con server situati principalmente negli Stati Uniti. Il trasferimento avviene sulla base delle garanzie di riservatezza stabilite da Google LLC, che ha adottato meccanismi di conformità riconosciuti a livello internazionale, comprese clausole contrattuali standard approvate dalle autorità di protezione dei dati."
+          },
+          {
+            "type": "p",
+            "text": "Inoltre, il servizio di invio email è fornito da Resend Inc. e i riepiloghi automatici sono generati con l'API di Google (Gemini), entrambi con server negli Stati Uniti. Non vengono trasferiti dati verso giurisdizioni diverse da quelle indicate."
+          }
+        ]
+      },
+      {
+        "title": "8. Conservazione dei dati",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "I suoi dati personali sono conservati finché mantiene un account attivo su Spendia. Una volta richiesta la cancellazione dell'account, procederemo a eliminare i suoi dati entro un massimo di 30 giorni di calendario, salvo obbligo di legge di conservarli più a lungo."
+          },
+          {
+            "type": "p",
+            "text": "Le registrazioni delle transazioni e le impostazioni vengono eliminate in modo permanente e irrecuperabile dopo la cancellazione dell'account. I backup nei sistemi di Google Firebase possono richiedere fino a 90 giorni aggiuntivi per essere del tutto rimossi."
+          }
+        ]
+      },
+      {
+        "title": "9. Sicurezza delle informazioni",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia adotta misure tecniche e organizzative per proteggere i suoi dati personali da accessi non autorizzati, perdita, alterazione o distruzione, tra cui:"
+          },
+          {
+            "type": "li",
+            "text": "Autenticazione tramite Firebase Authentication con indirizzo email e un PIN di sei cifre, che è la credenziale dell'account: Google la custodisce cifrata e Spendia non la conserva mai in chiaro."
+          },
+          {
+            "type": "li",
+            "text": "Trasmissione dei dati cifrata tramite HTTPS/TLS."
+          },
+          {
+            "type": "li",
+            "text": "Regole di sicurezza di Firestore che limitano l'accesso esclusivamente al proprietario di ogni registrazione."
+          },
+          {
+            "type": "li",
+            "text": "Codici monouso per il recupero del PIN: conservati sotto forma di impronta crittografica, con scadenza a 10 minuti, tre tentativi consentiti e uno solo richiedibile al minuto."
+          },
+          {
+            "type": "li",
+            "text": "Controllo lato server delle modifiche sensibili dell'account, affinché un client manomesso non possa concedersi funzioni a pagamento o permessi di amministrazione."
+          }
+        ]
+      },
+      {
+        "title": "10. Minori",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia non è destinata a minori di 18 anni e non raccoglie deliberatamente dati di minori. Se lei è genitore o tutore e viene a conoscenza che suo figlio ha fornito dati personali, ci contatti per procedere alla loro immediata cancellazione."
+          }
+        ]
+      },
+      {
+        "title": "11. Modifiche alla presente informativa",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia si riserva il diritto di modificare la presente Informativa sulla privacy in qualsiasi momento. Le modifiche sostanziali saranno comunicate tramite l'app o via email con almeno 15 giorni di anticipo. L'uso continuato dell'app dopo l'entrata in vigore delle modifiche comporta l'accettazione della nuova informativa."
+          }
+        ]
+      },
+      {
+        "title": "12. Contatti",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Per qualsiasi domanda, richiesta o reclamo relativo al trattamento dei suoi dati personali:"
+          },
+          {
+            "type": "li",
+            "text": "Email: {{email}}"
+          },
+          {
+            "type": "li",
+            "text": "WhatsApp: {{phone}}"
+          },
+          {
+            "type": "li",
+            "text": "Sito web: {{website}}"
+          },
+          {
+            "type": "p",
+            "text": "Può inoltre presentare una petizione, un reclamo o un ricorso direttamente alla Sovrintendenza dell'Industria e del Commercio della Colombia su www.sic.gov.co."
+          }
+        ]
+      }
+    ],
+    "termsSections": [
+      {
+        "title": "1. Parti e accettazione",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "I presenti Termini e Condizioni d'uso (di seguito \"Termini\") disciplinano il rapporto contrattuale tra Andrés Mancilla, sviluppatore di Spendia (di seguito \"Spendia\", \"noi\" o \"il Prestatore\"), domiciliato in Colombia, e lei in qualità di utente dell'app (di seguito \"l'Utente\" o \"lei\")."
+          },
+          {
+            "type": "p",
+            "text": "Registrandosi, accedendo o utilizzando in qualsiasi modo l'app Spendia, lei dichiara di aver letto, compreso e accettato integralmente i presenti Termini. Se non è d'accordo con uno di essi, dovrà astenersi dall'utilizzare il servizio."
+          }
+        ]
+      },
+      {
+        "title": "2. Descrizione del servizio",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia è un'app di controllo e gestione delle finanze personali che consente agli utenti di:"
+          },
+          {
+            "type": "li",
+            "text": "Registrare e classificare entrate e uscite personali."
+          },
+          {
+            "type": "li",
+            "text": "Visualizzare report e statistiche sulle proprie abitudini finanziarie."
+          },
+          {
+            "type": "li",
+            "text": "Gestire gruppi di spese condivise tra persone che si conoscono."
+          },
+          {
+            "type": "li",
+            "text": "Definire obiettivi di risparmio e budget personali."
+          },
+          {
+            "type": "li",
+            "text": "Organizzare carte e conti personali a titolo puramente indicativo (senza accesso reale ai conti bancari)."
+          },
+          {
+            "type": "p",
+            "text": "Spendia è uno strumento di registrazione a scopo informativo. Non è collegata ad alcun istituto finanziario, banca, cooperativa o piattaforma di pagamento e non effettua transazioni di denaro reali."
+          }
+        ]
+      },
+      {
+        "title": "3. Registrazione e account utente",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Per accedere al servizio, l'Utente deve creare un account con il proprio indirizzo email e un PIN di sei cifre. L'Utente è responsabile di:"
+          },
+          {
+            "type": "li",
+            "text": "Fornire informazioni veritiere e aggiornate durante la registrazione."
+          },
+          {
+            "type": "li",
+            "text": "Mantenere riservati il proprio PIN e le credenziali di accesso."
+          },
+          {
+            "type": "li",
+            "text": "Comunicare immediatamente a Spendia qualsiasi uso non autorizzato del proprio account."
+          },
+          {
+            "type": "li",
+            "text": "Tutte le azioni compiute con il proprio account, indipendentemente da chi le esegua."
+          },
+          {
+            "type": "p",
+            "text": "Ogni utente può avere un solo account attivo. La creazione di più account a fini fraudolenti è espressamente vietata e può comportare la sospensione del servizio."
+          }
+        ]
+      },
+      {
+        "title": "4. Uso consentito",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "L'Utente si impegna a utilizzare Spendia esclusivamente per finalità lecite e personali. È espressamente vietato:"
+          },
+          {
+            "type": "li",
+            "text": "Utilizzare l'app per attività illecite, fraudolente o lesive dei diritti di terzi."
+          },
+          {
+            "type": "li",
+            "text": "Tentare di accedere ai dati di altri utenti senza autorizzazione."
+          },
+          {
+            "type": "li",
+            "text": "Effettuare reverse engineering, decompilare o tentare di estrarre il codice sorgente dell'app."
+          },
+          {
+            "type": "li",
+            "text": "Introdurre virus, malware o qualsiasi elemento dannoso nella piattaforma."
+          },
+          {
+            "type": "li",
+            "text": "Rivendere, concedere in sublicenza o commercializzare l'accesso al servizio senza autorizzazione espressa."
+          },
+          {
+            "type": "li",
+            "text": "Utilizzare script automatizzati o bot per interagire con l'app."
+          },
+          {
+            "type": "p",
+            "text": "La violazione di questi divieti autorizza Spendia a sospendere o eliminare l'account dell'Utente senza preavviso e senza alcuna responsabilità."
+          }
+        ]
+      },
+      {
+        "title": "5. Funzioni Premium",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia offre funzionalità aggiuntive tramite un abbonamento Premium. L'accesso a queste funzioni richiede il pagamento di un canone periodico indicato nell'app."
+          },
+          {
+            "type": "p",
+            "text": "La sottoscrizione del Premium è temporaneamente disabilitata in attesa dell'attivazione di un gateway di pagamento autorizzato. Quando sarà disponibile, il pagamento avverrà tramite tale gateway e l'accesso Premium sarà attivato automaticamente alla conferma dell'operazione. Gli abbonamenti sottoscritti tramite gli store applicativi sono inoltre disciplinati dalle condizioni di Apple o Google, a seconda dei casi."
+          },
+          {
+            "type": "p",
+            "text": "Le tariffe possono variare con un preavviso di almeno 30 giorni. I periodi già pagati non sono rimborsabili, salvo guasto tecnico imputabile esclusivamente a Spendia o qualora la legge applicabile riconosca all'Utente un diritto di recesso. Spendia si riserva il diritto di modificare, sospendere o interrompere le funzioni Premium in qualsiasi momento, con un preavviso all'Utente di almeno 15 giorni."
+          }
+        ]
+      },
+      {
+        "title": "6. Proprietà intellettuale",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Tutti i diritti di proprietà intellettuale su Spendia, inclusi a titolo esemplificativo software, codice sorgente, progetto grafico, logo, testi, icone e funzionalità, sono di proprietà esclusiva di Andrés Mancilla e sono protetti dalla Legge 23 del 1982 (Diritto d'autore in Colombia) e dalle convenzioni internazionali applicabili."
+          },
+          {
+            "type": "p",
+            "text": "All'Utente è concessa una licenza personale, non trasferibile, non esclusiva e revocabile per utilizzare l'app esclusivamente in conformità ai presenti Termini. Tale licenza non comporta alcuna cessione di diritti di proprietà intellettuale."
+          }
+        ]
+      },
+      {
+        "title": "7. Privacy e protezione dei dati",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Il trattamento dei dati personali è disciplinato dall'Informativa sulla privacy di Spendia, disponibile su {{website}}/privacy, che costituisce parte integrante dei presenti Termini. Accettando i presenti Termini, l'Utente accetta anche l'Informativa sulla privacy."
+          },
+          {
+            "type": "p",
+            "text": "I dati finanziari inseriti in Spendia hanno carattere esclusivamente personale e indicativo. Spendia non condivide, non vende e non utilizza tali dati a fini pubblicitari o di profilazione commerciale."
+          }
+        ]
+      },
+      {
+        "title": "8. Disponibilità e modifiche del servizio",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia non garantisce la disponibilità ininterrotta del servizio. Possono verificarsi interruzioni per manutenzione, aggiornamenti o cause di forza maggiore. Saranno compiuti sforzi ragionevoli per comunicare in anticipo le manutenzioni programmate."
+          },
+          {
+            "type": "p",
+            "text": "Spendia si riserva il diritto di modificare, aggiornare, sospendere o interrompere in tutto o in parte il servizio in qualsiasi momento, con preavviso ove possibile. Gli aggiornamenti dell'app possono richiedere versioni minime del sistema operativo del dispositivo."
+          }
+        ]
+      },
+      {
+        "title": "9. Limitazione di responsabilità",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Nella massima misura consentita dalla legge colombiana, Spendia non sarà responsabile per:"
+          },
+          {
+            "type": "li",
+            "text": "Decisioni finanziarie assunte dall'Utente sulla base delle informazioni registrate nell'app."
+          },
+          {
+            "type": "li",
+            "text": "Perdita di dati per cause estranee a Spendia, inclusi guasti del dispositivo dell'Utente o cancellazione volontaria."
+          },
+          {
+            "type": "li",
+            "text": "Danni indiretti, incidentali, speciali o consequenziali derivanti dall'uso o dall'impossibilità di usare il servizio."
+          },
+          {
+            "type": "li",
+            "text": "Interruzioni del servizio causate da terzi (fornitori di infrastruttura, operatori internet, ecc.)."
+          },
+          {
+            "type": "li",
+            "text": "Accessi non autorizzati all'account dell'Utente dovuti a negligenza nella custodia delle credenziali."
+          },
+          {
+            "type": "p",
+            "text": "La responsabilità complessiva di Spendia nei confronti dell'Utente, per qualsiasi causa, non potrà superare l'importo pagato dall'Utente negli ultimi tre (3) mesi a titolo di abbonamento Premium, o zero (0) pesos se l'Utente utilizza il piano gratuito. Nulla nei presenti Termini esclude la responsabilità che la legge non consente di limitare."
+          }
+        ]
+      },
+      {
+        "title": "10. Modifiche ai Termini",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia potrà modificare i presenti Termini in qualsiasi momento. Le modifiche sostanziali saranno comunicate tramite l'app o via email con almeno 15 giorni di anticipo rispetto alla loro entrata in vigore. L'uso continuato del servizio dopo l'entrata in vigore delle modifiche comporta l'accettazione dei nuovi Termini."
+          },
+          {
+            "type": "p",
+            "text": "Se l'Utente non è d'accordo con le modifiche, dovrà cessare di utilizzare il servizio e potrà richiedere la cancellazione del proprio account prima della data di entrata in vigore delle stesse."
+          }
+        ]
+      },
+      {
+        "title": "11. Risoluzione",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "L'Utente può interrompere il proprio rapporto con Spendia in qualsiasi momento richiedendo la cancellazione dell'account al team di assistenza, scrivendo a {{email}} o via WhatsApp al {{phone}}. La richiesta viene evasa entro un massimo di 30 giorni di calendario."
+          },
+          {
+            "type": "p",
+            "text": "Spendia potrà sospendere o chiudere unilateralmente l'account dell'Utente se:"
+          },
+          {
+            "type": "li",
+            "text": "L'Utente viola una qualsiasi disposizione dei presenti Termini."
+          },
+          {
+            "type": "li",
+            "text": "L'account presenta attività sospette o fraudolente."
+          },
+          {
+            "type": "li",
+            "text": "Ciò sia richiesto per ordine di un'autorità competente."
+          },
+          {
+            "type": "li",
+            "text": "Spendia decide di interrompere il servizio in via generale."
+          }
+        ]
+      },
+      {
+        "title": "12. Legge applicabile e foro competente",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "I presenti Termini sono disciplinati dalle leggi della Repubblica di Colombia. Per la risoluzione di qualsiasi controversia derivante dall'interpretazione o dall'esecuzione dei presenti Termini, le parti si sottopongono alla giurisdizione dei giudici e dei tribunali competenti della Colombia, rinunciando a qualsiasi altro foro eventualmente competente."
+          },
+          {
+            "type": "p",
+            "text": "In caso di controversie di modesta entità o di carattere tecnico, le parti cercheranno di risolverle in via amichevole mediante comunicazione diretta prima di adire le vie giudiziarie."
+          }
+        ]
+      },
+      {
+        "title": "13. Contatti",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Per qualsiasi dubbio, richiesta o comunicazione relativa ai presenti Termini:"
+          },
+          {
+            "type": "li",
+            "text": "Email: {{email}}"
+          },
+          {
+            "type": "li",
+            "text": "WhatsApp: {{phone}}"
+          },
+          {
+            "type": "li",
+            "text": "Sito web: {{website}}"
+          }
+        ]
+      }
+    ],
+    "rights": "© {{year}} Spendia. Tutti i diritti riservati.",
+    "updatedPrivacy": "La presente informativa è stata aggiornata il {{date}}.",
+    "updatedTerms": "I presenti termini sono stati aggiornati il {{date}}."
   },
   "dataError": {
     "offline": {

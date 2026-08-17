@@ -1457,7 +1457,543 @@
       "terms": "Terms & Conditions"
     },
     "lastUpdated": "Last updated",
-    "spanishOnlyNotice": "This document is currently available in Spanish only. A professionally translated version is pending."
+    "translationNotice": "This is a courtesy translation. The Spanish version is the legally binding one and prevails in case of discrepancy.",
+    "privacySections": [
+      {
+        "title": "1. Data Controller",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "The controller of your personal data is Andrés Mancilla (hereinafter \"Spendia\" or \"the Controller\"), domiciled in Colombia, reachable at {{website}}, by email at {{email}} and by phone/WhatsApp at {{phone}}."
+          }
+        ]
+      },
+      {
+        "title": "2. Applicable Legal Framework",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "This policy is governed by Colombian data protection legislation in force, in particular:"
+          },
+          {
+            "type": "li",
+            "text": "Law 1581 of 2012 — General Personal Data Protection Regime."
+          },
+          {
+            "type": "li",
+            "text": "Decree 1377 of 2013 — Partial regulation of Law 1581 of 2012."
+          },
+          {
+            "type": "li",
+            "text": "Law 1266 of 2008 — General Habeas Data provisions."
+          },
+          {
+            "type": "li",
+            "text": "Law 527 of 1999 — Data messages and electronic commerce."
+          },
+          {
+            "type": "p",
+            "text": "The competent supervisory authority is the Superintendency of Industry and Commerce (SIC) of the Republic of Colombia."
+          }
+        ]
+      },
+      {
+        "title": "3. Personal Data Collected",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia collects the following personal data:"
+          },
+          {
+            "type": "li",
+            "text": "Identification data: full name and email address, provided by the user at sign-up."
+          },
+          {
+            "type": "li",
+            "text": "Personal financial data: income and expense records, categories, amounts, dates and descriptions entered by the user."
+          },
+          {
+            "type": "li",
+            "text": "Expense group data: information about group members and shared debts when the user uses this feature."
+          },
+          {
+            "type": "li",
+            "text": "Settings data: language preference, visual theme and selected colour palette."
+          },
+          {
+            "type": "li",
+            "text": "Technical data: app version, device platform (Android/iOS/web) and last access timestamp."
+          },
+          {
+            "type": "p",
+            "text": "Spendia does NOT collect location data, biometric data for identification purposes, or credit or debit card information. The app does not access real bank accounts."
+          }
+        ]
+      },
+      {
+        "title": "4. Purpose of Processing",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "The personal data collected is processed for the following purposes:"
+          },
+          {
+            "type": "li",
+            "text": "Service delivery: user authentication and synchronisation of personal financial records."
+          },
+          {
+            "type": "li",
+            "text": "Personalisation: adapting the interface and language to the user's preferences."
+          },
+          {
+            "type": "li",
+            "text": "Security: identity verification, PIN recovery and detection of unauthorised access."
+          },
+          {
+            "type": "li",
+            "text": "Technical support: handling requests, questions and bug reports."
+          },
+          {
+            "type": "li",
+            "text": "Service improvement: aggregated, anonymous analysis of feature usage to improve the app."
+          },
+          {
+            "type": "li",
+            "text": "Transactional communications: emails relating exclusively to the operation of the account (PIN recovery, security notices)."
+          },
+          {
+            "type": "li",
+            "text": "Automated summaries: when the user has an active subscription, AGGREGATED figures for their month (totals and category names) are sent to an artificial intelligence provider to draft a summary. Individual transactions, names and contact details are never sent."
+          }
+        ]
+      },
+      {
+        "title": "5. Legal Basis for Processing",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Processing of your data is based on the free, prior, express and informed consent of the data subject, given at sign-up and/or sign-in to the Spendia app, pursuant to article 9 of Law 1581 of 2012. Certain additional processing is based on performance of the service contract or on applicable legal obligations."
+          }
+        ]
+      },
+      {
+        "title": "6. Rights of the Data Subject",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "As a data subject, you have the right to:"
+          },
+          {
+            "type": "li",
+            "text": "Access, update and rectify your personal data."
+          },
+          {
+            "type": "li",
+            "text": "Request proof of the authorisation given for processing."
+          },
+          {
+            "type": "li",
+            "text": "Be informed about the use made of your personal data."
+          },
+          {
+            "type": "li",
+            "text": "File complaints with the Superintendency of Industry and Commerce (SIC) for breaches of Law 1581 of 2012."
+          },
+          {
+            "type": "li",
+            "text": "Withdraw your authorisation and/or request deletion of your data, unless a legal duty to retain it applies."
+          },
+          {
+            "type": "li",
+            "text": "Access your processed personal data free of charge."
+          },
+          {
+            "type": "p",
+            "text": "To exercise these rights, contact us at {{email}} or via WhatsApp at {{phone}}. We reply within a maximum of 15 business days for enquiries and 15 business days for claims, extendable as provided by law."
+          }
+        ]
+      },
+      {
+        "title": "7. International Data Transfers",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Personal data is stored on Google Firebase infrastructure (Google LLC), with servers located mainly in the United States. This transfer takes place under the privacy safeguards established by Google LLC, which has adopted internationally recognised compliance mechanisms, including standard contractual clauses approved by data protection authorities."
+          },
+          {
+            "type": "p",
+            "text": "In addition, email delivery is provided by Resend Inc. and automated summaries are generated with Google's API (Gemini), both with servers in the United States. No data is transferred to jurisdictions other than those stated."
+          }
+        ]
+      },
+      {
+        "title": "8. Data Retention",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Your personal data is retained for as long as you keep an active Spendia account. Once you request deletion of your account, we will delete your data within a maximum of 30 calendar days, unless a legal obligation requires longer retention."
+          },
+          {
+            "type": "p",
+            "text": "Transaction records and settings are permanently and irrecoverably deleted after account deletion. Backups in Google Firebase systems may take up to 90 additional days to purge completely."
+          }
+        ]
+      },
+      {
+        "title": "9. Information Security",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia implements technical and organisational measures to protect your personal data against unauthorised access, loss, alteration or destruction, including:"
+          },
+          {
+            "type": "li",
+            "text": "Authentication through Firebase Authentication with an email address and a six-digit PIN, which is the account credential: Google keeps it encrypted and Spendia never stores it in plain text."
+          },
+          {
+            "type": "li",
+            "text": "Encrypted data transmission over HTTPS/TLS."
+          },
+          {
+            "type": "li",
+            "text": "Firestore security rules restricting access exclusively to the owner of each record."
+          },
+          {
+            "type": "li",
+            "text": "One-time codes for PIN recovery: stored as a cryptographic hash, expiring after 10 minutes, allowing three attempts, and requestable only once per minute."
+          },
+          {
+            "type": "li",
+            "text": "Server-side review of sensitive account changes, so that a tampered client cannot grant itself paid features or administrative permissions."
+          }
+        ]
+      },
+      {
+        "title": "10. Minors",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia is not directed at persons under 18 and does not knowingly collect data from minors. If you are a parent or guardian and become aware that your child has provided personal data, contact us so that it can be deleted immediately."
+          }
+        ]
+      },
+      {
+        "title": "11. Changes to this Policy",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia reserves the right to amend this Privacy Policy at any time. Material changes will be notified through the app or by email at least 15 days in advance. Continued use of the app after the changes take effect constitutes acceptance of the new policy."
+          }
+        ]
+      },
+      {
+        "title": "12. Contact",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "For any enquiry, request or complaint regarding the processing of your personal data:"
+          },
+          {
+            "type": "li",
+            "text": "Email: {{email}}"
+          },
+          {
+            "type": "li",
+            "text": "WhatsApp: {{phone}}"
+          },
+          {
+            "type": "li",
+            "text": "Website: {{website}}"
+          },
+          {
+            "type": "p",
+            "text": "You may also file a petition, complaint or appeal directly with the Superintendency of Industry and Commerce of Colombia at www.sic.gov.co."
+          }
+        ]
+      }
+    ],
+    "termsSections": [
+      {
+        "title": "1. Parties and Acceptance",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "These Terms and Conditions of Use (the \"Terms\") govern the contractual relationship between Andrés Mancilla, developer of Spendia (hereinafter \"Spendia\", \"we\" or \"the Provider\"), domiciled in Colombia, and you as a user of the app (hereinafter \"the User\" or \"you\")."
+          },
+          {
+            "type": "p",
+            "text": "By signing up, signing in or otherwise using the Spendia app, you declare that you have read, understood and fully accepted these Terms. If you disagree with any of them, you must refrain from using the service."
+          }
+        ]
+      },
+      {
+        "title": "2. Description of the Service",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia is a personal finance tracking and management app that allows users to:"
+          },
+          {
+            "type": "li",
+            "text": "Record and categorise personal income and expenses."
+          },
+          {
+            "type": "li",
+            "text": "View reports and statistics on financial habits."
+          },
+          {
+            "type": "li",
+            "text": "Manage shared expense groups among people who know each other."
+          },
+          {
+            "type": "li",
+            "text": "Set savings goals and personal budgets."
+          },
+          {
+            "type": "li",
+            "text": "Organise personal cards and accounts for reference only (with no real access to bank accounts)."
+          },
+          {
+            "type": "p",
+            "text": "Spendia is an informational record-keeping tool. It is not linked to any financial institution, bank, credit union or payment platform, and it does not carry out real money transactions."
+          }
+        ]
+      },
+      {
+        "title": "3. Registration and User Account",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "To access the service, the User must create an account with an email address and a six-digit PIN. The User is responsible for:"
+          },
+          {
+            "type": "li",
+            "text": "Providing truthful, up-to-date information during registration."
+          },
+          {
+            "type": "li",
+            "text": "Keeping their PIN and access credentials confidential."
+          },
+          {
+            "type": "li",
+            "text": "Notifying Spendia immediately of any unauthorised use of their account."
+          },
+          {
+            "type": "li",
+            "text": "All actions carried out under their account, regardless of who performs them."
+          },
+          {
+            "type": "p",
+            "text": "Each user may hold only one active account. Creating multiple accounts for fraudulent purposes is expressly prohibited and may result in suspension of the service."
+          }
+        ]
+      },
+      {
+        "title": "4. Acceptable Use",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "The User undertakes to use Spendia solely for lawful, personal purposes. The following is expressly prohibited:"
+          },
+          {
+            "type": "li",
+            "text": "Using the app for illegal or fraudulent activities, or activities that infringe third-party rights."
+          },
+          {
+            "type": "li",
+            "text": "Attempting to access other users' data without authorisation."
+          },
+          {
+            "type": "li",
+            "text": "Reverse engineering, decompiling or attempting to extract the app's source code."
+          },
+          {
+            "type": "li",
+            "text": "Introducing viruses, malware or any harmful element into the platform."
+          },
+          {
+            "type": "li",
+            "text": "Reselling, sublicensing or commercialising access to the service without express authorisation."
+          },
+          {
+            "type": "li",
+            "text": "Using automated scripts or bots to interact with the app."
+          },
+          {
+            "type": "p",
+            "text": "Breach of these prohibitions entitles Spendia to suspend or delete the User's account without prior notice and without any liability."
+          }
+        ]
+      },
+      {
+        "title": "5. Premium Features",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia offers additional features under a Premium subscription. Access to these features requires payment of a recurring fee set out in the app."
+          },
+          {
+            "type": "p",
+            "text": "Premium sign-up is temporarily disabled while an authorised payment gateway is being enabled. Once available, payment will be made through that gateway and Premium access will be activated automatically upon confirmation of the transaction. Subscriptions purchased through app stores are additionally governed by Apple's or Google's terms, as applicable."
+          },
+          {
+            "type": "p",
+            "text": "Fees are subject to change with at least 30 days' notice. Periods already paid for are non-refundable except in the event of a technical failure attributable solely to Spendia, or where applicable law grants the User a right of withdrawal. Spendia reserves the right to modify, suspend or discontinue Premium features at any time, giving the User at least 15 days' notice."
+          }
+        ]
+      },
+      {
+        "title": "6. Intellectual Property",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "All intellectual property rights in Spendia, including but not limited to software, source code, graphic design, logo, texts, icons and features, are the exclusive property of Andrés Mancilla and are protected by Law 23 of 1982 (Copyright in Colombia) and applicable international conventions."
+          },
+          {
+            "type": "p",
+            "text": "The User is granted a personal, non-transferable, non-exclusive and revocable licence to use the app solely in accordance with these Terms. This licence does not imply any assignment of intellectual property rights."
+          }
+        ]
+      },
+      {
+        "title": "7. Privacy and Data Protection",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "The processing of personal data is governed by Spendia's Privacy Policy, available at {{website}}/privacy, which forms an integral part of these Terms. By accepting these Terms, the User also accepts the Privacy Policy."
+          },
+          {
+            "type": "p",
+            "text": "Financial data entered into Spendia is strictly personal and for reference only. Spendia does not share, sell or use this data for advertising or commercial profiling."
+          }
+        ]
+      },
+      {
+        "title": "8. Availability and Changes to the Service",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia does not guarantee uninterrupted availability of the service. Interruptions may occur due to maintenance, updates or force majeure. Reasonable efforts will be made to give advance notice of scheduled maintenance."
+          },
+          {
+            "type": "p",
+            "text": "Spendia reserves the right to modify, update, suspend or discontinue the service in whole or in part at any time, with prior notice where possible. App updates may require minimum operating system versions on the device."
+          }
+        ]
+      },
+      {
+        "title": "9. Limitation of Liability",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "To the fullest extent permitted by Colombian law, Spendia shall not be liable for:"
+          },
+          {
+            "type": "li",
+            "text": "Financial decisions made by the User based on the information recorded in the app."
+          },
+          {
+            "type": "li",
+            "text": "Data loss due to causes outside Spendia's control, including failures of the User's device or voluntary deletion."
+          },
+          {
+            "type": "li",
+            "text": "Indirect, incidental, special or consequential damages arising from use or inability to use the service."
+          },
+          {
+            "type": "li",
+            "text": "Service interruptions caused by third parties (infrastructure providers, internet operators, etc.)."
+          },
+          {
+            "type": "li",
+            "text": "Unauthorised access to the User's account resulting from negligence in safeguarding their credentials."
+          },
+          {
+            "type": "p",
+            "text": "Spendia's total liability towards the User, on any ground, shall not exceed the amount paid by the User over the last three (3) months for the Premium subscription, or zero (0) pesos if the User is on the free plan. Nothing in these Terms excludes liability that the law does not allow to be limited."
+          }
+        ]
+      },
+      {
+        "title": "10. Changes to the Terms",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Spendia may amend these Terms at any time. Material changes will be notified through the app or by email at least 15 days before they take effect. Continued use of the service after the changes take effect constitutes acceptance of the new Terms."
+          },
+          {
+            "type": "p",
+            "text": "If the User does not agree with the changes, they must stop using the service and may request deletion of their account before the changes take effect."
+          }
+        ]
+      },
+      {
+        "title": "11. Termination",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "The User may end their relationship with Spendia at any time by requesting deletion of their account from the support team, writing to {{email}} or via WhatsApp at {{phone}}. Requests are handled within a maximum of 30 calendar days."
+          },
+          {
+            "type": "p",
+            "text": "Spendia may unilaterally suspend or terminate the User's account if:"
+          },
+          {
+            "type": "li",
+            "text": "The User breaches any provision of these Terms."
+          },
+          {
+            "type": "li",
+            "text": "The account shows suspicious or fraudulent activity."
+          },
+          {
+            "type": "li",
+            "text": "It is required by order of a competent authority."
+          },
+          {
+            "type": "li",
+            "text": "Spendia decides to discontinue the service generally."
+          }
+        ]
+      },
+      {
+        "title": "12. Governing Law and Jurisdiction",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "These Terms are governed by the laws of the Republic of Colombia. For the resolution of any dispute arising from the interpretation or performance of these Terms, the parties submit to the jurisdiction of the competent courts of Colombia, waiving any other venue that might apply."
+          },
+          {
+            "type": "p",
+            "text": "For minor or technical disputes, the parties will seek an amicable resolution through direct communication before resorting to the courts."
+          }
+        ]
+      },
+      {
+        "title": "13. Contact",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "For any question, request or notice relating to these Terms:"
+          },
+          {
+            "type": "li",
+            "text": "Email: {{email}}"
+          },
+          {
+            "type": "li",
+            "text": "WhatsApp: {{phone}}"
+          },
+          {
+            "type": "li",
+            "text": "Website: {{website}}"
+          }
+        ]
+      }
+    ],
+    "rights": "© {{year}} Spendia. All rights reserved.",
+    "updatedPrivacy": "This policy was last updated on {{date}}.",
+    "updatedTerms": "These terms were last updated on {{date}}."
   },
   "dataError": {
     "offline": {
