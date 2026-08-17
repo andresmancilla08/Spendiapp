@@ -55,7 +55,6 @@ export default function ConsentModal({ visible, method, onAccept, onCancel, onTe
   }, [visible]);
 
   const methodIcon = 'mail-outline';
-  const methodLabel = t('login.emailButton');
 
   return (
     <Modal visible={visible} transparent animationType="none" statusBarTranslucent>

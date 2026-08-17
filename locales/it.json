@@ -16,7 +16,7 @@
   "login": {
     "title": "Spendia",
     "subtitle": "Il tuo denaro, sempre sotto controllo",
-    "emailButton": "Accedi con email e PIN",
+    "emailButton": "Accedi",
     "noAccount": "Non hai un account?",
     "registerLink": "Registrati",
     "consentPrefix": "Registrandoti, accetti i",
