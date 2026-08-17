@@ -74,7 +74,7 @@ export default function PremiumWelcomeScreen() {
     }).start();
 
     // Star pulse + halo breathing loop
-    Animated.loop(
+    const breathingLoop = Animated.loop(
       Animated.parallel([
         Animated.sequence([
           Animated.timing(starPulse, { toValue: 1.08, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
@@ -85,7 +85,8 @@ export default function PremiumWelcomeScreen() {
           Animated.timing(haloOpacity, { toValue: 0.5, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
         ]),
       ])
-    ).start();
+    );
+    breathingLoop.start();
 
     // Badge entrance
     Animated.parallel([
@@ -141,7 +142,14 @@ export default function PremiumWelcomeScreen() {
       ])
     );
     shimmerLoop.start();
-    return () => shimmerLoop.stop();
+    // Los dos bucles se paran al desmontar. El del pulso/halo se quedaba vivo:
+    // un Animated.loop sin stop() sigue escribiendo estilos para siempre, que es
+    // justo lo que prohíbe la regla 1 de CLAUDE.md y lo que hacía que la app
+    // calentara el teléfono.
+    return () => {
+      shimmerLoop.stop();
+      breathingLoop.stop();
+    };
   }, []);
 
   const handleCTA = () => {
@@ -160,7 +168,11 @@ export default function PremiumWelcomeScreen() {
   const handlePressOut = () =>
     Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 7, useNativeDriver: Platform.OS !== 'web' }).start();
 
-  const features = t('premiumWelcome.features', { returnObjects: true }) as string[];
+  // Recortado al número de iconos y de animaciones que existen: `featureAnims`
+  // se creó con 5 posiciones fijas, así que una traducción con una función de
+  // más reventaba la pantalla al leer featureAnims[5].
+  const features = (t('premiumWelcome.features', { returnObjects: true }) as string[])
+    .slice(0, FEATURE_ICONS.length);
 
   return (
     <ScreenTransition ref={transitionRef}>
