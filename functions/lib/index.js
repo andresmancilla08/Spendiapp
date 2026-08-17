@@ -50,6 +50,22 @@ const resendApiKey = (0, params_1.defineSecret)('RESEND_API_KEY');
 function generateOtp() {
     return (0, crypto_1.randomInt)(1000, 10000).toString();
 }
+// [B-3] El código del correo NO se guarda en claro: `pin_resets` es invisible para
+// el cliente (reglas: read/write false), pero cualquiera con consola o con un
+// volcado de Firestore veía un código válido para tomar la cuenta. El uid entra en
+// el hash para que dos usuarios con el mismo código no compartan huella.
+function hashOtp(uid, otp) {
+    return (0, crypto_1.createHash)('sha256').update(`${uid}:${otp}`).digest('hex');
+}
+function otpMatches(uid, otp, data) {
+    // ponytail: la rama `data.otp` es compatibilidad con las solicitudes en vuelo al
+    // desplegar esto. Caduca sola en 10 min; se puede borrar en el siguiente release.
+    if (typeof data.otpHash !== 'string')
+        return data.otp === otp;
+    const a = Buffer.from(data.otpHash, 'hex');
+    const b = Buffer.from(hashOtp(uid, otp), 'hex');
+    return a.length === b.length && (0, crypto_1.timingSafeEqual)(a, b);
+}
 // ── OTP PIN Reset ────────────────────────────────────────────────────────────
 exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async (request) => {
     var _a, _b, _c, _d, _e;
@@ -90,7 +106,7 @@ exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async
     const otp = generateOtp();
     const expiresAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 10 * 60 * 1000));
     await db.collection('pin_resets').doc(uid).set({
-        otp,
+        otpHash: hashOtp(uid, otp),
         email: email.trim().toLowerCase(),
         expiresAt,
         verified: false,
@@ -143,7 +159,7 @@ exports.verifyPinResetOtp = (0, https_1.onCall)(async (request) => {
     if (data.attempts >= 3) {
         throw new https_1.HttpsError('resource-exhausted', 'Demasiados intentos');
     }
-    if (data.otp !== otp) {
+    if (!otpMatches(uid, otp, data)) {
         await resetRef.update({ attempts: admin.firestore.FieldValue.increment(1) });
         throw new https_1.HttpsError('invalid-argument', 'Código incorrecto');
     }
@@ -173,7 +189,7 @@ exports.resetPinWithOtp = (0, https_1.onCall)(async (request) => {
     const data = resetDoc.data();
     if (!data.verified)
         throw new https_1.HttpsError('permission-denied', 'OTP no verificado');
-    if (data.otp !== otp)
+    if (!otpMatches(uid, otp, data))
         throw new https_1.HttpsError('invalid-argument', 'Sesión inválida');
     if (data.expiresAt.toDate() < new Date()) {
         await resetRef.delete();
@@ -338,6 +354,16 @@ exports.detectPremiumTampering = (0, firestore_1.onDocumentUpdated)('users/{user
     };
     const tampered = sensitiveFields.filter((f) => norm(before[f]) !== norm(after[f]));
     if (tampered.length === 0)
+        return;
+    // Solo se revierte la ESCALADA de privilegios. Nadie se ataca a sí mismo
+    // quitándose el premium o bloqueándose, y revertir esas bajadas hacía
+    // imposible retirar el premium desde fuera de la app: la función lo volvía
+    // a conceder, el cliente veía otra vez la transición free→premium y sacaba
+    // la pantalla de bienvenida una y otra vez.
+    const isDowngradeOnly = tampered.every((f) => f === 'isBlocked'
+        ? after[f] === true // bloquear es restringir
+        : !after[f] || norm(after[f]) === null);
+    if (isDowngradeOnly)
         return;
     // Esta misma función acaba de revertir: no entrar en ping-pong.
     if (norm(after._honeypotRevertAt) !== norm(before._honeypotRevertAt))

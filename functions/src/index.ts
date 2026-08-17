@@ -1,6 +1,6 @@
 // functions/src/index.ts
 import * as admin from 'firebase-admin';
-import { randomInt } from 'crypto';
+import { randomInt, createHash, timingSafeEqual } from 'crypto';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { onDocumentUpdated, onDocumentWritten } from 'firebase-functions/v2/firestore';
@@ -15,6 +15,23 @@ const resendApiKey = defineSecret('RESEND_API_KEY');
 
 function generateOtp(): string {
   return randomInt(1000, 10000).toString();
+}
+
+// [B-3] El código del correo NO se guarda en claro: `pin_resets` es invisible para
+// el cliente (reglas: read/write false), pero cualquiera con consola o con un
+// volcado de Firestore veía un código válido para tomar la cuenta. El uid entra en
+// el hash para que dos usuarios con el mismo código no compartan huella.
+function hashOtp(uid: string, otp: string): string {
+  return createHash('sha256').update(`${uid}:${otp}`).digest('hex');
+}
+
+function otpMatches(uid: string, otp: string, data: admin.firestore.DocumentData): boolean {
+  // ponytail: la rama `data.otp` es compatibilidad con las solicitudes en vuelo al
+  // desplegar esto. Caduca sola en 10 min; se puede borrar en el siguiente release.
+  if (typeof data.otpHash !== 'string') return data.otp === otp;
+  const a = Buffer.from(data.otpHash, 'hex');
+  const b = Buffer.from(hashOtp(uid, otp), 'hex');
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 // ── OTP PIN Reset ────────────────────────────────────────────────────────────
@@ -64,7 +81,7 @@ export const sendPinResetOtp = onCall({ secrets: [resendApiKey] }, async (reques
   );
 
   await db.collection('pin_resets').doc(uid).set({
-    otp,
+    otpHash: hashOtp(uid, otp),
     email: email.trim().toLowerCase(),
     expiresAt,
     verified: false,
@@ -121,7 +138,7 @@ export const verifyPinResetOtp = onCall(async (request) => {
     throw new HttpsError('resource-exhausted', 'Demasiados intentos');
   }
 
-  if (data.otp !== otp) {
+  if (!otpMatches(uid, otp, data)) {
     await resetRef.update({ attempts: admin.firestore.FieldValue.increment(1) });
     throw new HttpsError('invalid-argument', 'Código incorrecto');
   }
@@ -152,7 +169,7 @@ export const resetPinWithOtp = onCall(async (request) => {
   const data = resetDoc.data()!;
 
   if (!data.verified) throw new HttpsError('permission-denied', 'OTP no verificado');
-  if (data.otp !== otp) throw new HttpsError('invalid-argument', 'Sesión inválida');
+  if (!otpMatches(uid, otp, data)) throw new HttpsError('invalid-argument', 'Sesión inválida');
   if ((data.expiresAt as admin.firestore.Timestamp).toDate() < new Date()) {
     await resetRef.delete();
     throw new HttpsError('deadline-exceeded', 'Sesión expirada');
