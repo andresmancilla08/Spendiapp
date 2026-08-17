@@ -1,106 +1,104 @@
-import {
-  IconAlertCircle,
-  IconAlertTriangle,
-  IconArrowNarrowDownDashed,
-  IconArrowNarrowUpDashed,
-  IconArrowLeft,
-  IconArrowRight,
-  IconAdjustmentsHorizontal,
-  IconBan,
-  IconBell,
-  IconBellOff,
-  IconBolt,
-  IconBrandGoogle,
-  IconBrandWhatsapp,
-  IconCalendar,
-  IconCash,
-  IconCheck,
-  IconChecks,
-  IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronUp,
-  IconCircleArrowDown,
-  IconCircleArrowUp,
-  IconCircleCheck,
-  IconCircleCheckFilled,
-  IconCircleX,
-  IconHistoryToggle,
-  IconCopy,
-  IconCreditCard,
-  IconDeviceMobile,
-  IconDiamond,
-  IconDroplet,
-  IconChartBar,
-  IconChartPie,
-  IconFlame,
-  IconDots,
-  IconDownload,
-  IconEdit,
-  IconEye,
-  IconEyeOff,
-  IconFile,
-  IconFileText,
-  IconFingerprint,
-  IconFlag,
-  IconGift,
-  IconHammer,
-  IconHome,
-  IconHomeFilled,
-  IconInfoCircle,
-  IconInfoCircleFilled,
-  IconLanguage,
-  IconLock,
-  IconLogout,
-  IconInbox,
-  IconMail,
-  IconMinus,
-  IconMoon,
-  IconPalette,
-  IconPencil,
-  IconPhoto,
-  IconPlayerPause,
-  IconPlus,
-  IconReceipt,
-  IconRefresh,
-  IconRepeat,
-  IconSearch,
-  IconSend,
-  IconShare,
-  IconShieldCheck,
-  IconSparkles,
-  IconStar,
-  IconStarFilled,
-  IconSun,
-  IconTag,
-  IconTool,
-  IconTrash,
-  IconUser,
-  IconUserCircle,
-  IconUserFilled,
-  IconUserMinus,
-  IconUserPlus,
-  IconUsers,
-  IconUsersGroup,
-  IconWallet,
-  IconWifi,
-  IconX,
-  IconArrowNarrowDown,
-  IconArrowNarrowUp,
-  IconCircle,
-  IconCirclePlus,
-  IconCloudDownload,
-  IconCloudOff,
-  IconContrast,
-  IconHeadphones,
-  IconHelpCircle,
-  IconLayoutGrid,
-  IconMailOpened,
-  IconMoodHappy,
-  IconPlayerStop,
-  IconTrendingDown,
-  IconTrendingUp,
-} from '@tabler/icons-react-native';
+import IconAlertCircle from '@tabler/icons-react-native/dist/esm/icons/IconAlertCircle.mjs';
+import IconAlertTriangle from '@tabler/icons-react-native/dist/esm/icons/IconAlertTriangle.mjs';
+import IconArrowNarrowDownDashed from '@tabler/icons-react-native/dist/esm/icons/IconArrowNarrowDownDashed.mjs';
+import IconArrowNarrowUpDashed from '@tabler/icons-react-native/dist/esm/icons/IconArrowNarrowUpDashed.mjs';
+import IconArrowLeft from '@tabler/icons-react-native/dist/esm/icons/IconArrowLeft.mjs';
+import IconArrowRight from '@tabler/icons-react-native/dist/esm/icons/IconArrowRight.mjs';
+import IconAdjustmentsHorizontal from '@tabler/icons-react-native/dist/esm/icons/IconAdjustmentsHorizontal.mjs';
+import IconBan from '@tabler/icons-react-native/dist/esm/icons/IconBan.mjs';
+import IconBell from '@tabler/icons-react-native/dist/esm/icons/IconBell.mjs';
+import IconBellOff from '@tabler/icons-react-native/dist/esm/icons/IconBellOff.mjs';
+import IconBolt from '@tabler/icons-react-native/dist/esm/icons/IconBolt.mjs';
+import IconBrandGoogle from '@tabler/icons-react-native/dist/esm/icons/IconBrandGoogle.mjs';
+import IconBrandWhatsapp from '@tabler/icons-react-native/dist/esm/icons/IconBrandWhatsapp.mjs';
+import IconCalendar from '@tabler/icons-react-native/dist/esm/icons/IconCalendar.mjs';
+import IconCash from '@tabler/icons-react-native/dist/esm/icons/IconCash.mjs';
+import IconCheck from '@tabler/icons-react-native/dist/esm/icons/IconCheck.mjs';
+import IconChecks from '@tabler/icons-react-native/dist/esm/icons/IconChecks.mjs';
+import IconChevronDown from '@tabler/icons-react-native/dist/esm/icons/IconChevronDown.mjs';
+import IconChevronLeft from '@tabler/icons-react-native/dist/esm/icons/IconChevronLeft.mjs';
+import IconChevronRight from '@tabler/icons-react-native/dist/esm/icons/IconChevronRight.mjs';
+import IconChevronUp from '@tabler/icons-react-native/dist/esm/icons/IconChevronUp.mjs';
+import IconCircleArrowDown from '@tabler/icons-react-native/dist/esm/icons/IconCircleArrowDown.mjs';
+import IconCircleArrowUp from '@tabler/icons-react-native/dist/esm/icons/IconCircleArrowUp.mjs';
+import IconCircleCheck from '@tabler/icons-react-native/dist/esm/icons/IconCircleCheck.mjs';
+import IconCircleCheckFilled from '@tabler/icons-react-native/dist/esm/icons/IconCircleCheckFilled.mjs';
+import IconCircleX from '@tabler/icons-react-native/dist/esm/icons/IconCircleX.mjs';
+import IconHistoryToggle from '@tabler/icons-react-native/dist/esm/icons/IconHistoryToggle.mjs';
+import IconCopy from '@tabler/icons-react-native/dist/esm/icons/IconCopy.mjs';
+import IconCreditCard from '@tabler/icons-react-native/dist/esm/icons/IconCreditCard.mjs';
+import IconDeviceMobile from '@tabler/icons-react-native/dist/esm/icons/IconDeviceMobile.mjs';
+import IconDiamond from '@tabler/icons-react-native/dist/esm/icons/IconDiamond.mjs';
+import IconDroplet from '@tabler/icons-react-native/dist/esm/icons/IconDroplet.mjs';
+import IconChartBar from '@tabler/icons-react-native/dist/esm/icons/IconChartBar.mjs';
+import IconChartPie from '@tabler/icons-react-native/dist/esm/icons/IconChartPie.mjs';
+import IconFlame from '@tabler/icons-react-native/dist/esm/icons/IconFlame.mjs';
+import IconDots from '@tabler/icons-react-native/dist/esm/icons/IconDots.mjs';
+import IconDownload from '@tabler/icons-react-native/dist/esm/icons/IconDownload.mjs';
+import IconEdit from '@tabler/icons-react-native/dist/esm/icons/IconEdit.mjs';
+import IconEye from '@tabler/icons-react-native/dist/esm/icons/IconEye.mjs';
+import IconEyeOff from '@tabler/icons-react-native/dist/esm/icons/IconEyeOff.mjs';
+import IconFile from '@tabler/icons-react-native/dist/esm/icons/IconFile.mjs';
+import IconFileText from '@tabler/icons-react-native/dist/esm/icons/IconFileText.mjs';
+import IconFingerprint from '@tabler/icons-react-native/dist/esm/icons/IconFingerprint.mjs';
+import IconFlag from '@tabler/icons-react-native/dist/esm/icons/IconFlag.mjs';
+import IconGift from '@tabler/icons-react-native/dist/esm/icons/IconGift.mjs';
+import IconHammer from '@tabler/icons-react-native/dist/esm/icons/IconHammer.mjs';
+import IconHome from '@tabler/icons-react-native/dist/esm/icons/IconHome.mjs';
+import IconHomeFilled from '@tabler/icons-react-native/dist/esm/icons/IconHomeFilled.mjs';
+import IconInfoCircle from '@tabler/icons-react-native/dist/esm/icons/IconInfoCircle.mjs';
+import IconInfoCircleFilled from '@tabler/icons-react-native/dist/esm/icons/IconInfoCircleFilled.mjs';
+import IconLanguage from '@tabler/icons-react-native/dist/esm/icons/IconLanguage.mjs';
+import IconLock from '@tabler/icons-react-native/dist/esm/icons/IconLock.mjs';
+import IconLogout from '@tabler/icons-react-native/dist/esm/icons/IconLogout.mjs';
+import IconInbox from '@tabler/icons-react-native/dist/esm/icons/IconInbox.mjs';
+import IconMail from '@tabler/icons-react-native/dist/esm/icons/IconMail.mjs';
+import IconMinus from '@tabler/icons-react-native/dist/esm/icons/IconMinus.mjs';
+import IconMoon from '@tabler/icons-react-native/dist/esm/icons/IconMoon.mjs';
+import IconPalette from '@tabler/icons-react-native/dist/esm/icons/IconPalette.mjs';
+import IconPencil from '@tabler/icons-react-native/dist/esm/icons/IconPencil.mjs';
+import IconPhoto from '@tabler/icons-react-native/dist/esm/icons/IconPhoto.mjs';
+import IconPlayerPause from '@tabler/icons-react-native/dist/esm/icons/IconPlayerPause.mjs';
+import IconPlus from '@tabler/icons-react-native/dist/esm/icons/IconPlus.mjs';
+import IconReceipt from '@tabler/icons-react-native/dist/esm/icons/IconReceipt.mjs';
+import IconRefresh from '@tabler/icons-react-native/dist/esm/icons/IconRefresh.mjs';
+import IconRepeat from '@tabler/icons-react-native/dist/esm/icons/IconRepeat.mjs';
+import IconSearch from '@tabler/icons-react-native/dist/esm/icons/IconSearch.mjs';
+import IconSend from '@tabler/icons-react-native/dist/esm/icons/IconSend.mjs';
+import IconShare from '@tabler/icons-react-native/dist/esm/icons/IconShare.mjs';
+import IconShieldCheck from '@tabler/icons-react-native/dist/esm/icons/IconShieldCheck.mjs';
+import IconSparkles from '@tabler/icons-react-native/dist/esm/icons/IconSparkles.mjs';
+import IconStar from '@tabler/icons-react-native/dist/esm/icons/IconStar.mjs';
+import IconStarFilled from '@tabler/icons-react-native/dist/esm/icons/IconStarFilled.mjs';
+import IconSun from '@tabler/icons-react-native/dist/esm/icons/IconSun.mjs';
+import IconTag from '@tabler/icons-react-native/dist/esm/icons/IconTag.mjs';
+import IconTool from '@tabler/icons-react-native/dist/esm/icons/IconTool.mjs';
+import IconTrash from '@tabler/icons-react-native/dist/esm/icons/IconTrash.mjs';
+import IconUser from '@tabler/icons-react-native/dist/esm/icons/IconUser.mjs';
+import IconUserCircle from '@tabler/icons-react-native/dist/esm/icons/IconUserCircle.mjs';
+import IconUserFilled from '@tabler/icons-react-native/dist/esm/icons/IconUserFilled.mjs';
+import IconUserMinus from '@tabler/icons-react-native/dist/esm/icons/IconUserMinus.mjs';
+import IconUserPlus from '@tabler/icons-react-native/dist/esm/icons/IconUserPlus.mjs';
+import IconUsers from '@tabler/icons-react-native/dist/esm/icons/IconUsers.mjs';
+import IconUsersGroup from '@tabler/icons-react-native/dist/esm/icons/IconUsersGroup.mjs';
+import IconWallet from '@tabler/icons-react-native/dist/esm/icons/IconWallet.mjs';
+import IconWifi from '@tabler/icons-react-native/dist/esm/icons/IconWifi.mjs';
+import IconX from '@tabler/icons-react-native/dist/esm/icons/IconX.mjs';
+import IconArrowNarrowDown from '@tabler/icons-react-native/dist/esm/icons/IconArrowNarrowDown.mjs';
+import IconArrowNarrowUp from '@tabler/icons-react-native/dist/esm/icons/IconArrowNarrowUp.mjs';
+import IconCircle from '@tabler/icons-react-native/dist/esm/icons/IconCircle.mjs';
+import IconCirclePlus from '@tabler/icons-react-native/dist/esm/icons/IconCirclePlus.mjs';
+import IconCloudDownload from '@tabler/icons-react-native/dist/esm/icons/IconCloudDownload.mjs';
+import IconCloudOff from '@tabler/icons-react-native/dist/esm/icons/IconCloudOff.mjs';
+import IconContrast from '@tabler/icons-react-native/dist/esm/icons/IconContrast.mjs';
+import IconHeadphones from '@tabler/icons-react-native/dist/esm/icons/IconHeadphones.mjs';
+import IconHelpCircle from '@tabler/icons-react-native/dist/esm/icons/IconHelpCircle.mjs';
+import IconLayoutGrid from '@tabler/icons-react-native/dist/esm/icons/IconLayoutGrid.mjs';
+import IconMailOpened from '@tabler/icons-react-native/dist/esm/icons/IconMailOpened.mjs';
+import IconMoodHappy from '@tabler/icons-react-native/dist/esm/icons/IconMoodHappy.mjs';
+import IconPlayerStop from '@tabler/icons-react-native/dist/esm/icons/IconPlayerStop.mjs';
+import IconTrendingDown from '@tabler/icons-react-native/dist/esm/icons/IconTrendingDown.mjs';
+import IconTrendingUp from '@tabler/icons-react-native/dist/esm/icons/IconTrendingUp.mjs';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
