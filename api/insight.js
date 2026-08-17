@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     apiKey,
     label: 'insight',
     system: SYSTEM,
-    parts: [{ text: JSON.stringify(a) }],
+    parts: [{ text: JSON.stringify(derive(a)) }],
     generationConfig: { temperature: 0.6, responseMimeType: 'application/json' },
     timeoutMs: 15000, // el modelo que razona tarda más; si se pasa, cae al -lite del segundo intento
     parse: parseInsight,
@@ -45,16 +45,48 @@ const SYSTEM = `Eres el asistente financiero de Spendia (app de finanzas persona
 Recibes SOLO agregados numéricos del mes del usuario. Devuelve EXCLUSIVAMENTE un JSON válido:
 {"sentence": string, "chip": {"label": string, "tone": "pos"|"neg"|"muted"}}
 
+NO calcules nada: las proyecciones vienen ya hechas. Qué es cada cifra:
+- "expenses" es lo GASTADO hasta hoy; "projectedExpenses", lo que habrá gastado al cerrar el mes.
+- "balance" es lo que le queda hoy (income - expenses); "projectedBalance", lo que le quedará al cierre.
+  Si "projectedBalance" es NEGATIVO es un DÉFICIT: se le va a acabar el dinero, jamás lo llames
+  "saldo a favor" ni "ahorro". Solo un número positivo es saldo a favor.
+- "vsPrevToDatePct" compara el gasto de hoy con el del mes anterior a la misma altura:
+  negativo = está gastando menos que el mes pasado (buena señal).
+- Llamar "saldo" o "ahorro" a una cifra de gasto es el error más grave que puedes cometer.
+
 Reglas:
 - "sentence": UNA frase en español, máx 140 caracteres, proactiva y accionable.
   Prioriza en este orden: proyección de fin de mes (usa dayOfMonth/daysInMonth y el ritmo de gasto),
   sobre-gasto vs mes anterior, categoría dominante, tasa de ahorro. Habla en segunda persona ("vas", "cierras").
-- "chip": dato clave con signo. tone "pos" si es buena señal (ahorro, gasto a la baja),
-  "neg" si es alerta (déficit, gasto al alza), "muted" si es neutro/sin datos.
-  "label": MÁXIMO 16 caracteres, se recorta sin piedad. Cifra abreviada y nada más
-  ("$7,2M al cierre", "-18% vs julio", "82% ahorrado"); no metas la palabra "proyección".
+- "chip": el MISMO dato del que habla la frase, resumido. No otro.
+  Si la frase habla del gasto proyectado, el chip lleva esa cifra; si habla del saldo, la del saldo.
+  Nunca den cifras distintas sin decir de qué es cada una.
+  tone "pos" si es buena señal (ahorro, gasto a la baja), "neg" si es alerta (déficit,
+  gasto al alza), "muted" si es neutro/sin datos.
+  "label": MÁXIMO 16 caracteres, se recorta sin piedad. Cifra abreviada y de qué es
+  ("gasto $7,2M", "queda $1,8M", "-18% vs mes ant.", "82% ahorrado"); no metas la palabra "proyección".
+  "monthLabel" es el mes EN CURSO: no tienes el nombre del anterior, así que al comparar
+  escribe "vs mes ant.", nunca el nombre de un mes.
 - Nunca inventes cifras que no estén en los datos. Nada de markdown, nada fuera del JSON.
 - Si no hay datos suficientes (todo 0 o null), sentence motivacional breve y chip tone "muted".`;
+
+// Las cifras derivadas las hace JS, no el modelo: pedirle la proyección de cierre le
+// salía con el signo cambiado y anunciaba "saldo a favor" lo que en realidad era un
+// déficit. El modelo solo redacta.
+function derive(a) {
+  const proyectable = a.dayOfMonth > 0 && a.daysInMonth > 0 && a.expenses > 0;
+  const projectedExpenses = proyectable
+    ? Math.round((a.expenses / a.dayOfMonth) * a.daysInMonth)
+    : null;
+  return {
+    ...a,
+    projectedExpenses,
+    projectedBalance: projectedExpenses !== null && a.income > 0 ? a.income - projectedExpenses : null,
+    vsPrevToDatePct: a.prevMonthToDateExpenses > 0
+      ? Math.round((a.expenses / a.prevMonthToDateExpenses - 1) * 100)
+      : null,
+  };
+}
 
 // Solo campos esperados, coaccionados a número finito o null. Bloquea cualquier extra.
 function sanitize(body) {
