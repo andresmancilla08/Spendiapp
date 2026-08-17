@@ -51,6 +51,8 @@ export default function Root({ children }: PropsWithChildren) {
               var mode = window.localStorage.getItem('@spendiapp_theme');
               var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
               var chrome = window.localStorage.getItem('@spendia_chrome') || (dark ? '#000000' : '#FFFFFF');
+              var top = window.localStorage.getItem('@spendia_chrome_top') || (dark ? '#000000' : '#FFFFFF');
+              document.documentElement.style.setProperty('--spendia-chrome-top', top);
               document.documentElement.style.setProperty('--spendia-app-bg', chrome);
               var m = document.querySelector('meta[name="theme-color"]');
               if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
@@ -135,6 +137,23 @@ export default function Root({ children }: PropsWithChildren) {
              se extiende bajo la barra de estado, así que el gradiente y el efecto
              animado de AppBackground la pintan igual que el resto de la pantalla
              (antes había aquí un body::before neutro que la cortaba en blanco). */
+
+          /* [franja superior] La barra de estado se pinta con un COLOR LISO, no
+             con el degradado. En la PWA instalada iOS dibuja su cristal encima de
+             esos ~54 px: desenfocar un degradado con blobs se ve como una mancha
+             lavada (era el 'blur superior'), y desenfocar un color liso no se nota.
+             El color es el primer stop del degradado activo, así que la costura no
+             se aprecia. Fuera de standalone, safe-area-inset-top es 0 y esto no
+             pinta nada. */
+          body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: env(safe-area-inset-top, 0px);
+            background: var(--spendia-chrome-top, transparent);
+            pointer-events: none;
+            z-index: 9999;
+          }
           #spendia-landing {
             transition: opacity 0.35s ease;
           }

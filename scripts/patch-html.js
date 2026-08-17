@@ -89,6 +89,8 @@ const pwaTags = `
         var mode = window.localStorage.getItem('@spendiapp_theme');
         var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         var chrome = window.localStorage.getItem('@spendia_chrome') || (dark ? '#000000' : '#FFFFFF');
+        var top = window.localStorage.getItem('@spendia_chrome_top') || (dark ? '#000000' : '#FFFFFF');
+        document.documentElement.style.setProperty('--spendia-chrome-top', top);
         document.documentElement.style.setProperty('--spendia-app-bg', chrome);
         var m = document.querySelector('meta[name="theme-color"]');
         if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); document.head.appendChild(m); }
@@ -131,6 +133,21 @@ const pwaTags = `
        (~34pt) y se veía el canvas blanco del navegador. 100dvh sigue el viewport
        dinámico; las declaraciones previas son el fallback. El canvas se pinta con
        el fondo real de la app (--spendia-app-bg, lo escribe AppBackground). */
+    /* [franja superior] La barra de estado se pinta con un COLOR LISO, no con el
+       degradado: en la PWA instalada iOS dibuja su cristal sobre esos ~54 px, y
+       desenfocar un degradado con blobs se ve como una mancha lavada — era el
+       'blur superior'. Desenfocar un color liso no se nota. El color es el primer
+       stop del degradado activo, así que la costura no se aprecia. Fuera de
+       standalone, safe-area-inset-top vale 0 y esto no pinta nada. */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: env(safe-area-inset-top, 0px);
+      background: var(--spendia-chrome-top, transparent);
+      pointer-events: none;
+      z-index: 9999;
+    }
     html, body {
       height: 100%;
       height: -webkit-fill-available;

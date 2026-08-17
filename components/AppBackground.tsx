@@ -36,6 +36,12 @@ export function topBackgroundColor(hex: string, isDark: boolean) {
  *  sin ella la PWA arranca con el neutro del modo y la franja parpadea. */
 export const CHROME_COLOR_KEY = '@spendia_chrome';
 
+/** Color PLANO del borde superior. Va aparte de `CHROME_COLOR_KEY` (que guarda el
+ *  degradado entero del canvas) porque la franja de la barra de estado se pinta
+ *  con un color liso: iOS dibuja su cristal encima y desenfocar un color liso no
+ *  se nota, mientras que desenfocar un degradado se ve como una mancha. */
+export const CHROME_TOP_KEY = '@spendia_chrome_top';
+
 /**
  * Arreglo de recorte para CUALQUIER contenedor con `borderRadius` +
  * `overflow: 'hidden'` que tenga dentro un efecto de fondo desenfocado.
@@ -170,9 +176,13 @@ export default function AppBackground() {
       }
       meta.content = chromeColor;
       document.documentElement.style.setProperty('--spendia-app-bg', canvasBackground);
+      document.documentElement.style.setProperty('--spendia-chrome-top', chromeColor);
       // Cache para el arranque siguiente: el script del <head> corre antes de
       // conocer la paleta y sin esto pintaría el neutro del modo.
-      try { window.localStorage.setItem(CHROME_COLOR_KEY, canvasBackground); } catch {}
+      try {
+        window.localStorage.setItem(CHROME_COLOR_KEY, canvasBackground);
+        window.localStorage.setItem(CHROME_TOP_KEY, chromeColor);
+      } catch {}
     }
   }, [chromeColor, canvasBackground]);
 
