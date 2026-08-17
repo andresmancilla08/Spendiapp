@@ -14,7 +14,7 @@ import LegalBody from '../components/LegalBody';
 // Fecha de la última revisión del texto legal. Se formatea en el idioma activo:
 // escrita a mano en español, en inglés e italiano salía en español.
 const LAST_UPDATED_AT = new Date(2026, 7, 17);
-const CONTACT_EMAIL = 'andresmancilla08@gmail.com';
+const CONTACT_EMAIL = 'spendia.org@gmail.com';
 const CONTACT_PHONE = '+57 320 749 2444';
 const WEBSITE = 'https://spendia.co';
 
