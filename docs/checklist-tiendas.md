@@ -46,7 +46,7 @@ Leyenda: 🔴 bloquea la publicación · 🟡 obligatorio pero no bloquea la rev
 - [ ] Botón **«Restaurar compras»** — Apple lo exige explícitamente
 - [ ] Webhook de RevenueCat → Cloud Function → estado premium en Firestore
       (Firestore sigue siendo la fuente de verdad)
-- [ ] Retirar `app/payment-qr.tsx` del build nativo (puede seguir en la PWA)
+- [x] Retirar `app/payment-qr.tsx` — eliminada del proyecto entero en 2.64.0
 - [ ] Probar compra, renovación y cancelación en sandbox de ambas tiendas
 - [ ] Comprobar que un usuario que ya pagó por la PWA conserva su premium en la
       app nativa
@@ -75,13 +75,16 @@ Leyenda: 🔴 bloquea la publicación · 🟡 obligatorio pero no bloquea la rev
 - [ ] Abrir **todas** las pantallas en un dispositivo real y comprobar que
       ninguna revienta por una API de navegador
 
-### B4 · Inicio de sesión 🔴
+### B4 · Inicio de sesión — ✅ RESUELTO EN 2.63.0
 
-- [ ] `expo-apple-authentication` + `signInWithCredential`
-- [ ] Botón de Apple con el estilo que exige la guía de Apple
-- [ ] Probar el caso «ocultar mi correo» (Apple devuelve un alias relay)
-- [ ] Verificar que Google Sign-In nativo funciona en dispositivo real, en iOS
-      y en Android
+Google Sign-In se retiró por completo (hook, botón, esquema OAuth y las
+dependencias `expo-auth-session` / `expo-web-browser`). La app entra solo con
+correo + PIN de 6 dígitos, así que **Sign in with Apple ya no es obligatorio**:
+la guideline 4.8 solo aplica cuando hay login social de terceros.
+
+- [x] Sin login social → sin requisito 4.8
+- [ ] Probar el flujo correo + PIN en dispositivo real (iOS y Android), incluido
+      el correo de recuperación con OTP
 
 ## Fase 3 · Requisitos de ficha y privacidad
 
