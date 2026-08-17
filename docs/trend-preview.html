@@ -1,36 +1,37 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>Tendencia · antes y después</title>
+<title>Tendencia · maqueta a tamaño de móvil</title>
 <style>
-  :root { --primary:#e94b8b; --border:#e8e2e6; --surface:#fff; --ink:#1b1220; --muted:#9b8f97; --error:#e5484d; }
-  body { margin:0; padding:28px; background:#faf7f9; font-family:-apple-system,Segoe UI,Roboto,sans-serif; color:var(--ink); }
-  h1 { font-size:19px; margin:0 0 4px; }
-  p.lead { color:var(--muted); margin:0 0 24px; font-size:13px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; max-width:1080px; }
-  .case h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; font-weight:700; }
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; }
+  :root { --primary:#e94b8b; --border:#e8e2e6; --surface:#fff; --ink:#1b1220; --muted:#9b8f97; --error:#e5484d; --success:#12a594; }
+  body { margin:0; padding:24px; background:#f6f2f5; font-family:-apple-system,Segoe UI,Roboto,sans-serif; color:var(--ink); }
+  h1 { font-size:18px; margin:0 0 4px; }
+  p.lead { color:var(--muted); margin:0 0 20px; font-size:13px; max-width:780px; line-height:1.5; }
+  .phones { display:flex; gap:24px; flex-wrap:wrap; }
+  .phone { width:390px; background:#fdfbfc; border:1px solid var(--border); border-radius:26px; padding:16px; }
+  .phone h2 { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; margin-bottom:10px; }
   .cap { display:flex; align-items:center; gap:6px; font-size:9px; letter-spacing:.13em; color:var(--muted); font-weight:700; }
   .dot { width:5px; height:5px; border-radius:3px; background:var(--primary); }
-  .head { display:flex; align-items:baseline; justify-content:space-between; margin:8px 0 2px; }
+  .head { display:flex; align-items:baseline; justify-content:space-between; margin:10px 0 2px; }
   .big { font-size:19px; font-weight:800; letter-spacing:-.5px; }
-  .delta { font-size:12px; font-weight:700; color:var(--error); }
-  .months { display:flex; justify-content:space-between; margin-top:4px; }
+  .delta { font-size:12px; font-weight:700; }
+  .months { display:flex; justify-content:space-between; margin-top:6px; padding:0 6px; }
   .months span { font-size:8.5px; letter-spacing:.08em; color:var(--muted); font-weight:600; }
-  .pair { display:grid; grid-template-columns:1fr; gap:14px; }
-  .tag { font-size:10px; color:var(--muted); margin:6px 0 0; }
+  .note { font-size:10.5px; color:var(--muted); margin:0; }
 </style>
-<h1>Tarjeta de tendencia — dibujo viejo vs. nuevo</h1>
-<p class="lead">Misma geometría que <code>ModTrend</code>. Izquierda: viewBox estirado, escala desde cero, polilínea. Derecha: píxeles reales, escala por rango, curva suave.</p>
-<div class="grid" id="grid"></div>
+<h1>Tarjeta de tendencia — al ancho real del móvil</h1>
+<p class="lead">Cada tarjeta mide lo que mide en un iPhone: 390 px de pantalla, 330 de gráfico. El alto pasa de 66 a 104 px — la proporción era de 5:1 y por eso se veía como un gusano estirado. Cuatro series distintas para comprobar que ninguna miente.</p>
+<div class="phones" id="phones"></div>
 <script>
 const CASOS = [
-  { n: 'Cinco meses flojos y un pico (el caso real de la captura)', v: [0, 0, 12000, 90000, 140000, 1100000] },
+  { n: 'Cinco meses flojos y un pico', v: [0, 0, 12000, 90000, 140000, 1100000] },
   { n: 'Gasto estable', v: [1840000, 2010000, 1720000, 2260000, 2050000, 2184500] },
   { n: 'Bajando mes a mes', v: [3200000, 2900000, 2500000, 2300000, 1900000, 1500000] },
   { n: 'Casi plano', v: [2000000, 2010000, 1995000, 2005000, 2000000, 2002000] },
 ];
-const W = 620, H_OLD = 52, H = 66, PAD = 8;
+const H = 104, PAD = 12, SVG_W = 330;   // 390 de pantalla − 16×2 de margen − 14×2 de tarjeta
 const money = (n) => '$' + n.toLocaleString('es-CO');
+const MESES = ['MAR','ABR','MAY','JUN','JUL','AGO'];
 
 function smooth(pts) {
   let d = `M${pts[0][0]} ${pts[0][1]}`;
@@ -43,57 +44,40 @@ function smooth(pts) {
   return d;
 }
 
-function viejo(v) {                       // escala 0..max, viewBox 158x52 estirado a W
-  const max = Math.max(...v, 1);
-  const pts = v.map((x, i) => [6 + i * (146 / (v.length - 1)), 44 - (x / max) * 33]);
-  const area = `M${pts.map(p => p.join(' ')).join(' L')} L${pts.at(-1)[0]} 52 L${pts[0][0]} 52 Z`;
-  return `<svg width="100%" height="${H_OLD}" viewBox="0 0 158 52" preserveAspectRatio="none">
-    <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="var(--primary)" stop-opacity=".34"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/>
-    </linearGradient></defs>
-    <line x1="0" y1="13" x2="158" y2="13" stroke="var(--border)" stroke-width=".7" stroke-dasharray="2,4"/>
-    <line x1="0" y1="30" x2="158" y2="30" stroke="var(--border)" stroke-width=".7" stroke-dasharray="2,4"/>
-    <path d="${area}" fill="url(#g1)"/>
-    <polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round"/>
-    ${pts.slice(0,-1).map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="2.3" fill="#fff" stroke="var(--primary)" stroke-width="1.5"/>`).join('')}
-    <circle cx="${pts.at(-1)[0]}" cy="${pts.at(-1)[1]}" r="3.6" fill="var(--primary)"/>
-  </svg>`;
-}
-
-function nuevo(v, w) {                    // escala por rango, px reales, curva suave
+function grafico(v, w) {
   const max = Math.max(...v), min = Math.min(...v), real = max - min;
   const span = Math.max(real, max * 0.35) || 1, base = min - (span - real) / 2;
   const usable = H - PAD * 2;
   const pts = v.map((x, i) => [ (i * (w - PAD*2)) / (v.length - 1) + PAD, H - PAD - ((x - base)/span) * usable ]);
   const line = smooth(pts);
   const [lx, ly] = pts.at(-1);
+  const id = 'g' + Math.random().toString(36).slice(2, 7);
   return `<svg width="${w}" height="${H}">
-    <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="var(--primary)" stop-opacity=".28"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/>
     </linearGradient></defs>
     ${[0.34, 0.67].map(p => `<line x1="0" y1="${PAD + usable*p}" x2="${w}" y2="${PAD + usable*p}" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,5" opacity=".55"/>`).join('')}
-    <path d="${line} L${lx} ${H} L${pts[0][0]} ${H} Z" fill="url(#g2)"/>
+    <path d="${line} L${lx} ${H} L${pts[0][0]} ${H} Z" fill="url(#${id})"/>
     <path d="${line}" fill="none" stroke="var(--primary)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="${lx}" cy="${ly}" r="5" fill="var(--primary)" opacity=".18"/>
     <circle cx="${lx}" cy="${ly}" r="3" fill="var(--primary)" stroke="#fff" stroke-width="1.5"/>
   </svg>`;
 }
 
-const MESES = ['MAR','ABR','MAY','JUN','JUL','AGO'];
-const tarjeta = (svg, total, delta) => `<div class="card">
-  <div class="cap"><span class="dot"></span>TENDENCIA · 6 MESES</div>
-  <div class="head"><span class="big">${money(total)}</span><span class="delta">${delta > 0 ? '+' : ''}${delta}%</span></div>
-  ${svg}
-  <div class="months">${MESES.map(m => `<span>${m}</span>`).join('')}</div>
-</div>`;
-
-document.getElementById('grid').innerHTML = CASOS.map(c => {
+document.getElementById('phones').innerHTML = CASOS.map(c => {
   const total = c.v.reduce((a, b) => a + b, 0);
   const prev = c.v.at(-2), last = c.v.at(-1);
   const delta = prev > 0 ? Math.round(((last - prev) / prev) * 100) : 0;
-  return `<div class="case"><h2>${c.n}</h2><div class="pair">
-    <div>${tarjeta(viejo(c.v), total, delta)}<p class="tag">antes</p></div>
-    <div>${tarjeta(nuevo(c.v, 300), total, delta)}<p class="tag">ahora</p></div>
-  </div></div>`;
+  const color = delta > 0 ? 'var(--error)' : 'var(--success)';
+  return `<div class="phone">
+    <h2>${c.n}</h2>
+    <div class="card">
+      <div class="cap"><span class="dot"></span>TENDENCIA · 6 MESES</div>
+      <div class="head"><span class="big">${money(total)}</span><span class="delta" style="color:${color}">${delta > 0 ? '+' : ''}${delta}%</span></div>
+      ${grafico(c.v, SVG_W)}
+      <div class="months">${MESES.map(m => `<span>${m}</span>`).join('')}</div>
+    </div>
+    <p class="note">meses: ${c.v.map(x => (x/1e6).toFixed(2)).join(' · ')} (millones)</p>
+  </div>`;
 }).join('');
 </script>

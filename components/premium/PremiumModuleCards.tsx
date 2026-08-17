@@ -84,8 +84,8 @@ export function ModIA({ colors }: { colors: AppColors }) {
   );
 }
 
-const TREND_H = 66;
-const TREND_PAD = 8; // margen vertical: sin él la serie se pega al borde de la tarjeta
+const TREND_H = 104;
+const TREND_PAD = 12; // margen vertical: sin él la serie se pega al borde de la tarjeta
 
 /**
  * Curva suave (Catmull-Rom convertido a Bézier) en lugar de una polilínea.
