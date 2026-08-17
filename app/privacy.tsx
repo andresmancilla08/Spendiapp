@@ -104,7 +104,7 @@ export default function PrivacyScreen() {
 
             <Section title="3. Datos Personales Recopilados">
               <P>Spendia recopila los siguientes datos personales:</P>
-              <Li>Datos de identificación: nombre completo y dirección de correo electrónico (obtenidos mediante autenticación Google o registro directo).</Li>
+              <Li>Datos de identificación: nombre completo y dirección de correo electrónico, facilitados por el usuario al registrarse.</Li>
               <Li>Datos financieros personales: registros de ingresos y gastos, categorías, montos, fechas y descripciones ingresadas por el usuario.</Li>
               <Li>Datos de grupos de gastos: información sobre miembros de grupos y deudas compartidas cuando el usuario utiliza esta funcionalidad.</Li>
               <Li>Datos de configuración: preferencias de idioma, tema visual y paleta de color seleccionada.</Li>

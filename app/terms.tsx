@@ -110,8 +110,8 @@ export default function TermsScreen() {
 
             <Section title="3. Registro y Cuenta de Usuario">
               <P>
-                Para acceder al servicio, el Usuario debe crear una cuenta mediante autenticación con Google o
-                mediante correo electrónico y contraseña. El Usuario es responsable de:
+                Para acceder al servicio, el Usuario debe crear una cuenta con su correo electrónico y un PIN
+                de seis dígitos. El Usuario es responsable de:
               </P>
               <Li>Proporcionar información veraz y actualizada durante el registro.</Li>
               <Li>Mantener la confidencialidad de su PIN y credenciales de acceso.</Li>
