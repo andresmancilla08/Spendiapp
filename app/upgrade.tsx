@@ -4,7 +4,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { router } from 'expo-router';
 import { goBack } from '../utils/nav';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -12,6 +11,7 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import ScreenBackground from '../components/ScreenBackground';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
 import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { PremiumModules } from '../components/premium/PremiumModuleCards';
@@ -30,6 +30,7 @@ type Plan = 'monthly' | 'annual';
 export default function UpgradeScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const { showToast } = useToast();
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const btnScale = useRef(new Animated.Value(1)).current;
   const [plan, setPlan] = useState<Plan>('annual');
@@ -43,7 +44,11 @@ export default function UpgradeScreen() {
   const handlePressOut = () => {
     Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 7, useNativeDriver: Platform.OS !== 'web' }).start();
   };
-  const handleActivate = () => router.push('/payment-qr' as any);
+  // El cobro manual por transferencia y WhatsApp se retiró: era motivo de rechazo
+  // en Play y en App Store. Hasta que entren Wompi (Colombia) y Paddle (resto),
+  // el botón avisa en vez de llevar a ningún sitio — ver
+  // docs/plan-pagos-wompi-paddle.md.
+  const handleActivate = () => showToast(t('upgrade.ctaSoon'), 'info');
 
   const onCTA = accentInk(colors, 'primary', colors.primary);
 

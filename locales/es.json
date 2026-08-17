@@ -1039,14 +1039,14 @@
     "title": "¿Qué puedes hacer?",
     "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
-    "pin6": {
-      "title": "Tu PIN ahora es de 6 dígitos",
-      "item1": "Cuatro dígitos se adivinan; seis, no tanto. La app te pide crear el tuyo la primera vez que entras",
-      "item2": "Si lo olvidas, sigues teniendo el código por correo desde «¿Olvidaste tu PIN?»"
+    "premiumLook": {
+      "title": "Premium se ve como debe",
+      "item1": "Las dos pantallas de Premium rediseñadas: cada función se muestra funcionando, con su gráfico, en vez de una lista de viñetas",
+      "item2": "Y el acento sigue tu paleta: antes eran el mismo ámbar en las 18"
     },
-    "emailOnly": {
-      "title": "Se entra siempre con tu correo",
-      "item1": "El acceso con Google se retiró. Tu cuenta, tus movimientos y tus grupos siguen exactamente igual"
+    "sharper": {
+      "title": "Se ve más nítido",
+      "item1": "En la app instalada, el avatar y los logos salían borrosos en todas las pantallas. Arreglado"
     }
   },
   "incomeClaim": {
@@ -1386,7 +1386,7 @@
     "modulesTitle": "LO QUE SE ENCIENDE",
     "sampleNote": "Cifras de ejemplo",
     "ctaButton": "Activar Premium",
-    "ctaNote": "El admin activará tu acceso tras confirmar el pago",
+    "ctaNote": "Pago en la app, disponible en unos días",
     "mod": {
       "ia": "TU MES EN UNA FRASE",
       "iaText": "Vas a cerrar el mes con déficit si mantienes este ritmo de gasto en Tarjetas.",
@@ -1425,30 +1425,8 @@
       "groupNote": "4 personas · 11 gastos",
       "perso": "PERSONALIZACIÓN COMPLETA",
       "persoNote": "18 paletas + las tuyas · 13 fondos · 6 gráficos"
-    }
-  },
-  "paymentQr": {
-    "title": "Activa tu Premium",
-    "subtitle": "Transfiere y confirma tu pago",
-    "planMonthly": "Mensual",
-    "planAnnual": "Anual",
-    "planMonthlyPrice": "$9.900 / mes",
-    "planAnnualPrice": "$79.900 / año",
-    "planAnnualSavings": "Ahorra 32%",
-    "qrTitle": "Escanea con tu banco",
-    "qrSubtitle": "Bancolombia · Nequi · Daviplata · Bre-B",
-    "keyLabel": "Copia la llave:",
-    "copyKey": "Copiar llave",
-    "keyCopied": "¡Llave copiada!",
-    "paidButton": "Ya realicé mi pago",
-    "howTitle": "¿Cómo pagar?",
-    "step1": "Copia la llave Bre-B de arriba",
-    "step2": "Ingresa el monto del plan que elegiste",
-    "step3": "Confirma la transferencia",
-    "step4": "Presiona 'Ya realicé mi pago'",
-    "sending": "Enviando confirmación...",
-    "sent": "¡Confirmación enviada! Recibirás acceso pronto.",
-    "error": "Error al enviar. Intenta de nuevo."
+    },
+    "ctaSoon": "Estamos conectando los pagos dentro de la app. Muy pronto podrás activarlo aquí mismo."
   },
   "updateRequired": {
     "title": "Actualización requerida",

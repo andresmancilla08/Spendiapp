@@ -1039,14 +1039,14 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "pin6": {
-      "title": "Your PIN is now 6 digits",
-      "item1": "Four digits are guessable; six, much less so. The app asks you to create yours the first time you sign in",
-      "item2": "Forgot it? You still get a code by email from \"Forgot your PIN?\""
+    "premiumLook": {
+      "title": "Premium looks the way it should",
+      "item1": "Both Premium screens redesigned: every feature is shown working, with its own chart, instead of a bullet list",
+      "item2": "And the accent follows your palette — it used to be the same amber across all 18"
     },
-    "emailOnly": {
-      "title": "You always sign in with your email",
-      "item1": "Google sign-in has been removed. Your account, movements and groups are exactly as they were"
+    "sharper": {
+      "title": "Sharper",
+      "item1": "In the installed app, your avatar and the logos came out blurry on every screen. Fixed"
     }
   },
   "incomeClaim": {
@@ -1386,7 +1386,7 @@
     "modulesTitle": "WHAT LIGHTS UP",
     "sampleNote": "Sample figures",
     "ctaButton": "Activate Premium",
-    "ctaNote": "An admin will enable your access once the payment is confirmed",
+    "ctaNote": "In-app payment, available in a few days",
     "mod": {
       "ia": "YOUR MONTH IN A SENTENCE",
       "iaText": "You'll close the month in deficit if you keep spending on Cards at this pace.",
@@ -1425,30 +1425,8 @@
       "groupNote": "4 people · 11 expenses",
       "perso": "FULL PERSONALIZATION",
       "persoNote": "18 palettes + yours · 13 backgrounds · 6 charts"
-    }
-  },
-  "paymentQr": {
-    "title": "Activate your Premium",
-    "subtitle": "Transfer and confirm your payment",
-    "planMonthly": "Monthly",
-    "planAnnual": "Annual",
-    "planMonthlyPrice": "$9,900 / month",
-    "planAnnualPrice": "$79,900 / year",
-    "planAnnualSavings": "Save 32%",
-    "qrTitle": "Scan with your bank",
-    "qrSubtitle": "Bancolombia · Nequi · Daviplata · Bre-B",
-    "keyLabel": "Copy the key:",
-    "copyKey": "Copy key",
-    "keyCopied": "Key copied!",
-    "paidButton": "I already paid",
-    "howTitle": "How to pay?",
-    "step1": "Copy the Bre-B key above",
-    "step2": "Enter the amount for the plan you chose",
-    "step3": "Confirm the transfer",
-    "step4": "Press 'I already paid'",
-    "sending": "Sending confirmation...",
-    "sent": "Confirmation sent! You will receive access soon.",
-    "error": "Error sending. Please try again."
+    },
+    "ctaSoon": "We're wiring up in-app payments. You'll be able to activate it right here very soon."
   },
   "updateRequired": {
     "title": "Update required",

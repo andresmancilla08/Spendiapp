@@ -44,16 +44,16 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'lock-closed-outline',
+    icon: 'star',
     colorKey: 'primary',
-    titleKey: 'whatsNew.pin6.title',
-    items: ['whatsNew.pin6.item1', 'whatsNew.pin6.item2'],
+    titleKey: 'whatsNew.premiumLook.title',
+    items: ['whatsNew.premiumLook.item1', 'whatsNew.premiumLook.item2'],
   },
   {
-    icon: 'mail-outline',
+    icon: 'eye-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.emailOnly.title',
-    items: ['whatsNew.emailOnly.item1'],
+    titleKey: 'whatsNew.sharper.title',
+    items: ['whatsNew.sharper.item1'],
   },
 ];
 
