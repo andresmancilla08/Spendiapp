@@ -13,8 +13,9 @@
  * pagar), el informe con amigo, los grupos y la personalización—, y el aviso de la
  * pantalla lo dice.
  */
+import { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Svg, { Circle, Polyline, Path, Defs, LinearGradient as SvgGradient, Stop, Line } from 'react-native-svg';
+import Svg, { Circle, Path, Defs, LinearGradient as SvgGradient, Stop, Line } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { Fonts } from '../../config/fonts';
@@ -83,50 +84,105 @@ export function ModIA({ colors }: { colors: AppColors }) {
   );
 }
 
+const TREND_H = 66;
+const TREND_PAD = 8; // margen vertical: sin él la serie se pega al borde de la tarjeta
+
+/**
+ * Curva suave (Catmull-Rom convertido a Bézier) en lugar de una polilínea.
+ * Con seis puntos, los quiebres rectos son justo lo que hace que un gráfico
+ * pequeño parezca un garabato.
+ */
+function smoothPath(pts: number[][]): string {
+  if (pts.length < 2) return '';
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] ?? p2;
+    // 1/6 es la tensión estándar de Catmull-Rom: más alta se pasa de frenada y
+    // dibuja jorobas donde los datos no las tienen.
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+    // Los tiradores se recortan al rango del tramo: sin esto la curva se pasa de
+    // frenada y dibuja valles por debajo del mínimo real. Un gráfico de gasto no
+    // puede inventar un mes mejor que el que hubo.
+    const lo = Math.min(p1[1], p2[1]);
+    const hi = Math.max(p1[1], p2[1]);
+    const clamp = (y: number) => Math.max(lo, Math.min(hi, y));
+    const c1y = clamp(p1[1] + (p2[1] - p0[1]) / 6);
+    const c2y = clamp(p2[1] - (p3[1] - p1[1]) / 6);
+    d += ` C${c1x} ${c1y}, ${c2x} ${c2y}, ${p2[0]} ${p2[1]}`;
+  }
+  return d;
+}
+
 export function ModTrend({ colors, data }: { colors: AppColors; data?: PremiumPreview['trend'] }) {
   const { t } = useTranslation();
-  // La miniatura mide 158×52 con margen: normalizamos la serie real a ese lienzo.
-  const pts = data
-    ? (() => {
-        const max = Math.max(...data.expenses, 1);
-        const step = data.expenses.length > 1 ? 146 / (data.expenses.length - 1) : 0;
-        return data.expenses.map((v, i) => [6 + i * step, 44 - (v / max) * 33]);
-      })()
-    : [[6, 40], [36, 33], [66, 36], [96, 21], [126, 25], [152, 11]];
+  // El SVG se dibuja en píxeles REALES medidos con onLayout. Antes tenía un
+  // viewBox fijo con preserveAspectRatio="none": el lienzo se estiraba al ancho
+  // de la tarjeta y con él los trazos y los puntos, que salían ovalados.
+  const [width, setWidth] = useState(0);
+
+  const serie = data?.expenses ?? [1_840_000, 2_010_000, 1_720_000, 2_260_000, 2_050_000, 2_184_500];
   const meses = data?.months ?? ['MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO'];
-  const [lastX, lastY] = pts.at(-1)!;
-  const area = `M${pts.map(([x, y]) => `${x} ${y}`).join(' L')} L${lastX} 52 L${pts[0][0]} 52 Z`;
   const delta = data?.deltaPct ?? 8.4;
+
+  // Escala por RANGO, no de cero al máximo: con un mes fuerte y cinco flojos, la
+  // escala desde cero aplastaba cinco meses contra el suelo en una raya plana.
+  // Pero el rango a secas miente al revés: doce millones contra doce millones y
+  // pico salían como una montaña rusa. Por eso el rango nunca baja del 35% del
+  // máximo — un mes plano se DIBUJA plano — y la serie se centra en su hueco.
+  const max = Math.max(...serie);
+  const min = Math.min(...serie);
+  const real = max - min;
+  const span = Math.max(real, max * 0.35) || 1;
+  const base = min - (span - real) / 2;
+  const usable = TREND_H - TREND_PAD * 2;
+  const pts = serie.map((v, i) => [
+    serie.length > 1 ? (i * (width - TREND_PAD * 2)) / (serie.length - 1) + TREND_PAD : width / 2,
+    TREND_H - TREND_PAD - ((v - base) / span) * usable,
+  ]);
+  const line = smoothPath(pts);
+  const area = pts.length > 1
+    ? `${line} L${pts.at(-1)![0]} ${TREND_H} L${pts[0][0]} ${TREND_H} Z`
+    : '';
+  const [lastX, lastY] = pts.at(-1) ?? [0, 0];
+
   return (
     <Card colors={colors}>
       <Caption text={t('upgrade.mod.trend')} dot={colors.primary} colors={colors} />
       <View style={s.trendHead}>
         <Text style={[s.bigNum, { color: colors.textPrimary }]}>
-          {data ? formatMoney(data.total) : '$2.184.500'}
+          {formatMoney(data ? data.total : 2_184_500)}
         </Text>
         <Text style={[s.delta, { color: delta > 0 ? colors.error : colors.success }]}>
           {pctText(Math.round(delta))}
         </Text>
       </View>
-      <Svg width="100%" height={52} viewBox="0 0 158 52" preserveAspectRatio="none">
-        <Defs>
-          <SvgGradient id="trendArea" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={colors.primary} stopOpacity="0.34" />
-            <Stop offset="1" stopColor={colors.primary} stopOpacity="0" />
-          </SvgGradient>
-        </Defs>
-        <Line x1="0" y1="13" x2="158" y2="13" stroke={colors.border} strokeWidth="0.7" strokeDasharray="2,4" />
-        <Line x1="0" y1="30" x2="158" y2="30" stroke={colors.border} strokeWidth="0.7" strokeDasharray="2,4" />
-        <Path d={area} fill="url(#trendArea)" />
-        <Polyline
-          points={pts.map(([x, y]) => `${x},${y}`).join(' ')}
-          fill="none" stroke={colors.primary} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-        />
-        {pts.slice(0, -1).map(([x, y], i) => (
-          <Circle key={i} cx={x} cy={y} r="2.3" fill={colors.background} stroke={colors.primary} strokeWidth="1.5" />
-        ))}
-        <Circle cx={lastX} cy={lastY} r="3.6" fill={colors.primary} />
-      </Svg>
+      <View onLayout={(e) => setWidth(e.nativeEvent.layout.width)} style={{ height: TREND_H }}>
+        {width > 0 && (
+          <Svg width={width} height={TREND_H}>
+            <Defs>
+              <SvgGradient id="trendArea" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={colors.primary} stopOpacity="0.28" />
+                <Stop offset="1" stopColor={colors.primary} stopOpacity="0" />
+              </SvgGradient>
+            </Defs>
+            {[0.34, 0.67].map((p) => (
+              <Line key={p} x1="0" y1={TREND_PAD + usable * p} x2={width} y2={TREND_PAD + usable * p}
+                stroke={colors.border} strokeWidth="1" strokeDasharray="2,5" opacity={0.55} />
+            ))}
+            <Path d={area} fill="url(#trendArea)" />
+            <Path d={line} fill="none" stroke={colors.primary} strokeWidth="2.4"
+              strokeLinecap="round" strokeLinejoin="round" />
+            {/* Solo el último mes lleva punto: seis círculos en 66px de alto eran ruido. */}
+            <Circle cx={lastX} cy={lastY} r="5" fill={colors.primary} opacity={0.18} />
+            <Circle cx={lastX} cy={lastY} r="3" fill={colors.primary}
+              stroke={colors.surface} strokeWidth="1.5" />
+          </Svg>
+        )}
+      </View>
       <View style={s.months}>
         {meses.map((m, i) => (
           <Text key={`${m}-${i}`} style={[s.month, { color: colors.textTertiary }]}>{m}</Text>
