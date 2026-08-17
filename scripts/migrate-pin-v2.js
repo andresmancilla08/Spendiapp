@@ -28,6 +28,11 @@
  * Necesita RESEND_API_KEY en el entorno.
  */
 
+// firebase-admin y resend viven en functions/, no en la raíz: el proyecto no
+// los necesita en el bundle de la app.
+const path = require('path');
+module.paths.unshift(path.join(__dirname, '..', 'functions', 'node_modules'));
+
 const admin = require('firebase-admin');
 
 const DEFAULT_PIN = '123456';
@@ -40,7 +45,26 @@ if (!args.includes('--confirm') && !args.includes('--dry-run')) {
   process.exit(1);
 }
 
-admin.initializeApp({ projectId: process.env.GCLOUD_PROJECT || undefined });
+// El proyecto sale del entorno o del .env de la app: con credenciales de
+// aplicación (sin clave de service account) el SDK no puede deducirlo solo.
+const PROJECT_ID =
+  process.env.GCLOUD_PROJECT ||
+  process.env.GOOGLE_CLOUD_PROJECT ||
+  (() => {
+    const envPath = path.join(__dirname, '..', '.env');
+    try {
+      const m = require('fs').readFileSync(envPath, 'utf8')
+        .match(/EXPO_PUBLIC_FIREBASE_PROJECT_ID\s*=\s*"?([\w-]+)"?/);
+      return m && m[1];
+    } catch { return null; }
+  })();
+
+if (!PROJECT_ID) {
+  console.error('No se pudo determinar el proyecto. Exporta GCLOUD_PROJECT.');
+  process.exit(1);
+}
+
+admin.initializeApp({ projectId: PROJECT_ID });
 const auth = admin.auth();
 const db = admin.firestore();
 
