@@ -73,7 +73,13 @@ export const sendPinResetOtp = onCall({ secrets: [resendApiKey] }, async (reques
   }
 
   const userDoc = await db.collection('users').doc(uid).get();
-  const paletteId = (userDoc.data()?.colorPalette as string) || 'deepWater';
+  // La paleta elegida es premium, igual que en la app: sin suscripción activa el
+  // correo sale con la de marca. Si no, quien tuvo premium y lo perdió veía la
+  // app en verde y recibía un correo con los colores viejos.
+  const profile = userDoc.data();
+  const expiry = profile?.premiumExpiry as admin.firestore.Timestamp | undefined;
+  const premiumActivo = !!profile?.isPremium && (!expiry || expiry.toDate() >= new Date());
+  const paletteId = (premiumActivo && (profile?.colorPalette as string)) || 'deepWater';
   const palette = getPaletteColors(paletteId);
 
   const otp = generateOtp();

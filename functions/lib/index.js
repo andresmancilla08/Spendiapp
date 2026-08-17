@@ -69,7 +69,7 @@ function otpMatches(uid, otp, data) {
 }
 // ── OTP PIN Reset ────────────────────────────────────────────────────────────
 exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async (request) => {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d;
     const { email } = request.data;
     if (!email)
         throw new https_1.HttpsError('invalid-argument', 'Email requerido');
@@ -102,7 +102,13 @@ exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async
         }
     }
     const userDoc = await db.collection('users').doc(uid).get();
-    const paletteId = ((_c = userDoc.data()) === null || _c === void 0 ? void 0 : _c.colorPalette) || 'deepWater';
+    // La paleta elegida es premium, igual que en la app: sin suscripción activa el
+    // correo sale con la de marca. Si no, quien tuvo premium y lo perdió veía la
+    // app en verde y recibía un correo con los colores viejos.
+    const profile = userDoc.data();
+    const expiry = profile === null || profile === void 0 ? void 0 : profile.premiumExpiry;
+    const premiumActivo = !!(profile === null || profile === void 0 ? void 0 : profile.isPremium) && (!expiry || expiry.toDate() >= new Date());
+    const paletteId = (premiumActivo && (profile === null || profile === void 0 ? void 0 : profile.colorPalette)) || 'deepWater';
     const palette = (0, paletteColors_1.getPaletteColors)(paletteId);
     const otp = generateOtp();
     const expiresAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 10 * 60 * 1000));
@@ -126,12 +132,12 @@ exports.sendPinResetOtp = (0, https_1.onCall)({ secrets: [resendApiKey] }, async
             console.error('Resend returned error:', JSON.stringify(result.error));
             throw new https_1.HttpsError('internal', `Resend error: ${result.error.message}`);
         }
-        console.log('Resend sent OK, id:', (_d = result.data) === null || _d === void 0 ? void 0 : _d.id);
+        console.log('Resend sent OK, id:', (_c = result.data) === null || _c === void 0 ? void 0 : _c.id);
     }
     catch (err) {
         if (err === null || err === void 0 ? void 0 : err.httpErrorCode)
             throw err; // re-throw HttpsError
-        console.error('Resend exception:', (_e = err === null || err === void 0 ? void 0 : err.message) !== null && _e !== void 0 ? _e : String(err));
+        console.error('Resend exception:', (_d = err === null || err === void 0 ? void 0 : err.message) !== null && _d !== void 0 ? _d : String(err));
         throw new https_1.HttpsError('internal', 'Error enviando email');
     }
     return { success: true };

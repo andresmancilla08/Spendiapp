@@ -4,7 +4,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppColors } from '../config/colors';
 import { PaletteId, PaletteDefinition, PALETTE_MAP, PALETTES, resolvePaletteId } from '../config/palettes';
 import { derivePalette, type CustomPalette } from '../utils/derivePalette';
+import { useAuthStore } from '../store/authStore';
 import type { AuroraIntensity } from '../components/AuroraBackground';
+
+/** La paleta de marca: el verde/turquesa base. Es lo que ve toda cuenta sin premium. */
+export const DEFAULT_PALETTE_ID: PaletteId = 'deepWater';
 
 const THEME_KEY = '@spendiapp_theme';
 const PALETTE_KEY = '@spendiapp_palette';
@@ -314,27 +318,39 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setBackgroundStyle = (style: BackgroundStyle) =>
     setBackgroundStyleFor(isDark ? 'dark' : 'light', style);
 
+  // GATE PREMIUM DEL TEMA. Sin suscripción activa la app se ve con la paleta de
+  // marca, se haya elegido lo que se haya elegido antes. Vale tanto para quien
+  // nunca pagó como para quien pagó y se le acabó: al caducar, la app vuelve al
+  // verde base sola, sin tocar sus preferencias.
+  //
+  // La elección NO se borra: sigue en AsyncStorage y en Firestore, así que si
+  // vuelve a suscribirse recupera su paleta tal cual la dejó. Aquí solo se
+  // decide con QUÉ se pinta.
+  const isPremium = useAuthStore((state) => state.isPremium);
+  const effectivePaletteId = isPremium ? paletteId : DEFAULT_PALETTE_ID;
+  const effectiveGradientStyle = isPremium ? gradientStyle : 'diagonal';
+
   // Una paleta propia se RECALCULA en cada arranque a partir de sus tres
   // parámetros. Si la activa se borró desde otro dispositivo, se cae al default
   // en vez de dejar la app sin colores.
   const activePalette = useMemo<PaletteDefinition>(() => {
-    const system = PALETTE_MAP[paletteId as PaletteId];
+    const system = PALETTE_MAP[effectivePaletteId as PaletteId];
     if (system) return system;
-    const own = customPalettes.find((c) => c.id === paletteId);
-    return own ? derivePalette(own, own.id) : PALETTE_MAP['deepWater'];
-  }, [paletteId, customPalettes]);
+    const own = customPalettes.find((c) => c.id === effectivePaletteId);
+    return own ? derivePalette(own, own.id) : PALETTE_MAP[DEFAULT_PALETTE_ID];
+  }, [effectivePaletteId, customPalettes]);
   const colors = isDark ? activePalette.colors.dark : activePalette.colors.light;
 
   return (
     <ThemeContext.Provider value={{
-      colors, isDark, themeMode, setThemeMode, paletteId, setPaletteId, activePalette,
+      colors, isDark, themeMode, setThemeMode, paletteId: effectivePaletteId, setPaletteId, activePalette,
       customPalettes, saveCustomPalette, removeCustomPalette,
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
       backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
       backgroundBlur, backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
       chartType, setChartType, chartAnimStyle, setChartAnimStyle,
       chartSpeed, setChartSpeed, chartAccent, setChartAccent,
-      gradientStyle, setGradientStyle,
+      gradientStyle: effectiveGradientStyle, setGradientStyle,
     }}>
       {children}
     </ThemeContext.Provider>
