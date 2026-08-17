@@ -2,7 +2,7 @@
   "expo": {
     "name": "spendiapp",
     "slug": "spendiapp",
-    "version": "2.63.3",
+    "version": "2.63.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

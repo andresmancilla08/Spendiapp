@@ -140,6 +140,8 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
   const knownSessionVersion = useRef<number | null>(null);
   const lastNav = useRef<string | null>(null);
   const prevIsPremiumRef = useRef<boolean | null>(null);
+  /** La bienvenida premium se muestra como mucho una vez por sesión. */
+  const welcomeShownRef = useRef(false);
 
   // Reset lastNav when user identity changes so new-session routing always fires
   useEffect(() => { lastNav.current = null; }, [user?.uid]);
@@ -207,8 +209,19 @@ function AppGuard({ i18nReady, fontsLoaded }: { i18nReady: boolean; fontsLoaded:
         const prevWasPremium = prevIsPremiumRef.current;
         prevIsPremiumRef.current = premiumActive;
         setIsPremium(premiumActive);
-        // Trigger welcome screen only on free→premium transition (not on first load already premium)
-        if (prevWasPremium === false && premiumActive && !data.premiumWelcomeSeen) {
+        // Bienvenida solo en la transición free→premium, y SOLO UNA VEZ por
+        // sesión. Sin el candado, cada snapshot que repitiera la transición
+        // apilaba otra copia de la pantalla: pasa en cuanto algo reescribe
+        // isPremium en bucle (p. ej. detectPremiumTampering revirtiendo una
+        // baja hecha a mano). Se veía parpadear y acababa en
+        // "Maximum update depth exceeded".
+        if (
+          prevWasPremium === false &&
+          premiumActive &&
+          !data.premiumWelcomeSeen &&
+          !welcomeShownRef.current
+        ) {
+          welcomeShownRef.current = true;
           router.push('/premium-welcome' as Parameters<typeof router.push>[0]);
         }
       },

@@ -341,6 +341,18 @@ export const detectPremiumTampering = onDocumentUpdated(
     const tampered = sensitiveFields.filter((f) => norm(before[f]) !== norm(after[f]));
     if (tampered.length === 0) return;
 
+    // Solo se revierte la ESCALADA de privilegios. Nadie se ataca a sí mismo
+    // quitándose el premium o bloqueándose, y revertir esas bajadas hacía
+    // imposible retirar el premium desde fuera de la app: la función lo volvía
+    // a conceder, el cliente veía otra vez la transición free→premium y sacaba
+    // la pantalla de bienvenida una y otra vez.
+    const isDowngradeOnly = tampered.every((f) =>
+      f === 'isBlocked'
+        ? after[f] === true                       // bloquear es restringir
+        : !after[f] || norm(after[f]) === null,   // quitar premium/expiry/admin
+    );
+    if (isDowngradeOnly) return;
+
     // Esta misma función acaba de revertir: no entrar en ping-pong.
     if (norm(after._honeypotRevertAt) !== norm(before._honeypotRevertAt)) return;
 
