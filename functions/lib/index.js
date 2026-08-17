@@ -154,6 +154,10 @@ exports.resetPinWithOtp = (0, https_1.onCall)(async (request) => {
     const { email, otp, newPin } = request.data;
     if (!email || !otp || !newPin)
         throw new https_1.HttpsError('invalid-argument', 'Datos incompletos');
+    // El cliente ya lo valida, pero esta función es una API pública: sin esto se
+    // podría dejar la cuenta con un PIN de un dígito.
+    if (!/^\d{6}$/.test(newPin))
+        throw new https_1.HttpsError('invalid-argument', 'El PIN debe tener 6 dígitos');
     let uid;
     try {
         const userRecord = await admin.auth().getUserByEmail(email.trim().toLowerCase());
@@ -175,7 +179,10 @@ exports.resetPinWithOtp = (0, https_1.onCall)(async (request) => {
         await resetRef.delete();
         throw new https_1.HttpsError('deadline-exceeded', 'Sesión expirada');
     }
-    await admin.auth().updateUser(uid, { password: newPin + '00' });
+    await admin.auth().updateUser(uid, { password: newPin });
+    // Quien llega hasta aquí acaba de elegir un PIN suyo: no tiene sentido que el
+    // gate se lo vuelva a pedir al entrar.
+    await db.collection('users').doc(uid).set({ pinV2: true, pinSetAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
     await resetRef.delete();
     return { success: true };
 });
@@ -313,14 +320,34 @@ exports.getSystemConfig = (0, https_1.onCall)(async (request) => {
 });
 // HONEYPOT: Detectar modificación de campos premium via cliente
 exports.detectPremiumTampering = (0, firestore_1.onDocumentUpdated)('users/{userId}', async (event) => {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const before = (_a = event.data) === null || _a === void 0 ? void 0 : _a.before.data();
     const after = (_b = event.data) === null || _b === void 0 ? void 0 : _b.after.data();
     if (!before || !after)
         return;
     const sensitiveFields = ['isPremium', 'premiumExpiry', 'isBlocked', 'isAdmin'];
-    const tampered = sensitiveFields.filter((f) => before[f] !== after[f]);
-    if (tampered.length > 0) {
+    // `premiumExpiry` es un Timestamp: comparar los objetos con !== siempre daba
+    // distinto, así que CUALQUIER escritura en el documento (updateAppVersion en
+    // cada arranque, por ejemplo) se marcaba como manipulación, se revertía, y la
+    // reversión volvía a disparar el trigger — escrituras infinitas.
+    const norm = (v) => {
+        if (v && typeof v.toMillis === 'function') {
+            return v.toMillis();
+        }
+        return v !== null && v !== void 0 ? v : null;
+    };
+    const tampered = sensitiveFields.filter((f) => norm(before[f]) !== norm(after[f]));
+    if (tampered.length === 0)
+        return;
+    // Esta misma función acaba de revertir: no entrar en ping-pong.
+    if (norm(after._honeypotRevertAt) !== norm(before._honeypotRevertAt))
+        return;
+    // Concesión legítima desde el panel de administración: se marca al escribir.
+    if (after._srv === true) {
+        await ((_c = event.data) === null || _c === void 0 ? void 0 : _c.after.ref.update({ _srv: admin.firestore.FieldValue.delete() }));
+        return;
+    }
+    {
         const userId = event.params.userId;
         await admin.firestore().collection('honeypotLogs').add({
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
@@ -332,12 +359,15 @@ exports.detectPremiumTampering = (0, firestore_1.onDocumentUpdated)('users/{user
             after: tampered.reduce((acc, f) => (Object.assign(Object.assign({}, acc), { [f]: after[f] })), {}),
             severity: 'critical',
         });
-        // Revertir los campos manipulados automáticamente
-        const revert = {};
+        // Revertir los campos manipulados automáticamente. La marca corta la
+        // recursión: la siguiente invocación la ve cambiada y sale.
+        const revert = {
+            _honeypotRevertAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
         for (const field of tampered) {
             revert[field] = before[field];
         }
-        await ((_c = event.data) === null || _c === void 0 ? void 0 : _c.after.ref.update(revert));
+        await ((_d = event.data) === null || _d === void 0 ? void 0 : _d.after.ref.update(revert));
         console.warn(`[HONEYPOT] Premium tampering detected for user ${userId}. Fields: ${tampered.join(', ')}. Reverted.`);
     }
 });
