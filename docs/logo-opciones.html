@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spendia · cinta 3D refinada</title>
+<style>
+  :root{
+    --bg:#07090C; --panel:#0E1218; --line:#1C232E; --txt:#E9EEF5; --dim:#8992A1; --mint:#C9F7A8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:400 15px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  header{padding:48px 32px 26px;max-width:1500px;margin:0 auto}
+  h1{margin:0 0 6px;font-size:30px;font-weight:650;letter-spacing:-.02em}
+  .sub{color:var(--dim);font-size:14px;margin:0}
+
+  .ref{max-width:1500px;margin:0 auto;padding:0 32px 34px;display:flex;align-items:center;gap:18px}
+  .ref img{width:96px;height:96px;border-radius:22px;display:block}
+  .ref div{font-size:12.5px;color:var(--dim);max-width:520px}
+  .ref b{color:var(--txt);font-weight:600;display:block;margin-bottom:3px;font-size:13px}
+
+  main{max-width:1500px;margin:0 auto;padding:0 32px 96px;
+    display:grid;gap:20px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;
+    cursor:pointer;transition:border-color .12s,transform .12s;position:relative}
+  .card:hover{border-color:#2C3746;transform:translateY(-2px)}
+  .card.on{border-color:var(--mint);box-shadow:0 0 0 1px var(--mint)}
+  .card.on::after{content:"✓";position:absolute;top:14px;right:16px;color:var(--mint);font-weight:700}
+  .num{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--dim);letter-spacing:.08em}
+  .name{font-size:16px;font-weight:600;margin:2px 0 3px;letter-spacing:-.01em}
+  .note{font-size:12.5px;color:var(--dim);min-height:38px;margin:0 0 16px}
+  .hero{display:flex;justify-content:center;margin-bottom:18px}
+  .hero svg{width:100%;max-width:250px;height:auto;display:block}
+  .row{display:flex;align-items:flex-end;gap:14px;padding-top:16px;border-top:1px solid var(--line)}
+  .row svg{display:block;flex:none}
+  .lbl{font-size:10px;color:#4A5464;font-family:ui-monospace,Menlo,monospace;margin-left:auto}
+
+  footer{position:sticky;bottom:0;background:rgba(7,9,12,.93);backdrop-filter:blur(12px);
+    border-top:1px solid var(--line);padding:16px 32px;font-size:13px;color:var(--dim)}
+  footer b{color:var(--mint);font-weight:600}
+  @media(max-width:600px){header,.ref{padding-left:18px;padding-right:18px}
+    main{padding:0 18px 70px}footer{padding:14px 18px}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Spendia · cinta 3D refinada</h1>
+  <p class="sub">Mismo ADN que tu logo actual. Geometría exacta, iluminación coherente, pliegue real.</p>
+</header>
+
+<div class="ref">
+  <img src="logo-actual.png" alt="Logo actual">
+  <div><b>Punto de partida</b>Curvas irregulares, grosor de cinta variable, luz sin dirección definida
+  y el cruce se pierde. Todo lo de abajo corrige eso manteniendo la misma idea.</div>
+</div>
+
+<main id="grid"></main>
+<footer id="foot">Ninguna marcada todavía.</footer>
+
+<script>
+const P = (cx,cy,r,d)=>[cx+r*Math.cos(d*Math.PI/180), cy+r*Math.sin(d*Math.PI/180)];
+function arc(cx,cy,r,a0,a1,sweep){
+  const [x0,y0]=P(cx,cy,r,a0), [x1,y1]=P(cx,cy,r,a1);
+  const span = sweep ? ((a1-a0)%360+360)%360 : ((a0-a1)%360+360)%360;
+  return `M${x0.toFixed(1)} ${y0.toFixed(1)}A${r} ${r} 0 ${span>180?1:0} ${sweep} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+}
+
+/* ---------- generador de cinta ---------- */
+function ribbon(o, id){
+  const C=256, T=C-o.dy, B=C+o.dy;
+  const top = arc(C,T,o.r,o.ta[0],o.ta[1],0);
+  const bot = arc(C,B,o.r,o.ba[0],o.ba[1],1);
+  const sw = o.sw, k = o.k||1;
+  const g = s => id+s;
+
+  return `
+<defs>
+  <linearGradient id="${g('T')}" x1="1" y1="0" x2="0" y2="1">
+    <stop offset="0"   stop-color="#DCFFB8"/>
+    <stop offset=".26" stop-color="#A9F2B6"/>
+    <stop offset=".58" stop-color="#6FDFD6"/>
+    <stop offset="1"   stop-color="#49AEF2"/>
+  </linearGradient>
+  <linearGradient id="${g('B')}" x1="1" y1="0" x2="0" y2="1">
+    <stop offset="0"   stop-color="#8FE9C6"/>
+    <stop offset=".24" stop-color="#57C6F0"/>
+    <stop offset=".62" stop-color="#2E7FD8"/>
+    <stop offset="1"   stop-color="#1B4B9E"/>
+  </linearGradient>
+  <radialGradient id="${g('V')}" cx=".5" cy=".42" r=".72">
+    <stop offset="0" stop-color="#171C24"/><stop offset="1" stop-color="#08090C"/>
+  </radialGradient>
+  <filter id="${g('b8')}"  x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8"/></filter>
+  <filter id="${g('b14')}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="${g('b26')}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter>
+  <mask id="${g('mT')}"><path d="${top}" fill="none" stroke="#fff" stroke-width="${sw}"/></mask>
+  <mask id="${g('mB')}"><path d="${bot}" fill="none" stroke="#fff" stroke-width="${sw}"/></mask>
+</defs>
+
+<rect width="512" height="512" rx="114" fill="url(#${g('V')})"/>
+
+<g transform="translate(256 256) scale(${k}) translate(-256 -256)">
+
+  <g opacity="${o.glow}" filter="url(#${g('b26')})">
+    <path d="${top}" fill="none" stroke="#8CEBC4" stroke-width="${sw}"/>
+    <path d="${bot}" fill="none" stroke="#2E7FD8" stroke-width="${sw}"/>
+  </g>
+
+  <g mask="url(#${g('mB')})">
+    <rect width="512" height="512" fill="url(#${g('B')})"/>
+    <path d="${bot}" fill="none" stroke="#061532" stroke-width="${sw}" opacity="${o.shade}"
+          filter="url(#${g('b14')})" transform="translate(10,14)"/>
+    <path d="${bot}" fill="none" stroke="#EAFFFA" stroke-width="${sw*.32}" opacity="${o.spec}"
+          filter="url(#${g('b8')})" transform="translate(-8,-11)"/>
+    <path d="${top}" fill="none" stroke="#000814" stroke-width="${sw*1.08}" opacity="${o.contact}"
+          filter="url(#${g('b14')})" transform="translate(5,8)"/>
+  </g>
+
+  <g mask="url(#${g('mT')})">
+    <rect width="512" height="512" fill="url(#${g('T')})"/>
+    <path d="${top}" fill="none" stroke="#0A2A5E" stroke-width="${sw}" opacity="${o.shade*.9}"
+          filter="url(#${g('b14')})" transform="translate(10,14)"/>
+    <path d="${top}" fill="none" stroke="#FFFFFF" stroke-width="${sw*.30}" opacity="${o.spec*.9}"
+          filter="url(#${g('b8')})" transform="translate(-8,-11)"/>
+  </g>
+</g>`;
+}
+
+/* ---------- variantes ---------- */
+const OPTIONS = [
+ { name:"Fiel",
+   note:"El mismo pliegue de siempre, ahora con arcos exactos, grosor constante y una única fuente de luz arriba a la izquierda.",
+   p:{ r:72, dy:64, sw:66, ta:[-34,128], ba:[-52,146], shade:.55, spec:.6, contact:.6, glow:.20, k:1.02 } },
+
+ { name:"Cinta ancha",
+   note:"Banda más gruesa: gana peso en la pantalla de inicio y se sostiene mejor a tamaños pequeños.",
+   p:{ r:70, dy:60, sw:82, ta:[-30,124], ba:[-56,150], shade:.55, spec:.5, contact:.65, glow:.20, k:1.0 } },
+
+ { name:"Pliegue marcado",
+   note:"El cruce es el protagonista: sombra de contacto profunda bajo la banda superior, como una cinta real que pasa por encima.",
+   p:{ r:72, dy:66, sw:68, ta:[-34,134], ba:[-46,146], shade:.68, spec:.55, contact:.92, glow:.16, k:1.02 } },
+
+ { name:"Esbelta",
+   note:"Banda más fina y recorrido más largo, con brillo especular alto. La más elegante; la que menos grita.",
+   p:{ r:78, dy:68, sw:54, ta:[-40,134], ba:[-46,140], shade:.5, spec:.8, contact:.5, glow:.24, k:.96 } },
+
+ { name:"Giro suave",
+   note:"Los extremos se abren un poco más y el cruce es más corto: la cinta parece girar sobre su eje en lugar de doblarse.",
+   p:{ r:74, dy:70, sw:64, ta:[-24,120], ba:[-60,156], shade:.52, spec:.68, contact:.55, glow:.22, k:1.0 } },
+
+ { name:"Compacta",
+   note:"Arcos más cerrados y solapamiento amplio. Silueta más densa, mejor legibilidad en el icono de notificación.",
+   p:{ r:66, dy:56, sw:74, ta:[-36,132], ba:[-48,148], shade:.58, spec:.58, contact:.7, glow:.18, k:1.06 } }
+];
+
+/* ---------- render ---------- */
+let uid=0;
+const svgAt=(o,px)=>`<svg width="${px}" height="${px}" viewBox="0 0 512 512"
+  xmlns="http://www.w3.org/2000/svg">${ribbon(o.p,"i"+(uid++)+"_")}</svg>`;
+
+const grid=document.getElementById("grid");
+grid.innerHTML = OPTIONS.map((o,i)=>`
+  <article class="card" data-i="${i}">
+    <div class="num">${String(i+1).padStart(2,"0")}</div>
+    <div class="name">${o.name}</div>
+    <p class="note">${o.note}</p>
+    <div class="hero">${svgAt(o,250)}</div>
+    <div class="row">${svgAt(o,76)}${svgAt(o,46)}${svgAt(o,28)}
+      <span class="lbl">76 · 46 · 28 px</span></div>
+  </article>`).join("");
+
+const foot=document.getElementById("foot");
+grid.addEventListener("click",e=>{
+  const c=e.target.closest(".card"); if(!c) return;
+  c.classList.toggle("on");
+  const on=[...grid.querySelectorAll(".card.on")]
+    .map(n=>`${String(+n.dataset.i+1).padStart(2,"0")} ${OPTIONS[n.dataset.i].name}`);
+  foot.innerHTML = on.length ? `Marcadas: <b>${on.join("</b> · <b>")}</b>` : "Ninguna marcada todavía.";
+});
+</script>
+</body>
+</html>

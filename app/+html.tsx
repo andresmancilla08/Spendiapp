@@ -122,6 +122,15 @@ export default function Root({ children }: PropsWithChildren) {
             right: 0;
             height: 100%;
             height: 100dvh;
+            /* MARGEN DE LA ZONA SEGURA. El proyecto no monta `SafeAreaProvider`, así
+               que `useSafeAreaInsets()` devuelve 0 en web y ningún `SafeAreaView`
+               reserva nada arriba. Con `black-translucent` la webview arranca en el
+               píxel 0 de la pantalla: las cabeceras nacían DEBAJO de la barra de
+               estado y el cristal del sistema se las comía. Esto las baja de golpe
+               en toda la app, sin tocar pantalla por pantalla. En navegador el
+               inset vale 0 y no cambia nada. */
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
           }
           input, textarea, select, [contenteditable] {
             outline: none !important;
