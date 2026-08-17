@@ -202,6 +202,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // [M-3] Contador del límite de notificaciones. Solo lo toca el Admin SDK:
+    // si el cliente pudiera escribirlo, se saltaría su propio límite.
+    match /notification_rate/{docId} {
+      allow read, write: if false;
+    }
+
     // Pagos premium: solo accesible via Admin SDK desde spendia-admin
     match /premiumPayments/{docId} {
       allow read, write: if false;

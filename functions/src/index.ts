@@ -3,11 +3,12 @@ import * as admin from 'firebase-admin';
 import { randomInt, createHash, timingSafeEqual } from 'crypto';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { onDocumentUpdated, onDocumentWritten } from 'firebase-functions/v2/firestore';
+import { onDocumentCreated, onDocumentUpdated, onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { defineSecret } from 'firebase-functions/params';
 import { Resend } from 'resend';
 import { getPaletteColors } from './paletteColors';
 import { generateOtpEmail } from './emailTemplate';
+import { nextWindow, NOTIF_LIMIT_PER_WINDOW, RateWindow } from './notifRate';
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -265,6 +266,47 @@ export const mirrorPublicProfile = onDocumentWritten('users/{userId}', async (ev
   }
 
   await pubRef.set({ uid: userId, ...nextPub }, { merge: true });
+});
+
+// ── [M-3] Límite de notificaciones por emisor ────────────────────────────────
+// Las reglas ya acotan QUÉ se puede crear (tipo, destinatario, que el emisor sea
+// uno mismo), pero nada impedía crear mil seguidas contra la misma persona. El
+// contador vive en `notification_rate/{uid}`, invisible para el cliente, y la
+// notificación que se pasa del límite se borra: llegó a Firestore, pero no se
+// queda. La lógica de la ventana está en notifRate.ts, con su comprobación.
+
+export const throttleNotifications = onDocumentCreated('notifications/{notifId}', async (event) => {
+  const snap = event.data;
+  const fromUserId = snap?.data()?.data?.fromUserId;
+  if (!snap || typeof fromUserId !== 'string') return;
+
+  const rateRef = db.collection('notification_rate').doc(fromUserId);
+
+  const result = await db.runTransaction(async (tx) => {
+    const doc = await tx.get(rateRef);
+    const data = doc.data();
+    const prev: RateWindow | null = data
+      ? {
+          windowStartMs: (data.windowStart as admin.firestore.Timestamp).toMillis(),
+          count: data.count as number,
+        }
+      : null;
+
+    const next = nextWindow(prev, Date.now());
+    tx.set(rateRef, {
+      windowStart: admin.firestore.Timestamp.fromMillis(next.windowStartMs),
+      count: next.count,
+    });
+    return next;
+  });
+
+  if (result.overLimit) {
+    await snap.ref.delete();
+    console.warn(
+      `[throttleNotifications] ${fromUserId} superó ${NOTIF_LIMIT_PER_WINDOW}/hora ` +
+        `(${result.count}); notificación ${event.params.notifId} descartada`,
+    );
+  }
 });
 
 // Backfill one-time: rellena publicProfiles para todos los usuarios existentes.

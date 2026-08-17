@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.goalsMonthlyReminder = exports.detectPremiumTampering = exports.getSystemConfig = exports.adminBypass = exports.backfillPublicProfiles = exports.mirrorPublicProfile = exports.cleanupOrphanAccounts = exports.resetPinWithOtp = exports.verifyPinResetOtp = exports.sendPinResetOtp = void 0;
+exports.goalsMonthlyReminder = exports.detectPremiumTampering = exports.getSystemConfig = exports.adminBypass = exports.backfillPublicProfiles = exports.throttleNotifications = exports.mirrorPublicProfile = exports.cleanupOrphanAccounts = exports.resetPinWithOtp = exports.verifyPinResetOtp = exports.sendPinResetOtp = void 0;
 // functions/src/index.ts
 const admin = __importStar(require("firebase-admin"));
 const crypto_1 = require("crypto");
@@ -44,6 +44,7 @@ const params_1 = require("firebase-functions/params");
 const resend_1 = require("resend");
 const paletteColors_1 = require("./paletteColors");
 const emailTemplate_1 = require("./emailTemplate");
+const notifRate_1 = require("./notifRate");
 admin.initializeApp();
 const db = admin.firestore();
 const resendApiKey = (0, params_1.defineSecret)('RESEND_API_KEY');
@@ -271,6 +272,41 @@ exports.mirrorPublicProfile = (0, firestore_1.onDocumentWritten)('users/{userId}
         return;
     }
     await pubRef.set(Object.assign({ uid: userId }, nextPub), { merge: true });
+});
+// ── [M-3] Límite de notificaciones por emisor ────────────────────────────────
+// Las reglas ya acotan QUÉ se puede crear (tipo, destinatario, que el emisor sea
+// uno mismo), pero nada impedía crear mil seguidas contra la misma persona. El
+// contador vive en `notification_rate/{uid}`, invisible para el cliente, y la
+// notificación que se pasa del límite se borra: llegó a Firestore, pero no se
+// queda. La lógica de la ventana está en notifRate.ts, con su comprobación.
+exports.throttleNotifications = (0, firestore_1.onDocumentCreated)('notifications/{notifId}', async (event) => {
+    var _a, _b;
+    const snap = event.data;
+    const fromUserId = (_b = (_a = snap === null || snap === void 0 ? void 0 : snap.data()) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.fromUserId;
+    if (!snap || typeof fromUserId !== 'string')
+        return;
+    const rateRef = db.collection('notification_rate').doc(fromUserId);
+    const result = await db.runTransaction(async (tx) => {
+        const doc = await tx.get(rateRef);
+        const data = doc.data();
+        const prev = data
+            ? {
+                windowStartMs: data.windowStart.toMillis(),
+                count: data.count,
+            }
+            : null;
+        const next = (0, notifRate_1.nextWindow)(prev, Date.now());
+        tx.set(rateRef, {
+            windowStart: admin.firestore.Timestamp.fromMillis(next.windowStartMs),
+            count: next.count,
+        });
+        return next;
+    });
+    if (result.overLimit) {
+        await snap.ref.delete();
+        console.warn(`[throttleNotifications] ${fromUserId} superó ${notifRate_1.NOTIF_LIMIT_PER_WINDOW}/hora ` +
+            `(${result.count}); notificación ${event.params.notifId} descartada`);
+    }
 });
 // Backfill one-time: rellena publicProfiles para todos los usuarios existentes.
 // Solo admin. Ejecutar una vez tras desplegar; el trigger mantiene el resto.
