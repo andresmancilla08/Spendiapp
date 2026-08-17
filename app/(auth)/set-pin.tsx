@@ -169,12 +169,15 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 16,
+    paddingVertical: 24,
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',
     alignItems: 'center',
+    // Centrado vertical del contenido: el CTA vive fuera del scroll, así que
+    // esto no lo mueve. Con flexGrow:1 el contenedor ocupa el alto libre y el
+    // bloque queda a media altura en vez de pegado arriba.
+    justifyContent: 'center',
   },
   iconCircle: {
     width: 60, height: 60, borderRadius: 30,
