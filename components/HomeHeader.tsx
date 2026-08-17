@@ -115,27 +115,33 @@ export default function HomeHeader({
   // La escala, en web, NO: WebKit rasteriza la capa a la escala con la que la crea y el
   // texto se queda borroso en iOS aunque el valor vuelva a 1 — la capa compacta nace en
   // 0.96, así que era la peor de las dos. Fuera de web el escalado no rasteriza y se queda.
-  const scales = Platform.OS !== 'web';
-  const withScale = (from: number, to: number) =>
-    scales ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [from, to] }) }] : [];
+  // En web NO se transforma NADA: ni escala ni desplazamiento.
+  //
+  // La escala ya estaba fuera por el motivo de arriba. El translateY hacía lo
+  // mismo: promueve la capa y WebKit la rasteriza en una posición fraccionaria,
+  // así que el saludo y el avatar quedaban con doble contorno. En la PWA
+  // instalada la capa no se despromueve nunca y el borrón se queda fijo.
+  // El desvanecido cruzado se conserva: la opacidad no rasteriza geometría.
+  const transforms = Platform.OS !== 'web';
+  const withMotion = (fromY: number, toY: number, fromS: number, toS: number) =>
+    transforms
+      ? [
+          { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [fromY, toY] }) },
+          { scale: progress.interpolate({ inputRange: [0, 1], outputRange: [fromS, toS] }) },
+        ]
+      : [];
 
   const expandedStyle = collapsible
     ? {
         opacity: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
-        transform: [
-          { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -12] }) },
-          ...withScale(1, 0.96),
-        ],
+        transform: withMotion(0, -12, 1, 0.96),
       }
     : undefined;
 
   const compactStyle = collapsible
     ? {
         opacity: progress,
-        transform: [
-          { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) },
-          ...withScale(0.96, 1),
-        ],
+        transform: withMotion(12, 0, 0.96, 1),
       }
     : { opacity: 0 };
 

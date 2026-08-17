@@ -82,10 +82,24 @@ const ScreenTransition = forwardRef<ScreenTransitionRef, Props>(
       },
     }));
 
+    // En web NO se transforma: ni desplazamiento ni escala.
+    //
+    // WebKit rasteriza una capa transformada UNA vez, al tamaño y la posición con
+    // que nace, y luego reescala esa textura. La capa nacía en scale 0.985 y
+    // translateY 18, así que al asentarse en 1/0 el contenido se quedaba borroso
+    // — y como esto envuelve TODAS las vistas, era toda la app. En Safari con
+    // barra de URL se recomponía y no se notaba; en la PWA instalada la capa
+    // queda promovida y el desenfoque no se va nunca.
+    //
+    // Es el mismo problema que HomeHeader ya había documentado para `scale`
+    // (ver su comentario): allí se resolvió quitándolo en web. Aquí seguía vivo,
+    // y además con translateY, que promueve la capa igual.
+    //
+    // El fade se queda: la opacidad no rasteriza geometría.
+    const transform = Platform.OS === 'web' ? [] : [{ translateY }, { scale }];
+
     return (
-      <Animated.View
-        style={[{ flex: 1, opacity, transform: [{ translateY }, { scale }] }, style]}
-      >
+      <Animated.View style={[{ flex: 1, opacity, transform }, style]}>
         {children}
       </Animated.View>
     );
