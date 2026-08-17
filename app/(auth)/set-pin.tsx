@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { isPinComplete, PIN_LENGTH } from '../../constants/pin';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
+import { isPinComplete, PIN_LENGTH, DEFAULT_MIGRATION_PIN } from '../../constants/pin';
 import ScreenTransition from '../../components/ScreenTransition';
 import ScreenBackground from '../../components/ScreenBackground';
 import PinInput from '../../components/PinInput';
@@ -21,19 +22,17 @@ import { Fonts } from '../../config/fonts';
 import AppIcon from '../../components/AppIcon';
 import { setOwnPin, signOut } from '../../hooks/useAuth';
 import { useToast } from '../../context/ToastContext';
-import { accentInk } from '../../utils/contrast';
 
 /**
  * Creación obligatoria del PIN propio tras la migración a 6 dígitos.
  *
- * No hay botón de volver ni forma de saltarla: quien llega aquí entró con el
- * PIN por defecto, que es público. Lo único que se ofrece es cerrar sesión.
+ * No lleva AppHeader ni forma de saltarla: quien llega aquí entró con el PIN
+ * por defecto, que es público. Lo único que se ofrece es cerrar sesión.
  */
 export default function SetPinScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { showToast } = useToast();
-  const scrollRef = useRef<ScrollView>(null);
 
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -45,9 +44,8 @@ export default function SetPinScreen() {
     return pin === confirmPin ? 'match' : 'mismatch';
   }, [pin, confirmPin]);
 
-  // El PIN por defecto de la migración es público: dejarlo tal cual sería no
-  // haber hecho nada.
-  const isDefaultPin = pin === '123456';
+  // Dejar el PIN por defecto sería no haber hecho nada: es público.
+  const isDefaultPin = pin === DEFAULT_MIGRATION_PIN;
   const canSave = isPinComplete(pin) && matchStatus === 'match' && !isDefaultPin && !loading;
 
   const handleSave = async () => {
@@ -61,11 +59,9 @@ export default function SetPinScreen() {
     } catch (e: any) {
       // Firebase exige un login reciente para cambiar la contraseña. Si la
       // sesión venía de días atrás, hay que volver a entrar.
-      if (e?.code === 'auth/requires-recent-login') {
-        setError(t('setPin.errors.staleSession'));
-      } else {
-        setError(t('setPin.errors.generic'));
-      }
+      setError(e?.code === 'auth/requires-recent-login'
+        ? t('setPin.errors.staleSession')
+        : t('setPin.errors.generic'));
       setLoading(false);
     }
   };
@@ -80,16 +76,17 @@ export default function SetPinScreen() {
       <SafeAreaView style={styles.safe}>
         <ScreenBackground>
           <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.kav}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
             <ScrollView
-              ref={scrollRef}
+              style={scrollFadeMask(0, 0)}
               contentContainerStyle={styles.scroll}
               keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
             >
-              <View style={[styles.badge, { backgroundColor: colors.primaryLight }]}>
-                <AppIcon name="lock-closed-outline" size={30} color={colors.primary} />
+              <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
+                <AppIcon name="lock-closed-outline" size={28} color={colors.primary} />
               </View>
 
               <Text style={[styles.title, { color: colors.textPrimary }]}>
@@ -100,13 +97,13 @@ export default function SetPinScreen() {
               </Text>
 
               <View style={styles.section}>
-                <Text style={[styles.label, { color: colors.textSecondary }]}>
+                <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
                   {t('setPin.newLabel')}
                 </Text>
                 <PinInput
                   value={pin}
                   onChange={(v) => { setPin(v); setConfirmPin(''); setError(null); }}
-                  error={!!error}
+                  error={isDefaultPin}
                 />
                 {isDefaultPin && (
                   <Text style={[styles.hint, { color: colors.error }]}>
@@ -115,8 +112,10 @@ export default function SetPinScreen() {
                 )}
               </View>
 
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
               <View style={[styles.section, { opacity: isPinComplete(pin) ? 1 : 0.45 }]}>
-                <Text style={[styles.label, { color: colors.textSecondary }]}>
+                <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>
                   {t('setPin.confirmLabel')}
                 </Text>
                 <PinInput
@@ -134,32 +133,30 @@ export default function SetPinScreen() {
               {!!error && (
                 <Text style={[styles.hint, { color: colors.error }]}>{error}</Text>
               )}
-
-              <TouchableOpacity
-                onPress={handleSave}
-                disabled={!canSave}
-                activeOpacity={0.85}
-                style={[
-                  styles.cta,
-                  { backgroundColor: colors.primary, opacity: canSave ? 1 : 0.4 },
-                ]}
-              >
-                {loading
-                  ? <ActivityIndicator size="small" color={accentInk(colors, 'primary', colors.primary)} />
-                  : (
-                    <Text style={[styles.ctaText, { color: accentInk(colors, 'primary', colors.primary) }]}>
-                      {t('setPin.save')}
-                    </Text>
-                  )}
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={handleSignOut} activeOpacity={0.7} style={styles.signOut}>
-                <Text style={[styles.signOutText, { color: colors.textTertiary }]}>
-                  {t('setPin.signOut')}
-                </Text>
-              </TouchableOpacity>
             </ScrollView>
           </KeyboardAvoidingView>
+
+          {/* Fixed bottom button */}
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={[styles.btn, { backgroundColor: colors.primary, opacity: canSave ? 1 : 0.4 }]}
+              onPress={handleSave}
+              activeOpacity={0.85}
+              disabled={!canSave}
+            >
+              {loading
+                ? <ActivityIndicator color={colors.onPrimary} />
+                : <Text style={[styles.btnText, { color: colors.onPrimary }]}>
+                    {t('setPin.save')}
+                  </Text>
+              }
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleSignOut} activeOpacity={0.7} style={styles.signOut}>
+              <Text style={[styles.signOutText, { color: colors.textTertiary }]}>
+                {t('setPin.signOut')}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </ScreenBackground>
       </SafeAreaView>
     </ScreenTransition>
@@ -168,29 +165,47 @@ export default function SetPinScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  kav: { flex: 1 },
   scroll: {
-    padding: 24,
-    paddingTop: 48,
-    paddingBottom: 40,
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 16,
     width: '100%',
-    maxWidth: 480,
+    maxWidth: 560,
     alignSelf: 'center',
     alignItems: 'center',
   },
-  badge: {
-    width: 64, height: 64, borderRadius: 32,
+  iconCircle: {
+    width: 60, height: 60, borderRadius: 30,
     alignItems: 'center', justifyContent: 'center', marginBottom: 20,
   },
   title: { fontSize: 24, fontFamily: Fonts.bold, textAlign: 'center' },
-  subtitle: { fontSize: 14, fontFamily: Fonts.regular, textAlign: 'center', marginTop: 8, lineHeight: 20 },
-  section: { alignSelf: 'stretch', marginTop: 28, alignItems: 'center' },
-  label: { fontSize: 12, fontFamily: Fonts.bold, letterSpacing: 0.6, marginBottom: 12 },
-  hint: { fontSize: 12, fontFamily: Fonts.medium, textAlign: 'center', marginTop: 10 },
-  cta: {
-    alignSelf: 'stretch', marginTop: 32, borderRadius: 50,
-    paddingVertical: 16, alignItems: 'center', justifyContent: 'center',
+  subtitle: {
+    fontSize: 14, fontFamily: Fonts.regular, textAlign: 'center',
+    marginTop: 8, lineHeight: 20,
   },
-  ctaText: { fontSize: 15, fontFamily: Fonts.bold },
-  signOut: { marginTop: 20, padding: 8 },
+  section: { alignSelf: 'stretch', marginTop: 28, alignItems: 'center' },
+  sectionLabel: {
+    fontSize: 12, fontFamily: Fonts.bold, letterSpacing: 0.6, marginBottom: 12,
+  },
+  divider: { alignSelf: 'stretch', height: 1, marginTop: 28 },
+  hint: { fontSize: 12, fontFamily: Fonts.medium, textAlign: 'center', marginTop: 10 },
+  footer: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 16,
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center',
+  },
+  btn: {
+    height: 56,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnText: { fontSize: 17, fontFamily: Fonts.bold },
+  signOut: { marginTop: 12, paddingVertical: 8, alignItems: 'center' },
   signOutText: { fontSize: 13, fontFamily: Fonts.medium },
 });
