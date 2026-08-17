@@ -89,7 +89,7 @@ export default function SettingsScreen() {
       <PageTitle title={t('settings.title')} description={t('settings.pageDesc')} />
 
       <ScrollView
-        style={scrollFadeMask(0, 74)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         <SectionTitle label={t('settings.sections.appearance')} />
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
@@ -149,7 +149,7 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  scroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24, width: '100%', maxWidth: 640, alignSelf: 'center' },
   sectionTitle: { fontSize: 11, fontFamily: Fonts.bold, marginBottom: 8, marginLeft: 4 },
   card: { borderRadius: 20, marginBottom: 24, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, gap: 12 },

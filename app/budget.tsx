@@ -294,7 +294,7 @@ export default function BudgetScreen() {
         </View>
       ) : (
         <ScrollView
-        style={scrollFadeMask(0, 74)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
           {/* Empty state */}
           {budgets.length === 0 && (
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scroll: { padding: 16, paddingTop: 12, paddingBottom: 40, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  scroll: { padding: 16, paddingTop: 12, paddingBottom: 24, width: '100%', maxWidth: 768, alignSelf: 'center' },
   monthRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 8, paddingVertical: 10,

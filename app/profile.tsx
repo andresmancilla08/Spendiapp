@@ -522,7 +522,7 @@ export default function ProfileScreen() {
       <AppHeader showBack onBack={handleBack} />
 
       <ScrollView
-        style={scrollFadeMask(0, 74)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        style={scrollFadeMask(0, 0)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* ── Hero card de perfil ─────────────────────────────────────── */}
         <View style={[
@@ -818,7 +818,7 @@ const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 40,
+    paddingBottom: 24,
     width: '100%',
     maxWidth: 640,
     alignSelf: 'center',
