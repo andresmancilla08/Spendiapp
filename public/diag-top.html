@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Diag · franja superior</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<!-- MISMA configuración que la app: si el sistema desenfoca algo, aquí lo hará igual. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Diag Spendia">
+<link rel="manifest" href="/diag-manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  html, body { margin:0; height:100%; background:#101014; color:#fff;
+               font-family:-apple-system,system-ui,sans-serif; }
+  /* Mitad izquierda: color PLANO. Mitad derecha: degradado + blob desenfocado,
+     como el fondo de la app. Si iOS pone un cristal encima, la izquierda no
+     cambia (desenfocar un color plano no se nota) y la derecha se emborrona. */
+  .fondo { position:fixed; inset:0; }
+  .plano { position:absolute; inset:0 50% 0 0; background:#1b6ef3; }
+  .rico  { position:absolute; inset:0 0 0 50%; overflow:hidden;
+           background:linear-gradient(160deg,#ff3d81,#ffb648 45%,#12a594); }
+  .blob  { position:absolute; width:70%; height:26%; left:10%; top:2%;
+           background:#fff; opacity:.55; filter:blur(28px); border-radius:50%; }
+  /* Reglas cada 10 px sobre los primeros 140: dicen exactamente dónde acaba lo tapado. */
+  .reglas { position:fixed; top:0; left:0; right:0; height:140px; }
+  .linea { position:absolute; left:0; right:0; height:1px; background:rgba(0,0,0,.55); }
+  .linea span { position:absolute; left:6px; top:-13px; font-size:11px; font-weight:700;
+                text-shadow:0 1px 2px rgba(0,0,0,.8); }
+  .safe { position:fixed; top:0; left:0; right:0; height:env(safe-area-inset-top,0px);
+          border-bottom:2px dashed #fff; }
+  .safe b { position:absolute; right:6px; bottom:2px; font-size:11px; }
+  .datos { position:fixed; left:12px; right:12px; bottom:calc(env(safe-area-inset-bottom,0px) + 16px);
+           background:rgba(0,0,0,.72); border-radius:14px; padding:14px; font-size:13px; line-height:1.55; }
+  .datos code { color:#ffd166; }
+  h1 { position:fixed; top:calc(env(safe-area-inset-top,0px) + 12px); left:12px;
+       margin:0; font-size:15px; text-shadow:0 1px 3px rgba(0,0,0,.9); }
+</style>
+</head>
+<body>
+  <div class="fondo">
+    <div class="plano"></div>
+    <div class="rico"><div class="blob"></div></div>
+  </div>
+  <div class="reglas" id="reglas"></div>
+  <div class="safe"><b>safe-area-inset-top</b></div>
+  <h1>Izquierda: color plano · Derecha: degradado con blur</h1>
+  <div class="datos" id="datos">midiendo…</div>
+<script>
+  const reglas = document.getElementById('reglas');
+  for (let y = 0; y <= 140; y += 10) {
+    reglas.insertAdjacentHTML('beforeend',
+      `<div class="linea" style="top:${y}px"><span>${y}</span></div>`);
+  }
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '—';
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;top:0;height:env(safe-area-inset-top,0px)';
+  document.body.appendChild(probe);
+  const standalone = window.navigator.standalone === true ||
+                     window.matchMedia('(display-mode: standalone)').matches;
+  document.getElementById('datos').innerHTML = [
+    `<b>instalada (standalone):</b> <code>${standalone ? 'SÍ' : 'NO — ábrela desde el icono'}</code>`,
+    `<b>safe-area-inset-top:</b> <code>${probe.getBoundingClientRect().height}px</code>`,
+    `<b>innerHeight:</b> <code>${window.innerHeight}</code> · <b>screen.height:</b> <code>${screen.height}</code>`,
+    `<b>dpr:</b> <code>${window.devicePixelRatio}</code>`,
+    `<b>UA:</b> <code>${navigator.userAgent}</code>`,
+  ].join('<br>');
+</script>
+</body>
+</html>
