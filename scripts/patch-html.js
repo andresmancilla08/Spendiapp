@@ -171,13 +171,6 @@ const pwaTags = `
       right: 0;
       height: 100%;
       height: 100dvh;
-      /* MARGEN DE LA ZONA SEGURA. El proyecto no monta SafeAreaProvider, asi que
-         useSafeAreaInsets() devuelve 0 en web y ningun SafeAreaView reserva nada
-         arriba. Con black-translucent la webview arranca en el pixel 0: las
-         cabeceras nacian DEBAJO de la barra de estado y el cristal del sistema se
-         las comia. En navegador el inset vale 0 y no cambia nada. */
-      box-sizing: border-box;
-      padding-top: env(safe-area-inset-top, 0px);
     }
     /* Zona segura superior: SIN banda. Con black-translucent la webview ya se
        extiende bajo la barra de estado, asi que el gradiente y el efecto animado

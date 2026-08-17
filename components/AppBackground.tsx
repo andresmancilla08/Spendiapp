@@ -237,6 +237,26 @@ export default function AppBackground() {
           era una animación permanente.
           Va desenfocado (según Personalización) para que nunca compita con el
           contenido; el gradiente queda nítido, es el que da el color. */}
+      {/* FRANJA LISA DE CABECERA. iOS dibuja un cristal translúcido sobre la parte
+          superior de las apps instaladas. Desenfocar un color plano no se nota
+          —por eso el modal de novedades, que lleva fondo opaco, nunca se ve
+          borroso— pero desenfocar el degradado con blobs sí: era el 'blur' que se
+          veía en todas las barras superiores. Aquí el fondo se aplana justo en esa
+          zona, sin tapar nada: esto va DETRÁS del contenido, así que la cabecera
+          se sigue viendo. El color es el primer stop del degradado activo. */}
+      {Platform.OS === 'web' && (
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 'calc(env(safe-area-inset-top, 0px) + 76px)' as any,
+            backgroundColor: chromeColor,
+          }}
+        />
+      )}
       <View style={HEADER_CLEARANCE} pointerEvents="none">
         {blurStyle ? (
           <View style={blurStyle} pointerEvents="none">
