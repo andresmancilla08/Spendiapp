@@ -15,6 +15,8 @@ import { useToast } from '../context/ToastContext';
 import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { PremiumModules } from '../components/premium/PremiumModuleCards';
+import { usePremiumPreview } from '../hooks/usePremiumPreview';
+import { useAuthStore } from '../store/authStore';
 
 type Plan = 'monthly' | 'annual';
 
@@ -30,6 +32,9 @@ type Plan = 'monthly' | 'annual';
 export default function UpgradeScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  // Las miniaturas van con SUS cifras, no con las de un usuario inventado.
+  const { user } = useAuthStore();
+  const preview = usePremiumPreview(user?.uid);
   const { showToast } = useToast();
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const btnScale = useRef(new Animated.Value(1)).current;
@@ -122,7 +127,7 @@ export default function UpgradeScreen() {
               <Text style={[styles.modulesTitle, { color: colors.textTertiary }]}>{t('upgrade.modulesTitle')}</Text>
               <Text style={[styles.sampleNote, { color: colors.textTertiary }]}>{t('upgrade.sampleNote')}</Text>
             </View>
-            <PremiumModules colors={colors} />
+            <PremiumModules colors={colors} data={preview} />
           </ScrollView>
 
           {/* CTA fijo al fondo, fuera del scroll */}

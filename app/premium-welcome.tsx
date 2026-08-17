@@ -17,6 +17,7 @@ import { useProMotion } from '../hooks/useProMotion';
 import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { PremiumModules } from '../components/premium/PremiumModuleCards';
+import { usePremiumPreview } from '../hooks/usePremiumPreview';
 
 /**
  * Bienvenida al Premium. Se ve una vez, en la transición free→premium.
@@ -35,6 +36,8 @@ export default function PremiumWelcomeScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const { user } = useAuthStore();
+  // Ya es premium: las miniaturas enseñan SUS cifras, no un ejemplo.
+  const preview = usePremiumPreview(user?.uid);
   const { animate } = useProMotion();
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
@@ -89,7 +92,7 @@ export default function PremiumWelcomeScreen() {
             </Animated.View>
 
             <View style={styles.modules}>
-              <PremiumModules colors={colors} />
+              <PremiumModules colors={colors} data={preview} />
             </View>
           </ScrollView>
 
