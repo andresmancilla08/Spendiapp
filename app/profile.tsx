@@ -29,6 +29,7 @@ import { LANGUAGES, changeLanguage } from '../config/i18n';
 import AppHeader from '../components/AppHeader';
 import { router } from 'expo-router';
 import { goBack } from '../utils/nav';
+import { avatarUrl } from '../utils/avatarUrl';
 import { isPinComplete } from '../constants/pin';
 import AppDialog, { DialogType } from '../components/AppDialog';
 import ScreenBackground from '../components/ScreenBackground';
@@ -564,7 +565,7 @@ export default function ProfileScreen() {
                 ringGlow,
               ]}>
                 {photoUrl ? (
-                  <Image source={{ uri: photoUrl }} style={styles.avatar} />
+                  <Image source={{ uri: avatarUrl(photoUrl, 60) }} style={styles.avatar} />
                 ) : (
                   <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
                     <AppIcon name="person" size={30} color={colors.primary} />

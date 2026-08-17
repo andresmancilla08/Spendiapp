@@ -14,6 +14,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import Svg, { Circle } from 'react-native-svg';
 import AppIcon from './AppIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { avatarUrl } from '../utils/avatarUrl';
 import { useTheme } from '../context/ThemeContext';
 import { Fonts } from '../config/fonts';
 import { readableOn } from '../utils/contrast';
@@ -154,7 +155,7 @@ export default function HomeHeader({
 
   const avatar = (size: number) => {
     const inner = photoUrl && !avatarError
-      ? <Image source={{ uri: photoUrl }} style={{ width: size, height: size, borderRadius: size / 2 }} onError={onAvatarError} />
+      ? <Image source={{ uri: avatarUrl(photoUrl, size) }} style={{ width: size, height: size, borderRadius: size / 2 }} onError={onAvatarError} />
       : (
         <View style={[
           styles.avatarFallback,

@@ -5,6 +5,7 @@ import { goBack } from '../utils/nav';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
+import { avatarUrl } from '../utils/avatarUrl';
 import NotificationBell from './NotificationBell';
 import { useFlags } from '../context/FeatureFlagsContext';
 
@@ -68,7 +69,7 @@ export default function AppHeader({
             >
               {user?.photoURL ? (
                 <Image
-                  source={{ uri: user.photoURL }}
+                  source={{ uri: avatarUrl(user.photoURL, 32) }}
                   style={[styles.avatarThumb, { borderColor: colors.primary }]}
                 />
               ) : (
