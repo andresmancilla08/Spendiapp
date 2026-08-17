@@ -1039,13 +1039,13 @@
     "title": "Cosa puoi fare?",
     "subtitle": "Esplora le funzionalità principali di Spendia.",
     "dismiss": "Ho capito",
-    "faster": {
-      "title": "Si apre più in fretta",
-      "item1": "L'app pesa meno della metà di prima, quindi si avvia prima sul telefono e consuma meno dati"
+    "premiumReal": {
+      "title": "Premium con i tuoi numeri",
+      "item1": "Le schede Premium non mostrano più cifre inventate: usano il tuo andamento, le tue categorie, la tua proiezione e i tuoi obiettivi"
     },
-    "insight": {
-      "title": "Il tuo mese in una frase, con i conti giusti",
-      "item1": "Il riepilogo del mese non si contraddice più: la cifra della frase e quella dell'etichetta coincidono, e un deficit si chiama deficit"
+    "legalLangs": {
+      "title": "Informativa e termini nella tua lingua",
+      "item1": "Erano solo in spagnolo. Ora si leggono anche in inglese e italiano"
     }
   },
   "incomeClaim": {

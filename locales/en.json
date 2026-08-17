@@ -1039,13 +1039,13 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "faster": {
-      "title": "Opens faster",
-      "item1": "The app is less than half its previous size, so it starts sooner on your phone and uses less data"
+    "premiumReal": {
+      "title": "Premium, with your own numbers",
+      "item1": "The Premium cards no longer show made-up figures: they use your trend, your categories, your projection and your goals"
     },
-    "insight": {
-      "title": "Your month in one line, and the numbers add up",
-      "item1": "The monthly summary no longer contradicts itself: the figure in the sentence and the one on the tag now match, and a shortfall is called a shortfall"
+    "legalLangs": {
+      "title": "Policy and terms in your language",
+      "item1": "They were Spanish-only. They now read in English and Italian too"
     }
   },
   "incomeClaim": {
