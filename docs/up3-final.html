@@ -1,12 +1,13 @@
 <!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{width:390px;height:1500px;background:#0B1417;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#E8F1F3;position:relative;overflow:hidden}
+html,body{height:100%}
+body{width:390px;background:#0B1417;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#E8F1F3;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .c{background:#0F2226;border:1px solid #28474E;border-radius:14px;padding:12px}
 .badge{display:inline-flex;align-items:center;gap:7px;border:1px solid #00ACC166;border-radius:50px;
   padding:6px 12px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;letter-spacing:1.6px;color:#00ACC1}
 .badge i{width:5px;height:5px;border-radius:3px;background:#A78BFA;display:block}
 .grad{background:linear-gradient(96deg,#00ACC1,#549CDE 46%,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent}
-.dock{position:absolute;left:0;right:0;bottom:0;padding:18px 18px 26px;
+.dock{position:fixed;left:0;right:0;bottom:0;padding:18px 18px 26px;
   background:linear-gradient(180deg,#0B141700,#0B1417E6 30%,#0B1417)}
 .cta{border-radius:50px;padding:16px;text-align:center;font-size:16px;font-weight:800;color:#03181C;
   background:linear-gradient(96deg,#00ACC1,#7D93EC 60%,#A78BFA);letter-spacing:-0.2px}

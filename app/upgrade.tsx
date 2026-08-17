@@ -1,12 +1,9 @@
-import { useRef, useEffect } from 'react';
-import { scrollFadeMask } from '../components/ScrollFadeEdges';
+import { useRef, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Animated, Easing, Platform,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import AppIcon, { AppIconName } from '../components/AppIcon';
 import { router } from 'expo-router';
 import { goBack } from '../utils/nav';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,253 +12,135 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import ScreenBackground from '../components/ScreenBackground';
 import AppHeader from '../components/AppHeader';
 import { useTheme } from '../context/ThemeContext';
-import type { AppColors } from '../config/colors';
-import { accentInk, mixHex } from '../utils/contrast';
+import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
+import { PremiumModules } from '../components/premium/PremiumModuleCards';
 
+type Plan = 'monthly' | 'annual';
 
-const BENEFIT_ICONS: Array<AppIconName> = [
-  'document-text-outline',
-  'trending-up-outline',
-  'people-outline',
-  'notifications-outline',
-  'color-palette-outline',
-  'headset-outline',
-];
-
-/** Los iconos de beneficio rotan por los tonos de la paleta ACTIVA: antes eran seis
- *  hex fijos, asi que el muro de pago se veia igual con las 40 paletas. */
-const benefitColors = (c: AppColors) => [c.primary, c.warning, c.success, c.secondary, c.tertiary, c.info];
-
+/**
+ * Pantalla de compra del Premium.
+ *
+ * El diseño anterior era un plano rosa-azul con una estrella y una lista de seis
+ * viñetas, dos de las cuales vendían funciones que NO existen ("Reportes PDF
+ * ilimitados", "Notificaciones inteligentes"). Ahora los módulos se MUESTRAN con
+ * una miniatura de cada uno; el catálogo vive en `components/premium/`, compartido
+ * con la pantalla de bienvenida para que no vuelvan a desincronizarse.
+ */
 export default function UpgradeScreen() {
   const { t } = useTranslation();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const transitionRef = useRef<ScreenTransitionRef>(null);
-  const accents = benefitColors(colors);
-  // El hero es una superficie de COLOR de marca (no el fondo de la app), asi que se
-  // arma con los tonos de la paleta activa en vez de tres cian fijos.
-  const heroGradient: [string, string, string] = isDark
-    ? [colors.primaryDark, colors.primary, colors.secondaryDark]
-    : [colors.primaryDark, colors.primary, colors.secondary];
-  // El oro de Premium sale de `warning`; el tono claro del degradado se calcula,
-  // no se elige a mano, para que funcione igual en las 40 paletas y en los 2 modos.
-  const gold = colors.warning;
-  const goldLight = mixHex(colors.warning, '#FFFFFF', 0.4);
-
-  // Star animations
-  const starScale  = useRef(new Animated.Value(0)).current;
-  const starPulse  = useRef(new Animated.Value(1)).current;
-  const haloOpacity = useRef(new Animated.Value(0.5)).current;
-
-  // Stagger entrance
-  const heroOpacity    = useRef(new Animated.Value(0)).current;
-  const heroSlide      = useRef(new Animated.Value(20)).current;
-  const badgeOpacity   = useRef(new Animated.Value(0)).current;
-  const badgeSlide     = useRef(new Animated.Value(12)).current;
-  const cardOpacity    = useRef(new Animated.Value(0)).current;
-  const cardSlide      = useRef(new Animated.Value(20)).current;
-
-  // Shimmer on WhatsApp button
-  const shimmerX = useRef(new Animated.Value(-300)).current;
-
-  // Button press
   const btnScale = useRef(new Animated.Value(1)).current;
+  const [plan, setPlan] = useState<Plan>('annual');
 
-  useEffect(() => {
-    // Star entrance
-    Animated.spring(starScale, {
-      toValue: 1, damping: 9, stiffness: 120, useNativeDriver: Platform.OS !== 'web',
-    }).start();
-
-    // Star pulse loop
-    Animated.loop(
-      Animated.parallel([
-        Animated.sequence([
-          Animated.timing(starPulse, { toValue: 1.1, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
-          Animated.timing(starPulse, { toValue: 1,   duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
-        ]),
-        Animated.sequence([
-          Animated.timing(haloOpacity, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
-          Animated.timing(haloOpacity, { toValue: 0.5, duration: 900, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
-        ]),
-      ])
-    ).start();
-
-    // Hero section fade-in
-    Animated.stagger(100, [
-      Animated.parallel([
-        Animated.timing(heroOpacity, { toValue: 1, duration: 450, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(heroSlide,   { toValue: 0, duration: 450, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
-      ]),
-      Animated.parallel([
-        Animated.timing(badgeOpacity, { toValue: 1, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(badgeSlide,   { toValue: 0, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
-      ]),
-      Animated.parallel([
-        Animated.timing(cardOpacity, { toValue: 1, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(cardSlide,   { toValue: 0, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }),
-      ]),
-    ]).start();
-
-    // Shimmer loop on CTA button
-    const shimmerLoop = Animated.loop(
-      Animated.sequence([
-        Animated.delay(1600),
-        Animated.timing(shimmerX, { toValue: 300, duration: 650, easing: Easing.out(Easing.quad), useNativeDriver: Platform.OS !== 'web' }),
-        Animated.timing(shimmerX, { toValue: -300, duration: 0, useNativeDriver: Platform.OS !== 'web' }),
-      ])
-    );
-    shimmerLoop.start();
-    return () => shimmerLoop.stop();
-  }, []);
-
-  const handleBack = () => {
-    transitionRef.current?.animateOut(() => goBack());
-  };
+  const handleBack = () => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'));
 
   const handlePressIn = () => {
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Animated.spring(btnScale, { toValue: 0.96, tension: 300, friction: 10, useNativeDriver: Platform.OS !== 'web' }).start();
+    Animated.spring(btnScale, { toValue: 0.97, tension: 300, friction: 10, useNativeDriver: Platform.OS !== 'web' }).start();
   };
-
   const handlePressOut = () => {
     Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 7, useNativeDriver: Platform.OS !== 'web' }).start();
   };
+  const handleActivate = () => router.push('/payment-qr' as any);
 
-  const handleActivate = () => {
-    router.push('/payment-qr' as any);
+  const onCTA = accentInk(colors, 'primary', colors.primary);
+
+  const PlanCard = ({ id, label, price, per, save }: {
+    id: Plan; label: string; price: string; per: string; save?: string;
+  }) => {
+    const active = plan === id;
+    return (
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => setPlan(id)}
+        style={[
+          styles.plan,
+          {
+            backgroundColor: colors.surface,
+            borderColor: active ? colors.primary : colors.border,
+            borderWidth: active ? 1.5 : 1,
+          },
+        ]}
+        accessibilityRole="radio"
+        accessibilityState={{ selected: active }}
+      >
+        {!!save && (
+          <View style={[styles.saveTag, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.saveText, { color: onCTA }]}>{save}</Text>
+          </View>
+        )}
+        <Text style={[styles.planLabel, { color: active ? colors.primary : colors.textTertiary }]}>{label}</Text>
+        <Text style={[styles.planPrice, { color: colors.textPrimary }]}>{price}</Text>
+        <Text style={[styles.planPer, { color: active ? colors.success : colors.textTertiary }]}>{per}</Text>
+      </TouchableOpacity>
+    );
   };
-
-  const benefits = t('upgrade.benefits', { returnObjects: true }) as string[];
 
   return (
     <ScreenTransition ref={transitionRef}>
       <SafeAreaView style={styles.safeArea}>
         <ScreenBackground>
-          <AppHeader showBack onBack={handleBack} />
-          <ScrollView
-            style={[styles.scroll, scrollFadeMask(0, 0)]}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* ── Hero section ─────────────────────────────── */}
-            <Animated.View style={{ opacity: heroOpacity, transform: [{ translateY: heroSlide }] }}>
-              <View style={styles.heroWrapper}>
-                <LinearGradient
-                  colors={heroGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={StyleSheet.absoluteFillObject}
-                />
+          <AppHeader showBack onBack={handleBack} backFallback="/(tabs)/tools" />
 
-                {/* Decorative circles */}
-                <View style={[styles.decoCircle1, { backgroundColor: '#fff' }]} />
-                <View style={[styles.decoCircle2, { backgroundColor: '#fff' }]} />
-                <View style={[styles.decoCircle3, { backgroundColor: colors.warning }]} />
+          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            {/* Marca */}
+            <View style={[styles.badge, { borderColor: colors.primary + '66' }]}>
+              <View style={[styles.badgeDot, { backgroundColor: colors.primary }]} />
+              <Text style={[styles.badgeText, { color: colors.primary }]}>{t('upgrade.badge')}</Text>
+            </View>
 
-                {/* PREMIUM badge */}
-                <View style={styles.premiumBadge}>
-                  <AppIcon name="star" size={10} color={colors.warning} />
-                  <Text style={[styles.premiumBadgeText, { color: accentInk(colors, 'warning', 'rgba(245,158,11,0.18)') }]}>PREMIUM</Text>
-                </View>
+            {/* Titular a dos líneas: la segunda es el acento */}
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{t('upgrade.title1')}</Text>
+            <Text style={[styles.title, { color: colors.primary, marginBottom: 4 }]}>{t('upgrade.title2')}</Text>
 
-                {/* Star icon with glow */}
-                <View style={styles.starContainer}>
-                  <Animated.View style={[styles.starHalo, { backgroundColor: gold, opacity: haloOpacity }]} />
-                  <Animated.View style={[styles.starHaloInner, { backgroundColor: goldLight, opacity: Animated.multiply(haloOpacity, 0.5) }]} />
-                  <Animated.View style={{ transform: [{ scale: Animated.multiply(starScale, starPulse) }], zIndex: 2 }}>
-                    <LinearGradient
-                      colors={[goldLight, gold]}
-                      style={[styles.starCircle, { shadowColor: gold }]}
-                    >
-                      <AppIcon name="star" size={36} color="#fff" />
-                    </LinearGradient>
-                  </Animated.View>
-                </View>
+            {/* Planes */}
+            <View style={styles.plans}>
+              <PlanCard
+                id="monthly"
+                label={t('upgrade.planMonthly')}
+                price="$9.900"
+                per={t('upgrade.planMonthlyPer')}
+              />
+              <PlanCard
+                id="annual"
+                label={t('upgrade.planAnnual')}
+                price="$79.900"
+                per={t('upgrade.planAnnualPer', { amount: '$6.658' })}
+                save={t('upgrade.planAnnualSave')}
+              />
+            </View>
 
-                <Text style={styles.heroTitle}>{t('upgrade.title')}</Text>
-                <Text style={styles.heroSub}>{t('upgrade.subtitle')}</Text>
-
-                {/* Price pill */}
-                <LinearGradient
-                  colors={[gold, goldLight]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={[styles.pricePill, { shadowColor: gold }]}
-                >
-                  <AppIcon name="pricetag-outline" size={13} color="#fff" />
-                  <Text style={styles.priceText}>{t('upgrade.price')}</Text>
-                </LinearGradient>
-              </View>
-            </Animated.View>
-
-            {/* ── Benefits card ─────────────────────────────── */}
-            <Animated.View style={{ opacity: cardOpacity, transform: [{ translateY: cardSlide }] }}>
-              <View style={[styles.benefitsCard, {
-                backgroundColor: colors.surface,
-                borderColor: `${colors.primary}22`,
-                shadowColor: colors.primary,
-              }]}>
-                <Text style={[styles.benefitsTitle, { color: colors.textPrimary }]}>
-                  {t('upgrade.benefitsTitle')}
-                </Text>
-                {benefits.map((benefit, i) => (
-                  <View key={i} style={styles.benefitRow}>
-                    <View style={[styles.benefitIconWrap, { backgroundColor: `${accents[i % accents.length]}20` }]}>
-                      <AppIcon
-                        name={BENEFIT_ICONS[i % BENEFIT_ICONS.length]}
-                        size={18}
-                        color={accents[i % accents.length]}
-                      />
-                    </View>
-                    <Text style={[styles.benefitText, { color: colors.textPrimary }]}>{benefit}</Text>
-                  </View>
-                ))}
-              </View>
-            </Animated.View>
-
-            {/* CTA note */}
-            <Animated.View style={{ opacity: badgeOpacity, transform: [{ translateY: badgeSlide }] }}>
-              <Text style={[styles.ctaNote, { color: colors.textTertiary }]}>
-                {t('upgrade.ctaNote')}
-              </Text>
-            </Animated.View>
+            {/* Catálogo de módulos */}
+            <View style={styles.modulesHead}>
+              <Text style={[styles.modulesTitle, { color: colors.textTertiary }]}>{t('upgrade.modulesTitle')}</Text>
+              <Text style={[styles.sampleNote, { color: colors.textTertiary }]}>{t('upgrade.sampleNote')}</Text>
+            </View>
+            <PremiumModules colors={colors} />
           </ScrollView>
 
-          {/* ── Footer CTA ─────────────────────────────────── */}
-          <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: `${colors.textPrimary}10` }]}>
-            <Animated.View style={[styles.btnWrapper, { transform: [{ scale: btnScale }] }]}>
+          {/* CTA fijo al fondo, fuera del scroll */}
+          <View style={styles.footer}>
+            <Animated.View style={{ transform: [{ scale: btnScale }] }}>
               <TouchableOpacity
+                activeOpacity={0.9}
                 onPress={handleActivate}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
-                activeOpacity={1}
-                style={styles.ctaBtnTouch}
+                accessibilityRole="button"
               >
                 <LinearGradient
-                  colors={['#25D366', '#128C7E'] /* marca de WhatsApp: no es tema */}
+                  colors={[colors.primary, colors.primaryDark]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
-                  style={styles.ctaBtn}
+                  style={styles.cta}
                 >
-                  <AppIcon name="logo-whatsapp" size={22} color="#fff" />
-                  <Text style={styles.ctaBtnText}>{t('upgrade.ctaButton')}</Text>
-
-                  {/* Shimmer sweep */}
-                  <Animated.View
-                    pointerEvents="none"
-                    style={[styles.shimmer, { transform: [{ translateX: shimmerX }, { rotate: '15deg' }] }]}
-                  >
-                    <LinearGradient
-                      colors={['transparent', 'rgba(255,255,255,0.22)', 'transparent']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={{ width: 80, flex: 1 }}
-                    />
-                  </Animated.View>
+                  <Text style={[styles.ctaText, { color: onCTA }]}>{t('upgrade.ctaButton')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </Animated.View>
+            <Text style={[styles.ctaNote, { color: colors.textTertiary }]}>{t('upgrade.ctaNote')}</Text>
           </View>
         </ScreenBackground>
       </SafeAreaView>
@@ -271,103 +150,45 @@ export default function UpgradeScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  scroll: { flex: 1 },
-  scrollContent: { padding: 20, gap: 20, paddingBottom: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  scroll: {
+    paddingHorizontal: 16,
+    paddingTop: 6,
+    paddingBottom: 24,
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
+  },
+  badge: {
+    flexDirection: 'row', alignItems: 'center', gap: 7, alignSelf: 'flex-start',
+    borderWidth: 1, borderRadius: 50, paddingHorizontal: 12, paddingVertical: 6,
+  },
+  badgeDot: { width: 5, height: 5, borderRadius: 3 },
+  badgeText: { fontFamily: Fonts.bold, fontSize: 9.5, letterSpacing: 1.6 },
+  title: { fontFamily: Fonts.extraBold, fontSize: 34, lineHeight: 36, letterSpacing: -1.4, marginTop: 10 },
 
-  // Hero
-  heroWrapper: {
-    borderRadius: 28,
-    overflow: 'hidden',
-    alignItems: 'center',
-    paddingTop: 28,
-    paddingBottom: 32,
-    paddingHorizontal: 24,
-    gap: 10,
+  plans: { flexDirection: 'row', gap: 9, marginTop: 18 },
+  plan: { flex: 1, borderRadius: 14, paddingHorizontal: 13, paddingVertical: 14 },
+  saveTag: {
+    position: 'absolute', top: -9, right: 10, borderRadius: 50,
+    paddingHorizontal: 8, paddingVertical: 3,
   },
-  decoCircle1: {
-    position: 'absolute', opacity: 0.07,
-    width: 220, height: 220, borderRadius: 110,
-    top: -70, right: -50,
-  },
-  decoCircle2: {
-    position: 'absolute', opacity: 0.05,
-    width: 160, height: 160, borderRadius: 80,
-    bottom: -50, left: -40,
-  },
-  decoCircle3: {
-    position: 'absolute', opacity: 0.12,
-    width: 100, height: 100, borderRadius: 50,
-    top: 30, left: 20,
-  },
-  premiumBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: 'rgba(245,158,11,0.18)',
-    borderRadius: 50, borderWidth: 1, borderColor: 'rgba(245,158,11,0.4)',
-    paddingHorizontal: 12, paddingVertical: 5,
-    marginBottom: 4,
-  },
-  premiumBadgeText: {
-    fontSize: 10, fontFamily: Fonts.bold,
-    letterSpacing: 2.5,
-  },
-  starContainer: { alignItems: 'center', justifyContent: 'center', width: 110, height: 110, marginBottom: 4 },
-  starHalo: { position: 'absolute', width: 110, height: 110, borderRadius: 55 },
-  starHaloInner: { position: 'absolute', width: 82, height: 82, borderRadius: 41 },
-  starCircle: {
-    width: 68, height: 68, borderRadius: 22,
-    alignItems: 'center', justifyContent: 'center',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.5, shadowRadius: 14,
-    elevation: 10,
-  },
-  heroTitle: {
-    fontSize: 28, fontFamily: Fonts.bold,
-    color: '#fff', textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  heroSub: {
-    fontSize: 14, fontFamily: Fonts.regular,
-    color: 'rgba(255,255,255,0.82)', textAlign: 'center', lineHeight: 21,
-  },
-  pricePill: {
-    flexDirection: 'row', alignItems: 'center', gap: 7,
-    borderRadius: 50, paddingHorizontal: 18, paddingVertical: 10,
-    marginTop: 4, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.35)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45, shadowRadius: 12, elevation: 8,
-  },
-  priceText: { fontSize: 13, fontFamily: Fonts.semiBold, color: '#fff' },
+  saveText: { fontFamily: Fonts.extraBold, fontSize: 8.5, letterSpacing: 0.8 },
+  planLabel: { fontFamily: Fonts.bold, fontSize: 8.5, letterSpacing: 1.3 },
+  planPrice: { fontFamily: Fonts.extraBold, fontSize: 24, letterSpacing: -1.1, marginTop: 7 },
+  planPer: { fontFamily: Fonts.regular, fontSize: 10.5, marginTop: 3 },
 
-  // Benefits
-  benefitsCard: {
-    borderRadius: 24, padding: 20, gap: 16, borderWidth: 1.5,
-    shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.08, shadowRadius: 14, elevation: 4,
+  modulesHead: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline',
+    marginTop: 22, marginBottom: 11,
   },
-  benefitsTitle: { fontSize: 16, fontFamily: Fonts.bold, marginBottom: 2 },
-  benefitRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  benefitIconWrap: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  benefitText: { fontSize: 14, fontFamily: Fonts.medium, flex: 1, lineHeight: 20 },
+  modulesTitle: { fontFamily: Fonts.bold, fontSize: 8.5, letterSpacing: 1.5 },
+  sampleNote: { fontFamily: Fonts.regular, fontSize: 9.5 },
 
-  ctaNote: { fontSize: 12, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 18, paddingHorizontal: 20 },
-
-  // Footer
-  footer: { padding: 16, paddingBottom: 8, borderTopWidth: 1 },
-  btnWrapper: {
-    borderRadius: 50, overflow: 'hidden',
-    shadowColor: '#25D366',  // marca de WhatsApp
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4, shadowRadius: 18, elevation: 10,
+  footer: {
+    paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16,
+    width: '100%', maxWidth: 640, alignSelf: 'center',
   },
-  ctaBtnTouch: { borderRadius: 50, overflow: 'hidden' },
-  ctaBtn: {
-    height: 58, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'center', gap: 10, overflow: 'hidden',
-  },
-  ctaBtnText: { fontSize: 17, fontFamily: Fonts.bold, color: '#fff' },
-  shimmer: {
-    position: 'absolute', top: 0, bottom: 0,
-    width: 80, overflow: 'hidden',
-  },
+  cta: { height: 54, borderRadius: 50, alignItems: 'center', justifyContent: 'center' },
+  ctaText: { fontFamily: Fonts.extraBold, fontSize: 16, letterSpacing: -0.2 },
+  ctaNote: { fontFamily: Fonts.regular, fontSize: 11, textAlign: 'center', marginTop: 9 },
 });

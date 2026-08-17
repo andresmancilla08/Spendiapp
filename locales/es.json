@@ -1362,18 +1362,11 @@
     "contact": "Contactar soporte"
   },
   "premiumWelcome": {
-    "badge": "SPENDIA PREMIUM",
-    "title1": "Tu cuenta está",
-    "title2": "activa.",
-    "subtitle": "Bienvenido al nivel completo de Spendia.",
+    "badge": "PREMIUM ACTIVO",
+    "subtitle": "Diez módulos nuevos, activos desde ahora.",
     "cta": "Empezar a explorar",
-    "features": [
-      "Presupuesto inteligente",
-      "Reporte con amigo",
-      "Gastos grupales",
-      "Paleta de colores",
-      "Temas premium"
-    ]
+    "title1": "TODO",
+    "title2": "ABIERTO."
   },
   "premium": {
     "lockedTitle": "Función Premium",
@@ -1382,20 +1375,57 @@
     "bannerSubtitle": "Contáctanos por WhatsApp para activar tu plan"
   },
   "upgrade": {
-    "title": "Spendia Premium",
-    "subtitle": "Desbloquea todo el potencial de Spendia",
-    "price": "COP $9.900/mes · $79.900/año",
-    "benefitsTitle": "Todo lo que incluye:",
-    "benefits": [
-      "Reportes PDF ilimitados",
-      "Metas de ahorro",
-      "Amigos y gastos compartidos",
-      "Notificaciones inteligentes",
-      "Categorías personalizadas ilimitadas",
-      "Soporte prioritario"
-    ],
+    "badge": "PREMIUM",
+    "title1": "DIEZ MÓDULOS",
+    "title2": "POR UN CAFÉ.",
+    "planMonthly": "MENSUAL",
+    "planMonthlyPer": "al mes",
+    "planAnnual": "ANUAL",
+    "planAnnualPer": "{{amount}} al mes",
+    "planAnnualSave": "−33%",
+    "modulesTitle": "LO QUE SE ENCIENDE",
+    "sampleNote": "Cifras de ejemplo",
     "ctaButton": "Activar Premium",
-    "ctaNote": "El admin activará tu acceso tras confirmar el pago"
+    "ctaNote": "El admin activará tu acceso tras confirmar el pago",
+    "mod": {
+      "ia": "TU MES EN UNA FRASE",
+      "iaText": "Vas a cerrar el mes con déficit si mantienes este ritmo de gasto en Tarjetas.",
+      "iaChip": "−$1,7M al cierre",
+      "trend": "TENDENCIA · 6 MESES",
+      "analysis": "ANÁLISIS DEL MES",
+      "savings": "Tasa de ahorro",
+      "savingsDelta": "▲ 6 pts",
+      "vsLast": "Vs. mes pasado",
+      "vsLastDelta": "a esta altura del mes",
+      "topCat": "Categoría top",
+      "topCatValue": "Tarjetas",
+      "topCatDelta": "$4,3M · 48%",
+      "streak": "Racha de ahorro",
+      "streakValue": "3 meses",
+      "streakDelta": "Sigue así",
+      "cats": "GASTOS POR CATEGORÍA",
+      "catsTotal": "TOTAL",
+      "cat1": "Tarjetas",
+      "cat2": "Mercado",
+      "cat3": "Transporte",
+      "cat4": "Otras",
+      "proj": "PROYECCIÓN DE FIN DE MES",
+      "projOf": "de {{amount}} · a tu ritmo actual",
+      "projNow": "VAS EN {{pct}}%",
+      "projEnd": "PROYECTADO {{pct}}%",
+      "goals": "METAS ACTIVAS · {{count}}",
+      "goal1": "Viaje a Cartagena",
+      "goal2": "Fondo de emergencia",
+      "fx": "TIPOS DE CAMBIO · EN VIVO",
+      "report": "REPORTE CON AMIGO",
+      "reportOwe": "TE DEBEN",
+      "reportNote": "Imagen o PDF para compartir",
+      "groups": "GASTOS GRUPALES",
+      "groupName": "Cartagena",
+      "groupNote": "4 personas · 11 gastos",
+      "perso": "PERSONALIZACIÓN COMPLETA",
+      "persoNote": "18 paletas + las tuyas · 13 fondos · 6 gráficos"
+    }
   },
   "paymentQr": {
     "title": "Activa tu Premium",
