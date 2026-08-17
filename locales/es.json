@@ -1039,14 +1039,13 @@
     "title": "¿Qué puedes hacer?",
     "subtitle": "Explora las funcionalidades principales de Spendia.",
     "dismiss": "Entendido",
-    "premiumLook": {
-      "title": "Premium se ve como debe",
-      "item1": "Las dos pantallas de Premium rediseñadas: cada función se muestra funcionando, con su gráfico, en vez de una lista de viñetas",
-      "item2": "Y el acento sigue tu paleta: antes eran el mismo ámbar en las 18"
+    "faster": {
+      "title": "Abre más rápido",
+      "item1": "La app pesa menos de la mitad que antes, así que arranca antes en el móvil y consume menos datos"
     },
-    "sharper": {
-      "title": "Se ve más nítido",
-      "item1": "En la app instalada, el avatar y los logos salían borrosos en todas las pantallas. Arreglado"
+    "insight": {
+      "title": "Tu mes en una frase, con las cuentas claras",
+      "item1": "El resumen del mes ya no se contradice: la cifra del resumen y la de la etiqueta son la misma, y un déficit se llama déficit"
     }
   },
   "incomeClaim": {

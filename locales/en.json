@@ -1039,14 +1039,13 @@
     "title": "What can you do?",
     "subtitle": "Explore the main features of Spendia.",
     "dismiss": "Got it",
-    "premiumLook": {
-      "title": "Premium looks the way it should",
-      "item1": "Both Premium screens redesigned: every feature is shown working, with its own chart, instead of a bullet list",
-      "item2": "And the accent follows your palette — it used to be the same amber across all 18"
+    "faster": {
+      "title": "Opens faster",
+      "item1": "The app is less than half its previous size, so it starts sooner on your phone and uses less data"
     },
-    "sharper": {
-      "title": "Sharper",
-      "item1": "In the installed app, your avatar and the logos came out blurry on every screen. Fixed"
+    "insight": {
+      "title": "Your month in one line, and the numbers add up",
+      "item1": "The monthly summary no longer contradicts itself: the figure in the sentence and the one on the tag now match, and a shortfall is called a shortfall"
     }
   },
   "incomeClaim": {
