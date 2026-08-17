@@ -641,7 +641,7 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.premiumBannerContent}>
               <Text style={[styles.premiumBannerTitle, { color: colors.textPrimary }]}>
-                {t('upgrade.title')}
+                {t('premium.bannerTitle')}
               </Text>
               <Text style={[styles.premiumBannerSub, { color: colors.textSecondary }]}>
                 {t('premium.bannerSubtitle')}

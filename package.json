@@ -1,6 +1,6 @@
 {
   "name": "spendiapp",
-  "version": "2.64.0",
+  "version": "2.64.1",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
@@ -10,7 +10,8 @@
     "typecheck": "node --stack-size=10000 ./node_modules/typescript/lib/tsc.js --noEmit",
     "export": "expo export --platform web && node scripts/patch-html.js",
     "deploy": "npm run export && vercel --prod",
-    "reset-whats-new": "node scripts/reset-whats-new.js"
+    "reset-whats-new": "node scripts/reset-whats-new.js",
+    "check-i18n": "node scripts/check-i18n.js"
   },
   "dependencies": {
     "@expo-google-fonts/dm-mono": "^0.4.2",
