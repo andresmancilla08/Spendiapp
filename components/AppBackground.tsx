@@ -93,11 +93,25 @@ export function backgroundBlurStyle(px: number) {
  * 150 px cubren la barra de estado más la cabecera más alta (la del inicio, de
  * 70 px), y el desvanecido es largo para que no se vea dónde acaba.
  */
+// Los 96 px de la primera versión se medían desde el borde de la PANTALLA, no
+// desde donde empieza la interfaz. En la PWA instalada la barra de estado se come
+// ~54 de esos px, así que a la altura del avatar el efecto ya iba al 35% y se veía
+// un halo desenfocado detrás de la cabecera — en TODAS las pantallas, porque todas
+// tienen barra superior. Ahora los tramos cuelgan de `safe-area-inset-top`: el
+// efecto no asoma hasta pasada la cabecera, la mida lo que la mida el dispositivo.
+// En navegador el inset vale 0 y se comporta como antes, con algo más de aire.
+const CLEAR = 'env(safe-area-inset-top, 0px)';
+const HEADER_MASK =
+  'linear-gradient(to bottom, ' +
+  `transparent 0px, transparent calc(${CLEAR} + 88px), ` +
+  `rgba(0,0,0,0.35) calc(${CLEAR} + 170px), ` +
+  `rgba(0,0,0,1) calc(${CLEAR} + 260px))`;
+
 const HEADER_CLEARANCE = Platform.OS === 'web'
   ? ({
       ...StyleSheet.absoluteFillObject,
-      maskImage: 'linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.35) 96px, rgba(0,0,0,1) 190px)',
-      WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.35) 96px, rgba(0,0,0,1) 190px)',
+      maskImage: HEADER_MASK,
+      WebkitMaskImage: HEADER_MASK,
     } as any)
   : StyleSheet.absoluteFillObject;
 
