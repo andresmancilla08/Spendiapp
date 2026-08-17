@@ -46,7 +46,7 @@ export default function LoginScreen() {
         {/* Contenido central */}
         <View style={styles.container}>
           <View style={styles.headerSection}>
-            <Image source={require('../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+            <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
             <Text style={[styles.appName, { color: colors.textPrimary }]}>Spendia</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('login.subtitle')}</Text>
           </View>
@@ -123,17 +123,21 @@ const styles = StyleSheet.create({
   },
   headerSection: {
     alignItems: 'center',
-    marginBottom: 56,
+    marginBottom: 40,
   },
+  // logo-mark.png es logo.png recortado a su contenido: el original tiene 1024
+  // de lado con el dibujo ocupando 462x793, así que más de la mitad era aire
+  // transparente y agrandar la caja no agrandaba el logo. Las medidas siguen su
+  // proporción real (0.583) para que `contain` no deje bandas.
   logo: {
-    width: 160,
-    height: 160,
-    marginBottom: 16,
+    width: 108,
+    height: 185,
+    marginBottom: 10,
   },
   appName: {
     fontSize: 30,
     fontFamily: Fonts.extraBold,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   subtitle: {
     fontSize: 15,
