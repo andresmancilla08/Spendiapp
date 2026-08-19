@@ -179,3 +179,15 @@
 - **Cómo queda el catálogo:** `api/suggest-icon.js` no guarda copia de los 180 iconos: los recibe en el body (`constants/categoryIconData.ts` sigue siendo la única fuente de verdad), filtra las claves por forma `^[a-z0-9-]{2,40}$` y valida la respuesta contra la lista recibida; el cliente revalida con `isCategoryIcon`.
 - **INVARIANTE:** ninguna llamada a `generativelanguage.googleapis.com` desde código de cliente. Si hace falta un uso nuevo de IA, se añade un endpoint en `/api` con `generate()`.
 - **Descartado:** duplicar el catálogo en el server (se desincroniza a la primera categoría nueva) y pasar la key al cliente vía env pública.
+
+### Las páginas legales son HTML propio, no la SPA reescrita — Vigente
+- **Qué:** `scripts/patch-html.js` emite `dist/privacy.html` y `dist/terms.html` con su propio `<title>`, `description`, `canonical`, OG y `<noscript>`. `vercel.json` reescribe `/privacy` y `/terms` a esos archivos **antes** del catch-all. El bundle y el shell son los mismos: expo-router lee `window.location` al arrancar y pinta la pantalla correcta.
+- **Por qué:** el catch-all las servía con `index.html`, así que ambas salían con el título de la home y con `<link rel="canonical" href="https://spendia.co/">`. Un canonical apuntando a "/" le dice a Google que indexe la home en su lugar: las dos URLs del sitemap quedaban excluidas del índice y el sitemap contradecía al canonical. Verificado en producción con `curl https://spendia.co/privacy`.
+- **El JSON-LD solo va en la home:** describe un `SoftwareApplication`, no un documento legal.
+- **Descartado:** canonical dinámico por JS (Google lo respeta al renderizar, pero deja el `<title>` equivocado en el HTML inicial y depende de que el render llegue) y montar rutas estáticas de verdad con `expo-router` (no las genera para este export).
+
+### robots.txt es lista blanca, no lista negra — Vigente
+- **Qué:** solo se permiten `/$`, `/privacy`, `/terms`, más `/_expo/`, `/assets/` y `/manifest.json`. Todo lo demás, `Disallow`.
+- **Por qué:** las ~25 rutas restantes (`/profile`, `/settings`, `/reports`…) son pantallas tras el login y el rewrite las servía con el mismo HTML: rastrearlas solo gasta presupuesto de rastreo y genera duplicados. Enumerarlas una a una se desincroniza con `app/` a la primera pantalla nueva.
+- **CUIDADO:** `_expo/` y `assets/` tienen que seguir permitidos. Sin el bundle, Googlebot no puede renderizar la home y la indexaría vacía — `app/index.tsx` devuelve una `View` sin contenido.
+- **Coste:** si algún día se publica una landing o un blog, hay que añadir su ruta aquí a mano.
