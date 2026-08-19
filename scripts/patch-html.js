@@ -35,8 +35,6 @@ const pwaTags = `
   <meta property="og:url" content="${ORIGIN}/" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="es_CO" />
-  <meta property="og:locale:alternate" content="en_US" />
-  <meta property="og:locale:alternate" content="it_IT" />
   <meta property="og:image" content="${ORIGIN}/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -223,3 +221,93 @@ html = html.replace(
 
 fs.writeFileSync(htmlPath, html, 'utf8');
 console.log('[patch-html] dist/index.html patched successfully.');
+
+// ---------------------------------------------------------------------------
+// Páginas legales como HTML propio.
+//
+// La app es una SPA: `vercel.json` reescribía /privacy y /terms a index.html, así
+// que ambas se servían con el <title> y el <link rel="canonical"> de la home. El
+// canonical apuntando a "/" le dice a Google que indexe la home en su lugar, y
+// las dos URLs del sitemap quedaban excluidas del índice.
+//
+// Cada una se emite ahora como archivo estático con su propio title, description
+// y canonical. El shell y el bundle son los mismos: expo-router lee la ruta de
+// window.location al arrancar y pinta la pantalla correcta.
+// ---------------------------------------------------------------------------
+const LEGAL_PAGES = [
+  {
+    file: 'privacy.html',
+    path: '/privacy',
+    title: 'Política de privacidad — Spendia',
+    description:
+      'Cómo Spendia recoge, usa y protege tus datos: qué información guardamos, ' +
+      'para qué la usamos, con quién se comparte y cómo puedes eliminar tu cuenta.',
+    heading: 'Política de privacidad',
+  },
+  {
+    file: 'terms.html',
+    path: '/terms',
+    title: 'Términos y condiciones — Spendia',
+    description:
+      'Condiciones de uso de Spendia: cuenta de usuario, funciones gratuitas y de ' +
+      'pago, responsabilidades, propiedad intelectual y cancelación del servicio.',
+    heading: 'Términos y condiciones',
+  },
+];
+
+for (const page of LEGAL_PAGES) {
+  let pageHtml = html;
+
+  pageHtml = pageHtml.replace(/<title>[^<]*<\/title>/, `<title>${page.title}</title>`);
+  pageHtml = pageHtml.replace(
+    /<meta name="description"[^>]*>/,
+    `<meta name="description" content="${page.description}">`
+  );
+  pageHtml = pageHtml.replace(
+    /<link rel="canonical"[^>]*>/,
+    `<link rel="canonical" href="${ORIGIN}${page.path}" />`
+  );
+  pageHtml = pageHtml.replace(
+    /<meta property="og:title"[^>]*>/,
+    `<meta property="og:title" content="${page.title}" />`
+  );
+  pageHtml = pageHtml.replace(
+    /<meta property="og:description"[^>]*>/,
+    `<meta property="og:description" content="${page.description}" />`
+  );
+  pageHtml = pageHtml.replace(
+    /<meta property="og:url"[^>]*>/,
+    `<meta property="og:url" content="${ORIGIN}${page.path}" />`
+  );
+  pageHtml = pageHtml.replace(
+    /<meta name="twitter:title"[^>]*>/,
+    `<meta name="twitter:title" content="${page.title}" />`
+  );
+  pageHtml = pageHtml.replace(
+    /<meta name="twitter:description"[^>]*>/,
+    `<meta name="twitter:description" content="${page.description}" />`
+  );
+
+  // El JSON-LD describe la aplicación, no un documento legal: fuera de estas dos.
+  pageHtml = pageHtml.replace(
+    /\s*<!-- Datos estructurados[\s\S]*?<\/script>/,
+    ''
+  );
+
+  // El <noscript> de la home enumera las funciones del producto; aquí solo tiene
+  // sentido decir qué es la página y dejar el camino de vuelta.
+  pageHtml = pageHtml.replace(
+    /<noscript>[\s\S]*?<\/noscript>/,
+    `<noscript>
+      <main style="font-family:system-ui,-apple-system,sans-serif;max-width:640px;margin:56px auto;padding:0 24px;color:#1A2428">
+        <h1 style="font-size:32px;margin:0 0 8px">${page.heading}</h1>
+        <p style="font-size:16px;line-height:1.65;margin:0 0 24px">${page.description}</p>
+        <p style="font-size:15px"><a href="/" style="color:#00838F">Volver a Spendia</a></p>
+        <p style="font-size:15px;color:#5A6B70;margin-top:24px">Activa JavaScript para leer el documento completo.</p>
+      </main>
+    </noscript>`
+  );
+
+  fs.writeFileSync(path.join(__dirname, '..', 'dist', page.file), pageHtml, 'utf8');
+  console.log(`[patch-html] dist/${page.file} generated (canonical ${page.path}).`);
+}

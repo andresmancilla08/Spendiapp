@@ -1,5 +1,18 @@
+# Spendia solo tiene tres URLs públicas: la home y los dos documentos legales.
+# El resto de rutas (/profile, /settings, /reports…) son pantallas de la app tras
+# el login: el rewrite las sirve con el mismo HTML, así que rastrearlas solo gasta
+# presupuesto de rastreo y genera duplicados.
+#
+# _expo/ y assets/ SÍ se permiten: sin el bundle, Googlebot no puede renderizar la
+# home y la indexaría vacía.
+
 User-agent: *
-Allow: /
-Disallow: /__/auth/
+Allow: /$
+Allow: /privacy
+Allow: /terms
+Allow: /_expo/
+Allow: /assets/
+Allow: /manifest.json
+Disallow: /
 
 Sitemap: https://spendia.co/sitemap.xml

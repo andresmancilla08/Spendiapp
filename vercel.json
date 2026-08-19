@@ -36,8 +36,10 @@
       "source": "/__/auth/:path*",
       "destination": "https://spendiapp-159e7.firebaseapp.com/__/auth/:path*"
     },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" },
     {
-      "source": "/((?!_expo/|assets/|favicon\\.ico|manifest\\.json|apple-touch-icon\\.png|icon-192\\.png|icon-512\\.png|og-image\\.png|robots\\.txt|sitemap\\.xml|sw\\.js).*)",
+      "source": "/((?!_expo/|assets/|favicon\\.ico|manifest\\.json|apple-touch-icon\\.png|icon-192\\.png|icon-512\\.png|og-image\\.png|robots\\.txt|sitemap\\.xml|sw\\.js|privacy|terms).*)",
       "destination": "/index.html"
     }
   ]

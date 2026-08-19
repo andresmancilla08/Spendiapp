@@ -182,8 +182,10 @@ export default function Root({ children }: PropsWithChildren) {
           justifyContent: 'center',
           padding: '32px 24px',
         }}>
+          {/* icon-192, no apple-touch-icon: este último mide 180x180 (el tamaño que
+              pide iOS) y se vería blando en pantallas de DPR 3. */}
           <img
-            src="/apple-touch-icon.png"
+            src="/icon-192.png"
             alt="Spendia"
             width={80}
             height={80}
