@@ -303,3 +303,66 @@ export function median(nums: number[]): number {
   const m = Math.floor(s.length / 2);
   return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2);
 }
+
+// ── Riel de plazos de paso desigual (C2·2) ─────────────────────────────────
+
+/** Topes del riel. Son los plazos que la gente pide de verdad. */
+export const TERM_STOPS = [1, 3, 6, 12, 18, 24, 36];
+
+/**
+ * Posición 0..1 de un plazo en un riel donde los TOPES —no las cuotas— se
+ * reparten el ancho a partes iguales.
+ *
+ * Un riel lineal en cuotas gasta el espacio al revés: deja 17 px entre 1 y 3,
+ * donde el sobrecosto cambia muchísimo, y 102 px entre 24 y 36, donde ya da
+ * igual. Aquí cada tramo mide lo mismo y los valores intermedios se interpolan
+ * dentro de su tramo.
+ */
+export function termRailPosition(n: number, stops: number[] = TERM_STOPS): number {
+  const last = stops.length - 1;
+  if (n <= stops[0]) return 0;
+  if (n >= stops[last]) return 1;
+  for (let i = 0; i < last; i++) {
+    if (n <= stops[i + 1]) {
+      const within = (n - stops[i]) / (stops[i + 1] - stops[i]);
+      return (i + within) / last;
+    }
+  }
+  return 1;
+}
+
+// ── Agrupación por año del plan (F5 combinado) ─────────────────────────────
+
+export interface YearGroup {
+  year: number;
+  rows: ScheduleRow[];
+  /** Suma de pagos del año. */
+  paid: number;
+  /** Intereses pagados en el año. */
+  interest: number;
+  /** Saldo al cerrar el año. */
+  endBalance: number;
+}
+
+/**
+ * Parte el plan por año natural.
+ *
+ * Un plan a 36 meses son 36 filas de entrada; agrupado son 3, y la proyección
+ * se puede ver entera sin scrollear, que es para lo que existe la sección.
+ */
+export function groupScheduleByYear(schedule: ScheduleRow[]): YearGroup[] {
+  const out: YearGroup[] = [];
+  for (const row of schedule) {
+    const y = row.date.getFullYear();
+    let g = out[out.length - 1];
+    if (!g || g.year !== y) {
+      g = { year: y, rows: [], paid: 0, interest: 0, endBalance: 0 };
+      out.push(g);
+    }
+    g.rows.push(row);
+    g.paid += row.payment;
+    g.interest += row.interest;
+    g.endBalance = row.balance;
+  }
+  return out;
+}

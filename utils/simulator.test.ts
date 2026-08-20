@@ -13,6 +13,8 @@ import {
   buildLoadTimeline,
   median,
   MAX_INSTALLMENTS,
+  termRailPosition,
+  groupScheduleByYear,
 } from './simulator';
 
 // ── Conversión de tasas ─────────────────────────────────────────────────────
@@ -164,6 +166,49 @@ import {
   const dec = effectivePurchaseDate(new Date(2026, 11, 3), card);
   assert.strictEqual(dec.getFullYear(), 2027);
   assert.strictEqual(dec.getMonth(), 0, 'diciembre cruza de año');
+}
+
+
+// ── Riel de paso desigual ───────────────────────────────────────────────────
+{
+  assert.strictEqual(termRailPosition(1), 0, 'el primer tope abre el riel');
+  assert.strictEqual(termRailPosition(36), 1, 'el último tope lo cierra');
+  // 7 topes = 6 tramos. El 12 es el cuarto tope → 3/6
+  assert.ok(Math.abs(termRailPosition(12) - 0.5) < 1e-9, '12 cae justo a la mitad');
+  assert.ok(Math.abs(termRailPosition(6) - 1 / 3) < 1e-9, '6 es el tercer tope');
+  // Un valor intermedio se interpola DENTRO de su tramo, no sobre el total
+  assert.ok(Math.abs(termRailPosition(9) - (2 + 0.5) / 6) < 1e-9, '9 va a mitad del tramo 6→12');
+  // Lo esencial: el tramo 1→3 ocupa lo mismo que el 24→36 pese a cubrir 2 cuotas contra 12
+  const a = termRailPosition(3) - termRailPosition(1);
+  const b = termRailPosition(36) - termRailPosition(24);
+  assert.ok(Math.abs(a - b) < 1e-9, 'todos los tramos miden lo mismo');
+  // Fuera de rango no rompe
+  assert.strictEqual(termRailPosition(0), 0);
+  assert.strictEqual(termRailPosition(99), 1);
+  // Monotonía
+  for (let n = 1; n < 36; n++) {
+    assert.ok(termRailPosition(n + 1) > termRailPosition(n), `el riel avanza en ${n}`);
+  }
+}
+
+// ── Agrupación por año ──────────────────────────────────────────────────────
+{
+  const r = simulate({ price: 1_800_000, installments: 12, tea: 25.52, startDate: new Date(2026, 8, 20) });
+  const g = groupScheduleByYear(r.schedule);
+  assert.strictEqual(g.length, 2, 'sep 2026 + 12 cuotas cruza a 2027');
+  assert.deepStrictEqual(g.map((x) => x.year), [2026, 2027]);
+  assert.strictEqual(g[0].rows.length, 4, 'sep, oct, nov, dic');
+  assert.strictEqual(g[1].rows.length, 8);
+  // Los totales del año cuadran con el plan entero
+  assert.strictEqual(g[0].paid + g[1].paid, r.totalPaid, 'la suma por año es el total pagado');
+  assert.strictEqual(g[0].interest + g[1].interest, r.creditCost, 'los intereses por año son el costo');
+  assert.strictEqual(g[g.length - 1].endBalance, 0, 'el último año cierra en cero');
+  assert.strictEqual(g[0].endBalance, r.schedule[3].balance, 'el saldo de cierre es el de su última cuota');
+}
+{
+  // Un plan que no cruza de año da un solo grupo
+  const r = simulate({ price: 600_000, installments: 3, tea: null, startDate: new Date(2026, 0, 10) });
+  assert.strictEqual(groupScheduleByYear(r.schedule).length, 1);
 }
 
 console.log('✓ simulator: todos los gates pasan');
