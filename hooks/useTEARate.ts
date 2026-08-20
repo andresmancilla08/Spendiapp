@@ -4,44 +4,47 @@ import { useMemo } from 'react';
  * Tasa de Usura certificada por la Superfinanciera para Consumo y Ordinario:
  * el TECHO LEGAL de interés, no la tasa de ninguna tarjeta concreta.
  *
- * Antes esto era una constante suelta con el trimestre escrito en un comentario.
- * El 2026-08-20 seguía devolviendo el valor de enero–marzo y la app lo ofrecía
- * como «referencia vigente» sin que nada avisara: un comentario que pide
- * «actualizar cada trimestre» no actualiza nada. Ahora el valor va CON su
- * trimestre y el propio hook sabe decir que ha caducado.
+ * SE CERTIFICA **CADA MES**, no cada trimestre. El código heredado decía
+ * «actualizar cada trimestre» en un comentario y sobre esa premisa falsa se
+ * construyó la primera versión de este hook. La certificación es por periodos
+ * de mes natural: el IBC de agosto de 2026 quedó en 19,77 % E.A. «para el
+ * periodo comprendido entre el 1 y el 31 de agosto», y la usura es 1,5 × IBC.
  *
- * Fuente: https://www.superfinanciera.gov.co/publicaciones/10097710
+ * Y se mueve mucho: 24,36 % en enero de 2026, 28,79 % en julio, 29,66 % en
+ * agosto. Un valor quemado aquí caduca en semanas, no en meses — por eso el
+ * hook avisa en cuanto pasa su mes en vez de fingir vigencia.
+ *
+ * Fuentes: Resolución 1139 de 2026 (SFC) · https://www.superfinanciera.gov.co/Superfinanciera-Tasas/
  */
-interface UsuryQuarter {
-  /** Año y trimestre (1-4) que certifica el valor. */
+interface UsuryMonth {
   year: number;
-  quarter: 1 | 2 | 3 | 4;
+  /** Mes 0-11, como en Date. */
+  month: number;
   rate: number;
 }
 
 /** Histórico conocido, del más reciente al más antiguo. Añadir arriba. */
-const USURY_HISTORY: UsuryQuarter[] = [
-  { year: 2026, quarter: 1, rate: 25.52 },
+const USURY_HISTORY: UsuryMonth[] = [
+  { year: 2026, month: 7, rate: 29.66 },  // agosto 2026 · IBC 19,77 % × 1,5
+  { year: 2026, month: 6, rate: 28.79 },  // julio 2026
+  { year: 2026, month: 0, rate: 24.36 },  // enero 2026
 ];
 
-function quarterOf(date: Date): { year: number; quarter: 1 | 2 | 3 | 4 } {
-  return { year: date.getFullYear(), quarter: (Math.floor(date.getMonth() / 3) + 1) as 1 | 2 | 3 | 4 };
-}
-
-function quarterIndex(y: number, q: number): number {
-  return y * 4 + q;
+function monthIndex(y: number, m: number): number {
+  return y * 12 + m;
 }
 
 export interface TEARateResult {
   /** El último valor certificado que conocemos, en % E.A. */
   tea: number;
-  /** Trimestre al que corresponde ese valor. */
+  /** Mes al que corresponde ese valor. */
   year: number;
-  quarter: number;
-  /** true si el trimestre en curso ya no es el del valor: el dato está viejo. */
+  /** Mes 0-11. */
+  month: number;
+  /** true si el mes en curso ya no es el del valor: el dato está viejo. */
   isStale: boolean;
-  /** Cuántos trimestres lleva sin actualizarse (0 = al día). */
-  quartersBehind: number;
+  /** Cuántos meses lleva sin actualizarse (0 = al día). */
+  monthsBehind: number;
   loading: boolean;
 }
 
@@ -56,17 +59,16 @@ export function useTEARate(now?: Date): TEARateResult {
 /** Lógica pura, sin React: la usa el hook y su gate. */
 export function resolveTEARate(now: Date): TEARateResult {
   const latest = USURY_HISTORY[0];
-  const cur = quarterOf(now);
-  const quartersBehind = Math.max(
+  const monthsBehind = Math.max(
     0,
-    quarterIndex(cur.year, cur.quarter) - quarterIndex(latest.year, latest.quarter),
+    monthIndex(now.getFullYear(), now.getMonth()) - monthIndex(latest.year, latest.month),
   );
   return {
     tea: latest.rate,
     year: latest.year,
-    quarter: latest.quarter,
-    isStale: quartersBehind > 0,
-    quartersBehind,
+    month: latest.month,
+    isStale: monthsBehind > 0,
+    monthsBehind,
     loading: false,
   };
 }

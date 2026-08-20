@@ -365,8 +365,8 @@ export default function PurchaseSimulatorScreen() {
               {/* La referencia se muestra CON su trimestre, y avisa si caducó. */}
               <Text style={[styles.hint, { color: reference.isStale ? colors.warning : colors.textTertiary }]}>
                 {reference.isStale
-                  ? t('simulator.rateRefStale', { rate: reference.tea, year: reference.year, quarter: reference.quarter })
-                  : t('simulator.rateRef', { rate: reference.tea, year: reference.year, quarter: reference.quarter })}
+                  ? t('simulator.rateRefStale', { rate: reference.tea, month: months[reference.month], year: reference.year })
+                  : t('simulator.rateRef', { rate: reference.tea, month: months[reference.month], year: reference.year })}
               </Text>
 
               {/* ── Más opciones ── */}

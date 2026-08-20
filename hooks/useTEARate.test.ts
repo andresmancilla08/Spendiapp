@@ -6,28 +6,23 @@ import { resolveTEARate } from './useTEARate';
 import { isTeaStale, teaAgeInMonths, TEA_STALE_MONTHS } from '../types/card';
 
 // ── Caducidad de la tasa de usura ───────────────────────────────────────────
+// La SFC certifica el IBC (y con él la usura) POR MES natural, no por trimestre.
 {
-  // Dentro del mismo trimestre que certifica el valor (Q1 2026): al día
-  const r = resolveTEARate(new Date(2026, 1, 15));
-  assert.strictEqual(r.tea, 25.52);
-  assert.strictEqual(r.isStale, false, 'feb 2026 está dentro de Q1 2026');
-  assert.strictEqual(r.quartersBehind, 0);
+  // Dentro del mes que certifica el valor: al día
+  const r = resolveTEARate(new Date(2026, 7, 20));
+  assert.strictEqual(r.tea, 29.66, 'usura de agosto 2026 = 1,5 × IBC 19,77 %');
+  assert.strictEqual(r.isStale, false, 'el 20 de agosto sigue dentro de agosto');
+  assert.strictEqual(r.monthsBehind, 0);
 }
 {
-  // Hoy, 20 de agosto de 2026 = Q3. El valor es de Q1 → dos trimestres viejo.
-  const r = resolveTEARate(new Date(2026, 7, 20));
-  assert.strictEqual(r.isStale, true, 'ago 2026 ya no es Q1');
-  assert.strictEqual(r.quartersBehind, 2, 'Q1 → Q3 son dos trimestres');
+  // Primer y último día del mes certificado
+  assert.strictEqual(resolveTEARate(new Date(2026, 7, 1)).monthsBehind, 0, '1 de agosto');
+  assert.strictEqual(resolveTEARate(new Date(2026, 7, 31)).monthsBehind, 0, '31 de agosto');
+  assert.strictEqual(resolveTEARate(new Date(2026, 8, 1)).monthsBehind, 1, '1 de septiembre ya es otro mes');
 }
 {
   // Cruce de año
-  const r = resolveTEARate(new Date(2027, 0, 5));
-  assert.strictEqual(r.quartersBehind, 4, 'Q1 2026 → Q1 2027 son cuatro trimestres');
-}
-{
-  // Límites de trimestre exactos
-  assert.strictEqual(resolveTEARate(new Date(2026, 2, 31)).quartersBehind, 0, '31 mar sigue en Q1');
-  assert.strictEqual(resolveTEARate(new Date(2026, 3, 1)).quartersBehind, 1, '1 abr ya es Q2');
+  assert.strictEqual(resolveTEARate(new Date(2027, 1, 5)).monthsBehind, 6, 'ago 2026 → feb 2027');
 }
 
 // ── Antigüedad de la tasa de UNA tarjeta ────────────────────────────────────
