@@ -1,5 +1,22 @@
 # Decisiones
 
+### El simulador de compras no guarda nada — Vigente (2026-08-20)
+- **Qué:** `app/purchase-simulator.tsx` es una calculadora. No escribe en Firestore, no usa AsyncStorage y no hay colección `simulations`. La única salida es el botón «Registrar esta compra», que navega a `add-transaction` con parámetros de prellenado.
+- **Por qué:** decisión de producto explícita — la herramienta sirve para decidir, no para archivar. Guardar simulaciones habría traído estados que mantener (caducadas, con tasas viejas, con tarjetas borradas) sin que nadie los pidiera.
+- **Descartado:** persistir en AsyncStorage primero y Firestore después (así estaba en la propuesta, `docs/simulador-compras-plan.md`).
+
+### La cuota simulada y la registrada salen del MISMO array — Vigente (CRÍTICA, 2026-08-20)
+- **Qué:** `utils/simulator.ts` no calcula el PMT. Llama a `calculateInstallments(financiado, n, tea)` —la función que `add-transaction` usa para escribir los documentos— y construye la tabla de amortización desde ese array, con la última fila cerrando el saldo en cero.
+- **Por qué:** dos implementaciones del mismo pago se separan en pesos por el redondeo, y el usuario vería una cifra en el simulador y otra en su historial para la misma compra.
+- **Corolario:** la regla de fecha de corte también se comparte. Vivía inline en `add-transaction`; ahora es `isCutoffAdjusted` / `effectivePurchaseDate` en `utils/installmentCalc.ts`. `calculateInstallments` NO se tocó: la usan los gastos compartidos a cuotas.
+
+### Con cargos fijos se muestra la TEA real, no la nominal — Vigente (2026-08-20)
+- **Qué:** cuando el usuario declara un cargo mensual, `simulate` calcula la TIR del flujo de caja por bisección y muestra esa tasa anualizada en vez de la que él escribió. Sin cargos, el campo no aparece.
+- **Por qué:** $1.800.000 a 12 cuotas al 25,52 % con $20.000/mes de cuota de manejo cuesta como un ~56 % E.A. Enseñar el 25,52 % sería el dato que la letra pequeña ya esconde.
+- **Matiz que va en la UI:** el campo viene apagado y se llama «cargo mensual atribuible a esta compra», no «cuota de manejo» — ese cargo se paga igual sin la compra.
+- **Descartado:** Newton-Raphson. La bisección son diez líneas, no diverge y el VPN es monótono en el intervalo.
+
+
 ### El movimiento decorativo NUNCA se anima desde JS — Vigente (CRÍTICA, 2026-08-15)
 - **Qué:** los fondos no se mueven (ver la decisión siguiente). Para el movimiento decorativo que SÍ queda —el pulso del skeleton, el punto "en vivo"— se usa `components/fx/FxLayer.tsx`: en web emite animación CSS (`animationKeyframes` de react-native-web), que ejecuta el compositor; en nativo, `Animated` con `useNativeDriver: true`. Prohibido `Animated.loop` con `useNativeDriver: false` para decoración.
 - **Por qué:** medido sobre el bundle de producción, el patrón anterior generaba 1.440 escrituras del atributo `style` por segundo con la app EN REPOSO en la pantalla de login, y 19× más CPU que con reduce-motion. Era la causa principal de que la app calentara el teléfono.
