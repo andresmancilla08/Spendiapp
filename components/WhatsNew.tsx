@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon, { AppIconName } from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { mixHex } from '../utils/contrast';
 import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
 import { useTranslation } from 'react-i18next';
@@ -32,7 +33,7 @@ interface WhatsNewProps {
 
 interface Feature {
   icon: AppIconName;
-  colorKey: 'primary' | 'success';
+  colorKey: 'primary' | 'success' | 'tertiary';
   titleKey: string;
   items: string[];
 }
@@ -44,16 +45,22 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'star',
+    icon: 'calculator-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.premiumReal.title',
-    items: ['whatsNew.premiumReal.item1'],
+    titleKey: 'whatsNew.simulator.title',
+    items: ['whatsNew.simulator.item1', 'whatsNew.simulator.item2'],
   },
   {
-    icon: 'language-outline',
+    icon: 'card-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.legalLangs.title',
-    items: ['whatsNew.legalLangs.item1'],
+    titleKey: 'whatsNew.cardRates.title',
+    items: ['whatsNew.cardRates.item1', 'whatsNew.cardRates.item2'],
+  },
+  {
+    icon: 'grid-outline',
+    colorKey: 'tertiary',
+    titleKey: 'whatsNew.tools.title',
+    items: ['whatsNew.tools.item1', 'whatsNew.tools.item2'],
   },
 ];
 
@@ -109,14 +116,16 @@ export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
         >
           {APP_FEATURES.map((f) => {
             const accentColor = colors[f.colorKey];
-            const accentBg = f.colorKey === 'success' ? colors.successLight : colors.primaryLight;
+            const accentBg = f.colorKey === 'success' ? colors.successLight
+              : f.colorKey === 'tertiary' ? colors.tertiaryLight
+              : colors.primaryLight;
             return (
               <View
                 key={f.titleKey}
                 style={[styles.card, {
                   backgroundColor: colors.surface,
                   borderColor: isDark
-                    ? (f.colorKey === 'success' ? 'rgba(0,168,150,0.12)' : 'rgba(0,172,193,0.12)')
+                    ? mixHex(colors.surface, accentColor, 0.12)
                     : 'rgba(0,0,0,0.06)',
                 }]}
               >

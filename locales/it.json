@@ -1040,16 +1040,23 @@
   },
   "whatsNew": {
     "version": "Novità · v{{version}}",
-    "title": "Cosa puoi fare?",
-    "subtitle": "Esplora le funzionalità principali di Spendia.",
+    "title": "Cosa c’è di nuovo?",
+    "subtitle": "Ecco cosa è cambiato in Spendia.",
     "dismiss": "Ho capito",
-    "premiumReal": {
-      "title": "Premium con i tuoi numeri",
-      "item1": "Le schede Premium non mostrano più cifre inventate: usano il tuo andamento, le tue categorie, la tua proiezione e i tuoi obiettivi"
+    "simulator": {
+      "title": "Simulatore di acquisti",
+      "item1": "Prima di comprare, guarda la rata, gli interessi e come scende il debito mese per mese",
+      "item2": "Confronta i piani e scopri quanto costa davvero allungarli"
     },
-    "legalLangs": {
-      "title": "Informativa e termini nella tua lingua",
-      "item1": "Erano solo in spagnolo. Ora si leggono anche in inglese e italiano"
+    "cardRates": {
+      "title": "Ogni carta con il suo tasso",
+      "item1": "Salva il tasso della tua carta: si impara da solo quando registri un acquisto a rate",
+      "item2": "E se la tua banca pubblica la sua media, la portiamo dalla Superfinanciera"
+    },
+    "tools": {
+      "title": "Strumenti, riordinati",
+      "item1": "Ora raggruppati per quello che vuoi fare: pianificare, capire e condividere",
+      "item2": "Ognuno ti dice qualcosa di tuo senza doverlo aprire"
     }
   },
   "incomeClaim": {
@@ -2177,6 +2184,7 @@
     }
   },
   "cardChip": {
+    "avgA11y": "media della banca {{rate}} per cento",
     "credit": "C",
     "debit": "D",
     "noTeaA11y": "nessun tasso salvato",

@@ -294,7 +294,14 @@ export default function PurchaseSimulatorScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View style={styles.chipRow}>
                     {creditCards.map((c) => (
-                      <CardChip key={c.id} card={c} showTea selected={cardId === c.id} onPress={() => pickCard(c.id)} />
+                      <CardChip
+                        key={c.id}
+                        card={c}
+                        showTea
+                        avgTea={bankRates.rateFor(c.bankId, installments)}
+                        selected={cardId === c.id}
+                        onPress={() => pickCard(c.id)}
+                      />
                     ))}
                     {/* «Sin tarjeta» al final: abrir mostrando una opción vacía
                         y medio banco desaprovecha la única fila visible. */}

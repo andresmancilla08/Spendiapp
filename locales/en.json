@@ -1039,17 +1039,24 @@
     "external_participant_joined": "{{participantDisplayName}} joined your shared expense: {{description}}"
   },
   "whatsNew": {
-    "version": "What's new · v{{version}}",
-    "title": "What can you do?",
-    "subtitle": "Explore the main features of Spendia.",
+    "version": "What’s new · v{{version}}",
+    "title": "What’s new?",
+    "subtitle": "Here’s what changed in Spendia.",
     "dismiss": "Got it",
-    "premiumReal": {
-      "title": "Premium, with your own numbers",
-      "item1": "The Premium cards no longer show made-up figures: they use your trend, your categories, your projection and your goals"
+    "simulator": {
+      "title": "Purchase simulator",
+      "item1": "Before you buy, see the instalment, the interest and how your debt falls month by month",
+      "item2": "Compare terms and find out what stretching them really costs"
     },
-    "legalLangs": {
-      "title": "Policy and terms in your language",
-      "item1": "They were Spanish-only. They now read in English and Italian too"
+    "cardRates": {
+      "title": "Every card with its rate",
+      "item1": "Save your card’s rate — it also learns itself when you record an instalment purchase",
+      "item2": "And if your bank publishes its average, we bring it from the Superfinanciera"
+    },
+    "tools": {
+      "title": "Tools, reordered",
+      "item1": "Now grouped by what you want to do: plan, understand and share",
+      "item2": "Each one tells you something of yours without opening it"
     }
   },
   "incomeClaim": {
@@ -2177,6 +2184,7 @@
     }
   },
   "cardChip": {
+    "avgA11y": "bank average {{rate}} percent",
     "credit": "C",
     "debit": "D",
     "noTeaA11y": "no rate saved",

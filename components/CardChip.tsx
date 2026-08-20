@@ -32,9 +32,15 @@ interface CardChipProps {
   locked?: boolean;
   /** Enseña la tasa guardada en vez del badge C/D. */
   showTea?: boolean;
+  /**
+   * Tasa MEDIA que publica la Superfinanciera para ese banco y ese plazo.
+   * Solo se pinta si la tarjeta no tiene tasa propia, y se dibuja distinta:
+   * si se viera igual, un promedio de mercado pasaría por la tasa del usuario.
+   */
+  avgTea?: number | null;
 }
 
-export default function CardChip({ card, selected, onPress, locked, showTea }: CardChipProps) {
+export default function CardChip({ card, selected, onPress, locked, showTea, avgTea }: CardChipProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
 
@@ -49,6 +55,7 @@ export default function CardChip({ card, selected, onPress, locked, showTea }: C
    */
   const teaSlot = showTea && isCredit;
   const hasTea = teaSlot && card.tea != null;
+  const hasAvg = teaSlot && !hasTea && avgTea != null && avgTea > 0;
   const stale = hasTea && isTeaStale(card);
 
   const tint = isCredit ? colors.primary : colors.tertiary;
@@ -72,12 +79,17 @@ export default function CardChip({ card, selected, onPress, locked, showTea }: C
   // (El 2:1 de onPrimary sobre primary es el estándar heredado de la app en
   // todos sus botones; corregirlo es una decisión de paleta, no de este badge.)
   const emptyInk = selected ? colors.onPrimary : readableTint(colors.textTertiary, emptyBg, 4.5);
+  // El promedio va en badge CONTORNEADO y con «≈»: relleno es «tuya»,
+  // contorno es «del mercado». La diferencia tiene que verse sin leer.
+  const avgLine = selected ? 'rgba(255,255,255,0.55)' : mixHex(colors.border, colors.textSecondary, 0.5);
+  const avgInk = selected ? colors.onPrimary : readableTint(colors.textSecondary, colors.backgroundSecondary, 4.5);
 
   const label = card.nickname || card.bankName;
   const a11y = hasTea
     ? `${label}, ${card.tea}% E.A.${stale ? `, ${t('cardChip.staleA11y')}` : ''}`
-    : teaSlot ? `${label}, ${t('cardChip.noTeaA11y')}`
-      : label;
+    : hasAvg ? `${label}, ${t('cardChip.avgA11y', { rate: avgTea })}`
+      : teaSlot ? `${label}, ${t('cardChip.noTeaA11y')}`
+        : label;
 
   return (
     <TouchableOpacity
@@ -106,6 +118,12 @@ export default function CardChip({ card, selected, onPress, locked, showTea }: C
           {stale && <AppIcon name="time-outline" size={9} color={badgeInk} />}
           <Text style={[styles.teaText, { color: badgeInk }]}>
             {`${String(card.tea).replace('.', ',')}%`}
+          </Text>
+        </View>
+      ) : hasAvg ? (
+        <View style={[styles.badge, styles.avgBadge, { borderColor: avgLine }]}>
+          <Text style={[styles.avgText, { color: avgInk }]}>
+            {`≈${String(avgTea).replace('.', ',')}%`}
           </Text>
         </View>
       ) : teaSlot ? (
@@ -162,4 +180,7 @@ const styles = StyleSheet.create({
   teaBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 6 },
   // Mono: los dígitos de una tasa se comparan entre chips y deben alinearse.
   teaText: { fontSize: 10.5, fontFamily: Fonts.monoBold },
+  avgBadge: { backgroundColor: 'transparent', borderWidth: 1, paddingHorizontal: 5, paddingVertical: 1 },
+  // Regular y no bold: el promedio pesa menos que la tuya, también al leerlo.
+  avgText: { fontSize: 10, fontFamily: Fonts.mono },
 });

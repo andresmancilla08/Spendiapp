@@ -38,6 +38,7 @@ import AppHeader from '../components/AppHeader';
 import NoteField from '../components/NoteField';
 import PageTitle from '../components/PageTitle';
 import { useCards, learnCardTea } from '../hooks/useCards';
+import { useBankRates } from '../hooks/useBankRates';
 import { useTEARate } from '../hooks/useTEARate';
 import { calculateInstallments, calculateInstallmentDates, isCutoffAdjusted, effectivePurchaseDate } from '../utils/installmentCalc';
 import type { Card } from '../types/card';
@@ -113,6 +114,7 @@ export default function AddTransactionScreen() {
   const [withInterest, setWithInterest] = useState(false);
   const [teaInput, setTeaInput] = useState('');
   const { tea: referenceTEA } = useTEARate();
+  const bankRates = useBankRates();
 
   // Inline new-category form state
   const [showNewCatForm, setShowNewCatForm] = useState(false);
@@ -1184,6 +1186,7 @@ export default function AddTransactionScreen() {
                           key={card.id}
                           card={card}
                           showTea
+                          avgTea={bankRates.rateFor(card.bankId, installmentCount)}
                           selected={selectedCardId === card.id}
                           locked={installmentCount > 1 && selectedCardId !== null && selectedCardId !== card.id}
                           onPress={() => { setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
