@@ -81,16 +81,7 @@ export default function AddTransactionScreen() {
   const { user } = useAuthStore();
   const { showToast } = useToast();
   const { categories: customCategories } = useCategories(user?.uid ?? '');
-  const {
-    year: yearParam, month: monthParam,
-    // Prellenado desde el simulador de compras (app/purchase-simulator.tsx).
-    // Sin estos parámetros el formulario arranca EXACTAMENTE igual que antes.
-    simAmount, simDescription, simCategory, simCardId, simInstallments, simTea,
-  } = useLocalSearchParams<{
-    year?: string; month?: string;
-    simAmount?: string; simDescription?: string; simCategory?: string;
-    simCardId?: string; simInstallments?: string; simTea?: string;
-  }>();
+  const { year: yearParam, month: monthParam } = useLocalSearchParams<{ year?: string; month?: string }>();
 
   const scrollRef = useRef<ElementRef<typeof ScrollView>>(null);
   const catScrollRef = useRef<ElementRef<typeof ScrollView>>(null);
@@ -98,31 +89,29 @@ export default function AddTransactionScreen() {
   const scrollDown = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
 
   const [type, setType] = useState<TransactionType>('expense');
-  const [amount, setAmount] = useState(simAmount ?? '');
+  const [amount, setAmount] = useState('');
   const [scanning, setScanning] = useState(false);
-  const [description, setDescription] = useState(simDescription ?? '');
+  const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
-  const [category, setCategory] = useState(simCategory ?? '');
+  const [category, setCategory] = useState('');
   const [isFixed, setIsFixed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   // Tarjeta y cuotas
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(simCardId || null);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const defaultApplied = useRef(false);
   useEffect(() => {
     if (!cardsLoading && !defaultApplied.current) {
       defaultApplied.current = true;
-      // La tarjeta que traiga el simulador manda sobre la predeterminada.
-      if (simCardId) return;
       const def = cards.find((c) => c.isDefault);
       if (def) setSelectedCardId(def.id);
     }
   }, [cardsLoading, cards]);
-  const [installmentCount, setInstallmentCount] = useState(simInstallments ? Math.max(1, parseInt(simInstallments, 10) || 1) : 1);
-  const [withInterest, setWithInterest] = useState(!!simTea);
-  const [teaInput, setTeaInput] = useState(simTea ?? '');
+  const [installmentCount, setInstallmentCount] = useState(1);
+  const [withInterest, setWithInterest] = useState(false);
+  const [teaInput, setTeaInput] = useState('');
   const { tea: referenceTEA } = useTEARate();
 
   // Inline new-category form state
