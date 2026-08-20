@@ -23,6 +23,7 @@ import { useToast } from '../context/ToastContext';
 import { useCards, updateCard } from '../hooks/useCards';
 import { useTEARate } from '../hooks/useTEARate';
 import { usePurchaseImpact } from '../hooks/usePurchaseImpact';
+import { useBankRates } from '../hooks/useBankRates';
 import { mixHex, readableTint } from '../utils/contrast';
 import { formatMoney } from '../utils/formatMoney';
 import { getMonthNames } from '../utils/dateLocale';
@@ -68,6 +69,7 @@ export default function PurchaseSimulatorScreen() {
 
   const { cards } = useCards(uid);
   const reference = useTEARate();
+  const bankRates = useBankRates();
 
   const [priceRaw, setPriceRaw] = useState('');
   const [cardId, setCardId] = useState<string | null>(null);
@@ -185,11 +187,23 @@ export default function PurchaseSimulatorScreen() {
     setInstallments(termFromRailPosition(x / w));
   }
 
+  /**
+   * Tasa media que publica la Superfinanciera para ESE banco y ESE plazo.
+   *
+   * Es una referencia de mercado, nunca «tu tasa»: solo se ofrece cuando la
+   * tarjeta no tiene una guardada. La del usuario siempre gana.
+   */
+  const bankAvg = card ? bankRates.rateFor(card.bankId, installments) : null;
+
   const pickCard = (id: string | null) => {
     setCardId(id);
     // B2·1: la tarjeta trae su tasa. Si la tiene, manda sobre la referencia.
     const c = creditCards.find((x) => x.id === id);
-    if (c?.tea != null) { setRateMode('tea'); setRateRaw(String(c.tea)); }
+    if (c?.tea != null) { setRateMode('tea'); setRateRaw(String(c.tea)); return; }
+    // Sin tasa propia, la media publicada de ese banco es mejor punto de
+    // partida que el techo de usura, que no es la tasa de nadie.
+    const avg = c ? bankRates.rateFor(c.bankId, installments) : null;
+    if (avg != null && avg > 0) { setRateMode('tea'); setRateRaw(String(avg)); }
   };
 
   // Mismo formateador para las dos: una construida a mano («$20.000.022») y la
@@ -299,6 +313,50 @@ export default function PurchaseSimulatorScreen() {
                       ? t('simulator.teaLearned', { card: card.nickname || card.bankName })
                       : t('simulator.teaManual', { card: card.nickname || card.bankName })}
                   </Text>
+                ) : card.tea == null && bankAvg != null ? (
+                  // Hay referencia del mercado pero no tasa propia: se ofrece
+                  // aplicarla DICIENDO lo que es, con su fecha de corte.
+                  <View style={{ gap: 6, marginTop: 9 }}>
+                    <Text style={[styles.hint, { color: colors.textTertiary, marginTop: 0 }]}>
+                      {t('simulator.bankAvg', {
+                        bank: card.bankName,
+                        rate: String(bankAvg).replace('.', ','),
+                        date: bankRates.corte ?? '',
+                      })}
+                    </Text>
+                    <View style={styles.avgRow}>
+                      <TouchableOpacity
+                        onPress={() => { setRateMode('tea'); setRateRaw(String(bankAvg)); }}
+                        activeOpacity={0.8}
+                        accessibilityRole="button"
+                        style={[styles.avgBtn, { borderColor: colors.primary }]}
+                      >
+                        <Text style={[styles.avgBtnText, { color: readableTint(colors.primary, colors.surface, 4.5) }]}>
+                          {t('simulator.bankAvgUse')}
+                        </Text>
+                      </TouchableOpacity>
+                      {teaValue != null && (
+                        <TouchableOpacity
+                          onPress={async () => {
+                            try {
+                              await updateCard(card.id, { tea: teaValue });
+                              showToast(t('simulator.teaSaved', { card: card.nickname || card.bankName }), 'success');
+                            } catch {
+                              showToast(t('errors.genericError'), 'error');
+                            }
+                          }}
+                          activeOpacity={0.8}
+                          accessibilityRole="button"
+                          style={styles.saveTea}
+                        >
+                          <AppIcon name="add-circle-outline" size={14} color={colors.primary} />
+                          <Text style={[styles.saveTeaText, { color: readableTint(colors.primary, colors.surface, 4.5) }]}>
+                            {t('simulator.teaSaveShort')}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
                 ) : teaValue != null ? (
                   <TouchableOpacity
                     onPress={async () => {
@@ -750,7 +808,10 @@ const styles = StyleSheet.create({
   field: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, fontFamily: Fonts.mono },
   chipRow: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
   errRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 7 },
-  saveTea: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 9, alignSelf: 'flex-start' },
+  saveTea: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
+  avgRow: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' },
+  avgBtn: { borderWidth: 1, borderRadius: 50, paddingHorizontal: 12, paddingVertical: 6 },
+  avgBtnText: { fontSize: 11.5, fontFamily: Fonts.bold },
   saveTeaText: { fontSize: 11.5, fontFamily: Fonts.semiBold },
 
   termHead: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
