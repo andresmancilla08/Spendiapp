@@ -39,18 +39,29 @@ export default function CardChip({ card, selected, onPress, locked, showTea }: C
   const { colors } = useTheme();
 
   const isCredit = card.type === 'credit';
-  const hasTea = showTea && isCredit && card.tea != null;
+  /**
+   * Con `showTea`, una tarjeta de crédito NUNCA enseña la «C».
+   *
+   * O tiene tasa y la enseña, o no la tiene y enseña un «—» que dice justo eso.
+   * La «C» sobra en ambos casos: una tasa solo existe en una tarjeta de crédito,
+   * así que la propia cifra —o su hueco— ya dice de qué tipo es. El badge «D»
+   * sí se queda: un débito no puede tener tasa y hay que poder distinguirlo.
+   */
+  const teaSlot = showTea && isCredit;
+  const hasTea = teaSlot && card.tea != null;
   const stale = hasTea && isTeaStale(card);
 
   const tint = isCredit ? colors.primary : colors.tertiary;
   const badgeBg = selected ? 'rgba(255,255,255,0.22)' : mixHex(colors.backgroundSecondary, tint, 0.16);
   // Medido, no supuesto: con paletas pastel el token crudo se queda en 1,5:1.
   const badgeInk = selected ? colors.onPrimary : readableTint(tint, badgeBg, 4.5);
+  const emptyBg = selected ? 'rgba(255,255,255,0.18)' : mixHex(colors.backgroundSecondary, colors.textTertiary, 0.14);
 
   const label = card.nickname || card.bankName;
   const a11y = hasTea
     ? `${label}, ${card.tea}% E.A.${stale ? `, ${t('cardChip.staleA11y')}` : ''}`
-    : label;
+    : teaSlot ? `${label}, ${t('cardChip.noTeaA11y')}`
+      : label;
 
   return (
     <TouchableOpacity
@@ -76,12 +87,16 @@ export default function CardChip({ card, selected, onPress, locked, showTea }: C
 
       {hasTea ? (
         <View style={[styles.badge, styles.teaBadge, { backgroundColor: badgeBg }]}>
-          {stale && (
-            <AppIcon name="time-outline" size={9} color={badgeInk} />
-          )}
+          {stale && <AppIcon name="time-outline" size={9} color={badgeInk} />}
           <Text style={[styles.teaText, { color: badgeInk }]}>
             {`${String(card.tea).replace('.', ',')}%`}
           </Text>
+        </View>
+      ) : teaSlot ? (
+        // Sin tasa guardada: el hueco existe y se ve vacío. Rellenarlo con la
+        // usura haría que la app afirmara lo que cobra su banco sin saberlo.
+        <View style={[styles.badge, { backgroundColor: emptyBg }]}>
+          <Text style={[styles.badgeText, { color: colors.textTertiary }]}>—</Text>
         </View>
       ) : (
         <View style={[styles.badge, { backgroundColor: badgeBg }]}>

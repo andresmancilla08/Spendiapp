@@ -19,7 +19,8 @@ import HeadroomGauge from '../components/simulator/HeadroomGauge';
 import { Fonts } from '../config/fonts';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
-import { useCards } from '../hooks/useCards';
+import { useToast } from '../context/ToastContext';
+import { useCards, updateCard } from '../hooks/useCards';
 import { useTEARate } from '../hooks/useTEARate';
 import { usePurchaseImpact } from '../hooks/usePurchaseImpact';
 import { mixHex, readableTint } from '../utils/contrast';
@@ -45,10 +46,25 @@ export default function PurchaseSimulatorScreen() {
   const { t, i18n } = useTranslation();
   const { colors, isDark } = useTheme();
   const { user, isPremium } = useAuthStore();
+  const { showToast } = useToast();
   const uid = user?.uid ?? '';
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const months = useMemo(() => getMonthNames(i18n.language), [i18n.language]);
   const money = (n: number) => formatMoney(n, i18n.language);
+  /**
+   * El importe manda sobre el tamaño, no al revés.
+   *
+   * A 26 px, «$ 9.999.999.999» mide ~242 px contra los ~157 de columna: dos
+   * cifras grandes enfrentadas a 390 px no caben por definición. En vez de
+   * recortar con puntos suspensivos —que en dinero es inaceptable— la cifra
+   * baja de cuerpo. `adjustsFontSizeToFit` no vale: es no-op en web y Android.
+   */
+  const fitSize = (txt: string) => (txt.length > 13 ? 17 : txt.length > 10 ? 20 : 24);
+  /** En español e italiano el mes va en minúscula a mitad de frase; en inglés no. */
+  const monthName = (d: Date) => {
+    const m = months[d.getMonth()];
+    return i18n.language.startsWith('en') ? m : m.toLowerCase();
+  };
 
   const { cards } = useCards(uid);
   const reference = useTEARate();
@@ -176,6 +192,11 @@ export default function PurchaseSimulatorScreen() {
     if (c?.tea != null) { setRateMode('tea'); setRateRaw(String(c.tea)); }
   };
 
+  // Mismo formateador para las dos: una construida a mano («$20.000.022») y la
+  // otra por `formatMoney` («$ 1.913.114», con espacio duro) no casan nunca.
+  const priceText = price > 0 ? money(price) : '';
+  const feeText = result ? money(result.monthlyPayment) : '—';
+
   const cardStyle = [styles.card, { backgroundColor: colors.surface, borderColor: colors.border }];
   const ruleInk = mixHex(colors.border, colors.textPrimary, isDark ? 0.22 : 0.18);
 
@@ -194,26 +215,34 @@ export default function PurchaseSimulatorScreen() {
               iOS el cristal mancha el degradado del fondo animado. */}
           <View style={styles.headerWrap}>
             <View style={[styles.header, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <View style={styles.hRow}>
-                <View style={styles.hCol}>
-                  <Text style={[styles.ovl, { color: colors.textTertiary }]}>{t('simulator.headerPrice')}</Text>
-                  <TextInput
-                    style={[styles.hPrice, { color: colors.primary }]}
-                    keyboardType="numeric"
-                    value={priceRaw ? `$${groupDigits(priceRaw)}` : ''}
-                    onChangeText={(v) => setPriceRaw(v.replace(/\D/g, '').slice(0, 10))}
-                    placeholder="$0"
-                    placeholderTextColor={colors.textTertiary}
-                    returnKeyType="done"
-                    accessibilityLabel={t('simulator.headerPrice')}
-                  />
-                </View>
-                <View style={styles.hRight}>
-                  <Text style={[styles.ovl, { color: colors.textTertiary }]}>{t('simulator.headerFee')}</Text>
-                  <Text style={[styles.hFee, { color: result ? colors.textPrimary : colors.textTertiary }]}>
-                    {result ? money(result.monthlyPayment) : '—'}
-                  </Text>
-                </View>
+              <View style={styles.hLabels}>
+                <Text style={[styles.ovl, styles.hHalf, { color: colors.textTertiary }]}>{t('simulator.headerPrice')}</Text>
+                <Text style={[styles.ovl, styles.hHalf, styles.right, { color: colors.textTertiary }]}>{t('simulator.headerFee')}</Text>
+              </View>
+              {/* Las dos cifras van en la MISMA fila para que compartan línea
+                  base. Antes vivían en columnas con su etiqueta encima y cada
+                  una se apoyaba donde quería. */}
+              <View style={styles.hValues}>
+                <TextInput
+                  style={[styles.hPrice, styles.hHalf, { color: colors.primary, fontSize: fitSize(priceText) }]}
+                  keyboardType="numeric"
+                  value={priceText}
+                  onChangeText={(v) => setPriceRaw(v.replace(/\D/g, '').slice(0, 10))}
+                  placeholder={money(0)}
+                  placeholderTextColor={colors.textTertiary}
+                  returnKeyType="done"
+                  numberOfLines={1}
+                  accessibilityLabel={t('simulator.headerPrice')}
+                />
+                <Text
+                  style={[styles.hFee, styles.hHalf, styles.right, {
+                    color: result ? colors.textPrimary : colors.textTertiary,
+                    fontSize: fitSize(feeText),
+                  }]}
+                  numberOfLines={1}
+                >
+                  {feeText}
+                </Text>
               </View>
 
               {/* La barra parte lo que pagas: azul el precio, rojo el sobrecosto.
@@ -228,8 +257,8 @@ export default function PurchaseSimulatorScreen() {
                   </View>
                   <Text style={[styles.hSub, { color: colors.textSecondary }]}>
                     {installments === 1
-                      ? t('simulator.resultSingleTerm', { month: `${months[result.lastDate.getMonth()]} ${result.lastDate.getFullYear()}` })
-                      : t('simulator.resultTerm', { n: installments, month: `${months[result.lastDate.getMonth()]} ${result.lastDate.getFullYear()}` })}
+                      ? t('simulator.resultSingleTerm', { month: `${monthName(result.lastDate)} ${result.lastDate.getFullYear()}` })
+                      : t('simulator.resultTerm', { n: installments, month: `${monthName(result.lastDate)} ${result.lastDate.getFullYear()}` })}
                   </Text>
                 </>
               )}
@@ -259,12 +288,39 @@ export default function PurchaseSimulatorScreen() {
                   </View>
                 </ScrollView>
               )}
-              {card?.tea != null && (
-                <Text style={[styles.hint, { color: colors.textTertiary }]}>
-                  {card.teaSource === 'learned'
-                    ? t('simulator.teaLearned', { card: card.nickname || card.bankName })
-                    : t('simulator.teaManual', { card: card.nickname || card.bankName })}
-                </Text>
+              {/* La otra mitad de «tasa aprendida»: si la tarjeta no la tiene
+                  —o tiene otra— se ofrece guardarla desde aquí. Sin esto el dato
+                  solo se aprende al registrar una compra, y quien solo simula
+                  nunca llegaría a tenerlo. */}
+              {!!card && (
+                card.tea != null && teaValue != null && Math.abs(card.tea - teaValue) < 0.005 ? (
+                  <Text style={[styles.hint, { color: colors.textTertiary }]}>
+                    {card.teaSource === 'learned'
+                      ? t('simulator.teaLearned', { card: card.nickname || card.bankName })
+                      : t('simulator.teaManual', { card: card.nickname || card.bankName })}
+                  </Text>
+                ) : teaValue != null ? (
+                  <TouchableOpacity
+                    onPress={async () => {
+                      try {
+                        await updateCard(card.id, { tea: teaValue });
+                        showToast(t('simulator.teaSaved', { card: card.nickname || card.bankName }), 'success');
+                      } catch {
+                        showToast(t('errors.genericError'), 'error');
+                      }
+                    }}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    style={styles.saveTea}
+                  >
+                    <AppIcon name="add-circle-outline" size={14} color={colors.primary} />
+                    <Text style={[styles.saveTeaText, { color: readableTint(colors.primary, colors.surface, 4.5) }]}>
+                      {card.tea == null
+                        ? t('simulator.teaSave', { card: card.nickname || card.bankName })
+                        : t('simulator.teaUpdate', { card: card.nickname || card.bankName })}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null
               )}
 
               {/* ── C2·2 · Riel de paso desigual ── */}
@@ -659,17 +715,22 @@ const styles = StyleSheet.create({
 
   headerWrap: { paddingHorizontal: 16, paddingBottom: 4, width: '100%', maxWidth: 640, alignSelf: 'center' },
   header: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 14 },
-  hRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  hCol: { flex: 1 },
-  hRight: { width: 132, alignItems: 'flex-end' },
+  hLabels: { flexDirection: 'row', gap: 12 },
+  // `baseline` es lo que alinea de verdad dos cuerpos distintos; `center` los
+  // deja flotando cada uno a su altura, que es como se veían desalineados.
+  hValues: { flexDirection: 'row', alignItems: 'baseline', gap: 12, marginTop: 3 },
+  hHalf: { flex: 1 },
+  right: { textAlign: 'right' },
   hBar: { height: 6, borderRadius: 3, overflow: 'hidden', marginTop: 14 },
   hBarFill: { height: 6, borderRadius: 3 },
   hSub: { fontSize: 11.5, fontFamily: Fonts.medium, marginTop: 8 },
   hPrice: {
-    fontSize: 26, fontFamily: Fonts.extraBold, letterSpacing: -0.6, paddingVertical: 2,
+    fontFamily: Fonts.extraBold, letterSpacing: -0.6, paddingVertical: 0, lineHeight: 32,
     ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : null),
   },
-  hFee: { fontSize: 21, fontFamily: Fonts.monoBold },
+  // Montserrat y no DM Mono: mono no tiene bold real (monoBold es Medium 500) y
+  // enfrentado a un ExtraBold se veía como el hermano débil.
+  hFee: { fontFamily: Fonts.bold, letterSpacing: -0.4, lineHeight: 32 },
 
   card: { borderRadius: 20, borderWidth: 1, padding: 16 },
   ovl: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1.2, textTransform: 'uppercase' },
@@ -678,6 +739,8 @@ const styles = StyleSheet.create({
   field: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, fontFamily: Fonts.mono },
   chipRow: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
   errRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 7 },
+  saveTea: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 9, alignSelf: 'flex-start' },
+  saveTeaText: { fontSize: 11.5, fontFamily: Fonts.semiBold },
 
   termHead: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
   termBig: { fontSize: 28, fontFamily: Fonts.extraBold },

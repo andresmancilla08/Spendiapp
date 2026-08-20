@@ -1264,6 +1264,9 @@
     "tabProjection": "Proiezione",
     "teaLearned": "Tasso appreso da un tuo acquisto con {{card}}.",
     "teaManual": "Tasso che hai salvato per {{card}}.",
+    "teaSave": "Salva questo tasso per {{card}}",
+    "teaSaved": "Tasso salvato per {{card}}",
+    "teaUpdate": "Aggiorna il tasso di {{card}}",
     "termValue": "{{n}} rate",
     "title": "Simulatore di acquisti",
     "verdictComfortable": "Ci sta comodamente",
@@ -2173,6 +2176,7 @@
   "cardChip": {
     "credit": "C",
     "debit": "D",
+    "noTeaA11y": "nessun tasso salvato",
     "none": "Senza carta",
     "staleA11y": "tasso non rivisto da mesi"
   }

@@ -1264,6 +1264,9 @@
     "tabProjection": "Projection",
     "teaLearned": "Rate learned from one of your purchases with {{card}}.",
     "teaManual": "Rate you saved for {{card}}.",
+    "teaSave": "Save this rate for {{card}}",
+    "teaSaved": "Rate saved for {{card}}",
+    "teaUpdate": "Update the rate for {{card}}",
     "termValue": "{{n}} instalments",
     "title": "Purchase simulator",
     "verdictComfortable": "It fits comfortably",
@@ -2173,6 +2176,7 @@
   "cardChip": {
     "credit": "C",
     "debit": "D",
+    "noTeaA11y": "no rate saved",
     "none": "No card",
     "staleA11y": "rate not reviewed in months"
   }

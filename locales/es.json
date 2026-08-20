@@ -1264,6 +1264,9 @@
     "tabProjection": "Proyección",
     "teaLearned": "Tasa aprendida de una compra tuya con {{card}}.",
     "teaManual": "Tasa que guardaste para {{card}}.",
+    "teaSave": "Guardar esta tasa para {{card}}",
+    "teaSaved": "Tasa guardada para {{card}}",
+    "teaUpdate": "Actualizar la tasa de {{card}}",
     "termValue": "{{n}} cuotas",
     "title": "Simulador de compras",
     "verdictComfortable": "Te cabe holgado",
@@ -2173,6 +2176,7 @@
   "cardChip": {
     "credit": "C",
     "debit": "D",
+    "noTeaA11y": "sin tasa guardada",
     "none": "Sin tarjeta",
     "staleA11y": "tasa sin revisar hace meses"
   }
