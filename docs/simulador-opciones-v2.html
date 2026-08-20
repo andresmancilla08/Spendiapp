@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulador · variantes refinadas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --bg:#0D1A1C; --bg2:#111F22; --sf:#162428; --tx:#EEF6F8; --tx2:#9EABAF; --tx3:#93A6AB;
+ --bd:#243438; --pri:#00BCD4; --prid:#00ACC1; --pril:#003840; --onp:#fff;
+ --sec:#00A896; --ter:#D4E157; --suc:#00A896; --wrn:#FBBF24; --err:#F87171;
+}
+body.light{
+ --bg:#fff; --bg2:#F0F7F8; --sf:#fff; --tx:#1A2428; --tx2:#6B7280; --tx3:#6E737C;
+ --bd:#DDE8EA; --pri:#00ACC1; --prid:#00838F; --pril:#E0F7FA; --onp:#fff;
+ --sec:#00897B; --ter:#C0CA33; --suc:#00897B; --wrn:#F59E0B; --err:#EF4444;
+}
+body{background:var(--bg);color:var(--tx);font-family:Montserrat,system-ui,sans-serif;
+ -webkit-font-smoothing:antialiased;padding-bottom:120px}
+.mono{font-family:'DM Mono',ui-monospace,monospace}
+
+/* chrome */
+.top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);
+ backdrop-filter:blur(14px);border-bottom:1px solid var(--bd);padding:12px 20px;
+ display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.top .sp{flex:1}
+.btn{border:1px solid var(--bd);background:var(--sf);color:var(--tx);font:600 12px Montserrat;
+ padding:7px 14px;border-radius:50px;cursor:pointer}
+.btn:hover{border-color:var(--pri)}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:var(--onp)}
+#picks{font:600 12px 'DM Mono',monospace;color:var(--pri);letter-spacing:.5px}
+.intro{max-width:1400px;margin:0 auto;padding:28px 20px 8px}
+.intro h2{font-size:26px;font-weight:800;letter-spacing:-.6px;margin-bottom:8px}
+.intro p{color:var(--tx2);font-size:14px;line-height:1.6;max-width:760px}
+.outlist{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.outchip{font:600 11.5px Montserrat;padding:6px 12px;border-radius:50px;
+ background:color-mix(in srgb,var(--err) 14%,transparent);color:var(--err);
+ border:1px solid color-mix(in srgb,var(--err) 34%,transparent)}
+.outchip.keep{background:color-mix(in srgb,var(--suc) 14%,transparent);color:var(--suc);
+ border-color:color-mix(in srgb,var(--suc) 34%,transparent)}
+
+/* secciones */
+.section{max-width:1400px;margin:0 auto;padding:34px 20px 0}
+.shead{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+.sletter{font:800 30px Montserrat;color:var(--pri);line-height:1}
+.sname{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.sq{color:var(--tx2);font-size:13.5px;margin-bottom:4px}
+.snote{color:var(--tx3);font-size:12.5px;font-style:italic;margin-bottom:18px}
+.opts{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+
+/* tarjeta de opción */
+.opt{width:392px;border:1.5px solid var(--bd);border-radius:22px;background:var(--sf);
+ overflow:hidden;cursor:pointer;transition:border-color .12s,transform .12s}
+.opt:hover{border-color:color-mix(in srgb,var(--pri) 55%,transparent);transform:translateY(-2px)}
+.opt.sel{border-color:var(--pri);box-shadow:0 0 0 3px color-mix(in srgb,var(--pri) 22%,transparent)}
+.ohead{padding:13px 15px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;gap:10px}
+.oid{font:700 11px 'DM Mono',monospace;background:var(--pril);color:var(--pri);
+ padding:4px 8px;border-radius:7px;flex:none}
+.opt.sel .oid{background:var(--pri);color:var(--onp)}
+.oname{font-size:13.5px;font-weight:700}
+.ohook{font-size:11.5px;color:var(--tx2);line-height:1.45;margin-top:2px}
+.otag{font:700 9px Montserrat;text-transform:uppercase;letter-spacing:.8px;
+ padding:3px 7px;border-radius:5px;background:color-mix(in srgb,var(--ter) 20%,transparent);
+ color:var(--ter);flex:none;align-self:center}
+.obody{background:var(--bg);padding:0;min-height:150px}
+.check{margin-left:auto;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--bd);flex:none}
+.opt.sel .check{background:var(--pri);border-color:var(--pri)}
+.opt.sel .check::after{content:'✓';color:var(--onp);font-size:12px;display:block;text-align:center;line-height:18px}
+
+/* piezas de mock */
+.pad{padding:18px 16px}
+.pad.center{text-align:center}
+.ovl{font:700 10px Montserrat;letter-spacing:1.3px;text-transform:uppercase;color:var(--tx3)}
+.lbl{font:600 12px Montserrat;color:var(--tx2);margin-bottom:9px}
+.hint{font-size:11.5px;color:var(--tx3);line-height:1.5;margin-top:8px}
+.hint.fl{flex:1;margin:0}
+.bignum{font:800 40px Montserrat;color:var(--pri);text-align:center;letter-spacing:-1.4px;margin:6px 0}
+.bignum.sm{font-size:32px}
+.num34{font:800 32px Montserrat;letter-spacing:-1px}
+.num28{font:800 24px Montserrat;letter-spacing:-.7px}
+.num24{font:800 21px Montserrat;letter-spacing:-.5px}
+.accent{color:var(--pri)} .err{color:var(--err)} .suc{color:var(--suc)} .dim{color:var(--tx3)}
+.rule{height:2px;background:linear-gradient(90deg,var(--pri),transparent);border-radius:2px;margin-top:10px}
+.liveheader{display:flex;align-items:center;gap:12px}
+.lhright{text-align:right;margin-left:auto}
+.lharrow{color:var(--tx3);font-size:18px}
+.stickynote{margin-top:12px;font-size:11px;color:var(--tx3);border-top:1px dashed var(--bd);padding-top:8px}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.key{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:12px 0;
+ text-align:center;font:600 18px Montserrat}
+
+/* chips de tarjeta — REPLICA EXACTA */
+.chiprow{display:flex;gap:8px;overflow:hidden}
+.chiprow.wrap{flex-wrap:wrap;margin-top:10px}
+.cardchip{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:20px;
+ border:1.5px solid var(--bd);background:var(--bg2);flex:none}
+.cardchip.on{background:var(--pri);border-color:var(--pri)}
+.cardchip.blocked{opacity:.35}
+.ctxt{font:600 13px Montserrat;color:var(--tx2);display:flex;flex-direction:column;line-height:1.15}
+.cardchip.on .ctxt{color:var(--onp)}
+.csub{font:500 9.5px 'DM Mono',monospace;opacity:.8}
+.clogo{width:20px;height:20px;border-radius:5px;flex:none}
+.cbadge{font:700 10px Montserrat;padding:2px 5px;border-radius:6px}
+.cbadge.cr{background:color-mix(in srgb,var(--pri) 16%,transparent);color:var(--pri)}
+.cbadge.db{background:color-mix(in srgb,var(--ter) 16%,transparent);color:var(--ter)}
+.cbadge.on{background:rgba(255,255,255,.22);color:var(--onp)}
+.cmp{display:flex;gap:14px;margin-top:16px;border-top:1px dashed var(--bd);padding-top:12px}
+.cmpcol{flex:1}
+.cmplbl{font:700 9px Montserrat;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);margin-bottom:7px}
+.cmpcol:first-child .cardchip{border-radius:50px;border-width:1px;padding:9px 12px}
+.cmpcol:first-child .ctxt{font-size:12.5px;font-weight:500}
+
+/* plazo */
+.steprow{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.stepbtn{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--bd);
+ display:grid;place-items:center;font-size:18px}
+.stepval{font:700 20px Montserrat;min-width:34px;text-align:center}
+.tchip{min-width:44px;text-align:center;padding:8px 12px;border-radius:50px;border:1px solid var(--bd);
+ background:var(--bg2);font:600 13px Montserrat;color:var(--tx2)}
+.tchip.on{background:var(--pri);border-color:var(--pri);color:var(--onp)}
+.sliderhead{display:flex;align-items:baseline;gap:8px;justify-content:center}
+.slider{position:relative;margin:18px 4px 0;height:34px}
+.strack{height:6px;background:var(--bd);border-radius:3px;position:absolute;left:0;right:0;top:0}
+.sfill{height:6px;background:var(--pri);border-radius:3px}
+.sthumb{position:absolute;top:-7px;width:20px;height:20px;border-radius:50%;background:var(--pri);
+ border:3px solid var(--bg);margin-left:-10px}
+.sticks{position:absolute;top:16px;left:0;right:0;height:14px}
+.sticks span{position:absolute;font:500 10px 'DM Mono',monospace;color:var(--tx3);transform:translateX(-50%)}
+.sliderfoot{text-align:center;margin-top:16px;font:700 20px Montserrat}
+.wheel{position:relative;display:flex;gap:10px;align-items:center;height:70px;overflow:hidden}
+.wcell{min-width:52px;height:44px;border-radius:14px;border:1px solid var(--bd);background:var(--bg2);
+ display:grid;place-items:center;font:600 15px Montserrat;color:var(--tx2);flex:none}
+.wcell.on{background:var(--pri);border-color:var(--pri);color:var(--onp);
+ transform:scale(1.22);font-weight:800;box-shadow:0 6px 18px color-mix(in srgb,var(--pri) 35%,transparent)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gcell{border:1px solid var(--bd);background:var(--bg2);border-radius:14px;padding:10px 6px;text-align:center}
+.gcell.on{background:var(--pri);border-color:var(--pri)}
+.gn{font:800 17px Montserrat} .gcell.on .gn{color:var(--onp)}
+.gm{font:500 10.5px 'DM Mono',monospace;color:var(--tx2);margin-top:2px}
+.gcell.on .gm{color:var(--onp)}
+.gp{font:600 9.5px Montserrat;color:var(--err);margin-top:3px}
+.gp.zero{color:var(--suc)}
+.gcell.on .gp{color:rgba(255,255,255,.85)}
+
+/* tasa */
+.segwrap{display:flex;gap:4px;padding:4px;border:1px solid var(--bd);border-radius:50px;background:var(--sf)}
+.seg{flex:1;text-align:center;padding:8px;border-radius:50px;font:500 13px Montserrat;color:var(--tx2)}
+.seg.on{background:var(--pri);color:var(--onp);font-weight:600}
+.raterow{display:flex;align-items:center;gap:10px;margin-top:12px}
+.raterow.big{gap:12px}
+.ratefield{width:110px;border:1px solid var(--bd);background:var(--bg2);border-radius:14px;
+ padding:11px;text-align:center;font:500 16px 'DM Mono',monospace}
+.ratefield.lg{width:140px;font-size:22px;padding:14px}
+.ratesuf{font:500 13px Montserrat;color:var(--tx2)}
+.unitbtn{border:1.5px solid var(--pri);color:var(--pri);border-radius:50px;padding:10px 14px;
+ font:700 13px Montserrat;display:flex;gap:6px;align-items:center}
+.swap{opacity:.7}
+.qrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.qtxt{font:600 15px Montserrat}
+.switch{width:46px;height:27px;border-radius:50px;background:var(--bd);position:relative}
+.switch.on{background:var(--pri)}
+.knob{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff}
+.switch.on .knob{left:22px}
+.sugchip{padding:7px 12px;border-radius:50px;border:1px solid var(--bd);background:var(--bg2);
+ font:600 11.5px Montserrat;color:var(--tx2)}
+
+/* resultado */
+.hero{padding:18px 16px;background:linear-gradient(135deg,color-mix(in srgb,var(--pri) 22%,transparent),transparent 70%);
+ border-bottom:1px solid var(--bd)}
+.hsub{font:500 13px Montserrat;color:var(--tx2);margin-top:2px}
+.statrow{display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--bd)}
+.stat{flex:1}
+.slbl{font:700 10px Montserrat;letter-spacing:.8px;text-transform:uppercase;color:var(--tx3)}
+.sval{font:500 14px 'DM Mono',monospace;margin-top:3px}
+.ssub{font:400 10.5px 'DM Mono',monospace;color:var(--tx3)}
+.receipt{padding:20px 22px;font-family:'DM Mono',monospace;background:var(--bg)}
+.rtitle{font:500 11px 'DM Mono',monospace;letter-spacing:3px;text-align:center;color:var(--tx2)}
+.rdash{border-top:1px dashed var(--bd);margin:10px 0}
+.rline{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);padding:3px 0}
+.rline b{color:var(--tx);font-weight:500}
+.rline.big{font-size:15px;padding:6px 0}
+.rline.big b{font-weight:500;font-size:19px}
+.rfoot{text-align:center;font-size:10.5px;color:var(--tx3);letter-spacing:1px}
+.donut{width:150px;height:150px;border-radius:50%;margin:4px auto 12px;
+ background:conic-gradient(var(--err) 0 20.3%,var(--pri) 20.3% 100%);display:grid;place-items:center}
+.dcenter{width:112px;height:112px;border-radius:50%;background:var(--bg);display:grid;place-items:center;align-content:center}
+.dlegend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font:500 11px Montserrat;color:var(--tx2)}
+.dlegend.sm{font-size:10.5px;margin-top:10px}
+.dlegend span{display:flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+.dot.pri{background:var(--pri)} .dot.errd{background:var(--err)} .dot.dimd{background:var(--bd)}
+.line{width:14px;height:2px;background:color-mix(in srgb,var(--pri) 60%,transparent);display:inline-block}
+.vsrow{display:flex;align-items:center;gap:8px}
+.vscol{flex:none} .vscol.right{text-align:right;margin-left:auto}
+.vsgap{flex:1;text-align:center}
+.vsdiff{font:700 12px 'DM Mono',monospace;color:var(--err)}
+.vsbar{height:8px;border-radius:4px;background:var(--err);overflow:hidden;margin:5px 0}
+.vsfill{height:8px;background:var(--pri)}
+.vspct{font:600 10px Montserrat;color:var(--err)}
+.vsfoot{margin-top:16px;padding-top:12px;border-top:1px solid var(--bd);font:800 20px Montserrat}
+
+/* proyección */
+.f1row{padding:10px 16px;border-bottom:1px solid var(--bd)}
+.f1top{display:flex;align-items:center;gap:10px}
+.f1n{width:24px;height:24px;border-radius:8px;background:var(--pril);color:var(--pri);
+ display:grid;place-items:center;font:500 11px 'DM Mono',monospace}
+.f1d{flex:1;font:500 13px Montserrat;color:var(--tx2)}
+.f1p{font:500 14px 'DM Mono',monospace}
+.f1sub{font:400 11px 'DM Mono',monospace;color:var(--tx3);margin:4px 0 0 34px}
+.more{text-align:center;padding:13px;font:600 13px Montserrat;color:var(--pri)}
+.chart{display:flex;align-items:flex-end;gap:4px;height:132px;position:relative}
+.chart.sm{height:112px}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.bstack{width:100%;max-width:20px;display:flex;flex-direction:column;justify-content:flex-end}
+.bseg{width:100%}
+.bseg.int{background:var(--err);border-radius:3px 3px 0 0}
+.bseg.cap{background:var(--pri)}
+.bseg.com{background:var(--bd)}
+.blbl{font:500 9px Montserrat;color:var(--tx3);margin-top:6px}
+.incline{position:absolute;left:0;right:0;bottom:62px;height:0;z-index:2;
+ border-top:2px dashed color-mix(in srgb,var(--pri) 75%,transparent)}
+.areachart{position:relative}
+.saldomarks{display:flex;justify-content:space-between;font:500 9.5px 'DM Mono',monospace;color:var(--tx3);margin-top:2px}
+.areasvg{width:100%;height:120px;display:block}
+.axis{display:flex;justify-content:space-between;font:500 9.5px 'DM Mono',monospace;color:var(--tx3);margin-top:6px}
+.pill{margin-top:14px;padding:9px 13px;border-radius:12px;background:var(--bg2);
+ border:1px solid var(--bd);font:500 11.5px Montserrat;color:var(--tx2);text-align:center}
+.timeline{display:flex;gap:0;padding:8px 0 4px;position:relative;justify-content:space-between}
+.tline{position:absolute;left:0;right:0;top:22px;height:2px;background:var(--bd)}
+.tstop{flex:none;width:20px;text-align:center;position:relative;z-index:1}
+.tstop.mile{width:54px}
+.tdot{width:9px;height:9px;border-radius:50%;background:var(--bd);margin:18px auto 8px}
+.tstop.mile .tdot{width:15px;height:15px;background:var(--pri);margin-top:15px;
+ box-shadow:0 0 0 4px color-mix(in srgb,var(--pri) 22%,transparent)}
+.tmon{font:600 9.5px Montserrat;color:var(--tx2)}
+.tmon span{display:block;font:400 8.5px 'DM Mono',monospace;color:var(--tx3)}
+.tamt{font:500 9.5px 'DM Mono',monospace;color:var(--tx);margin-top:3px}
+.tmilelbl{font:700 8px Montserrat;text-transform:uppercase;letter-spacing:.6px;color:var(--pri);margin-top:3px}
+.stmt{font-family:'DM Mono',monospace;padding:6px 0}
+.strow{display:grid;grid-template-columns:1.1fr 1.3fr 1.2fr 1.3fr;gap:6px;padding:7px 16px;font-size:11px}
+.strow span:not(:first-child){text-align:right}
+.strow.head{color:var(--tx3);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;
+ border-bottom:1px solid var(--bd);padding-bottom:8px}
+.strow.yr{border-top:1px solid var(--bd)}
+.strow.tot{border-top:1.5px solid var(--bd);margin-top:4px;font-weight:500;color:var(--tx)}
+.strow:nth-child(even){background:color-mix(in srgb,var(--bg2) 55%,transparent)}
+
+/* comparar */
+.ctab{font-family:'DM Mono',monospace}
+.ctrow{display:grid;grid-template-columns:1.4fr 1.5fr 1.5fr 1fr;gap:6px;padding:10px 8px;
+ font-size:11.5px;border-bottom:1px solid var(--bd)}
+.ctrow span:not(:first-child){text-align:right}
+.ctrow.head{font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--tx3)}
+.ctrow.on{background:color-mix(in srgb,var(--pri) 12%,transparent);border-radius:10px;border-bottom:none;font-weight:500}
+.gbrow{display:flex;align-items:center;gap:10px;padding:8px 0}
+.gbrow.on .gblbl{color:var(--pri)}
+.gblbl{width:52px;font:700 15px Montserrat;flex:none}
+.gblbl span{display:block;font:500 9px Montserrat;color:var(--tx3)}
+.gbbar{flex:1;height:20px;border-radius:5px;overflow:hidden;display:flex;background:var(--bg2)}
+.gbcap{background:var(--pri);height:20px}
+.gbint{background:var(--err);height:20px}
+.gbval{width:78px;text-align:right;font:500 11.5px 'DM Mono',monospace;flex:none}
+.gbval span{display:block;font:600 9.5px Montserrat;color:var(--err)}
+.scissor{position:relative}
+.ssvg{width:100%;height:130px;display:block}
+/* impacto */
+.verdict{border-radius:16px;border:1px solid color-mix(in srgb,var(--suc) 40%,transparent);
+ background:color-mix(in srgb,var(--suc) 12%,transparent);padding:13px;margin-bottom:14px}
+.vhead{font:700 14px Montserrat;color:var(--suc)}
+.vbody{font:400 12px Montserrat;color:var(--tx2);line-height:1.5;margin-top:3px}
+.gauge{position:relative}
+.gsvg{width:200px;height:110px}
+.gval{font:800 26px Montserrat;margin-top:-6px}
+.glbl{font:500 11px Montserrat;color:var(--tx2)}
+.gscale{display:flex;justify-content:space-between;margin-top:12px;font:600 10px Montserrat;color:var(--tx3)}
+.scale{display:flex;gap:24px;justify-content:center;align-items:flex-end}
+.scol{text-align:center}
+.sbar{width:56px;border-radius:6px 6px 0 0;margin:8px auto 0}
+.sbar.suc{background:var(--suc)} .sbar.err{background:var(--err)} .sbar.dim{background:var(--bd)}
+.sstack{display:flex;flex-direction:column-reverse;align-items:center}
+.sstack .sbar{border-radius:0;margin:0}
+.sstack .sbar.err{border-radius:6px 6px 0 0}
+.leftover{margin-top:16px;text-align:center;font:500 13px Montserrat;color:var(--tx2)}
+.leftover b{color:var(--suc);font-weight:800}
+@media(max-width:900px){.opt{width:100%;max-width:420px}}
+
+.hdr{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg);
+ border-bottom:1px solid var(--bd)}
+.hdr.edit{padding:14px 16px}
+.hcol{flex:1}.hcol.r{text-align:right;flex:none;width:140px}
+.hdiv{width:1px;align-self:stretch;background:var(--bd);margin:4px 0}
+.hprice{font:800 26px Montserrat;color:var(--pri);letter-spacing:-.6px}
+.hprice.sm{font-size:22px}
+.hfee{font:500 21px 'DM Mono',monospace}.hfee.sm{font-size:18px}
+.caret{display:inline-block;width:2px;height:24px;background:var(--pri);margin-left:2px;vertical-align:-4px}
+.hdr.comp{padding:9px 16px}
+.hcomp{font:600 15px Montserrat;flex:1}.hcomp.r{text-align:right;font-family:'DM Mono',monospace;font-weight:500}
+.tap{color:var(--pri)}.tapi{font-size:11px;opacity:.7}
+.chipmini{font:500 10px 'DM Mono',monospace;background:var(--pril);color:var(--pri);padding:3px 7px;border-radius:6px}
+.statelbl{font:600 9.5px Montserrat;letter-spacing:.6px;text-transform:uppercase;color:var(--tx3);padding:7px 16px;background:var(--bg2)}
+.cbadge.nul{background:var(--bd);color:var(--tx3)}
+.cardchip.half{opacity:.55}
+.cardchip.cut{opacity:.5}
+.microsave{margin-top:10px;font:600 11.5px Montserrat;color:var(--pri)}
+.ficha{display:flex;align-items:center;gap:7px;margin-top:12px;min-height:28px;font:400 12px Montserrat;color:var(--tx2)}
+.ficha b{font-family:'DM Mono',monospace;font-weight:500;color:var(--tx)}
+.fdot{width:7px;height:7px;border-radius:50%}
+.crow{display:flex;align-items:baseline;gap:8px;justify-content:center;margin-bottom:0}
+.rail{position:relative;height:52px;margin:44px 6px 0}
+.rtrack{height:6px;border-radius:3px;background:var(--bd);position:absolute;left:0;right:0;top:0}
+.rtrack.tall{height:8px}
+.rfill{height:100%;background:var(--pri);border-radius:3px}
+.rtick{position:absolute;top:-4px;width:2px;height:14px;background:var(--tx3);opacity:.55;margin-left:-1px}
+.rnotch{position:absolute;top:-1px;width:1px;height:10px;background:var(--bd);margin-left:-0.5px}
+.rthumb{position:absolute;top:-11px;width:28px;height:28px;border-radius:50%;background:#fff;
+ border:3px solid var(--pri);margin-left:-14px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.rhit{position:absolute;top:-19px;width:44px;height:44px;margin-left:-22px;border-radius:50%;
+ border:1px dashed color-mix(in srgb,var(--pri) 30%,transparent)}
+.rlbl{position:absolute;top:22px;transform:translateX(-50%);font:500 10px 'DM Mono',monospace;color:var(--tx3)}
+.rlbl.on{color:var(--pri);font-weight:500}
+.rail.norm{margin-top:14px}
+.rbubble{position:absolute;top:-38px;transform:translateX(-50%);background:var(--pri);color:var(--onp);
+ font:500 12px 'DM Mono',monospace;padding:4px 8px;border-radius:7px}
+.segwrap.tall .seg{padding:7px 4px}
+.seg.col{display:flex;flex-direction:column;gap:1px}
+.segl{font:600 11px Montserrat}.segv{font:500 15px 'DM Mono',monospace}
+.d1row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.d1field{flex:1;border:1px solid var(--bd);border-radius:14px;padding:12px 14px;background:var(--bg2);
+ display:flex;align-items:baseline;gap:6px}
+.d1field.mid{flex:none;width:110px;justify-content:center;font:500 17px 'DM Mono',monospace}
+.d1n{font:500 18px 'DM Mono',monospace}.d1s{font:500 13px Montserrat;color:var(--tx2)}
+.d1ghost{font:400 12px 'DM Mono',monospace;color:var(--tx3);flex:none}
+.d1steps{display:flex;align-items:center;gap:10px;margin-top:12px;justify-content:center}
+.stepbtn.sm{width:34px;height:34px;border-radius:10px}
+.rcpt{padding:18px 20px;background:var(--sf)}
+.rcpt.tal{padding-bottom:14px}
+.rcpt.cost{background:color-mix(in srgb,var(--sf) 92%,var(--err));padding-top:14px}
+.rbig{font:800 32px Montserrat;letter-spacing:-1px;margin-top:2px}
+.rsub{font:500 13px Montserrat;color:var(--tx2);margin-top:2px}
+.rcut{position:relative;border-top:1px dashed var(--bd);margin:16px -20px;height:1px}
+.rcut.solo{margin:0;background:var(--bg)}
+.rnotch2{}
+.rcut i{position:absolute;top:-8px;width:16px;height:16px;border-radius:50%;background:var(--bg)}
+.rcut i.l{left:-8px}.rcut i.r{right:-8px}
+.rl{display:flex;justify-content:space-between;font:400 12px 'DM Mono',monospace;color:var(--tx2);padding:4px 0}
+.rl b{font-weight:500;color:var(--tx)}
+.rl.sm{font-size:11.5px;padding:3px 0}
+.rcost{font:500 22px 'DM Mono',monospace;color:var(--err);margin:3px 0 8px;display:flex;align-items:baseline;gap:8px}
+.rbadge{font:600 10.5px Montserrat;background:color-mix(in srgb,var(--err) 20%,transparent);
+ color:var(--err);padding:2px 7px;border-radius:6px}
+.ovl.err{color:var(--err)}
+.ex3{font-family:'DM Mono',monospace}
+.e3h{display:grid;grid-template-columns:56px 1fr 1fr;gap:8px;padding:8px 16px;font:400 9.5px 'DM Mono',monospace;
+ letter-spacing:.6px;text-transform:uppercase;color:var(--tx3);border-bottom:1px solid var(--bd)}
+.e3h span:not(:first-child){text-align:right}
+.e3r{padding:8px 16px 6px;border-bottom:1px solid color-mix(in srgb,var(--bd) 60%,var(--tx3))}
+.e3top{display:grid;grid-template-columns:56px 1fr 1fr;gap:8px;align-items:baseline}
+.e3top span:first-child{font-size:11.5px;color:var(--tx2)}
+.e3p{font:500 13px 'DM Mono',monospace;text-align:right}
+.e3b{font:400 11.5px 'DM Mono',monospace;color:var(--tx3);text-align:right}
+.e3bar{display:flex;height:2px;margin-top:6px;border-radius:1px;overflow:hidden}
+.e3i{background:color-mix(in srgb,var(--err) 60%,transparent);min-width:2px}
+.e3c{background:color-mix(in srgb,var(--pri) 60%,transparent);min-width:2px}
+.exy{padding:6px 12px}
+.eyh{display:grid;grid-template-columns:1fr auto auto 16px;gap:10px;align-items:center;
+ background:var(--bg2);border-radius:12px;padding:11px 12px;margin-top:6px}
+.eyy{font:700 14px Montserrat;display:flex;align-items:center;gap:6px}
+.eyn{font:400 11px 'DM Mono',monospace;color:var(--tx2)}
+.eyt{font:500 13px 'DM Mono',monospace}
+.eyc{font-size:11px;color:var(--tx3);text-align:right}
+.eyr{display:grid;grid-template-columns:56px 1fr 1fr;gap:8px;padding:7px 12px 7px 28px;font-size:11.5px;color:var(--tx2)}
+.eysub{padding:6px 12px 10px 28px;font:400 10.5px 'DM Mono',monospace;color:var(--tx3)}
+.peakdot{width:6px;height:6px;border-radius:50%;background:var(--wrn);display:inline-block}
+.g1r{display:flex;align-items:center;gap:9px;padding:6px 0;position:relative}
+.g1l{width:52px;font:500 13px 'DM Mono',monospace;flex:none}
+.g1l span{display:block;font:500 8.5px Montserrat;color:var(--tx3)}
+.g1r.on .g1l{color:var(--pri)}
+.g1t{flex:1;min-width:60px;height:14px;border-radius:7px;background:var(--bg2);display:flex;overflow:hidden}
+.g1c{background:var(--pri);height:14px}.g1i{background:var(--err);height:14px;min-width:3px}
+.g1v{width:112px;text-align:right;font:500 10.5px 'DM Mono',monospace;color:var(--tx2);flex:none;line-height:1.35}
+.g1m,.g1f{display:block;font-style:normal}
+.g1m{color:var(--tx)}.g1f{color:var(--err);font-size:9.5px}
+.g1base{height:1px;background:var(--bd);margin-top:2px}
+.g2h{display:flex;justify-content:space-between;font:700 9.5px Montserrat;letter-spacing:.8px;
+ text-transform:uppercase;color:var(--tx3);margin-bottom:10px}
+.g2h span{font-family:'DM Mono',monospace;font-weight:500;text-transform:none;letter-spacing:0}
+.g2r{display:flex;align-items:center;gap:10px;padding:5px 0}
+.g2l{width:34px;font:500 13px 'DM Mono',monospace;flex:none}
+.g2r.on .g2l{color:var(--pri)}
+.g2t{flex:1;height:10px;border-radius:5px;background:var(--bg2)}
+.g2f{display:block;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--wrn),var(--err))}
+.g2v{width:96px;text-align:right;font:500 11.5px 'DM Mono',monospace;flex:none}
+.g2v span{display:block;font:400 10px 'DM Mono',monospace;color:var(--tx3)}
+.gau{position:relative}.gau svg{width:200px;height:112px}
+.gv{font:800 27px Montserrat;margin-top:-8px}
+.gl{font:500 10.5px Montserrat;color:var(--tx2)}
+.gband{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;
+ font:500 11.5px 'DM Mono',monospace;color:var(--tx3)}
+.gband .now{color:var(--tx);font-weight:500}.arrw{opacity:.5}
+.gthumb{position:absolute;top:0;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);
+ font:500 10px 'DM Mono',monospace;padding:2px 6px;border-radius:5px}
+.verdict{margin-top:12px;border-radius:14px;padding:11px 13px;text-align:left;
+ background:color-mix(in srgb,var(--suc) 12%,transparent);
+ border:1px solid color-mix(in srgb,var(--suc) 35%,transparent)}
+.verdict b{display:block;font:700 13.5px Montserrat;color:var(--suc)}
+.verdict span{font:400 11.5px Montserrat;color:var(--tx2);line-height:1.45}
+.incrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;
+ font:500 12px Montserrat;color:var(--tx2)}
+.incfield{border:1px solid var(--bd);background:var(--bg2);border-radius:12px;padding:9px 12px;
+ font:500 13px 'DM Mono',monospace;color:var(--tx)}
+.riskbox{border-radius:14px;padding:12px 14px;margin-bottom:16px;
+ background:color-mix(in srgb,var(--err) 10%,transparent);
+ border:1px solid color-mix(in srgb,var(--err) 30%,transparent)}
+.risklbl{font:700 9.5px Montserrat;letter-spacing:1px;text-transform:uppercase;color:var(--err);margin-bottom:4px}
+.risktxt{font:400 12.5px Montserrat;color:var(--tx2);line-height:1.55}
+.motionbox{border-radius:14px;padding:11px 14px;margin-bottom:18px;
+ background:var(--bg2);border:1px solid var(--bd)}
+.motionlbl{font:700 9.5px Montserrat;letter-spacing:1px;text-transform:uppercase;color:var(--ter);margin-bottom:4px}
+.origchip{font:600 10.5px 'DM Mono',monospace;background:var(--pril);color:var(--pri);
+ padding:4px 9px;border-radius:7px;margin-left:10px}
+.ochange{font-size:11.5px;color:var(--tx2);line-height:1.5;margin-top:5px}
+.owhy{font-size:11.5px;color:var(--tx3);line-height:1.5;margin-top:5px;font-style:italic}
+code{font-family:'DM Mono',monospace;font-size:.92em;background:var(--bg2);padding:1px 5px;border-radius:4px}
+</style></head><body>
+<div class="top"><h1>Variantes refinadas · v2</h1><span id="picks">sin elegir</span><span class="sp"></span>
+<button class="btn" id="theme">☀︎ Claro</button><button class="btn" id="clear">Limpiar</button>
+<button class="btn pri" id="copy">Copiar selección</button></div>
+<div class="intro">
+  <h2>16 variantes — 2 por cada dirección que elegiste</h2>
+  <p>Tu selección fue <span class="mono">A2 · B2 · C2 · D1 · E2 · F5 · G2 · H2</span>. Ninguna variante cambia de dirección:
+  todas refinan <b>dentro</b> de la que escogiste. Elige una por sección y cópiala.</p>
+  <p style="margin-top:10px">Cada sección abre con <b>el riesgo real</b> de esa dirección —medido sobre el código, no opinado— y con
+  la regla de <b>movimiento</b> que le aplica. Revisado por los tres lentes del equipo visual: UX, polish y auditoría.</p>
+  <div class="outlist">
+    <span class="outchip">✕ Descripción</span><span class="outchip">✕ Categoría</span>
+    <span class="outchip">✕ «Registrar esta compra»</span><span class="outchip">✕ Pie fijo</span>
+    <span class="outchip keep">✓ Cifras reales del motor</span><span class="outchip keep">✓ Paleta deepWater</span>
+  </div>
+</div>
+
+  <section class="section">
+    <div class="shead"><span class="sletter">A2</span><span class="sname">Cabecera viva</span></div>
+    <div class="sq">Precio y cuota siempre a la vista.</div>
+    <div style="height:12px"></div>
+    <div class="riskbox"><div class="risklbl">El riesgo de esta dirección</div><div class="risktxt">Ver el precio en la barra pero no poder tocarlo para corregirlo. Es el primer gesto que todo el mundo intenta.</div></div>
+    <div class="motionbox"><div class="motionlbl">Movimiento</div><div class="risktxt">Fijar y soltar SIN transición: el umbral se cruza decenas de veces por sesión de scroll.</div></div>
+    <div class="opts">
+    <div class="opt" data-id="A2·1">
+      <div class="ohead">
+        <span class="oid">A2·1</span>
+        <span style="flex:1"><span class="oname">Cabecera editable</span>
+          <div class="ochange">La cabecera no refleja el precio: <b>es</b> el input. Desaparece la card «La compra».</div>
+          <div class="owhy">Mata el estado imposible y borra una sección entera. Con el teclado abierto el campo ya está arriba, donde nada lo tapa.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="hdr edit">
+  <div class="hcol">
+    <div class="ovl">Precio</div>
+    <div class="hprice">$1.800.000<span class="caret"></span></div>
+  </div>
+  <div class="hdiv"></div>
+  <div class="hcol r">
+    <div class="ovl">Cuota/mes</div>
+    <div class="hfee">$169.291</div>
+  </div>
+</div>
+<div class="pad"><div class="hint">72 px · fondo opaco (nunca degradado: en la PWA de iOS el cristal mancha el color). Sin precio, la derecha dice «—», nunca «$0».</div></div></div>
+    </div>
+    <div class="opt" data-id="A2·2">
+      <div class="ohead">
+        <span class="oid">A2·2</span>
+        <span style="flex:1"><span class="oname">Cabecera de dos alturas</span>
+          <div class="ochange">El precio se sigue escribiendo abajo, pero la barra tiene dos estados sobre altura fija.</div>
+          <div class="owhy">Cero refactor del input. El callejón sin salida se resuelve con un botón explícito, no con un gesto adivinado.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="hdr">
+  <div class="hcol"><div class="ovl">Precio</div><div class="hprice sm">$1.800.000</div></div>
+  <div class="hcol r"><div class="ovl">Cuota</div><div class="hfee sm">$169.291</div></div>
+</div>
+<div class="statelbl">expandida · 64 px</div>
+<div class="hdr comp">
+  <div class="hcomp tap">$1.800.000 <span class="tapi">✎</span></div>
+  <div class="chipmini">12×</div>
+  <div class="hcomp r">$169.291</div>
+</div>
+<div class="statelbl">comprimida · 44 px — tocar el precio sube y enfoca el campo</div></div>
+    </div></div>
+  </section>
+  <section class="section">
+    <div class="shead"><span class="sletter">B2</span><span class="sname">Chips + tasa recordada</span></div>
+    <div class="sq">Chips idénticos a «Nuevo movimiento», con la tasa de cada tarjeta.</div>
+    <div style="height:12px"></div>
+    <div class="riskbox"><div class="risklbl">El riesgo de esta dirección</div><div class="risktxt"><b>El dato no existe.</b> <code>types/card.ts</code> no guarda tasa: hoy los seis chips mostrarían el mismo 25,52 %, que es el techo legal de usura, no «la tasa de tu banco».</div></div>
+    <div class="motionbox"><div class="motionlbl">Movimiento</div><div class="risktxt">El chip no anima nada al seleccionarse. Solo realimentación de presión: scale(0.97) en 140 ms.</div></div>
+    <div class="opts">
+    <div class="opt" data-id="B2·1">
+      <div class="ohead">
+        <span class="oid">B2·1</span>
+        <span style="flex:1"><span class="oname">Chip con tasa aprendida</span>
+          <div class="ochange">Campo nuevo <code>defaultTea</code> en <code>Card</code>. El badge C/D se va (el simulador ya filtra crédito) y su hueco lo ocupa la tasa.</div>
+          <div class="owhy">Única versión honesta: distingue «tu tasa» del techo legal. Y reaprovecha el hueco del badge, así el chip crece a 160 px y no a 182.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad">
+  <div class="chiprow">
+    <div class="cardchip on"><span class="clogo" style="background:#7CB342"></span><span class="ctxt">Falabella</span><span class="cbadge on">25,5%</span></div>
+    <div class="cardchip"><span class="clogo" style="background:#6A1B9A"></span><span class="ctxt">Moradita</span><span class="cbadge cr">21,0%</span></div>
+    <div class="cardchip cut"><span class="clogo" style="background:#E8453C"></span><span class="ctxt">Davi</span><span class="cbadge nul">—</span></div>
+  </div>
+  <div class="hint">«Sin tarjeta» pasa al <b>final</b> de la fila, no al principio: hoy la pantalla abre mostrando una opción vacía y medio banco.</div>
+  <div class="microsave">＋ guardar esta tasa para Davivienda</div>
+</div></div>
+    </div>
+    <div class="opt" data-id="B2·2">
+      <div class="ohead">
+        <span class="oid">B2·2</span>
+        <span style="flex:1"><span class="oname">Chips compactos + ficha</span>
+          <div class="ochange">Los chips quedan <b>exactos</b> a add-transaction, sin tocar nada. La tasa va en una línea debajo, solo la de la elegida.</div>
+          <div class="owhy">Ninguna tasa compite con otra cuando solo una está activa. Y no exige campo nuevo ni migración: implementable hoy.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad">
+  <div class="chiprow">
+    <div class="cardchip on"><span class="clogo" style="background:#7CB342"></span><span class="ctxt">Falabella</span><span class="cbadge on">C</span></div>
+    <div class="cardchip"><span class="clogo" style="background:#6A1B9A"></span><span class="ctxt">Moradita</span><span class="cbadge cr">C</span></div>
+    <div class="cardchip half"><span class="clogo" style="background:#E8453C"></span><span class="ctxt">Davi</span></div>
+  </div>
+  <div class="ficha"><i class="fdot" style="background:#7CB342"></i>Tasa guardada de Falabella: <b>25,52 % E.A.</b></div>
+  <div class="hint">Sin tasa guardada, el renglón dice «usando referencia» en gris. Se reserva su alto siempre (28 px) para que nada salte.</div>
+</div></div>
+    </div></div>
+  </section>
+  <section class="section">
+    <div class="shead"><span class="sletter">C2</span><span class="sname">Deslizador con topes</span></div>
+    <div class="sq">Un riel de 1 a 36 cuotas.</div>
+    <div style="height:12px"></div>
+    <div class="riskbox"><div class="risklbl">El riesgo de esta dirección</div><div class="risktxt">Lineal, 36 pasos en 298 px = <b>8,5 px por cuota</b>, bajo el mínimo táctil de 44. Y el reparto está al revés: 17 px entre 1 y 3 (donde se decide) contra 102 px entre 24 y 36 (donde no).</div></div>
+    <div class="motionbox"><div class="motionlbl">Movimiento</div><div class="risktxt">El pulgar sigue al dedo con CERO animación. Aquí el valor SÍ puede pasar por estado de React: es manipulación directa y finita.</div></div>
+    <div class="opts">
+    <div class="opt" data-id="C2·1">
+      <div class="ohead">
+        <span class="oid">C2·1</span>
+        <span style="flex:1"><span class="oname">Riel imantado</span>
+          <div class="ochange">Imán a los topes 1·3·6·12·18·24·36 y cada marca es una zona tocable de 44×44 px invisible.</div>
+          <div class="owhy">Se elige de un toque limpio sin arrastrar nunca. El objetivo táctil pasa de 8,5 px a 44 sin cambiar la geometría visible.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad">
+  <div class="crow"><span class="num34">12</span><span class="ovl">cuotas</span></div>
+  <div class="rail norm">
+    <div class="rtrack"><div class="rfill" style="width:31%"></div></div>
+    <div class="rtick" style="left:0.0%"></div><div class="rtick" style="left:5.714285714285714%"></div><div class="rtick" style="left:14.285714285714285%"></div><div class="rtick" style="left:31.428571428571427%"></div><div class="rtick" style="left:48.57142857142857%"></div><div class="rtick" style="left:65.71428571428571%"></div><div class="rtick" style="left:100.0%"></div>
+    <div class="rthumb" style="left:31%"></div>
+    <div class="rlbl" style="left:0.0%">1</div><div class="rlbl" style="left:14.285714285714285%">6</div><div class="rlbl" style="left:31.428571428571427%">12</div><div class="rlbl" style="left:65.71428571428571%">24</div><div class="rlbl" style="left:100.0%">36</div>
+    <div class="rhit" style="left:0.0%"></div><div class="rhit" style="left:5.714285714285714%"></div><div class="rhit" style="left:14.285714285714285%"></div><div class="rhit" style="left:31.428571428571427%"></div><div class="rhit" style="left:48.57142857142857%"></div><div class="rhit" style="left:65.71428571428571%"></div><div class="rhit" style="left:100.0%"></div>
+  </div>
+  <div class="hint">Las etiquetas 3 y 18 no se pintan: a 17 px se tocarían. En web el riel es un <code>&lt;input type="range"&gt;</code> nativo — foco, flechas y Home/End gratis.</div>
+</div></div>
+    </div>
+    <div class="opt" data-id="C2·2">
+      <div class="ohead">
+        <span class="oid">C2·2</span>
+        <span style="flex:1"><span class="oname">Riel de paso desigual</span>
+          <div class="ochange">La escala deja de ser lineal en cuotas y pasa a ser lineal <b>en los topes</b>: 7 tramos iguales de ~50 px.</div>
+          <div class="owhy">El ancho se reparte según dónde están las decisiones. De 3 a 6 cuotas —que cambia mucho el sobrecosto— pasa de 26 px a 50.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad">
+  <div class="crow"><span class="num34">12</span><span class="ovl">cuotas</span></div>
+  <div class="rail">
+    <div class="rtrack tall"><div class="rfill" style="width:50%"></div></div>
+    <div class="rnotch" style="left:0.0%"></div><div class="rnotch" style="left:16.666666666666664%"></div><div class="rnotch" style="left:33.33333333333333%"></div><div class="rnotch" style="left:50.0%"></div><div class="rnotch" style="left:66.66666666666666%"></div><div class="rnotch" style="left:83.33333333333334%"></div><div class="rnotch" style="left:100.0%"></div>
+    <div class="rthumb" style="left:50%"></div>
+    <div class="rbubble" style="left:50%">12</div>
+    <div class="rlbl" style="left:0.0%">1</div><div class="rlbl" style="left:16.666666666666664%">3</div><div class="rlbl" style="left:33.33333333333333%">6</div><div class="rlbl on" style="left:50.0%">12</div><div class="rlbl" style="left:66.66666666666666%">18</div><div class="rlbl" style="left:83.33333333333334%">24</div><div class="rlbl" style="left:100.0%">36</div>
+  </div>
+  <div class="hint">Ahora caben las 7 etiquetas. Al arrastrar entre topes, el valor sale en un globo sobre el pulgar — sin él, un 9 en mitad del tramo 6→12 se lee como un fallo.</div>
+</div></div>
+    </div></div>
+  </section>
+  <section class="section">
+    <div class="shead"><span class="sletter">D1</span><span class="sname">Segmentado + campo</span></div>
+    <div class="sq">Pestañas Anual/Mensual y un campo de tasa.</div>
+    <div style="height:12px"></div>
+    <div class="riskbox"><div class="risklbl">El riesgo de esta dirección</div><div class="risktxt">Dos bugs reales: teclear «2» y tocar «Anual» te devuelve <b>26.82</b> (pierdes lo escrito), y pasar 15 % mensual a anual da 435 % → supera el tope de 200 → <b>la proyección entera desaparece</b> por pulsar un segmento.</div></div>
+    <div class="motionbox"><div class="motionlbl">Movimiento</div><div class="risktxt">La píldora del segmentado DESLIZA (translateX, 180 ms), no se teletransporta como hoy.</div></div>
+    <div class="opts">
+    <div class="opt" data-id="D1·1">
+      <div class="ohead">
+        <span class="oid">D1·1</span>
+        <span style="flex:1"><span class="oname">Unidad dentro del campo</span>
+          <div class="ochange">El sufijo entra en el campo y la equivalencia se vuelve un valor fantasma a la derecha. La conversión solo ocurre <b>al perder el foco</b>.</div>
+          <div class="owhy">Mata la conversión destructiva sin quitar la conversión. Y se ven las dos tasas a la vez, que es lo que uno quiere comprobar.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad">
+  <div class="segwrap"><div class="seg on">Anual</div><div class="seg">Mensual</div></div>
+  <div class="d1row">
+    <div class="d1field"><span class="d1n">25,52</span><span class="d1s">% E.A.</span></div>
+    <div class="d1ghost">≈ 1,91 % m.v.</div>
+  </div>
+  <div class="hint">Estado inválido: borde rojo <b>y</b> un icono de alerta dentro del campo. El color nunca es el único indicador.</div>
+</div></div>
+    </div>
+    <div class="opt" data-id="D1·2">
+      <div class="ohead">
+        <span class="oid">D1·2</span>
+        <span style="flex:1"><span class="oname">Segmentado con la cifra dentro</span>
+          <div class="ochange">Cada segmento muestra su propio valor. El campo edita el activo; cambiar de pestaña no convierte nada.</div>
+          <div class="owhy">La conversión deja de ser un evento y por tanto deja de poder romper nada. Y este segmentado deja de ser gemelo del de las vistas.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad">
+  <div class="segwrap tall">
+    <div class="seg on col"><span class="segl">Anual</span><span class="segv">25,52 %</span></div>
+    <div class="seg col"><span class="segl">Mensual</span><span class="segv dim">1,91 %</span></div>
+  </div>
+  <div class="d1steps">
+    <div class="stepbtn sm">−</div><div class="d1field mid">25,52</div><div class="stepbtn sm">+</div>
+  </div>
+  <div class="hint">Pasos de 0,25: a 390 px teclear un decimal es el gesto más caro de la pantalla. Con tasa 0 todo colapsa a «Sin intereses».</div>
+</div></div>
+    </div></div>
+  </section>
+  <section class="section">
+    <div class="shead"><span class="sletter">E2</span><span class="sname">Recibo</span></div>
+    <div class="sq">El resultado como tiquete en mono, con línea de corte.</div>
+    <div style="height:12px"></div>
+    <div class="riskbox"><div class="risklbl">El riesgo de esta dirección</div><div class="risktxt">DM Mono <b>no tiene bold real</b> (solo 400 y 500): la cifra grande queda más débil que el ExtraBold que sustituye. Y a 34 px un importe de 12 dígitos mide 326 px = el 100 % del interior de la card.</div></div>
+    <div class="motionbox"><div class="motionlbl">Movimiento</div><div class="risktxt">La cifra salta, no rueda. Nada de contador dígito a dígito: con separadores de miles el ancho cambia y el layout tiembla.</div></div>
+    <div class="opts">
+    <div class="opt" data-id="E2·1">
+      <div class="ohead">
+        <span class="oid">E2·1</span>
+        <span style="flex:1"><span class="oname">Recibo de dos tipografías</span>
+          <div class="ochange">La cifra protagonista se queda en Montserrat ExtraBold; <b>solo el cuerpo</b> del tiquete es mono.</div>
+          <div class="owhy">Conserva la jerarquía que el mono no puede dar y mantiene lo que el mono sí aporta: columnas de dígitos alineadas. Un tiquete real también mezcla.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="rcpt">
+  <div class="ovl">Cuota mensual</div>
+  <div class="rbig">$169.291</div>
+  <div class="rsub">×12 · última en ago 2027</div>
+  <div class="rcut"><i class="rnotch l"></i><i class="rnotch r"></i></div>
+  <div class="rl"><span>Financiado</span><b>$1.800.000</b></div>
+  <div class="rl"><span>Intereses</span><b class="err">$231.487</b></div>
+  <div class="rl"><span>Cargos</span><b>$0</b></div>
+  <div class="rl"><span>Total pagado</span><b>$2.031.487</b></div>
+</div>
+<div class="pad"><div class="hint">Los semicírculos del corte son lo que convierte una línea punteada en tiquete. Si el importe pasa de 13 caracteres, la cifra baja a 26 px por regla explícita.</div></div></div>
+    </div>
+    <div class="opt" data-id="E2·2">
+      <div class="ohead">
+        <span class="oid">E2·2</span>
+        <span style="flex:1"><span class="oname">Talón desprendible</span>
+          <div class="ochange">El corte <b>divide</b>: arriba lo que pagas al mes, abajo —sobre fondo teñido— lo que cuesta pagarlo así.</div>
+          <div class="owhy">Separa físicamente el número que seduce del número que duele. Un statRow de tres columnas los pone al mismo nivel y el sobrecosto se pierde.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="rcpt tal">
+  <div class="ovl">Cuota mensual</div>
+  <div class="rbig">$169.291</div>
+  <div class="rsub">12 meses · última en ago 2027</div>
+</div>
+<div class="rcut solo"><i class="rnotch l"></i><i class="rnotch r"></i></div>
+<div class="rcpt cost">
+  <div class="ovl err">Lo que cuesta financiarlo</div>
+  <div class="rcost">$231.487 <span class="rbadge">+12.9 %</span></div>
+  <div class="rl sm"><span>Total pagado</span><b>$2.031.487</b></div>
+  <div class="rl sm"><span>Tasa efectiva real</span><b>25,5 % E.A.</b></div>
+</div>
+<div class="pad"><div class="hint">Con sobrecosto 0 el bloque no desaparece: se tiñe de verde y dice «Sin sobrecosto: pagas el precio». Su ausencia se leería como que la app no calculó.</div></div></div>
+    </div></div>
+  </section>
+  <section class="section">
+    <div class="shead"><span class="sletter">F5</span><span class="sname">Extracto</span></div>
+    <div class="sq">La proyección mes a mes, densa y alineada en mono.</div>
+    <div style="height:12px"></div>
+    <div class="riskbox"><div class="risklbl">El riesgo de esta dirección</div><div class="risktxt">Las columnas <b>no caben</b>: 5 columnas a 11 px suman 327 px contra 326 disponibles. Encaja por −1 px y revienta con cualquier compra de 9 cifras. Y 36 filas son 1.584 px de scroll dentro de otro scroll.</div></div>
+    <div class="motionbox"><div class="motionlbl">Movimiento</div><div class="risktxt">La lista está quieta. Nada de entrada escalonada: son 36 elementos animándose sobre un control que el usuario está arrastrando.</div></div>
+    <div class="opts">
+    <div class="opt" data-id="F5·1">
+      <div class="ohead">
+        <span class="oid">F5·1</span>
+        <span style="flex:1"><span class="oname">Extracto de 3 columnas + barra</span>
+          <div class="ochange">Se recorta a <code>mes · cuota · saldo</code>. El interés/capital deja de ser número y pasa a ser una barra de 2 px bajo cada fila.</div>
+          <div class="owhy">Cabe con 81 px de margen. Y sustituye tres cifras que nadie suma mentalmente por un patrón que se lee de un vistazo: empieza casi toda roja y acaba casi toda azul.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="ex3">
+  <div class="e3h"><span>Mes</span><span>Cuota</span><span>Saldo</span></div>
+  <div class="e3r"><div class="e3top"><span>sep 26</span><span class="e3p">$169.291</span><span class="e3b">$1.665.128</span></div>
+  <div class="e3bar"><i class="e3i" style="flex:34419"></i><i class="e3c" style="flex:134872"></i></div></div><div class="e3r"><div class="e3top"><span>oct 26</span><span class="e3p">$169.291</span><span class="e3b">$1.527.677</span></div>
+  <div class="e3bar"><i class="e3i" style="flex:31840"></i><i class="e3c" style="flex:137451"></i></div></div><div class="e3r"><div class="e3top"><span>nov 26</span><span class="e3p">$169.291</span><span class="e3b">$1.387.598</span></div>
+  <div class="e3bar"><i class="e3i" style="flex:29212"></i><i class="e3c" style="flex:140079"></i></div></div><div class="e3r"><div class="e3top"><span>dic 26</span><span class="e3p">$169.291</span><span class="e3b">$1.244.840</span></div>
+  <div class="e3bar"><i class="e3i" style="flex:26533"></i><i class="e3c" style="flex:142758"></i></div></div><div class="e3r"><div class="e3top"><span>ene 27</span><span class="e3p">$169.291</span><span class="e3b">$1.099.353</span></div>
+  <div class="e3bar"><i class="e3i" style="flex:23804"></i><i class="e3c" style="flex:145487"></i></div></div><div class="e3r"><div class="e3top"><span>feb 27</span><span class="e3p">$169.291</span><span class="e3b">$951.084</span></div>
+  <div class="e3bar"><i class="e3i" style="flex:21022"></i><i class="e3c" style="flex:148269"></i></div></div><div class="e3r"><div class="e3top"><span>mar 27</span><span class="e3p">$169.291</span><span class="e3b">$799.979</span></div>
+  <div class="e3bar"><i class="e3i" style="flex:18186"></i><i class="e3c" style="flex:151105"></i></div></div>
+  <div class="more">Ver las 12 ⌄</div>
+</div>
+<div class="pad"><div class="hint"><i class="dot errd"></i> interés &nbsp; <i class="dot pri"></i> capital &nbsp;— ambos con <code>minWidth: 2</code> para que el último mes no desaparezca.</div></div></div>
+    </div>
+    <div class="opt" data-id="F5·2">
+      <div class="ohead">
+        <span class="oid">F5·2</span>
+        <span style="flex:1"><span class="oname">Extracto por año</span>
+          <div class="ochange">Arranca agrupado por año con una fila-resumen; se despliega al tocar. El primer año viene abierto.</div>
+          <div class="owhy">Un plan a 36 meses pasa de 36 filas de entrada a 3: la proyección se ve entera sin scrollear, que es el propósito de la sección.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="exy">
+  <div class="eyh open"><span class="eyy">2026</span><span class="eyn">4 cuotas</span><span class="eyt">$677.164</span><span class="eyc">⌃</span></div>
+  <div class="eyr"><span>sep 26</span><span class="e3p">$169.291</span><span class="e3b">$1.665.128</span></div><div class="eyr"><span>oct 26</span><span class="e3p">$169.291</span><span class="e3b">$1.527.677</span></div><div class="eyr"><span>nov 26</span><span class="e3p">$169.291</span><span class="e3b">$1.387.598</span></div><div class="eyr"><span>dic 26</span><span class="e3p">$169.291</span><span class="e3b">$1.244.840</span></div>
+  <div class="eysub">Intereses del año $122.004 · queda $1.244.840</div>
+  <div class="eyh"><span class="eyy">2027 <i class="peakdot"></i></span><span class="eyn">8 cuotas</span><span class="eyt">$1.354.323</span><span class="eyc">⌄</span></div>
+</div>
+<div class="pad"><div class="hint">El punto ámbar marca el año con el mes pico. Con plazo ≤ 12 cuotas no se agrupa: un solo grupo desplegable es un clic inútil.</div></div></div>
+    </div></div>
+  </section>
+  <section class="section">
+    <div class="shead"><span class="sletter">G2</span><span class="sname">Barras del sobrecosto</span></div>
+    <div class="sq">Una barra por plazo: azul el precio, rojo el interés.</div>
+    <div style="height:12px"></div>
+    <div class="riskbox"><div class="risklbl">El riesgo de esta dirección</div><div class="risktxt"><b>Verificado en las 32 paletas:</b> en <code>sunset</code> primary <b>es exactamente</b> warning, y en <code>ember</code> oscuro primary <b>es exactamente</b> error. En 7 combinaciones paleta/modo las dos partes de la barra se pintan del mismo color. Además, a 3 cuotas el rojo mide 1,7 px.</div></div>
+    <div class="motionbox"><div class="motionlbl">Movimiento</div><div class="risktxt">Nada de animar <code>width</code> con cada tecla: es propiedad de layout. Si se anima, <code>transform: scaleX()</code> con origen a la izquierda.</div></div>
+    <div class="opts">
+    <div class="opt" data-id="G2·1">
+      <div class="ohead">
+        <span class="oid">G2·1</span>
+        <span style="flex:1"><span class="oname">Barras horizontales con delta</span>
+          <div class="ochange">Escala común a los seis plazos, línea vertical del precio de contado, y al final de cada barra el <b>delta contra tu plan</b>.</div>
+          <div class="owhy">La línea base común es lo que hace comparable «12 vs 24». Y el delta responde la pregunta real: cuánto ahorro al mes contra cuánto pago de más al final.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad">
+  <div class="g1r">
+    <div class="g1l">1<span>cuota</span></div>
+    <div class="g1t"><i class="g1c" style="width:71.8%"></i><i class="g1i" style="width:0.0%"></i></div>
+    <div class="g1v"><i class="g1m">+$1.630.709/mes</i><i class="g1f">$-231.487 final</i></div>
+  </div><div class="g1r">
+    <div class="g1l">3<span>cuotas</span></div>
+    <div class="g1t"><i class="g1c" style="width:71.8%"></i><i class="g1i" style="width:2.8%"></i></div>
+    <div class="g1v"><i class="g1m">+$453.800/mes</i><i class="g1f">$-162.214 final</i></div>
+  </div><div class="g1r">
+    <div class="g1l">6<span>cuotas</span></div>
+    <div class="g1t"><i class="g1c" style="width:71.8%"></i><i class="g1i" style="width:4.9%"></i></div>
+    <div class="g1v"><i class="g1m">+$151.104/mes</i><i class="g1f">$-109.119 final</i></div>
+  </div><div class="g1r on">
+    <div class="g1l">12<span>cuotas</span></div>
+    <div class="g1t"><i class="g1c" style="width:71.8%"></i><i class="g1i" style="width:9.2%"></i></div>
+    <div class="g1v">tu plan</div>
+  </div><div class="g1r">
+    <div class="g1l">24<span>cuotas</span></div>
+    <div class="g1t"><i class="g1c" style="width:71.8%"></i><i class="g1i" style="width:18.4%"></i></div>
+    <div class="g1v"><i class="g1m">$-75.067/mes</i><i class="g1f">+$229.884 final</i></div>
+  </div><div class="g1r">
+    <div class="g1l">36<span>cuotas</span></div>
+    <div class="g1t"><i class="g1c" style="width:71.8%"></i><i class="g1i" style="width:28.2%"></i></div>
+    <div class="g1v"><i class="g1m">$-99.664/mes</i><i class="g1f">+$475.084 final</i></div>
+  </div>
+  <div class="g1base"></div>
+  <div class="hint">El rojo lleva <code>minWidth: 3</code> para no desaparecer. <b>Sin intereses el gráfico no se pinta</b>: se sustituye por «los seis plazos cuestan lo mismo» — seis barras idénticas se leen como app rota.</div>
+</div></div>
+    </div>
+    <div class="opt" data-id="G2·2">
+      <div class="ohead">
+        <span class="oid">G2·2</span>
+        <span style="flex:1"><span class="oname">Solo el sobrecosto</span>
+          <div class="ochange">Fuera la parte azul. El precio es constante en los seis escenarios: dibujarlo seis veces gasta el 85 % del ancho repitiendo un dato que no cambia.</div>
+          <div class="owhy">El problema de resolución desaparece: a 3 cuotas la barra pasa de 1,7 px a ~14 px porque la escala la fija el peor caso, no el precio. Y la colisión de paletas deja de importar.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad">
+  <div class="g2h">Sobrecosto sobre el contado <span>$1.800.000</span></div>
+  <div class="g2r">
+    <div class="g2l">1</div>
+    <div class="g2t"></div>
+    <div class="g2v">—<span></span></div>
+  </div><div class="g2r">
+    <div class="g2l">3</div>
+    <div class="g2t"><i class="g2f" style="width:9.8%"></i></div>
+    <div class="g2v">+$69.273<span>+3,8 %</span></div>
+  </div><div class="g2r">
+    <div class="g2l">6</div>
+    <div class="g2t"><i class="g2f" style="width:17.3%"></i></div>
+    <div class="g2v">+$122.368<span>+6,8 %</span></div>
+  </div><div class="g2r on">
+    <div class="g2l">12</div>
+    <div class="g2t"><i class="g2f" style="width:32.8%"></i></div>
+    <div class="g2v">+$231.487<span>+12,9 %</span></div>
+  </div><div class="g2r">
+    <div class="g2l">24</div>
+    <div class="g2t"><i class="g2f" style="width:65.3%"></i></div>
+    <div class="g2v">+$461.371<span>+25,6 %</span></div>
+  </div><div class="g2r">
+    <div class="g2l">36</div>
+    <div class="g2t"><i class="g2f" style="width:100.0%"></i></div>
+    <div class="g2v">+$706.571<span>+39,3 %</span></div>
+  </div>
+  <div class="hint">Degradado ámbar→rojo a lo largo del eje: el crecimiento tiene señal de color <b>y</b> de longitud, no solo de longitud.</div>
+</div></div>
+    </div></div>
+  </section>
+  <section class="section">
+    <div class="shead"><span class="sletter">H2</span><span class="sname">Medidor de holgura</span></div>
+    <div class="sq">Arco con zonas y aguja.</div>
+    <div style="height:12px"></div>
+    <div class="riskbox"><div class="risklbl">El riesgo de esta dirección</div><div class="risktxt">Con daltonismo verde y ámbar colapsan y solo queda el ángulo. Y el estado vacío es mortal: sin historial de ingresos son 180 px de cromo mostrando cero información.</div></div>
+    <div class="motionbox"><div class="motionlbl">Movimiento</div><div class="risktxt">La aguja NO barre en cada recálculo. Se mueve decenas de veces por sesión: una aguja que llega 400 ms tarde convierte el indicador en un juguete.</div></div>
+    <div class="opts">
+    <div class="opt" data-id="H2·1">
+      <div class="ohead">
+        <span class="oid">H2·1</span>
+        <span style="flex:1"><span class="oname">Arco del mes pico</span>
+          <div class="ochange">Mide el compromiso del <b>mes pico</b> sobre el ingreso, y una aguja fantasma marca dónde estabas <b>antes</b> de esta compra.</div>
+          <div class="owhy">Responde la pregunta real («¿me deja apretado?») en vez de una que ya contesta el recibo. Las dos agujas convierten el medidor en un antes/después.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad center">
+  <div class="gau">
+    <svg viewBox="0 0 200 112">
+      <path d="M18,100 A82,82 0 0,1 68,24" fill="none" stroke="var(--suc)" stroke-width="14"/>
+      <path d="M76,21 A82,82 0 0,1 124,21" fill="none" stroke="var(--wrn)" stroke-width="14"/>
+      <path d="M132,24 A82,82 0 0,1 182,100" fill="none" stroke="var(--err)" stroke-width="14"/>
+      <line x1="100" y1="100" x2="49" y2="52" stroke="var(--tx3)" stroke-width="3" stroke-linecap="round" opacity=".45"/>
+      <line x1="100" y1="100" x2="57" y2="43" stroke="var(--tx)" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="7" fill="var(--tx)"/>
+    </svg>
+    <div class="gv">19 %</div><div class="gl">de tu ingreso</div>
+  </div>
+  <div class="gband"><span>antes 13 %</span><span class="arrw">→</span><span class="now">ahora 19 %</span></div>
+  <div class="verdict"><b>✓ Te cabe holgado</b><span>Te quedan $1.120.709 libres tras fijos y cuotas.</span></div>
+  <div class="hint">El veredicto va SIEMPRE en texto bajo el arco: el color no comunica solo. Las zonas se separan con huecos de 3 px para distinguirse en escala de grises.</div>
+</div></div>
+    </div>
+    <div class="opt" data-id="H2·2">
+      <div class="ohead">
+        <span class="oid">H2·2</span>
+        <span style="flex:1"><span class="oname">Umbral movible</span>
+          <div class="ochange">La frontera verde/ámbar la fija el usuario arrastrándola sobre el arco. Y si no hay ingreso detectado, se puede teclear uno solo para la simulación.</div>
+          <div class="owhy">Convierte el estado vacío —el fallo mortal de H2— en el estado de entrada. Un límite que uno mismo puso se respeta; uno que la app inventó se ignora.</div></span>
+        <span class="check"></span>
+      </div>
+      <div class="obody">
+<div class="pad center">
+  <div class="gau">
+    <svg viewBox="0 0 200 112">
+      <path d="M18,100 A82,82 0 0,1 100,18" fill="none" stroke="var(--suc)" stroke-width="14"/>
+      <path d="M100,18 A82,82 0 0,1 182,100" fill="none" stroke="url(#wg)" stroke-width="14"/>
+      <defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="var(--wrn)"/><stop offset="100%" stop-color="var(--err)"/></linearGradient></defs>
+      <rect x="97" y="8" width="6" height="22" rx="3" fill="var(--tx)"/>
+      <line x1="100" y1="100" x2="57" y2="43" stroke="var(--tx)" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="7" fill="var(--tx)"/>
+    </svg>
+    <div class="gthumb">25 %</div>
+    <div class="gv">19 %</div><div class="gl">de tu ingreso</div>
+  </div>
+  <div class="incrow"><span>Ingreso mensual</span><div class="incfield">$3.200.000</div></div>
+  <div class="hint">«Solo para esta simulación, no se guarda» — coherente con que la pantalla entera ya lo declara.</div>
+</div></div>
+    </div></div>
+  </section>
+<script>
+const KEY='sim-opts-v2';
+let sel=JSON.parse(localStorage.getItem(KEY)||'[]');
+function render(){
+  document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',sel.includes(o.dataset.id)));
+  const order='ABCDEFGH';
+  const s=[...sel].sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0])||a.localeCompare(b));
+  document.getElementById('picks').textContent = s.length? s.join(' · ') : 'sin elegir';
+  localStorage.setItem(KEY,JSON.stringify(sel));
+}
+document.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>{
+  const id=o.dataset.id, letter=id[0];
+  if(sel.includes(id)) sel=sel.filter(x=>x!==id);
+  else sel=sel.filter(x=>x[0]!==letter).concat(id);   // una por sección
+  render();
+}));
+document.getElementById('copy').addEventListener('click',()=>{
+  const order='ABCDEFGH';
+  const s=[...sel].sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0]));
+  navigator.clipboard.writeText(s.join(', '));
+  const b=document.getElementById('copy'); const t=b.textContent;
+  b.textContent='✓ copiado'; setTimeout(()=>b.textContent=t,1200);
+});
+document.getElementById('theme').addEventListener('click',()=>{
+  document.body.classList.toggle('light');
+  document.getElementById('theme').textContent=document.body.classList.contains('light')?'🌙 Oscuro':'☀︎ Claro';
+});
+document.getElementById('clear').addEventListener('click',()=>{sel=[];render()});
+render();
+</script>
+</body></html>
