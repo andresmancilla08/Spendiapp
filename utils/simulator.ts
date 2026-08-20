@@ -331,6 +331,22 @@ export function termRailPosition(n: number, stops: number[] = TERM_STOPS): numbe
   return 1;
 }
 
+/**
+ * Inversa de `termRailPosition`: de una posición 0..1 del riel al plazo.
+ *
+ * La necesita el arrastre. Sin ella el riel solo sabría saltar de tope en tope,
+ * y los plazos intermedios (9, 15, 30) quedarían fuera del gesto.
+ */
+export function termFromRailPosition(pos: number, stops: number[] = TERM_STOPS): number {
+  const last = stops.length - 1;
+  const clamped = Math.min(Math.max(pos, 0), 1);
+  const scaled = clamped * last;
+  const i = Math.min(Math.floor(scaled), last - 1);
+  const within = scaled - i;
+  const value = stops[i] + within * (stops[i + 1] - stops[i]);
+  return Math.min(stops[last], Math.max(stops[0], Math.round(value)));
+}
+
 // ── Agrupación por año del plan (F5 combinado) ─────────────────────────────
 
 export interface YearGroup {

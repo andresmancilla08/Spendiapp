@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { PanResponder } from 'react-native';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +29,7 @@ import { goBack } from '../utils/nav';
 import { effectivePurchaseDate } from '../utils/installmentCalc';
 import {
   simulate, compareTerms, teaFromMonthlyPct, monthlyPctFromTea, buildLoadTimeline,
-  termRailPosition, TERM_STOPS, COMPARE_TERMS, MAX_INSTALLMENTS,
+  termRailPosition, termFromRailPosition, TERM_STOPS, COMPARE_TERMS, MAX_INSTALLMENTS,
 } from '../utils/simulator';
 
 type TabKey = 'projection' | 'compare' | 'impact';
@@ -107,6 +108,47 @@ export default function PurchaseSimulatorScreen() {
     const worst = line.reduce((b, x) => (x.total > b.total ? x : b), line[0]);
     return { load: worst.total, committed: worst.committed };
   }, [result, impact.committedByMonth]);
+
+  /**
+   * Arrastre del riel de plazos.
+   *
+   * Mismo patrón que `components/HuePicker.tsx`, el único control de arrastre
+   * del repo: el ancho se captura con `onLayout` en un ref mutable y el tirador
+   * lleva `pointerEvents="none"` — sin eso, `locationX` salta en cuanto el dedo
+   * pasa por encima del propio tirador y el valor da un tirón.
+   *
+   * El valor SÍ vive en el estado de React: esto es manipulación directa y
+   * finita, no una animación en bucle. La regla del proyecto prohíbe lo segundo.
+   * Y el tirador sigue al dedo sin transición: cualquier easing entre dedo y
+   * pulgar se siente como retraso.
+   *
+   * Los topes siguen siendo botones: un riel de PanResponder no se anuncia como
+   * control ni responde al teclado, así que el arrastre es un ATAJO, nunca la
+   * única vía. (Regla del repo: ninguna acción puede vivir solo en un gesto.)
+   */
+  const railWidth = useRef(0);
+  const railResponder = useMemo(
+    () =>
+      PanResponder.create({
+        // NO se reclama el toque simple: si lo hiciera, los topes dejarían de
+        // ser botones y el arrastre se comería la única vía accesible.
+        onStartShouldSetPanResponder: () => false,
+        onStartShouldSetPanResponderCapture: () => false,
+        // Solo un movimiento claramente horizontal reclama el gesto: por debajo
+        // de 4 px es un toque, y por encima en vertical es el scroll de la página.
+        onMoveShouldSetPanResponderCapture: (_e, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy),
+        onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy),
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderGrant: (e) => setFromX(e.nativeEvent.locationX),
+        onPanResponderMove: (e) => setFromX(e.nativeEvent.locationX),
+      }),
+    [],
+  );
+  function setFromX(x: number) {
+    const w = railWidth.current;
+    if (!w) return;
+    setInstallments(termFromRailPosition(x / w));
+  }
 
   const pickCard = (id: string | null) => {
     setCardId(id);
@@ -215,7 +257,11 @@ export default function PurchaseSimulatorScreen() {
                   Cada tope es un botón real: no hay librería de gestos en el
                   proyecto y un riel de PanResponder no es operable con teclado
                   ni se anuncia como control. Los intermedios salen del ±. */}
-              <View style={styles.rail}>
+              <View
+                style={styles.rail}
+                onLayout={(e) => { railWidth.current = e.nativeEvent.layout.width; }}
+                {...railResponder.panHandlers}
+              >
                 <View style={[styles.railTrack, { backgroundColor: colors.border }]}>
                   <View style={[styles.railFill, { width: `${termRailPosition(installments) * 100}%` as any, backgroundColor: colors.primary }]} />
                 </View>
@@ -512,7 +558,8 @@ const styles = StyleSheet.create({
   termSteps: { flexDirection: 'row', gap: 8, marginLeft: 'auto' },
   stepBtn: { width: 34, height: 34, borderRadius: 50, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
 
-  rail: { height: 40, marginTop: 18, marginHorizontal: 10, position: 'relative' },
+  // paddingTop reserva la banda que se puede arrastrar sin tocar un tope.
+  rail: { height: 44, marginTop: 18, marginHorizontal: 10, position: 'relative' },
   railTrack: { height: 8, borderRadius: 4, position: 'absolute', left: 0, right: 0, top: 0 },
   railFill: { height: 8, borderRadius: 4 },
   railThumb: { position: 'absolute', top: -8, width: 24, height: 24, borderRadius: 12, borderWidth: 3, marginLeft: -12 },

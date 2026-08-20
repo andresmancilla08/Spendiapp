@@ -14,6 +14,7 @@ import {
   median,
   MAX_INSTALLMENTS,
   termRailPosition,
+  termFromRailPosition,
   groupScheduleByYear,
 } from './simulator';
 
@@ -209,6 +210,34 @@ import {
   // Un plan que no cruza de año da un solo grupo
   const r = simulate({ price: 600_000, installments: 3, tea: null, startDate: new Date(2026, 0, 10) });
   assert.strictEqual(groupScheduleByYear(r.schedule).length, 1);
+}
+
+
+// ── Inversa del riel (el arrastre) ──────────────────────────────────────────
+{
+  // Los topes van y vuelven exactos
+  for (const n of [1, 3, 6, 12, 18, 24, 36]) {
+    assert.strictEqual(termFromRailPosition(termRailPosition(n)), n, `${n} sobrevive la ida y vuelta`);
+  }
+  assert.strictEqual(termFromRailPosition(0), 1, 'el extremo izquierdo es 1 cuota');
+  assert.strictEqual(termFromRailPosition(1), 36, 'el derecho es 36');
+  // Fuera de rango se acota en vez de romper
+  assert.strictEqual(termFromRailPosition(-5), 1);
+  assert.strictEqual(termFromRailPosition(9), 36);
+  // Mitad del tramo 6→12 son 9 cuotas: el valor intermedio existe y es alcanzable
+  assert.strictEqual(termFromRailPosition((2 + 0.5) / 6), 9, 'se puede arrastrar hasta 9');
+  // Monotonía a lo largo del riel: arrastrar a la derecha nunca baja el plazo
+  let prev = 0;
+  for (let k = 0; k <= 200; k++) {
+    const v = termFromRailPosition(k / 200);
+    assert.ok(v >= prev, `el arrastre no retrocede en ${k / 200}`);
+    prev = v;
+  }
+  // Todo plazo alcanzable por arrastre vuelve a caer donde debe
+  for (let n = 1; n <= 36; n++) {
+    const back = termFromRailPosition(termRailPosition(n));
+    assert.strictEqual(back, n, `${n} se puede fijar arrastrando`);
+  }
 }
 
 console.log('✓ simulator: todos los gates pasan');
