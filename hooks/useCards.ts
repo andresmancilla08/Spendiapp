@@ -13,7 +13,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { Card, CardType } from '../types/card';
+import { Card, CardType, TeaSource } from '../types/card';
 
 interface UseCardsResult {
   cards: Card[];
@@ -49,6 +49,9 @@ export function useCards(userId: string): UseCardsResult {
             isDefault: v.isDefault ?? false,
             createdAt: (v.createdAt as Timestamp).toDate(),
             cutoffDay: v.cutoffDay ?? undefined,
+            tea: typeof v.tea === 'number' ? v.tea : undefined,
+            teaUpdatedAt: v.teaUpdatedAt ? (v.teaUpdatedAt as Timestamp).toDate() : undefined,
+            teaSource: (v.teaSource as TeaSource) ?? undefined,
           };
         });
         // Sort client-side: más reciente primero
@@ -78,6 +81,7 @@ export async function addCard(
   nickname: string,
   isDefault = false,
   cutoffDay?: number,
+  tea?: number,
 ): Promise<string> {
   if (isDefault) {
     const snap = await getDocs(query(collection(db, 'cards'), where('userId', '==', userId)));
@@ -96,15 +100,54 @@ export async function addCard(
     isDefault,
     createdAt: Timestamp.fromDate(new Date()),
     ...(cutoffDay ? { cutoffDay } : {}),
+    ...(tea != null ? { tea, teaUpdatedAt: Timestamp.fromDate(new Date()), teaSource: 'manual' } : {}),
   });
   return ref.id;
 }
 
 export async function updateCard(
   cardId: string,
-  updates: { bankId?: string; bankName?: string; type?: CardType; nickname?: string; isDefault?: boolean; cutoffDay?: number | null },
+  updates: {
+    bankId?: string; bankName?: string; type?: CardType; nickname?: string;
+    isDefault?: boolean; cutoffDay?: number | null;
+    /** null borra la tasa guardada; un número la fija y sella la fecha. */
+    tea?: number | null;
+  },
 ): Promise<void> {
-  await updateDoc(doc(db, 'cards', cardId), updates);
+  const { tea, ...rest } = updates;
+  const payload: Record<string, unknown> = { ...rest };
+  if (tea !== undefined) {
+    // La fecha viaja SIEMPRE con el valor: una tasa sin fecha no se puede
+    // envejecer, y una tasa que no se puede envejecer acaba mintiendo en silencio.
+    payload.tea = tea;
+    payload.teaUpdatedAt = tea == null ? null : Timestamp.fromDate(new Date());
+    payload.teaSource = tea == null ? null : 'manual';
+  }
+  await updateDoc(doc(db, 'cards', cardId), payload);
+}
+
+/**
+ * Aprende la tasa de una tarjeta a partir de una compra REAL a cuotas.
+ *
+ * Es el mecanismo que mantiene el dato al día sin que el usuario haga nada: si
+ * registró una compra a 25,52 % con esa tarjeta, esa es la tasa que le cobran.
+ *
+ * No pisa una tasa escrita a mano el mismo día ni una idéntica a la que ya hay
+ * (evita una escritura por cada cuota registrada), y nunca borra: sin tasa
+ * nueva válida, no toca nada.
+ */
+export async function learnCardTea(
+  cardId: string,
+  tea: number,
+  current?: { tea?: number; teaSource?: TeaSource },
+): Promise<void> {
+  if (!Number.isFinite(tea) || tea <= 0 || tea > 200) return;
+  if (current?.tea === tea) return;
+  await updateDoc(doc(db, 'cards', cardId), {
+    tea,
+    teaUpdatedAt: Timestamp.fromDate(new Date()),
+    teaSource: 'learned',
+  });
 }
 
 export async function setDefaultCard(cardId: string, userId: string): Promise<void> {

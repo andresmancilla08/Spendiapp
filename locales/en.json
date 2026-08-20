@@ -902,21 +902,25 @@
     "defaultBadge": "Default"
   },
   "cardForm": {
-    "selectBank": "Select bank",
-    "typeLabel": "Card type",
-    "credit": "Credit",
-    "debit": "Debit",
-    "nicknameLabel": "Card name",
-    "nicknamePlaceholder": "E.g.: Main, Salary, Travel...",
-    "nicknameError": "Enter a name for the card",
     "addButton": "Add card",
-    "saveError": "Could not save the card. Please try again.",
+    "credit": "Credit",
+    "cutoffDayError": "Enter a valid day (1-28)",
+    "cutoffDayHint": "Day of the month your billing cycle closes (credit only)",
+    "cutoffDayLabel": "Cutoff date",
+    "cutoffDayPlaceholder": "e.g. 15",
+    "debit": "Debit",
     "defaultToggle": "Default for expenses",
     "defaultToggleHint": "Will be auto-selected when logging expenses",
-    "cutoffDayLabel": "Cutoff date",
-    "cutoffDayHint": "Day of the month your billing cycle closes (credit only)",
-    "cutoffDayPlaceholder": "e.g. 15",
-    "cutoffDayError": "Enter a valid day (1-28)"
+    "nicknameError": "Enter a name for the card",
+    "nicknameLabel": "Card name",
+    "nicknamePlaceholder": "E.g.: Main, Salary, Travel...",
+    "saveError": "Could not save the card. Please try again.",
+    "selectBank": "Select bank",
+    "teaError": "Enter a rate between 0.1 and 200",
+    "teaHint": "The APR your bank charges for instalment purchases. It updates by itself when you record an instalment purchase with this card.",
+    "teaLabel": "Interest rate (optional)",
+    "teaPlaceholder": "e.g. 25.52",
+    "typeLabel": "Card type"
   },
   "cardEditForm": {
     "title": "Edit card",
@@ -2155,5 +2159,11 @@
       "staleSession": "For security, sign in again to change your PIN.",
       "generic": "Couldn't save your PIN. Please try again."
     }
+  },
+  "cardChip": {
+    "credit": "C",
+    "debit": "D",
+    "none": "No card",
+    "staleA11y": "rate not reviewed in months"
   }
 }

@@ -37,7 +37,7 @@ import PageTitle from '../components/PageTitle';
 import NoteField from '../components/NoteField';
 import { useCards } from '../hooks/useCards';
 import type { Card } from '../types/card';
-import BankLogo from '../components/BankLogo';
+import CardChip, { CardChipNone } from '../components/CardChip';
 import { useHistoryStore } from '../store/historyStore';
 import ScreenTransition from '../components/ScreenTransition';
 import { categorizeLocal, categorizeRemote } from '../utils/categorize';
@@ -1026,52 +1026,19 @@ export default function EditTransactionScreen() {
                 ) : (
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
-                      <TouchableOpacity
-                        style={[
-                          styles.cardChip,
-                          { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                          selectedCardId === null && { backgroundColor: colors.primary, borderColor: colors.primary },
-                        ]}
+                      <CardChipNone
+                        selected={selectedCardId === null}
                         onPress={() => setSelectedCardId(null)}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={[styles.cardChipText, { color: selectedCardId === null ? colors.onPrimary : colors.textSecondary }]}>
-                          {t('addTransaction.noCard')}
-                        </Text>
-                      </TouchableOpacity>
+                      />
 
                       {cards.map((card: Card) => (
-                        <TouchableOpacity
+                        <CardChip
                           key={card.id}
-                          style={[
-                            styles.cardChip,
-                            { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                            selectedCardId === card.id && { backgroundColor: colors.primary, borderColor: colors.primary },
-                          ]}
+                          card={card}
+                          showTea
+                          selected={selectedCardId === card.id}
                           onPress={() => setSelectedCardId(card.id)}
-                          activeOpacity={0.8}
-                        >
-                          <BankLogo bankId={card.bankId} size={20} radius={5} />
-                          <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? colors.onPrimary : colors.textSecondary }]}>
-                            {card.nickname || card.bankName}
-                          </Text>
-                          <View style={[
-                            styles.cardTypeBadge,
-                            {
-                              backgroundColor: selectedCardId === card.id
-                                ? 'rgba(255,255,255,0.22)'
-                                : card.type === 'credit' ? `${colors.primary}28` : `${colors.tertiary}28`,
-                            },
-                          ]}>
-                            <Text style={[styles.cardTypeBadgeText, {
-                              color: selectedCardId === card.id
-                                ? colors.onPrimary
-                                : card.type === 'credit' ? colors.primary : colors.tertiary,
-                            }]}>
-                              {card.type === 'credit' ? 'C' : 'D'}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
+                        />
                       ))}
                     </View>
                   </ScrollView>
@@ -1185,10 +1152,6 @@ const styles = StyleSheet.create({
   monthChip:        { width: '30%', paddingVertical: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   monthChipText:    { fontSize: 13, fontFamily: Fonts.semiBold },
   // Cards
-  cardChip:          { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5 },
-  cardChipText:      { fontSize: 13, fontFamily: Fonts.semiBold },
-  cardTypeBadge:     { paddingHorizontal: 5, paddingVertical: 2, borderRadius: 6 },
-  cardTypeBadgeText: { fontSize: 10, fontFamily: Fonts.bold },
   noCardsPrompt:     { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1.5 },
   noCardsPromptText: { fontSize: 13, fontFamily: Fonts.semiBold },
   // Shared expense editor

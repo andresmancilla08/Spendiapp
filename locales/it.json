@@ -902,21 +902,25 @@
     "defaultBadge": "Predefinita"
   },
   "cardForm": {
-    "selectBank": "Seleziona la banca",
-    "typeLabel": "Tipo di carta",
-    "credit": "Credito",
-    "debit": "Debito",
-    "nicknameLabel": "Nome della carta",
-    "nicknamePlaceholder": "Es.: Principale, Stipendio, Viaggi...",
-    "nicknameError": "Inserisci un nome per la carta",
     "addButton": "Aggiungi carta",
-    "saveError": "Impossibile salvare la carta. Riprova.",
+    "credit": "Credito",
+    "cutoffDayError": "Inserisci un giorno valido (1-28)",
+    "cutoffDayHint": "Giorno del mese in cui si chiude il ciclo di fatturazione (solo credito)",
+    "cutoffDayLabel": "Data di chiusura",
+    "cutoffDayPlaceholder": "Es: 15",
+    "debit": "Debito",
     "defaultToggle": "Predefinita per le uscite",
     "defaultToggleHint": "Verrà selezionata automaticamente alla registrazione delle spese",
-    "cutoffDayLabel": "Data di chiusura",
-    "cutoffDayHint": "Giorno del mese in cui si chiude il ciclo di fatturazione (solo credito)",
-    "cutoffDayPlaceholder": "Es: 15",
-    "cutoffDayError": "Inserisci un giorno valido (1-28)"
+    "nicknameError": "Inserisci un nome per la carta",
+    "nicknameLabel": "Nome della carta",
+    "nicknamePlaceholder": "Es.: Principale, Stipendio, Viaggi...",
+    "saveError": "Impossibile salvare la carta. Riprova.",
+    "selectBank": "Seleziona la banca",
+    "teaError": "Inserisci un tasso tra 0,1 e 200",
+    "teaHint": "Il TAEG che la banca ti applica sugli acquisti a rate. Si aggiorna da solo quando registri un acquisto a rate con questa carta.",
+    "teaLabel": "Tasso di interesse (facoltativo)",
+    "teaPlaceholder": "Es: 25,52",
+    "typeLabel": "Tipo di carta"
   },
   "cardEditForm": {
     "title": "Modifica carta",
@@ -2155,5 +2159,11 @@
       "staleSession": "Per sicurezza, accedi di nuovo per cambiare il PIN.",
       "generic": "Impossibile salvare il PIN. Riprova."
     }
+  },
+  "cardChip": {
+    "credit": "C",
+    "debit": "D",
+    "none": "Senza carta",
+    "staleA11y": "tasso non rivisto da mesi"
   }
 }

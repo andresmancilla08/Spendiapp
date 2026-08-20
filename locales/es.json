@@ -930,21 +930,25 @@
     "defaultBadge": "Predeterminada"
   },
   "cardForm": {
-    "selectBank": "Selecciona el banco",
-    "typeLabel": "Tipo de tarjeta",
-    "credit": "Crédito",
-    "debit": "Débito",
-    "nicknameLabel": "Nombre de la tarjeta",
-    "nicknamePlaceholder": "Ej: Principal, Nómina, Viajes...",
-    "nicknameError": "Escribe un nombre para la tarjeta",
     "addButton": "Agregar tarjeta",
-    "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo.",
+    "credit": "Crédito",
+    "cutoffDayError": "Ingresa un día válido (1-28)",
+    "cutoffDayHint": "Día del mes en que cierra tu ciclo de facturación (solo crédito)",
+    "cutoffDayLabel": "Fecha de corte",
+    "cutoffDayPlaceholder": "Ej: 15",
+    "debit": "Débito",
     "defaultToggle": "Predeterminada para egresos",
     "defaultToggleHint": "Se seleccionará automáticamente al registrar gastos",
-    "cutoffDayLabel": "Fecha de corte",
-    "cutoffDayHint": "Día del mes en que cierra tu ciclo de facturación (solo crédito)",
-    "cutoffDayPlaceholder": "Ej: 15",
-    "cutoffDayError": "Ingresa un día válido (1-28)"
+    "nicknameError": "Escribe un nombre para la tarjeta",
+    "nicknameLabel": "Nombre de la tarjeta",
+    "nicknamePlaceholder": "Ej: Principal, Nómina, Viajes...",
+    "saveError": "No se pudo guardar la tarjeta. Intenta de nuevo.",
+    "selectBank": "Selecciona el banco",
+    "teaError": "Escribe una tasa entre 0,1 y 200",
+    "teaHint": "La TEA que te cobra el banco por compras a cuotas. Se actualiza sola cuando registras una compra a cuotas con esta tarjeta.",
+    "teaLabel": "Tasa de interés (opcional)",
+    "teaPlaceholder": "Ej: 25,52",
+    "typeLabel": "Tipo de tarjeta"
   },
   "cardEditForm": {
     "title": "Editar tarjeta",
@@ -2155,5 +2159,11 @@
       "staleSession": "Por seguridad, vuelve a entrar para cambiar el PIN.",
       "generic": "No se pudo guardar el PIN. Inténtalo de nuevo."
     }
+  },
+  "cardChip": {
+    "credit": "C",
+    "debit": "D",
+    "none": "Sin tarjeta",
+    "staleA11y": "tasa sin revisar hace meses"
   }
 }

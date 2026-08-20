@@ -37,11 +37,11 @@ import { goBack } from '../utils/nav';
 import AppHeader from '../components/AppHeader';
 import NoteField from '../components/NoteField';
 import PageTitle from '../components/PageTitle';
-import { useCards } from '../hooks/useCards';
+import { useCards, learnCardTea } from '../hooks/useCards';
 import { useTEARate } from '../hooks/useTEARate';
 import { calculateInstallments, calculateInstallmentDates, isCutoffAdjusted, effectivePurchaseDate } from '../utils/installmentCalc';
 import type { Card } from '../types/card';
-import BankLogo from '../components/BankLogo';
+import CardChip, { CardChipNone } from '../components/CardChip';
 import { suggestIconLocal, suggestIconRemote } from '../utils/suggestIcon';
 import { FALLBACK_ICON } from '../constants/categoryIconData';
 import IconPicker from '../components/IconPicker';
@@ -580,6 +580,16 @@ export default function AddTransactionScreen() {
             });
           });
           await batch.commit();
+
+          // La tarjeta APRENDE la tasa de la compra que se acaba de registrar.
+          // Es lo que mantiene el dato al día sin pedirle nada al usuario: si
+          // pagó a esta tasa, esta es la que le cobran. Va después del commit y
+          // sin `await` bloqueante en el flujo de error: que falle el aprendizaje
+          // no puede tumbar un guardado que ya ocurrió.
+          if (selectedCardId && withInterest && teaValueNum != null) {
+            learnCardTea(selectedCardId, teaValueNum, selectedCard ?? undefined)
+              .catch((e) => console.warn('learnCardTea:', e?.code ?? e));
+          }
         } else {
           await addDoc(collection(db, 'transactions'), {
             ...baseDoc,
@@ -1175,59 +1185,21 @@ export default function AddTransactionScreen() {
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
                       {/* Opción "Sin tarjeta" */}
-                      <TouchableOpacity
-                        style={[
-                          styles.cardChip,
-                          { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                          selectedCardId === null && { backgroundColor: colors.primary, borderColor: colors.primary },
-                        ]}
+                      <CardChipNone
+                        selected={selectedCardId === null}
                         onPress={() => { setSelectedCardId(null); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={[styles.cardChipText, { color: selectedCardId === null ? colors.onPrimary : colors.textSecondary }]}>
-                          {t('addTransaction.noCard')}
-                        </Text>
-                      </TouchableOpacity>
+                      />
 
-                      {cards.map((card: Card) => {
-                        const isLocked = installmentCount > 1 && selectedCardId !== null && selectedCardId !== card.id;
-                        return (
-                          <TouchableOpacity
-                            key={card.id}
-                            style={[
-                              styles.cardChip,
-                              { borderColor: colors.border, backgroundColor: colors.backgroundSecondary },
-                              selectedCardId === card.id && { backgroundColor: colors.primary, borderColor: colors.primary },
-                              isLocked && { opacity: 0.35 },
-                            ]}
-                            onPress={() => { if (isLocked) return; setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
-                            activeOpacity={isLocked ? 1 : 0.8}
-                          >
-                            <BankLogo bankId={card.bankId} size={20} radius={5} />
-                            <Text style={[styles.cardChipText, { color: selectedCardId === card.id ? colors.onPrimary : colors.textSecondary }]}>
-                              {`${card.nickname || card.bankName}${selectedCardId === card.id && installmentCount > 1 ? ` · ${installmentCount}×` : ''}`}
-                            </Text>
-                            <View style={[
-                              styles.cardTypeBadge,
-                              {
-                                backgroundColor: selectedCardId === card.id
-                                  ? 'rgba(255,255,255,0.22)'
-                                  : card.type === 'credit'
-                                    ? `${colors.primary}28`
-                                    : `${colors.tertiary}28`,
-                              },
-                            ]}>
-                              <Text style={[styles.cardTypeBadgeText, {
-                                color: selectedCardId === card.id
-                                  ? colors.onPrimary
-                                  : card.type === 'credit' ? colors.primary : colors.tertiary,
-                              }]}>
-                                {card.type === 'credit' ? 'C' : 'D'}
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      })}
+                      {cards.map((card: Card) => (
+                        <CardChip
+                          key={card.id}
+                          card={card}
+                          showTea
+                          selected={selectedCardId === card.id}
+                          locked={installmentCount > 1 && selectedCardId !== null && selectedCardId !== card.id}
+                          onPress={() => { setSelectedCardId(card.id); setInstallmentCount(1); setWithInterest(false); setTeaInput(''); }}
+                        />
+                      ))}
                     </View>
                   </ScrollView>
                 )}
@@ -1274,7 +1246,9 @@ export default function AddTransactionScreen() {
                       value={withInterest}
                       onValueChange={(v) => {
                         setWithInterest(v);
-                        setTeaInput(v ? String(referenceTEA) : '');
+                        // La tasa de la tarjeta manda sobre el techo de usura: la
+                        // referencia es el máximo legal, no lo que cobra su banco.
+                        setTeaInput(v ? String(selectedCard?.tea ?? referenceTEA) : '');
                       }}
                       trackColor={{ false: colors.border, true: colors.primary }}
                       thumbColor="#fff"
@@ -1617,10 +1591,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: Fonts.regular,
   },
-  cardChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5 },
-  cardChipText: { fontSize: 13, fontFamily: Fonts.semiBold },
-  cardTypeBadge: { paddingHorizontal: 5, paddingVertical: 2, borderRadius: 6 },
-  cardTypeBadgeText: { fontSize: 10, fontFamily: Fonts.bold },
   quickDescChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
   quickDescText: { fontSize: 12, fontFamily: Fonts.medium },
   noCardsPrompt: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1.5 },

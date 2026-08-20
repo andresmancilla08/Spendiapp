@@ -44,6 +44,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
   const [cardType, setCardType] = useState<CardType>('debit');
   const [nickname, setNickname] = useState('');
   const [cutoffDayInput, setCutoffDayInput] = useState('');
+  const [teaInput, setTeaInput] = useState('');
   const [isDefault, setIsDefault] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -58,6 +59,7 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
       setCardType(card.type);
       setNickname(card.nickname);
       setCutoffDayInput(card.cutoffDay ? String(card.cutoffDay) : '');
+      setTeaInput(card.tea != null ? String(card.tea) : '');
       setIsDefault(card.isDefault);
       setStep('details');
       setError('');
@@ -92,6 +94,12 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
       setError(t('cardForm.cutoffDayError'));
       return;
     }
+    const teaNum = teaInput.trim() ? parseFloat(teaInput.trim().replace(',', '.')) : undefined;
+    if (teaNum !== undefined && (isNaN(teaNum) || teaNum <= 0 || teaNum > 200)) {
+      setError(t('cardForm.teaError'));
+      return;
+    }
+
     setError('');
     setSaving(true);
     try {
@@ -105,6 +113,8 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
         nickname: trimmed,
         isDefault,
         cutoffDay: cutoffDayNum ?? null,
+        // null borra la tasa; `updateCard` sella la fecha al fijarla.
+        tea: cardType === 'credit' ? (teaNum ?? null) : null,
       });
       showToast(t('cardEditForm.saveSuccess'), 'success');
       handleClose();
@@ -240,6 +250,25 @@ export default function CardEditSheet({ visible, onClose, card, userId }: CardEd
                   maxLength={2}
                   value={cutoffDayInput}
                   onChangeText={(v) => { setError(''); setCutoffDayInput(v.replace(/[^0-9]/g, '')); }}
+                />
+
+                <Text style={[styles.fieldLabel, { color: colors.textSecondary, marginTop: 8 }]}>
+                  {t('cardForm.teaLabel')}
+                </Text>
+                <Text style={[styles.defaultHint, { color: colors.textTertiary, marginBottom: 6 }]}>
+                  {t('cardForm.teaHint')}
+                </Text>
+                <TextInput
+                  style={[
+                    styles.nicknameInput,
+                    { borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary },
+                  ]}
+                  placeholder={t('cardForm.teaPlaceholder')}
+                  placeholderTextColor={colors.textTertiary}
+                  keyboardType="decimal-pad"
+                  maxLength={6}
+                  value={teaInput}
+                  onChangeText={(v) => { setError(''); setTeaInput(v.replace(/[^0-9.,]/g, '')); }}
                 />
               </>
             )}

@@ -40,6 +40,7 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
   const [cardType, setCardType] = useState<CardType>('debit');
   const [nickname, setNickname] = useState('');
   const [cutoffDayInput, setCutoffDayInput] = useState('');
+  const [teaInput, setTeaInput] = useState('');
   const [isDefault, setIsDefault] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -86,10 +87,16 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
       setError(t('cardForm.cutoffDayError'));
       return;
     }
+    const teaNum = teaInput.trim() ? parseFloat(teaInput.trim().replace(',', '.')) : undefined;
+    if (teaNum !== undefined && (isNaN(teaNum) || teaNum <= 0 || teaNum > 200)) {
+      setError(t('cardForm.teaError'));
+      return;
+    }
+
     setError('');
     setSaving(true);
     try {
-      await addCard(userId, selectedBank.id, selectedBank.name, cardType, trimmed, isDefault, cutoffDayNum);
+      await addCard(userId, selectedBank.id, selectedBank.name, cardType, trimmed, isDefault, cutoffDayNum, cardType === 'credit' ? teaNum : undefined);
       handleClose();
     } catch {
       setError(t('cardForm.saveError'));
@@ -196,6 +203,25 @@ export default function CardFormSheet({ visible, onClose, userId }: CardFormShee
                   maxLength={2}
                   value={cutoffDayInput}
                   onChangeText={(v) => { setError(''); setCutoffDayInput(v.replace(/[^0-9]/g, '')); }}
+                />
+
+                <Text style={[styles.fieldLabel, { color: colors.textSecondary, marginTop: 8 }]}>
+                  {t('cardForm.teaLabel')}
+                </Text>
+                <Text style={[styles.defaultHint, { color: colors.textTertiary, marginBottom: 6 }]}>
+                  {t('cardForm.teaHint')}
+                </Text>
+                <TextInput
+                  style={[
+                    styles.nicknameInput,
+                    { borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.backgroundSecondary },
+                  ]}
+                  placeholder={t('cardForm.teaPlaceholder')}
+                  placeholderTextColor={colors.textTertiary}
+                  keyboardType="decimal-pad"
+                  maxLength={6}
+                  value={teaInput}
+                  onChangeText={(v) => { setError(''); setTeaInput(v.replace(/[^0-9.,]/g, '')); }}
                 />
               </>
             )}
