@@ -11,6 +11,7 @@ import IconBellOff from '@tabler/icons-react-native/IconBellOff';
 import IconBolt from '@tabler/icons-react-native/IconBolt';
 import IconBrandGoogle from '@tabler/icons-react-native/IconBrandGoogle';
 import IconBrandWhatsapp from '@tabler/icons-react-native/IconBrandWhatsapp';
+import IconCalculator from '@tabler/icons-react-native/IconCalculator';
 import IconCalendar from '@tabler/icons-react-native/IconCalendar';
 import IconCash from '@tabler/icons-react-native/IconCash';
 import IconCheck from '@tabler/icons-react-native/IconCheck';
@@ -113,6 +114,7 @@ const ICON_MAP = {
   'arrow-up-circle': IconCircleArrowUp,
   'arrow-up-circle-outline': IconCircleArrowUp,
   'ban-outline': IconBan,
+  'calculator-outline': IconCalculator,
   'calendar-outline': IconCalendar,
   'card-outline': IconCreditCard,
   'cash-outline': IconCash,

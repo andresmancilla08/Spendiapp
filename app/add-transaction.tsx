@@ -39,7 +39,7 @@ import NoteField from '../components/NoteField';
 import PageTitle from '../components/PageTitle';
 import { useCards } from '../hooks/useCards';
 import { useTEARate } from '../hooks/useTEARate';
-import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
+import { calculateInstallments, calculateInstallmentDates, isCutoffAdjusted, effectivePurchaseDate } from '../utils/installmentCalc';
 import type { Card } from '../types/card';
 import BankLogo from '../components/BankLogo';
 import { suggestIconLocal, suggestIconRemote } from '../utils/suggestIcon';
@@ -81,7 +81,16 @@ export default function AddTransactionScreen() {
   const { user } = useAuthStore();
   const { showToast } = useToast();
   const { categories: customCategories } = useCategories(user?.uid ?? '');
-  const { year: yearParam, month: monthParam } = useLocalSearchParams<{ year?: string; month?: string }>();
+  const {
+    year: yearParam, month: monthParam,
+    // Prellenado desde el simulador de compras (app/purchase-simulator.tsx).
+    // Sin estos parámetros el formulario arranca EXACTAMENTE igual que antes.
+    simAmount, simDescription, simCategory, simCardId, simInstallments, simTea,
+  } = useLocalSearchParams<{
+    year?: string; month?: string;
+    simAmount?: string; simDescription?: string; simCategory?: string;
+    simCardId?: string; simInstallments?: string; simTea?: string;
+  }>();
 
   const scrollRef = useRef<ElementRef<typeof ScrollView>>(null);
   const catScrollRef = useRef<ElementRef<typeof ScrollView>>(null);
@@ -89,29 +98,31 @@ export default function AddTransactionScreen() {
   const scrollDown = () => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
 
   const [type, setType] = useState<TransactionType>('expense');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(simAmount ?? '');
   const [scanning, setScanning] = useState(false);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(simDescription ?? '');
   const [notes, setNotes] = useState('');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState(simCategory ?? '');
   const [isFixed, setIsFixed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   // Tarjeta y cuotas
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(simCardId || null);
   const defaultApplied = useRef(false);
   useEffect(() => {
     if (!cardsLoading && !defaultApplied.current) {
       defaultApplied.current = true;
+      // La tarjeta que traiga el simulador manda sobre la predeterminada.
+      if (simCardId) return;
       const def = cards.find((c) => c.isDefault);
       if (def) setSelectedCardId(def.id);
     }
   }, [cardsLoading, cards]);
-  const [installmentCount, setInstallmentCount] = useState(1);
-  const [withInterest, setWithInterest] = useState(false);
-  const [teaInput, setTeaInput] = useState('');
+  const [installmentCount, setInstallmentCount] = useState(simInstallments ? Math.max(1, parseInt(simInstallments, 10) || 1) : 1);
+  const [withInterest, setWithInterest] = useState(!!simTea);
+  const [teaInput, setTeaInput] = useState(simTea ?? '');
   const { tea: referenceTEA } = useTEARate();
 
   // Inline new-category form state
@@ -394,14 +405,12 @@ export default function AddTransactionScreen() {
   const isCredit = selectedCard?.type === 'credit';
   const showInstallments = isCredit && installmentCount > 1;
 
-  // Ajuste automático de fecha por fecha de corte de tarjeta crédito
+  // Ajuste automático de fecha por fecha de corte de tarjeta crédito.
+  // La regla vive en utils/installmentCalc para que el simulador use la misma.
   const cutoffAdjusted =
-    isCredit &&
-    type === 'expense' &&
-    !!selectedCard?.cutoffDay &&
-    selectedDate.getDate() <= selectedCard.cutoffDay;
+    isCredit && type === 'expense' && isCutoffAdjusted(selectedDate, selectedCard?.cutoffDay);
   const effectiveDate = cutoffAdjusted
-    ? new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1)
+    ? effectivePurchaseDate(selectedDate, selectedCard?.cutoffDay)
     : selectedDate;
   const teaValue = teaInput !== '' ? parseFloat(teaInput) : null;
   const teaValid = !showInstallments || !withInterest || (teaValue !== null && teaValue > 0 && teaValue <= 200);

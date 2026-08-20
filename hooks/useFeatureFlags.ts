@@ -15,6 +15,7 @@ export interface FeatureFlags {
   reportsEnabled: boolean;
   notificationsEnabled: boolean;
   installmentsEnabled: boolean;
+  simulatorEnabled: boolean;
 }
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
@@ -30,6 +31,7 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   reportsEnabled: true,
   notificationsEnabled: true,
   installmentsEnabled: true,
+  simulatorEnabled: true,
 };
 
 export function useFeatureFlags() {

@@ -48,3 +48,24 @@ export function calculateInstallmentDates(startDate: Date, n: number): Date[] {
     return d;
   });
 }
+
+/**
+ * ¿La compra se pasa al siguiente ciclo de facturación?
+ *
+ * Vivía inline en `app/add-transaction.tsx`. Se extrajo cuando el simulador de
+ * compras necesitó la MISMA regla: dos copias de esta condición acaban diciendo
+ * cosas distintas sobre la misma compra.
+ *
+ * El gate de tipo de tarjeta (`credit`) y de tipo de movimiento (`expense`) NO
+ * está aquí a propósito: eso es política de la pantalla, esto es la regla de corte.
+ */
+export function isCutoffAdjusted(date: Date, cutoffDay?: number | null): boolean {
+  return !!cutoffDay && date.getDate() <= cutoffDay;
+}
+
+/** Fecha en la que empieza a contar la compra: la real, o el 1 del mes siguiente. */
+export function effectivePurchaseDate(date: Date, cutoffDay?: number | null): Date {
+  return isCutoffAdjusted(date, cutoffDay)
+    ? new Date(date.getFullYear(), date.getMonth() + 1, 1)
+    : date;
+}

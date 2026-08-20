@@ -168,6 +168,14 @@ export default function ToolsScreen() {
                 colors={colors} isDark={isDark}
               />
               <ToolTile
+                icon="calculator-outline"
+                title={t('tools.simulatorCard.title')}
+                description={t('tools.simulatorCard.description')}
+                onPress={flags.simulatorEnabled ? () => router.push('/purchase-simulator' as any) : paused(t('tools.simulatorCard.title'))}
+                disabled={!flags.simulatorEnabled}
+                colors={colors} isDark={isDark}
+              />
+              <ToolTile
                 icon="repeat"
                 title={t('tools.recurringCard.title')}
                 description={t('tools.recurringCard.description')}
