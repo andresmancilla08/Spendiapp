@@ -280,3 +280,13 @@
 - **Solución (2026-08-15):** `components/FormField.tsx` (`FieldLabel` con punto de obligatorio + `FieldError` con icono y `role=alert`), la lista `missing` como fuente única de lo que falta, y un botón que **nunca se deshabilita por datos incompletos**: se queda en su variante secundaria, dice qué falta ("Escribe en qué lo usaste" / "Faltan 2 datos") y al pulsarlo lleva al campo y lo enfoca. Aplicado a `add-transaction` y `edit-transaction`.
 - **Los campos solo se marcan en rojo tras un intento de guardar** (`attempted`), nunca al abrir: regañar con el formulario vacío es hostil.
 - **Contraste:** el texto del botón en espera usa `accentInk(colors,'primary',surfaceSecondary)` y los errores `readableTint(colors.error, background)`. Con los tokens crudos, modo claro daba 2.46:1 y 3.76:1 — ilegibles.
+
+### La tasa de referencia caducaba en silencio (resuelto)
+- **Síntoma:** el 20 de agosto de 2026 el simulador y el formulario ofrecían «referencia: 25,52 % E.A.» como valor vigente. Era el de enero–marzo: dos trimestres tarde.
+- **Causa real:** `useTEARate` era una constante con el trimestre escrito en un comentario y una nota que pedía «actualizar cada trimestre». Nadie actualiza un comentario, y nada en la app podía saber que el dato había expirado.
+- **Solución:** el valor va con su trimestre en `USURY_HISTORY` y el hook calcula `isStale`/`quartersBehind`. La UI cambia el texto y el color cuando ha vencido, en vez de afirmar que sigue vigente. Gate: `npx tsx hooks/useTEARate.test.ts`.
+
+### Poner 1 cuota vaciaba la comparación de plazos (resuelto)
+- **Síntoma:** en el simulador, con el plazo en 1, la tabla comparativa mostraba «+0 % de sobrecosto» en los seis plazos, incluido el de 36.
+- **Causa real:** `teaValue` se anulaba con `installments <= 1` para que el plan de una cuota no llevara interés, y ese `null` se le pasaba también a `compareTerms`, que compara OTROS plazos.
+- **Solución:** la tasa ya no depende del plazo. El plan de una cuota sale sin intereses solo, porque `calculateInstallments` devuelve el monto tal cual con `n <= 1`. Cubierto en `utils/simulator.test.ts`.

@@ -1,5 +1,32 @@
 # Decisiones
 
+### La tasa de una tarjeta se APRENDE del uso, y viaja con su fecha — Vigente (2026-08-20)
+- **Qué:** `Card` guarda `tea`, `teaUpdatedAt` y `teaSource` (`'manual' | 'learned'`). `add-transaction` llama a `learnCardTea()` tras registrar una compra a cuotas con interés, así que el dato se mantiene al día sin pedirle nada al usuario. Sin dato, el campo **no existe**: la UI dice que no lo sabe.
+- **Por qué:** la única tasa que tenía la app era el techo legal de usura, que no es la tasa de nadie. Rellenar `tea` con ella haría que la app afirmara «tu banco te cobra 25,52 %» sobre una cifra que no tiene relación con su banco.
+- **Corolario:** la fecha viaja SIEMPRE con el valor. Una tasa sin fecha no se puede envejecer, y una tasa que no se puede envejecer acaba mintiendo en silencio — que es exactamente lo que hacía la referencia (ver la decisión siguiente). `isTeaStale` avisa a los 6 meses.
+- **Descartado:** consultar la tasa real del banco. No hay integración bancaria; prometerlo sería falso.
+
+### Un dato que caduca lleva su fecha DENTRO, no en un comentario — Vigente (2026-08-20)
+- **Qué:** `useTEARate` devuelve el valor con el trimestre que lo certifica y calcula si ha caducado (`isStale`, `quartersBehind`). La UI lo rotula distinto cuando está vencido.
+- **Por qué:** era `const REFERENCE_TEA = 25.52` con un comentario que decía «actualizar cada trimestre». El 2026-08-20 seguía sirviendo el valor de enero–marzo, dos trimestres tarde, y la app lo ofrecía como «referencia vigente» sin que nada avisara. Un comentario no actualiza nada y nadie lo lee en producción.
+- **Regla general:** todo valor con fecha de caducidad se modela con su fecha y con una función que sepa decir que expiró. Cubierto en `hooks/useTEARate.test.ts`.
+
+### El chip de tarjeta es UNO — Vigente (2026-08-20)
+- **Qué:** `components/CardChip.tsx`. Estaba copiado en `add-transaction`, `edit-transaction` y `purchase-simulator`, con tres bloques idénticos de estilos. Las medidas son las de `add-transaction` tal cual: la extracción no cambió un píxel.
+- **Por qué:** al pedir que la tasa se viera «en todo lado», mantener tres copias sincronizadas dejó de ser viable.
+- **El badge tiene un solo hueco:** `C`/`D` **o** la tasa, nunca los dos. Una tasa solo existe en una tarjeta de crédito, así que la cifra ya dice lo que decía la «C»; meter ambos ensancha el chip de 134 a 182 px y a 390 px no caben ni dos.
+
+### El simulador proyecta y no registra — Vigente (2026-08-20)
+- **Qué:** sin descripción, sin categoría y sin CTA. Entra monto, plazo y tasa; salen meses, cuotas, intereses y saldo en el tiempo. No escribe nada, en ningún sitio.
+- **Por qué:** decisión de producto. La herramienta sirve para decidir antes de comprar, no para archivar ni para dar de alta el movimiento.
+- **Corolario:** el prellenado `sim*` que se llegó a añadir a `add-transaction` se revirtió: sin CTA nadie lo envía nunca.
+
+### La tasa no depende del plazo elegido — Vigente (2026-08-20)
+- **Qué:** en el simulador, `teaValue` se calcula solo desde el campo de tasa. Antes se anulaba con `installments <= 1`.
+- **Por qué:** ese mismo `null` se le pasaba a `compareTerms`, así que bastaba poner UNA cuota para que la comparación de plazos entera dijera «+0 % de sobrecosto» en los seis. El plan de una cuota ya sale sin intereses por su cuenta: `calculateInstallments` devuelve el monto tal cual con `n <= 1`.
+- **Regla general:** un valor de entrada no se anula por el estado de otro control si un tercero lo consume con otra intención.
+
+
 ### El simulador de compras no guarda nada — Vigente (2026-08-20)
 - **Qué:** `app/purchase-simulator.tsx` es una calculadora. No escribe en Firestore, no usa AsyncStorage y no hay colección `simulations`. La única salida es el botón «Registrar esta compra», que navega a `add-transaction` con parámetros de prellenado.
 - **Por qué:** decisión de producto explícita — la herramienta sirve para decidir, no para archivar. Guardar simulaciones habría traído estados que mantener (caducadas, con tasas viejas, con tarjetas borradas) sin que nadie los pidiera.
