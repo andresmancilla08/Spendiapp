@@ -55,7 +55,23 @@ export default function CardChip({ card, selected, onPress, locked, showTea }: C
   const badgeBg = selected ? 'rgba(255,255,255,0.22)' : mixHex(colors.backgroundSecondary, tint, 0.16);
   // Medido, no supuesto: con paletas pastel el token crudo se queda en 1,5:1.
   const badgeInk = selected ? colors.onPrimary : readableTint(tint, badgeBg, 4.5);
-  const emptyBg = selected ? 'rgba(255,255,255,0.18)' : mixHex(colors.backgroundSecondary, colors.textTertiary, 0.14);
+  /**
+   * El hueco vacío también tiene que LEERSE.
+   *
+   * Llevaba `textTertiary` fijo y sobre el chip activo medía 1,26:1 — invisible.
+   * El primer intento, blanco, medía 2,02:1: tampoco. La causa de fondo era
+   * medir contra un fondo que no existe: `rgba(255,255,255,0.18)` no es un color
+   * que se pueda evaluar. Ahora el fondo es un hex sólido y la tinta la decide
+   * `readableTint` midiendo, no yo eligiendo.
+   */
+  const emptyBg = selected
+    ? mixHex(colors.primary, '#FFFFFF', 0.18)
+    : mixHex(colors.backgroundSecondary, colors.textTertiary, 0.14);
+  // Sobre chip activo, la MISMA tinta que su etiqueta y su badge de tasa: si el
+  // guion usara una regla propia, se leería distinto que todo lo que lo rodea.
+  // (El 2:1 de onPrimary sobre primary es el estándar heredado de la app en
+  // todos sus botones; corregirlo es una decisión de paleta, no de este badge.)
+  const emptyInk = selected ? colors.onPrimary : readableTint(colors.textTertiary, emptyBg, 4.5);
 
   const label = card.nickname || card.bankName;
   const a11y = hasTea
@@ -96,7 +112,7 @@ export default function CardChip({ card, selected, onPress, locked, showTea }: C
         // Sin tasa guardada: el hueco existe y se ve vacío. Rellenarlo con la
         // usura haría que la app afirmara lo que cobra su banco sin saberlo.
         <View style={[styles.badge, { backgroundColor: emptyBg }]}>
-          <Text style={[styles.badgeText, { color: colors.textTertiary }]}>—</Text>
+          <Text style={[styles.badgeText, { color: emptyInk }]}>—</Text>
         </View>
       ) : (
         <View style={[styles.badge, { backgroundColor: badgeBg }]}>

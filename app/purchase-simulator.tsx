@@ -224,7 +224,7 @@ export default function PurchaseSimulatorScreen() {
                   una se apoyaba donde quería. */}
               <View style={styles.hValues}>
                 <TextInput
-                  style={[styles.hPrice, styles.hHalf, { color: colors.primary, fontSize: fitSize(priceText) }]}
+                  style={[styles.hPrice, { color: colors.primary, fontSize: fitSize(priceText) }]}
                   keyboardType="numeric"
                   value={priceText}
                   onChangeText={(v) => setPriceRaw(v.replace(/\D/g, '').slice(0, 10))}
@@ -235,7 +235,7 @@ export default function PurchaseSimulatorScreen() {
                   accessibilityLabel={t('simulator.headerPrice')}
                 />
                 <Text
-                  style={[styles.hFee, styles.hHalf, styles.right, {
+                  style={[styles.hFee, styles.right, {
                     color: result ? colors.textPrimary : colors.textTertiary,
                     fontSize: fitSize(feeText),
                   }]}
@@ -724,13 +724,24 @@ const styles = StyleSheet.create({
   hBar: { height: 6, borderRadius: 3, overflow: 'hidden', marginTop: 14 },
   hBarFill: { height: 6, borderRadius: 3 },
   hSub: { fontSize: 11.5, fontFamily: Fonts.medium, marginTop: 8 },
+  /**
+   * El que cede espacio es el INPUT, no la cuota.
+   *
+   * Con `flex: 1` en los dos, el TextInput no encogía —en RN Web un input no
+   * baja de su ancho intrínseco sin `minWidth: 0`— y aplastaba la cuota hasta
+   * dejarla en dos píxeles. La cuota es un dato derivado: se lee entera o no
+   * sirve. El precio lo escribe el usuario y además ya se achica con `fitSize`.
+   * Verificado a 390 px con las cuatro longitudes posibles, incluida
+   * $ 9.999.999.999 enfrentada a $ 956.616.907.
+   */
   hPrice: {
     fontFamily: Fonts.extraBold, letterSpacing: -0.6, paddingVertical: 0, lineHeight: 32,
+    flexGrow: 1, flexShrink: 1, flexBasis: 0, minWidth: 0,
     ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : null),
   },
   // Montserrat y no DM Mono: mono no tiene bold real (monoBold es Medium 500) y
   // enfrentado a un ExtraBold se veía como el hermano débil.
-  hFee: { fontFamily: Fonts.bold, letterSpacing: -0.4, lineHeight: 32 },
+  hFee: { fontFamily: Fonts.bold, letterSpacing: -0.4, lineHeight: 32, flexShrink: 0 },
 
   card: { borderRadius: 20, borderWidth: 1, padding: 16 },
   ovl: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 1.2, textTransform: 'uppercase' },
