@@ -186,29 +186,53 @@ export default function PurchaseSimulatorScreen() {
           <AppHeader showBack onBack={() => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'))} />
           <PageTitle title={t('simulator.title')} description={t('simulator.pageDesc')} />
 
-          {/* ══ A2·1 · La cabecera ES el input ══
-              Fondo opaco a propósito: en la PWA instalada de iOS el cristal
-              mancha el degradado del fondo animado. */}
-          <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: ruleInk }]}>
-            <View style={styles.hCol}>
-              <Text style={[styles.ovl, { color: colors.textTertiary }]}>{t('simulator.headerPrice')}</Text>
-              <TextInput
-                style={[styles.hPrice, { color: colors.primary }]}
-                keyboardType="numeric"
-                value={priceRaw ? `$${groupDigits(priceRaw)}` : ''}
-                onChangeText={(v) => setPriceRaw(v.replace(/\D/g, '').slice(0, 10))}
-                placeholder="$0"
-                placeholderTextColor={colors.textTertiary}
-                returnKeyType="done"
-                accessibilityLabel={t('simulator.headerPrice')}
-              />
-            </View>
-            <View style={[styles.hDiv, { backgroundColor: ruleInk }]} />
-            <View style={styles.hRight}>
-              <Text style={[styles.ovl, { color: colors.textTertiary }]}>{t('simulator.headerFee')}</Text>
-              <Text style={[styles.hFee, { color: result ? colors.textPrimary : colors.textTertiary }]}>
-                {result ? money(result.monthlyPayment) : '—'}
-              </Text>
+          {/* ══ H2 · Cabecera como TARJETA ══
+              Era la única pieza a sangre en una pantalla de tarjetas y por eso
+              desentonaba. Ahora comparte caja, radio y borde con todo lo demás,
+              pero sigue FIJA fuera del scroll: la cuota no debe perderse de
+              vista al bajar. Fondo opaco a propósito — en la PWA instalada de
+              iOS el cristal mancha el degradado del fondo animado. */}
+          <View style={styles.headerWrap}>
+            <View style={[styles.header, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <View style={styles.hRow}>
+                <View style={styles.hCol}>
+                  <Text style={[styles.ovl, { color: colors.textTertiary }]}>{t('simulator.headerPrice')}</Text>
+                  <TextInput
+                    style={[styles.hPrice, { color: colors.primary }]}
+                    keyboardType="numeric"
+                    value={priceRaw ? `$${groupDigits(priceRaw)}` : ''}
+                    onChangeText={(v) => setPriceRaw(v.replace(/\D/g, '').slice(0, 10))}
+                    placeholder="$0"
+                    placeholderTextColor={colors.textTertiary}
+                    returnKeyType="done"
+                    accessibilityLabel={t('simulator.headerPrice')}
+                  />
+                </View>
+                <View style={styles.hRight}>
+                  <Text style={[styles.ovl, { color: colors.textTertiary }]}>{t('simulator.headerFee')}</Text>
+                  <Text style={[styles.hFee, { color: result ? colors.textPrimary : colors.textTertiary }]}>
+                    {result ? money(result.monthlyPayment) : '—'}
+                  </Text>
+                </View>
+              </View>
+
+              {/* La barra parte lo que pagas: azul el precio, rojo el sobrecosto.
+                  Es la misma lectura de la sección Comparar, en 6 px. */}
+              {!!result && (
+                <>
+                  <View style={[styles.hBar, { backgroundColor: result.creditCost > 0 ? colors.error : colors.primary }]}>
+                    <View style={[styles.hBarFill, {
+                      backgroundColor: colors.primary,
+                      width: `${(price / Math.max(result.totalPaid, 1)) * 100}%` as any,
+                    }]} />
+                  </View>
+                  <Text style={[styles.hSub, { color: colors.textSecondary }]}>
+                    {installments === 1
+                      ? t('simulator.resultSingleTerm', { month: `${months[result.lastDate.getMonth()]} ${result.lastDate.getFullYear()}` })
+                      : t('simulator.resultTerm', { n: installments, month: `${months[result.lastDate.getMonth()]} ${result.lastDate.getFullYear()}` })}
+                  </Text>
+                </>
+              )}
             </View>
           </View>
 
@@ -514,11 +538,6 @@ export default function PurchaseSimulatorScreen() {
                   >
                     {money(result.monthlyPayment)}
                   </Text>
-                  <Text style={[styles.rSub, { color: colors.textSecondary }]}>
-                    {installments === 1
-                      ? t('simulator.resultSingleTerm', { month: `${months[result.lastDate.getMonth()]} ${result.lastDate.getFullYear()}` })
-                      : t('simulator.resultTerm', { n: installments, month: `${months[result.lastDate.getMonth()]} ${result.lastDate.getFullYear()}` })}
-                  </Text>
                   {!result.levelPayments && (
                     <Text style={[styles.rNote, { color: colors.textTertiary }]}>
                       {t('simulator.resultUneven', { amount: money(result.lastPayment) })}
@@ -638,15 +657,14 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   scroll: { padding: 16, paddingTop: 12, paddingBottom: 40, gap: 14, width: '100%', maxWidth: 640, alignSelf: 'center' },
 
-  header: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingHorizontal: 20, paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    width: '100%', maxWidth: 640, alignSelf: 'center',
-  },
+  headerWrap: { paddingHorizontal: 16, paddingBottom: 4, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  header: { borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 14 },
+  hRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   hCol: { flex: 1 },
-  hDiv: { width: 1, alignSelf: 'stretch', marginVertical: 4 },
-  hRight: { width: 138, alignItems: 'flex-end' },
+  hRight: { width: 132, alignItems: 'flex-end' },
+  hBar: { height: 6, borderRadius: 3, overflow: 'hidden', marginTop: 14 },
+  hBarFill: { height: 6, borderRadius: 3 },
+  hSub: { fontSize: 11.5, fontFamily: Fonts.medium, marginTop: 8 },
   hPrice: {
     fontSize: 26, fontFamily: Fonts.extraBold, letterSpacing: -0.6, paddingVertical: 2,
     ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : null),
@@ -693,7 +711,6 @@ const styles = StyleSheet.create({
   receipt: { borderRadius: 22, borderWidth: 1, paddingHorizontal: 20, paddingVertical: 18, overflow: 'hidden' },
   rBig: { fontSize: 34, fontFamily: Fonts.extraBold, letterSpacing: -1, marginTop: 3 },
   rBigSmall: { fontSize: 26 },
-  rSub: { fontSize: 13, fontFamily: Fonts.medium, marginTop: 2 },
   rNote: { fontSize: 11.5, fontFamily: Fonts.regular, marginTop: 3 },
   cut: { height: 1, marginVertical: 16, marginHorizontal: -20, justifyContent: 'center' },
   cutLine: { borderTopWidth: 1, borderStyle: 'dashed', marginHorizontal: 12 },

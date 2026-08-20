@@ -1,120 +1,91 @@
+import { useState, type ReactNode } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
-import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import AppIcon, { AppIconName } from '../../components/AppIcon';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
 import { router } from 'expo-router';
-import { useTheme } from '../../context/ThemeContext';
-import { accentInk } from '../../utils/contrast';
-import { useFlags } from '../../context/FeatureFlagsContext';
-import { useAuthStore } from '../../store/authStore';
-import { useCategories } from '../../hooks/useCategories';
+
+import AppIcon, { AppIconName } from '../../components/AppIcon';
 import AppHeader from '../../components/AppHeader';
 import PageTitle from '../../components/PageTitle';
 import ScreenBackground from '../../components/ScreenBackground';
 import ScreenTransition from '../../components/ScreenTransition';
 import FeaturePausedSheet from '../../components/FeaturePausedSheet';
-import { Fonts } from '../../config/fonts';
+import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import { TAB_BAR_SPACE } from '../../components/AppTabBar';
+import {
+  GoalsMetric, RecurringMetric, CategoriesMetric, BudgetMetric, GroupsMetric,
+} from '../../components/tools/ToolMetrics';
 
-const GOLD = '#F5A623';
+import { Fonts } from '../../config/fonts';
+import { useTheme } from '../../context/ThemeContext';
+import { useFlags } from '../../context/FeatureFlagsContext';
+import { useAuthStore } from '../../store/authStore';
+import { mixHex, readableTint } from '../../utils/contrast';
 
-// Chip de ícono con glow (firma Aurora Ledger).
-function IconChip({ icon, size, colors, locked }: { icon: AppIconName; size: number; colors: any; locked?: boolean }) {
-  const tint = locked ? GOLD : colors.primary;
-  return (
-    <View
-      style={[
-        { width: size, height: size, borderRadius: size * 0.3, alignItems: 'center', justifyContent: 'center', backgroundColor: tint + '1E' },
-        Platform.OS === 'web'
-          ? ({ boxShadow: `0 0 18px ${tint}44` } as any)
-          : { shadowColor: tint, shadowOpacity: 0.5, shadowRadius: 12, shadowOffset: { width: 0, height: 0 } },
-      ]}
-    >
-      <AppIcon name={icon} size={Math.round(size * 0.46)} color={tint} />
-    </View>
-  );
+/**
+ * Herramientas — agrupadas por INTENCIÓN, no por permiso.
+ *
+ * Antes los grupos eran «Tu dinero» y «Compartido», y el segundo estaba dentro
+ * de `{isPremium && ...}`: la pantalla que debía vender el plan de pago era la
+ * única que escondía lo que vende. Ahora los grupos dicen qué quiere hacer el
+ * usuario —planear, entender, compartir— y lo bloqueado se DIBUJA bloqueado.
+ *
+ * Dos cosas que se fueron y no vuelven:
+ *  · el oro `#F5A623` quemado, que peleaba contra las 32 paletas del usuario
+ *    (en una paleta fría se leía como error);
+ *  · `opacity: 0.5` para apagar, que hacía que tres banderas apagadas
+ *    parecieran una app rota en vez de una app configurada.
+ */
+
+type ToolState = 'ready' | 'locked' | 'paused';
+
+interface Tool {
+  key: string;
+  icon: AppIconName;
+  title: string;
+  description: string;
+  route: string;
+  state: ToolState;
+  /** Solo se monta si la herramienta está lista: una tesela bloqueada no consulta nada. */
+  metric?: ReactNode;
 }
 
-function PremiumBadge({ compact }: { compact?: boolean }) {
-  return (
-    <View style={[styles.premBadge, compact && styles.premBadgeCompact, { borderColor: GOLD + '59', backgroundColor: GOLD + '22' }]}>
-      <AppIcon name="star" size={compact ? 9 : 10} color={GOLD} />
-      {!compact && <Text style={[styles.premBadgeText, { color: GOLD }]}>Premium</Text>}
-    </View>
-  );
-}
+function ToolTile({ tool, colors, onPress }: { tool: Tool; colors: any; onPress: () => void }) {
+  const { t } = useTranslation();
+  const locked = tool.state === 'locked';
+  const paused = tool.state === 'paused';
+  const muted = locked || paused;
 
-// Herramienta destacada (hero de la vista).
-function FeaturedTool({ icon, title, description, ctaLabel, onPress, colors, isDark, premiumLocked, disabled }: {
-  icon: AppIconName; title: string; description: string; ctaLabel: string; onPress: () => void; colors: any; isDark: boolean; premiumLocked?: boolean; disabled?: boolean;
-}) {
-  return (
-    <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={[styles.feat, { borderColor: (premiumLocked ? GOLD : colors.primary) + '33', opacity: disabled ? 0.55 : 1 }]}>
-      <LinearGradient
-        colors={[colors.primary + (isDark ? '30' : '24'), colors.tertiary + '10', 'transparent']}
-        start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <View style={styles.featTopRow}>
-        <IconChip icon={icon} size={48} colors={colors} locked={premiumLocked} />
-        {premiumLocked && <PremiumBadge />}
-        {disabled && !premiumLocked && (
-          <View style={[styles.pauseChip, { backgroundColor: colors.surface, borderColor: colors.textSecondary + '40' }]}>
-            <AppIcon name="pause-circle" size={13} color={colors.textSecondary} />
-          </View>
-        )}
-      </View>
-      <Text style={[styles.featTitle, { color: colors.textPrimary }]}>{title}</Text>
-      <Text style={[styles.featDesc, { color: colors.textSecondary }]}>{description}</Text>
-      {!disabled && (
-        <LinearGradient colors={[colors.primary, colors.primaryDark ?? colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.featCta}>
-          <Text style={[styles.featCtaText, { color: colors.onPrimary }]}>{ctaLabel}</Text>
-          <AppIcon name="arrow-forward" size={15} color={colors.onPrimary} />
-        </LinearGradient>
-      )}
-    </TouchableOpacity>
-  );
-}
-
-// Tile del bento grid.
-function ToolTile({ icon, title, description, metric, onPress, colors, isDark, premiumLocked, disabled, wide }: {
-  icon: AppIconName; title: string; description: string; metric?: string; onPress: () => void; colors: any; isDark: boolean; premiumLocked?: boolean; disabled?: boolean; wide?: boolean;
-}) {
   return (
     <TouchableOpacity
-      activeOpacity={disabled ? 1 : 0.8}
       onPress={onPress}
+      activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={tool.title}
+      accessibilityHint={locked ? t('tools.lockedHint') : paused ? t('tools.pausedHint') : undefined}
       style={[
         styles.tile,
-        wide ? styles.tileWide : styles.tileHalf,
-        { backgroundColor: colors.surface, borderColor: (premiumLocked ? GOLD : colors.primary) + '24', opacity: disabled ? 0.5 : 1 },
+        {
+          backgroundColor: muted ? colors.backgroundSecondary : colors.surface,
+          borderColor: colors.border,
+        },
+        paused && styles.tilePaused,
       ]}
     >
-      <View style={styles.tileTopRow}>
-        <IconChip icon={icon} size={42} colors={colors} locked={premiumLocked} />
-        {premiumLocked && <PremiumBadge compact />}
-        {disabled && !premiumLocked && (
-          <View style={[styles.pauseChip, { backgroundColor: colors.surface, borderColor: colors.textSecondary + '40' }]}>
-            <AppIcon name="pause-circle" size={12} color={colors.textSecondary} />
-          </View>
+      <View style={styles.tileTop}>
+        <AppIcon name={tool.icon} size={19} color={muted ? colors.textTertiary : colors.primary} />
+        {paused && (
+          <Text style={[styles.micro, { color: colors.textTertiary }]}>{t('tools.paused')}</Text>
         )}
       </View>
-      <Text style={[styles.tileTitle, { color: colors.textPrimary }]}>{title}</Text>
-      <Text style={[styles.tileDesc, { color: colors.textTertiary }]} numberOfLines={2}>{description}</Text>
-      {metric && <Text style={[styles.tileMetric, { color: accentInk(colors, 'primary', colors.surface) }]}>{metric}</Text>}
+      <Text style={[styles.tileTitle, { color: muted ? colors.textSecondary : colors.textPrimary }]}>
+        {tool.title}
+      </Text>
+      <Text style={[styles.tileDesc, { color: colors.textTertiary }]} numberOfLines={2}>
+        {tool.description}
+      </Text>
+      {tool.metric}
     </TouchableOpacity>
-  );
-}
-
-function GroupHeader({ label, colors }: { label: string; colors: any }) {
-  return (
-    <View style={styles.grp}>
-      <Text style={[styles.grpText, { color: colors.textTertiary }]}>{label}</Text>
-      <View style={[styles.grpLine, { backgroundColor: colors.border }]} />
-    </View>
   );
 }
 
@@ -123,10 +94,68 @@ export default function ToolsScreen() {
   const { colors, isDark } = useTheme();
   const { flags } = useFlags();
   const { isPremium, user } = useAuthStore();
-  const { categories } = useCategories(user?.uid ?? '');
+  const uid = user?.uid ?? '';
   const [pausedFeature, setPausedFeature] = useState<string | null>(null);
 
-  const paused = (name: string) => () => setPausedFeature(name);
+  const ruleInk = mixHex(colors.border, colors.textPrimary, isDark ? 0.22 : 0.18);
+  const accessInk = readableTint(colors.primary, colors.surface, 4.5);
+
+  /** `web` marca lo que se dibuja en <canvas> y no existe en nativo. */
+  const isWeb = Platform.OS === 'web';
+
+  const stateOf = (enabled: boolean, premium: boolean): ToolState =>
+    premium && !isPremium ? 'locked' : enabled ? 'ready' : 'paused';
+
+  const budgetState = stateOf(flags.budgetsEnabled, true);
+  const goalsState = stateOf(flags.goalsEnabled, false);
+  const simState = stateOf(flags.simulatorEnabled, false);
+  const recurringState: ToolState = 'ready';
+  const catState = stateOf(flags.categoriesEnabled, false);
+  const reportState = stateOf(flags.reportsEnabled, false);
+  const friendState = stateOf(flags.friendsEnabled, true);
+  const groupState = stateOf(flags.expenseGroupsEnabled, true);
+
+  const GROUPS: { key: string; label: string; tools: Tool[] }[] = [
+    {
+      key: 'plan',
+      label: t('tools.groupPlan'),
+      tools: [
+        { key: 'budget', icon: 'stats-chart-outline', title: t('tools.budgetCard.title'), description: t('tools.budgetCard.description'), route: '/budget', state: budgetState,
+          metric: budgetState === 'ready' ? <BudgetMetric uid={uid} /> : undefined },
+        { key: 'goals', icon: 'flag', title: t('tools.goalsCard.title'), description: t('tools.goalsCard.description'), route: '/goals', state: goalsState,
+          metric: goalsState === 'ready' ? <GoalsMetric uid={uid} /> : undefined },
+        { key: 'sim', icon: 'calculator-outline', title: t('tools.simulatorCard.title'), description: t('tools.simulatorCard.description'), route: '/purchase-simulator', state: simState },
+      ],
+    },
+    {
+      key: 'understand',
+      label: t('tools.groupUnderstand'),
+      tools: [
+        { key: 'recurring', icon: 'repeat', title: t('tools.recurringCard.title'), description: t('tools.recurringCard.description'), route: '/recurring', state: recurringState,
+          metric: <RecurringMetric uid={uid} /> },
+        { key: 'categories', icon: 'grid-outline', title: t('tools.categoriesCard.title'), description: t('tools.categoriesCard.description'), route: '/categories', state: catState,
+          metric: catState === 'ready' ? <CategoriesMetric uid={uid} /> : undefined },
+        ...(isWeb ? [{ key: 'reports', icon: 'document-text-outline' as AppIconName, title: t('tools.reportsCard.title'), description: t('tools.reportsCard.description'), route: '/reports', state: reportState }] : []),
+      ],
+    },
+    {
+      key: 'share',
+      label: t('tools.groupShare'),
+      tools: [
+        ...(isWeb ? [{ key: 'friendReport', icon: 'people-outline' as AppIconName, title: t('tools.friendReportCard.title'), description: t('tools.friendReportCard.description'), route: '/friend-report', state: friendState }] : []),
+        { key: 'groups', icon: 'people-circle-outline', title: t('tools.expenseGroupsCard.title'), description: t('tools.expenseGroupsCard.description'), route: '/expense-groups', state: groupState,
+          metric: groupState === 'ready' ? <GroupsMetric uid={uid} /> : undefined },
+      ],
+    },
+  ];
+
+  const lockedCount = GROUPS.flatMap((g) => g.tools).filter((x) => x.state === 'locked').length;
+
+  const open = (tool: Tool) => {
+    if (tool.state === 'locked') { router.push('/upgrade' as never); return; }
+    if (tool.state === 'paused') { setPausedFeature(tool.title); return; }
+    router.push(tool.route as never);
+  };
 
   return (
     <ScreenTransition>
@@ -134,105 +163,52 @@ export default function ToolsScreen() {
         <ScreenBackground>
           <AppHeader />
           <PageTitle title={t('tools.title')} description={t('tools.pageDesc2')} />
+
           <ScrollView
-        style={scrollFadeMask(0, 74)} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-
-            {/* Destacado: Presupuesto */}
-            <FeaturedTool
-              icon="stats-chart-outline"
-              title={t('tools.budgetCard.title')}
-              description={t('tools.budgetCard.description')}
-              ctaLabel={t('tools.open')}
-              colors={colors}
-              isDark={isDark}
-              premiumLocked={!isPremium}
-              disabled={isPremium && !flags.budgetsEnabled}
-              onPress={
-                !isPremium
-                  ? () => router.push('/upgrade' as any)
-                  : flags.budgetsEnabled
-                  ? () => router.push('/budget' as any)
-                  : paused(t('tools.budgetCard.title'))
-              }
-            />
-
-            {/* Tu dinero */}
-            <GroupHeader label={t('tools.groupMoney')} colors={colors} />
-            <View style={styles.grid}>
-              <ToolTile
-                icon="flag"
-                title={t('tools.goalsCard.title')}
-                description={t('tools.goalsCard.description')}
-                onPress={flags.goalsEnabled ? () => router.push('/goals') : paused(t('tools.goalsCard.title'))}
-                disabled={!flags.goalsEnabled}
-                colors={colors} isDark={isDark}
-              />
-              <ToolTile
-                icon="calculator-outline"
-                title={t('tools.simulatorCard.title')}
-                description={t('tools.simulatorCard.description')}
-                onPress={flags.simulatorEnabled ? () => router.push('/purchase-simulator' as any) : paused(t('tools.simulatorCard.title'))}
-                disabled={!flags.simulatorEnabled}
-                colors={colors} isDark={isDark}
-              />
-              <ToolTile
-                icon="repeat"
-                title={t('tools.recurringCard.title')}
-                description={t('tools.recurringCard.description')}
-                onPress={() => router.push('/recurring')}
-                colors={colors} isDark={isDark}
-              />
-              <ToolTile
-                icon="grid-outline"
-                title={t('tools.categoriesCard.title')}
-                description={t('tools.categoriesCard.description')}
-                metric={categories.length > 0 ? t('tools.categoriesCount', { count: categories.length }) : undefined}
-                onPress={flags.categoriesEnabled ? () => router.push('/categories') : paused(t('tools.categoriesCard.title'))}
-                disabled={!flags.categoriesEnabled}
-                colors={colors} isDark={isDark}
-              />
-              {/* El informe anual se dibuja en un <canvas> del navegador
-                  (utils/generateAnnualReportImage). En la app nativa esa API no
-                  existe: se oculta hasta que el render viva en el servidor. */}
-              {Platform.OS === 'web' && (
-                <ToolTile
-                  icon="document-text-outline"
-                  title={t('tools.reportsCard.title')}
-                  description={t('tools.reportsCard.description')}
-                  onPress={flags.reportsEnabled ? () => router.push('/reports') : paused(t('tools.reportsCard.title'))}
-                  disabled={!flags.reportsEnabled}
-                  colors={colors} isDark={isDark}
-                  wide
-                />
-              )}
-            </View>
-
-            {/* Compartido (premium) */}
-            {isPremium && (
-              <>
-                <GroupHeader label={t('tools.groupShared')} colors={colors} />
-                <View style={styles.grid}>
-                  {/* Mismo caso que el informe anual: se dibuja en <canvas>. */}
-                  {Platform.OS === 'web' && (
-                    <ToolTile
-                      icon="people-outline"
-                      title={t('tools.friendReportCard.title')}
-                      description={t('tools.friendReportCard.description')}
-                      onPress={flags.friendsEnabled ? () => router.push('/friend-report') : paused(t('tools.friendReportCard.title'))}
-                      disabled={!flags.friendsEnabled}
-                      colors={colors} isDark={isDark}
-                    />
-                  )}
-                  <ToolTile
-                    icon="people-circle-outline"
-                    title={t('tools.expenseGroupsCard.title')}
-                    description={t('tools.expenseGroupsCard.description')}
-                    onPress={flags.expenseGroupsEnabled ? () => router.push('/expense-groups') : paused(t('tools.expenseGroupsCard.title'))}
-                    disabled={!flags.expenseGroupsEnabled}
-                    colors={colors} isDark={isDark}
-                  />
+            style={scrollFadeMask(0, 74)}
+            contentContainerStyle={styles.scroll}
+            showsVerticalScrollIndicator={false}
+          >
+            {GROUPS.map((g) => (
+              g.tools.length === 0 ? null : (
+                <View key={g.key}>
+                  <View style={styles.groupHead}>
+                    <Text style={[styles.groupLabel, { color: accessInk }]}>{g.label}</Text>
+                    <View style={[styles.groupRule, { backgroundColor: ruleInk }]} />
+                  </View>
+                  <View style={styles.grid}>
+                    {g.tools.map((tool) => (
+                      <ToolTile key={tool.key} tool={tool} colors={colors} onPress={() => open(tool)} />
+                    ))}
+                  </View>
                 </View>
-              </>
+              )
+            ))}
+
+            {/* ── Franja de acceso ──
+                Lo bloqueado ya se ve dentro de su grupo; esto es la vía para
+                desbloquearlo, una sola vez y sin esconder nada. La barra está a
+                cero a propósito: es una cerradura, no un progreso falso. */}
+            {lockedCount > 0 && (
+              <TouchableOpacity
+                onPress={() => router.push('/upgrade' as never)}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={t('tools.accessCta')}
+                style={[styles.access, { borderColor: colors.primary + '55', backgroundColor: colors.surface }]}
+              >
+                <View style={styles.accessTop}>
+                  <Text style={[styles.accessTitle, { color: colors.textPrimary }]}>
+                    {t('tools.accessTitle')}
+                  </Text>
+                  <Text style={[styles.accessCount, { color: colors.textTertiary }]}>
+                    {t('tools.accessCount', { n: lockedCount })}
+                  </Text>
+                </View>
+                <View style={[styles.accessBar, { backgroundColor: colors.backgroundSecondary }]}>
+                  <Text style={[styles.accessCta, { color: accessInk }]}>{t('tools.accessCta')}</Text>
+                </View>
+              </TouchableOpacity>
             )}
           </ScrollView>
         </ScreenBackground>
@@ -249,32 +225,26 @@ export default function ToolsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  scroll: { padding: 16, paddingBottom: TAB_BAR_SPACE, width: '100%', maxWidth: 768, alignSelf: 'center' },
+  scroll: { padding: 16, paddingTop: 4, paddingBottom: TAB_BAR_SPACE, width: '100%', maxWidth: 768, alignSelf: 'center' },
 
-  // Featured
-  feat: { borderRadius: 24, borderWidth: 1, padding: 18, overflow: 'hidden', position: 'relative', marginBottom: 8 },
-  featTopRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  featTitle: { fontSize: 19, fontFamily: Fonts.bold, marginTop: 14 },
-  featDesc: { fontSize: 13, fontFamily: Fonts.regular, lineHeight: 19, marginTop: 4 },
-  featCta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 16, height: 44, borderRadius: 14 },
-  featCtaText: { fontSize: 14, fontFamily: Fonts.bold },
+  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 20, marginBottom: 11 },
+  groupLabel: { fontSize: 10.5, fontFamily: Fonts.bold, letterSpacing: 1.6, textTransform: 'uppercase' },
+  groupRule: { flex: 1, height: 1 },
 
-  // Grid
-  grp: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 22, marginBottom: 12, paddingHorizontal: 2 },
-  grpText: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 1.6, textTransform: 'uppercase' },
-  grpLine: { flex: 1, height: 1 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  tile: { borderRadius: 20, borderWidth: 1, padding: 15, overflow: 'hidden', position: 'relative', minHeight: 132 },
-  tileHalf: { width: '48%', flexGrow: 1 },
-  tileWide: { width: '100%' },
-  tileTopRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  tileTitle: { fontSize: 15, fontFamily: Fonts.bold, marginTop: 12 },
-  tileDesc: { fontSize: 12, fontFamily: Fonts.regular, lineHeight: 16, marginTop: 3 },
-  tileMetric: { fontSize: 12, fontFamily: Fonts.bold, marginTop: 8 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  tile: { width: '48%', flexGrow: 1, minHeight: 116, borderRadius: 16, borderWidth: 1, padding: 13 },
+  // Apagado se dibuja apagado, nunca con opacidad: el borde discontinuo dice
+  // «esto volverá», la translucidez decía «esto falló».
+  tilePaused: { borderStyle: 'dashed' },
+  tileTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 20 },
+  micro: { fontSize: 8.5, fontFamily: Fonts.monoBold, letterSpacing: 1.1, textTransform: 'uppercase' },
+  tileTitle: { fontSize: 13.5, fontFamily: Fonts.bold, marginTop: 9 },
+  tileDesc: { fontSize: 11, fontFamily: Fonts.regular, lineHeight: 15, marginTop: 3 },
 
-  // Badges
-  premBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20, borderWidth: 1 },
-  premBadgeCompact: { paddingHorizontal: 5, paddingVertical: 5, borderRadius: 20 },
-  premBadgeText: { fontSize: 9, fontFamily: Fonts.bold },
-  pauseChip: { width: 26, height: 26, borderRadius: 13, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  access: { marginTop: 24, borderRadius: 16, borderWidth: 1, padding: 14 },
+  accessTop: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 },
+  accessTitle: { fontSize: 14, fontFamily: Fonts.bold },
+  accessCount: { fontSize: 9.5, fontFamily: Fonts.bold, letterSpacing: 1.1, textTransform: 'uppercase' },
+  accessBar: { height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  accessCta: { fontSize: 12, fontFamily: Fonts.bold, letterSpacing: 0.5 },
 });

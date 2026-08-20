@@ -1138,44 +1138,58 @@
     "movementCount_other": "{{count}} movimenti"
   },
   "tools": {
-    "title": "Strumenti",
-    "goalsCard": {
-      "title": "Obiettivi di risparmio",
-      "description": "Risparmia per ciò che conta di più"
-    },
-    "recurringCard": {
-      "title": "Ricorrenti",
-      "description": "Scopri i tuoi abbonamenti e quanto spendi al mese"
+    "accessCount": "{{n}} con Premium",
+    "accessCta": "Sbloccare",
+    "accessTitle": "Ti mancano strumenti",
+    "budgetCard": {
+      "title": "Budget mensile",
+      "description": "Imposta limiti di spesa per categoria e mantieni il controllo"
     },
     "categoriesCard": {
       "title": "Le mie categorie",
       "description": "Organizza le tue spese a modo tuo"
     },
-    "reportsCard": {
-      "title": "Estratto annuale",
-      "description": "Genera il tuo report fiscale in PDF"
+    "expenseGroupsCard": {
+      "title": "Spese di gruppo",
+      "description": "Registra e dividi le spese in uscite o viaggi"
     },
     "friendReportCard": {
       "title": "Report con amico",
       "description": "Genera un PDF con tutti i tuoi invii a un amico per quel mese"
     },
-    "expenseGroupsCard": {
-      "title": "Spese di gruppo",
-      "description": "Registra e dividi le spese in uscite o viaggi"
+    "goalsCard": {
+      "title": "Obiettivi di risparmio",
+      "description": "Risparmia per ciò che conta di più"
     },
-    "budgetCard": {
-      "title": "Budget mensile",
-      "description": "Imposta limiti di spesa per categoria e mantieni il controllo"
-    },
-    "groupMoney": "Il tuo denaro",
-    "groupShared": "Condiviso",
+    "groupPlan": "Pianificare",
+    "groupShare": "Condividere",
+    "groupUnderstand": "Capire",
+    "lockedHint": "Si sblocca con Premium",
+    "metricBudget": "{{n}} limiti · {{amount}}",
+    "metricBudgetEmpty": "Imposta il primo limite",
+    "metricCategories": "{{n}} categorie",
+    "metricGoals": "{{n}} attivi · {{pct}} %",
+    "metricGoalsEmpty": "Crea il tuo primo obiettivo",
+    "metricGroups": "{{n}} aperti",
+    "metricGroupsEmpty": "Nessun gruppo aperto",
+    "metricRecurring": "{{amount}} al mese",
+    "metricRecurringEmpty": "Non ne rilevo ancora",
     "pageDesc2": "La tua cassetta degli attrezzi",
-    "open": "Apri",
-    "categoriesCount": "{{count}} categorie",
+    "paused": "In pausa",
+    "pausedHint": "Temporaneamente fuori servizio",
+    "recurringCard": {
+      "title": "Ricorrenti",
+      "description": "Scopri i tuoi abbonamenti e quanto spendi al mese"
+    },
+    "reportsCard": {
+      "title": "Estratto annuale",
+      "description": "Genera il tuo report fiscale in PDF"
+    },
     "simulatorCard": {
       "title": "Simulatore di acquisti",
       "description": "Quanto ti costa a rate, prima di comprare"
-    }
+    },
+    "title": "Strumenti"
   },
   "simulator": {
     "bandBody": "Tra {{low}} se non cambia nulla e {{high}} se sale al tetto legale ({{cap}} % TAEG). La rata arriverebbe a {{peak}}.",

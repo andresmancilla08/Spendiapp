@@ -1138,44 +1138,58 @@
     "movementCount_other": "{{count}} movements"
   },
   "tools": {
-    "title": "Tools",
-    "goalsCard": {
-      "title": "Savings Goals",
-      "description": "Save for what matters most"
-    },
-    "recurringCard": {
-      "title": "Recurring",
-      "description": "Spot your subscriptions and monthly spend"
+    "accessCount": "{{n}} with Premium",
+    "accessCta": "Unlock",
+    "accessTitle": "More tools await",
+    "budgetCard": {
+      "title": "Monthly budget",
+      "description": "Set spending limits by category and stay in control"
     },
     "categoriesCard": {
       "title": "My categories",
       "description": "Organize your expenses your way"
     },
-    "reportsCard": {
-      "title": "Annual report",
-      "description": "Generate your tax report as PDF"
+    "expenseGroupsCard": {
+      "title": "Group Expenses",
+      "description": "Track and split expenses on outings or trips"
     },
     "friendReportCard": {
       "title": "Friend Report",
       "description": "Generate a PDF with all your sends to a friend for that month"
     },
-    "expenseGroupsCard": {
-      "title": "Group Expenses",
-      "description": "Track and split expenses on outings or trips"
+    "goalsCard": {
+      "title": "Savings Goals",
+      "description": "Save for what matters most"
     },
-    "budgetCard": {
-      "title": "Monthly budget",
-      "description": "Set spending limits by category and stay in control"
-    },
-    "groupMoney": "Your money",
-    "groupShared": "Shared",
+    "groupPlan": "Plan",
+    "groupShare": "Share",
+    "groupUnderstand": "Understand",
+    "lockedHint": "Unlocks with Premium",
+    "metricBudget": "{{n}} limits · {{amount}}",
+    "metricBudgetEmpty": "Set your first limit",
+    "metricCategories": "{{n}} categories",
+    "metricGoals": "{{n}} active · {{pct}} %",
+    "metricGoalsEmpty": "Create your first goal",
+    "metricGroups": "{{n}} open",
+    "metricGroupsEmpty": "No open groups",
+    "metricRecurring": "{{amount}} a month",
+    "metricRecurringEmpty": "None detected yet",
     "pageDesc2": "Your financial toolbox",
-    "open": "Open",
-    "categoriesCount": "{{count}} categories",
+    "paused": "Paused",
+    "pausedHint": "Temporarily out of service",
+    "recurringCard": {
+      "title": "Recurring",
+      "description": "Spot your subscriptions and monthly spend"
+    },
+    "reportsCard": {
+      "title": "Annual report",
+      "description": "Generate your tax report as PDF"
+    },
     "simulatorCard": {
       "title": "Purchase simulator",
       "description": "What instalments really cost, before you buy"
-    }
+    },
+    "title": "Tools"
   },
   "simulator": {
     "bandBody": "Between {{low}} if nothing changes and {{high}} if it climbs to the legal cap ({{cap}} % APR). The payment would reach {{peak}}.",

@@ -1138,44 +1138,58 @@
     "movementCount_other": "{{count}} movimientos"
   },
   "tools": {
-    "title": "Herramientas",
-    "goalsCard": {
-      "title": "Metas de ahorro",
-      "description": "Ahorra para lo que más importa"
-    },
-    "recurringCard": {
-      "title": "Recurrentes",
-      "description": "Detecta tus suscripciones y cuánto pagas al mes"
+    "accessCount": "{{n}} con Premium",
+    "accessCta": "Desbloquear",
+    "accessTitle": "Te faltan herramientas",
+    "budgetCard": {
+      "title": "Presupuesto mensual",
+      "description": "Define límites de gasto por categoría y mantén el control"
     },
     "categoriesCard": {
       "title": "Mis categorías",
       "description": "Organiza tus gastos a tu manera"
     },
-    "reportsCard": {
-      "title": "Extracto anual",
-      "description": "Genera tu reporte fiscal en PDF"
+    "expenseGroupsCard": {
+      "title": "Gastos de grupo",
+      "description": "Registra y divide gastos en salidas o viajes"
     },
     "friendReportCard": {
       "title": "Reporte con amigo",
       "description": "Genera un PDF con todos tus envíos a un amigo para ese mes"
     },
-    "expenseGroupsCard": {
-      "title": "Gastos de grupo",
-      "description": "Registra y divide gastos en salidas o viajes"
+    "goalsCard": {
+      "title": "Metas de ahorro",
+      "description": "Ahorra para lo que más importa"
     },
-    "budgetCard": {
-      "title": "Presupuesto mensual",
-      "description": "Define límites de gasto por categoría y mantén el control"
-    },
-    "groupMoney": "Tu dinero",
-    "groupShared": "Compartido",
+    "groupPlan": "Planear",
+    "groupShare": "Compartir",
+    "groupUnderstand": "Entender",
+    "lockedHint": "Se desbloquea con Premium",
+    "metricBudget": "{{n}} límites · {{amount}}",
+    "metricBudgetEmpty": "Define tu primer límite",
+    "metricCategories": "{{n}} categorías",
+    "metricGoals": "{{n}} activas · {{pct}} %",
+    "metricGoalsEmpty": "Crea tu primera meta",
+    "metricGroups": "{{n}} abiertos",
+    "metricGroupsEmpty": "Sin grupos abiertos",
+    "metricRecurring": "{{amount}} al mes",
+    "metricRecurringEmpty": "Aún no detecto ninguna",
     "pageDesc2": "Tu caja de herramientas financiera",
-    "open": "Abrir",
-    "categoriesCount": "{{count}} categorías",
+    "paused": "En pausa",
+    "pausedHint": "Temporalmente fuera de servicio",
+    "recurringCard": {
+      "title": "Recurrentes",
+      "description": "Detecta tus suscripciones y cuánto pagas al mes"
+    },
+    "reportsCard": {
+      "title": "Extracto anual",
+      "description": "Genera tu reporte fiscal en PDF"
+    },
     "simulatorCard": {
       "title": "Simulador de compras",
       "description": "Cuánto te cuesta a cuotas antes de comprar"
-    }
+    },
+    "title": "Herramientas"
   },
   "simulator": {
     "bandBody": "Entre {{low}} si nada cambia y {{high}} si sube al techo legal ({{cap}} % E.A.). La cuota llegaría a {{peak}}.",
