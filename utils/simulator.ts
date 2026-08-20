@@ -19,6 +19,16 @@ export const MAX_INSTALLMENTS = 36;
 /** Plazos de la tabla comparativa. */
 export const COMPARE_TERMS = [1, 3, 6, 12, 24, 36];
 
+/**
+ * Cómo reparte el banco capital e intereses.
+ *
+ * `french` (cuota fija) es lo que usan las tarjetas de crédito colombianas y es
+ * el defecto. `german` (abono a capital constante) da una cuota DECRECIENTE:
+ * arranca más cara y sale más barata en total. Existe en el mercado para otros
+ * productos de crédito y se ofrece para poder contrastar.
+ */
+export type AmortizationSystem = 'french' | 'german';
+
 export interface SimulationInput {
   /** Precio de la compra en pesos enteros. */
   price: number;
@@ -32,6 +42,8 @@ export interface SimulationInput {
   monthlyFee?: number;
   /** Fecha de la primera cuota (ya ajustada por fecha de corte). */
   startDate: Date;
+  /** Sistema de amortización. Por defecto `french`, que es el de las tarjetas. */
+  system?: AmortizationSystem;
 }
 
 export interface ScheduleRow {
@@ -73,6 +85,7 @@ export interface SimulationResult {
    */
   effectiveTea: number | null;
   lastDate: Date;
+  system: AmortizationSystem;
 }
 
 // ── Conversión de tasas ────────────────────────────────────────────────────
@@ -135,8 +148,20 @@ export function simulate(input: SimulationInput): SimulationResult {
   const tea = input.tea && input.tea > 0 ? input.tea : 0;
   const i = monthlyRateFromTea(tea);
 
-  const amounts = calculateInstallments(financed, n, tea || null);
+  const system: AmortizationSystem = input.system ?? 'french';
   const dates = calculateInstallmentDates(input.startDate, n);
+  /**
+   * En francés la cuota sale de `calculateInstallments` — la MISMA función que
+   * escribe `add-transaction`, para que la cifra simulada y la registrada no se
+   * separen en pesos.
+   *
+   * En alemán ese contrato no aplica: la app no registra planes alemanes, así
+   * que este reparto es informativo. Abono a capital constante y el interés del
+   * mes sobre el saldo vivo; la última cuota cierra el redondeo.
+   */
+  const amounts = system === 'german'
+    ? germanInstallments(financed, n, i)
+    : calculateInstallments(financed, n, tea || null);
 
   const schedule: ScheduleRow[] = [];
   let balance = financed;
@@ -185,7 +210,23 @@ export function simulate(input: SimulationInput): SimulationResult {
         ? (Math.pow(1 + irrMonthly(financed, schedule.map((r) => r.payment)), 12) - 1) * 100
         : null,
     lastDate: last.date,
+    system,
   };
+}
+
+/** Cuotas del sistema alemán: capital constante + interés sobre el saldo vivo. */
+function germanInstallments(financed: number, n: number, i: number): number[] {
+  if (n <= 1) return [financed];
+  const principal = Math.floor(financed / n);
+  const out: number[] = [];
+  let balance = financed;
+  for (let k = 0; k < n; k++) {
+    const isLast = k === n - 1;
+    const cap = isLast ? balance : principal;
+    out.push(Math.round(cap + balance * i));
+    balance -= cap;
+  }
+  return out;
 }
 
 // ── Comparación de plazos ──────────────────────────────────────────────────
@@ -381,4 +422,120 @@ export function groupScheduleByYear(schedule: ScheduleRow[]): YearGroup[] {
     g.endBalance = row.balance;
   }
   return out;
+}
+
+// ── Tasa variable (se reliquida cada mes) ──────────────────────────────────
+
+/**
+ * Hay dos modelos vivos en el mercado colombiano y cambian la proyección:
+ *
+ *  · `fixed`    — la tasa se pacta al comprar y no se mueve en todo el plazo.
+ *                 Es lo que hace Davivienda al rediferir: «la tasa de interés
+ *                 no cambia, se mantiene la vigente al momento de la compra».
+ *  · `variable` — el banco reliquida cada mes con la tasa de ese periodo.
+ *                 DAVIbank: «corresponderá a la vigente para cada mes de
+ *                 liquidación, esto significa que la tasa variará mensualmente».
+ *
+ * Con `variable` una cifra única sería mentira, así que se devuelve una BANDA.
+ */
+export type RateKind = 'fixed' | 'variable';
+
+/**
+ * Plan con una tasa distinta cada mes: el banco recalcula la cuota sobre el
+ * saldo vivo y el plazo que queda. No usa `calculateInstallments` a propósito —
+ * esa función asume una tasa única para todo el plazo.
+ */
+export function simulateWithRateSeries(
+  input: Omit<SimulationInput, 'tea' | 'system'>,
+  teaByMonth: number[],
+): SimulationResult {
+  const price = Math.max(0, Math.round(input.price));
+  const downPayment = Math.min(price, Math.max(0, Math.round(input.downPayment ?? 0)));
+  const fee = Math.max(0, Math.round(input.monthlyFee ?? 0));
+  const n = clampInstallments(input.installments);
+  const financed = price - downPayment;
+  const dates = calculateInstallmentDates(input.startDate, n);
+
+  const schedule: ScheduleRow[] = [];
+  let balance = financed;
+  for (let k = 0; k < n; k++) {
+    const i = monthlyRateFromTea(teaByMonth[Math.min(k, teaByMonth.length - 1)]);
+    const left = n - k;
+    const isLast = k === n - 1;
+    const pmt = isLast
+      ? balance + Math.round(balance * i)
+      : Math.round(i === 0 ? balance / left : (balance * i) / (1 - Math.pow(1 + i, -left)));
+    const interest = isLast ? pmt - balance : Math.round(balance * i);
+    const principal = Math.max(0, Math.min(balance, pmt - interest));
+    balance = Math.max(0, balance - principal);
+    schedule.push({
+      number: k + 1, date: dates[k], payment: pmt + fee,
+      installment: pmt, interest, principal, balance,
+    });
+  }
+
+  const totalPayments = schedule.reduce((a, r) => a + r.payment, 0);
+  const totalPaid = totalPayments + downPayment;
+  const creditCost = totalPaid - price;
+  const first = schedule[0];
+  const last = schedule[schedule.length - 1];
+
+  return {
+    financed,
+    monthlyPayment: first.payment,
+    lastPayment: last.payment,
+    levelPayments: schedule.every((r) => r.payment === first.payment),
+    monthlyRate: monthlyRateFromTea(teaByMonth[0]),
+    tea: teaByMonth[0],
+    schedule,
+    totalPaid,
+    creditCost,
+    overheadPct: price > 0 ? (creditCost / price) * 100 : 0,
+    effectiveTea: financed > 0
+      ? (Math.pow(1 + irrMonthly(financed, schedule.map((r) => r.payment)), 12) - 1) * 100
+      : null,
+    lastDate: last.date,
+    system: 'french',
+  };
+}
+
+export interface VariableBand {
+  /** La tasa se queda como está hoy. */
+  low: SimulationResult;
+  /** La tasa sube hasta el techo legal y se queda ahí. */
+  high: SimulationResult;
+  /** Cuánto más se pagaría en el peor escenario. */
+  extraTotal: number;
+  /** La cuota más alta que llegaría a verse. */
+  peakPayment: number;
+}
+
+/**
+ * Los dos extremos honestos de una tasa variable: la de hoy y el techo legal.
+ *
+ * No se inventa una previsión de tipos —nadie la tiene— sino que se acota entre
+ * lo que se paga si nada cambia y lo máximo que la ley permite cobrar. La subida
+ * al techo se reparte en `rampMonths` en vez de aplicarse de golpe: un salto
+ * instantáneo al máximo exagera el peor caso y deja de ser creíble.
+ */
+export function simulateVariableBand(
+  input: Omit<SimulationInput, 'tea' | 'system'>,
+  currentTea: number,
+  capTea: number,
+  rampMonths = 12,
+): VariableBand {
+  const n = clampInstallments(input.installments);
+  const flat = Array(n).fill(currentTea);
+  const top = Math.max(currentTea, capTea);
+  const ramp = Array.from({ length: n }, (_, k) =>
+    currentTea + (top - currentTea) * Math.min(k / Math.max(rampMonths, 1), 1));
+
+  const low = simulateWithRateSeries(input, flat);
+  const high = simulateWithRateSeries(input, ramp);
+  return {
+    low,
+    high,
+    extraTotal: high.totalPaid - low.totalPaid,
+    peakPayment: Math.max(...high.schedule.map((r) => r.payment)),
+  };
 }

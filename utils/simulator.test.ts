@@ -16,6 +16,8 @@ import {
   termRailPosition,
   termFromRailPosition,
   groupScheduleByYear,
+  simulateVariableBand,
+  simulateWithRateSeries,
 } from './simulator';
 
 // ── Conversión de tasas ─────────────────────────────────────────────────────
@@ -238,6 +240,81 @@ import {
     const back = termFromRailPosition(termRailPosition(n));
     assert.strictEqual(back, n, `${n} se puede fijar arrastrando`);
   }
+}
+
+
+// ── Sistema alemán (cuota decreciente) ──────────────────────────────────────
+{
+  const base = { price: 1_800_000, installments: 24, tea: 29.66, startDate: new Date(2026, 7, 20) };
+  const fr = simulate({ ...base, system: 'french' });
+  const de = simulate({ ...base, system: 'german' });
+
+  assert.strictEqual(fr.system, 'french', 'el sistema por defecto y explícito es el francés');
+  assert.strictEqual(simulate(base).system, 'french', 'sin declararlo, francés');
+
+  // La firma de cada sistema
+  assert.ok(fr.levelPayments === false || Math.abs(fr.monthlyPayment - fr.lastPayment) < 50,
+    'en francés todas las cuotas valen casi lo mismo');
+  assert.ok(de.monthlyPayment > de.lastPayment, 'en alemán la cuota DECRECE');
+  assert.ok(de.monthlyPayment > fr.monthlyPayment, 'el alemán arranca más caro');
+  assert.ok(de.creditCost < fr.creditCost, 'y cuesta menos en total');
+
+  // Los dos cierran bien, que es lo que no se puede negociar
+  for (const r of [fr, de]) {
+    assert.strictEqual(r.schedule[r.schedule.length - 1].balance, 0, 'el plan cierra en cero');
+    assert.strictEqual(r.schedule.reduce((a, x) => a + x.principal, 0), 1_800_000, 'el capital suma el financiado');
+    for (const row of r.schedule) {
+      assert.strictEqual(row.principal + row.interest, row.installment, `fila ${row.number} cuadra`);
+      assert.ok(row.interest >= 0, `fila ${row.number}: interés no negativo`);
+    }
+  }
+  // En alemán el abono a capital es constante salvo la última fila, que cierra el redondeo
+  const caps = de.schedule.slice(0, -1).map((r) => r.principal);
+  assert.strictEqual(new Set(caps).size, 1, 'el abono a capital es el mismo cada mes');
+}
+{
+  // Sin interés los dos sistemas son la misma cosa: no hay interés que repartir
+  const base = { price: 1_200_000, installments: 6, tea: null, startDate: new Date(2026, 0, 10) };
+  const fr = simulate({ ...base, system: 'french' });
+  const de = simulate({ ...base, system: 'german' });
+  assert.strictEqual(fr.totalPaid, de.totalPaid, 'a 0 % ambos cuestan lo mismo');
+  assert.strictEqual(de.creditCost, 0);
+}
+
+// ── Tasa variable ───────────────────────────────────────────────────────────
+{
+  const inp = { price: 1_800_000, installments: 24, startDate: new Date(2026, 7, 20) };
+  const band = simulateVariableBand(inp, 24.36, 29.66);
+
+  // El escenario bajo es «no pasa nada»: debe coincidir con la simulación fija
+  const fixed = simulate({ ...inp, tea: 24.36 });
+  assert.ok(Math.abs(band.low.totalPaid - fixed.totalPaid) <= 30,
+    `la banda baja reproduce la fija (desvío ${Math.abs(band.low.totalPaid - fixed.totalPaid)})`);
+
+  // El alto cuesta más y su cuota crece
+  assert.ok(band.high.totalPaid > band.low.totalPaid, 'subir la tasa sale más caro');
+  assert.strictEqual(band.extraTotal, band.high.totalPaid - band.low.totalPaid);
+  assert.ok(band.peakPayment > band.high.monthlyPayment, 'la cuota sube durante el plan');
+  assert.ok(band.high.levelPayments === false, 'con tasa variable las cuotas NO son iguales');
+
+  // La primera cuota es la misma en ambos: el primer mes aún no ha subido nada
+  assert.strictEqual(band.low.monthlyPayment, band.high.monthlyPayment,
+    'la banda arranca en el mismo sitio y se abre con el tiempo');
+
+  // Un techo por debajo de la tasa actual no puede ABARATAR el peor caso
+  const noRise = simulateVariableBand(inp, 29.66, 24.36);
+  assert.ok(noRise.extraTotal === 0, 'si el techo ya está por debajo, no hay escenario peor');
+}
+{
+  // El plan cierra en cero también con la tasa moviéndose
+  const r = simulateWithRateSeries(
+    { price: 900_000, installments: 6, startDate: new Date(2026, 3, 1) },
+    [20, 22, 24, 26, 28, 30],
+  );
+  assert.strictEqual(r.schedule[5].balance, 0, 'cierra en cero con seis tasas distintas');
+  assert.strictEqual(r.schedule.reduce((a, x) => a + x.principal, 0), 900_000);
+  assert.ok(r.effectiveTea !== null && r.effectiveTea > 20 && r.effectiveTea < 30,
+    'la TIR cae dentro del rango de tasas aplicadas');
 }
 
 console.log('✓ simulator: todos los gates pasan');

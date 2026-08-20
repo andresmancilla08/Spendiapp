@@ -30,6 +30,7 @@ import { effectivePurchaseDate } from '../utils/installmentCalc';
 import {
   simulate, compareTerms, teaFromMonthlyPct, monthlyPctFromTea, buildLoadTimeline,
   termRailPosition, termFromRailPosition, TERM_STOPS, COMPARE_TERMS, MAX_INSTALLMENTS,
+  simulateVariableBand, type AmortizationSystem, type RateKind,
 } from '../utils/simulator';
 
 type TabKey = 'projection' | 'compare' | 'impact';
@@ -61,6 +62,8 @@ export default function PurchaseSimulatorScreen() {
   const [downRaw, setDownRaw] = useState('');
   const [feeRaw, setFeeRaw] = useState('');
   const [tab, setTab] = useState<TabKey>('projection');
+  const [rateKind, setRateKind] = useState<RateKind>('fixed');
+  const [system, setSystem] = useState<AmortizationSystem>('french');
 
   const creditCards = cards.filter((c) => c.type === 'credit');
   const card = creditCards.find((c) => c.id === cardId) ?? null;
@@ -90,8 +93,24 @@ export default function PurchaseSimulatorScreen() {
 
   const result = useMemo(() => {
     if (price <= 0 || !rateValid) return null;
-    return simulate({ price, downPayment, installments, tea: teaValue, monthlyFee, startDate });
-  }, [price, downPayment, installments, teaValue, monthlyFee, startDate, rateValid]);
+    return simulate({ price, downPayment, installments, tea: teaValue, monthlyFee, startDate, system });
+  }, [price, downPayment, installments, teaValue, monthlyFee, startDate, rateValid, system]);
+
+  /**
+   * Con tasa variable una cifra única sería mentira: el banco reliquida cada mes.
+   * Se acota entre «no pasa nada» y «sube al techo legal», que son los dos
+   * extremos que sí se pueden defender con datos.
+   */
+  const band = useMemo(() => {
+    if (!result || rateKind !== 'variable' || teaValue == null) return null;
+    return simulateVariableBand(
+      { price, downPayment, installments, monthlyFee, startDate },
+      teaValue, reference.tea,
+    );
+  }, [result, rateKind, teaValue, price, downPayment, installments, monthlyFee, startDate, reference.tea]);
+
+  /** Lo que se pinta en la proyección: el peor escenario si la tasa es variable. */
+  const shown = band?.high ?? result;
 
   const scenarios = useMemo(() => {
     if (price <= 0 || !rateValid) return [];
@@ -362,7 +381,42 @@ export default function PurchaseSimulatorScreen() {
                 <Text style={[styles.hint, { color: colors.textTertiary }]}>{t('simulator.rateZero')}</Text>
               ) : null}
 
-              {/* La referencia se muestra CON su trimestre, y avisa si caducó. */}
+              {/* ── Fija o variable ──
+                  No es un detalle: hay bancos que pactan la tasa al comprar y
+                  bancos que la reliquidan cada mes con la vigente del periodo.
+                  Con la segunda, proyectar una sola cifra a 24 meses es mentira. */}
+              <View style={[styles.kindRow, { borderTopColor: ruleInk }]}>
+                {(['fixed', 'variable'] as const).map((k) => {
+                  const on = rateKind === k;
+                  return (
+                    <TouchableOpacity
+                      key={k}
+                      onPress={() => setRateKind(k)}
+                      activeOpacity={0.8}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: on }}
+                      style={[
+                        styles.kindChip,
+                        { borderColor: on ? colors.primary : colors.border, backgroundColor: on ? colors.primary + '18' : 'transparent' },
+                      ]}
+                    >
+                      <AppIcon
+                        name={on ? 'checkmark-circle' : 'ellipse-outline'}
+                        size={14}
+                        color={on ? colors.primary : colors.textTertiary}
+                      />
+                      <Text style={[styles.kindText, { color: on ? readableTint(colors.primary, colors.surface, 4.5) : colors.textSecondary }]}>
+                        {k === 'fixed' ? t('simulator.rateFixed') : t('simulator.rateVariable')}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <Text style={[styles.hint, { color: colors.textTertiary }]}>
+                {rateKind === 'fixed' ? t('simulator.rateFixedHint') : t('simulator.rateVariableHint')}
+              </Text>
+
+              {/* La referencia se muestra CON su mes, y avisa si caducó. */}
               <Text style={[styles.hint, { color: reference.isStale ? colors.warning : colors.textTertiary }]}>
                 {reference.isStale
                   ? t('simulator.rateRefStale', { rate: reference.tea, month: months[reference.month], year: reference.year })
@@ -384,6 +438,39 @@ export default function PurchaseSimulatorScreen() {
 
               {showMore && (
                 <View style={{ gap: 14 }}>
+                  <View>
+                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('simulator.systemLabel')}</Text>
+                    <View style={[styles.kindRow, { marginTop: 0, paddingTop: 0, borderTopWidth: 0 }]}>
+                      {(['french', 'german'] as const).map((sys) => {
+                        const on = system === sys;
+                        return (
+                          <TouchableOpacity
+                            key={sys}
+                            onPress={() => setSystem(sys)}
+                            activeOpacity={0.8}
+                            accessibilityRole="radio"
+                            accessibilityState={{ selected: on }}
+                            style={[
+                              styles.kindChip,
+                              { borderColor: on ? colors.primary : colors.border, backgroundColor: on ? colors.primary + '18' : 'transparent' },
+                            ]}
+                          >
+                            <AppIcon
+                              name={on ? 'checkmark-circle' : 'ellipse-outline'}
+                              size={14}
+                              color={on ? colors.primary : colors.textTertiary}
+                            />
+                            <Text style={[styles.kindText, { color: on ? readableTint(colors.primary, colors.surface, 4.5) : colors.textSecondary }]}>
+                              {sys === 'french' ? t('simulator.systemFrench') : t('simulator.systemGerman')}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                    <Text style={[styles.hint, { color: colors.textTertiary }]}>
+                      {system === 'french' ? t('simulator.systemFrenchHint') : t('simulator.systemGermanHint')}
+                    </Text>
+                  </View>
                   {([
                     ['down', t('simulator.downPayment'), t('simulator.downPaymentHint'), downRaw, setDownRaw, 10],
                     ['fee', t('simulator.monthlyFee'), t('simulator.monthlyFeeHint'), feeRaw, setFeeRaw, 8],
@@ -463,6 +550,27 @@ export default function PurchaseSimulatorScreen() {
                       <Text style={[styles.rVal, { color: colors.textPrimary }]}>{`${result.effectiveTea.toFixed(1)} %`}</Text>
                     </View>
                   )}
+
+                  {/* Con tasa variable el recibo deja de ser una cifra y pasa a
+                      ser un rango: es lo único honesto cuando el banco reliquida. */}
+                  {band && (
+                    <View style={[styles.band, { borderTopColor: ruleInk }]}>
+                      <Text style={[styles.bandTitle, { color: readableTint(colors.warning, colors.surface, 4.5) }]}>
+                        {t('simulator.bandTitle')}
+                      </Text>
+                      <Text style={[styles.bandBody, { color: colors.textSecondary }]}>
+                        {t('simulator.bandBody', {
+                          low: money(band.low.totalPaid),
+                          high: money(band.high.totalPaid),
+                          peak: money(band.peakPayment),
+                          cap: reference.tea,
+                        })}
+                      </Text>
+                      <Text style={[styles.bandBody, { color: colors.textSecondary }]}>
+                        {t('simulator.bandExtra', { amount: money(band.extraTotal) })}
+                      </Text>
+                    </View>
+                  )}
                 </View>
 
                 <AppSegmentedControl
@@ -476,7 +584,7 @@ export default function PurchaseSimulatorScreen() {
                 />
 
                 <View style={cardStyle}>
-                  {tab === 'projection' && <ProjectionList schedule={result.schedule} />}
+                  {tab === 'projection' && <ProjectionList schedule={(shown ?? result).schedule} />}
                   {tab === 'compare' && (
                     <TermCompare
                       rows={scenarios}
@@ -596,6 +704,12 @@ const styles = StyleSheet.create({
   rKey: { fontSize: 12, fontFamily: Fonts.mono },
   rVal: { fontSize: 13, fontFamily: Fonts.monoBold },
 
+  kindRow: { flexDirection: 'row', gap: 8, marginTop: 14, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth },
+  kindChip: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, borderRadius: 12, borderWidth: 1 },
+  kindText: { fontSize: 12.5, fontFamily: Fonts.semiBold },
+  band: { marginTop: 12, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth, gap: 3 },
+  bandTitle: { fontSize: 12.5, fontFamily: Fonts.bold },
+  bandBody: { fontSize: 11.5, fontFamily: Fonts.regular, lineHeight: 16 },
   locked: { alignItems: 'center', paddingVertical: 10, gap: 4 },
   unlock: { flexDirection: 'row', alignItems: 'center', gap: 7, height: 42, paddingHorizontal: 20, borderRadius: 50, marginTop: 14 },
   unlockText: { fontSize: 13.5, fontFamily: Fonts.bold },
