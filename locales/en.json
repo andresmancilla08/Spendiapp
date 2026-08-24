@@ -314,17 +314,10 @@
       "none": "None",
       "aurora": "Aurora",
       "particles": "Particles",
-      "waves": "Waves",
-      "grain": "Grain",
-      "mesh": "Mesh",
       "bokeh": "Bokeh",
-      "flow": "Silk",
       "starfield": "Starfield",
-      "rays": "Light rays",
       "constellation": "Constellations",
-      "orbs": "Orbs",
-      "topography": "Topography",
-      "spotlight": "Spotlight"
+      "topography": "Topography"
     },
     "intensity": {
       "subtle": "Subtle",
@@ -345,11 +338,8 @@
     "chartTypeLabel": "Chart type",
     "chartType": {
       "line": "Line",
-      "bars": "Bars",
       "area": "Solid area",
-      "dots": "Dots",
-      "stepped": "Stepped",
-      "lollipop": "Lollipop"
+      "dots": "Dots"
     },
     "chartAnimLabel": "Animation",
     "chartAnim": {
@@ -385,13 +375,6 @@
     "bgTarget": {
       "light": "Light mode",
       "dark": "Dark mode"
-    },
-    "gradientStyleLabel": "Gradient shape",
-    "gradientStyle": {
-      "linear": "Vertical",
-      "diagonal": "Diagonal",
-      "radial": "Radial",
-      "flat": "Flat"
     },
     "chapter": {
       "color": "Color",

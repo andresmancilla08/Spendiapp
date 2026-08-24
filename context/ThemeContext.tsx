@@ -29,11 +29,13 @@ const CHART_TYPE_KEY = '@spendiapp_chart_type';
 const CHART_ANIM_KEY = '@spendiapp_chart_anim';
 const CHART_SPEED_KEY = '@spendiapp_chart_speed';
 const CHART_ACCENT_KEY = '@spendiapp_chart_accent';
-const GRADIENT_STYLE_KEY = '@spendiapp_gradient_style';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'waves' | 'grain' | 'mesh' | 'bokeh' | 'flow' | 'starfield' | 'rays' | 'constellation' | 'orbs' | 'topography' | 'spotlight';
-export const BACKGROUND_STYLE_VALUES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'waves', 'grain', 'mesh', 'bokeh', 'flow', 'starfield', 'rays', 'constellation', 'orbs', 'topography', 'spotlight'];
+// Retirados en la v2.68.0: ondas, grano, malla, seda, haces de luz, orbes y foco.
+// Un valor guardado con uno de ellos ya no pasa el filtro de `BACKGROUND_STYLE_VALUES`
+// al arrancar, así que cae al default solo — no hace falta migración.
+export type BackgroundStyle = 'none' | 'aurora' | 'particles' | 'bokeh' | 'starfield' | 'constellation' | 'topography';
+export const BACKGROUND_STYLE_VALUES: BackgroundStyle[] = ['none', 'aurora', 'particles', 'bokeh', 'starfield', 'constellation', 'topography'];
 /** Desenfoque del efecto de fondo. Existe para que el fondo NUNCA compita con el
  *  contenido: los efectos de trazo fino (orbs, constellation, topography) cruzaban
  *  las tarjetas y el texto quedaba sucio. Se elige por modo — el mismo efecto pide
@@ -45,8 +47,10 @@ export const BACKGROUND_BLUR_VALUES: BackgroundBlur[] = ['none', 'soft', 'medium
  *  rehacerlo en cada frame porque debajo algo se movía. */
 export const BACKGROUND_BLUR_PX: Record<BackgroundBlur, number> = { none: 0, soft: 6, medium: 14, strong: 26 };
 export type ChartSpeed = 'slow' | 'normal' | 'fast';
-export type ChartType = 'line' | 'bars' | 'area' | 'dots' | 'stepped' | 'lollipop';
-export const CHART_TYPE_VALUES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
+// Retirados en la v2.68.0: barras, escalones y piruleta. Mismo mecanismo que los
+// fondos: un valor guardado que ya no existe no pasa el filtro y cae al default.
+export type ChartType = 'line' | 'area' | 'dots';
+export const CHART_TYPE_VALUES: ChartType[] = ['line', 'area', 'dots'];
 /** Cómo entra el gráfico al abrir la pantalla. Todas se ejecutan UNA vez y se
  *  detienen: un bucle perpetuo no añade información una vez leída la tendencia,
  *  y era lo que calentaba el teléfono.
@@ -68,10 +72,6 @@ export function normalizeChartAnim(v: unknown): ChartAnimStyle | null {
   if (v === 'pulse' || v === 'sweep') return 'draw';
   return CHART_ANIM_VALUES.includes(v as ChartAnimStyle) ? (v as ChartAnimStyle) : null;
 }
-/** Forma del degradado del fondo: la misma paleta cae distinto según la dirección. */
-export type GradientStyle = 'linear' | 'diagonal' | 'radial' | 'flat';
-export const GRADIENT_STYLE_VALUES: GradientStyle[] = ['linear', 'diagonal', 'radial', 'flat'];
-
 export type ChartAccent = 'theme' | 'secondary' | 'success' | 'gold' | 'signed' | 'signedLine' | 'signedFill' | 'duoSuccess' | 'duoTertiary';
 export const CHART_ACCENT_VALUES: ChartAccent[] = ['theme', 'secondary', 'success', 'gold', 'signed', 'signedLine', 'signedFill', 'duoSuccess', 'duoTertiary'];
 export type { PaletteId, AuroraIntensity };
@@ -113,8 +113,6 @@ interface ThemeContextValue {
   setChartSpeed: (v: ChartSpeed) => void;
   chartAccent: ChartAccent;
   setChartAccent: (v: ChartAccent) => void;
-  gradientStyle: GradientStyle;
-  setGradientStyle: (v: GradientStyle) => void;
 }
 
 const defaultPalette = PALETTE_MAP['deepWater'];
@@ -149,8 +147,6 @@ const ThemeContext = createContext<ThemeContextValue>({
   setChartSpeed: () => {},
   chartAccent: 'theme',
   setChartAccent: () => {},
-  gradientStyle: 'diagonal',
-  setGradientStyle: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -169,7 +165,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [chartSpeed, setChartSpeedState] = useState<ChartSpeed>('slow');
   const [chartAccent, setChartAccentState] = useState<ChartAccent>('theme');
   // 'diagonal' es lo que la app pintaba antes de que esto fuera configurable.
-  const [gradientStyle, setGradientStyleState] = useState<GradientStyle>('diagonal');
 
   useEffect(() => {
     Promise.all([
@@ -186,8 +181,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.getItem(CHART_ANIM_KEY),
       AsyncStorage.getItem(CHART_SPEED_KEY),
       AsyncStorage.getItem(CHART_ACCENT_KEY),
-      AsyncStorage.getItem(GRADIENT_STYLE_KEY),
-    ]).then(([storedTheme, storedPalette, storedCustom, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBlurLight, storedBlurDark, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent, storedGradientStyle]) => {
+    ]).then(([storedTheme, storedPalette, storedCustom, storedBgStyle, storedBgLight, storedBgDark, storedBgIntensity, storedBlurLight, storedBlurDark, storedChartType, storedChartAnim, storedChartSpeed, storedChartAccent]) => {
       if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
         setThemeModeState(storedTheme);
       }
@@ -227,7 +221,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (migratedAnim) setChartAnimStyleState(migratedAnim);
       if (storedChartSpeed === 'slow' || storedChartSpeed === 'normal' || storedChartSpeed === 'fast') setChartSpeedState(storedChartSpeed);
       if (CHART_ACCENT_VALUES.includes(storedChartAccent as ChartAccent)) setChartAccentState(storedChartAccent as ChartAccent);
-      if (GRADIENT_STYLE_VALUES.includes(storedGradientStyle as GradientStyle)) setGradientStyleState(storedGradientStyle as GradientStyle);
     }).catch(() => {});
   }, []);
 
@@ -304,11 +297,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(CHART_ACCENT_KEY, v);
   };
 
-  const setGradientStyle = async (v: GradientStyle) => {
-    setGradientStyleState(v);
-    await AsyncStorage.setItem(GRADIENT_STYLE_KEY, v);
-  };
-
   const isDark =
     themeMode === 'dark' || (themeMode === 'system' && systemScheme === 'dark');
 
@@ -328,7 +316,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // decide con QUÉ se pinta.
   const isPremium = useAuthStore((state) => state.isPremium);
   const effectivePaletteId = isPremium ? paletteId : DEFAULT_PALETTE_ID;
-  const effectiveGradientStyle = isPremium ? gradientStyle : 'diagonal';
 
   // Una paleta propia se RECALCULA en cada arranque a partir de sus tres
   // parámetros. Si la activa se borró desde otro dispositivo, se cae al default
@@ -350,7 +337,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       backgroundBlur, backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
       chartType, setChartType, chartAnimStyle, setChartAnimStyle,
       chartSpeed, setChartSpeed, chartAccent, setChartAccent,
-      gradientStyle: effectiveGradientStyle, setGradientStyle,
     }}>
       {children}
     </ThemeContext.Provider>

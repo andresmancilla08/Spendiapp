@@ -20,7 +20,7 @@ import { BackgroundEffect, backgroundBlurStyle, CLIP_BLURRED_CHILD, DARK_SCRIM }
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme, BACKGROUND_STYLE_VALUES, BACKGROUND_BLUR_VALUES, BACKGROUND_BLUR_PX, CHART_ANIM_VALUES, PERSONALIZATION_SYNCED_AT_KEY, type BackgroundStyle, type BackgroundBlur, type AuroraIntensity, type ChartSpeed, type ChartType, type ChartAnimStyle, type ChartAccent,
-  GRADIENT_STYLE_VALUES, type GradientStyle, type PaletteId,
+  type PaletteId,
 } from '../context/ThemeContext';
 import { useAuthStore } from '../store/authStore';
 import { useProMotion } from '../hooks/useProMotion';
@@ -208,7 +208,7 @@ function BackgroundCardBody({ styleKey, intensity, blurPx, target, width }: {
   styleKey: BackgroundStyle; intensity: AuroraIntensity; blurPx: number;
   target: 'light' | 'dark'; width: number;
 }) {
-  const { colors, activePalette, gradientStyle, chartAccent } = useTheme();
+  const { colors, activePalette, chartAccent } = useTheme();
   const isDark = target === 'dark';
   const gradient = isDark ? activePalette.gradientDark : activePalette.gradientLight;
   // La maqueta se pinta con los colores del modo EDITADO, no con los de la app:
@@ -220,16 +220,12 @@ function BackgroundCardBody({ styleKey, intensity, blurPx, target, width }: {
     <>
       <View style={[StyleSheet.absoluteFillObject, { backgroundColor: themed.background }]} />
       {/* Mismo orden de capas que el fondo real: degradado → scrim → efecto */}
-      {gradientStyle === 'flat' ? (
-        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradient[0] }]} />
-      ) : (
-        <LinearGradient
-          colors={gradient}
-          start={gradientStyle === 'linear' ? { x: 0.5, y: 0 } : { x: 0.1, y: 0 }}
-          end={gradientStyle === 'linear' ? { x: 0.5, y: 1 } : { x: 0.9, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-        />
-      )}
+      <LinearGradient
+        colors={gradient}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={StyleSheet.absoluteFillObject}
+      />
       {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
       {styleKey === 'none' ? (
         <View style={styles.bgNoneWrap}>
@@ -256,7 +252,7 @@ function BackgroundCardBody({ styleKey, intensity, blurPx, target, width }: {
 const INTENSITY_OPTIONS: AuroraIntensity[] = ['subtle', 'default', 'intense'];
 const CHART_SPEED_OPTIONS: ChartSpeed[] = ['slow', 'normal', 'fast'];
 const CHART_PREVIEW_VALUES = [1080, 1240, 1190, 1340, 1284];
-const CHART_TYPES: ChartType[] = ['line', 'area', 'bars', 'dots', 'stepped', 'lollipop'];
+const CHART_TYPES: ChartType[] = ['line', 'area', 'dots'];
 
 /** Los tres capítulos, en orden del cambio más notorio al más fino.
  *  Había un cuarto, "Detalle", que solo guardaba dos interruptores y un ajuste
@@ -354,10 +350,7 @@ type SignedCrossfade = { fade: Animated.Value; upColor: string; downColor: strin
 function CrossfadeSparkline({ chartType, animStyle, height, duration, crossfade, motion }: {
   chartType: ChartType; animStyle: ChartAnimStyle; height: number; duration: number; crossfade: SignedCrossfade; motion: boolean;
 }) {
-  // "Barras" no tiene canal de contenido separado — vive todo en el canal de
-  // línea/trazo, así que un modo parcial ('line'/'fill') no tiene nada que mostrar
-  // en ese canal y el gráfico se ve congelado. Forzamos cruce completo en ese caso.
-  const mode = chartType === 'bars' ? 'both' : (crossfade.mode ?? 'both');
+  const mode = crossfade.mode ?? 'both';
   const dynamicRenderFill = mode !== 'line';
   const dynamicRenderStroke = mode !== 'fill';
   return (
@@ -529,7 +522,6 @@ export default function PersonalizationScreen() {
     backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,
     chartType, setChartType, chartAnimStyle, setChartAnimStyle,
     chartSpeed, setChartSpeed, chartAccent, setChartAccent,
-    gradientStyle, setGradientStyle,
   } = useTheme();
   const [chapter, setChapter] = useState<Chapter>('color');
   // El lienzo VIAJA CON EL SCROLL (va dentro de la lista), así que su movimiento lo
@@ -547,13 +539,12 @@ export default function PersonalizationScreen() {
   // suelto, deja de coincidir y la tira muestra "A medida". Sin estado paralelo.
   const activeLook = matchLook({
     paletteId, backgroundLight: backgroundStyleLight, backgroundDark: backgroundStyleDark,
-    gradientStyle, chartType, chartAccent,
+    chartType, chartAccent,
   });
   const applyLook = (look: Look) => {
     handleSetPaletteId(look.paletteId);
     setBackgroundStyleFor('light', look.backgroundLight);
     setBackgroundStyleFor('dark', look.backgroundDark);
-    setGradientStyle(look.gradientStyle);
     setChartType(look.chartType);
     setChartAccent(look.chartAccent);
   };
@@ -634,7 +625,7 @@ export default function PersonalizationScreen() {
   prefsRef.current = {
     backgroundStyleLight, backgroundStyleDark, backgroundIntensity,
     backgroundBlurLight, backgroundBlurDark,
-    chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle,
+    chartType, chartAnimStyle, chartSpeed, chartAccent,
   };
   const dirtyRef = useRef(false);
   const isFirstSync = useRef(true);
@@ -651,7 +642,7 @@ export default function PersonalizationScreen() {
     const timer = setTimeout(() => syncNow(user.uid), 800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundBlurLight, backgroundBlurDark, chartType, chartAnimStyle, chartSpeed, chartAccent, gradientStyle]);
+  }, [user?.uid, backgroundStyleLight, backgroundStyleDark, backgroundIntensity, backgroundBlurLight, backgroundBlurDark, chartType, chartAnimStyle, chartSpeed, chartAccent]);
   // Flush al desmontar: antes el debounce pendiente se CANCELABA al salir de la
   // pantalla y los últimos cambios nunca llegaban a Firestore.
   useEffect(() => () => {
@@ -741,17 +732,6 @@ export default function PersonalizationScreen() {
                   <Text style={[styles.chartAccentHint, { color: colors.textTertiary }]}>{t('personalization.bgBlurHint')}</Text>
                 </>
               )}
-              {/* La forma del degradado va ANTES de la grilla: afecta a la pantalla
-                  entera, no a un efecto concreto. */}
-              <Text style={[styles.chartGroupLabel, styles.bgControlLabel, { color: colors.textTertiary }]}>
-                {t('personalization.gradientStyleLabel')}
-              </Text>
-              <AppSegmentedControl
-                segments={GRADIENT_STYLE_VALUES.map((g) => ({ key: g, label: t(`personalization.gradientStyle.${g}`) }))}
-                activeKey={gradientStyle}
-                onChange={(key) => setGradientStyle(key as GradientStyle)}
-                style={styles.bgGridSpacing}
-              />
               <PreviewCarousel
                 keys={BACKGROUND_STYLES}
                 selectedKey={targetBgStyle}

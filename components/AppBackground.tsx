@@ -5,17 +5,10 @@ import { useTheme, BACKGROUND_BLUR_PX, type BackgroundStyle } from '../context/T
 import { useAuthStore } from '../store/authStore';
 import AuroraBackground, { AuroraIntensity } from './AuroraBackground';
 import ParticlesBackground from './ParticlesBackground';
-import WavesBackground from './WavesBackground';
-import GrainBackground from './GrainBackground';
-import MeshBackground from './MeshBackground';
 import BokehBackground from './BokehBackground';
-import FlowBackground from './FlowBackground';
 import StarfieldBackground from './StarfieldBackground';
-import RaysBackground from './RaysBackground';
 import ConstellationBackground from './ConstellationBackground';
-import OrbsBackground from './OrbsBackground';
 import TopographyBackground from './TopographyBackground';
-import SpotlightBackground from './SpotlightBackground';
 
 /** Scrim que oscurece el gradiente base en modo oscuro. Va SIEMPRE debajo de
  * los efectos — compartido con el fondo local del login (ScreenBackground). */
@@ -124,17 +117,10 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
   switch (styleKey) {
     case 'aurora':        return <AuroraBackground intensity={intensity} />;
     case 'particles':     return <ParticlesBackground intensity={intensity} />;
-    case 'waves':         return <WavesBackground intensity={intensity} />;
-    case 'grain':         return <GrainBackground intensity={intensity} />;
-    case 'mesh':          return <MeshBackground intensity={intensity} />;
     case 'bokeh':         return <BokehBackground intensity={intensity} />;
-    case 'flow':          return <FlowBackground intensity={intensity} />;
     case 'starfield':     return <StarfieldBackground intensity={intensity} />;
-    case 'rays':          return <RaysBackground intensity={intensity} />;
     case 'constellation': return <ConstellationBackground intensity={intensity} />;
-    case 'orbs':          return <OrbsBackground intensity={intensity} />;
     case 'topography':    return <TopographyBackground intensity={intensity} />;
-    case 'spotlight':     return <SpotlightBackground intensity={intensity} />;
     default:              return null;
   }
 }
@@ -150,7 +136,7 @@ export function BackgroundEffect({ styleKey, intensity, speed = 1 }: {
  * animación (antes iba encima al 70% y los efectos casi no se veían en dark).
  */
 export default function AppBackground() {
-  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundBlur, gradientStyle } = useTheme();
+  const { isDark, activePalette, backgroundStyle, backgroundIntensity, backgroundBlur } = useTheme();
   const { isPremium } = useAuthStore();
 
   // Gate premium: usuarios free siempre ven Aurora (el efecto de la marca).
@@ -174,11 +160,8 @@ export default function AppBackground() {
   // canvas pero se posiciona con la caja del root, así que un gradiente sin
   // más se REPETÍA y la franja de abajo volvía a mostrar el primer stop (blanco
   // en casi todas las paletas claras). El color pinta lo que sobre.
-  const canvasBackground = gradientStyle === 'flat'
-    ? chromeColor
-    : gradientStyle === 'radial'
-      ? endColor
-      : `${endColor} linear-gradient(180deg, ${gradientColors.map((c) => topBackgroundColor(c as string, isDark)).join(', ')}) no-repeat`;
+  const canvasBackground =
+    `${endColor} linear-gradient(180deg, ${gradientColors.map((c) => topBackgroundColor(c as string, isDark)).join(', ')}) no-repeat`;
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -202,34 +185,15 @@ export default function AppBackground() {
 
   return (
     <View style={[StyleSheet.absoluteFillObject, styles.clip]} pointerEvents="none">
-      {/* La MISMA paleta cae distinto según la dirección del degradado. 'diagonal'
-          es lo que la app pintaba antes de que esto fuera configurable; 'flat' deja
-          el color base sólido, para quien quiere un fondo sin transición. */}
-      {gradientStyle === 'flat' ? (
-        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradientColors[0] as string }]} />
-      ) : gradientStyle === 'radial' ? (
-        <>
-          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: gradientColors[2] as string }]} />
-          {/* Radial simulado: expo-linear-gradient no lo trae, y un halo enorme y
-              desenfocado da el mismo resultado sin añadir dependencias. */}
-          <View
-            style={[
-              styles.radialCore,
-              { backgroundColor: gradientColors[0] as string },
-              Platform.OS === 'web'
-                ? ({ filter: 'blur(120px)' } as any)
-                : { shadowColor: gradientColors[0] as string, shadowOpacity: 1, shadowRadius: 120, shadowOffset: { width: 0, height: 0 } },
-            ]}
-          />
-        </>
-      ) : (
-        <LinearGradient
-          colors={gradientColors}
-          start={gradientStyle === 'linear' ? { x: 0.5, y: 0 } : { x: 0.1, y: 0 }}
-          end={gradientStyle === 'linear' ? { x: 0.5, y: 1 } : { x: 0.9, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-        />
-      )}
+      {/* Diagonal fija. La "forma del degradado" (vertical / diagonal / radial /
+          plano) se retiró en la v2.68.0: cambiaba tan poco que no justificaba un
+          control, y los usuarios free ya veían siempre esta. */}
+      <LinearGradient
+        colors={gradientColors}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={StyleSheet.absoluteFillObject}
+      />
       {isDark && <View style={[StyleSheet.absoluteFillObject, { backgroundColor: DARK_SCRIM }]} />}
       {/* El efecto ya NO se mueve (ver `hooks/useFrozenPhase.ts`), así que se
           muestra siempre: reduce-motion pide quitar movimiento, no quitar el
@@ -271,9 +235,5 @@ export default function AppBackground() {
 }
 
 const styles = StyleSheet.create({
-  radialCore: {
-    position: 'absolute', top: '-25%', left: '-25%', width: '150%', height: '110%',
-    borderRadius: 9999, opacity: 0.9,
-  },
   clip: { overflow: 'hidden' },
 });

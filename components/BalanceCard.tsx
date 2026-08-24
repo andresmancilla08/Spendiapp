@@ -72,18 +72,6 @@ interface BalanceCardProps {
  * de una subida/bajada — importante en datos financieros para no insinuar
  * una variación que no ocurrió.
  */
-/** Escalonado (chartType='stepped'): el valor se mantiene hasta que cambia — para
- *  quien lee saldos como escalones y no como una curva. */
-function steppedPath(pts: { x: number; y: number }[]): string {
-  if (pts.length < 2) return '';
-  let d = `M${pts[0].x},${pts[0].y}`;
-  for (let i = 1; i < pts.length; i++) {
-    const mid = (pts[i - 1].x + pts[i].x) / 2;
-    d += ` L${mid},${pts[i - 1].y} L${mid},${pts[i].y} L${pts[i].x},${pts[i].y}`;
-  }
-  return d;
-}
-
 function monotonePath(pts: { x: number; y: number }[]): string {
   const n = pts.length;
   if (n < 2) return '';
@@ -194,56 +182,6 @@ export function resolveChartAccent2(accent: ChartAccent, colors: { success: stri
   return undefined;
 }
 
-/** Gráfico de barras (chartType='bars'): Views nativas — nunca sufre la deformación del viewBox del SVG. */
-function BarsChart({ values, color, height, animate }: { values: number[]; color: string; height: number; animate: boolean }) {
-  // La barra crece con `scaleY` anclado abajo, no cambiando su altura: así la
-  // animación va por el hilo de UI. Antes un `addListener` volcaba el valor a
-  // `setState` y re-renderizaba las barras en cada frame de los 700 ms.
-  const growAnim = useRef(new Animated.Value(animate ? 0 : 1)).current;
-
-  const targets = useMemo(() => {
-    const max = Math.max(...values, 1);
-    const min = Math.min(0, ...values);
-    const span = max - min || 1;
-    return values.map((v) => 6 + ((v - min) / span) * (height - 10));
-  }, [values, height]);
-
-  useEffect(() => {
-    if (!animate) { growAnim.setValue(1); return; }
-    growAnim.setValue(0);
-    const anim = Animated.timing(growAnim, {
-      toValue: 1, duration: 700, easing: Easing.out(Easing.cubic),
-      // En web no existe el driver nativo; pedirlo solo genera un aviso y cae a
-      // JS igualmente. Son 700 ms una sola vez, no un bucle.
-      useNativeDriver: Platform.OS !== 'web',
-    });
-    anim.start();
-    return () => anim.stop();
-  }, [animate, growAnim, values]);
-
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height, paddingHorizontal: 2 }}>
-      {values.map((v, i) => {
-        const isLast = i === values.length - 1;
-        return (
-          <Animated.View
-            key={i}
-            style={{
-              width: `${Math.min(90 / values.length, 13)}%`,
-              height: Math.max(targets[i], 3),
-              borderRadius: 5,
-              backgroundColor: isLast ? '#FFFFFF' : color,
-              opacity: isLast ? 1 : 0.82,
-              transformOrigin: 'bottom',
-              transform: [{ scaleY: growAnim }],
-            }}
-          />
-        );
-      })}
-    </View>
-  );
-}
-
 interface SparklineProps {
   values: number[];
   color: string;
@@ -307,7 +245,7 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // Ahora el valor viaja por `Animated` hasta el atributo del `Path`, sin pasar
   // por el estado de React, y el trazo se dibuja al entrar en vez de repetirse:
   // después del primer ciclo ya no añade información.
-  const drawActive = animate && animStyle === 'draw' && chartType !== 'bars';
+  const drawActive = animate && animStyle === 'draw';
   const drawAnim = useRef(new Animated.Value(drawActive ? 0 : 1)).current;
   useEffect(() => {
     if (!drawActive) { drawAnim.setValue(1); return; }
@@ -323,12 +261,12 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   }, [drawActive, drawAnim, duration, approxLen]);
 
   // ── Marea: el área y la línea respiran juntas, sin desplazamiento ──
-  const tideActive = animate && animStyle === 'tide' && chartType !== 'bars';
+  const tideActive = animate && animStyle === 'tide';
 
   // ── Entradas por compositor: `rise` crece desde la base y `fade` se funde.
   // Ambas son una sola pasada sobre `transform`/`opacity`: no cuestan nada por
   // frame y terminan solas. ──
-  const entryStyle = animate && chartType !== 'bars'
+  const entryStyle = animate
     ? animStyle === 'rise'
       ? ENTRY_RISE
       : animStyle === 'fade'
@@ -336,20 +274,12 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
         : null
     : null;
 
-  if (chartType === 'bars') {
-    // Las barras no tienen un canal de "contenido" separado — viven en el canal
-    // de línea/trazo; si esa capa no debe dibujar el canal de línea, no hay nada que mostrar aquí.
-    if (!renderStroke) return null;
-    return <BarsChart values={values} color={stroke} height={height} animate={animate && animStyle !== 'none'} />;
-  }
   if (pts.length < 2) return null;
 
-  const line = chartType === 'stepped' ? steppedPath(pts) : monotonePath(pts);
+  const line = monotonePath(pts);
   const area = `${line} L${W},${H} L0,${H} Z`;
-  const isLollipop = chartType === 'lollipop';
-  const showLine = chartType !== 'area' && !isLollipop;
-  // La piruleta marca cada dato con su punto, igual que "puntos", pero con tallo.
-  const showDots = chartType === 'dots' || isLollipop;
+  const showLine = chartType !== 'area';
+  const showDots = chartType === 'dots';
 
   // La marea ya no late por estado de React: el latido lo lleva `TideLayer`,
   // que envuelve el SVG entero en una capa animada por el compositor. Aquí solo
@@ -362,7 +292,7 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // "contenido" de un cruce de color), el relleno ES la única señal visible: debe
   // verse tan claro como en "área", sin importar el chartType, o el cambio de color
   // pasa inadvertido (Personalización → "Contenido dinámico").
-  const fillIsHero = chartType === 'area' || (!renderStroke && !isLollipop);
+  const fillIsHero = chartType === 'area' || !renderStroke;
 
   // El punto animado (pulso) y el halo de "trazo vivo" viven FUERA del SVG,
   // como Views nativas: el viewBox usa preserveAspectRatio="none" (deforma X e
@@ -379,7 +309,7 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
             <Stop offset="1" stopColor={fillColor} stopOpacity={0} />
           </SvgGradient>
         </Defs>
-        {renderFill && !isLollipop && (
+        {renderFill && (
           /* En "área" + trazo vivo, el relleno ES lo que se revela (no hay línea
              que dibujar), así que su opacidad va por el mismo Animated. */
           <AnimatedPath
@@ -407,16 +337,6 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
             />
           </>
         )}
-        {renderStroke && isLollipop && pts.map((pt, i) => (
-          /* Tallo por dato: del eje al valor. Los puntos se dibujan fuera del SVG. */
-          <Path
-            key={`stem-${i}`}
-            d={`M${pt.x},${H} L${pt.x},${pt.y}`}
-            stroke={stroke} strokeWidth={1.6}
-            strokeOpacity={i === pts.length - 1 ? 0.95 : 0.55}
-            strokeLinecap="round" vectorEffect="non-scaling-stroke"
-          />
-        ))}
         {renderStroke && chartType === 'area' && (
           /* Borde superior fino — sin él, el área queda sin contorno definido y "no aplica nada" al ojo */
           <AnimatedPath
@@ -526,7 +446,7 @@ export default function BalanceCard({
   const isSignedFamily = chartAccent === 'signed' || chartAccent === 'signedLine' || chartAccent === 'signedFill';
   // "Barras" no tiene canal de contenido separado — un modo parcial no tendría
   // nada que mostrar en ese canal y el gráfico se vería congelado.
-  const signedMode: 'both' | 'line' | 'fill' = chartType === 'bars' ? 'both' : chartAccent === 'signedLine' ? 'line' : chartAccent === 'signedFill' ? 'fill' : 'both';
+  const signedMode: 'both' | 'line' | 'fill' = chartAccent === 'signedLine' ? 'line' : chartAccent === 'signedFill' ? 'fill' : 'both';
   // Misma regla que el color (mes vs mes anterior) — si divergen, el gráfico
   // cruza hacia el color contrario al que resolvió el acento.
   const trendUp = isTrendUp(sparkline);

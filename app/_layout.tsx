@@ -10,7 +10,7 @@ import { initI18n } from '../config/i18n';
 import '../config/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeProvider, useTheme, PaletteId, BACKGROUND_STYLE_VALUES, CHART_ACCENT_VALUES, normalizeChartAnim, PERSONALIZATION_SYNCED_AT_KEY, BackgroundStyle, AuroraIntensity, ChartType, ChartAnimStyle, ChartSpeed, ChartAccent,
-  CHART_TYPE_VALUES, GRADIENT_STYLE_VALUES, BACKGROUND_BLUR_VALUES, type GradientStyle, type BackgroundBlur,
+  CHART_TYPE_VALUES, BACKGROUND_BLUR_VALUES, type BackgroundBlur,
 } from '../context/ThemeContext';
 import { PALETTE_MAP, resolvePaletteId } from '../config/palettes';
 import type { CustomPalette } from '../utils/derivePalette';
@@ -30,7 +30,7 @@ function PaletteLoader() {
   const { user } = useAuthStore();
   const {
     setPaletteId, saveCustomPalette, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundBlurFor,
-    setChartType, setChartAnimStyle, setChartSpeed, setChartAccent, setGradientStyle,
+    setChartType, setChartAnimStyle, setChartSpeed, setChartAccent,
   } = useTheme();
 
   useEffect(() => {
@@ -72,7 +72,7 @@ function PaletteLoader() {
         if (BACKGROUND_BLUR_VALUES.includes(p.backgroundBlurLight as BackgroundBlur)) setBackgroundBlurFor('light', p.backgroundBlurLight as BackgroundBlur);
         if (BACKGROUND_BLUR_VALUES.includes(p.backgroundBlurDark as BackgroundBlur)) setBackgroundBlurFor('dark', p.backgroundBlurDark as BackgroundBlur);
         // Se valida contra la lista EXPORTADA, no contra una copia: con la lista
-        // escrita a mano aquí, cada tipo nuevo (stepped, lollipop) se descartaba al
+        // escrita a mano aquí, cada tipo nuevo se descartaba al
         // llegar desde otro dispositivo y parecía que la elección no se guardaba.
         if (CHART_TYPE_VALUES.includes(p.chartType as ChartType)) setChartType(p.chartType as ChartType);
         const migratedAnim = normalizeChartAnim(p.chartAnimStyle);
@@ -82,7 +82,6 @@ function PaletteLoader() {
         // colaba en el contexto y `resolveChartAccent` caía al color del tema —
         // se veía como "el acento elegido no se aplica".
         if (CHART_ACCENT_VALUES.includes(p.chartAccent as ChartAccent)) setChartAccent(p.chartAccent as ChartAccent);
-        if (GRADIENT_STYLE_VALUES.includes(p.gradientStyle as GradientStyle)) setGradientStyle(p.gradientStyle as GradientStyle);
       })
       .catch(() => {});
   }, [user?.uid]);

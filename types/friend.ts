@@ -49,7 +49,6 @@ export interface UserProfile {
     chartAnimStyle?: string;
     chartSpeed?: string;
     chartAccent?: string;
-    gradientStyle?: string;
   };
   isBlocked?: boolean;
   blockedReason?: string;

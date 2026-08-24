@@ -314,17 +314,10 @@
       "none": "Nessuno",
       "aurora": "Aurora",
       "particles": "Particelle",
-      "waves": "Onde",
-      "grain": "Grana",
-      "mesh": "Mesh",
       "bokeh": "Bokeh",
-      "flow": "Seta",
       "starfield": "Cielo stellato",
-      "rays": "Raggi di luce",
       "constellation": "Costellazioni",
-      "orbs": "Orbite",
-      "topography": "Topografia",
-      "spotlight": "Faretto"
+      "topography": "Topografia"
     },
     "intensity": {
       "subtle": "Sottile",
@@ -345,11 +338,8 @@
     "chartTypeLabel": "Tipo di grafico",
     "chartType": {
       "line": "Linea",
-      "bars": "Barre",
       "area": "Area piena",
-      "dots": "Punti",
-      "stepped": "Gradini",
-      "lollipop": "Lecca-lecca"
+      "dots": "Punti"
     },
     "chartAnimLabel": "Animazione",
     "chartAnim": {
@@ -385,13 +375,6 @@
     "bgTarget": {
       "light": "Modalità chiara",
       "dark": "Modalità scura"
-    },
-    "gradientStyleLabel": "Forma del gradiente",
-    "gradientStyle": {
-      "linear": "Verticale",
-      "diagonal": "Diagonale",
-      "radial": "Radiale",
-      "flat": "Piatto"
     },
     "chapter": {
       "color": "Colore",

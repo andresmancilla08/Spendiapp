@@ -235,3 +235,12 @@
 - **Por qué:** las ~25 rutas restantes (`/profile`, `/settings`, `/reports`…) son pantallas tras el login y el rewrite las servía con el mismo HTML: rastrearlas solo gasta presupuesto de rastreo y genera duplicados. Enumerarlas una a una se desincroniza con `app/` a la primera pantalla nueva.
 - **CUIDADO:** `_expo/` y `assets/` tienen que seguir permitidos. Sin el bundle, Googlebot no puede renderizar la home y la indexaría vacía — `app/index.tsx` devuelve una `View` sin contenido.
 - **Coste:** si algún día se publica una landing o un blog, hay que añadir su ruta aquí a mano.
+
+## Personalización: fuera la forma del degradado, 7 fondos y 3 tipos de gráfico (v2.68.0)
+
+- **Qué se eligió:** retirar de Personalización la **forma del degradado** completa (vertical / diagonal / radial / plano), siete **fondos** (ondas, grano, malla, seda, haces de luz, orbes, foco) y tres **tipos de gráfico** (barras, escalones, piruleta). Quedan 7 fondos (ninguno, aurora, partículas, bokeh, estrellas, constelaciones, topografía) y 3 gráficos (línea, área, puntos).
+- **Por qué:** eran opciones que no ganaban nada. La forma del degradado cambiaba tan poco que no justificaba un control —y los usuarios free ya veían siempre `diagonal`, así que para la mayoría no existía—; los siete fondos y los tres gráficos retirados no daban el nivel del resto. Menos opciones y todas buenas es mejor catálogo que catorce y tres regulares.
+- **Descartado:** dejarlos ocultos tras una bandera (mantiene el código y el peso del bundle sin dar nada) y dejarlos solo para quien ya los tuviera elegidos (dos comportamientos que mantener para siempre).
+- **Cómo se resolvió lo ya guardado:** sin migración. Tanto `ThemeContext` (AsyncStorage) como `app/_layout.tsx` (Firestore) validan el valor guardado contra `BACKGROUND_STYLE_VALUES` / `CHART_TYPE_VALUES` antes de aplicarlo, así que un valor retirado simplemente no pasa el filtro y cae al default. El degradado queda fijo en `diagonal`.
+- **Los seis looks se remapearon** al superviviente más parecido: ondas→bokeh, malla→constelaciones, foco→ninguno, orbes→partículas, escalones→línea, barras→área, piruleta→puntos. Sin esto, tres presets apuntaban a valores inexistentes y ninguno habría vuelto a marcarse como activo.
+- **Estado:** vigente.
