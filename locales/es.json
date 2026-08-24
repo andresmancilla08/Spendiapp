@@ -578,6 +578,7 @@
       "deleteSuccess": "Gasto eliminado correctamente",
       "deleteError": "No se pudo eliminar. Intenta de nuevo.",
       "saveError": "No se pudo guardar. Intenta de nuevo.",
+      "sharedPartialSave": "Guardado, pero {{count}} copia(s) de otros participantes no se pudo actualizar.",
       "fixedNote": "Gasto fijo — los cambios afectan los meses siguientes",
       "cancelFixedButton": "Cancelar fijo",
       "confirmCancelFixed": "Esto cancelará el movimiento fijo a partir de este mes. Los meses anteriores no se verán afectados.",

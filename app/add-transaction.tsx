@@ -593,6 +593,9 @@ export default function AddTransactionScreen() {
       resetForm();
       goBack();
     } catch (err) {
+      // Mismo motivo que en edit-transaction: sin traza no hay forma de saber si
+      // fue una regla de Firestore, la red o un doc inexistente.
+      console.error('[addTransaction.handleSave]', (err as { code?: string })?.code ?? '', err);
       setError(t('addTransaction.errors.saveFailed'));
       setLoading(false);
     }

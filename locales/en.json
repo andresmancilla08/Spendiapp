@@ -578,6 +578,7 @@
       "deleteSuccess": "Expense deleted successfully",
       "deleteError": "Could not delete. Please try again.",
       "saveError": "Could not save. Please try again.",
+      "sharedPartialSave": "Saved, but {{count}} copy/copies of other participants could not be updated.",
       "fixedNote": "Fixed expense — changes affect following months",
       "cancelFixedButton": "Cancel recurring",
       "confirmCancelFixed": "This will cancel the recurring transaction from this month onwards. Previous months will not be affected.",

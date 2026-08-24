@@ -578,6 +578,7 @@
       "deleteSuccess": "Spesa eliminata correttamente",
       "deleteError": "Impossibile eliminare. Riprova.",
       "saveError": "Impossibile salvare. Riprova.",
+      "sharedPartialSave": "Salvato, ma {{count}} copia/copie di altri partecipanti non si è potuta aggiornare.",
       "fixedNote": "Spesa fissa — le modifiche riguardano i mesi successivi",
       "cancelFixedButton": "Annulla ricorrente",
       "confirmCancelFixed": "Questo cancellerà la transazione ricorrente da questo mese in poi. I mesi precedenti non saranno interessati.",

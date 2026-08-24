@@ -18,7 +18,7 @@ import { getMonthNames, formatDate } from '../utils/dateLocale';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
-import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc, writeBatch } from 'firebase/firestore';
+import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
@@ -45,7 +45,7 @@ import { suggestIconLocal, suggestIconRemote } from '../utils/suggestIcon';
 import { FALLBACK_ICON } from '../constants/categoryIconData';
 import IconPicker from '../components/IconPicker';
 import CategoryIcon from '../components/CategoryIcon';
-import type { SharedParticipant, SharedTransaction } from '../types/sharedTransaction';
+import type { SharedParticipant, SharedTransaction, MirrorRef } from '../types/sharedTransaction';
 import { calcSharedAmount, calcEqualPercentages, installmentPortion } from '../utils/sharedCalc';
 import { categoryForOtherUser } from '../utils/sharedCategory';
 
@@ -271,7 +271,8 @@ export default function EditTransactionScreen() {
       setCategory(ref.id);
       resetNewCatForm();
       showToast(t('categories.created', { name: newCatName.trim() }), 'success');
-    } catch {
+    } catch (e) {
+      console.error('[editTransaction.saveNewCategory]', (e as { code?: string })?.code ?? '', e);
       showToast(t('editTransaction.saveCategoryError'), 'error');
       setNewCatSaving(false);
     }
@@ -300,7 +301,11 @@ export default function EditTransactionScreen() {
   const sharedTotalPct  = isSharedTx ? Math.round(sharedEditParticipants.reduce((s, p) => s + p.percentage, 0)) : 100;
   /** Mi porcentaje del reparto: en cuotas es el divisor para deducir el de los demás. */
   const myEditPct = sharedEditParticipants.find((p) => p.uid === user?.uid)?.percentage ?? 0;
-  const sharedPctValid  = !isSharedTx || !isOwnerOfShared || sharedTotalPct === 100;
+  // Las cuotas NO pintan el editor de reparto (está tras `!transaction.isInstallment`),
+  // así que exigirles el 100% dejaba el botón diciendo "ajusta el reparto" sin ningún
+  // campo donde ajustarlo: el gasto quedaba imposible de editar para siempre.
+  const sharedPctValid  = !isSharedTx || !isOwnerOfShared
+    || !!transaction?.isInstallment || sharedTotalPct === 100;
 
   /** Mismo contrato que en add-transaction: lo que falta, en orden de pantalla,
    *  con el mensaje del campo y la instrucción que va en el botón. */
@@ -374,13 +379,29 @@ export default function EditTransactionScreen() {
     setError('');
     try {
       if (isSharedTx && transaction.sharedId && isOwnerOfShared && !transaction.isInstallment) {
-        // Actualizar todos los mirrors del gasto compartido
-        const coordSnap = await getDoc(doc(db, 'sharedTransactions', transaction.sharedId));
-        if (!coordSnap.exists()) throw new Error('coordination doc missing');
-        const coordData = coordSnap.data() as SharedTransaction;
-        const batch = writeBatch(db);
+        // El doc de coordinación puede haber desaparecido (la cuenta del otro se
+        // eliminó, o un borrado de cuando cualquier participante podía tumbarlo).
+        // Antes se lanzaba: el dueño se quedaba SIN PODER EDITAR NUNCA su propio
+        // gasto y con un "no se pudo guardar" sin explicación. Sin coordinación se
+        // edita al menos la copia propia.
+        let mirrorRefs: MirrorRef[] = [];
+        try {
+          const coordSnap = await getDoc(doc(db, 'sharedTransactions', transaction.sharedId));
+          if (coordSnap.exists()) {
+            mirrorRefs = (coordSnap.data() as SharedTransaction).mirrorRefs ?? [];
+          }
+        } catch (e) {
+          console.warn('[editTransaction] coordinación ilegible:', (e as { code?: string })?.code ?? e);
+        }
+        if (mirrorRefs.length === 0) {
+          mirrorRefs = [{ uid: user.uid, transactionId: getActualId(transaction) }];
+        }
         const isIncomeClaim = transaction.sharedType === 'income_claim';
-        for (const mirrorRef of coordData.mirrorRefs) {
+        // Uno a uno y NO en lote: un mirror que ya no existe hacía fallar el batch
+        // ENTERO y con él la edición del dueño, para siempre. `deleteSharedTransaction`
+        // ya tolera ese caso; esta rama era la que faltaba.
+        let stale = 0;
+        for (const mirrorRef of mirrorRefs) {
           const participant = sharedEditParticipants.find((p) => p.uid === mirrorRef.uid);
           if (!participant) continue;
           // Un reclamo de ingreso va ENTERO, como en la creación
@@ -394,25 +415,37 @@ export default function EditTransactionScreen() {
           const mirrorType = isIncomeClaim && !isMine ? 'expense' : type;
           // El amigo no tiene mis categorías personalizadas: su copia va a `other`.
           const mirrorCategory = isMine ? category : categoryForOtherUser(category, mirrorType);
-          batch.update(doc(db, 'transactions', mirrorRef.transactionId), {
-            type: mirrorType,
-            description: description.trim(),
-            amount: parsedAmount,
-            category: mirrorCategory,
-            date: Timestamp.fromDate(selectedDate),
-            isFixed,
-            sharedParticipants: sharedEditParticipants,
-            sharedAmount: newSharedAmount,
-            ...(mirrorRef.uid === user.uid ? { cardId: selectedCardId ?? null } : {}),
-            ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
-            // La nota es privada: escribirla en todos los mirrors la enseñaba al
-            // resto de participantes.
-            ...(isMine
-              ? (notes.trim() ? { notes: notes.trim() } : { notes: deleteField() })
-              : {}),
-          });
+          try {
+            await updateDoc(doc(db, 'transactions', mirrorRef.transactionId), {
+              type: mirrorType,
+              description: description.trim(),
+              amount: parsedAmount,
+              category: mirrorCategory,
+              date: Timestamp.fromDate(selectedDate),
+              isFixed,
+              sharedParticipants: sharedEditParticipants,
+              sharedAmount: newSharedAmount,
+              ...(isMine ? { cardId: selectedCardId ?? null } : {}),
+              ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
+              // La nota es privada: escribirla en todos los mirrors la enseñaba al
+              // resto de participantes.
+              ...(isMine
+                ? (notes.trim() ? { notes: notes.trim() } : { notes: deleteField() })
+                : {}),
+            });
+          } catch (e) {
+            // Mi propia copia SÍ es crítica: si esa falla, el guardado no ocurrió.
+            if (isMine) throw e;
+            stale++;
+            console.warn(
+              '[editTransaction] mirror sin actualizar', mirrorRef.transactionId,
+              (e as { code?: string })?.code ?? e,
+            );
+          }
         }
-        await batch.commit();
+        // No se calla lo que no se guardó: la copia del otro sigue con el importe
+        // viejo y su balance dirá otra cosa que el mío.
+        if (stale > 0) showToast(t('history.edit.sharedPartialSave', { count: stale }), 'info');
       } else {
         await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
           type,
@@ -430,7 +463,10 @@ export default function EditTransactionScreen() {
       setLastAction('saved');
       showToast(t('history.toasts.saved'), 'success');
       goBack();
-    } catch {
+    } catch (e) {
+      // Sin esto un fallo de reglas, de red o un doc inexistente se veían iguales:
+      // "no se pudo guardar" y ni una línea en consola con la que diagnosticarlo.
+      console.error('[editTransaction.handleSave]', (e as { code?: string })?.code ?? '', e);
       setError(t('history.edit.saveError'));
       setLoading(false);
     }
