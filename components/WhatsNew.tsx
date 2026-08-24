@@ -45,22 +45,22 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'calculator-outline',
+    icon: 'create-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.simulator.title',
-    items: ['whatsNew.simulator.item1', 'whatsNew.simulator.item2'],
+    titleKey: 'whatsNew.editFix.title',
+    items: ['whatsNew.editFix.item1', 'whatsNew.editFix.item2'],
   },
   {
-    icon: 'card-outline',
+    icon: 'sparkles-outline',
     colorKey: 'success',
-    titleKey: 'whatsNew.cardRates.title',
-    items: ['whatsNew.cardRates.item1', 'whatsNew.cardRates.item2'],
+    titleKey: 'whatsNew.motion.title',
+    items: ['whatsNew.motion.item1', 'whatsNew.motion.item2'],
   },
   {
-    icon: 'grid-outline',
+    icon: 'color-palette-outline',
     colorKey: 'tertiary',
-    titleKey: 'whatsNew.tools.title',
-    items: ['whatsNew.tools.item1', 'whatsNew.tools.item2'],
+    titleKey: 'whatsNew.looks.title',
+    items: ['whatsNew.looks.item1', 'whatsNew.looks.item2'],
   },
 ];
 

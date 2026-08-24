@@ -1026,20 +1026,20 @@
     "title": "What’s new?",
     "subtitle": "Here’s what changed in Spendia.",
     "dismiss": "Got it",
-    "simulator": {
-      "title": "Purchase simulator",
-      "item1": "Before you buy, see the instalment, the interest and how your debt falls month by month",
-      "item2": "Compare terms and find out what stretching them really costs"
+    "editFix": {
+      "title": "Editing an expense works again",
+      "item1": "If it said \"could not save\" when editing, that is fixed",
+      "item2": "Same for cancelling a recurring expense from a given month"
     },
-    "cardRates": {
-      "title": "Every card with its rate",
-      "item1": "Save your card’s rate — it also learns itself when you record an instalment purchase",
-      "item2": "And if your bank publishes its average, we bring it from the Superfinanciera"
+    "motion": {
+      "title": "Animations actually move now",
+      "item1": "The chart and the loading shimmer were frozen by a bug; they animate again",
+      "item2": "The \"Rise\" animation is gone: it never actually played"
     },
-    "tools": {
-      "title": "Tools, reordered",
-      "item1": "Now grouped by what you want to do: plan, understand and share",
-      "item2": "Each one tells you something of yours without opening it"
+    "looks": {
+      "title": "Tighter personalization",
+      "item1": "We removed the backgrounds and chart types that were not good enough",
+      "item2": "Only the ones that look good on any screen are left"
     }
   },
   "incomeClaim": {

@@ -1026,20 +1026,20 @@
     "title": "¿Qué hay de nuevo?",
     "subtitle": "Esto cambió en Spendia.",
     "dismiss": "Entendido",
-    "simulator": {
-      "title": "Simulador de compras",
-      "item1": "Antes de comprar, mira la cuota, los intereses y cómo queda tu deuda mes a mes",
-      "item2": "Compara plazos y descubre cuánto te cuesta de verdad alargarlos"
+    "editFix": {
+      "title": "Editar un gasto vuelve a funcionar",
+      "item1": "Si te decía «no se pudo guardar» al editar, ya está arreglado",
+      "item2": "También al cancelar un gasto fijo desde un mes concreto"
     },
-    "cardRates": {
-      "title": "Cada tarjeta con su tasa",
-      "item1": "Guarda la tasa de tu tarjeta y se aprende sola cuando registras una compra a cuotas",
-      "item2": "Y si tu banco publica su promedio, lo traemos de la Superfinanciera"
+    "motion": {
+      "title": "Las animaciones ahora sí se mueven",
+      "item1": "El gráfico y los destellos de carga estaban quietos por un fallo; ya se animan",
+      "item2": "La animación «Ascenso» se retiró: nunca llegó a verse"
     },
-    "tools": {
-      "title": "Herramientas, reordenadas",
-      "item1": "Ahora se agrupan por lo que quieres hacer: planear, entender y compartir",
-      "item2": "Cada una te dice algo tuyo sin tener que entrar"
+    "looks": {
+      "title": "Personalización más afinada",
+      "item1": "Quitamos los fondos y los gráficos que no daban el nivel",
+      "item2": "Quedan solo los que se ven bien en cualquier pantalla"
     }
   },
   "incomeClaim": {
