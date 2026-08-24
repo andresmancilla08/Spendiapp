@@ -79,6 +79,9 @@ interface BalanceCardProps {
   netFlow?: { incomePct: number | null; expensePct: number | null };
   /** Premium: serie de balance (6 meses) para la mini-tendencia del hero. */
   sparkline?: number[];
+  /** Balance mes a mes. NO se dibuja: solo decide el acento "dinámico", que
+   *  compara este mes con el anterior. */
+  trendSeries?: number[];
   /** Premium: etiqueta del toggle de detalle (i18n). */
   detailsToggleLabel?: string;
 }
@@ -488,12 +491,20 @@ export default function BalanceCard({
   pro = false,
   netFlow,
   sparkline,
+  trendSeries,
   detailsToggleLabel,
 }: BalanceCardProps) {
   const { colors, isDark, chartType, chartAnimStyle, chartSpeed, chartAccent } = useTheme();
   const { animate: motionEnabled } = useProMotion();
   const chartDuration = chartSpeed === 'slow' ? 6500 : chartSpeed === 'normal' ? 4200 : 2600;
-  const resolvedChartColor = sparkline ? resolveChartAccent(chartAccent, colors, sparkline) : colors.primary;
+  // El gráfico dibuja el mes DÍA A DÍA, pero el acento "dinámico" promete
+  // "verde si tu balance sube este mes, rojo si baja" — eso es mes contra mes.
+  // Sobre la serie diaria `isTrendUp` compararía hoy contra ayer y el color
+  // parpadearía a diario. Por eso el color se resuelve con `trendSeries`.
+  const accentSeries = trendSeries ?? sparkline;
+  const resolvedChartColor = sparkline
+    ? resolveChartAccent(chartAccent, colors, accentSeries ?? sparkline)
+    : colors.primary;
   const resolvedChartColor2 = resolveChartAccent2(chartAccent, colors);
 
   // Familia "dinámica": el color real cambia entre verde/rojo según la tendencia
@@ -506,7 +517,7 @@ export default function BalanceCard({
   const signedMode: 'both' | 'line' | 'fill' = chartAccent === 'signedLine' ? 'line' : chartAccent === 'signedFill' ? 'fill' : 'both';
   // Misma regla que el color (mes vs mes anterior) — si divergen, el gráfico
   // cruza hacia el color contrario al que resolvió el acento.
-  const trendUp = isTrendUp(sparkline);
+  const trendUp = isTrendUp(accentSeries);
   const signedFade = useRef(new Animated.Value(trendUp ? 1 : 0)).current;
   useEffect(() => {
     if (!isSignedFamily) return;

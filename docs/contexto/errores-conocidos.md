@@ -299,3 +299,21 @@
 - **Solución (2026-08-23):** `resource.data.get('isShared', false)` y `resource.data.get('sharedOwnerUid', '')`, en `allow write` **y** en `allow update`. Reglas desplegadas — el arreglo es server-side, no necesita versión nueva de la app.
 - **Regla:** en Firestore Rules **nunca** se accede directo a un campo que puede no existir. Siempre `resource.data.get('campo', <default>)`. Aplica igual a `request.resource.data`.
 - **Gate:** `npm run check-rules` (`scripts/check-firestore-rules.mjs`) ejecuta 14 casos contra la API de reglas de Firebase — sin emulador ni Java. Es lo que faltaba: no había ninguna prueba de reglas y por eso esto llegó a producción y se quedó tres semanas.
+
+### Ninguna animación del gráfico se ejecutaba en web (resuelto)
+- **Síntoma:** un usuario reportó que las animaciones del gráfico no se veían, ni en Personalización ni en el Home. Se podía elegir cualquiera de las cuatro y no pasaba nada. `prefers-reduced-motion` estaba en `false` (verificado en producción).
+- **Causa real, y eran DOS mecanismos distintos:**
+  1. **"Trazo vivo"** (la opción por defecto) iba por `Animated` sobre `strokeDashoffset`. `react-native-svg` en web (`web/WebShape.js`) hace `setNativeProps(props) { Object.assign({}, this.props, this.lastMergedProps, props.style) }` — **solo lee `props.style`**. `Animated` entrega las props animadas al nivel superior, así que se descartaban. Y lo peor: la `Animated.timing` corría igual, llamando a `setNativeProps` en cada frame para los 3 paths. La app pagaba el JS y no se veía nada.
+  2. **"Aparición", "Marea" y "Ascenso"** iban por `animationKeyframes`, que solo funciona en estilos REGISTRADOS (ver el gotcha de FxLayer más abajo en este mismo archivo si se separa).
+- **Solución (2026-08-24):** en web el revelado es CSS puro con `pathLength={1}`, que normaliza la longitud del trazo y deja los keyframes CONSTANTES (1 → 0): una sola clase registrada para todos los gráficos, la duración inline (3 valores) y cero JS por frame. El muestreo de la curva (`sampleCurve`, 40 puntos + `hypot`) ya solo se calcula en nativo. En nativo se conserva `Animated`, que ahí sí llega al atributo.
+- **Ojo:** una animación CSS solo corre al montar. El path lleva una `key` derivada de los datos para que el revelado se repita al cambiar de mes.
+- **Regla:** en web, NADA de animar atributos SVG por `Animated`. O va por CSS (registrado), o no se mueve. Y `animationKeyframes` SIEMPRE por `StyleSheet.create`, nunca como objeto suelto en el array de `style`: la ruta `inline()` de react-native-web lo descarta en silencio (su propio código lo dice: "No support for 'animationKeyframes'").
+
+### El gráfico del Home dibujaba seis meses, no el mes (resuelto)
+- **Síntoma:** el mismo usuario, con ingresos y gastos en agosto, veía "una línea continua en el piso y nada más".
+- **Causa real, también doble:**
+  1. La tarjeta dibujaba `trend.map(b => b.balance)`: la tendencia de SEIS MESES. Con datos en un solo mes, cinco de los seis puntos valían 0.
+  2. Y una serie **constante** se dibujaba en el borde INFERIOR: `span = max - min || 1` dejaba el numerador en 0 para todos los puntos y `y` salía `H - P`. "No hay datos" y "tu saldo está por el suelo" se veían idénticos.
+- **Solución (2026-08-24):** el gráfico es del mes que se está viendo, **día a día** (`utils/dailyBalance.ts`): saldo acumulado que arranca en 0 y cuyo último punto vale exactamente el balance que la tarjeta muestra encima — usa `effectiveAmount`, el mismo importe con el que `useTransactions` saca sus totales. En el mes en curso corta en HOY. Y la normalización (`utils/sparkline.ts`) manda una serie sin variación al CENTRO.
+- **Cuidado al tocarlo:** el acento "dinámico" promete "verde si tu balance sube este mes, rojo si baja", que es **mes contra mes**. Sobre la serie diaria, `isTrendUp` compararía hoy contra ayer y el color parpadearía a diario. Por eso `BalanceCard` recibe `trendSeries` (mensual, NO se dibuja) aparte de `sparkline` (diaria, la que se dibuja).
+- **Gates:** `npx tsx utils/dailyBalance.test.ts` y `npx tsx utils/sparkline.test.ts`.

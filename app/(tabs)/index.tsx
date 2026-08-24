@@ -33,6 +33,7 @@ import { Skeleton, SummaryCardsSkeleton, TransactionRowSkeleton } from '../../co
 import ProReveal from '../../components/ProReveal';
 import ProCardFx from '../../components/ProCardFx';
 import { useMonthlyTrend } from '../../hooks/useMonthlyTrend';
+import { dailyCumulativeBalance } from '../../utils/dailyBalance';
 import InsightsGrid, { InsightItem } from '../../components/premium/InsightsGrid';
 import InsightBanner from '../../components/premium/InsightBanner';
 import { useAiInsight, type InsightInput } from '../../hooks/useAiInsight';
@@ -286,6 +287,19 @@ export default function HomeScreen() {
   // Premium: serie de 6 meses (tendencia + comparación con mes anterior).
   const dayCutoffForTrend = isCurrentMonth ? now.getDate() : new Date(year, month + 1, 0).getDate();
   const { data: trend, prevMonthToDateExpenses } = useMonthlyTrend(user?.uid ?? '', year, month, 6, isPremium, dayCutoffForTrend);
+
+  // El gráfico de la tarjeta es del MES QUE SE ESTÁ VIENDO, día a día: saldo
+  // acumulado que termina exactamente en la cifra de Balance de encima. Antes
+  // dibujaba la tendencia de seis meses, así que quien solo tenía datos de un
+  // mes veía cinco puntos a cero y una línea pegada al suelo.
+  const daysInViewedMonth = new Date(year, month + 1, 0).getDate();
+  // En el mes en curso se corta en HOY: dibujar hasta fin de mes sería una recta
+  // plana que aún no ha pasado.
+  const lastDayToPlot = isCurrentMonth ? now.getDate() : daysInViewedMonth;
+  const dailyBalance = useMemo(
+    () => dailyCumulativeBalance(transactions, daysInViewedMonth, lastDayToPlot),
+    [transactions, daysInViewedMonth, lastDayToPlot],
+  );
 
   const nameParts = user?.displayName?.split(' ') ?? ['Usuario'];
   const firstName = nameParts[0];
@@ -557,7 +571,8 @@ export default function HomeScreen() {
         <BalanceCard
           pro={isPremium}
           netFlow={isPremium ? netFlow : undefined}
-          sparkline={isPremium ? trend.map((b) => b.balance) : undefined}
+          sparkline={isPremium ? dailyBalance : undefined}
+          trendSeries={isPremium ? trend.map((b) => b.balance) : undefined}
           detailsToggleLabel={t('home.pro.detailsToggle')}
           loading={loading || refreshing}
           displayBalance={displayBalance}
