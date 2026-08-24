@@ -28,8 +28,19 @@ const SvgPath = ({ collapsable, ...rest }: React.ComponentProps<typeof Path> & {
  *  `style` — pero el `setNativeProps` de react-native-svg en web solo lee
  *  `props.style`, así que ahí es donde tienen que ir los valores animados para
  *  que lleguen al DOM. Se ensancha el tipo para poder pasarlo. */
+type SvgPathProps = React.ComponentProps<typeof SvgPath>;
+type Animatable = Animated.AnimatedInterpolation<string | number>;
 const AnimatedPath = Animated.createAnimatedComponent(SvgPath) as React.ComponentType<
-  React.ComponentProps<typeof SvgPath> & { style?: Record<string, unknown> }
+  Omit<SvgPathProps, 'opacity' | 'strokeDashoffset'> & {
+    // Animadas en NATIVO (ahí `setNativeProps` sí aplica props sueltas)…
+    opacity?: SvgPathProps['opacity'] | Animatable;
+    strokeDashoffset?: SvgPathProps['strokeDashoffset'] | Animatable;
+    // …y en WEB todo va por `style`, que `PathProps` no declara.
+    style?: Record<string, unknown>;
+    // `PathProps` tampoco declara `pathLength`, pero react-native-svg lo pasa al
+    // DOM tal cual (está en su `KEEP_CAMEL_CASE` de web/utils).
+    pathLength?: number;
+  }
 >;
 import { useTheme, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
@@ -231,7 +242,11 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // caía al borde inferior y "sin datos" se veía igual que "saldo por el suelo".
   const pts = useMemo(() => sparklinePoints(values, W, H, P), [values]);
 
-  const samples = useMemo(() => (pts.length >= 2 ? sampleCurve(pts, 40) : []), [pts]);
+  // Solo nativo lo necesita (para `approxLen`): en web el revelado usa `pathLength`.
+  const samples = useMemo(
+    () => (Platform.OS !== 'web' && pts.length >= 2 ? sampleCurve(pts, 40) : []),
+    [pts],
+  );
   const approxLen = useMemo(() => {
     let len = 0;
     for (let i = 1; i < samples.length; i++) len += Math.hypot(samples[i].x - samples[i - 1].x, samples[i].y - samples[i - 1].y);
@@ -246,9 +261,17 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // por el estado de React, y el trazo se dibuja al entrar en vez de repetirse:
   // después del primer ciclo ya no añade información.
   const drawActive = animate && animStyle === 'draw';
-  const drawAnim = useRef(new Animated.Value(drawActive ? 0 : 1)).current;
+  // En WEB el revelado va por CSS y NO por `Animated`: escribir un atributo en
+  // cada frame desde JS es exactamente lo que el CLAUDE.md prohíbe (fue la causa
+  // de que la app calentara), y encima `setNativeProps` de react-native-svg en
+  // web descarta las props animadas. Con `pathLength={1}` la longitud del trazo
+  // queda normalizada, así que los keyframes son CONSTANTES: una sola clase CSS
+  // reutilizada por todos los gráficos, cero JS por frame y cero muestreo de la
+  // curva. En nativo sí funciona `Animated`, y ahí se queda.
+  const drawNative = drawActive && Platform.OS !== 'web';
+  const drawAnim = useRef(new Animated.Value(drawNative ? 0 : 1)).current;
   useEffect(() => {
-    if (!drawActive) { drawAnim.setValue(1); return; }
+    if (!drawNative) { drawAnim.setValue(1); return; }
     drawAnim.setValue(0);
     const anim = Animated.timing(drawAnim, {
       toValue: 1,
@@ -258,7 +281,21 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
     });
     anim.start();
     return () => anim.stop();
-  }, [drawActive, drawAnim, duration, approxLen]);
+  }, [drawNative, drawAnim, duration, approxLen]);
+
+  // Duración inline (3 valores posibles, uno por velocidad) sobre una clase de
+  // keyframes estática: RNW deja `animationDuration` en el estilo inline y solo
+  // registra la clase de los keyframes, así que no se multiplican las clases.
+  const drawWeb = drawActive && Platform.OS === 'web';
+  const revealDuration = `${Math.max(1100, duration * 0.35)}ms`;
+  const lineReveal = drawWeb ? [DRAW_REVEAL, { animationDuration: revealDuration }] : undefined;
+  const fillReveal = drawWeb && chartType === 'area'
+    ? [FILL_REVEAL, { animationDuration: revealDuration }]
+    : undefined;
+  // Una animación CSS solo corre al montar: sin esto, al cambiar de mes el
+  // gráfico nuevo aparecía ya dibujado. La clave cambia con los datos y fuerza
+  // el remontado del path.
+  const revealKey = useMemo(() => (values ?? []).join('|'), [values]);
 
   // ── Marea: el área y la línea respiran juntas, sin desplazamiento ──
   const tideActive = animate && animStyle === 'tide';
@@ -305,12 +342,12 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
           /* En "área" + trazo vivo, el relleno ES lo que se revela (no hay línea
              que dibujar), así que su opacidad va por el mismo Animated. */
           <AnimatedPath
+            key={`fill-${revealKey}`}
             d={area} fill={`url(#${gradientId})`}
-            style={{
-              opacity: drawActive && chartType === 'area'
-                ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] })
-                : areaOpacity,
-            }}
+            opacity={drawNative && chartType === 'area'
+              ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] })
+              : areaOpacity}
+            style={fillReveal as unknown as Record<string, unknown>}
           />
         )}
         {renderStroke && showLine && (
@@ -325,26 +362,32 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
                 DESCARTA y la animación no se mueve nunca. `stroke-dashoffset` es
                 una propiedad CSS válida, así que por `style` sí llega al DOM. */}
             <AnimatedPath
+              key={`line-${revealKey}`}
               d={line} fill="none" stroke={stroke}
               strokeWidth={showDots ? 1.6 : 2.4} strokeOpacity={lineOpacity}
               strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"
-              strokeDasharray={drawActive ? approxLen : undefined}
-              style={drawActive
-                ? { strokeDashoffset: drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] }) } as any
+              pathLength={drawWeb ? 1 : undefined}
+              strokeDasharray={drawWeb ? 1 : drawNative ? approxLen : undefined}
+              strokeDashoffset={drawNative
+                ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] })
                 : undefined}
+              style={lineReveal as unknown as Record<string, unknown>}
             />
           </>
         )}
         {renderStroke && chartType === 'area' && (
           /* Borde superior fino — sin él, el área queda sin contorno definido y "no aplica nada" al ojo */
           <AnimatedPath
+            key={`edge-${revealKey}`}
             d={line} fill="none" stroke={stroke}
             strokeWidth={1.4} strokeOpacity={0.9}
             strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"
-            strokeDasharray={drawActive ? approxLen : undefined}
-            style={drawActive
-              ? { strokeDashoffset: drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] }) } as any
+            pathLength={drawWeb ? 1 : undefined}
+            strokeDasharray={drawWeb ? 1 : drawNative ? approxLen : undefined}
+            strokeDashoffset={drawNative
+              ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] })
               : undefined}
+            style={lineReveal as unknown as Record<string, unknown>}
           />
         )}
       </Svg>
@@ -384,6 +427,30 @@ function TideLayer({ active, duration, children }: { active: boolean; duration: 
     </FxLayer>
   );
 }
+
+/** Revelado del trazo ("Trazo vivo") en web, en CSS y sin JS por frame.
+ *  Los keyframes son constantes porque el path lleva `pathLength={1}`: la
+ *  longitud queda normalizada a 1 y el mismo 1→0 sirve para cualquier serie.
+ *  Antes se calculaba la longitud muestreando la curva (40 puntos + hypot en
+ *  cada render) y se escribía el atributo desde `Animated` en cada frame. */
+const DRAW_REVEAL = Platform.OS === 'web'
+  ? StyleSheet.create({ reveal: ({
+      animationKeyframes: [{ '0%': { strokeDashoffset: 1 }, '100%': { strokeDashoffset: 0 } }],
+      animationTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      animationIterationCount: 1,
+      animationFillMode: 'both',
+    } as any) }).reveal
+  : null;
+
+/** En "área" no hay línea que dibujar: lo que se revela es el relleno. */
+const FILL_REVEAL = Platform.OS === 'web'
+  ? StyleSheet.create({ reveal: ({
+      animationKeyframes: [{ '0%': { opacity: 0.2 }, '100%': { opacity: 1 } }],
+      animationTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      animationIterationCount: 1,
+      animationFillMode: 'both',
+    } as any) }).reveal
+  : null;
 
 /** Entrada "aparición": el gráfico se funde. La más discreta del catálogo.
  *  Va por `StyleSheet.create` y NO como objeto suelto: `animationKeyframes` es
