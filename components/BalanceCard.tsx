@@ -24,11 +24,18 @@ import FxLayer, { type FxFrame } from './fx/FxLayer';
  * consola con "Received `false` for a non-boolean attribute `collapsable`".
  */
 const SvgPath = ({ collapsable, ...rest }: React.ComponentProps<typeof Path> & { collapsable?: boolean }) => <Path {...rest} />;
-const AnimatedPath = Animated.createAnimatedComponent(SvgPath);
+/** `createAnimatedComponent` conserva los tipos de `PathProps`, que NO declaran
+ *  `style` — pero el `setNativeProps` de react-native-svg en web solo lee
+ *  `props.style`, así que ahí es donde tienen que ir los valores animados para
+ *  que lleguen al DOM. Se ensancha el tipo para poder pasarlo. */
+const AnimatedPath = Animated.createAnimatedComponent(SvgPath) as React.ComponentType<
+  React.ComponentProps<typeof SvgPath> & { style?: Record<string, unknown> }
+>;
 import { useTheme, type ChartType, type ChartAnimStyle, type ChartAccent } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
 import { useProMotion } from '../hooks/useProMotion';
 import { isTrendUp } from '../utils/chartTrend';
+import { sparklinePoints } from '../utils/sparkline';
 import { Fonts } from '../config/fonts';
 
 const HIDDEN_MASK = '••••••';
@@ -220,16 +227,9 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // fuera un selector CSS, donde ':' tiene significado especial (pseudo-clases).
   const gradientId = `spk-${useId().replace(/:/g, '')}`;
 
-  const pts = useMemo(() => {
-    if (!values || values.length < 2) return [];
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const span = max - min || 1;
-    return values.map((v, i) => ({
-      x: (i / (values.length - 1)) * W,
-      y: P + (1 - (v - min) / span) * (H - 2 * P),
-    }));
-  }, [values]);
+  // La normalización vive en `utils/sparkline` con su test: una serie constante
+  // caía al borde inferior y "sin datos" se veía igual que "saldo por el suelo".
+  const pts = useMemo(() => sparklinePoints(values, W, H, P), [values]);
 
   const samples = useMemo(() => (pts.length >= 2 ? sampleCurve(pts, 40) : []), [pts]);
   const approxLen = useMemo(() => {
@@ -306,9 +306,11 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
              que dibujar), así que su opacidad va por el mismo Animated. */
           <AnimatedPath
             d={area} fill={`url(#${gradientId})`}
-            opacity={drawActive && chartType === 'area'
-              ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] })
-              : areaOpacity}
+            style={{
+              opacity: drawActive && chartType === 'area'
+                ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] })
+                : areaOpacity,
+            }}
           />
         )}
         {renderStroke && showLine && (
@@ -316,15 +318,19 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
             {/* Glow: underlay difuso (grueso, translúcido) → simula resplandor en web y nativo */}
             <Path d={line} fill="none" stroke={stroke} strokeWidth={6} strokeOpacity={glowOpacity} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
             {/* Línea nítida — strokeDasharray/offset revela el trazo en "Trazo vivo".
-                El offset lo escribe `Animated` directamente sobre el atributo del
-                path: sin estado de React de por medio, no hay re-render por frame. */}
+                El offset va por `style` y NO como atributo: el `setNativeProps` de
+                `react-native-svg` en web (web/WebShape.js) hace
+                `Object.assign({}, this.props, this.lastMergedProps, props.style)`
+                — solo mira `props.style`. Una prop animada al nivel superior se
+                DESCARTA y la animación no se mueve nunca. `stroke-dashoffset` es
+                una propiedad CSS válida, así que por `style` sí llega al DOM. */}
             <AnimatedPath
               d={line} fill="none" stroke={stroke}
               strokeWidth={showDots ? 1.6 : 2.4} strokeOpacity={lineOpacity}
               strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"
               strokeDasharray={drawActive ? approxLen : undefined}
-              strokeDashoffset={drawActive
-                ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] })
+              style={drawActive
+                ? { strokeDashoffset: drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] }) } as any
                 : undefined}
             />
           </>
@@ -336,8 +342,8 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
             strokeWidth={1.4} strokeOpacity={0.9}
             strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"
             strokeDasharray={drawActive ? approxLen : undefined}
-            strokeDashoffset={drawActive
-              ? drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] })
+            style={drawActive
+              ? { strokeDashoffset: drawAnim.interpolate({ inputRange: [0, 1], outputRange: [approxLen, 0] }) } as any
               : undefined}
           />
         )}

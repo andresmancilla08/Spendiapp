@@ -58,7 +58,12 @@ export function useMonthlyTrend(
     const unsub = onSnapshot(q, (snap) => {
       setRangeDocs(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
       setLoading(false);
-    }, () => { setRangeDocs([]); setLoading(false); });
+    }, (err) => {
+      // Sin esto, un fallo de reglas, de índice o de red daba un gráfico PLANO y
+      // ni una línea en consola: idéntico a "este mes no tiene nada".
+      console.warn('[useMonthlyTrend] rango:', err.code, err.message);
+      setRangeDocs([]); setLoading(false);
+    });
     return unsub;
   }, [enabled, userId, spanStartY, spanStartM, year, month]);
 
@@ -72,7 +77,10 @@ export function useMonthlyTrend(
     );
     const unsub = onSnapshot(q, (snap) => {
       setFixedDocs(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    }, () => setFixedDocs([]));
+    }, (err) => {
+      console.warn('[useMonthlyTrend] fijas:', err.code, err.message);
+      setFixedDocs([]);
+    });
     return unsub;
   }, [enabled, userId]);
 
