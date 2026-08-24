@@ -26,8 +26,13 @@ service cloud.firestore {
         // lo impedía, pero las reglas se suman con OR y esta lo dejaba pasar).
         && request.resource.data.userId == resource.data.userId
         && request.resource.data.get('sharedOwnerUid', null) == resource.data.get('sharedOwnerUid', null)
-        && (resource.data.isShared != true
-            || request.auth.uid == resource.data.sharedOwnerUid
+        // `.get()` y NO acceso directo: en un documento que no trae el campo,
+        // `resource.data.isShared` no vale null — es un ERROR de evaluación, y el
+        // error DENIEGA. Como ningún gasto normal escribe `isShared`, esta línea
+        // dejó tres semanas (2026-08-02 → 08-23) sin poder editar un solo gasto
+        // propio: la app solo decía "no se pudo guardar".
+        && (resource.data.get('isShared', false) != true
+            || request.auth.uid == resource.data.get('sharedOwnerUid', '')
             || request.resource.data.diff(resource.data).affectedKeys()
                  .hasOnly(['isPaid', 'notes', 'category', 'fixedPaidMonths', 'fixedSkipMonths', 'cardId']));
       allow create: if request.auth != null && (
@@ -48,8 +53,10 @@ service cloud.firestore {
       // (edit-transaction propaga monto/fecha/categoría a todos). No puede
       // reasignar el dueño del mirror ni cambiar de quién es la transacción.
       allow update: if request.auth != null
-        && resource.data.isShared == true
-        && resource.data.sharedOwnerUid == request.auth.uid
+        // Misma trampa que arriba: sin `.get()` esto revienta en cualquier
+        // documento sin `isShared` en vez de evaluar a falso.
+        && resource.data.get('isShared', false) == true
+        && resource.data.get('sharedOwnerUid', '') == request.auth.uid
         && request.resource.data.userId == resource.data.userId
         && request.resource.data.sharedOwnerUid == resource.data.sharedOwnerUid;
     }

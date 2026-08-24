@@ -11,7 +11,8 @@
     "export": "expo export --platform web && node scripts/patch-html.js",
     "deploy": "npm run export && vercel --prod",
     "reset-whats-new": "node scripts/reset-whats-new.js",
-    "check-i18n": "node scripts/check-i18n.js"
+    "check-i18n": "node scripts/check-i18n.js",
+    "check-rules": "node scripts/check-firestore-rules.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/dm-mono": "^0.4.2",
