@@ -344,7 +344,6 @@
     "chartAnimLabel": "Animazione",
     "chartAnim": {
       "draw": "Traccia viva",
-      "rise": "Ascesa",
       "tide": "Marea",
       "fade": "Dissolvenza",
       "none": "Nessuna"

@@ -263,16 +263,8 @@ export function Sparkline({ values, color, accent, accent2, height = 56, animate
   // ── Marea: el área y la línea respiran juntas, sin desplazamiento ──
   const tideActive = animate && animStyle === 'tide';
 
-  // ── Entradas por compositor: `rise` crece desde la base y `fade` se funde.
-  // Ambas son una sola pasada sobre `transform`/`opacity`: no cuestan nada por
-  // frame y terminan solas. ──
-  const entryStyle = animate
-    ? animStyle === 'rise'
-      ? ENTRY_RISE
-      : animStyle === 'fade'
-        ? ENTRY_FADE
-        : null
-    : null;
+  // ── "Aparición": una sola pasada de opacidad por el compositor. ──
+  const entryStyle = animate && animStyle === 'fade' ? ENTRY_FADE : null;
 
   if (pts.length < 2) return null;
 
@@ -387,26 +379,18 @@ function TideLayer({ active, duration, children }: { active: boolean; duration: 
   );
 }
 
-/** Entrada "ascenso": el gráfico crece desde su base, como si el dato subiera.
- *  Es `scaleY` con origen abajo — una transformación, nada de layout. */
-const ENTRY_RISE = Platform.OS === 'web'
-  ? ({
-      transformOrigin: 'bottom',
-      animationKeyframes: [{ '0%': { transform: [{ scaleY: 0.05 }], opacity: 0 }, '100%': { transform: [{ scaleY: 1 }], opacity: 1 } }],
-      animationDuration: '620ms',
-      animationTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
-      animationFillMode: 'both',
-    } as any)
-  : null;
-
-/** Entrada "aparición": el gráfico se funde. La más discreta del catálogo. */
+/** Entrada "aparición": el gráfico se funde. La más discreta del catálogo.
+ *  Va por `StyleSheet.create` y NO como objeto suelto: `animationKeyframes` es
+ *  una extensión de react-native-web que su compilador solo aplica a estilos
+ *  registrados — suelto se cuela en el estilo inline, el navegador lo ignora y
+ *  la animación no se ejecuta. Era el caso de "Aparición" y "Ascenso". */
 const ENTRY_FADE = Platform.OS === 'web'
-  ? ({
+  ? StyleSheet.create({ fade: ({
       animationKeyframes: [{ '0%': { opacity: 0 }, '100%': { opacity: 1 } }],
       animationDuration: '520ms',
       animationTimingFunction: 'ease-out',
       animationFillMode: 'both',
-    } as any)
+    } as any) }).fade
   : null;
 
 const TIDE_FRAMES: FxFrame[] = [

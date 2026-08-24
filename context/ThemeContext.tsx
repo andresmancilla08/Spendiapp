@@ -56,20 +56,20 @@ export const CHART_TYPE_VALUES: ChartType[] = ['line', 'area', 'dots'];
  *  y era lo que calentaba el teléfono.
  *
  *  - `draw`  trazo vivo: la línea se dibuja de izquierda a derecha
- *  - `rise`  ascenso: el gráfico crece desde la base
  *  - `tide`  marea: el gráfico entra respirando
  *  - `fade`  aparición: entra fundiéndose
  *  - `none`  sin animación
  *
  *  El "pulso" (un punto recorriendo la línea en bucle) se retiró en la v2.58.0;
  *  los ajustes guardados con ese valor migran a `draw`. */
-export type ChartAnimStyle = 'draw' | 'rise' | 'tide' | 'fade' | 'none';
-export const CHART_ANIM_VALUES: ChartAnimStyle[] = ['draw', 'rise', 'tide', 'fade', 'none'];
+export type ChartAnimStyle = 'draw' | 'tide' | 'fade' | 'none';
+export const CHART_ANIM_VALUES: ChartAnimStyle[] = ['draw', 'tide', 'fade', 'none'];
 /** Normaliza un valor guardado (local o de Firestore), migrando el legado. */
 export function normalizeChartAnim(v: unknown): ChartAnimStyle | null {
   // `pulse` (v2.58) y `sweep` (v2.59) se retiraron: el punto en bucle no añadía
   // información y el destello se leía como un bloque parado sobre el gráfico.
-  if (v === 'pulse' || v === 'sweep') return 'draw';
+  // `rise` (v2.68) también: nunca llegó a ejecutarse en web y no gustaba.
+  if (v === 'pulse' || v === 'sweep' || v === 'rise') return 'draw';
   return CHART_ANIM_VALUES.includes(v as ChartAnimStyle) ? (v as ChartAnimStyle) : null;
 }
 export type ChartAccent = 'theme' | 'secondary' | 'success' | 'gold' | 'signed' | 'signedLine' | 'signedFill' | 'duoSuccess' | 'duoTertiary';

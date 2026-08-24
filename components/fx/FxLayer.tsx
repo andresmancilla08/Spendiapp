@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect } from 'react';
-import { View, Animated, Easing, Platform, type ViewStyle } from 'react-native';
+import { View, Animated, Easing, Platform, StyleSheet, type ViewStyle } from 'react-native';
 import { useIsActive } from '../../hooks/useIsActive';
 
 
@@ -100,7 +100,13 @@ export default function FxLayer({
       if (t.length) k.transform = t;
       keyframes[key] = k;
     }
-    return {
+    // OJO: `animationKeyframes` es una extensión de react-native-web y su
+    // compilador SOLO la entiende para estilos REGISTRADOS. Un objeto suelto en
+    // el array de `style` cae por la ruta `inline()`, que en el propio código de
+    // RNW dice literalmente "No support for 'animationKeyframes'": el navegador
+    // recibe una propiedad inventada, la ignora y la animación NUNCA se ejecuta.
+    // Registrarlo la convierte en una clase real con su regla `@keyframes`.
+    return StyleSheet.create({ fx: {
       animationKeyframes: [keyframes],
       animationDuration: `${duration}ms`,
       animationDelay: `${delay - phase * duration}ms`,
@@ -109,7 +115,7 @@ export default function FxLayer({
       animationPlayState: active ? 'running' : 'paused',
       // Sin esto el elemento salta a su estilo base durante el `delay`.
       animationFillMode: 'both',
-    } as any;
+    } as any }).fx;
   }, [frames, duration, phase, delay, easing, rotate, active, once]);
 
   // ── Nativo: Animated en el hilo de UI ──
