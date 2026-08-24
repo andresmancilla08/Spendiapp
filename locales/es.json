@@ -1033,13 +1033,13 @@
     },
     "motion": {
       "title": "Las animaciones ahora sí se mueven",
-      "item1": "El gráfico y los destellos de carga estaban quietos por un fallo; ya se animan",
-      "item2": "La animación «Ascenso» se retiró: nunca llegó a verse"
+      "item1": "Por un fallo, ninguna animación del gráfico llegaba a ejecutarse. Ya se ven",
+      "item2": "Y consumen menos que antes: las mueve el navegador, no la app"
     },
-    "looks": {
-      "title": "Personalización más afinada",
-      "item1": "Quitamos los fondos y los gráficos que no daban el nivel",
-      "item2": "Quedan solo los que se ven bien en cualquier pantalla"
+    "chartMonth": {
+      "title": "El gráfico es de TU mes",
+      "item1": "Antes mostraba seis meses; ahora dibuja el mes que estás viendo, día a día",
+      "item2": "Y termina justo en el balance que ves arriba, así que el gráfico y la cifra dicen lo mismo"
     }
   },
   "incomeClaim": {

@@ -1033,13 +1033,13 @@
     },
     "motion": {
       "title": "Le animazioni ora si muovono davvero",
-      "item1": "Il grafico e il riverbero di caricamento erano fermi per un bug; ora si animano",
-      "item2": "L’animazione «Ascesa» è stata rimossa: non si è mai vista"
+      "item1": "Per un bug nessuna animazione del grafico veniva eseguita. Ora si vedono",
+      "item2": "E costano meno di prima: le muove il browser, non l’app"
     },
-    "looks": {
-      "title": "Personalizzazione più curata",
-      "item1": "Abbiamo tolto gli sfondi e i grafici che non erano all’altezza",
-      "item2": "Restano solo quelli che stanno bene su qualsiasi schermo"
+    "chartMonth": {
+      "title": "Il grafico riguarda il TUO mese",
+      "item1": "Prima mostrava sei mesi; ora disegna il mese che stai guardando, giorno per giorno",
+      "item2": "E finisce esattamente sul saldo mostrato sopra, così grafico e cifra concordano"
     }
   },
   "incomeClaim": {

@@ -45,10 +45,10 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'create-outline',
+    icon: 'trending-up-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.editFix.title',
-    items: ['whatsNew.editFix.item1', 'whatsNew.editFix.item2'],
+    titleKey: 'whatsNew.chartMonth.title',
+    items: ['whatsNew.chartMonth.item1', 'whatsNew.chartMonth.item2'],
   },
   {
     icon: 'sparkles-outline',
@@ -57,10 +57,10 @@ const APP_FEATURES: Feature[] = [
     items: ['whatsNew.motion.item1', 'whatsNew.motion.item2'],
   },
   {
-    icon: 'color-palette-outline',
+    icon: 'create-outline',
     colorKey: 'tertiary',
-    titleKey: 'whatsNew.looks.title',
-    items: ['whatsNew.looks.item1', 'whatsNew.looks.item2'],
+    titleKey: 'whatsNew.editFix.title',
+    items: ['whatsNew.editFix.item1', 'whatsNew.editFix.item2'],
   },
 ];
 

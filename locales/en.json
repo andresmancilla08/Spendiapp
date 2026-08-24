@@ -1033,13 +1033,13 @@
     },
     "motion": {
       "title": "Animations actually move now",
-      "item1": "The chart and the loading shimmer were frozen by a bug; they animate again",
-      "item2": "The \"Rise\" animation is gone: it never actually played"
+      "item1": "A bug meant no chart animation ever ran. They are visible now",
+      "item2": "And they cost less than before: the browser moves them, not the app"
     },
-    "looks": {
-      "title": "Tighter personalization",
-      "item1": "We removed the backgrounds and chart types that were not good enough",
-      "item2": "Only the ones that look good on any screen are left"
+    "chartMonth": {
+      "title": "The chart is about YOUR month",
+      "item1": "It used to show six months; now it draws the month you are viewing, day by day",
+      "item2": "And it ends exactly at the balance shown above, so chart and figure agree"
     }
   },
   "incomeClaim": {
