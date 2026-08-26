@@ -590,7 +590,10 @@
       "editScopeFromNowDesc": "From {{month}} {{year}} on, the new value applies. Earlier months keep the current one.",
       "editScopeAll": "Every month",
       "editScopeAllDesc": "Also rewrites the history already recorded, closed months included.",
-      "editScopeApply": "Apply change"
+      "editScopeApply": "Apply change",
+      "scopeConfirmSharedFixed_single": "This month will stop showing for every participant. The fixed expense continues the other months.",
+      "scopeConfirmSharedFixed_fromNow": "The fixed expense will be cancelled from this month for every participant. Earlier months stay untouched.",
+      "scopeSharedNote": "Applies the same way to every participant’s copy."
     },
     "months": [
       "Jan",
@@ -1035,9 +1038,9 @@
     "subtitle": "Here’s what changed in Spendia.",
     "dismiss": "Got it",
     "fixedScope": {
-      "title": "Editing a fixed expense now asks which months it applies to",
-      "item1": "It used to rewrite every month and could drop the expense from your history",
-      "item2": "Now you choose: this month only, from this month on, or all of them"
+      "title": "Editing or deleting a fixed expense: you pick the months",
+      "item1": "It always asks: this month only, from this month on, or all of them",
+      "item2": "Shared fixed expenses too — and it applies the same way to the other person"
     }
   },
   "incomeClaim": {

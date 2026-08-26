@@ -37,12 +37,29 @@ export function newDocDate(viewYear: number, viewMonth: number, day: number): Da
   return new Date(viewYear, viewMonth, Math.min(day, daysIn(viewYear, viewMonth)));
 }
 
+export type FixedScope = 'single' | 'fromNow' | 'all';
+
 /**
- * Meses omitidos que debe heredar la serie nueva: los del mes de corte en adelante.
- * Los anteriores siguen siendo asunto del documento viejo.
+ * En el mes de ARRANQUE de la serie, "de este mes en adelante" y "todos los meses"
+ * son la misma cosa: no hay nada antes. Ejecutarlo como partición dejaría un
+ * documento zombi sin ningún mes visible. Y lo que no es fijo no tiene serie.
  */
-export function futureSkipMonths(skips: string[], viewYear: number, viewMonth: number): string[] {
-  return skips.filter((k) => {
+export function effectiveScope(
+  scope: FixedScope,
+  opts: { wasFixed: boolean; isOriginMonth: boolean },
+): FixedScope {
+  if (!opts.wasFixed) return 'all';
+  if (scope === 'fromNow' && opts.isOriginMonth) return 'all';
+  return scope;
+}
+
+/**
+ * Claves de mes (`año_mesIndex`) que debe heredar la serie nueva: las del mes de
+ * corte en adelante. Las anteriores siguen siendo asunto del documento viejo.
+ * Se usa igual para `fixedSkipMonths` y para `fixedPaidMonths`.
+ */
+export function monthKeysFrom(keys: string[], viewYear: number, viewMonth: number): string[] {
+  return keys.filter((k) => {
     const [y, m] = k.split('_').map(Number);
     if (Number.isNaN(y) || Number.isNaN(m)) return false;
     return y > viewYear || (y === viewYear && m >= viewMonth);

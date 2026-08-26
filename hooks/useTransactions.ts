@@ -88,6 +88,7 @@ export function useTransactions(userId: string, year: number, month: number, ref
           isInstallment: d.isInstallment ?? false,
           fixedCancelledFrom: d.fixedCancelledFrom ? (d.fixedCancelledFrom as Timestamp).toDate() : undefined,
           fixedSkipMonths: d.fixedSkipMonths ?? [],
+          fixedPaidMonths: d.fixedPaidMonths ?? [],
           fixedSplitInto: d.fixedSplitInto,
           // Ingreso enviado — remitente
           sentIncomeToUid: d.sentIncomeToUid,
@@ -179,6 +180,7 @@ export function useTransactions(userId: string, year: number, month: number, ref
             // histórico anterior.
             fixedOriginDate: originalDate,
             fixedSkipMonths: d.fixedSkipMonths ?? [],
+            fixedPaidMonths: d.fixedPaidMonths ?? [],
             fixedSplitInto: d.fixedSplitInto,
             // Se conserva para que `effectiveAmount` no confunda una cuota con un
             // compartido normal y acabe usando el gemelo de `sharedAmount`.

@@ -590,7 +590,10 @@
       "editScopeFromNowDesc": "Desde {{month}} {{year}} se usa el nuevo valor. Los meses anteriores conservan el actual.",
       "editScopeAll": "Todos los meses",
       "editScopeAllDesc": "Reescribe también el histórico ya registrado, incluidos los meses cerrados.",
-      "editScopeApply": "Aplicar cambio"
+      "editScopeApply": "Aplicar cambio",
+      "scopeConfirmSharedFixed_single": "Este mes dejará de aparecer para todos los participantes. El fijo continúa el resto de meses.",
+      "scopeConfirmSharedFixed_fromNow": "El fijo se cancelará desde este mes para todos los participantes. Los meses anteriores quedan intactos.",
+      "scopeSharedNote": "Se aplica igual a la copia de todos los participantes."
     },
     "months": [
       "Ene",
@@ -1035,9 +1038,9 @@
     "subtitle": "Esto cambió en Spendia.",
     "dismiss": "Entendido",
     "fixedScope": {
-      "title": "Editar un gasto fijo ya pregunta a qué meses aplica",
-      "item1": "Antes el cambio reescribía todos los meses y podía sacar el gasto de tu histórico",
-      "item2": "Ahora eliges: solo este mes, de este mes en adelante, o todos"
+      "title": "Editar o borrar un fijo: tú eliges los meses",
+      "item1": "Siempre te pregunta: solo este mes, de este mes en adelante, o todos",
+      "item2": "También en los gastos fijos compartidos, y se aplica igual a la otra persona"
     }
   },
   "incomeClaim": {

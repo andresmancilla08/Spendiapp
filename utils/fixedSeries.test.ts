@@ -2,7 +2,7 @@
  * npx tsx utils/fixedSeries.test.ts
  */
 import assert from 'node:assert';
-import { originDateForEdit, newDocDate, futureSkipMonths, monthKey, daysIn } from './fixedSeries';
+import { originDateForEdit, newDocDate, monthKeysFrom, monthKey, daysIn, effectiveScope } from './fixedSeries';
 
 // El caso que rompió los datos: fijo que arranca el 23 de abril, editado desde la
 // copia virtual de octubre sin tocar el selector de fecha.
@@ -62,13 +62,22 @@ import { originDateForEdit, newDocDate, futureSkipMonths, monthKey, daysIn } fro
   assert.strictEqual(daysIn(2026, 1), 28);
 }
 
-// Los meses omitidos anteriores al corte se quedan en el documento viejo.
+// Los meses omitidos/pagados anteriores al corte se quedan en el documento viejo.
 {
-  const skips = ['2026_2', '2026_9', '2027_0'];
-  assert.deepStrictEqual(futureSkipMonths(skips, 2026, 9), ['2026_9', '2027_0']);
-  assert.deepStrictEqual(futureSkipMonths([], 2026, 9), []);
-  assert.deepStrictEqual(futureSkipMonths(['basura'], 2026, 9), []);
+  const keys = ['2026_2', '2026_9', '2027_0'];
+  assert.deepStrictEqual(monthKeysFrom(keys, 2026, 9), ['2026_9', '2027_0']);
+  assert.deepStrictEqual(monthKeysFrom([], 2026, 9), []);
+  assert.deepStrictEqual(monthKeysFrom(['basura'], 2026, 9), []);
   assert.strictEqual(monthKey(2026, 9), '2026_9');
+}
+
+// En el mes de arranque, "de aquí en adelante" es "todos": partirlo dejaría zombis.
+{
+  assert.strictEqual(effectiveScope('fromNow', { wasFixed: true, isOriginMonth: true }), 'all');
+  assert.strictEqual(effectiveScope('fromNow', { wasFixed: true, isOriginMonth: false }), 'fromNow');
+  assert.strictEqual(effectiveScope('single', { wasFixed: true, isOriginMonth: true }), 'single');
+  // Un movimiento que nunca fue fijo no tiene serie: se guarda y ya.
+  assert.strictEqual(effectiveScope('single', { wasFixed: false, isOriginMonth: false }), 'all');
 }
 
 console.log('fixedSeries: ok');

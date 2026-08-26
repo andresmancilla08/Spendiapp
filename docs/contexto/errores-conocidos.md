@@ -373,3 +373,30 @@
   (habría que partirla también en la copia del otro participante): ahí solo se aplica el
   arreglo de la fecha y el cambio sigue afectando a todos los meses. Y `fixedPaidMonths`
   no viaja a la serie nueva: sus meses arrancan sin marcar como pagados.
+
+### El alcance ahora se pregunta SIEMPRE, y en compartidos también (v2.71.0)
+
+Continuación del gotcha anterior. Quedaban tres huecos, medidos en producción:
+
+1. **Un fijo COMPARTIDO no preguntaba nada** — 16 de 64 fijos lo son (*Arriendo casa*,
+   *Crédito bancolombia*, *Youtube*…). Editar el importe reescribía todos los meses de
+   las **dos** cuentas, y borrarlo eliminaba la operación entera para todos. Ahora el
+   dueño elige alcance: "solo este mes" y "de este mes en adelante" crean un grupo
+   compartido NUEVO (mirrors + doc de coordinación) y recortan el viejo en la copia de
+   cada participante (`trimSharedFixedSeries`).
+2. **`fixedPaidMonths` no viajaba a la serie nueva** — 36 de 64 fijos tenían el mes en
+   curso marcado como pagado, así que partir la serie hoy lo desmarcaba. Ahora se
+   heredan las marcas del mes de corte en adelante (`monthKeysFrom`).
+3. **Solo se preguntaba fuera del mes de arranque.** Ahora se pregunta en cualquier mes;
+   en el de arranque "de aquí en adelante" se ejecuta como "todos" (`effectiveScope`),
+   porque partir ahí dejaría un documento sin ningún mes visible.
+
+**Sin cubrir, y es un límite de las reglas, no un olvido:** el dueño no puede LEER los
+documentos de los demás participantes (`allow read` solo deja lo propio), así que al
+partir una serie compartida no se pueden heredar SUS marcas de pago — solo las propias.
+Si la coordinación (`sharedTransactions/{id}`) ya no existe, tampoco se pueden recortar
+sus copias: se arregla la propia y se avisa con `sharedExpense.deletePartial`, en vez de
+duplicarles el gasto en silencio.
+
+Editar UNA cuota sigue afectando solo a esa cuota: cada cuota es su propio documento, no
+hay serie que reescribir en silencio.

@@ -48,7 +48,8 @@ import CategoryIcon from '../components/CategoryIcon';
 import type { SharedParticipant, SharedTransaction, MirrorRef } from '../types/sharedTransaction';
 import { calcSharedAmount, calcEqualPercentages, installmentPortion } from '../utils/sharedCalc';
 import { categoryForOtherUser } from '../utils/sharedCategory';
-import { originDateForEdit, newDocDate, futureSkipMonths, monthKey } from '../utils/fixedSeries';
+import { originDateForEdit, newDocDate, monthKeysFrom, monthKey, effectiveScope, type FixedScope } from '../utils/fixedSeries';
+import { useSharedTransactions } from '../hooks/useSharedTransactions';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
 
@@ -73,10 +74,6 @@ function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): str
 
 const MIN_YEAR = 2020;
 
-/** Un gasto fijo es UN documento; su `date` marca el mes de ARRANQUE de la serie.
- *  Lo que se ve en los meses siguientes son copias virtuales. */
-type EditScope = 'single' | 'fromNow' | 'all';
-
 function toDate(v: unknown): Date {
   if (v instanceof Date) return v;
   const secs = (v as { seconds?: number } | null)?.seconds;
@@ -92,6 +89,7 @@ export default function EditTransactionScreen() {
   const { categories: customCategories } = useCategories(user?.uid ?? '');
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const { pendingEditTx, setPendingEditTx, setLastAction } = useHistoryStore();
+  const { createSharedTransaction } = useSharedTransactions();
 
   const scrollRef    = useRef<ElementRef<typeof ScrollView>>(null);
   const catScrollRef = useRef<ElementRef<typeof ScrollView>>(null);
@@ -112,7 +110,7 @@ export default function EditTransactionScreen() {
 
   // Alcance del cambio en un gasto fijo (un solo doc para toda la serie)
   const [scopeOpen, setScopeOpen]           = useState(false);
-  const [editScope, setEditScope]           = useState<EditScope>('fromNow');
+  const [editScope, setFixedScope]           = useState<FixedScope>('fromNow');
   /** Fecha con la que se abrió la pantalla: sirve para saber si el usuario TOCÓ el
    *  selector. En una copia virtual esa fecha es la del mes que se está mirando. */
   const initialDateRef = useRef<number | null>(null);
@@ -349,13 +347,10 @@ export default function EditTransactionScreen() {
     || isFixed !== wasFixed
     || dateTouched
   );
-  // Un compartido se propaga a los mirrors de los demás: partir la serie ahí
-  // exigiría partirla también en su lado. Fuera del alcance de esta pantalla.
-  const canSplitSeries = wasFixed && !isSharedTx && !isOriginMonth;
-  // Apagar el interruptor de "fijo" desde un mes posterior NO puede reescribir el
-  // pasado: eso borraba el gasto de todos los meses menos el de arranque.
-  const forcedScope: EditScope | null = canSplitSeries && !isFixed ? 'fromNow' : null;
-  const needsScope  = canSplitSeries && isFixed && hasChanges;
+  // SIEMPRE se pregunta al editar un fijo —también en su mes de arranque y también
+  // si es compartido—: el documento es UNO para toda la serie, así que sin preguntar
+  // cualquier cambio reescribe en silencio los meses ya cerrados.
+  const needsScope = wasFixed && hasChanges;
 
   /** Mismo contrato que en add-transaction: lo que falta, en orden de pantalla,
    *  con el mensaje del campo y la instrucción que va en el botón. */
@@ -418,7 +413,7 @@ export default function EditTransactionScreen() {
       // Un fijo vive en un solo documento: guardar sin preguntar cambiaba TAMBIÉN
       // los meses ya cerrados. Antes de escribir, se pregunta a qué meses aplica.
       if (needsScope && !scopeOpen) { setScopeOpen(true); return; }
-      handleSave(forcedScope ?? (needsScope ? editScope : 'all'));
+      handleSave(needsScope ? editScope : 'all');
       return;
     }
     setAttempted(true);
@@ -429,10 +424,16 @@ export default function EditTransactionScreen() {
     if (input) setTimeout(() => input.current?.focus(), 320);
   };
 
-  const handleSave = async (scope: EditScope) => {
+  const handleSave = async (scope: FixedScope) => {
     if (isSaveDisabled || !transaction || !user) return;
     setLoading(true);
     setError('');
+
+    // En el mes de arranque de la serie, "de este mes en adelante" y "todos los meses"
+    // son lo mismo —no hay nada antes—: partirla ahí dejaría un documento zombi sin
+    // ningún mes visible. Un movimiento que no es fijo no tiene serie que partir.
+    const effScope: FixedScope = effectiveScope(scope, { wasFixed, isOriginMonth });
+
     // La fecha del documento REAL nunca se mueve al mes que se está mirando: eso
     // reubicaba el arranque de la serie y el fijo desaparecía de todo el histórico
     // anterior. Si el usuario tocó el selector, solo se traslada el DÍA.
@@ -443,25 +444,36 @@ export default function EditTransactionScreen() {
       dateTouched,
     });
     const splitDate = newDocDate(viewYear, viewMonth, selectedDate.getDate());
+    const key = monthKey(viewYear, viewMonth);
+    // Del mes de corte en adelante, las excepciones son asunto de la serie NUEVA.
+    const carrySkips = monthKeysFrom(transaction.fixedSkipMonths ?? [], viewYear, viewMonth);
+    const carryPaid  = monthKeysFrom(transaction.fixedPaidMonths ?? [], viewYear, viewMonth);
+    const cancelFrom = Timestamp.fromDate(new Date(viewYear, viewMonth, 1));
+
+    const sharedOwnerEdit = !!(isSharedTx && transaction.sharedId && isOwnerOfShared && !transaction.isInstallment);
+
     try {
-      if (isSharedTx && transaction.sharedId && isOwnerOfShared && !transaction.isInstallment) {
-        // El doc de coordinación puede haber desaparecido (la cuenta del otro se
-        // eliminó, o un borrado de cuando cualquier participante podía tumbarlo).
-        // Antes se lanzaba: el dueño se quedaba SIN PODER EDITAR NUNCA su propio
-        // gasto y con un "no se pudo guardar" sin explicación. Sin coordinación se
-        // edita al menos la copia propia.
-        let mirrorRefs: MirrorRef[] = [];
+      // El doc de coordinación puede haber desaparecido (la cuenta del otro se
+      // eliminó, o un borrado de cuando cualquier participante podía tumbarlo).
+      // Antes se lanzaba: el dueño se quedaba SIN PODER EDITAR NUNCA su propio
+      // gasto y con un "no se pudo guardar" sin explicación. Sin coordinación se
+      // edita al menos la copia propia.
+      let mirrorRefs: MirrorRef[] = [];
+      let coordOk = false;
+      if (sharedOwnerEdit) {
         try {
-          const coordSnap = await getDoc(doc(db, 'sharedTransactions', transaction.sharedId));
+          const coordSnap = await getDoc(doc(db, 'sharedTransactions', transaction.sharedId!));
           if (coordSnap.exists()) {
             mirrorRefs = (coordSnap.data() as SharedTransaction).mirrorRefs ?? [];
           }
         } catch (e) {
           console.warn('[editTransaction] coordinación ilegible:', (e as { code?: string })?.code ?? e);
         }
-        if (mirrorRefs.length === 0) {
-          mirrorRefs = [{ uid: user.uid, transactionId: getActualId(transaction) }];
-        }
+        coordOk = mirrorRefs.length > 0;
+        if (!coordOk) mirrorRefs = [{ uid: user.uid, transactionId: getActualId(transaction) }];
+      }
+
+      if (sharedOwnerEdit && effScope === 'all') {
         const isIncomeClaim = transaction.sharedType === 'income_claim';
         // Uno a uno y NO en lote: un mirror que ya no existe hacía fallar el batch
         // ENTERO y con él la edición del dueño, para siempre. `deleteSharedTransaction`
@@ -492,7 +504,10 @@ export default function EditTransactionScreen() {
               sharedParticipants: sharedEditParticipants,
               sharedAmount: newSharedAmount,
               ...(isMine ? { cardId: selectedCardId ?? null } : {}),
-              ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
+              // Editar un fijo cancelado lo restaura en todos los meses… salvo que la
+              // cancelación sea el corte de una serie partida: ahí revivirlo duplicaba
+              // el gasto contra la serie que lo continúa.
+              ...(isFixed && !transaction.fixedSplitInto ? { fixedCancelledFrom: deleteField() } : {}),
               // La nota es privada: escribirla en todos los mirrors la enseñaba al
               // resto de participantes.
               ...(isMine
@@ -512,7 +527,76 @@ export default function EditTransactionScreen() {
         // No se calla lo que no se guardó: la copia del otro sigue con el importe
         // viejo y su balance dirá otra cosa que el mío.
         if (stale > 0) showToast(t('history.edit.sharedPartialSave', { count: stale }), 'info');
+
+      } else if (sharedOwnerEdit && coordOk) {
+        // Partir una serie COMPARTIDA: no se puede tocar el importe de los meses ya
+        // cerrados de otra persona, así que se crea un grupo nuevo entero (con sus
+        // mirrors y su doc de coordinación) y se recorta el viejo en todas las copias.
+        const created = await createSharedTransaction({
+          participants: sharedEditParticipants,
+          ownerUid: user.uid,
+          ownerUserName: transaction.sharedOwnerUserName ?? '',
+          baseDoc: {
+            type,
+            category,
+            description: description.trim(),
+            ...(selectedCardId ? { cardId: selectedCardId } : {}),
+            isFixed: effScope === 'fromNow' ? isFixed : false,
+          },
+          amount: parsedAmount,
+          installmentCount: 1,
+          withInterest: false,
+          teaValue: null,
+          selectedDate: splitDate,
+          sharedType: transaction.sharedType ?? 'expense_share',
+        });
+
+        // Nota privada y excepciones heredadas: solo en MI copia. Las marcas de pago
+        // de los demás no son legibles para el dueño (las reglas solo dejan leer lo
+        // propio), así que su mes de corte arranca sin marcar.
+        const mine = created.mirrorRefs.find((m) => m.uid === user.uid);
+        if (mine) {
+          const patch = {
+            ...(notes.trim() ? { notes: notes.trim() } : {}),
+            ...(effScope === 'fromNow' && isFixed
+              ? {
+                  ...(carryPaid.length ? { fixedPaidMonths: carryPaid } : {}),
+                  ...(carrySkips.length ? { fixedSkipMonths: carrySkips } : {}),
+                }
+              : { isPaid: transaction.isPaid ?? false }),
+          };
+          if (Object.keys(patch).length > 0) {
+            await updateDoc(doc(db, 'transactions', mine.transactionId), patch);
+          }
+        }
+
+        let stale = 0;
+        for (const mirrorRef of mirrorRefs) {
+          try {
+            await updateDoc(doc(db, 'transactions', mirrorRef.transactionId), effScope === 'single'
+              ? { fixedSkipMonths: arrayUnion(key) }
+              : { fixedCancelledFrom: cancelFrom, fixedSplitInto: created.sharedId });
+          } catch (e) {
+            if (mirrorRef.uid === user.uid) throw e;
+            stale++;
+            console.warn(
+              '[editTransaction] mirror viejo sin recortar', mirrorRef.transactionId,
+              (e as { code?: string })?.code ?? e,
+            );
+          }
+        }
+        if (stale > 0) showToast(t('history.edit.sharedPartialSave', { count: stale }), 'info');
+
       } else {
+        // Copia propia. Cubre también el compartido cuya coordinación ya no existe:
+        // sin los ids de los demás no se pueden recortar sus copias, así que se
+        // arregla la propia y se avisa en vez de duplicarles el gasto.
+        if (sharedOwnerEdit && !coordOk && effScope !== 'all') {
+          showToast(
+            t('history.edit.sharedPartialSave', { count: Math.max(1, sharedEditParticipants.length - 1) }),
+            'info',
+          );
+        }
         const ref = doc(db, 'transactions', getActualId(transaction));
         const fields = {
           type,
@@ -522,9 +606,8 @@ export default function EditTransactionScreen() {
           isFixed,
           cardId: selectedCardId ?? null,
         };
-        const key = monthKey(viewYear, viewMonth);
 
-        if (scope === 'all') {
+        if (effScope === 'all') {
           await updateDoc(ref, {
             ...fields,
             date: Timestamp.fromDate(dateForOrigin),
@@ -537,26 +620,23 @@ export default function EditTransactionScreen() {
         } else {
           // Primero se CREA y después se recorta la serie vieja: al revés, un fallo
           // en la creación dejaba el mes sin gasto ninguno.
-          // ponytail: `fixedPaidMonths` no viaja a la serie nueva —no está en el
-          // modelo que llega aquí—; los meses futuros arrancan sin marcar.
-          const futureSkips = futureSkipMonths(transaction.fixedSkipMonths ?? [], viewYear, viewMonth);
           const createdRef = await addDoc(collection(db, 'transactions'), {
             userId: user.uid,
             ...fields,
-            ...(scope === 'single' ? { isFixed: false } : {}),
+            ...(effScope === 'single' ? { isFixed: false } : {}),
             date: Timestamp.fromDate(splitDate),
             createdAt: Timestamp.fromDate(new Date()),
             ...(notes.trim() ? { notes: notes.trim() } : {}),
-            ...(scope === 'fromNow' && isFixed
-              ? { ...(futureSkips.length ? { fixedSkipMonths: futureSkips } : {}) }
+            ...(effScope === 'fromNow' && isFixed
+              ? {
+                  ...(carrySkips.length ? { fixedSkipMonths: carrySkips } : {}),
+                  ...(carryPaid.length ? { fixedPaidMonths: carryPaid } : {}),
+                }
               : { isPaid: transaction.isPaid ?? false }),
           });
-          await updateDoc(ref, scope === 'single'
+          await updateDoc(ref, effScope === 'single'
             ? { fixedSkipMonths: arrayUnion(key) }
-            : {
-                fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
-                fixedSplitInto: createdRef.id,
-              });
+            : { fixedCancelledFrom: cancelFrom, fixedSplitInto: createdRef.id });
         }
       }
       setLastAction('saved');
@@ -1204,7 +1284,7 @@ export default function EditTransactionScreen() {
                 return (
                   <TouchableOpacity
                     key={sc}
-                    onPress={() => setEditScope(sc)}
+                    onPress={() => setFixedScope(sc)}
                     activeOpacity={0.75}
                     accessibilityRole="radio"
                     accessibilityState={{ selected }}

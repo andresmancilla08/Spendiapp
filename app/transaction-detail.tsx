@@ -177,7 +177,7 @@ export default function TransactionDetailScreen() {
     viewYear,
     viewMonth,
   );
-  const { deleteSharedTransaction } = useSharedTransactions();
+  const { deleteSharedTransaction, trimSharedFixedSeries } = useSharedTransactions();
   const { deleteSentIncome } = useSentIncome();
   const { showToast } = useToast();
 
@@ -293,11 +293,14 @@ export default function TransactionDetailScreen() {
 
   const handleDeletePress = useCallback(() => {
     if (!transaction) return;
-    // `handleDelete` ramifica primero por compartido / ingreso enviado y borra la
-    // operación ENTERA para todos los implicados: ofrecer aquí un alcance ("solo
-    // este mes", "solo esta cuota") prometía algo que no ocurre, y la confirmación
-    // llegaba a describir lo contrario de lo que iba a pasar.
-    if (transaction.isShared && transaction.sharedId) {
+    // Un FIJO —propio o compartido— siempre pregunta el alcance: es un solo documento
+    // por serie, así que "eliminar" sin más se llevaba por delante todo el histórico.
+    // Lo que no tiene serie (compartido puntual, cuota compartida, ingreso enviado) va
+    // directo a confirmar: ofrecer un alcance ahí prometía algo que no ocurre.
+    if (transaction.isFixed && !transaction.isInstallment) {
+      setDeleteScope('fromNow');
+      setDeleteStep('scope');
+    } else if (transaction.isShared && transaction.sharedId) {
       setDeleteStep('confirm');
     } else if (transaction.sentIncomeTransactionId || transaction.isSentIncome) {
       setDeleteStep('confirm');
@@ -316,7 +319,29 @@ export default function TransactionDetailScreen() {
     if (!transaction) return;
     setDeleteLoading(true);
     try {
-      if (transaction.isShared && transaction.sharedId) {
+      if (transaction.isShared && transaction.sharedId
+          && transaction.isFixed && !transaction.isInstallment
+          && deleteScope !== 'all') {
+        // Recorte, no borrado: la serie sigue viva en los meses que el usuario NO eligió.
+        const { orphaned } = await trimSharedFixedSeries({
+          sharedId: transaction.sharedId,
+          scope: deleteScope,
+          year: viewYear,
+          month: viewMonth,
+          currentUserUid,
+        });
+        if (orphaned === -1) {
+          // Sin doc de coordinación no se conocen las copias de los demás: se recorta
+          // la propia y se dice, en vez de dejar su balance diciendo otra cosa.
+          const txId = getActualId(transaction);
+          await updateDoc(doc(db, 'transactions', txId), deleteScope === 'single'
+            ? { fixedSkipMonths: arrayUnion(`${viewYear}_${viewMonth}`) }
+            : { fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)) });
+          showToast(t('sharedExpense.deletePartial'), 'error');
+        } else if (orphaned > 0) {
+          showToast(t('sharedExpense.deletePartial'), 'error');
+        }
+      } else if (transaction.isShared && transaction.sharedId) {
         const { orphaned } = await deleteSharedTransaction({
           sharedId: transaction.sharedId,
           currentUserUid,
@@ -398,7 +423,7 @@ export default function TransactionDetailScreen() {
       showToast(t('history.edit.deleteError'), 'error');
     }
   }, [transaction, currentUserUid, currentUserName, user, viewYear, viewMonth, deleteScope,
-      deleteSharedTransaction, deleteSentIncome, setLastAction, router, showToast, t]);
+      deleteSharedTransaction, trimSharedFixedSeries, deleteSentIncome, setLastAction, router, showToast, t]);
 
   useEffect(() => {
     if (!transaction) {
@@ -1114,6 +1139,11 @@ export default function TransactionDetailScreen() {
               <Text style={[styles.scopeTitle, { color: colors.textPrimary }]}>
                 {t('history.edit.scopePickerTitle')}
               </Text>
+              {transaction.isShared && (
+                <Text style={[styles.scopeDesc, { color: ink.soft, marginBottom: 2 }]}>
+                  {t('history.edit.scopeSharedNote')}
+                </Text>
+              )}
               {(transaction.isFixed
                 ? ([
                     ['single', t('history.edit.scopeOnlyThis'), t('history.edit.scopeOnlyThisDesc')],
@@ -1175,6 +1205,17 @@ export default function TransactionDetailScreen() {
                   ? t('sentIncome.deleteRequestConfirm')
                   : transaction.isShared && !isOwner
                   ? t('sharedExpense.deleteRequestConfirm')
+                  // Un FIJO recortado (no borrado) va ANTES que la rama de compartido:
+                  // ahí abajo la confirmación decía "se eliminará para todos" cuando lo
+                  // que se aplica es exactamente el alcance que el usuario eligió.
+                  : transaction.isFixed && !transaction.isInstallment && deleteScope !== 'all'
+                  ? (transaction.isShared
+                      ? (deleteScope === 'single'
+                          ? t('history.edit.scopeConfirmSharedFixed_single')
+                          : t('history.edit.scopeConfirmSharedFixed_fromNow'))
+                      : (deleteScope === 'single'
+                          ? t('history.edit.scopeConfirmFixed_single')
+                          : t('history.edit.confirmCancelFixed')))
                   // Un compartido a cuotas se borra ENTERO para todos: la rama de
                   // `isInstallment` de abajo prometía "solo esta cuota".
                   : transaction.isShared && transaction.isInstallment

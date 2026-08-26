@@ -590,7 +590,10 @@
       "editScopeFromNowDesc": "Da {{month}} {{year}} vale il nuovo valore. I mesi precedenti mantengono quello attuale.",
       "editScopeAll": "Tutti i mesi",
       "editScopeAllDesc": "Riscrive anche lo storico già registrato, mesi chiusi inclusi.",
-      "editScopeApply": "Applica modifica"
+      "editScopeApply": "Applica modifica",
+      "scopeConfirmSharedFixed_single": "Questo mese sparirà per tutti i partecipanti. La spesa fissa continua negli altri mesi.",
+      "scopeConfirmSharedFixed_fromNow": "La spesa fissa verrà annullata da questo mese per tutti i partecipanti. I mesi precedenti restano intatti.",
+      "scopeSharedNote": "Si applica allo stesso modo alla copia di ogni partecipante."
     },
     "months": [
       "Gen",
@@ -1035,9 +1038,9 @@
     "subtitle": "Ecco cosa è cambiato in Spendia.",
     "dismiss": "Ho capito",
     "fixedScope": {
-      "title": "Modificare una spesa fissa ora chiede a quali mesi si applica",
-      "item1": "Prima riscriveva tutti i mesi e poteva far sparire la spesa dallo storico",
-      "item2": "Ora scegli tu: solo questo mese, da questo mese in poi, o tutti"
+      "title": "Modificare o eliminare una spesa fissa: scegli tu i mesi",
+      "item1": "Chiede sempre: solo questo mese, da questo mese in poi, o tutti",
+      "item2": "Anche nelle spese fisse condivise, e si applica allo stesso modo all altra persona"
     }
   },
   "incomeClaim": {

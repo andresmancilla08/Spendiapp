@@ -6,6 +6,7 @@ import {
   addDoc,
   getDoc,
   setDoc,
+  updateDoc,
   arrayUnion,
   deleteDoc,
 } from 'firebase/firestore';
@@ -45,7 +46,7 @@ interface DeleteSharedParams {
 }
 
 export function useSharedTransactions() {
-  async function createSharedTransaction(params: CreateSharedParams): Promise<void> {
+  async function createSharedTransaction(params: CreateSharedParams): Promise<{ sharedId: string; mirrorRefs: MirrorRef[] }> {
     const {
       participants, ownerUid, ownerUserName, baseDoc,
       amount, installmentCount, withInterest, teaValue, selectedDate,
@@ -221,6 +222,49 @@ export function useSharedTransactions() {
         createdAt: Timestamp.fromDate(new Date()),
       });
     }
+
+    // Quien parte una serie fija necesita los ids recién creados para enlazarla
+    // con la vieja (`fixedSplitInto`) y para completar campos privados (notas).
+    return { sharedId, mirrorRefs };
+  }
+
+  /**
+   * Recorta una serie FIJA compartida sin borrarla: aplica el mismo alcance a la copia
+   * de cada participante. Es lo que hace que "solo este mes" y "de este mes en adelante"
+   * signifiquen lo mismo para todos los implicados en vez de solo para quien lo pulsa.
+   */
+  async function trimSharedFixedSeries(params: {
+    sharedId: string;
+    scope: 'single' | 'fromNow';
+    year: number;
+    month: number;
+    currentUserUid: string;
+  }): Promise<{ orphaned: number }> {
+    const { sharedId, scope, year, month, currentUserUid } = params;
+    let mirrorRefs: MirrorRef[] = [];
+    try {
+      const coordSnap = await getDoc(doc(db, 'sharedTransactions', sharedId));
+      if (coordSnap.exists()) mirrorRefs = (coordSnap.data() as SharedTransaction).mirrorRefs ?? [];
+    } catch {
+      // permiso denegado o red — abajo se cae a la copia propia
+    }
+    if (mirrorRefs.length === 0) return { orphaned: -1 }; // sin coordinación: lo resuelve el llamador
+
+    const patch = scope === 'single'
+      ? { fixedSkipMonths: arrayUnion(`${year}_${month}`) }
+      : { fixedCancelledFrom: Timestamp.fromDate(new Date(year, month, 1)) };
+
+    let orphaned = 0;
+    for (const ref of mirrorRefs) {
+      try {
+        await updateDoc(doc(db, 'transactions', ref.transactionId), patch);
+      } catch (e) {
+        // La propia SÍ es crítica: si esa falla, no ha pasado nada y hay que decirlo.
+        if (ref.uid === currentUserUid) throw e;
+        orphaned++;
+      }
+    }
+    return { orphaned };
   }
 
   async function deleteSharedTransaction(params: DeleteSharedParams): Promise<{ orphaned: number }> {
@@ -285,5 +329,5 @@ export function useSharedTransactions() {
     return { orphaned };
   }
 
-  return { createSharedTransaction, deleteSharedTransaction };
+  return { createSharedTransaction, deleteSharedTransaction, trimSharedFixedSeries };
 }
