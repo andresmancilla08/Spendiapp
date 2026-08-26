@@ -3,7 +3,6 @@ import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -19,15 +18,16 @@ import { goBack } from '../../utils/nav';
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
-import PageTitle from '../../components/PageTitle';
 import AppDialog from '../../components/AppDialog';
 import PinInput from '../../components/PinInput';
+import AuthField from '../../components/auth/AuthField';
 import { registerWithEmailAndPin } from '../../hooks/useAuth';
 import { createUserProfile } from '../../hooks/useUserProfile';
 import { auth } from '../../config/firebase';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { accentInk } from '../../utils/contrast';
+import { authTokens } from '../../utils/authTheme';
 import { useAuthStore } from '../../store/authStore';
 import { Fonts } from '../../config/fonts';
 import AppIcon from '../../components/AppIcon';
@@ -43,8 +43,10 @@ export default function RegisterScreen() {
   const [emailTouched, setEmailTouched] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [pinVisible, setPinVisible] = useState(false);
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
+  const tk = authTokens(colors, isDark);
   const { setJustRegistered, setUser } = useAuthStore();
   const { flags } = useFlags();
 
@@ -86,17 +88,6 @@ export default function RegisterScreen() {
     // select-cards.tsx lo llamará al terminar, evitando
     // que _layout.tsx redirija mientras dure el onboarding.
     router.replace('/(onboarding)/select-cards');
-  };
-
-  const nameInputStyle = {
-    borderColor: nameFocused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
-    backgroundColor: isDark ? 'rgba(0,172,193,0.07)' : colors.inputBackground,
-    color: colors.textPrimary,
-  };
-  const emailInputStyle = {
-    borderColor: showEmailError ? colors.error : emailFocused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
-    backgroundColor: isDark ? 'rgba(0,172,193,0.07)' : colors.inputBackground,
-    color: colors.textPrimary,
   };
 
   const transitionRef = useRef<ScreenTransitionRef>(null);
@@ -142,7 +133,6 @@ export default function RegisterScreen() {
       />
       <ScreenBackground>
         <AppHeader />
-        <PageTitle title={t('register.title')} description={t('register.subtitle')} />
 
         <KeyboardAvoidingView
           style={styles.keyboardAvoidingView}
@@ -154,118 +144,121 @@ export default function RegisterScreen() {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{t('register.title')}</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('register.subtitle')}</Text>
+
             <View style={styles.form}>
-              {/* Nombre */}
-              <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('register.nameLabel')}</Text>
-                <View style={styles.inputWrapper}>
-                  <AppIcon
-                    name="person-outline"
-                    size={18}
-                    color={nameFocused ? colors.primary : colors.textTertiary}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={[styles.input, styles.inputWithIcon, nameInputStyle]}
-                    placeholder={t('register.namePlaceholder')}
-                    placeholderTextColor={colors.textTertiary}
-                    autoCapitalize="words"
-                    returnKeyType="next"
-                    value={name}
-                    onChangeText={setName}
-                    onFocus={() => setNameFocused(true)}
-                    onBlur={() => setNameFocused(false)}
-                  />
-                </View>
-              </View>
+              {/* Dos grupos en vez de un muro de tres campos: quién eres, cómo entras. */}
+              <Text style={[styles.grp, { color: colors.textTertiary }]}>{t('register.groupWhoTitle')}</Text>
 
-              {/* Email */}
-              <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('register.emailLabel')}</Text>
-                <View style={styles.inputWrapper}>
-                  <AppIcon
-                    name="mail-outline"
-                    size={18}
-                    color={emailFocused ? colors.primary : colors.textTertiary}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={[styles.input, styles.inputWithIcon, emailInputStyle]}
-                    placeholder={t('register.emailPlaceholder')}
-                    placeholderTextColor={colors.textTertiary}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    returnKeyType="done"
-                    value={email}
-                    onChangeText={(v) => { setEmail(v); }}
-                    onFocus={() => setEmailFocused(true)}
-                    onBlur={() => { setEmailFocused(false); setEmailTouched(true); }}
-                  />
-                </View>
-                {showEmailError && (
-                  <Text style={[styles.inputError, { color: colors.error }]}>
-                    {t('errors.invalidEmail')}
-                  </Text>
-                )}
-              </View>
+              <AuthField
+                label={t('register.nameLabel')}
+                icon="person-outline"
+                focused={nameFocused}
+                placeholder={t('register.namePlaceholder')}
+                autoCapitalize="words"
+                returnKeyType="next"
+                value={name}
+                onChangeText={setName}
+                onFocus={() => setNameFocused(true)}
+                onBlur={() => setNameFocused(false)}
+              />
 
-              {/* PIN */}
-              <View style={styles.inputGroup}>
+              <AuthField
+                label={t('register.emailLabel')}
+                icon="mail-outline"
+                focused={emailFocused}
+                error={showEmailError}
+                errorText={showEmailError ? t('errors.invalidEmail') : undefined}
+                placeholder={t('register.emailPlaceholder')}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="done"
+                value={email}
+                onChangeText={setEmail}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => { setEmailFocused(false); setEmailTouched(true); }}
+              />
+
+              <Text style={[styles.grp, { color: colors.textTertiary }]}>{t('register.groupHowTitle')}</Text>
+
+              <View>
                 <View style={styles.pinLabelRow}>
-                  <AppIcon name="lock-closed-outline" size={14} color={colors.textSecondary} />
-                  <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.createTitle')}</Text>
-                </View>
-                <Text style={[styles.inputSub, { color: colors.textSecondary }]}>{t('pinEntry.createSubtitle')}</Text>
-                <PinInput value={pin} onChange={setPin} />
-              </View>
-
-              {/* Términos y Privacidad */}
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => setTermsAccepted(v => !v)}
-                style={styles.consentRow}
-              >
-                <View style={[
-                  styles.checkbox,
-                  {
-                    backgroundColor: termsAccepted ? colors.primary : 'transparent',
-                    borderColor: termsAccepted ? colors.primary : colors.border,
-                  }
-                ]}>
-                  {termsAccepted && <AppIcon name="checkmark" size={13} color={colors.onPrimary} />}
-                </View>
-                <Text style={[styles.consentText, { color: colors.textSecondary }]}>
-                  {t('register.acceptPrefix')}{' '}
-                  <Text
-                    style={{ color: accentInk(colors, 'primary', colors.background), fontFamily: Fonts.semiBold }}
-                    onPress={(e) => { e.stopPropagation?.(); router.push('/terms' as any); }}
+                  <Text style={[styles.label, { color: colors.textPrimary }]}>{t('register.pinLabel')}</Text>
+                  <TouchableOpacity
+                    onPress={() => setPinVisible((v) => !v)}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(pinVisible ? 'pinEntry.hidePin' : 'pinEntry.showPin')}
                   >
-                    {t('register.termsLabel')}
-                  </Text>
-                  {' '}{t('register.acceptAnd')}{' '}
-                  <Text
-                    style={{ color: accentInk(colors, 'primary', colors.background), fontFamily: Fonts.semiBold }}
-                    onPress={(e) => { e.stopPropagation?.(); router.push('/privacy' as any); }}
-                  >
-                    {t('register.privacyLabel')}
-                  </Text>
+                    <AppIcon
+                      name={pinVisible ? 'eye-outline' : 'eye-off-outline'}
+                      size={20}
+                      color={colors.textPrimary}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <PinInput value={pin} onChange={setPin} grouped stretch hideEye visible={pinVisible} />
+                <Text style={[styles.pinHint, { color: colors.textSecondary }]}>
+                  {t('pinEntry.createSubtitle')}
                 </Text>
-              </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
 
           <View style={styles.footer}>
             <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
+              activeOpacity={0.8}
+              onPress={() => setTermsAccepted(v => !v)}
+              style={styles.consentRow}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: termsAccepted }}
+            >
+              <View style={[
+                styles.checkbox,
+                {
+                  backgroundColor: termsAccepted ? tk.ink : tk.fieldBg,
+                  borderColor: termsAccepted ? tk.ink : tk.fieldLine,
+                },
+              ]}>
+                {termsAccepted && <AppIcon name="checkmark" size={13} color={tk.onInk} />}
+              </View>
+              <Text style={[styles.consentText, { color: colors.textSecondary }]}>
+                {t('register.acceptPrefix')}{' '}
+                <Text
+                  style={[styles.consentLink, { color: colors.textPrimary }]}
+                  onPress={(e) => { e.stopPropagation?.(); router.push('/terms' as any); }}
+                >
+                  {t('register.termsLabel')}
+                </Text>
+                {' '}{t('register.acceptAnd')}{' '}
+                <Text
+                  style={[styles.consentLink, { color: colors.textPrimary }]}
+                  onPress={(e) => { e.stopPropagation?.(); router.push('/privacy' as any); }}
+                >
+                  {t('register.privacyLabel')}
+                </Text>
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: tk.ink, opacity: canSubmit ? 1 : 0.4 }]}
               onPress={handleContinue}
               activeOpacity={0.85}
               disabled={!canSubmit || loading}
             >
               {loading
-                ? <ActivityIndicator color={colors.onPrimary} />
-                : <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('register.continueButton')}</Text>
+                ? <ActivityIndicator color={tk.onInk} />
+                : <Text style={[styles.primaryButtonText, { color: tk.onInk }]}>{t('register.createButton')}</Text>
               }
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.haveAccountBtn} onPress={handleBack} activeOpacity={0.7}>
+              <Text style={[styles.haveAccountText, { color: colors.textPrimary }]}>
+                {t('register.haveAccount')}
+              </Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -291,28 +284,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 16,
-    gap: 12,
+    gap: 16,
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',
   },
-  form: { flex: 1, gap: 32 },
-  inputGroup: { gap: 12 },
-  inputLabel: { fontSize: 14, fontFamily: Fonts.semiBold },
-  inputSub: { fontSize: 13, fontFamily: Fonts.regular, marginBottom: 16 },
-  inputWrapper: { position: 'relative', justifyContent: 'center' },
-  inputIcon: { position: 'absolute', left: 14, zIndex: 1 },
-  input: {
-    height: 52,
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    fontFamily: Fonts.regular,
+  title: { fontSize: 26, lineHeight: 32, fontFamily: Fonts.bold, letterSpacing: -0.3 },
+  subtitle: { fontSize: 14, lineHeight: 20, fontFamily: Fonts.medium, marginTop: 8 },
+  form: { gap: 18, marginTop: 18 },
+  grp: {
+    fontSize: 11.5,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.9,
+    textTransform: 'uppercase',
+    marginTop: 8,
   },
-  inputWithIcon: { paddingLeft: 44 },
-  inputError: { fontSize: 12, fontFamily: Fonts.medium, marginTop: 4 },
-  pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
+  label: {
+    fontSize: 12,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    lineHeight: 15,
+  },
+  pinLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 11,
+  },
+  pinHint: { fontSize: 13.5, lineHeight: 19, fontFamily: Fonts.regular, marginTop: 10, marginHorizontal: 2 },
   consentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   checkbox: {
     width: 22, height: 22,
@@ -320,13 +320,15 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     marginTop: 1, flexShrink: 0,
   },
-  consentText: { flex: 1, fontSize: 13, fontFamily: Fonts.regular, lineHeight: 20 },
+  consentText: { flex: 1, fontSize: 13, fontFamily: Fonts.regular, lineHeight: 19 },
+  consentLink: { fontFamily: Fonts.bold, textDecorationLine: 'underline' },
+  haveAccountBtn: { alignItems: 'center', paddingVertical: 10 },
+  haveAccountText: { fontSize: 14, fontFamily: Fonts.semiBold, textDecorationLine: 'underline' },
   primaryButton: {
     height: 56,
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
   },
-  primaryButtonText: { fontSize: 17, fontFamily: Fonts.bold },
+  primaryButtonText: { fontSize: 16, fontFamily: Fonts.bold, letterSpacing: 0.2 },
 });

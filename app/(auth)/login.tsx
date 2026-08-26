@@ -13,17 +13,24 @@ import ScreenTransition from '../../components/ScreenTransition';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
 import { useTheme } from '../../context/ThemeContext';
-import { accentInk } from '../../utils/contrast';
-import AppIcon from '../../components/AppIcon';
+import { authTokens } from '../../utils/authTheme';
+import AppIcon, { type AppIconName } from '../../components/AppIcon';
 import { Fonts } from '../../config/fonts';
-import PressableScale from '../../components/PressableScale';
+import AppButton from '../../components/AppButton';
+
+/** Lo que hace la app, en tres líneas. Antes la portada solo decía cómo se llama. */
+const FEATURES: { icon: AppIconName; key: string }[] = [
+  { icon: 'stats-chart-outline', key: 'login.featureCategories' },
+  { icon: 'repeat',              key: 'login.featureFixed' },
+  { icon: 'people-outline',      key: 'login.featureShared' },
+];
 
 export default function LoginScreen() {
   const { t } = useTranslation();
   const { colors, isDark, setThemeMode } = useTheme();
+  const tk = authTokens(colors, isDark);
 
   return (
-    <>
     <ScreenTransition>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground auroraIntensity="intense">
@@ -33,74 +40,78 @@ export default function LoginScreen() {
             onPress={() => setThemeMode(isDark ? 'light' : 'dark')}
             activeOpacity={0.7}
             style={styles.themeToggle}
+            accessibilityRole="button"
+            accessibilityLabel={t(isDark ? 'settings.lightMode' : 'settings.darkMode')}
           >
             <AppIcon
               name={isDark ? 'sunny-outline' : 'moon-outline'}
               size={20}
-              color={colors.primary}
+              color={tk.accent}
             />
           </TouchableOpacity>
           <LanguageSelector />
         </View>
 
-        {/* Contenido central */}
+        {/* Contenido: la frase manda, no el logo */}
         <View style={styles.container}>
-          <View style={styles.headerSection}>
-            <Image source={require('../../assets/logo-mark.png')} style={styles.logo} resizeMode="contain" />
-            <Text style={[styles.appName, { color: colors.textPrimary }]}>Spendia</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('login.subtitle')}</Text>
-          </View>
+          <Image
+            source={require('../../assets/logo-mark.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={[styles.headline, { color: colors.textPrimary }]}>
+            {t('login.headline')}
+          </Text>
 
-          <View style={styles.buttonsSection}>
-            <PressableScale
-              style={[styles.emailButton, { backgroundColor: colors.primary }]}
-              onPress={() => router.push('/(auth)/login-email')}
-            >
-              <AppIcon name="mail-outline" size={18} color={colors.onPrimary} />
-              <Text style={[styles.emailButtonText, { color: colors.onPrimary }]}>
-                {t('login.emailButton')}
-              </Text>
-            </PressableScale>
+          <View style={styles.features}>
+            {FEATURES.map((f) => (
+              <View key={f.key} style={styles.feature}>
+                <View style={[styles.featureIcon, { backgroundColor: tk.soft }]}>
+                  <AppIcon name={f.icon} size={17} color={tk.accent} />
+                </View>
+                <Text style={[styles.featureText, { color: colors.textPrimary }]}>{t(f.key)}</Text>
+              </View>
+            ))}
           </View>
+        </View>
 
-          <TouchableOpacity
-            style={styles.registerLinkContainer}
+        <View style={styles.actions}>
+          <AppButton
+            size="lg"
+            label={t('login.emailButton')}
+            onPress={() => router.push('/(auth)/login-email')}
+          />
+          <AppButton
+            size="lg"
+            variant="secondary"
+            label={t('login.createAccount')}
             onPress={() => router.push('/(auth)/register')}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.registerLinkText, { color: colors.textSecondary }]}>
-              {t('login.noAccount')}{' '}
-              <Text style={[styles.registerLinkHighlight, { color: accentInk(colors, 'primary', colors.background) }]}>
-                {t('login.registerLink')}
-              </Text>
-            </Text>
-          </TouchableOpacity>
-        </View>
+          />
 
-        <View style={styles.footer}>
-          <Link href="/privacy" style={[styles.footerLink, { color: accentInk(colors, 'primary', colors.background) }]}>
-            {t('consentModal.privacy')}
-          </Link>
-          <Text style={[styles.footerDot, { color: colors.textTertiary }]}>·</Text>
-          <Link href="/terms" style={[styles.footerLink, { color: accentInk(colors, 'primary', colors.background) }]}>
-            {t('consentModal.terms')}
-          </Link>
+          <View style={styles.footer}>
+            <Link href="/privacy" style={[styles.footerLink, { color: colors.textSecondary }]}>
+              {t('consentModal.privacy')}
+            </Link>
+            <Text style={[styles.footerDot, { color: colors.textTertiary }]}>·</Text>
+            <Link href="/terms" style={[styles.footerLink, { color: colors.textSecondary }]}>
+              {t('consentModal.terms')}
+            </Link>
+            <Text style={[styles.footerDot, { color: colors.textTertiary }]}>·</Text>
+            <Text style={[styles.footerLink, { color: colors.textTertiary }]}>
+              {t('profile.version', { version: appConfig.expo.version })}
+            </Text>
+          </View>
         </View>
-        <Text style={[styles.version, { color: colors.textTertiary }]}>
-          {t('profile.version', { version: appConfig.expo.version })}
-        </Text>
       </ScreenBackground>
     </SafeAreaView>
     </ScreenTransition>
-
-    </>
   );
 }
 
+const CONTENT = { width: '100%' as const, maxWidth: 520, alignSelf: 'center' as const };
+
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
+  safeArea: { flex: 1 },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -109,90 +120,47 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     gap: 8,
   },
-  themeToggle: {
-    padding: 4,
-  },
+  themeToggle: { padding: 4 },
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    width: '100%',
-    maxWidth: 520,
-    alignSelf: 'center',
+    paddingHorizontal: 26,
+    ...CONTENT,
   },
-  headerSection: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  // logo-mark.png es logo.png recortado a su contenido: el original tiene 1024
-  // de lado con el dibujo ocupando 462x793, así que más de la mitad era aire
-  // transparente y agrandar la caja no agrandaba el logo. Las medidas siguen su
-  // proporción real (0.583) para que `contain` no deje bandas.
-  logo: {
-    width: 108,
-    height: 185,
-    marginBottom: 10,
-  },
-  appName: {
-    fontSize: 30,
+  // `logo-mark.png` conserva la proporción real del dibujo (0.583), así que el ancho
+  // se deriva del alto: con otra proporción `contain` deja bandas transparentes.
+  logo: { width: 74, height: 127, marginBottom: 22, marginLeft: -6 },
+  headline: {
+    fontSize: 40,
+    lineHeight: 43,
     fontFamily: Fonts.extraBold,
-    marginBottom: 12,
+    letterSpacing: -1.6,
   },
-  subtitle: {
-    fontSize: 15,
-    fontFamily: Fonts.regular,
-    textAlign: 'center',
-    lineHeight: 22,
-    letterSpacing: 0.2,
-  },
-  buttonsSection: {
-    width: '100%',
-    marginBottom: 32,
-  },
-  emailButton: {
-    width: '100%',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 50,
-    flexDirection: 'row',
+  features: { marginTop: 26, gap: 13 },
+  feature: { flexDirection: 'row', alignItems: 'center', gap: 11 },
+  featureIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  featureText: { flex: 1, fontSize: 13.5, fontFamily: Fonts.semiBold },
+  actions: {
+    paddingHorizontal: 26,
+    paddingBottom: 14,
     gap: 10,
-  },
-  emailButtonText: {
-    fontSize: 16,
-    fontFamily: Fonts.semiBold,
-  },
-  registerLinkContainer: {
-    alignItems: 'center',
-  },
-  registerLinkText: {
-    fontSize: 14,
-    fontFamily: Fonts.regular,
-  },
-  registerLinkHighlight: {
-    fontFamily: Fonts.semiBold,
+    ...CONTENT,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    flexWrap: 'wrap',
+    gap: 7,
+    marginTop: 10,
     paddingBottom: 6,
   },
-  footerLink: {
-    fontSize: 12,
-    fontFamily: Fonts.medium,
-  },
-  footerDot: {
-    fontSize: 12,
-    fontFamily: Fonts.regular,
-  },
-  version: {
-    textAlign: 'center',
-    fontSize: 12,
-    fontFamily: Fonts.regular,
-    paddingBottom: 16,
-  },
+  footerLink: { fontSize: 12.5, fontFamily: Fonts.medium },
+  footerDot: { fontSize: 12.5, fontFamily: Fonts.regular },
 });

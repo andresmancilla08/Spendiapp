@@ -2,13 +2,14 @@ import { useRef, useState } from 'react';
 import { View, TextInput, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import AppIcon from './AppIcon';
 import { useTheme } from '../context/ThemeContext';
+import { authTokens } from '../utils/authTheme';
 import { Fonts } from '../config/fonts';
 import { PIN_LENGTH } from '../constants/pin';
 
 const SIZE_CONFIG = {
   md: { box: 60, radius: 16, fontSize: 28, gap: 12 },
   /** 6 casillas de 60 px se salen de un móvil estrecho (360 dp). */
-  mdWide: { box: 46, radius: 14, fontSize: 22, gap: 8 },
+  mdWide: { box: 48, radius: 15, fontSize: 22, gap: 8 },
   sm: { box: 44, radius: 12, fontSize: 18, gap: 8 },
 };
 
@@ -20,17 +21,35 @@ interface PinInputProps {
   size?: 'sm' | 'md';
   /** Nº de casillas. El PIN son 6; el código de recuperación sigue siendo de 4. */
   length?: number;
+  /**
+   * Parte la fila en dos mitades, como un número de tarjeta. Con 6 casillas seguidas
+   * hay que contarlas una a una para saber cuántas van; en 3+3 se ve de un vistazo.
+   */
+  grouped?: boolean;
+  /**
+   * El ojo lo pinta el padre, en la fila del label. Su sitio de antes —al final de la
+   * fila— hacía que las casillas no cupieran a lo ancho (368px pedidos en 342 dispo-
+   * nibles), y por eso se veía descolgado.
+   */
+  hideEye?: boolean;
+  /** Visibilidad controlada desde fuera cuando el ojo lo pinta el padre. */
+  visible?: boolean;
+  /** Las casillas ocupan todo el ancho disponible en vez de quedar centradas. */
+  stretch?: boolean;
 }
 
 export default function PinInput({
   value, onChange, error = false, defaultVisible = false, size = 'md', length = PIN_LENGTH,
+  grouped = false, hideEye = false, visible, stretch = false,
 }: PinInputProps) {
   // Con 6 casillas, las de 60 px no caben en un móvil estrecho.
   const cfg = size === 'md' && length > 4 ? SIZE_CONFIG.mdWide : SIZE_CONFIG[size];
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const tk = authTokens(colors, isDark);
   const inputs = useRef<(TextInput | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const [showPin, setShowPin] = useState(defaultVisible);
+  const [ownVisible, setOwnVisible] = useState(defaultVisible);
+  const showPin = visible ?? ownVisible;
 
   const handleChange = (text: string, index: number) => {
     const typed = text.replace(/[^0-9]/g, '');
@@ -59,133 +78,121 @@ export default function PinInput({
     }
   };
 
+  const renderCell = (i: number) => {
+    const filled = /\d/.test(value[i] ?? '');
+    const focused = focusedIndex === i;
+    const borderColor = error
+      ? colors.error
+      : focused || filled
+      ? colors.textPrimary
+      : tk.fieldLine;
+    const bg = filled ? colors.surface : tk.fieldBg;
+    return (
+      <View key={i} style={[styles.cellWrap, stretch ? styles.cellFlex : { width: cfg.box }]}>
+        <TextInput
+          ref={(r) => { inputs.current[i] = r; }}
+          style={[
+            styles.box,
+            {
+              height: cfg.box,
+              borderRadius: cfg.radius,
+              fontSize: cfg.fontSize,
+              borderColor,
+              borderWidth: focused || filled ? 2 : 1.5,
+              backgroundColor: bg,
+              color: 'transparent',
+            },
+            !stretch && { width: cfg.box },
+          ]}
+          value={filled ? '•' : ''}
+          onChangeText={(t) => handleChange(t, i)}
+          onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
+          onFocus={() => setFocusedIndex(i)}
+          onBlur={() => setFocusedIndex(null)}
+          keyboardType="numeric"
+          maxLength={length}
+          textAlign="center"
+          caretHidden
+        />
+        {filled && (
+          <View style={styles.dotOverlay} pointerEvents="none">
+            {showPin ? (
+              <Text style={[styles.dotText, { fontSize: cfg.fontSize - 6, color: colors.textPrimary }]}>
+                {value[i]}
+              </Text>
+            ) : (
+              <View style={[styles.dot, { backgroundColor: colors.textPrimary }]} />
+            )}
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const cells = Array.from({ length }, (_, i) => i);
+  const half = Math.ceil(length / 2);
+
   return (
     <View style={styles.wrapper}>
-      {/* Grupo compacto: boxes + ícono ojo juntos, centrado en pantalla */}
-      <View style={[styles.group, { gap: cfg.gap + 4 }]}>
-        <View style={[styles.dotsRow, { gap: cfg.gap }]}>
-          {Array.from({ length }, (_, i) => i).map((i) => {
-            const filled = /\d/.test(value[i] ?? '');
-            const focused = focusedIndex === i;
-            const borderColor = error
-              ? colors.error
-              : focused
-              ? colors.borderFocus
-              : filled
-              ? colors.primary
-              : colors.border;
-            const bg = focused
-              ? colors.primaryLight
-              : filled
-              ? colors.primaryLight
-              : colors.backgroundSecondary;
-            return (
-              <View key={i} style={{ position: 'relative' }}>
-                <TextInput
-                  ref={(r) => { inputs.current[i] = r; }}
-                  style={[
-                    styles.box,
-                    {
-                      width: cfg.box,
-                      height: cfg.box,
-                      borderRadius: cfg.radius,
-                      fontSize: cfg.fontSize,
-                      borderColor,
-                      backgroundColor: bg,
-                      color: 'transparent',
-                    },
-                    focused && styles.boxFocused,
-                  ]}
-                  value={filled ? '•' : ''}
-                  onChangeText={(t) => handleChange(t, i)}
-                  onKeyPress={(e) => handleKeyPress(e.nativeEvent.key, i)}
-                  onFocus={() => setFocusedIndex(i)}
-                  onBlur={() => setFocusedIndex(null)}
-                  keyboardType="numeric"
-                  maxLength={length}
-                  textAlign="center"
-                  caretHidden
-                />
-                {filled && (
-                  <View style={styles.dotOverlay} pointerEvents="none">
-                    <Text style={[
-                      styles.dotText,
-                      { fontSize: showPin ? cfg.fontSize - 6 : cfg.fontSize },
-                      showPin
-                        ? { color: colors.textPrimary }
-                        : { color: colors.primary },
-                    ]}>
-                      {showPin ? value[i] : '•'}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            );
-          })}
-        </View>
+      <View style={[styles.group, { gap: hideEye ? 0 : cfg.gap + 4 }]}>
+        {grouped && length % 2 === 0 ? (
+          <View style={[styles.dotsRow, stretch && styles.rowFlex]}>
+            <View style={[styles.dotsRow, { gap: cfg.gap }, stretch && styles.rowFlex]}>
+              {cells.slice(0, half).map(renderCell)}
+            </View>
+            <View style={{ width: cfg.gap + 5 }} />
+            <View style={[styles.dotsRow, { gap: cfg.gap }, stretch && styles.rowFlex]}>
+              {cells.slice(half).map(renderCell)}
+            </View>
+          </View>
+        ) : (
+          <View style={[styles.dotsRow, { gap: cfg.gap }, stretch && styles.rowFlex]}>
+            {cells.map(renderCell)}
+          </View>
+        )}
 
-        <TouchableOpacity
-          style={[styles.eyeButton, { height: cfg.box }]}
-          onPress={() => setShowPin((p) => !p)}
-          activeOpacity={0.7}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <AppIcon
-            name={showPin ? 'eye-outline' : 'eye-off-outline'}
-            size={22}
-            color={colors.textTertiary}
-          />
-        </TouchableOpacity>
+        {!hideEye && (
+          <TouchableOpacity
+            style={[styles.eyeButton, { height: cfg.box }]}
+            onPress={() => setOwnVisible((p) => !p)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <AppIcon
+              name={showPin ? 'eye-outline' : 'eye-off-outline'}
+              size={22}
+              color={colors.textTertiary}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    alignSelf: 'stretch',
-    alignItems: 'center',
-  },
-  // Grupo compacto centrado: [⬜][⬜][⬜][⬜] [👁]
-  group: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  dotsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
+  wrapper: { alignSelf: 'stretch', alignItems: 'center' },
+  group: { flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch', justifyContent: 'center' },
+  dotsRow: { flexDirection: 'row', alignItems: 'center' },
+  rowFlex: { flex: 1 },
+  cellWrap: { position: 'relative' },
+  cellFlex: { flex: 1 },
   box: {
-    width: 60,
+    width: '100%',
     height: 60,
     borderRadius: 16,
     borderWidth: 1.5,
     fontSize: 28,
     fontFamily: Fonts.bold,
+    // El recuadro azul del navegador se pintaba encima del borde propio.
+    ...(({ outlineStyle: 'none' } as unknown) as object),
   },
   dotOverlay: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dotText: {
-    fontSize: 28,
-    fontFamily: Fonts.bold,
-    lineHeight: 32,
-  },
-  boxFocused: {
-    borderWidth: 2,
-    shadowColor: '#00ACC1',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  eyeButton: {
-    width: 40,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  dot: { width: 9, height: 9, borderRadius: 5 },
+  dotText: { fontFamily: Fonts.bold, lineHeight: 26 },
+  eyeButton: { width: 40, height: 60, justifyContent: 'center', alignItems: 'center' },
 });

@@ -22,7 +22,12 @@
     "consentPrefix": "Al registrarte, aceptas los",
     "consentTerms": "Términos y Condiciones",
     "consentAnd": "y la",
-    "consentPrivacy": "Política de Privacidad"
+    "consentPrivacy": "Política de Privacidad",
+    "headline": "Tu dinero,\nbajo control.",
+    "createAccount": "Crear cuenta",
+    "featureCategories": "Cada gasto en su categoría",
+    "featureFixed": "Los fijos se repiten solos",
+    "featureShared": "Cuentas claras con quien sea"
   },
   "register": {
     "title": "Crear cuenta",
@@ -42,7 +47,12 @@
     "acceptPrefix": "Acepto los",
     "termsLabel": "Términos y Condiciones",
     "acceptAnd": "y la",
-    "privacyLabel": "Política de Privacidad"
+    "privacyLabel": "Política de Privacidad",
+    "groupWhoTitle": "Quién eres",
+    "groupHowTitle": "Cómo entras",
+    "pinLabel": "Tu PIN de 6 dígitos",
+    "createButton": "Crear mi cuenta",
+    "haveAccount": "Ya tengo cuenta"
   },
   "loginEmail": {
     "title": "Ingresa tu email",
@@ -55,7 +65,8 @@
       "title": "Recuperar PIN",
       "description": "Ingresa tu correo y te enviaremos un código de verificación.",
       "send": "Enviar código"
-    }
+    },
+    "pinLabel": "PIN"
   },
   "forgotPinOtp": {
     "title": "Revisa tu correo",
@@ -70,7 +81,12 @@
     "resentSuccess": "Código reenviado",
     "emailLabel": "Correo electrónico",
     "sendButton": "Enviar código",
-    "errorEmailCheck": "Verifica tu correo e intenta de nuevo."
+    "errorEmailCheck": "Verifica tu correo e intenta de nuevo.",
+    "stepsIntro": "Tres pasos y vuelves a entrar.",
+    "step1": "Te enviamos un código de 4 dígitos a ese correo.",
+    "step2": "Lo escribes aquí antes de 10 minutos.",
+    "step3": "Eliges un PIN nuevo y listo.",
+    "backToLogin": "Volver a iniciar sesión"
   },
   "forgotPinReset": {
     "title": "Crea tu nuevo PIN",
@@ -85,7 +101,9 @@
   "pinEntry": {
     "createTitle": "Crea tu PIN de acceso",
     "createSubtitle": "Elige 6 dígitos que recuerdes",
-    "enterTitle": "Ingresa tu PIN"
+    "enterTitle": "Ingresa tu PIN",
+    "showPin": "Mostrar PIN",
+    "hidePin": "Ocultar PIN"
   },
   "dialogs": {
     "googleAccount": {

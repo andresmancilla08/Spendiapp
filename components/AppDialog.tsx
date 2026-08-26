@@ -4,6 +4,7 @@ import {
   Animated, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
 import AppIcon, { AppIconName } from './AppIcon';
+import AppButton from './AppButton';
 import { useTheme } from '../context/ThemeContext';
 import { accentInk } from '../utils/contrast';
 import { Fonts } from '../config/fonts';
@@ -167,31 +168,24 @@ export default function AppDialog({
             </View>
           )}
 
-          <TouchableOpacity
-            style={[
-              styles.primaryButton,
-              { backgroundColor: primaryDanger ? colors.error : colors.primary },
-              isPrimaryDisabled && styles.primaryButtonDisabled,
-              !secondaryLabel && styles.primaryButtonLast,
-            ]}
+          {/* Los dos botones salen de `AppButton`: el patrón vive en un solo sitio y
+              este diálogo aparece en media app, así que aquí se nota de inmediato. */}
+          <AppButton
+            label={primaryLabel}
             onPress={onPrimary}
-            activeOpacity={0.85}
+            variant={primaryDanger ? 'danger' : 'primary'}
             disabled={isPrimaryDisabled}
-          >
-            {loading
-              ? <ActivityIndicator color={colors.onPrimary} />
-              : <Text style={[styles.primaryLabel, { color: colors.onPrimary }]}>{primaryLabel}</Text>
-            }
-          </TouchableOpacity>
+            loading={loading}
+            style={secondaryLabel ? styles.primaryButton : undefined}
+          />
 
           {secondaryLabel && onSecondary && (
-            <TouchableOpacity
-              style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.primary }]}
+            <AppButton
+              label={secondaryLabel}
               onPress={onSecondary}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.secondaryLabel, { color: accentInk(colors, 'primary', colors.surface) }]}>{secondaryLabel}</Text>
-            </TouchableOpacity>
+              variant="secondary"
+              style={styles.secondaryButton}
+            />
           )}
         </Animated.View>
       </KeyboardAvoidingView>
@@ -259,37 +253,9 @@ const styles = StyleSheet.create({
     marginTop: 6,
     marginLeft: 4,
   },
-  primaryButton: {
-    height: 52,
-    width: '100%',
-    borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.4,
-  },
-  primaryButtonLast: {
-    marginBottom: 0,
-  },
+  primaryButton: { marginBottom: 10 },
   cardNoSecondary: {
     paddingBottom: 32,
   },
-  primaryLabel: {
-    fontSize: 16,
-    fontFamily: Fonts.bold,
-  },
-  secondaryButton: {
-    height: 52,
-    width: '100%',
-    borderRadius: 50,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondaryLabel: {
-    fontSize: 16,
-    fontFamily: Fonts.semiBold,
-  },
+  secondaryButton: { width: '100%' },
 });

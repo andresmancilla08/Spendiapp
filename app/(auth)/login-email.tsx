@@ -3,7 +3,6 @@ import { scrollFadeMask } from '../../components/ScrollFadeEdges';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -20,9 +19,10 @@ import { loginWithEmailAndPin } from '../../hooks/useAuth';
 import AppHeader from '../../components/AppHeader';
 import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTransition';
 import PinInput from '../../components/PinInput';
+import AuthField from '../../components/auth/AuthField';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
-import { accentInk } from '../../utils/contrast';
+import { authTokens } from '../../utils/authTheme';
 import { Fonts } from '../../config/fonts';
 import AppIcon from '../../components/AppIcon';
 
@@ -32,8 +32,10 @@ export default function LoginEmailScreen() {
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [emailFocused, setEmailFocused] = useState(false);
+  const [pinVisible, setPinVisible] = useState(false);
   const { t } = useTranslation();
   const { colors, isDark } = useTheme();
+  const tk = authTokens(colors, isDark);
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const pinComplete = isPinComplete(pin);
@@ -71,59 +73,67 @@ export default function LoginEmailScreen() {
     <ScreenTransition ref={transitionRef}>
     <SafeAreaView style={styles.safeArea}>
       <ScreenBackground>
-        <AppHeader />
+        <AppHeader onBack={handleBack} />
 
         <KeyboardAvoidingView
           style={styles.keyboardAvoidingView}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
+          {/* `justifyContent: center` en vez de `flex:1` en el formulario: así el
+              sobrante se parte en dos márgenes iguales en lugar de acumularse entero
+              entre el PIN y el botón (era el 35% de la pantalla). */}
           <ScrollView
-        style={scrollFadeMask(0, 0)}
+            style={scrollFadeMask(0, 0)}
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <View style={styles.header}>
-              <Text style={[styles.title, { color: colors.textPrimary }]}>{t('loginEmail.title')}</Text>
-              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('loginEmail.subtitle')}</Text>
-            </View>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{t('loginEmail.title')}</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{t('loginEmail.subtitle')}</Text>
 
             <View style={styles.form}>
-              <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('loginEmail.emailLabel')}</Text>
-                <View style={styles.inputWrapper}>
-                  <AppIcon
-                    name="mail-outline"
-                    size={18}
-                    color={emailFocused ? colors.primary : colors.textTertiary}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={[styles.input, styles.inputWithIcon, {
-                      borderColor: emailFocused ? colors.borderFocus : (isDark ? 'rgba(0,172,193,0.22)' : colors.inputBorder),
-                      backgroundColor: isDark ? 'rgba(0,172,193,0.07)' : colors.inputBackground,
-                      color: colors.textPrimary,
-                    }]}
-                    placeholder={t('loginEmail.emailPlaceholder')}
-                    placeholderTextColor={colors.textTertiary}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    returnKeyType="done"
-                    value={email}
-                    onChangeText={(v) => { setEmail(v); setLoginError(null); }}
-                    onFocus={() => setEmailFocused(true)}
-                    onBlur={() => setEmailFocused(false)}
-                  />
-                </View>
-              </View>
+              <AuthField
+                label={t('loginEmail.emailLabel')}
+                icon="mail-outline"
+                focused={emailFocused}
+                error={!!loginError}
+                placeholder={t('loginEmail.emailPlaceholder')}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="done"
+                value={email}
+                onChangeText={(v) => { setEmail(v); setLoginError(null); }}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+              />
 
-              <View style={styles.inputGroup}>
+              <View>
                 <View style={styles.pinLabelRow}>
-                  <AppIcon name="lock-closed-outline" size={14} color={colors.textSecondary} />
-                  <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>{t('pinEntry.enterTitle')}</Text>
+                  <Text style={[styles.label, { color: colors.textPrimary }]}>{t('loginEmail.pinLabel')}</Text>
+                  <TouchableOpacity
+                    onPress={() => setPinVisible((v) => !v)}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(pinVisible ? 'pinEntry.hidePin' : 'pinEntry.showPin')}
+                  >
+                    <AppIcon
+                      name={pinVisible ? 'eye-outline' : 'eye-off-outline'}
+                      size={20}
+                      color={colors.textPrimary}
+                    />
+                  </TouchableOpacity>
                 </View>
-                <PinInput value={pin} onChange={(v) => { setPin(v); setLoginError(null); }} error={!!loginError} />
+                <PinInput
+                  value={pin}
+                  onChange={(v) => { setPin(v); setLoginError(null); }}
+                  error={!!loginError}
+                  grouped
+                  stretch
+                  hideEye
+                  visible={pinVisible}
+                />
                 {loginError && (
                   <Text style={[styles.errorLabel, { color: colors.error }]}>{loginError}</Text>
                 )}
@@ -133,18 +143,18 @@ export default function LoginEmailScreen() {
 
           <View style={styles.footer}>
             <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: colors.primary, opacity: canSubmit ? 1 : 0.4 }]}
+              style={[styles.primaryButton, { backgroundColor: tk.ink, opacity: canSubmit ? 1 : 0.4 }]}
               onPress={handleContinue}
               activeOpacity={0.85}
               disabled={!canSubmit || loading}
             >
               {loading
-                ? <ActivityIndicator color={colors.onPrimary} />
-                : <Text style={[styles.primaryButtonText, { color: colors.onPrimary }]}>{t('loginEmail.continueButton')}</Text>
+                ? <ActivityIndicator color={tk.onInk} />
+                : <Text style={[styles.primaryButtonText, { color: tk.onInk }]}>{t('loginEmail.continueButton')}</Text>
               }
             </TouchableOpacity>
             <TouchableOpacity style={styles.forgotPinButton} onPress={handleForgotPin} activeOpacity={0.7}>
-              <Text style={[styles.forgotPinText, { color: accentInk(colors, 'primary', colors.background) }]}>{t('loginEmail.forgotPin')}</Text>
+              <Text style={[styles.forgotPinText, { color: colors.textPrimary }]}>{t('loginEmail.forgotPin')}</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -159,49 +169,49 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: 24,
-    paddingTop: 8,
     paddingBottom: 16,
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',
   },
+  title: { fontSize: 26, lineHeight: 32, fontFamily: Fonts.bold, letterSpacing: -0.3 },
+  subtitle: { fontSize: 14, lineHeight: 20, fontFamily: Fonts.medium, marginTop: 8 },
+  form: { marginTop: 26, gap: 26 },
+  label: {
+    fontSize: 12,
+    fontFamily: Fonts.bold,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    lineHeight: 15,
+  },
+  pinLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 11,
+  },
+  errorLabel: { fontSize: 13, fontFamily: Fonts.medium, marginTop: 10 },
   footer: {
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 16,
-    gap: 4,
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',
   },
-  header: { marginTop: 24, marginBottom: 40, alignItems: 'center' },
-  title: { fontSize: 32, fontFamily: Fonts.bold, marginBottom: 8, textAlign: 'center' },
-  subtitle: { fontSize: 16, fontFamily: Fonts.regular, lineHeight: 24, textAlign: 'center' },
-  form: { flex: 1, gap: 32 },
-  inputGroup: { gap: 12 },
-  inputLabel: { fontSize: 14, fontFamily: Fonts.semiBold },
-  inputWrapper: { position: 'relative', justifyContent: 'center' },
-  inputIcon: { position: 'absolute', left: 14, zIndex: 1 },
-  input: {
-    height: 52,
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    fontFamily: Fonts.regular,
-  },
-  inputWithIcon: { paddingLeft: 44 },
-  pinLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
-  errorLabel: { fontSize: 13, fontFamily: Fonts.medium, marginTop: 8, textAlign: 'left' },
   primaryButton: {
     height: 56,
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
   },
-  primaryButtonText: { fontSize: 17, fontFamily: Fonts.bold },
-  forgotPinButton: { alignItems: 'center', paddingVertical: 8 },
-  forgotPinText: { fontSize: 15, fontFamily: Fonts.semiBold },
+  primaryButtonText: { fontSize: 16, fontFamily: Fonts.bold, letterSpacing: 0.2 },
+  forgotPinButton: { alignItems: 'center', paddingVertical: 12, marginTop: 2 },
+  forgotPinText: {
+    fontSize: 14,
+    fontFamily: Fonts.semiBold,
+    textDecorationLine: 'underline',
+  },
 });

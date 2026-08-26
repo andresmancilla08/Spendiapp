@@ -22,7 +22,12 @@
     "consentPrefix": "By signing up, you accept the",
     "consentTerms": "Terms and Conditions",
     "consentAnd": "and the",
-    "consentPrivacy": "Privacy Policy"
+    "consentPrivacy": "Privacy Policy",
+    "headline": "Your money,\nunder control.",
+    "createAccount": "Create account",
+    "featureCategories": "Every expense in its category",
+    "featureFixed": "Fixed ones repeat by themselves",
+    "featureShared": "Clear accounts with anyone"
   },
   "register": {
     "title": "Create account",
@@ -42,7 +47,12 @@
     "acceptPrefix": "I accept the",
     "termsLabel": "Terms and Conditions",
     "acceptAnd": "and the",
-    "privacyLabel": "Privacy Policy"
+    "privacyLabel": "Privacy Policy",
+    "groupWhoTitle": "Who you are",
+    "groupHowTitle": "How you sign in",
+    "pinLabel": "Your 6-digit PIN",
+    "createButton": "Create my account",
+    "haveAccount": "I already have an account"
   },
   "loginEmail": {
     "title": "Enter your email",
@@ -55,7 +65,8 @@
       "title": "Recover PIN",
       "description": "Enter your email and we will send you a verification code.",
       "send": "Send code"
-    }
+    },
+    "pinLabel": "PIN"
   },
   "forgotPinOtp": {
     "title": "Check your email",
@@ -70,7 +81,12 @@
     "resentSuccess": "Code resent",
     "emailLabel": "Email address",
     "sendButton": "Send code",
-    "errorEmailCheck": "Verify your email and try again."
+    "errorEmailCheck": "Verify your email and try again.",
+    "stepsIntro": "Three steps and you are back in.",
+    "step1": "We send a 4-digit code to that email.",
+    "step2": "You type it here within 10 minutes.",
+    "step3": "You pick a new PIN and you are done.",
+    "backToLogin": "Back to sign in"
   },
   "forgotPinReset": {
     "title": "Create your new PIN",
@@ -85,7 +101,9 @@
   "pinEntry": {
     "createTitle": "Create your access PIN",
     "createSubtitle": "Choose 6 digits you'll remember",
-    "enterTitle": "Enter your PIN"
+    "enterTitle": "Enter your PIN",
+    "showPin": "Show PIN",
+    "hidePin": "Hide PIN"
   },
   "dialogs": {
     "googleAccount": {

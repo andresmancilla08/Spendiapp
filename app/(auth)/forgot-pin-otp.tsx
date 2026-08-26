@@ -21,9 +21,11 @@ import ScreenTransition, { ScreenTransitionRef } from '../../components/ScreenTr
 import ScreenBackground from '../../components/ScreenBackground';
 import AppHeader from '../../components/AppHeader';
 import PinInput from '../../components/PinInput';
+import AuthField from '../../components/auth/AuthField';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { accentInk } from '../../utils/contrast';
+import { authTokens } from '../../utils/authTheme';
 import { Fonts } from '../../config/fonts';
 import AppIcon from '../../components/AppIcon';
 import { sendOtpEmail, verifyOtp } from '../../hooks/useAuth';
@@ -34,7 +36,8 @@ const RESEND_COOLDOWN = 60;
 export default function ForgotPinOtpScreen() {
   const { email: emailParam } = useLocalSearchParams<{ email?: string }>();
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const tk = authTokens(colors, isDark);
   const { showToast } = useToast();
   const transitionRef = useRef<ScreenTransitionRef>(null);
 
@@ -177,11 +180,11 @@ export default function ForgotPinOtpScreen() {
               showsVerticalScrollIndicator={false}
             >
               {/* Icon */}
-              <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
+              <View style={[styles.iconCircle, { backgroundColor: tk.soft }]}>
                 <AppIcon
                   name={phase === 'otp' ? 'mail-open-outline' : 'lock-closed-outline'}
                   size={28}
-                  color={colors.primary}
+                  color={tk.accent}
                 />
               </View>
 
@@ -193,42 +196,42 @@ export default function ForgotPinOtpScreen() {
               {phase === 'email' ? (
                 <>
                   <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                    {t('loginEmail.forgotDialog.description')}
+                    {t('forgotPinOtp.stepsIntro')}
                   </Text>
 
                   <View style={styles.inputGroup}>
-                    <Text style={[styles.inputLabel, { color: colors.textPrimary }]}>
-                      {t('forgotPinOtp.emailLabel')}
-                    </Text>
-                    <View style={styles.inputWrapper}>
-                      <AppIcon
-                        name="mail-outline"
-                        size={18}
-                        color={emailFocused ? colors.primary : colors.textTertiary}
-                        style={styles.inputIcon}
-                      />
-                      <TextInput
-                        style={[styles.input, {
-                          borderColor: emailFocused ? colors.borderFocus : colors.inputBorder,
-                          backgroundColor: colors.inputBackground,
-                          color: colors.textPrimary,
-                        }]}
-                        placeholder={t('loginEmail.emailPlaceholder')}
-                        placeholderTextColor={colors.textTertiary}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        value={email}
-                        onChangeText={(v) => { setEmail(v); setError(null); }}
-                        onFocus={() => setEmailFocused(true)}
-                        onBlur={() => setEmailFocused(false)}
-                        returnKeyType="send"
-                        onSubmitEditing={isEmailValid ? handleSendOtp : undefined}
-                      />
-                    </View>
-                    {error && (
-                      <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
-                    )}
+                    <AuthField
+                      label={t('forgotPinOtp.emailLabel')}
+                      icon="mail-outline"
+                      focused={emailFocused}
+                      error={!!error}
+                      errorText={error ?? undefined}
+                      placeholder={t('loginEmail.emailPlaceholder')}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      value={email}
+                      onChangeText={(v) => { setEmail(v); setError(null); }}
+                      onFocus={() => setEmailFocused(true)}
+                      onBlur={() => setEmailFocused(false)}
+                      returnKeyType="send"
+                      onSubmitEditing={isEmailValid ? handleSendOtp : undefined}
+                    />
+                  </View>
+
+                  {/* Los tres pasos ocupan el hueco que antes era media pantalla en
+                      blanco, y de paso quitan la duda de cuánto falta para volver. */}
+                  <View style={styles.steps}>
+                    {(['step1', 'step2', 'step3'] as const).map((k, i) => (
+                      <View key={k} style={styles.step}>
+                        <View style={[styles.stepNum, { backgroundColor: tk.soft }]}>
+                          <Text style={[styles.stepNumText, { color: tk.accent }]}>{i + 1}</Text>
+                        </View>
+                        <Text style={[styles.stepText, { color: colors.textSecondary }]}>
+                          {t(`forgotPinOtp.${k}`)}
+                        </Text>
+                      </View>
+                    ))}
                   </View>
                 </>
               ) : (
@@ -295,7 +298,7 @@ export default function ForgotPinOtpScreen() {
             <View style={styles.footer}>
               <TouchableOpacity
                 style={[styles.btn, {
-                  backgroundColor: colors.primary,
+                  backgroundColor: tk.ink,
                   opacity: ((phase === 'email' ? isEmailValid : isOtpComplete) && !loading) ? 1 : 0.4,
                 }]}
                 onPress={phase === 'email' ? handleSendOtp : handleVerify}
@@ -303,13 +306,19 @@ export default function ForgotPinOtpScreen() {
                 disabled={(phase === 'email' ? !isEmailValid : !isOtpComplete) || loading}
               >
                 {loading
-                  ? <ActivityIndicator color={colors.onPrimary} />
-                  : <Text style={[styles.btnText, { color: colors.onPrimary }]}>
+                  ? <ActivityIndicator color={tk.onInk} />
+                  : <Text style={[styles.btnText, { color: tk.onInk }]}>
                       {phase === 'email'
                         ? t('forgotPinOtp.sendButton')
                         : t('forgotPinOtp.verifyButton')}
                     </Text>
                 }
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.backBtn} onPress={handleBack} activeOpacity={0.7}>
+                <Text style={[styles.backText, { color: colors.textPrimary }]}>
+                  {t('forgotPinOtp.backToLogin')}
+                </Text>
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
@@ -330,12 +339,11 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 560,
     alignSelf: 'center',
-    alignItems: 'center',
   },
   iconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 24,
@@ -343,15 +351,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
+    lineHeight: 32,
     fontFamily: Fonts.bold,
-    textAlign: 'center',
-    marginBottom: 10,
+    letterSpacing: -0.3,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 15,
-    fontFamily: Fonts.regular,
-    lineHeight: 22,
-    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: Fonts.medium,
   },
   subtitleWrap: {
     paddingHorizontal: 8,
@@ -359,9 +367,18 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     width: '100%',
-    gap: 10,
-    marginTop: 32,
+    marginTop: 26,
   },
+  steps: { marginTop: 22, gap: 14 },
+  step: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  stepNum: {
+    width: 24, height: 24, borderRadius: 12,
+    alignItems: 'center', justifyContent: 'center', marginTop: 1,
+  },
+  stepNumText: { fontSize: 12, fontFamily: Fonts.extraBold },
+  stepText: { flex: 1, fontSize: 13.5, lineHeight: 19, fontFamily: Fonts.regular },
+  backBtn: { alignItems: 'center', paddingVertical: 12, marginTop: 2 },
+  backText: { fontSize: 14, fontFamily: Fonts.semiBold, textDecorationLine: 'underline' },
   inputLabel: {
     fontSize: 14,
     fontFamily: Fonts.semiBold,
