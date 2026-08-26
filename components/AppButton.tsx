@@ -42,7 +42,7 @@ export default function AppButton({
 
   const skin: Record<AppButtonVariant, { bg: string; fg: string; border?: string }> = {
     primary:   { bg: tk.ink, fg: tk.onInk },
-    secondary: { bg: colors.surfaceSecondary, fg: colors.textPrimary },
+    secondary: { bg: tk.secondaryBg, fg: colors.textPrimary },
     danger:    { bg: colors.error, fg: colors.onPrimary },
     ghost:     { bg: 'transparent', fg: colors.textPrimary, border: colors.border },
   };

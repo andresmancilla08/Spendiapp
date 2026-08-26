@@ -22,6 +22,13 @@ export interface AuthTokens {
   fieldLineFocus: string;
   /** Fondo suave de marca: badge del candado, iconos de la portada. */
   soft: string;
+  /**
+   * Relleno del botón secundario. NO es `surfaceSecondary` a secas: en 51 de las 60
+   * combinaciones de paleta y modo ese token queda por debajo de 1.3:1 contra el
+   * fondo de la pantalla, así que el botón se lee como texto suelto en vez de como
+   * botón. Aquí se separa del fondo lo justo, conservando el tono de la paleta.
+   */
+  secondaryBg: string;
 }
 
 export function authTokens(
@@ -44,5 +51,6 @@ export function authTokens(
     fieldLine: mixHex(primary, bg, isDark ? 0.74 : 0.58),
     fieldLineFocus: accent,
     soft: mixHex(primary, bg, isDark ? 0.86 : 0.88),
+    secondaryBg: readableTint(colors.surfaceSecondary ?? bg, bg, 1.35),
   };
 }
