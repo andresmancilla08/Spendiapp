@@ -88,6 +88,7 @@ export function useTransactions(userId: string, year: number, month: number, ref
           isInstallment: d.isInstallment ?? false,
           fixedCancelledFrom: d.fixedCancelledFrom ? (d.fixedCancelledFrom as Timestamp).toDate() : undefined,
           fixedSkipMonths: d.fixedSkipMonths ?? [],
+          fixedSplitInto: d.fixedSplitInto,
           // Ingreso enviado — remitente
           sentIncomeToUid: d.sentIncomeToUid,
           sentIncomeToName: d.sentIncomeToName,
@@ -172,6 +173,13 @@ export function useTransactions(userId: string, year: number, month: number, ref
             createdAt: (d.createdAt as Timestamp).toDate(),
             isFixed: true,
             isVirtualFixed: true,
+            // La fecha de arriba es la del mes que se está MIRANDO, no la del
+            // documento. Sin el origen, el editor guardaba la fecha virtual y
+            // movía el arranque de la serie: el fijo desaparecía de todo el
+            // histórico anterior.
+            fixedOriginDate: originalDate,
+            fixedSkipMonths: d.fixedSkipMonths ?? [],
+            fixedSplitInto: d.fixedSplitInto,
             // Se conserva para que `effectiveAmount` no confunda una cuota con un
             // compartido normal y acabe usando el gemelo de `sharedAmount`.
             isInstallment: d.isInstallment ?? false,

@@ -18,11 +18,11 @@ import { getMonthNames, formatDate } from '../utils/dateLocale';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppIcon from '../components/AppIcon';
 import { useTranslation } from 'react-i18next';
-import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc } from 'firebase/firestore';
+import { updateDoc, doc, Timestamp, addDoc, collection, deleteField, getDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
-import { accentInk, readableTint } from '../utils/contrast';
+import { accentInk, readableTint, mixHex } from '../utils/contrast';
 import { FieldLabel, FieldError } from '../components/FormField';
 import { useToast } from '../context/ToastContext';
 import { Fonts } from '../config/fonts';
@@ -48,6 +48,7 @@ import CategoryIcon from '../components/CategoryIcon';
 import type { SharedParticipant, SharedTransaction, MirrorRef } from '../types/sharedTransaction';
 import { calcSharedAmount, calcEqualPercentages, installmentPortion } from '../utils/sharedCalc';
 import { categoryForOtherUser } from '../utils/sharedCategory';
+import { originDateForEdit, newDocDate, futureSkipMonths, monthKey } from '../utils/fixedSeries';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
 
@@ -71,6 +72,16 @@ function getActualId(transaction: { id: string; isVirtualFixed?: boolean }): str
 }
 
 const MIN_YEAR = 2020;
+
+/** Un gasto fijo es UN documento; su `date` marca el mes de ARRANQUE de la serie.
+ *  Lo que se ve en los meses siguientes son copias virtuales. */
+type EditScope = 'single' | 'fromNow' | 'all';
+
+function toDate(v: unknown): Date {
+  if (v instanceof Date) return v;
+  const secs = (v as { seconds?: number } | null)?.seconds;
+  return typeof secs === 'number' ? new Date(secs * 1000) : new Date();
+}
 
 export default function EditTransactionScreen() {
   const { t, i18n } = useTranslation();
@@ -98,6 +109,13 @@ export default function EditTransactionScreen() {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [loading, setLoading]               = useState(false);
   const [error, setError]                   = useState('');
+
+  // Alcance del cambio en un gasto fijo (un solo doc para toda la serie)
+  const [scopeOpen, setScopeOpen]           = useState(false);
+  const [editScope, setEditScope]           = useState<EditScope>('fromNow');
+  /** Fecha con la que se abrió la pantalla: sirve para saber si el usuario TOCÓ el
+   *  selector. En una copia virtual esa fecha es la del mes que se está mirando. */
+  const initialDateRef = useRef<number | null>(null);
 
   // Shared transaction editing
   const [isSharedTx, setIsSharedTx]                     = useState(false);
@@ -217,6 +235,7 @@ export default function EditTransactionScreen() {
       ? tx.date
       : new Date((tx.date as any).seconds * 1000);
     setSelectedDate(d);
+    initialDateRef.current = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
     setPickerYear(d.getFullYear());
     setPickerMonth(d.getMonth());
     setPickerDay(d.getDate());
@@ -307,6 +326,37 @@ export default function EditTransactionScreen() {
   const sharedPctValid  = !isSharedTx || !isOwnerOfShared
     || !!transaction?.isInstallment || sharedTotalPct === 100;
 
+  // ── Serie de un gasto fijo ─────────────────────────────────────────────────
+  // El mes que se está mirando es el de la fila que se abrió: en una copia
+  // virtual, su `date` ES el mes visualizado. El origen sale de `fixedOriginDate`.
+  const viewDate    = transaction ? toDate(transaction.date) : new Date();
+  const viewYear    = viewDate.getFullYear();
+  const viewMonth   = viewDate.getMonth();
+  const originDate  = transaction?.fixedOriginDate
+    ? toDate(transaction.fixedOriginDate)
+    : viewDate;
+  const isOriginMonth = viewYear === originDate.getFullYear() && viewMonth === originDate.getMonth();
+  const wasFixed    = !!transaction?.isFixed;
+  const dateTouched = initialDateRef.current !== null
+    && new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate()).getTime() !== initialDateRef.current;
+  const hasChanges  = !!transaction && (
+    type !== transaction.type
+    || parsedAmount !== Math.round(transaction.amount)
+    || category !== transaction.category
+    || description.trim() !== transaction.description
+    || notes.trim() !== (transaction.notes ?? '')
+    || (selectedCardId ?? null) !== (transaction.cardId ?? null)
+    || isFixed !== wasFixed
+    || dateTouched
+  );
+  // Un compartido se propaga a los mirrors de los demás: partir la serie ahí
+  // exigiría partirla también en su lado. Fuera del alcance de esta pantalla.
+  const canSplitSeries = wasFixed && !isSharedTx && !isOriginMonth;
+  // Apagar el interruptor de "fijo" desde un mes posterior NO puede reescribir el
+  // pasado: eso borraba el gasto de todos los meses menos el de arranque.
+  const forcedScope: EditScope | null = canSplitSeries && !isFixed ? 'fromNow' : null;
+  const needsScope  = canSplitSeries && isFixed && hasChanges;
+
   /** Mismo contrato que en add-transaction: lo que falta, en orden de pantalla,
    *  con el mensaje del campo y la instrucción que va en el botón. */
   const missing = useMemo(() => {
@@ -349,7 +399,7 @@ export default function EditTransactionScreen() {
   };
 
   const primaryLabel = missing.length === 0
-    ? t('history.edit.saveButton')
+    ? (scopeOpen ? t('history.edit.editScopeApply') : t('history.edit.saveButton'))
     : missing.length === 1
       ? missing[0].cta
       : t('addTransaction.validation.missingCount', { count: missing.length });
@@ -364,7 +414,13 @@ export default function EditTransactionScreen() {
   /** El botón nunca es un callejón sin salida: si falta algo, lleva al campo. */
   const handlePrimaryPress = () => {
     if (loading) return;
-    if (missing.length === 0) { handleSave(); return; }
+    if (missing.length === 0) {
+      // Un fijo vive en un solo documento: guardar sin preguntar cambiaba TAMBIÉN
+      // los meses ya cerrados. Antes de escribir, se pregunta a qué meses aplica.
+      if (needsScope && !scopeOpen) { setScopeOpen(true); return; }
+      handleSave(forcedScope ?? (needsScope ? editScope : 'all'));
+      return;
+    }
     setAttempted(true);
     const first = missing[0];
     const y = fieldY.current[first.key];
@@ -373,10 +429,20 @@ export default function EditTransactionScreen() {
     if (input) setTimeout(() => input.current?.focus(), 320);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (scope: EditScope) => {
     if (isSaveDisabled || !transaction || !user) return;
     setLoading(true);
     setError('');
+    // La fecha del documento REAL nunca se mueve al mes que se está mirando: eso
+    // reubicaba el arranque de la serie y el fijo desaparecía de todo el histórico
+    // anterior. Si el usuario tocó el selector, solo se traslada el DÍA.
+    const dateForOrigin = originDateForEdit({
+      isVirtualFixed: !!transaction.isVirtualFixed,
+      originDate,
+      selectedDate,
+      dateTouched,
+    });
+    const splitDate = newDocDate(viewYear, viewMonth, selectedDate.getDate());
     try {
       if (isSharedTx && transaction.sharedId && isOwnerOfShared && !transaction.isInstallment) {
         // El doc de coordinación puede haber desaparecido (la cuenta del otro se
@@ -421,7 +487,7 @@ export default function EditTransactionScreen() {
               description: description.trim(),
               amount: parsedAmount,
               category: mirrorCategory,
-              date: Timestamp.fromDate(selectedDate),
+              date: Timestamp.fromDate(dateForOrigin),
               isFixed,
               sharedParticipants: sharedEditParticipants,
               sharedAmount: newSharedAmount,
@@ -447,18 +513,51 @@ export default function EditTransactionScreen() {
         // viejo y su balance dirá otra cosa que el mío.
         if (stale > 0) showToast(t('history.edit.sharedPartialSave', { count: stale }), 'info');
       } else {
-        await updateDoc(doc(db, 'transactions', getActualId(transaction)), {
+        const ref = doc(db, 'transactions', getActualId(transaction));
+        const fields = {
           type,
           description: description.trim(),
           amount: parsedAmount,
           category,
-          date: Timestamp.fromDate(selectedDate),
           isFixed,
           cardId: selectedCardId ?? null,
-          // Si se edita una transacción fija, limpiar la cancelación para restaurar todos los meses
-          ...(isFixed ? { fixedCancelledFrom: deleteField() } : {}),
-          ...(notes.trim() ? { notes: notes.trim() } : { notes: deleteField() }),
-        });
+        };
+        const key = monthKey(viewYear, viewMonth);
+
+        if (scope === 'all') {
+          await updateDoc(ref, {
+            ...fields,
+            date: Timestamp.fromDate(dateForOrigin),
+            // Editar un fijo cancelado lo restaura en todos los meses… salvo que la
+            // cancelación sea el corte de una serie partida: ahí revivirlo duplicaba
+            // el gasto contra la serie que lo continúa.
+            ...(isFixed && !transaction.fixedSplitInto ? { fixedCancelledFrom: deleteField() } : {}),
+            ...(notes.trim() ? { notes: notes.trim() } : { notes: deleteField() }),
+          });
+        } else {
+          // Primero se CREA y después se recorta la serie vieja: al revés, un fallo
+          // en la creación dejaba el mes sin gasto ninguno.
+          // ponytail: `fixedPaidMonths` no viaja a la serie nueva —no está en el
+          // modelo que llega aquí—; los meses futuros arrancan sin marcar.
+          const futureSkips = futureSkipMonths(transaction.fixedSkipMonths ?? [], viewYear, viewMonth);
+          const createdRef = await addDoc(collection(db, 'transactions'), {
+            userId: user.uid,
+            ...fields,
+            ...(scope === 'single' ? { isFixed: false } : {}),
+            date: Timestamp.fromDate(splitDate),
+            createdAt: Timestamp.fromDate(new Date()),
+            ...(notes.trim() ? { notes: notes.trim() } : {}),
+            ...(scope === 'fromNow' && isFixed
+              ? { ...(futureSkips.length ? { fixedSkipMonths: futureSkips } : {}) }
+              : { isPaid: transaction.isPaid ?? false }),
+          });
+          await updateDoc(ref, scope === 'single'
+            ? { fixedSkipMonths: arrayUnion(key) }
+            : {
+                fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)),
+                fixedSplitInto: createdRef.id,
+              });
+        }
       }
       setLastAction('saved');
       showToast(t('history.toasts.saved'), 'success');
@@ -1087,6 +1186,54 @@ export default function EditTransactionScreen() {
 
         {/* Footer */}
         <View style={[styles.footer, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
+          {scopeOpen && (
+            <View style={[styles.scopeWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[styles.scopeTitle, { color: colors.textPrimary }]}>
+                {t('history.edit.editScopeTitle')}
+              </Text>
+              {(['single', 'fromNow', 'all'] as const).map((sc) => {
+                const selected = editScope === sc;
+                const label = sc === 'single' ? t('history.edit.editScopeOnlyThis')
+                  : sc === 'fromNow' ? t('history.edit.editScopeFromNow')
+                  : t('history.edit.editScopeAll');
+                const desc = sc === 'single'
+                  ? t('history.edit.editScopeOnlyThisDesc', { month: MONTHS[viewMonth], year: viewYear })
+                  : sc === 'fromNow'
+                    ? t('history.edit.editScopeFromNowDesc', { month: MONTHS[viewMonth], year: viewYear })
+                    : t('history.edit.editScopeAllDesc');
+                return (
+                  <TouchableOpacity
+                    key={sc}
+                    onPress={() => setEditScope(sc)}
+                    activeOpacity={0.75}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    style={[styles.scopeOption, {
+                      borderColor: selected ? colors.primary : colors.border,
+                      backgroundColor: selected ? mixHex(colors.primary, colors.surface, 0.1) : colors.surface,
+                    }]}
+                  >
+                    <View style={[styles.radio, { borderColor: selected ? colors.primary : colors.textSecondary }]}>
+                      {selected && <View style={[styles.radioDot, { backgroundColor: colors.primary }]} />}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.scopeLabel, { color: colors.textPrimary }]}>{label}</Text>
+                      <Text style={[styles.scopeDesc, { color: colors.textSecondary }]}>{desc}</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+              <TouchableOpacity
+                style={styles.scopeCancel}
+                onPress={() => setScopeOpen(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.scopeCancelText, { color: colors.textSecondary }]}>
+                  {t('history.edit.confirmDeleteCancel')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
           {error !== '' && (
             <Text style={[styles.errorText, { color: readableTint(colors.error, colors.background), textAlign: 'center', marginBottom: 6 }]}>
               {error}
@@ -1127,6 +1274,15 @@ export default function EditTransactionScreen() {
 }
 
 const styles = StyleSheet.create({
+  scopeWrap:      { borderWidth: 1, borderRadius: 16, padding: 12, gap: 8, marginBottom: 10 },
+  scopeTitle:     { fontSize: 14, fontFamily: Fonts.bold, marginBottom: 2 },
+  scopeOption:    { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1.5, borderRadius: 14, padding: 12 },
+  radio:          { width: 20, height: 20, borderRadius: 10, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  radioDot:       { width: 10, height: 10, borderRadius: 5 },
+  scopeLabel:     { fontSize: 14, fontFamily: Fonts.semiBold },
+  scopeDesc:      { fontSize: 12, fontFamily: Fonts.regular, marginTop: 2, lineHeight: 16 },
+  scopeCancel:    { alignSelf: 'center', paddingVertical: 8, paddingHorizontal: 16 },
+  scopeCancelText:{ fontSize: 13, fontFamily: Fonts.semiBold },
   root:   { flex: 1 },
   flex:   { flex: 1 },
   scroll: { padding: 20, paddingBottom: 16, gap: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },

@@ -561,7 +561,7 @@
       "deleteError": "No se pudo eliminar. Intenta de nuevo.",
       "saveError": "No se pudo guardar. Intenta de nuevo.",
       "sharedPartialSave": "Guardado, pero {{count}} copia(s) de otros participantes no se pudo actualizar.",
-      "fixedNote": "Gasto fijo — los cambios afectan los meses siguientes",
+      "fixedNote": "Gasto fijo: al guardar eliges a qué meses aplica el cambio",
       "cancelFixedButton": "Cancelar fijo",
       "confirmCancelFixed": "Esto cancelará el movimiento fijo a partir de este mes. Los meses anteriores no se verán afectados.",
       "fixedLocked": "Este movimiento ya ocurrió y no puede modificarse.",
@@ -582,7 +582,15 @@
       "scopeConfirmFixed_all": "El movimiento fijo se eliminará de todos los meses permanentemente.",
       "scopeConfirmInstallment_single": "Solo se eliminará esta cuota. Las demás permanecen.",
       "scopeConfirmInstallment_fromNow": "Se eliminarán esta cuota y todas las siguientes del mismo grupo.",
-      "duplicateError": "No se pudo duplicar. Intenta de nuevo."
+      "duplicateError": "No se pudo duplicar. Intenta de nuevo.",
+      "editScopeTitle": "¿A qué meses aplica el cambio?",
+      "editScopeOnlyThis": "Solo este mes",
+      "editScopeOnlyThisDesc": "Solo {{month}} {{year}} queda con el nuevo valor. El resto de la serie sigue igual.",
+      "editScopeFromNow": "Este mes en adelante",
+      "editScopeFromNowDesc": "Desde {{month}} {{year}} se usa el nuevo valor. Los meses anteriores conservan el actual.",
+      "editScopeAll": "Todos los meses",
+      "editScopeAllDesc": "Reescribe también el histórico ya registrado, incluidos los meses cerrados.",
+      "editScopeApply": "Aplicar cambio"
     },
     "months": [
       "Ene",
@@ -1026,20 +1034,10 @@
     "title": "¿Qué hay de nuevo?",
     "subtitle": "Esto cambió en Spendia.",
     "dismiss": "Entendido",
-    "editFix": {
-      "title": "Editar un gasto vuelve a funcionar",
-      "item1": "Si te decía «no se pudo guardar» al editar, ya está arreglado",
-      "item2": "También al cancelar un gasto fijo desde un mes concreto"
-    },
-    "motion": {
-      "title": "Las animaciones ahora sí se mueven",
-      "item1": "Por un fallo, ninguna animación del gráfico llegaba a ejecutarse. Ya se ven",
-      "item2": "Y consumen menos que antes: las mueve el navegador, no la app"
-    },
-    "chartMonth": {
-      "title": "El gráfico es de TU mes",
-      "item1": "Antes mostraba seis meses; ahora dibuja el mes que estás viendo, día a día",
-      "item2": "Y termina justo en el balance que ves arriba, así que el gráfico y la cifra dicen lo mismo"
+    "fixedScope": {
+      "title": "Editar un gasto fijo ya pregunta a qué meses aplica",
+      "item1": "Antes el cambio reescribía todos los meses y podía sacar el gasto de tu histórico",
+      "item2": "Ahora eliges: solo este mes, de este mes en adelante, o todos"
     }
   },
   "incomeClaim": {

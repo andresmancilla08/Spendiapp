@@ -53,7 +53,11 @@ export function useRecurring(userId: string): { data: RecurringResult; loading: 
             const cancelled = d.fixedCancelledFrom
               ? (d.fixedCancelledFrom as Timestamp).toDate().getTime() <= Date.now()
               : false;
-            if (!cancelled) fixed.push(entry);
+            // Aún no ha empezado: al partir una serie ("desde este mes en adelante"
+            // sobre un mes futuro) quedan dos documentos vivos a la vez y el mismo
+            // gasto salía dos veces en la lista de lo que se repite.
+            const notStarted = entry.dateMs > Date.now();
+            if (!cancelled && !notStarted) fixed.push(entry);
             continue;
           }
           txns.push(entry);

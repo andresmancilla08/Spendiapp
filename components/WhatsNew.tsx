@@ -45,25 +45,12 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'trending-up-outline',
+    icon: 'repeat',
     colorKey: 'primary',
-    titleKey: 'whatsNew.chartMonth.title',
-    items: ['whatsNew.chartMonth.item1', 'whatsNew.chartMonth.item2'],
-  },
-  {
-    icon: 'sparkles-outline',
-    colorKey: 'success',
-    titleKey: 'whatsNew.motion.title',
-    items: ['whatsNew.motion.item1', 'whatsNew.motion.item2'],
-  },
-  {
-    icon: 'create-outline',
-    colorKey: 'tertiary',
-    titleKey: 'whatsNew.editFix.title',
-    items: ['whatsNew.editFix.item1', 'whatsNew.editFix.item2'],
+    titleKey: 'whatsNew.fixedScope.title',
+    items: ['whatsNew.fixedScope.item1', 'whatsNew.fixedScope.item2'],
   },
 ];
-
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
   const { colors, isDark } = useTheme();
   const { t } = useTranslation();

@@ -561,7 +561,7 @@
       "deleteError": "Could not delete. Please try again.",
       "saveError": "Could not save. Please try again.",
       "sharedPartialSave": "Saved, but {{count}} copy/copies of other participants could not be updated.",
-      "fixedNote": "Fixed expense — changes affect following months",
+      "fixedNote": "Fixed expense: when you save, you choose which months it applies to",
       "cancelFixedButton": "Cancel recurring",
       "confirmCancelFixed": "This will cancel the recurring transaction from this month onwards. Previous months will not be affected.",
       "fixedLocked": "This transaction already occurred and cannot be modified.",
@@ -582,7 +582,15 @@
       "scopeConfirmFixed_all": "The recurring will be permanently deleted from all months.",
       "scopeConfirmInstallment_single": "Only this installment will be deleted. Others remain.",
       "scopeConfirmInstallment_fromNow": "This installment and all following ones in this group will be deleted.",
-      "duplicateError": "Couldn't duplicate. Try again."
+      "duplicateError": "Couldn't duplicate. Try again.",
+      "editScopeTitle": "Which months does this change apply to?",
+      "editScopeOnlyThis": "This month only",
+      "editScopeOnlyThisDesc": "Only {{month}} {{year}} gets the new value. The rest of the series stays as is.",
+      "editScopeFromNow": "This month onwards",
+      "editScopeFromNowDesc": "From {{month}} {{year}} on, the new value applies. Earlier months keep the current one.",
+      "editScopeAll": "Every month",
+      "editScopeAllDesc": "Also rewrites the history already recorded, closed months included.",
+      "editScopeApply": "Apply change"
     },
     "months": [
       "Jan",
@@ -1026,20 +1034,10 @@
     "title": "What’s new?",
     "subtitle": "Here’s what changed in Spendia.",
     "dismiss": "Got it",
-    "editFix": {
-      "title": "Editing an expense works again",
-      "item1": "If it said \"could not save\" when editing, that is fixed",
-      "item2": "Same for cancelling a recurring expense from a given month"
-    },
-    "motion": {
-      "title": "Animations actually move now",
-      "item1": "A bug meant no chart animation ever ran. They are visible now",
-      "item2": "And they cost less than before: the browser moves them, not the app"
-    },
-    "chartMonth": {
-      "title": "The chart is about YOUR month",
-      "item1": "It used to show six months; now it draws the month you are viewing, day by day",
-      "item2": "And it ends exactly at the balance shown above, so chart and figure agree"
+    "fixedScope": {
+      "title": "Editing a fixed expense now asks which months it applies to",
+      "item1": "It used to rewrite every month and could drop the expense from your history",
+      "item2": "Now you choose: this month only, from this month on, or all of them"
     }
   },
   "incomeClaim": {

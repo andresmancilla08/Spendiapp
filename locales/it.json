@@ -561,7 +561,7 @@
       "deleteError": "Impossibile eliminare. Riprova.",
       "saveError": "Impossibile salvare. Riprova.",
       "sharedPartialSave": "Salvato, ma {{count}} copia/copie di altri partecipanti non si è potuta aggiornare.",
-      "fixedNote": "Spesa fissa — le modifiche riguardano i mesi successivi",
+      "fixedNote": "Spesa fissa: al salvataggio scegli a quali mesi si applica",
       "cancelFixedButton": "Annulla ricorrente",
       "confirmCancelFixed": "Questo cancellerà la transazione ricorrente da questo mese in poi. I mesi precedenti non saranno interessati.",
       "fixedLocked": "Questa transazione è già avvenuta e non può essere modificata.",
@@ -582,7 +582,15 @@
       "scopeConfirmFixed_all": "Il fisso verrà eliminato permanentemente da tutti i mesi.",
       "scopeConfirmInstallment_single": "Solo questa rata verrà eliminata. Le altre rimangono.",
       "scopeConfirmInstallment_fromNow": "Questa rata e tutte quelle seguenti dello stesso gruppo verranno eliminate.",
-      "duplicateError": "Impossibile duplicare. Riprova."
+      "duplicateError": "Impossibile duplicare. Riprova.",
+      "editScopeTitle": "A quali mesi si applica la modifica?",
+      "editScopeOnlyThis": "Solo questo mese",
+      "editScopeOnlyThisDesc": "Solo {{month}} {{year}} prende il nuovo valore. Il resto della serie resta invariato.",
+      "editScopeFromNow": "Da questo mese in poi",
+      "editScopeFromNowDesc": "Da {{month}} {{year}} vale il nuovo valore. I mesi precedenti mantengono quello attuale.",
+      "editScopeAll": "Tutti i mesi",
+      "editScopeAllDesc": "Riscrive anche lo storico già registrato, mesi chiusi inclusi.",
+      "editScopeApply": "Applica modifica"
     },
     "months": [
       "Gen",
@@ -1026,20 +1034,10 @@
     "title": "Cosa c’è di nuovo?",
     "subtitle": "Ecco cosa è cambiato in Spendia.",
     "dismiss": "Ho capito",
-    "editFix": {
-      "title": "Modificare una spesa funziona di nuovo",
-      "item1": "Se diceva «impossibile salvare» durante la modifica, è risolto",
-      "item2": "Anche annullando una spesa fissa da un mese preciso"
-    },
-    "motion": {
-      "title": "Le animazioni ora si muovono davvero",
-      "item1": "Per un bug nessuna animazione del grafico veniva eseguita. Ora si vedono",
-      "item2": "E costano meno di prima: le muove il browser, non l’app"
-    },
-    "chartMonth": {
-      "title": "Il grafico riguarda il TUO mese",
-      "item1": "Prima mostrava sei mesi; ora disegna il mese che stai guardando, giorno per giorno",
-      "item2": "E finisce esattamente sul saldo mostrato sopra, così grafico e cifra concordano"
+    "fixedScope": {
+      "title": "Modificare una spesa fissa ora chiede a quali mesi si applica",
+      "item1": "Prima riscriveva tutti i mesi e poteva far sparire la spesa dallo storico",
+      "item2": "Ora scegli tu: solo questo mese, da questo mese in poi, o tutti"
     }
   },
   "incomeClaim": {

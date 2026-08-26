@@ -317,3 +317,59 @@
 - **Solución (2026-08-24):** el gráfico es del mes que se está viendo, **día a día** (`utils/dailyBalance.ts`): saldo acumulado que arranca en 0 y cuyo último punto vale exactamente el balance que la tarjeta muestra encima — usa `effectiveAmount`, el mismo importe con el que `useTransactions` saca sus totales. En el mes en curso corta en HOY. Y la normalización (`utils/sparkline.ts`) manda una serie sin variación al CENTRO.
 - **Cuidado al tocarlo:** el acento "dinámico" promete "verde si tu balance sube este mes, rojo si baja", que es **mes contra mes**. Sobre la serie diaria, `isTrendUp` compararía hoy contra ayer y el color parpadearía a diario. Por eso `BalanceCard` recibe `trendSeries` (mensual, NO se dibuja) aparte de `sparkline` (diaria, la que se dibuja).
 - **Gates:** `npx tsx utils/dailyBalance.test.ts` y `npx tsx utils/sparkline.test.ts`.
+
+### Editar un gasto fijo lo borraba de todo el histórico (resuelto)
+
+- **Síntoma:** el 2026-08-26 el dueño de la app editó el importe de un gasto fijo suyo
+  ("Salud y pension", 420.000 → 490.100). Al guardar, el gasto **desapareció de todos
+  los meses**: abril, mayo, junio, julio y agosto. Y no le preguntó en ningún momento
+  si el cambio era solo de ese mes o de ese mes en adelante.
+- **Causa real:** un gasto fijo es **UN solo documento**; su campo `date` marca el mes
+  de ARRANQUE de la serie y `useTransactions` clona **copias virtuales** para los meses
+  posteriores (`id = "<docId>_virtual_<año>_<mes>"`, `date` = el mes que se está mirando).
+  El editor inicializaba su selector de fecha con `tx.date` — es decir, con la fecha
+  **de la copia virtual** — y al guardar la escribía en el documento real:
+
+  ```
+  date: Timestamp.fromDate(selectedDate)   // ← la fecha del mes VISUALIZADO
+  ```
+
+  El usuario estaba viendo **octubre 2026**, así que el arranque de la serie saltó de
+  `2026-04-23` a `2026-10-23`. Las copias virtuales solo existen para meses posteriores
+  al arranque (`if (date >= start) return false`), de modo que abril–septiembre se
+  quedaron sin nada y el mes en curso también. Nada se borró: el documento estaba
+  intacto, viviendo seis meses en el futuro.
+- **Alcance real medido:** 2 documentos de 63 fijos en producción tenían la fecha
+  desplazada >40 días respecto a su `createdAt` (uno de este usuario, otro de otra
+  cuenta con un fijo "Salario" movido de abril a julio).
+- **Segundo defecto, del mismo tamaño:** el modelo solo guarda UN importe para toda la
+  serie, así que **cualquier** edición reescribía también los meses ya cerrados. La app
+  no lo advertía. El texto que sí se mostraba ("los cambios afectan los meses
+  siguientes") decía lo contrario de lo que hacía.
+- **Solución (2026-08-26, v2.70.0):**
+  1. `useTransactions` expone `fixedOriginDate` en cada copia virtual. El editor nunca
+     escribe la fecha del mes visualizado: si no se toca el selector, la fecha del
+     documento no cambia; si se toca, viaja **solo el día** (`utils/fixedSeries.ts`).
+  2. Al guardar un fijo desde un mes que no es el de arranque, la pantalla pide el
+     alcance —**solo este mes** / **este mes en adelante** / **todos los meses**—, igual
+     que ya hacía el borrado. "Solo este mes" añade el mes a `fixedSkipMonths` y crea un
+     movimiento normal con el nuevo valor; "este mes en adelante" **parte la serie**:
+     cancela la vieja (`fixedCancelledFrom`) y crea un fijo nuevo desde ese mes.
+  3. Apagar el interruptor de "gasto fijo" desde un mes posterior ya no puede reescribir
+     el pasado: se fuerza el alcance "de este mes en adelante".
+  4. Al partir una serie, el documento viejo queda marcado con `fixedSplitInto`. Sin eso,
+     volver a editarlo limpiaba su `fixedCancelledFrom` ("editar un fijo lo restaura en
+     todos los meses") y el gasto salía **duplicado** contra la serie que lo continúa.
+  5. `useRecurring` ignora los fijos cuya fecha aún no ha llegado: partir una serie sobre
+     un mes futuro dejaba dos documentos vivos y el mismo gasto salía dos veces.
+- **Reparación de datos:** el documento se devolvió a `2026-04-23` y la serie se partió en
+  octubre (abril–septiembre a 420.000, octubre en adelante a 490.100), que es exactamente
+  lo que hace ahora el alcance "este mes en adelante".
+- **Regla:** en un gasto fijo, `date` **no** es "la fecha del movimiento": es el arranque
+  de la serie. Nada que venga de una copia virtual (`isVirtualFixed`) se escribe de vuelta
+  en el documento sin traducirlo antes al mes de origen.
+- **Gate:** `npx tsx utils/fixedSeries.test.ts`.
+- **Sin cubrir a propósito:** un fijo que además es **compartido** no puede partir la serie
+  (habría que partirla también en la copia del otro participante): ahí solo se aplica el
+  arreglo de la fecha y el cambio sigue afectando a todos los meses. Y `fixedPaidMonths`
+  no viaja a la serie nueva: sus meses arrancan sin marcar como pagados.
