@@ -1290,7 +1290,7 @@ export default function EditTransactionScreen() {
                     accessibilityState={{ selected }}
                     style={[styles.scopeOption, {
                       borderColor: selected ? colors.primary : colors.border,
-                      backgroundColor: selected ? mixHex(colors.primary, colors.surface, 0.1) : colors.surface,
+                      backgroundColor: selected ? mixHex(colors.primary, colors.surface, 0.9) : colors.surface,
                     }]}
                   >
                     <View style={[styles.radio, { borderColor: selected ? colors.primary : colors.textSecondary }]}>
@@ -1298,7 +1298,11 @@ export default function EditTransactionScreen() {
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.scopeLabel, { color: colors.textPrimary }]}>{label}</Text>
-                      <Text style={[styles.scopeDesc, { color: colors.textSecondary }]}>{desc}</Text>
+                      {/* Sobre el tinte de la opción activa, `textSecondary` se queda en
+                          4.42:1 — justo por debajo de AA. La activa se lee en tinta. */}
+                      <Text style={[styles.scopeDesc, { color: selected ? colors.textPrimary : colors.textSecondary }]}>
+                        {desc}
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 );
