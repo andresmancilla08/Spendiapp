@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Spendia · Auth — 5 direcciones × 4 pantallas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Montserrat,system-ui,sans-serif;background:#0A0E0F;color:#E9F2F4;-webkit-font-smoothing:antialiased}
+.wrap{padding:36px 30px 90px}
+h1.t{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:0}
+.sub{color:#8A9BA0;font-size:13.5px;margin:8px 0 0;max-width:78ch;line-height:1.6}
+.sub code{font-family:'DM Mono',monospace;font-size:12.5px;color:#D4E157}
+h2.sec{font-size:15px;font-weight:700;letter-spacing:.02em;margin:52px 0 4px;padding-top:26px;border-top:1px solid #1E2729}
+.secd{font-size:12.5px;color:#6E8085;margin:0 0 20px}
+.row{display:flex;gap:26px;overflow-x:auto;padding-bottom:20px}
+.item{flex:0 0 auto;width:378px}
+.cap{display:flex;align-items:baseline;gap:8px;margin-bottom:11px}
+.cn{font-family:'DM Mono',monospace;font-size:11.5px;color:#5F7176}
+.cname{font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+.caxis{font-size:10.5px;font-weight:600;color:#5F7176;text-transform:uppercase;letter-spacing:.09em}
+.note{margin:14px 2px 0;font-size:12px;line-height:1.72;color:#7C8F94}
+.note b{color:#C3D3D7;font-weight:600}
+.legend{margin:22px 0 0;padding:16px 18px;border:1px solid #223032;border-radius:10px;background:#101617;font-size:13px;line-height:1.65;color:#A9BDC2}
+.legend b{color:#D4E157}
+
+/* ── marco ── */
+.ph{width:378px;height:818px;border-radius:44px;overflow:hidden;position:relative;
+  border:8px solid #171D1F;box-shadow:0 22px 50px rgba(0,0,0,.5),0 0 0 1px #293234;background:#fff}
+.sc{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--bg);color:var(--fg);font-size:15px}
+.nch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:106px;height:28px;border-radius:18px;background:#000;z-index:9}
+.sb{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 28px;font-size:13.5px;font-weight:600}
+.sb .r{font-size:10.5px;opacity:.85;letter-spacing:1px}
+.hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:130px;height:5px;border-radius:3px;background:var(--fg);opacity:.28;z-index:9}
+.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
+.sc svg{width:1em;height:1em;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:-.16em}
+.lbl>span{display:inline-flex;align-items:center;gap:6px}
+
+.gr{flex:1}
+
+/* marca */
+.mk{width:30px;height:30px;border-radius:9px;background:linear-gradient(140deg,#39D6E8,#7FD44F);display:grid;place-items:center;
+  color:#062226;font-weight:800;font-size:15px}
+.mk.lg{width:62px;height:62px;border-radius:19px;font-size:31px}
+
+/* ── capa común de componentes (cada dirección la re-viste) ── */
+.nav{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex:0 0 50px}
+.bk{width:42px;height:42px;display:grid;place-items:center;font-size:20px;margin-left:-11px;color:var(--fg)}
+.bd{padding:0 var(--pad);display:flex;flex-direction:column}
+.h1{font-size:var(--h1s);line-height:var(--h1l);font-weight:var(--h1w);letter-spacing:var(--h1t);margin:0}
+.ld{font-size:14px;line-height:20px;font-weight:500;color:var(--muted);margin:7px 0 0}
+.lbl{font-size:var(--lbs);font-weight:var(--lbw);letter-spacing:var(--lbt);text-transform:var(--lbc);color:var(--lbcol);
+  line-height:15px;font-family:var(--lbf);display:flex;justify-content:space-between;align-items:center}
+.fld{height:var(--fh);border-radius:var(--fr);background:var(--fill);border:var(--fb);display:flex;align-items:center;gap:10px;
+  padding:0 var(--fp);margin-top:8px;font-size:15.5px;font-weight:500}
+.fld .fi{color:var(--muted);font-size:16px;display:grid;place-items:center}
+.fld .v{color:var(--fg)}
+.fld .p{color:var(--ghost)}
+.pin{display:flex;gap:var(--cg);margin-top:11px}
+.cell{flex:1;height:var(--ch);border-radius:var(--cr);background:var(--cfill);border:var(--cb);display:grid;place-items:center}
+.dot{width:9px;height:9px;border-radius:5px;background:var(--dot)}
+.eye{width:38px;height:38px;border-radius:19px;display:grid;place-items:center;color:var(--eyec);background:var(--eyebg);font-size:17px;margin:-8px -8px -8px 0}
+.foot{padding:0 var(--pad) var(--fbot)}
+.cta{height:var(--btnh);border-radius:var(--btnr);display:grid;place-items:center;font-size:16px;font-weight:700;
+  background:var(--accent);color:var(--onaccent);letter-spacing:.2px}
+.cta.gh{background:var(--ghostbtn);color:var(--accent);border:var(--ghostb)}
+.lnk{display:block;text-align:center;margin-top:14px;font-size:14px;font-weight:600;color:var(--linkc);
+  text-decoration:var(--linkd);text-underline-offset:3px}
+.mini{font-size:12.5px;color:var(--muted);text-align:center}
+.chkrow{display:flex;gap:11px;align-items:flex-start;margin-top:20px}
+.chk{width:22px;height:22px;border-radius:7px;border:var(--cb);flex:0 0 22px;margin-top:1px;background:var(--cfill)}
+.chkt{font-size:13px;line-height:19px;color:var(--muted)}
+.chkt b{color:var(--linkc);font-weight:600}
+.hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 var(--pad)}
+.lockbadge{width:64px;height:64px;border-radius:32px;display:grid;place-items:center;background:var(--badge);color:var(--accent);font-size:27px}
+
+/* ══ 1 · FOCO — eje ESTRUCTURA ══ */
+[data-d="1"]{--bg:#FFFFFF;--fg:#101B1E;--muted:#5E6F74;--ghost:#B9C8CB;--pad:26px;
+  --h1s:38px;--h1l:41px;--h1w:800;--h1t:-.045em;
+  --lbs:13px;--lbw:600;--lbt:0;--lbc:none;--lbcol:#5E6F74;--lbf:Montserrat;
+  --fh:0;--fr:0;--fill:transparent;--fb:0;--fp:0;
+  --cg:11px;--ch:60px;--cr:0;--cfill:transparent;--cb:0;--dot:#101B1E;
+  --eyec:#0A5C66;--eyebg:#E4F4F6;--btnh:60px;--btnr:30px;--accent:#101B1E;--onaccent:#fff;
+  --ghostbtn:#F1F6F7;--ghostb:0;--linkc:#0A5C66;--linkd:none;--fbot:30px;--badge:#E4F4F6}
+[data-d="1"] .fld{border-bottom:2.5px solid #101B1E;height:54px;border-radius:0}
+[data-d="1"] .cell{border-bottom:3px solid #D9E4E6;align-items:end;padding-bottom:13px}
+[data-d="1"] .cell.on{border-bottom-color:#101B1E}
+[data-d="1"] .prog{display:flex;gap:5px}
+[data-d="1"] .prog i{width:22px;height:4px;border-radius:2px;background:#DDE7E8}
+[data-d="1"] .prog i.on{width:36px;background:#0A5C66}
+[data-d="1"] .chip{display:inline-flex;align-items:center;gap:8px;background:#E4F4F6;border-radius:50px;padding:8px 14px 8px 10px;
+  font-size:13px;font-weight:600;color:#0A5C66;align-self:flex-start}
+[data-d="1"] .chip .tk{width:19px;height:19px;border-radius:10px;background:#0A5C66;color:#fff;display:grid;place-items:center;font-size:11px}
+
+/* ══ 2 · LIBRO MAYOR — eje TIPOGRAFÍA ══ */
+[data-d="2"]{--bg:#FFFDF9;--fg:#17211F;--muted:#7A756A;--ghost:#BDB6A6;--pad:24px;
+  --h1s:25px;--h1l:31px;--h1w:800;--h1t:-.02em;
+  --lbs:10.5px;--lbw:500;--lbt:.14em;--lbc:uppercase;--lbcol:#7A756A;--lbf:'DM Mono',monospace;
+  --fh:50px;--fr:0;--fill:transparent;--fb:0;--fp:0;
+  --cg:9px;--ch:50px;--cr:0;--cfill:transparent;--cb:0;--dot:#0A6A5E;
+  --eyec:#7A756A;--eyebg:transparent;--btnh:54px;--btnr:0;--accent:#17211F;--onaccent:#FFFDF9;
+  --ghostbtn:transparent;--ghostb:1.5px solid #17211F;--linkc:#0A6A5E;--linkd:underline;--fbot:26px;--badge:#EFEADC}
+[data-d="2"] .sc{position:relative}
+[data-d="2"] .marg{position:absolute;left:24px;top:120px;bottom:120px;width:1px;
+  background:repeating-linear-gradient(180deg,#D9D2C0 0 5px,transparent 5px 11px)}
+[data-d="2"] .bd,[data-d="2"] .foot,[data-d="2"] .nav{position:relative}
+[data-d="2"] .fld{border-bottom:1.5px solid #17211F;font-family:'DM Mono',monospace;font-size:15px}
+[data-d="2"] .cell{border-bottom:2px solid #17211F;font-family:'DM Mono',monospace;font-size:20px;color:#17211F}
+[data-d="2"] .cta{font-family:'DM Mono',monospace;font-size:13.5px;letter-spacing:.2em;text-transform:uppercase;padding-left:.2em}
+[data-d="2"] .lnk{font-family:'DM Mono',monospace;font-size:12px}
+[data-d="2"] .dash{border-top:1.5px dashed #D9D2C0;margin:0 24px}
+[data-d="2"] .kv{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:#7A756A}
+[data-d="2"] .mono{font-family:'DM Mono',monospace}
+
+/* ══ 3 · TINTA — eje COLOR / AA MEDIDO ══ */
+[data-d="3"]{--bg:#FFFFFF;--fg:#1A2428;--muted:#41525A;--ghost:#8095 9B;--pad:24px;
+  --h1s:26px;--h1l:32px;--h1w:700;--h1t:-.3px;
+  --lbs:12px;--lbw:700;--lbt:.6px;--lbc:uppercase;--lbcol:#1A2428;--lbf:Montserrat;
+  --fh:54px;--fr:14px;--fill:#F5F9FA;--fb:1.5px solid #6B939A;--fp:16px;
+  --cg:8px;--ch:48px;--cr:15px;--cfill:#F5F9FA;--cb:1.5px solid #6B939A;--dot:#1A2428;
+  --eyec:#1A2428;--eyebg:transparent;--btnh:56px;--btnr:50px;--accent:#007A8A;--onaccent:#fff;
+  --ghostbtn:#fff;--ghostb:2px solid #007A8A;--linkc:#1A2428;--linkd:underline;--fbot:28px;--badge:#E3F1F3}
+[data-d="3"]{--ghost:#80959B}
+[data-d="3"] .cell.on{border:2px solid #1A2428}
+[data-d="3"] .trust{height:46px;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:12.5px;font-weight:500;color:#41525A}
+
+/* ══ 4 · PANEL — eje MATERIA (oscura) ══ */
+[data-d="4"]{--bg:#F4F8F9;--fg:#0F1D20;--muted:#5D7075;--ghost:#9FB0B4;--pad:20px;
+  --h1s:25px;--h1l:31px;--h1w:800;--h1t:-.02em;
+  --lbs:10.5px;--lbw:600;--lbt:.11em;--lbc:uppercase;--lbcol:#9EABAF;--lbf:Montserrat;
+  --fh:52px;--fr:14px;--fill:rgba(238,246,248,.06);--fb:1px solid #2A3B3F;--fp:15px;
+  --cg:8px;--ch:54px;--cr:13px;--cfill:#0B1618;--cb:1px solid #2A3B3F;--dot:#C8DC4B;
+  --eyec:#39D6E8;--eyebg:rgba(57,214,232,.16);--btnh:56px;--btnr:28px;--accent:#007A8A;--onaccent:#fff;
+  --ghostbtn:transparent;--ghostb:1.5px solid #2A3B3F;--linkc:#39D6E8;--linkd:none;--fbot:28px;--badge:rgba(57,214,232,.16)}
+[data-d="4"] .panel{margin:0 16px;background:#132326;border:1px solid #223438;border-radius:22px;padding:20px 18px;
+  display:flex;flex-direction:column;position:relative;overflow:hidden}
+[data-d="4"] .panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,#39D6E8,transparent)}
+[data-d="4"] .panel .fld .v,[data-d="4"] .panel .h1{color:#EAF4F6}
+[data-d="4"] .panel .ld{color:#93A6AB}
+[data-d="4"] .perf{height:14px;display:flex;align-items:center;justify-content:center;color:#CBD9DB;letter-spacing:4px;font-size:10px}
+
+/* ══ 5 · BENTO — eje LAYOUT / DENSIDAD ══ */
+[data-d="5"]{--bg:#EEF3F4;--fg:#12211F;--muted:#5A6B6E;--ghost:#A3B2B4;--pad:16px;
+  --h1s:27px;--h1l:33px;--h1w:800;--h1t:-.025em;
+  --lbs:11px;--lbw:700;--lbt:.1em;--lbc:uppercase;--lbcol:#5A6B6E;--lbf:Montserrat;
+  --fh:52px;--fr:16px;--fill:#fff;--fb:0;--fp:16px;
+  --cg:7px;--ch:54px;--cr:16px;--cfill:#fff;--cb:0;--dot:#12211F;
+  --eyec:#0A5C66;--eyebg:#DDEBEC;--btnh:58px;--btnr:20px;--accent:#0A5C66;--onaccent:#fff;
+  --ghostbtn:#fff;--ghostb:0;--linkc:#0A5C66;--linkd:none;--fbot:16px;--badge:#fff}
+[data-d="5"] .box{background:#fff;border-radius:22px;padding:16px 16px 18px;margin-top:10px}
+[data-d="5"] .box.tall{padding-bottom:20px}
+[data-d="5"] .box .fld{border:1px solid #E1E9EA;background:#F7FAFA}
+[data-d="5"] .cell{border:1px solid #E1E9EA;background:#F7FAFA}
+[data-d="5"] .cell.on{background:#0A5C66;border-color:#0A5C66}
+[data-d="5"] .cell.on .dot{background:#fff}
+[data-d="5"] .cta{border-radius:20px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4S18.3 16.4 19.5 20"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.7"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.2 2.9 7.6 7 9.5 4.1-1.9 7-5.3 7-9.5V6l-7-3Z"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m5 14v-7m5 7V8"/></symbol>
+<symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 9V7.5A2.5 2.5 0 0 1 6.5 5H18l-3-3M20 15v1.5a2.5 2.5 0 0 1-2.5 2.5H6l3 3"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c1-3.1 3.3-4.7 6-4.7S14 15.9 15 19"/><path d="M16 6.2a3.2 3.2 0 0 1 0 5.9M18 19c-.4-1.6-1-2.7-1.8-3.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+</defs></svg>
+<div class="wrap">
+
+<h1 class="t">Spendia · autenticación</h1>
+<p class="sub">Cinco direcciones, cada una aplicada a las <b>cuatro pantallas</b> del flujo, para que se vea que la línea aguanta. Ejes deliberadamente distintos —estructura, tipografía, color, materia, layout— para que no converjan como la vez anterior. Fuente real de la app (Montserrat + DM Mono) y tokens de <code>config/colors.ts</code>.</p>
+
+<!-- ═══════════════════ LOGIN (portada) ═══════════════════ -->
+<h2 class="sec">Pantalla 1 · Portada de acceso</h2>
+<p class="secd">Hoy: logo centrado, un botón y mucho aire. La marca no hace nada por el producto.</p>
+<div class="row">
+
+<div class="item"><div class="cap"><span class="cn">01</span><span class="cname">Foco</span><span class="caxis">estructura</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="1">
+  <div class="sb"><span>12:33</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span></span><span style="display:flex;gap:14px;color:#5E6F74;font-size:15px">☾ ES</span></div>
+  <div class="bd" style="flex:1;justify-content:center">
+    <div class="mk lg" style="margin-bottom:34px">S</div>
+    <h2 class="h1" style="font-size:44px;line-height:46px">Tu dinero,<br>bajo control.</h2>
+    <p class="ld" style="font-size:16px;max-width:24ch">Spendia ordena tus gastos sin que tengas que pensarlo.</p>
+  </div>
+  <div class="foot">
+    <div class="cta">Ingresar</div>
+    <div class="cta gh" style="margin-top:10px">Crear cuenta</div>
+    <p class="mini" style="margin-top:20px">Política de privacidad · Términos · v2.71.0</p>
+  </div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Idea</b> el logo deja de ser el protagonista: manda una frase de 44px que dice qué hace la app. Dos caminos explícitos, no un botón y un enlace escondido.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">02</span><span class="cname">Libro mayor</span><span class="caxis">tipografía</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="2">
+  <span class="marg"></span>
+  <div class="sb"><span>12:33</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span></span><span class="mono" style="font-size:11px;letter-spacing:.1em;color:#7A756A">ES · ☾</span></div>
+  <div class="bd" style="flex:1;justify-content:center;align-items:flex-start">
+    <div class="mono" style="font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:#7A756A">Finanzas personales</div>
+    <h2 class="h1" style="font-size:34px;line-height:38px;margin:14px 0 0">Spendia</h2>
+    <p class="ld" style="font-family:'DM Mono',monospace;font-size:13px">Tu dinero, siempre bajo control</p>
+    <div style="width:100%;border-top:1.5px dashed #D9D2C0;margin:26px 0 0"></div>
+    <div class="kv" style="width:100%;margin-top:14px"><span>Movimientos</span><span>ordenados</span></div>
+    <div class="kv" style="width:100%;margin-top:8px"><span>Gastos fijos</span><span>al día</span></div>
+    <div class="kv" style="width:100%;margin-top:8px"><span>Cierre del mes</span><span>sin cuentas</span></div>
+  </div>
+  <div class="foot">
+    <div class="cta">Ingresar</div>
+    <a class="lnk">¿No tienes cuenta? Regístrate</a>
+    <p class="mini mono" style="margin-top:18px;font-size:10.5px;letter-spacing:.06em">PRIVACIDAD · TÉRMINOS · V2.71.0</p>
+  </div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Idea</b> la portada es la cabecera de un libro de cuentas. Tres líneas de balance en mono dicen qué hace la app sin una sola ilustración.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">03</span><span class="cname">Tinta</span><span class="caxis">color · AA</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="3">
+  <div class="sb"><span>12:33</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span></span><span style="color:#41525A;font-size:14px;font-weight:600">☾&nbsp;&nbsp;ES</span></div>
+  <div class="bd" style="flex:1;justify-content:center;align-items:center;text-align:center">
+    <div class="mk lg">S</div>
+    <h2 class="h1" style="margin-top:24px;font-size:30px">Spendia</h2>
+    <p class="ld" style="font-size:16px">Tu dinero, siempre bajo control</p>
+  </div>
+  <div class="foot">
+    <div class="cta">Ingresar</div>
+    <div class="cta gh" style="margin-top:12px;background:#fff">Crear cuenta</div>
+    <p class="mini" style="margin-top:22px;font-size:13px"><b style="color:#1A2428">Privacidad</b> · <b style="color:#1A2428">Términos</b></p>
+    <p class="mini" style="margin-top:6px;color:#80959B">Spendia v2.71.0</p>
+  </div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Idea</b> la más parecida a la actual, pero con el teal corregido a <b>#007A8A</b> (5.06:1) y los dos caminos con el mismo peso. Los enlaces legales por fin se leen.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">04</span><span class="cname">Panel</span><span class="caxis">materia</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="4">
+  <div class="sb"><span>12:33</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span></span><span style="color:#5D7075;font-size:14px;font-weight:600">☾&nbsp;&nbsp;ES</span></div>
+  <div class="bd" style="padding-top:8px"><h2 class="h1">Spendia</h2><p class="ld">Tu dinero, siempre bajo control</p></div>
+  <div class="panel" style="flex:1;margin-top:18px;align-items:center;justify-content:center">
+    <div class="mk lg">S</div>
+    <p style="color:#93A6AB;font-size:13.5px;margin:20px 0 0;text-align:center;line-height:20px">Entra con tu correo<br>y tu PIN de 6 dígitos</p>
+    <div class="cta" style="width:100%;margin-top:26px">Ingresar</div>
+    <a class="lnk" style="margin-top:16px">¿No tienes cuenta? Regístrate</a>
+  </div>
+  <div class="perf">- - - - - - - - - - - - - - - -</div>
+  <div class="foot"><p class="mini">Privacidad · Términos · v2.71.0</p></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Idea</b> el acceso vive dentro de un panel oscuro que no depende del tema del sistema: es «el aparato» de la app, igual en claro y en oscuro.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">05</span><span class="cname">Bento</span><span class="caxis">layout</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="5">
+  <div class="sb"><span>12:33</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span></span><span style="color:#5A6B6E;font-size:14px;font-weight:600">☾&nbsp;&nbsp;ES</span></div>
+  <div class="bd" style="flex:1;justify-content:center">
+    <div class="box" style="padding:26px 20px 24px;text-align:center">
+      <div class="mk lg" style="margin:0 auto">S</div>
+      <h2 class="h1" style="margin-top:18px">Spendia</h2>
+      <p class="ld">Tu dinero, siempre bajo control</p>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px">
+      <div class="box" style="flex:1;margin:0;text-align:center;padding:18px 10px">
+        <div style="font-size:22px"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+        <div style="font-size:12px;font-weight:600;margin-top:7px;line-height:16px">Gastos<br>ordenados</div>
+      </div>
+      <div class="box" style="flex:1;margin:0;text-align:center;padding:18px 10px">
+        <div style="font-size:22px"><svg viewBox="0 0 24 24"><use href="#i-repeat"/></svg></div>
+        <div style="font-size:12px;font-weight:600;margin-top:7px;line-height:16px">Fijos<br>al día</div>
+      </div>
+      <div class="box" style="flex:1;margin:0;text-align:center;padding:18px 10px">
+        <div style="font-size:22px"><svg viewBox="0 0 24 24"><use href="#i-users"/></svg></div>
+        <div style="font-size:12px;font-weight:600;margin-top:7px;line-height:16px">Cuentas<br>compartidas</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="cta">Ingresar</div>
+    <a class="lnk">¿No tienes cuenta? <b>Regístrate</b></a>
+    <p class="mini" style="margin-top:14px;font-size:11.5px">Privacidad · Términos · v2.71.0</p>
+  </div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Idea</b> mosaico de bloques blancos sobre fondo frío. La portada ya enseña de qué va la app en tres piezas, sin texto de marketing.</p></div>
+
+</div>
+
+<!-- ═══════════════════ ACCESO ═══════════════════ -->
+<h2 class="sec">Pantalla 2 · Acceso (email + PIN)</h2>
+<p class="secd">Hoy: el hueco muerto del 35%, el ojo que no cabe en su fila y un CTA que no pasa AA.</p>
+<div class="row">
+
+<div class="item"><div class="cap"><span class="cn">01</span><span class="cname">Foco</span><span class="caxis">estructura</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="1">
+  <div class="sb"><span>12:11</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span class="prog"><i></i><i class="on"></i></span></div>
+  <div class="bd" style="padding-top:8px">
+    <span class="chip"><span class="tk"><svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke-width:3"><use href="#i-check"/></svg></span> andresmancilla08@gmail.com</span>
+  </div>
+  <div class="bd" style="flex:1;justify-content:center;padding-bottom:24px">
+    <h2 class="h1">Ahora tu PIN</h2>
+    <p class="ld" style="font-size:16px;margin-bottom:32px">Seis dígitos y entras.</p>
+    <div class="pin">
+      <div class="cell on"><span class="dot"></span></div><div class="cell on"><span class="dot"></span></div>
+      <div class="cell on"><span class="dot"></span></div><div class="cell on"><span class="dot"></span></div>
+      <div class="cell on"><span class="dot"></span></div><div class="cell on"><span class="dot"></span></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <span class="chip" style="align-self:auto"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg> Mostrar PIN</span>
+    </div>
+  </div>
+  <div class="foot"><div class="cta">Entrar</div><a class="lnk">¿Olvidaste tu PIN?</a></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Mata el hueco</b> por construcción: nunca hay dos campos en pantalla. El email ya resuelto se encoge a un chip arriba y el PIN ocupa el escenario.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">02</span><span class="cname">Libro mayor</span><span class="caxis">tipografía</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="2">
+  <span class="marg"></span>
+  <div class="sb"><span>12:11</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span class="mono" style="font-size:10.5px;letter-spacing:.14em;color:#7A756A">SESIÓN 001</span></div>
+  <div class="bd" style="flex:1;justify-content:center;padding-bottom:10px">
+    <div class="mono" style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#7A756A">Verifica tu identidad</div>
+    <h2 class="h1" style="margin-top:9px">Inicia sesión</h2>
+    <p class="ld">Confirma tu email y tu PIN de 6 dígitos.</p>
+
+    <div style="margin-top:30px"><div class="lbl"><span>Email</span></div>
+      <div class="fld"><span class="v">andresmancilla08@gmail.com</span></div></div>
+
+    <div style="margin-top:28px"><div class="lbl"><span>PIN · 6 dígitos</span><span class="mono" style="letter-spacing:.06em"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg> mostrar</span></div>
+      <div class="pin">
+        <div class="cell">•</div><div class="cell">•</div><div class="cell">•</div>
+        <div class="cell">•</div><div class="cell">•</div><div class="cell">•</div>
+      </div></div>
+  </div>
+  <div class="dash"></div>
+  <div class="bd" style="padding-top:13px;padding-bottom:4px"><div class="kv"><span>Identidad</span><span style="color:#0A6A5E">verificada </span></div>
+    <p class="mono" style="font-size:10.5px;line-height:15px;color:#7A756A;margin:9px 0 0">Tu PIN se cifra en este dispositivo, nunca viaja en texto plano.</p></div>
+  <div class="foot"><a class="lnk" style="margin:0 0 14px">¿Olvidaste tu PIN?</a><div class="cta">Continuar</div></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Mata el hueco</b> con una línea de balance: «Identidad — verificada». Cero cajas: el email y el PIN se escriben sobre reglas, como en papel.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">03</span><span class="cname">Tinta</span><span class="caxis">color · AA</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="3">
+  <div class="sb"><span>12:11</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:14px;font-weight:700">Spendia</span><span style="width:42px"></span></div>
+  <div class="bd" style="flex:1;justify-content:center;padding-bottom:14px">
+    <h2 class="h1">Inicia sesión</h2>
+    <p class="ld" style="margin-bottom:26px">Confirma tu email y tu PIN de 6 dígitos.</p>
+
+    <div class="lbl"><span>Email</span></div>
+    <div class="fld"><span class="fi"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="v">andresmancilla08@gmail.com</span></div>
+
+    <div style="margin-top:26px"><div class="lbl"><span>PIN</span><span class="eye"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg></span></div>
+      <div class="pin">
+        <div class="cell on"><span class="dot"></span></div><div class="cell on"><span class="dot"></span></div>
+        <div class="cell on"><span class="dot"></span></div>
+        <span style="width:12px"></span>
+        <div class="cell on"><span class="dot"></span></div><div class="cell on"><span class="dot"></span></div>
+        <div class="cell on"><span class="dot"></span></div>
+      </div></div>
+  </div>
+  <div class="trust"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg> Tu PIN nunca sale de este dispositivo sin cifrar</div>
+  <div class="foot"><div class="cta">Continuar</div><a class="lnk">¿Olvidaste tu PIN?</a></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Mata el hueco</b> con una línea de confianza de alto fijo, así no crece con el tamaño del teléfono. PIN agrupado 3+3 y ojo en la fila del label, donde sí cabe.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">04</span><span class="cname">Panel</span><span class="caxis">materia</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="4">
+  <div class="sb"><span>12:11</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:13px;font-weight:700;color:#5D7075">spendia</span></div>
+  <div class="bd" style="padding-top:8px"><h2 class="h1">Inicia sesión</h2><p class="ld">Confirma tu email y tu PIN.</p></div>
+  <div class="panel" style="flex:1;margin-top:20px">
+    <div class="lbl"><span>Email</span></div>
+    <div class="fld"><span class="fi" style="color:#7A8E93"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="v">andresmancilla08@gmail.com</span></div>
+    <div class="lbl" style="margin-top:26px"><span>Ingresa tu PIN</span><span class="eye"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg></span></div>
+    <div class="pin">
+      <div class="cell"><span class="dot"></span></div><div class="cell"><span class="dot"></span></div>
+      <div class="cell"><span class="dot"></span></div><div class="cell"><span class="dot"></span></div>
+      <div class="cell"><span class="dot"></span></div><div class="cell"><span class="dot"></span></div>
+    </div>
+    <p style="color:#7A8E93;font-size:12.5px;line-height:18px;margin:20px 0 0">Tu PIN se cifra en este dispositivo. Nunca viaja en texto plano.</p>
+    <div class="gr"></div>
+    <a class="lnk" style="text-align:right;margin:0">¿Olvidaste tu PIN?</a>
+  </div>
+  <div class="perf">- - - - - - - - - - - - - - - -</div>
+  <div class="foot"><div class="cta">Continuar</div></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Mata el hueco</b> metiéndolo dentro del panel: el aire sobrante queda como respiración de un objeto con bordes, no flotando entre dos elementos sueltos.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">05</span><span class="cname">Bento</span><span class="caxis">layout</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="5">
+  <div class="sb"><span>12:11</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:13.5px;font-weight:700">Spendia</span><span style="width:42px"></span></div>
+  <div class="bd" style="padding-top:10px">
+    <h2 class="h1">Inicia sesión</h2>
+    <p class="ld">Confirma tu email y tu PIN.</p>
+    <div class="box">
+      <div class="lbl"><span>Email</span></div>
+      <div class="fld"><span class="fi"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="v" style="font-size:15px">andresmancilla08@gmail.com</span></div>
+    </div>
+    <div class="box tall">
+      <div class="lbl"><span>PIN de acceso</span><span class="eye"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg></span></div>
+      <div class="pin">
+        <div class="cell on"><span class="dot"></span></div><div class="cell on"><span class="dot"></span></div>
+        <div class="cell on"><span class="dot"></span></div><div class="cell on"><span class="dot"></span></div>
+        <div class="cell on"><span class="dot"></span></div><div class="cell on"><span class="dot"></span></div>
+      </div>
+      <a class="lnk" style="text-align:right;margin-top:16px;font-size:13px">¿Olvidaste tu PIN?</a>
+    </div>
+    <div class="box" style="display:flex;gap:11px;align-items:center;padding:15px 16px">
+      <span style="color:#0A5C66;font-size:19px;display:grid;place-items:center"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></span>
+      <span style="font-size:12.5px;line-height:18px;color:#5A6B6E">Tu PIN se cifra aquí. Nunca viaja en texto plano.</span>
+    </div>
+  </div>
+  <div class="gr"></div>
+  <div class="foot"><div class="cta">Continuar</div></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note"><b>Mata el hueco</b> repartiéndolo entre bloques: cada dato tiene su tarjeta blanca y el fondo frío hace de separador. El enlace de PIN vive junto al PIN.</p></div>
+
+</div>
+
+<!-- ═══════════════════ RECUPERAR PIN ═══════════════════ -->
+<h2 class="sec">Pantalla 3 · Recuperar PIN</h2>
+<p class="secd">Hoy: un candado, un campo y media pantalla vacía. Misma línea que su dirección.</p>
+<div class="row">
+
+<div class="item"><div class="cap"><span class="cn">01</span><span class="cname">Foco</span><span class="caxis">estructura</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="1">
+  <div class="sb"><span>12:31</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span class="prog"><i class="on"></i><i></i><i></i></span></div>
+  <div class="bd" style="flex:1;padding-top:36px">
+    <h2 class="h1">¿A qué correo<br>te lo enviamos?</h2>
+    <p class="ld" style="font-size:16px;margin-bottom:34px">Te mandamos un código de 4 dígitos para crear un PIN nuevo.</p>
+    <div class="fld"><span class="p">tu@email.com</span></div>
+    <p class="ld" style="font-size:13.5px;margin-top:14px">Debe ser el correo con el que te registraste.</p>
+  </div>
+  <div class="foot"><div class="cta">Enviar código</div><a class="lnk">Volver a iniciar sesión</a></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">Tres pasos marcados arriba: el usuario sabe que esto no acaba aquí. El título hace de label y el vacío desaparece.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">02</span><span class="cname">Libro mayor</span><span class="caxis">tipografía</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="2">
+  <span class="marg"></span>
+  <div class="sb"><span>12:31</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span class="mono" style="font-size:10.5px;letter-spacing:.14em;color:#7A756A">PASO 1 / 3</span></div>
+  <div class="bd" style="padding-top:22px">
+    <div class="mono" style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#7A756A">Recuperación</div>
+    <h2 class="h1" style="margin-top:9px">Recuperar PIN</h2>
+    <p class="ld">Te enviaremos un código de verificación.</p>
+    <div style="margin-top:32px"><div class="lbl"><span>Correo electrónico</span></div>
+      <div class="fld"><span class="p">tu@email.com</span></div></div>
+  </div>
+  <div class="dash" style="margin-top:30px"></div>
+  <div class="bd" style="padding-top:14px">
+    <div class="kv"><span>Código</span><span>4 dígitos</span></div>
+    <div class="kv" style="margin-top:8px"><span>Caduca en</span><span>10 minutos</span></div>
+  </div>
+  <div class="gr"></div>
+  <div class="foot"><a class="lnk" style="margin:0 0 14px">Volver a iniciar sesión</a><div class="cta">Enviar código</div></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">El vacío se llena con lo que el usuario necesita saber antes de pulsar: cuántos dígitos y cuánto dura. En mono, como el resto.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">03</span><span class="cname">Tinta</span><span class="caxis">color · AA</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="3">
+  <div class="sb"><span>12:31</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:14px;font-weight:700">Spendia</span><span style="width:42px"></span></div>
+  <div class="bd" style="padding-top:22px">
+    <div class="lockbadge"><svg viewBox="0 0 24 24"><use href="#i-lock"/></svg></div>
+    <h2 class="h1" style="margin-top:20px">Recuperar PIN</h2>
+    <p class="ld" style="margin-bottom:26px">Ingresa tu correo y te enviaremos un código de verificación.</p>
+    <div class="lbl"><span>Correo electrónico</span></div>
+    <div class="fld"><span class="fi"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="p">tu@email.com</span></div>
+    <p class="ld" style="font-size:13.5px;margin-top:10px">Debe ser el correo con el que te registraste.</p>
+  </div>
+  <div class="gr"></div>
+  <div class="trust"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg> El código caduca a los 10 minutos</div>
+  <div class="foot"><div class="cta">Enviar código</div><a class="lnk">Volver a iniciar sesión</a></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">Igual que hoy pero con el candado alineado a la izquierda —un solo eje de lectura— y la línea de confianza que fija el hueco.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">04</span><span class="cname">Panel</span><span class="caxis">materia</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="4">
+  <div class="sb"><span>12:31</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:13px;font-weight:700;color:#5D7075">spendia</span></div>
+  <div class="bd" style="padding-top:8px"><h2 class="h1">Recuperar PIN</h2><p class="ld">Te enviaremos un código de verificación.</p></div>
+  <div class="panel" style="flex:1;margin-top:20px">
+    <div class="lockbadge" style="align-self:center"><svg viewBox="0 0 24 24"><use href="#i-lock"/></svg></div>
+    <div class="lbl" style="margin-top:24px"><span>Correo electrónico</span></div>
+    <div class="fld"><span class="fi" style="color:#7A8E93"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="p" style="color:#63797E">tu@email.com</span></div>
+    <p style="color:#93A6AB;font-size:13px;margin:12px 0 0;line-height:19px">El código llega en menos de un minuto y caduca a los 10.</p>
+    <div class="gr"></div>
+    <a class="lnk" style="text-align:right;margin:0">Volver a iniciar sesión</a>
+  </div>
+  <div class="perf">- - - - - - - - - - - - - - - -</div>
+  <div class="foot"><div class="cta">Enviar código</div></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">El mismo panel del acceso, con el candado dentro. La pantalla se reconoce como parte del mismo aparato.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">05</span><span class="cname">Bento</span><span class="caxis">layout</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="5">
+  <div class="sb"><span>12:31</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:13.5px;font-weight:700">Spendia</span><span style="width:42px"></span></div>
+  <div class="bd" style="padding-top:10px">
+    <h2 class="h1">Recuperar PIN</h2>
+    <p class="ld">Te enviaremos un código.</p>
+    <div class="box" style="text-align:center;padding:24px 16px">
+      <div class="lockbadge" style="margin:0 auto;background:#E7F0F1"><svg viewBox="0 0 24 24"><use href="#i-lock"/></svg></div>
+      <p class="ld" style="margin-top:14px;font-size:13.5px">Un código de 4 dígitos, válido 10 minutos.</p>
+    </div>
+    <div class="box">
+      <div class="lbl"><span>Correo electrónico</span></div>
+      <div class="fld"><span class="fi"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="p">tu@email.com</span></div>
+    </div>
+  </div>
+  <div class="gr"></div>
+  <div class="foot"><div class="cta">Enviar código</div><a class="lnk">Volver a iniciar sesión</a></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">Dos bloques: qué va a pasar, y dónde escribirlo. El mosaico aguanta con un solo campo sin verse vacío.</p></div>
+
+</div>
+
+<!-- ═══════════════════ REGISTRO ═══════════════════ -->
+<h2 class="sec">Pantalla 4 · Crear cuenta</h2>
+<p class="secd">Hoy: tres campos, un checkbox de términos con texto gris ilegible y celdas de PIN sin carácter.</p>
+<div class="row">
+
+<div class="item"><div class="cap"><span class="cn">01</span><span class="cname">Foco</span><span class="caxis">estructura</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="1">
+  <div class="sb"><span>12:32</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span class="prog"><i class="on"></i><i></i><i></i></span></div>
+  <div class="bd" style="flex:1;padding-top:36px">
+    <h2 class="h1">¿Cómo te<br>llamas?</h2>
+    <p class="ld" style="font-size:16px;margin-bottom:34px">Es lo único que verán tus amigos en Spendia.</p>
+    <div class="fld"><span class="p">Tu nombre</span></div>
+    <p class="ld" style="font-size:13.5px;margin-top:14px">Después te pedimos el correo y un PIN.</p>
+  </div>
+  <div class="foot"><div class="cta">Continuar</div><a class="lnk">Ya tengo cuenta</a></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">El registro se parte en tres pasos de una pregunta. Los términos se aceptan en el último, no compitiendo con tres campos a la vez.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">02</span><span class="cname">Libro mayor</span><span class="caxis">tipografía</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="2">
+  <span class="marg"></span>
+  <div class="sb"><span>12:32</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span class="mono" style="font-size:10.5px;letter-spacing:.14em;color:#7A756A">ALTA DE CUENTA</span></div>
+  <div class="bd" style="padding-top:18px">
+    <h2 class="h1">Crear cuenta</h2>
+    <p class="ld">Ingresa tus datos para comenzar.</p>
+    <div style="margin-top:24px"><div class="lbl"><span>Nombre completo</span></div>
+      <div class="fld"><span class="p">Tu nombre</span></div></div>
+    <div style="margin-top:20px"><div class="lbl"><span>Email</span></div>
+      <div class="fld"><span class="p">tu@email.com</span></div></div>
+    <div style="margin-top:20px"><div class="lbl"><span>PIN de acceso</span><span class="mono" style="letter-spacing:.06em"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg> mostrar</span></div>
+      <div class="pin">
+        <div class="cell" style="color:#BDB6A6">_</div><div class="cell" style="color:#BDB6A6">_</div>
+        <div class="cell" style="color:#BDB6A6">_</div><div class="cell" style="color:#BDB6A6">_</div>
+        <div class="cell" style="color:#BDB6A6">_</div><div class="cell" style="color:#BDB6A6">_</div>
+      </div>
+      <p class="mono" style="font-size:11px;color:#7A756A;margin:10px 0 0">Elige 6 dígitos que recuerdes.</p></div>
+  </div>
+  <div class="dash" style="margin-top:22px"></div>
+  <div class="bd" style="padding-top:14px">
+    <div class="chkrow" style="margin-top:0"><span class="chk" style="border:1.5px solid #17211F;border-radius:0"></span>
+      <span class="chkt mono" style="font-size:11px;line-height:17px">Acepto los <b>Términos</b> y la <b>Política de Privacidad</b>.</span></div>
+  </div>
+  <div class="gr"></div>
+  <div class="foot"><div class="cta">Continuar</div></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">Los tres campos caben porque no hay cajas. El PIN se escribe sobre rayas y los términos cierran la ficha, separados por la línea punteada.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">03</span><span class="cname">Tinta</span><span class="caxis">color · AA</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="3">
+  <div class="sb"><span>12:32</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:14px;font-weight:700">Spendia</span><span style="width:42px"></span></div>
+  <div class="bd" style="padding-top:14px">
+    <h2 class="h1">Crear cuenta</h2>
+    <p class="ld" style="margin-bottom:22px">Ingresa tus datos para comenzar.</p>
+    <div class="lbl"><span>Nombre completo</span></div>
+    <div class="fld"><span class="fi"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg></span><span class="p">Tu nombre</span></div>
+    <div class="lbl" style="margin-top:20px"><span>Email</span></div>
+    <div class="fld"><span class="fi"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="p">tu@email.com</span></div>
+    <div class="lbl" style="margin-top:20px"><span>PIN de acceso</span><span class="eye"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg></span></div>
+    <div class="pin">
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      <span style="width:12px"></span>
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <p class="ld" style="font-size:13.5px;margin-top:10px">Elige 6 dígitos que recuerdes.</p>
+    <div class="chkrow"><span class="chk"></span>
+      <span class="chkt" style="color:#41525A">Acepto los <b>Términos y Condiciones</b> y la <b>Política de Privacidad</b>.</span></div>
+  </div>
+  <div class="gr"></div>
+  <div class="foot"><div class="cta">Continuar</div><a class="lnk">Ya tengo cuenta</a></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">El texto legal deja de ser gris claro: <b>#41525A</b> a 7.9:1, y los enlaces subrayados en tinta. Es la pantalla con obligación legal de leerse.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">04</span><span class="cname">Panel</span><span class="caxis">materia</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="4">
+  <div class="sb"><span>12:32</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:13px;font-weight:700;color:#5D7075">spendia</span></div>
+  <div class="bd" style="padding-top:6px"><h2 class="h1">Crear cuenta</h2><p class="ld">Ingresa tus datos para comenzar.</p></div>
+  <div class="panel" style="flex:1;margin-top:16px">
+    <div class="lbl"><span>Nombre completo</span></div>
+    <div class="fld"><span class="fi" style="color:#7A8E93"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg></span><span class="p" style="color:#63797E">Tu nombre</span></div>
+    <div class="lbl" style="margin-top:18px"><span>Email</span></div>
+    <div class="fld"><span class="fi" style="color:#7A8E93"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="p" style="color:#63797E">tu@email.com</span></div>
+    <div class="lbl" style="margin-top:18px"><span>Crea tu PIN</span><span class="eye"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg></span></div>
+    <div class="pin">
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <div class="chkrow"><span class="chk" style="background:#0B1618"></span>
+      <span class="chkt" style="color:#93A6AB">Acepto los <b style="color:#39D6E8">Términos</b> y la <b style="color:#39D6E8">Política de Privacidad</b>.</span></div>
+  </div>
+  <div class="perf">- - - - - - - - - - - - - - - -</div>
+  <div class="foot"><div class="cta">Continuar</div></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">Todo el formulario dentro del panel. Al ser el mismo objeto de las otras pantallas, el registro no parece de otra app.</p></div>
+
+<div class="item"><div class="cap"><span class="cn">05</span><span class="cname">Bento</span><span class="caxis">layout</span></div>
+<div class="ph"><div class="nch"></div><div class="sc" data-d="5">
+  <div class="sb"><span>12:32</span><span class="r">•••• ᯤ ▮</span></div>
+  <div class="nav"><span class="bk">‹</span><span style="font-size:13.5px;font-weight:700">Spendia</span><span style="width:42px"></span></div>
+  <div class="bd" style="padding-top:8px">
+    <h2 class="h1">Crear cuenta</h2>
+    <p class="ld">Ingresa tus datos para comenzar.</p>
+    <div class="box">
+      <div class="lbl"><span>Nombre completo</span></div>
+      <div class="fld"><span class="fi"><svg viewBox="0 0 24 24"><use href="#i-user"/></svg></span><span class="p">Tu nombre</span></div>
+      <div class="lbl" style="margin-top:16px"><span>Email</span></div>
+      <div class="fld"><span class="fi"><svg viewBox="0 0 24 24"><use href="#i-mail"/></svg></span><span class="p">tu@email.com</span></div>
+    </div>
+    <div class="box tall">
+      <div class="lbl"><span>Crea tu PIN</span><span class="eye"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg></span></div>
+      <div class="pin">
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      </div>
+      <p class="ld" style="font-size:12.5px;margin-top:10px">Elige 6 dígitos que recuerdes.</p>
+    </div>
+    <div class="box" style="padding:14px 16px">
+      <div class="chkrow" style="margin-top:0"><span class="chk" style="border:1.5px solid #C3D0D1;background:#F7FAFA"></span>
+        <span class="chkt">Acepto los <b>Términos</b> y la <b>Política de Privacidad</b>.</span></div>
+    </div>
+  </div>
+  <div class="gr"></div>
+  <div class="foot"><div class="cta">Continuar</div></div>
+  <div class="hi"></div>
+</div></div>
+<p class="note">Tres bloques: quién eres, cómo entras, qué aceptas. El legal en su propia tarjeta deja de ser una nota al pie que nadie mira.</p></div>
+
+</div>
+
+<p class="legend"><b>Cómo se hizo distinto esta vez.</b> A cada dirección se le asignó un eje que las demás tenían prohibido tocar —estructura, tipografía, color, materia, layout— y las cuatro pantallas se dibujaron con el mismo sistema, para que la línea se vea aguantar en el flujo completo, no en una pantalla suelta. Sin JS de estados: era la causa del desastre anterior. Cada pantalla se muestra en su estado natural.</p>
+
+</div>
+</body>
+</html>
