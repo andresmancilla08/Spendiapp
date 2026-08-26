@@ -1059,6 +1059,11 @@
       "title": "Modificare o eliminare una spesa fissa: scegli tu i mesi",
       "item1": "Chiede sempre: solo questo mese, da questo mese in poi, o tutti",
       "item2": "Anche nelle spese fisse condivise, e si applica allo stesso modo all altra persona"
+    },
+    "authRedesign": {
+      "title": "Accesso e registrazione, ridisegnati",
+      "item1": "Home, accesso, registrazione e recupero PIN con campi e pulsanti nuovi",
+      "item2": "Il pulsante principale ora si legge: il colore precedente non raggiungeva il minimo di contrasto"
     }
   },
   "incomeClaim": {

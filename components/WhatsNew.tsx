@@ -50,6 +50,12 @@ const APP_FEATURES: Feature[] = [
     titleKey: 'whatsNew.fixedScope.title',
     items: ['whatsNew.fixedScope.item1', 'whatsNew.fixedScope.item2'],
   },
+  {
+    icon: 'lock-closed-outline',
+    colorKey: 'tertiary',
+    titleKey: 'whatsNew.authRedesign.title',
+    items: ['whatsNew.authRedesign.item1', 'whatsNew.authRedesign.item2'],
+  },
 ];
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
   const { colors, isDark } = useTheme();

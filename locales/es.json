@@ -1059,6 +1059,11 @@
       "title": "Editar o borrar un fijo: tú eliges los meses",
       "item1": "Siempre te pregunta: solo este mes, de este mes en adelante, o todos",
       "item2": "También en los gastos fijos compartidos, y se aplica igual a la otra persona"
+    },
+    "authRedesign": {
+      "title": "Entrar y crear cuenta, rediseñados",
+      "item1": "Portada, acceso, registro y recuperar PIN con campos y botones nuevos",
+      "item2": "El botón principal por fin se lee: el color de antes no llegaba al mínimo de contraste"
     }
   },
   "incomeClaim": {
