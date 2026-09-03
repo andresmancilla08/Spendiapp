@@ -1055,15 +1055,15 @@
     "title": "Cosa c’è di nuovo?",
     "subtitle": "Ecco cosa è cambiato in Spendia.",
     "dismiss": "Ho capito",
-    "fixedScope": {
-      "title": "Modificare o eliminare una spesa fissa: scegli tu i mesi",
-      "item1": "Chiede sempre: solo questo mese, da questo mese in poi, o tutti",
-      "item2": "Anche nelle spese fisse condivise, e si applica allo stesso modo all altra persona"
+    "sentIncomeSync": {
+      "title": "Le entrate che invii restano sincronizzate",
+      "item1": "Se modifichi l importo o interrompi la serie, la modifica arriva anche all altra persona",
+      "item2": "Prima restava con il movimento vecchio che si ripeteva ogni mese"
     },
-    "authRedesign": {
-      "title": "Accesso e registrazione, ridisegnati",
-      "item1": "Home, accesso, registrazione e recupero PIN con campi e pulsanti nuovi",
-      "item2": "Il pulsante principale ora si legge: il colore precedente non raggiungeva il minimo di contrasto"
+    "paletteGridPolish": {
+      "title": "Dettagli dell interfaccia",
+      "item1": "Le tue palette hanno tutte la stessa dimensione e in Impostazioni compare il loro nome",
+      "item2": "I pulsanti delle finestre occupano tutta la larghezza"
     }
   },
   "incomeClaim": {

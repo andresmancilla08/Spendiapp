@@ -1055,15 +1055,15 @@
     "title": "What’s new?",
     "subtitle": "Here’s what changed in Spendia.",
     "dismiss": "Got it",
-    "fixedScope": {
-      "title": "Editing or deleting a fixed expense: you pick the months",
-      "item1": "It always asks: this month only, from this month on, or all of them",
-      "item2": "Shared fixed expenses too — and it applies the same way to the other person"
+    "sentIncomeSync": {
+      "title": "Income you send stays in sync",
+      "item1": "Edit the amount or cut the series and the change reaches the other person too",
+      "item2": "Before, they kept the old entry repeating every month"
     },
-    "authRedesign": {
-      "title": "Signing in and signing up, redesigned",
-      "item1": "Home, sign-in, sign-up and PIN recovery with new fields and buttons",
-      "item2": "The main button is finally readable: the old colour missed the contrast minimum"
+    "paletteGridPolish": {
+      "title": "Interface details",
+      "item1": "Your palettes are all the same size, and Settings now shows their name",
+      "item2": "Dialog buttons span the full width"
     }
   },
   "incomeClaim": {

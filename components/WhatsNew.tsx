@@ -47,14 +47,14 @@ const APP_FEATURES: Feature[] = [
   {
     icon: 'repeat',
     colorKey: 'primary',
-    titleKey: 'whatsNew.fixedScope.title',
-    items: ['whatsNew.fixedScope.item1', 'whatsNew.fixedScope.item2'],
+    titleKey: 'whatsNew.sentIncomeSync.title',
+    items: ['whatsNew.sentIncomeSync.item1', 'whatsNew.sentIncomeSync.item2'],
   },
   {
-    icon: 'lock-closed-outline',
+    icon: 'color-palette-outline',
     colorKey: 'tertiary',
-    titleKey: 'whatsNew.authRedesign.title',
-    items: ['whatsNew.authRedesign.item1', 'whatsNew.authRedesign.item2'],
+    titleKey: 'whatsNew.paletteGridPolish.title',
+    items: ['whatsNew.paletteGridPolish.item1', 'whatsNew.paletteGridPolish.item2'],
   },
 ];
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
