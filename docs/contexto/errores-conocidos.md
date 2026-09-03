@@ -400,3 +400,39 @@ duplicarles el gasto en silencio.
 
 Editar UNA cuota sigue afectando solo a esa cuota: cada cuota es su propio documento, no
 hay serie que reescribir en silencio.
+
+### Editar un ingreso enviado no llegaba nunca a la otra persona (resuelto v2.72.0)
+
+**Síntoma.** Vicky editó un fijo "Mensualidad casa" de 1.610.000 a 1.210.000 con alcance
+«de este mes en adelante». En su cuenta quedó bien. En la del destinatario aparecían **los
+dos**: el viejo de 1.610.000 repitiéndose cada mes y el nuevo de 1.210.000.
+
+**Causa real.** Un *ingreso enviado* son DOS documentos sueltos (`sentIncomeToUid` en el
+gasto del remitente, `isSentIncome`+`sentByUid` en el ingreso del destinatario) y, a
+diferencia de un gasto compartido, **no tiene doc de coordinación**. `edit-transaction`
+solo propagaba a los espejos cuando `isShared`, así que un ingreso enviado caía en la rama
+«copia propia»: se editaba y se partía únicamente el documento de quien edita. Y aunque el
+cliente lo hubiera intentado, no habría podido: las reglas dejaban al remitente **crear** y
+**borrar** el espejo, pero no **actualizarlo** (`allow write` exige ser el `userId`; el
+`allow update` de al lado exige `isShared == true`). Comprobado contra la API de reglas:
+los tres casos de update salían DENY.
+
+Encima, el documento que nacía al partir la serie se creaba con `addDoc` sin ningún campo
+`sentIncome*`: la serie nueva no tenía espejo y al otro dejaba de llegarle el ingreso.
+
+**Solución.** `firestore.rules`: un `allow update` para el remitente del ingreso enviado,
+limitado a los campos que definen el movimiento (`amount`, `date`, `description`,
+`category`, `isFixed`, `fixedCancelledFrom`, `fixedSkipMonths`, `fixedSplitInto`,
+`fixedOriginDate`) — `isPaid`, `notes`, `fixedPaidMonths` y `cardId` son del destinatario y
+siguen siendo intocables. `useSentIncome.syncSentIncomeMirror` propaga; `createSentIncome`
+devuelve los dos ids para poder enlazar la serie partida en ambos lados;
+`edit-transaction` la usa tanto al editar como al partir; y `transaction-detail` deja de
+ignorar el alcance al borrar (antes «solo este mes» borraba la serie ENTERA de los dos).
+Gate: `npm run check-rules`, 29 casos.
+
+**Daño en producción.** 6 de los 18 espejos estaban desincronizados. Dos eran ingresos
+fantasma —dinero que ya no existía sumándose cada mes— y se repararon a mano poniéndoles
+el `fixedCancelledFrom` del remitente. Los otros cuatro divergen en `date` (cosmético) o en
+`isFixed` (el destinatario recibe de MENOS, no de más): se dejaron como estaban porque
+arreglarlos añade dinero a la cuenta de otra persona sin que lo haya pedido.
+

@@ -31,6 +31,17 @@ const mirror = (uid) => ({
 // Un gasto fijo: tampoco trae `isShared`.
 const fixed = { ...plain, isFixed: true, fixedPaidMonths: [] };
 
+// Los dos documentos de un INGRESO ENVIADO. Ninguno trae `isShared`: por eso el
+// espejo del destinatario solo se puede tocar por la cláusula de `isSentIncome`.
+const senderTx = {
+  userId: U1, type: 'expense', amount: 1610000, category: 'home', isFixed: true,
+  sentIncomeToUid: U2, sentIncomeToName: 'U2', sentIncomeTransactionId: 'T2',
+};
+const mirrorTx = {
+  userId: U2, type: 'income', amount: 1610000, category: 'other', isFixed: true,
+  isSentIncome: true, sentByUid: U1, sentByName: 'U1', sentByTransactionId: 'T1',
+};
+
 const CASES = [
   ['gasto normal · el dueño lo edita',              U1, 'update', plain, { ...plain, amount: 60000 }, 'ALLOW'],
   ['gasto normal · lo edita otro usuario',          U2, 'update', plain, { ...plain, amount: 60000 }, 'DENY'],
@@ -48,6 +59,27 @@ const CASES = [
   ['gasto normal · marcar como pagado',             U1, 'update', plain, { ...plain, isPaid: true }, 'ALLOW'],
   ['gasto fijo · omitir este mes',                  U1, 'update', fixed, { ...fixed, fixedSkipMonths: ['2026_7'] }, 'ALLOW'],
   ['gasto fijo · cancelar desde este mes',          U1, 'update', fixed, { ...fixed, fixedCancelledFrom: TS }, 'ALLOW'],
+
+  // INGRESO ENVIADO. El remitente tiene que poder mantener el espejo del otro al
+  // día: sin esto, cortar la serie fija ocurría solo en su lado y el destinatario
+  // se quedaba con el ingreso viejo repitiéndose todos los meses.
+  ['enviado · el remitente crea el espejo',         U1, 'create', null, mirrorTx, 'ALLOW'],
+  ['enviado · el remitente corta la serie',         U1, 'update', mirrorTx, { ...mirrorTx, fixedCancelledFrom: TS }, 'ALLOW'],
+  ['enviado · el remitente omite un mes',           U1, 'update', mirrorTx, { ...mirrorTx, fixedSkipMonths: ['2026_8'] }, 'ALLOW'],
+  ['enviado · el remitente cambia el importe',      U1, 'update', mirrorTx, { ...mirrorTx, amount: 1210000 }, 'ALLOW'],
+  ['enviado · el remitente lo borra',               U1, 'delete', mirrorTx, null, 'ALLOW'],
+  ['enviado · el destinatario edita su copia',      U2, 'update', mirrorTx, { ...mirrorTx, notes: 'mía' }, 'ALLOW'],
+  ['enviado · el destinatario lo marca pagado',     U2, 'update', mirrorTx, { ...mirrorTx, isPaid: true }, 'ALLOW'],
+  ['enviado · el destinatario lo borra',            U2, 'delete', mirrorTx, null, 'ALLOW'],
+  // Y solo eso: el remitente no toca lo que es privado del otro ni se apropia del doc.
+  ['enviado · el remitente marca pagado al otro',   U1, 'update', mirrorTx, { ...mirrorTx, isPaid: true }, 'DENY'],
+  ['enviado · el remitente le cambia el userId',    U1, 'update', mirrorTx, { ...mirrorTx, userId: U1 }, 'DENY'],
+  ['enviado · el remitente se quita el vínculo',    U1, 'update', mirrorTx, { ...mirrorTx, sentByUid: 'U9' }, 'DENY'],
+  ['enviado · un tercero corta la serie',           'U9', 'update', mirrorTx, { ...mirrorTx, fixedCancelledFrom: TS }, 'DENY'],
+  ['enviado · un tercero lo borra',                 'U9', 'delete', mirrorTx, null, 'DENY'],
+  // El gasto del remitente es SUYO: el destinatario no lo edita ni lo borra.
+  ['enviado · el destinatario edita el gasto ajeno', U2, 'update', senderTx, { ...senderTx, amount: 1 }, 'DENY'],
+  ['enviado · el destinatario borra el gasto ajeno', U2, 'delete', senderTx, null, 'DENY'],
 ];
 
 const token = execSync('gcloud auth print-access-token', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();

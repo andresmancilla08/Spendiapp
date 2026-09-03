@@ -176,7 +176,7 @@ export default function AppDialog({
             variant={primaryDanger ? 'danger' : 'primary'}
             disabled={isPrimaryDisabled}
             loading={loading}
-            style={secondaryLabel ? styles.primaryButton : undefined}
+            style={secondaryLabel ? styles.primaryButton : styles.actionButton}
           />
 
           {secondaryLabel && onSecondary && (
@@ -253,9 +253,12 @@ const styles = StyleSheet.create({
     marginTop: 6,
     marginLeft: 4,
   },
-  primaryButton: { marginBottom: 10 },
+  // La card centra a sus hijos: sin `alignSelf` el botón se encoge al ancho de su
+  // texto y "Continuar" salía como media pastilla junto a un "Cancelar" completo.
+  actionButton: { alignSelf: 'stretch' },
+  primaryButton: { alignSelf: 'stretch', marginBottom: 10 },
   cardNoSecondary: {
     paddingBottom: 32,
   },
-  secondaryButton: { width: '100%' },
+  secondaryButton: { alignSelf: 'stretch' },
 });

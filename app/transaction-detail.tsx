@@ -178,7 +178,7 @@ export default function TransactionDetailScreen() {
     viewMonth,
   );
   const { deleteSharedTransaction, trimSharedFixedSeries } = useSharedTransactions();
-  const { deleteSentIncome } = useSentIncome();
+  const { deleteSentIncome, syncSentIncomeMirror } = useSentIncome();
   const { showToast } = useToast();
 
   type DeleteStep = 'idle' | 'scope' | 'confirm';
@@ -366,15 +366,35 @@ export default function TransactionDetailScreen() {
           return;
         }
       } else if (transaction.sentIncomeTransactionId) {
-        await deleteSentIncome({
-          senderTransactionId: getActualId(transaction),
-          incomeTransactionId: transaction.sentIncomeTransactionId,
-          senderUid: currentUserUid,
-          senderName: currentUserName,
-          recipientUid: transaction.sentIncomeToUid ?? '',
-          description: transaction.description,
-          amount: transaction.amount,
-        });
+        if (transaction.isFixed && !transaction.isInstallment && deleteScope !== 'all') {
+          // Recorte, no borrado, y en LAS DOS copias: el alcance elegido tiene que
+          // significar lo mismo para quien envía y para quien recibe. Antes esta
+          // rama ignoraba `deleteScope` y borraba la serie entera de ambos.
+          const patch = deleteScope === 'single'
+            ? { fixedSkipMonths: arrayUnion(`${viewYear}_${viewMonth}`) }
+            : { fixedCancelledFrom: Timestamp.fromDate(new Date(viewYear, viewMonth, 1)) };
+          await updateDoc(doc(db, 'transactions', getActualId(transaction)), patch);
+          try {
+            await syncSentIncomeMirror(transaction.sentIncomeTransactionId, patch);
+          } catch (e) {
+            console.error('[handleDelete] espejo sin recortar', e);
+            showToast(t('sharedExpense.deletePartial'), 'error');
+            setDeleteLoading(false);
+            setLastAction('deleted');
+            goBack();
+            return;
+          }
+        } else {
+          await deleteSentIncome({
+            senderTransactionId: getActualId(transaction),
+            incomeTransactionId: transaction.sentIncomeTransactionId,
+            senderUid: currentUserUid,
+            senderName: currentUserName,
+            recipientUid: transaction.sentIncomeToUid ?? '',
+            description: transaction.description,
+            amount: transaction.amount,
+          });
+        }
       } else if (transaction.isFixed) {
         const txId = getActualId(transaction);
         if (deleteScope === 'single') {
@@ -423,7 +443,8 @@ export default function TransactionDetailScreen() {
       showToast(t('history.edit.deleteError'), 'error');
     }
   }, [transaction, currentUserUid, currentUserName, user, viewYear, viewMonth, deleteScope,
-      deleteSharedTransaction, trimSharedFixedSeries, deleteSentIncome, setLastAction, router, showToast, t]);
+      deleteSharedTransaction, trimSharedFixedSeries, deleteSentIncome, syncSentIncomeMirror,
+      setLastAction, router, showToast, t]);
 
   useEffect(() => {
     if (!transaction) {
@@ -1209,7 +1230,7 @@ export default function TransactionDetailScreen() {
                   // ahí abajo la confirmación decía "se eliminará para todos" cuando lo
                   // que se aplica es exactamente el alcance que el usuario eligió.
                   : transaction.isFixed && !transaction.isInstallment && deleteScope !== 'all'
-                  ? (transaction.isShared
+                  ? (transaction.isShared || transaction.sentIncomeTransactionId
                       ? (deleteScope === 'single'
                           ? t('history.edit.scopeConfirmSharedFixed_single')
                           : t('history.edit.scopeConfirmSharedFixed_fromNow'))

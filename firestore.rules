@@ -35,19 +35,23 @@ service cloud.firestore {
             || request.auth.uid == resource.data.get('sharedOwnerUid', '')
             || request.resource.data.diff(resource.data).affectedKeys()
                  .hasOnly(['isPaid', 'notes', 'category', 'fixedPaidMonths', 'fixedSkipMonths', 'cardId']));
+      // `.get()` en TODAS las ramas: hoy se salvan por la lógica de tres valores
+      // (`error || true` sale `true`), pero basta reordenar las cláusulas para que
+      // el error de un campo ausente vuelva a denegar. Es el mismo patrón que dejó
+      // tres semanas sin poder editar un gasto.
       allow create: if request.auth != null && (
         request.auth.uid == request.resource.data.userId ||
-        (request.resource.data.isShared == true &&
-         request.auth.uid == request.resource.data.sharedOwnerUid) ||
-        (request.resource.data.isSentIncome == true &&
-         request.auth.uid == request.resource.data.sentByUid)
+        (request.resource.data.get('isShared', false) == true &&
+         request.auth.uid == request.resource.data.get('sharedOwnerUid', '')) ||
+        (request.resource.data.get('isSentIncome', false) == true &&
+         request.auth.uid == request.resource.data.get('sentByUid', ''))
       );
       allow delete: if request.auth != null && (
         request.auth.uid == resource.data.userId ||
-        (resource.data.isShared == true &&
-         resource.data.sharedOwnerUid == request.auth.uid) ||
-        (resource.data.isSentIncome == true &&
-         resource.data.sentByUid == request.auth.uid)
+        (resource.data.get('isShared', false) == true &&
+         resource.data.get('sharedOwnerUid', '') == request.auth.uid) ||
+        (resource.data.get('isSentIncome', false) == true &&
+         resource.data.get('sentByUid', '') == request.auth.uid)
       );
       // El dueño de un gasto compartido edita los mirrors de los participantes
       // (edit-transaction propaga monto/fecha/categoría a todos). No puede
@@ -59,6 +63,24 @@ service cloud.firestore {
         && resource.data.get('sharedOwnerUid', '') == request.auth.uid
         && request.resource.data.userId == resource.data.userId
         && request.resource.data.sharedOwnerUid == resource.data.sharedOwnerUid;
+
+      // El remitente de un INGRESO ENVIADO mantiene al día el espejo del
+      // destinatario. Sin esto solo podía crearlo y borrarlo: editar el importe o
+      // cortar la serie fija ocurría únicamente en su lado, y el otro se quedaba
+      // con el ingreso viejo repitiéndose todos los meses sin manera de quitarlo.
+      // Solo los campos que definen el movimiento: `isPaid`, `notes`,
+      // `fixedPaidMonths` y `cardId` son del destinatario y no se tocan.
+      allow update: if request.auth != null
+        && resource.data.get('isSentIncome', false) == true
+        && resource.data.get('sentByUid', '') == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.get('isSentIncome', false) == true
+        && request.resource.data.get('sentByUid', '') == resource.data.get('sentByUid', '')
+        && request.resource.data.get('sentByTransactionId', '') == resource.data.get('sentByTransactionId', '')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'amount', 'date', 'description', 'category', 'isFixed',
+             'fixedCancelledFrom', 'fixedSkipMonths', 'fixedSplitInto', 'fixedOriginDate'
+           ]);
     }
 
     match /cards/{docId} {

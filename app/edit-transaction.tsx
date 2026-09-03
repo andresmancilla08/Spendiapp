@@ -50,6 +50,7 @@ import { calcSharedAmount, calcEqualPercentages, installmentPortion } from '../u
 import { categoryForOtherUser } from '../utils/sharedCategory';
 import { originDateForEdit, newDocDate, monthKeysFrom, monthKey, effectiveScope, type FixedScope } from '../utils/fixedSeries';
 import { useSharedTransactions } from '../hooks/useSharedTransactions';
+import { useSentIncome } from '../hooks/useSentIncome';
 
 const QUICK_DESC_CATEGORY_IDS = ['food', 'transport', 'health', 'entertainment', 'shopping', 'home', 'salary'];
 
@@ -90,6 +91,7 @@ export default function EditTransactionScreen() {
   const { cards, loading: cardsLoading } = useCards(user?.uid ?? '');
   const { pendingEditTx, setPendingEditTx, setLastAction } = useHistoryStore();
   const { createSharedTransaction } = useSharedTransactions();
+  const { createSentIncome, syncSentIncomeMirror } = useSentIncome();
 
   const scrollRef    = useRef<ElementRef<typeof ScrollView>>(null);
   const catScrollRef = useRef<ElementRef<typeof ScrollView>>(null);
@@ -451,6 +453,23 @@ export default function EditTransactionScreen() {
     const cancelFrom = Timestamp.fromDate(new Date(viewYear, viewMonth, 1));
 
     const sharedOwnerEdit = !!(isSharedTx && transaction.sharedId && isOwnerOfShared && !transaction.isInstallment);
+    // Un INGRESO ENVIADO son dos documentos sin doc de coordinación. El remitente es
+    // el único que puede mantener el del destinatario al día: si no se propaga aquí,
+    // el otro se queda con el movimiento viejo repitiéndose todos los meses.
+    const mirrorId = transaction.sentIncomeTransactionId;
+    const sentIncomeEdit = !!(mirrorId && transaction.sentIncomeToUid && !transaction.isShared);
+
+    /** Propaga al espejo del destinatario y avisa si no se pudo: callar dejaría su
+     *  balance diciendo otra cosa que el mío, que es el bug que esto arregla. */
+    const syncMirror = async (patch: Parameters<typeof syncSentIncomeMirror>[1]) => {
+      try {
+        await syncSentIncomeMirror(mirrorId!, patch);
+      } catch (e) {
+        console.warn('[editTransaction] espejo sin sincronizar', mirrorId,
+          (e as { code?: string })?.code ?? e);
+        showToast(t('history.edit.sharedPartialSave', { count: 1 }), 'info');
+      }
+    };
 
     try {
       // El doc de coordinación puede haber desaparecido (la cuenta del otro se
@@ -617,15 +636,22 @@ export default function EditTransactionScreen() {
             ...(isFixed && !transaction.fixedSplitInto ? { fixedCancelledFrom: deleteField() } : {}),
             ...(notes.trim() ? { notes: notes.trim() } : { notes: deleteField() }),
           });
+          if (sentIncomeEdit) {
+            // La nota y la tarjeta NO viajan: son privadas del destinatario. Su
+            // categoría se recalcula porque las personalizadas mías no existen allí.
+            await syncMirror({
+              amount: parsedAmount,
+              date: Timestamp.fromDate(dateForOrigin),
+              description: description.trim(),
+              category: categoryForOtherUser(category, 'income'),
+              isFixed,
+              ...(isFixed && !transaction.fixedSplitInto ? { fixedCancelledFrom: deleteField() } : {}),
+            });
+          }
         } else {
           // Primero se CREA y después se recorta la serie vieja: al revés, un fallo
           // en la creación dejaba el mes sin gasto ninguno.
-          const createdRef = await addDoc(collection(db, 'transactions'), {
-            userId: user.uid,
-            ...fields,
-            ...(effScope === 'single' ? { isFixed: false } : {}),
-            date: Timestamp.fromDate(splitDate),
-            createdAt: Timestamp.fromDate(new Date()),
+          const carried = {
             ...(notes.trim() ? { notes: notes.trim() } : {}),
             ...(effScope === 'fromNow' && isFixed
               ? {
@@ -633,10 +659,53 @@ export default function EditTransactionScreen() {
                   ...(carryPaid.length ? { fixedPaidMonths: carryPaid } : {}),
                 }
               : { isPaid: transaction.isPaid ?? false }),
-          });
+          };
+
+          let newOwnId: string;
+          let newMirrorId: string | null = null;
+          if (sentIncomeEdit) {
+            // Partir la serie de un ingreso enviado crea el PAR nuevo, no solo mi
+            // copia: antes el documento nuevo nacía sin `sentIncomeToUid`, o sea sin
+            // espejo, y al otro dejaba de llegarle el ingreso desde el mes del corte.
+            const created = await createSentIncome({
+              senderUid: user.uid,
+              senderName: user.displayName ?? '',
+              recipientUid: transaction.sentIncomeToUid!,
+              recipientName: transaction.sentIncomeToName ?? '',
+              amount: parsedAmount,
+              category,
+              description: description.trim(),
+              date: splitDate,
+              cardId: selectedCardId ?? undefined,
+              isFixed: effScope === 'fromNow' ? isFixed : false,
+            });
+            newOwnId = created.senderId;
+            newMirrorId = created.incomeId;
+            if (Object.keys(carried).length > 0) {
+              await updateDoc(doc(db, 'transactions', newOwnId), carried);
+            }
+          } else {
+            const createdRef = await addDoc(collection(db, 'transactions'), {
+              userId: user.uid,
+              ...fields,
+              ...(effScope === 'single' ? { isFixed: false } : {}),
+              date: Timestamp.fromDate(splitDate),
+              createdAt: Timestamp.fromDate(new Date()),
+              ...carried,
+            });
+            newOwnId = createdRef.id;
+          }
+
           await updateDoc(ref, effScope === 'single'
             ? { fixedSkipMonths: arrayUnion(key) }
-            : { fixedCancelledFrom: cancelFrom, fixedSplitInto: createdRef.id });
+            : { fixedCancelledFrom: cancelFrom, fixedSplitInto: newOwnId });
+          if (sentIncomeEdit) {
+            // El mismo recorte, en los mismos meses, en la copia del otro. Este era
+            // exactamente el paso que faltaba.
+            await syncMirror(effScope === 'single'
+              ? { fixedSkipMonths: arrayUnion(key) }
+              : { fixedCancelledFrom: cancelFrom, ...(newMirrorId ? { fixedSplitInto: newMirrorId } : {}) });
+          }
         }
       }
       setLastAction('saved');

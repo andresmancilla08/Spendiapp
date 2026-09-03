@@ -4,6 +4,7 @@ import {
   writeBatch,
   Timestamp,
   addDoc,
+  updateDoc,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { categoryForOtherUser } from '../utils/sharedCategory';
@@ -21,8 +22,17 @@ interface CreateSentIncomeParams {
   isFixed?: boolean;
 }
 
+/** Lo único que el remitente puede escribir en el documento del destinatario.
+ *  Las reglas de Firestore aplican exactamente esta lista: `isPaid`, `notes`,
+ *  `fixedPaidMonths` y `cardId` son suyos y no se tocan desde aquí. */
+export type SentIncomeMirrorPatch = Partial<Record<
+  'amount' | 'date' | 'description' | 'category' | 'isFixed'
+  | 'fixedCancelledFrom' | 'fixedSkipMonths' | 'fixedSplitInto' | 'fixedOriginDate',
+  unknown
+>>;
+
 export function useSentIncome() {
-  async function createSentIncome(params: CreateSentIncomeParams): Promise<void> {
+  async function createSentIncome(params: CreateSentIncomeParams): Promise<{ senderId: string; incomeId: string }> {
     const { senderUid, senderName, recipientUid, recipientName, amount, category, description, date, cardId, isFixed = false } = params;
 
     const batch = writeBatch(db);
@@ -82,6 +92,21 @@ export function useSentIncome() {
       read: false,
       createdAt: Timestamp.fromDate(now),
     }).catch(() => {});
+
+    // Partir una serie fija necesita el id del par recién creado para enlazar la
+    // vieja (`fixedSplitInto`) en AMBOS lados.
+    return { senderId: senderRef.id, incomeId: incomeRef.id };
+  }
+
+  /**
+   * Propaga al documento del destinatario un cambio hecho en el del remitente.
+   * Existe porque un ingreso enviado son DOS documentos sin doc de coordinación:
+   * sin esto, editar el importe o cortar la serie fija ocurría solo en el lado de
+   * quien lo edita y el otro seguía viendo el movimiento viejo, mes tras mes.
+   */
+  async function syncSentIncomeMirror(mirrorId: string, patch: SentIncomeMirrorPatch): Promise<void> {
+    if (Object.keys(patch).length === 0) return;
+    await updateDoc(doc(db, 'transactions', mirrorId), patch);
   }
 
   async function deleteSentIncome(params: {
@@ -113,5 +138,5 @@ export function useSentIncome() {
     }).catch(() => {});
   }
 
-  return { createSentIncome, deleteSentIncome };
+  return { createSentIncome, deleteSentIncome, syncSentIncomeMirror };
 }
