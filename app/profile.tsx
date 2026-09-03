@@ -362,10 +362,15 @@ const DIALOG_CLOSED: DialogState = {
 export default function ProfileScreen() {
   const { user, setUser, isPremium } = useAuthStore();
   const { incomingRequests } = useFriends(user?.uid ?? '');
-  const { colors, themeMode, setThemeMode, isDark, paletteId } = useTheme();
+  const { colors, themeMode, setThemeMode, isDark, paletteId, customPalettes } = useTheme();
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
   const { flags } = useFlags();
+
+  // Una paleta propia no tiene clave de traducción: su nombre lo puso el usuario.
+  // Sin esto, aquí salía el id crudo — «profile.palette.custom_1788476033485».
+  const paletteLabel = customPalettes.find((c) => c.id === paletteId)?.name
+    ?? t(`profile.palette.${paletteId}`);
 
   const [nameInput, setNameInput] = useState('');
   const [nameInputError, setNameInputError] = useState('');
@@ -711,7 +716,7 @@ export default function ProfileScreen() {
             <OptionItem
               icon="color-palette-outline"
               label={t('profile.palette.label')}
-              value={t(`profile.palette.${paletteId}`)}
+              value={paletteLabel}
               onPress={() => router.push('/personalization')}
             />
           )}

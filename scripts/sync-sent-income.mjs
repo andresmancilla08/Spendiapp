@@ -79,6 +79,7 @@ const mirrors = await runQuery({
 const money = [];
 const shape = [];
 const orphans = [];
+const unlinked = [];
 const backup = {};
 
 for (const mirror of mirrors) {
@@ -86,8 +87,16 @@ for (const mirror of mirrors) {
   if (!sender) { orphans.push(mirror); continue; }
 
   const diff = (keys) => keys.filter((k) => JSON.stringify(mirror[k] ?? null) !== JSON.stringify(sender[k] ?? null));
-  const badMoney = diff(MONEY);
+  let badMoney = diff(MONEY);
   const badShape = diff(SHAPE);
+  // `fixedSplitInto` apunta a un documento del remitente. Si esa serie nueva nunca
+  // tuvo espejo —justo lo que rompía el bug—, no hay id que escribir aquí: cortar
+  // la serie vieja es todo lo que se puede hacer, y seguir reportándolo dejaría el
+  // informe en rojo para siempre por algo que no tiene arreglo.
+  if (badMoney.includes('fixedSplitInto') && !(await mirrorOfSplit(sender.fixedSplitInto))) {
+    badMoney = badMoney.filter((k) => k !== 'fixedSplitInto');
+    unlinked.push({ mirror, sender });
+  }
   if (badMoney.length) money.push({ mirror, sender, keys: badMoney });
   if (badShape.length) shape.push({ mirror, sender, keys: badShape });
 }
@@ -118,6 +127,10 @@ async function report(title, group) {
 }
 
 console.log(`Espejos de ingreso enviado: ${mirrors.length}`);
+if (unlinked.length) {
+  console.log(`\nSeries cortadas cuya continuacion nunca tuvo espejo: ${unlinked.length}`);
+  for (const { mirror } of unlinked) console.log(`  · "${mirror.description}" · ${mirror.id} — cortada, sin serie nueva a la que enlazar`);
+}
 await report('Dinero mal (corte de serie que no viajó, importes divergentes)', money);
 await report('Calendario/aspecto (mueve el movimiento: decisión, no reparación)', shape);
 if (orphans.length) {

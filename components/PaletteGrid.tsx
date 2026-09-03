@@ -11,7 +11,12 @@ import { useTheme } from '../context/ThemeContext';
 import { derivePalette } from '../utils/derivePalette';
 
 const COLUMNS = 3;
-const GRID_GAP = 10;
+const GRID_GAP = 8;
+// Geometría compartida por TODAS las casillas de la rejilla, «Crear» incluida:
+// una sola fuente, o vuelven a divergir.
+const CARD_MIN_HEIGHT = 90;
+const CARD_RADIUS = 14;
+const CARD_BORDER = 2.5;
 /** Arcoíris tenue de la tarjeta de crear: dice "aquí se eligen colores" sin
  *  necesidad de explicarlo, y no compite con las paletas reales de al lado. */
 const CREATE_SPECTRUM = ['#FF6B6B33', '#FFD93D33', '#6BCB7733', '#4D96FF33', '#B983FF33'] as unknown as readonly [string, string, ...string[]];
@@ -116,14 +121,16 @@ export const PaletteCard = memo(function PaletteCard({
 
 const palCardStyles = StyleSheet.create({
   card: {
-    borderRadius: 14,
+    borderRadius: CARD_RADIUS,
     paddingVertical: 12,
     paddingHorizontal: 8,
     alignItems: 'center',
     gap: 8,
     overflow: 'hidden',
-    borderWidth: 2.5,
-    minHeight: 90,
+    // El borde va SIEMPRE, transparente cuando no está seleccionada: si apareciera
+    // solo al elegirla, la tarjeta cambiaría de tamaño al tocarla.
+    borderWidth: CARD_BORDER,
+    minHeight: CARD_MIN_HEIGHT,
     justifyContent: 'center',
   },
   swatchRow: {
@@ -299,11 +306,15 @@ export default function PaletteGrid({ colors, paletteId, setPaletteId, t }: Pale
 
 const styles = StyleSheet.create({
   tabBarSpacing: { marginBottom: 16 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GRID_GAP },
   createCard: {
-    aspectRatio: 1.06,
-    borderRadius: 16,
-    borderWidth: 1.5,
+    // La misma caja que `palCardStyles.card`: alto mínimo, radio y borde. Antes
+    // llevaba `aspectRatio` propio y salía más alta que sus vecinas de fila.
+    minHeight: CARD_MIN_HEIGHT,
+    borderRadius: CARD_RADIUS,
+    borderWidth: CARD_BORDER,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
