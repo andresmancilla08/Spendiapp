@@ -67,3 +67,5 @@ test_logic.js
 public/sw.js
 scripts/validate-pre-deploy.sh
 components/ExchangeRateBar.tsx
+
+sent-income-backup.json
