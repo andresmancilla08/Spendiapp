@@ -2218,9 +2218,9 @@
       "sparkFoot_other": "Last {{count}} official rates"
     },
     "banner": {
-      "up": "The rate went up: your income is worth {{amount}} more than at the previous publication.",
-      "down": "The rate went down: your income is worth {{amount}} less than at the previous publication.",
-      "flat": "Today's rate is unchanged. Colombia's central bank publishes it once a day."
+      "up": "The rate went up: your income is worth {{amount}} more.",
+      "down": "The rate went down: your income is worth {{amount}} less.",
+      "flat": "Today's rate hasn't changed. It's published once a day."
     },
     "stats": {
       "best": "Best rate",

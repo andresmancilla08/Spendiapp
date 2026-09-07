@@ -1,5 +1,18 @@
 # Errores Conocidos
 
+### Paletas propias que desaparecían al abrir la app (resuelto en v2.73.0)
+- **Síntoma:** con dos o más paletas propias creadas, al entrar solo quedaba una. Si la que se perdía era la activa, la app se pintaba con el verde por defecto y en Perfil › Personalización salía el id crudo: «profile.palette.custom_1788476033485».
+- **Causa real:** `PaletteLoader` (`app/_layout.tsx`) hidrataba la lista de Firestore llamando a `saveCustomPalette` **una vez por paleta, en el mismo tick**. Ese setter parte de `customPalettes` capturado en el closure de su render, así que las N llamadas arrancaban de la misma lista vieja y `persistCustom` reescribía la clave entera de AsyncStorage: sobrevivía solo la última. El nombre crudo era el síntoma, no el fallo — `find()` no encontraba la paleta activa y `t()` devuelve la clave cuando no existe.
+- **Solución:** `mergeCustomPalettes` puro en `utils/customPalettes.ts` (+ 8 casos de test) y `mergeRemotePalettes` en el contexto, que escribe UNA vez. Había una segunda carrera con el mismo síntoma: el `.then()` de AsyncStorage del propio `ThemeContext` asignaba la lista local y podía pisar la remota ya fusionada; ahora también fusiona. Las paletas se recuperan solas desde Firestore, que sí tenía la lista completa.
+- **CUIDADO:** no volver a llamar a `saveCustomPalette` en bucle. Para varias, `mergeRemotePalettes`.
+
+### La TRM oficial devuelve 503 intermitentes (mitigado en v2.73.0)
+- **Síntoma:** los chips de USD/EUR del Home mostraban a veces una tasa que no era la TRM oficial, sin avisar de nada.
+- **Causa real:** `datos.gov.co` (Socrata) responde `503 service-unavailable` de forma intermitente, no por la consulta: la misma URL falla y repetida va bien. Comprobado el 2026-09-07 — `$limit=1` (la consulta que corría en producción) falló y `$limit=5` fue bien en la misma tanda. Sin reintento, `fetchTRM` se rendía al primer 503 y el endpoint caía al fallback de fawazahmed0.
+- **Solución:** `fetchJson` con un reintento en `api/exchange-rates.js`. Si el servicio está de verdad caído siguen estando las otras dos fuentes.
+- **Parece roto pero es a propósito:** la serie de `?days=N` devuelve **valores publicados**, no días naturales. Un registro de la TRM cubre fines de semana y festivos (`vigenciadesde`/`vigenciahasta`), así que 30 puntos abarcan unas 6 semanas de calendario. Para «mejor y peor tasa» eso es lo correcto: un día sin publicación no es una oportunidad distinta.
+- **Y otro a propósito:** en la serie puede faltar `eur` en algunas fechas — el BCE no cotiza fines de semana. `fxPortfolioStats` DESCARTA esas fechas en vez de contarlas como 0; con un 0 el sábado aparecía como el peor día del mes con una caída de millones que nunca ocurrió.
+
 ### Modal de novedades no aparece
 - **Síntoma:** tras deploy no sale WhatsNew. **Causa:** `package.json` y `app.json` con versiones distintas. **Solución:** bump ambos al mismo valor antes de `npm run deploy`.
 

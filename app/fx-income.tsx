@@ -36,6 +36,7 @@ import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTrans
 import { Skeleton } from '../components/Skeleton';
 import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import FxIncomeSheet from '../components/fx/FxIncomeSheet';
+import FxLayer, { type FxFrame } from '../components/fx/FxLayer';
 import { Fonts } from '../config/fonts';
 import { formatMoney } from '../utils/formatMoney';
 import { localeFor } from '../utils/dateLocale';
@@ -43,6 +44,16 @@ import { fxPortfolioStats, type FxCurrency } from '../utils/fxConvert';
 import type { FxIncome } from '../types/fxIncome';
 
 const FLAG: Record<FxCurrency, string> = { COP: '🇨🇴', EUR: '🇪🇺', USD: '🇺🇸' };
+
+/** Mismo latido que los chips del Home: es el mismo lenguaje visual para decir
+ *  «este dato está vivo». Va por FxLayer y no por Animated.loop porque en web
+ *  ese bucle corre en JS y no se detiene al desmontar. */
+const DOT_FRAMES: FxFrame[] = [
+  { at: 0, opacity: 1, scale: 1 },
+  { at: 0.5, opacity: 0, scale: 1.6 },
+  { at: 0.5001, opacity: 1, scale: 1 },
+  { at: 1, opacity: 1, scale: 1 },
+];
 
 /** Barras de la serie. Sin librería: son 30 <View> de altura proporcional, que
  *  es lo que ya hace el resto de la app para una tendencia pequeña. */
@@ -136,6 +147,12 @@ export default function FxIncomeScreen() {
   const heroInk = readableTint(colors.primary, heroBg, 4.5);
   const upInk = readableTint(colors.success, colors.surface, 4.5);
   const downInk = readableTint(colors.expense, colors.surface, 4.5);
+  // La tinta se mide contra el fondo que de verdad tiene debajo: el chip está
+  // sobre el hero teñido, no sobre `surface`, y el token crudo se queda en
+  // 1,7:1 en las paletas pastel.
+  const liveChipBg = mixHex(heroBg, colors.success, 0x1c / 255);
+  const liveChipInk = readableTint(colors.success, liveChipBg, 4.5);
+  const warnInk = readableTint(colors.warning, colors.surface, 4.5);
 
   return (
     <ScreenTransition ref={transitionRef}>
@@ -182,14 +199,18 @@ export default function FxIncomeScreen() {
                       {t('fxIncome.hero.label')}
                     </Text>
                     {stale ? (
-                      <TouchableOpacity onPress={retry} style={[styles.chip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+                      <TouchableOpacity
+                        onPress={retry}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        style={[styles.chip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+                      >
                         <AppIcon name="cloud-offline-outline" size={12} color={colors.textTertiary} />
                         <Text style={[styles.chipText, { color: colors.textTertiary }]}>{t('fxIncome.hero.saved')}</Text>
                       </TouchableOpacity>
                     ) : (
-                      <View style={[styles.chip, { backgroundColor: colors.success + '1C', borderColor: colors.success + '4D' }]}>
-                        <View style={[styles.dot, { backgroundColor: colors.success }]} />
-                        <Text style={[styles.chipText, { color: upInk }]}>{t('fxIncome.hero.trmToday')}</Text>
+                      <View style={[styles.chip, { backgroundColor: liveChipBg, borderColor: colors.success + '4D' }]}>
+                        <FxLayer frames={DOT_FRAMES} duration={1800} easing="linear" style={[styles.dot, { backgroundColor: colors.success }]} />
+                        <Text style={[styles.chipText, { color: liveChipInk }]}>{t('fxIncome.hero.trmToday')}</Text>
                       </View>
                     )}
                   </View>
@@ -197,14 +218,16 @@ export default function FxIncomeScreen() {
                   {stats === null || ratesError ? (
                     <>
                       <Text style={[styles.heroValue, { color: colors.textTertiary }]}>—</Text>
-                      <TouchableOpacity onPress={retry} style={styles.retryRow}>
+                      <TouchableOpacity onPress={retry} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} style={styles.retryRow}>
                         <AppIcon name="refresh-outline" size={14} color={colors.primary} />
                         <Text style={[styles.retryText, { color: colors.primary }]}>{t('fxIncome.hero.retry')}</Text>
                       </TouchableOpacity>
                     </>
                   ) : (
                     <>
-                      <Text style={[styles.heroValue, { color: heroInk }]}>{money(stats.today)}</Text>
+                      <Text style={[styles.heroValue, { color: heroInk }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+                        {money(stats.today)}
+                      </Text>
                       <Text style={[styles.heroFoot, { color: colors.textSecondary }]}>
                         {t('fxIncome.hero.foot', { count: incomes.length })}
                       </Text>
@@ -233,7 +256,7 @@ export default function FxIncomeScreen() {
                     <AppIcon
                       name={stats.variation.direction === 'up' ? 'flash-outline' : 'trending-down'}
                       size={16}
-                      color={stats.variation.direction === 'up' ? readableTint(colors.warning, colors.surface, 4.5) : downInk}
+                      color={stats.variation.direction === 'up' ? warnInk : downInk}
                     />
                     <Text style={[styles.bannerText, { color: colors.textPrimary }]}>
                       {t(stats.variation.direction === 'up' ? 'fxIncome.banner.up' : 'fxIncome.banner.down', {
@@ -256,15 +279,15 @@ export default function FxIncomeScreen() {
                   <View style={styles.statRow}>
                     <View style={[styles.statTile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                       <Text style={[styles.statKey, { color: colors.textTertiary }]}>{t('fxIncome.stats.best')}</Text>
-                      <Text style={[styles.statValue, { color: colors.textPrimary }]}>{money(stats.best.cop)}</Text>
-                      <Text style={[styles.statDelta, { color: upInk }]}>
+                      <Text style={[styles.statValue, { color: colors.textPrimary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{money(stats.best.cop)}</Text>
+                      <Text style={[styles.statDelta, { color: upInk }]} numberOfLines={1}>
                         {dayLabel(stats.best.date)} · +{money(stats.best.delta)}
                       </Text>
                     </View>
                     <View style={[styles.statTile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                       <Text style={[styles.statKey, { color: colors.textTertiary }]}>{t('fxIncome.stats.worst')}</Text>
-                      <Text style={[styles.statValue, { color: colors.textPrimary }]}>{money(stats.worst.cop)}</Text>
-                      <Text style={[styles.statDelta, { color: downInk }]}>
+                      <Text style={[styles.statValue, { color: colors.textPrimary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{money(stats.worst.cop)}</Text>
+                      <Text style={[styles.statDelta, { color: downInk }]} numberOfLines={1}>
                         {dayLabel(stats.worst.date)} · {money(stats.worst.delta)}
                       </Text>
                     </View>
@@ -290,7 +313,7 @@ export default function FxIncomeScreen() {
                           <Text style={[styles.rowLabel, { color: colors.textPrimary }]} numberOfLines={1}>
                             {income.label}
                           </Text>
-                          <Text style={[styles.rowSub, { color: colors.textTertiary }]}>
+                          <Text style={[styles.rowSub, { color: colors.textTertiary }]} numberOfLines={1}>
                             {income.currency === 'COP'
                               ? t('fxIncome.list.fixed')
                               : `${income.amount.toLocaleString(localeFor())} ${income.currency}`}
@@ -298,7 +321,7 @@ export default function FxIncomeScreen() {
                           </Text>
                         </View>
                         <View style={styles.rowEnd}>
-                          <Text style={[styles.rowAmount, { color: upInk }]}>
+                          <Text style={[styles.rowAmount, { color: upInk }]} numberOfLines={1}>
                             {cop === null ? '—' : money(cop)}
                           </Text>
                           <AppIcon name="chevron-forward" size={14} color={colors.textTertiary} />
@@ -387,7 +410,7 @@ const styles = StyleSheet.create({
 
   sectionTitle: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 0.7, textTransform: 'uppercase', marginTop: 22, marginBottom: 8, paddingHorizontal: 4 },
   list: { borderWidth: 1, borderRadius: 18, paddingHorizontal: 14 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 11, paddingVertical: 13 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 11, paddingVertical: 13, minHeight: 48 },
   rowFlag: { fontSize: 18 },
   rowMain: { flex: 1, minWidth: 0 },
   rowLabel: { fontSize: 14, fontFamily: Fonts.bold },

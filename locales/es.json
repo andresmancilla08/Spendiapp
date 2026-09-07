@@ -2218,9 +2218,9 @@
       "sparkFoot_other": "Últimas {{count}} publicaciones de la TRM"
     },
     "banner": {
-      "up": "La tasa subió: tus ingresos valen {{amount}} más que en la publicación anterior.",
-      "down": "La tasa bajó: tus ingresos valen {{amount}} menos que en la publicación anterior.",
-      "flat": "La TRM de hoy es la misma. El Banco de la República la publica una vez al día."
+      "up": "La TRM subió: tus ingresos valen {{amount}} más.",
+      "down": "La TRM bajó: tus ingresos valen {{amount}} menos.",
+      "flat": "La TRM de hoy no cambió. Se publica una vez al día."
     },
     "stats": {
       "best": "Mejor tasa",

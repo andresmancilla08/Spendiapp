@@ -244,3 +244,64 @@
 - **Cómo se resolvió lo ya guardado:** sin migración. Tanto `ThemeContext` (AsyncStorage) como `app/_layout.tsx` (Firestore) validan el valor guardado contra `BACKGROUND_STYLE_VALUES` / `CHART_TYPE_VALUES` antes de aplicarlo, así que un valor retirado simplemente no pasa el filtro y cae al default. El degradado queda fijo en `diagonal`.
 - **Los seis looks se remapearon** al superviviente más parecido: ondas→bokeh, malla→constelaciones, foco→ninguno, orbes→partículas, escalones→línea, barras→área, piruleta→puntos. Sin esto, tres presets apuntaban a valores inexistentes y ninguno habría vuelto a marcarse como activo.
 - **Estado:** vigente.
+
+## Ingresos en moneda extranjera: la TRM oficial pelada y el pasado intocable (v2.73.0)
+
+### La tasa es la TRM oficial, sin spread — Vigente
+- **Qué se eligió:** convertir con la TRM del Banco de la República tal cual. Sin restarle
+  el diferencial que aplica el banco del usuario al consignar.
+- **Por qué:** la TRM es un dato público, verificable y auditable. Un spread inventado no.
+- **Coste asumido, y es grande:** la TRM NO es la plata que llega. El banco o la
+  plataforma de envío se queda un 1-3 %: con una nómina de 2.400 €, la diferencia entre
+  la TRM y lo consignado ronda los 230.000 pesos al mes. Por eso **todo texto de la
+  pantalla dice «según la TRM»** y ninguno promete «esto es lo que vas a recibir».
+  Si el copy se relaja, la feature pasa a mentir.
+- **Descartado:** un spread manual configurable (se elige más tarde si hace falta: es un
+  campo, no un rediseño) y un spread aprendido de los pagos reales del usuario, al estilo
+  de `teaSource: 'learned'` en `types/card.ts` — necesita 2-3 pagos antes de servir.
+
+### El refresco es horario, no cada 5 minutos — Vigente
+- **Qué se eligió:** `hooks/useFxRates.ts` con poll de 60 min + refresco al volver la app
+  al primer plano. Aparte de `useExchangeRates`, que sigue con sus 5 min para los chips.
+- **Por qué:** la TRM se publica UNA vez al día. Un poll de 5 minutos no trae ningún dato
+  nuevo y gasta batería; el refresco al volver al foreground es el que de verdad importa,
+  porque entre sesión y sesión puede haber pasado una publicación entera.
+- **Descartado:** meter la serie en `useExchangeRates`. Habría cambiado el comportamiento
+  de un hook que ya está en producción alimentando el Home.
+
+### La declaración vive en el perfil, no en `transactions` — Vigente (Fase A)
+- **Qué se eligió:** `users/{uid}.fxIncomes[]`. Un ingreso declarado NO es un movimiento.
+- **Por qué:** así la Fase A no puede romper ningún cálculo existente — no entra en el
+  balance, ni en presupuestos, ni en el histórico, ni en el insight de IA, ni en el PDF.
+  El importe se guarda en su moneda de origen: guardarlo en pesos lo congelaría a la tasa
+  del día en que se escribió, que es justo lo que la feature viene a evitar.
+- **Pendiente (Fase B):** llevar la moneda a `transactions` con `currency`,
+  `sourceAmount`, `fxRate`, `fxRateAt` y `fxSealed`, dejando `amount` en pesos como caché
+  derivada. Plan completo en `docs/fx-income-plan.html`.
+
+### Los meses cerrados son inmutables — Decidida, NO implementada
+- **Qué se eligió:** lo que ya pasó no se edita ni se elimina. Sin excepciones.
+  `isMonthClosed` en `utils/fxConvert.ts` es la regla, ya con test.
+- **Por qué:** sin sellar la tasa, el sueldo de abril cambiaría de valor cada día y la
+  tendencia de 6 meses dejaría de ser comparable consigo misma.
+- **CUIDADO — esto rompe flujos que hoy funcionan.** No es solo la tasa:
+  - `app/(tabs)/history.tsx:647` marca pagado un fijo de un mes anterior
+    (`fixedPaidMonths: arrayUnion`). Con inmutabilidad total, eso desaparece; existen
+    `scripts/mark-past-months-paid.js` y `clear-july-fixed-paid.js` porque se usa.
+  - Corregir un monto mal digitado de un mes cerrado deja de ser posible.
+  - Editar un fijo «de aquí en adelante» **escribe sobre un documento cuya fecha de
+    arranque está en el pasado** (`fixedCancelledFrom` + `fixedSplitInto`). Esos campos
+    tienen que quedar EXENTOS del bloqueo o partir series deja de funcionar.
+- **La puerta de servicio se mantiene:** `scripts/sync-sent-income.mjs` se autentica con
+  `gcloud auth print-access-token` contra la API REST (línea 31), o sea con credenciales
+  de proyecto, y esas **no pasan por las reglas de Firestore**. Bloquear el pasado en la
+  app y en las reglas no deja los datos sin reparación posible.
+- **Estado:** decidida y con la función pura lista; el bloqueo en UI y reglas es Fase B.
+
+### La feature es premium — Vigente, con un matiz sin resolver
+- **Qué se eligió:** solo premium; al vencer la suscripción el ingreso se oculta.
+- **Conflicto con la decisión anterior:** ocultar el ingreso también en los meses cerrados
+  cambiaría el histórico solo, que es lo que la inmutabilidad prohíbe. **Asunción con la
+  que se implementó:** el ocultamiento aplica al mes en curso y futuros; un mes sellado
+  conserva su cifra en pesos, porque ahí ya no hay conversión que hacer.
+- **Estado:** pendiente de confirmar con el usuario.

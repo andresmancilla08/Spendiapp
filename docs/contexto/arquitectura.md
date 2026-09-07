@@ -6,6 +6,7 @@
 - **Runtime/Framework:** Expo + Expo Router. React Native + react-native-web. TypeScript.
 - **Estado:** Zustand (`store/`). **i18n:** i18next + react-i18next (`locales/`).
 - **Backend:** Firebase (Auth, Firestore) + **Cloud Functions** (`functions/`). `api/` para endpoints.
+- **Tasas de cambio:** `api/exchange-rates.js` — TRM oficial (datos.gov.co `32sa-8pi3`) con EUR derivado vía BCE/Frankfurter, y dos fallbacks en cascada. `?days=N` añade la serie histórica. Lo consumen `hooks/useExchangeRates.ts` (chips del Home, poll 5 min) y `hooks/useFxRates.ts` (pantalla «Mi salario», poll horario + foreground). Conversión pura en `utils/fxConvert.ts`.
 - **Extras:** expo-crypto, jspdf (+autotable). **Iconos:** `@tabler/icons-react-native`, siempre vía `components/AppIcon.tsx` — ninguna otra librería de iconos.
 - **Deploy:** export web Expo → Vercel (`vercel.json`); `npm run deploy`. Bundle web ÚNICO de ~8,5 MB (`vercel.json` reescribe todo a `/index.html`): dividirlo por rutas exige rehacer el despliegue, ver `decisiones.md`.
 - **Nativo:** perfiles EAS listos (`eas.json`), bundle IDs `com.spendiapp`; `ios/` y `android/` están en `.gitignore` (generación nativa continua). Lo que falta para publicar está en `docs/checklist-tiendas.md`.

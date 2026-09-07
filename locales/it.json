@@ -2218,9 +2218,9 @@
       "sparkFoot_other": "Ultime {{count}} pubblicazioni del tasso"
     },
     "banner": {
-      "up": "Il tasso è salito: le tue entrate valgono {{amount}} in più rispetto alla pubblicazione precedente.",
-      "down": "Il tasso è sceso: le tue entrate valgono {{amount}} in meno rispetto alla pubblicazione precedente.",
-      "flat": "Il tasso di oggi è lo stesso. La banca centrale lo pubblica una volta al giorno."
+      "up": "Il tasso è salito: le tue entrate valgono {{amount}} in più.",
+      "down": "Il tasso è sceso: le tue entrate valgono {{amount}} in meno.",
+      "flat": "Il tasso di oggi non è cambiato. Si pubblica una volta al giorno."
     },
     "stats": {
       "best": "Tasso migliore",
