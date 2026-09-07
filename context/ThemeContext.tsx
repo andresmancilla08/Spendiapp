@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mergeCustomPalettes } from '../utils/customPalettes';
 import { AppColors } from '../config/colors';
 import { PaletteId, PaletteDefinition, PALETTE_MAP, PALETTES, resolvePaletteId } from '../config/palettes';
 import { derivePalette, type CustomPalette } from '../utils/derivePalette';
@@ -87,6 +88,10 @@ interface ThemeContextValue {
   activePalette: PaletteDefinition;
   /** Paletas del usuario, de la más reciente a la más antigua. */
   customPalettes: CustomPalette[];
+  /** Fusiona de golpe la lista que llega de Firestore. NO usar saveCustomPalette
+   *  en bucle para esto: cada llamada parte del closure de su render y se
+   *  perdían todas menos la última. */
+  mergeRemotePalettes: (remote: CustomPalette[]) => Promise<void>;
   saveCustomPalette: (p: CustomPalette) => Promise<void>;
   removeCustomPalette: (id: string) => Promise<void>;
   // Efectos visuales premium — personalización más allá del color.
@@ -124,6 +129,7 @@ const ThemeContext = createContext<ThemeContextValue>({
   setThemeMode: () => {},
   paletteId: 'deepWater',
   customPalettes: [],
+  mergeRemotePalettes: async () => {},
   saveCustomPalette: async () => {},
   removeCustomPalette: async () => {},
   setPaletteId: () => {},
@@ -190,7 +196,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       let custom: CustomPalette[] = [];
       if (storedCustom) {
         try { custom = JSON.parse(storedCustom) as CustomPalette[]; } catch {}
-        if (Array.isArray(custom)) setCustomPalettes(custom);
+        // Se FUSIONA, no se asigna: `PaletteLoader` puede haber traído ya la
+        // lista de Firestore y este `.then()` llegar después. Asignando a secas,
+        // la lista local vieja pisaba la remota recién fusionada y volvía el
+        // mismo síntoma (paleta activa que ya no está en la lista).
+        if (Array.isArray(custom)) setCustomPalettes((prev) => mergeCustomPalettes(custom, prev));
       }
       // `resolvePaletteId` migra las retiradas en la v2.60 a su gemela: quien
       // tuviera una pastel puesta no se queda sin colores.
@@ -243,6 +253,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const saveCustomPalette = async (p: CustomPalette) => {
     const rest = customPalettes.filter((c) => c.id !== p.id);
     await persistCustom([p, ...rest]);
+  };
+
+  /** Una sola escritura para toda la lista remota. */
+  const mergeRemotePalettes = async (remote: CustomPalette[]) => {
+    const merged = mergeCustomPalettes(customPalettes, remote);
+    // Los objetos de Firestore son nuevos en cada arranque aunque el contenido
+    // sea el mismo: sin comparar por valor esto reescribiría y re-renderizaría
+    // en cada inicio de sesión.
+    if (JSON.stringify(merged) === JSON.stringify(customPalettes)) return;
+    await persistCustom(merged);
   };
 
   const removeCustomPalette = async (id: string) => {
@@ -331,7 +351,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
     <ThemeContext.Provider value={{
       colors, isDark, themeMode, setThemeMode, paletteId: effectivePaletteId, setPaletteId, activePalette,
-      customPalettes, saveCustomPalette, removeCustomPalette,
+      customPalettes, saveCustomPalette, removeCustomPalette, mergeRemotePalettes,
       backgroundStyle, setBackgroundStyle, backgroundIntensity, setBackgroundIntensity,
       backgroundStyleLight, backgroundStyleDark, setBackgroundStyleFor,
       backgroundBlur, backgroundBlurLight, backgroundBlurDark, setBackgroundBlurFor,

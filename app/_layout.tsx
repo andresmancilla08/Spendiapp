@@ -29,7 +29,7 @@ import { FeatureFlagsProvider, useFlags } from '../context/FeatureFlagsContext';
 function PaletteLoader() {
   const { user } = useAuthStore();
   const {
-    setPaletteId, saveCustomPalette, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundBlurFor,
+    setPaletteId, mergeRemotePalettes, setBackgroundStyleFor, setBackgroundIntensity, setBackgroundBlurFor,
     setChartType, setChartAnimStyle, setChartSpeed, setChartAccent,
   } = useTheme();
 
@@ -39,10 +39,11 @@ function PaletteLoader() {
       .then(([profile, localTsRaw]) => {
         // Las paletas propias PRIMERO: si la activa es una de ellas, tiene que
         // existir ya cuando se resuelve, o caería a la de por defecto.
+        // UNA sola llamada, no un bucle de `saveCustomPalette`: ese partía del
+        // closure de este render en cada iteración y solo sobrevivía la última
+        // paleta — ver utils/customPalettes.ts.
         if (Array.isArray(profile?.customPalettes)) {
-          for (const c of profile.customPalettes) {
-            saveCustomPalette(c as CustomPalette).catch(() => {});
-          }
+          mergeRemotePalettes(profile.customPalettes as CustomPalette[]).catch(() => {});
         }
         const remoteId = profile?.colorPalette;
         const isOwn = Array.isArray(profile?.customPalettes)

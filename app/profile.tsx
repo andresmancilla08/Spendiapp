@@ -369,8 +369,15 @@ export default function ProfileScreen() {
 
   // Una paleta propia no tiene clave de traducción: su nombre lo puso el usuario.
   // Sin esto, aquí salía el id crudo — «profile.palette.custom_1788476033485».
+  //
+  // El `?? t('profile.palette.custom')` del final es la red: un id `custom_*`
+  // que ya no está en la lista (borrado desde otro dispositivo, o la lista
+  // remota todavía sin llegar) NO puede acabar pintando la clave i18n en la
+  // fila. `t()` devuelve la clave tal cual cuando no existe.
   const paletteLabel = customPalettes.find((c) => c.id === paletteId)?.name
-    ?? t(`profile.palette.${paletteId}`);
+    ?? (paletteId.startsWith('custom_')
+      ? t('profile.palette.custom')
+      : t(`profile.palette.${paletteId}`));
 
   const [nameInput, setNameInput] = useState('');
   const [nameInputError, setNameInputError] = useState('');
