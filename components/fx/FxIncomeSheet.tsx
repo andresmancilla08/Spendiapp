@@ -177,7 +177,7 @@ export default function FxIncomeSheet({
               onChangeText={setAmount}
               keyboardType="decimal-pad"
               inputMode="decimal"
-              placeholder={currency === 'COP' ? '1.500.000' : '2.400'}
+              placeholder="0"
               placeholderTextColor={colors.textTertiary}
               style={[styles.input, styles.amountInput, {
                 backgroundColor: colors.inputBackground,

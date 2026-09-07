@@ -115,6 +115,9 @@ export default function FxIncomeScreen() {
     new Date(`${iso}T12:00:00`).toLocaleDateString(localeFor(), { day: 'numeric', month: 'short' });
 
   const loading = premiumLoading || ratesLoading || incomesLoading;
+  // En vacío y en bloqueado el CTA ya vive dentro de su tarjeta; el footer solo
+  // aparece cuando hay lista que scrollear.
+  const hasFooter = !loading && isPremium && incomes.length > 0;
 
   const openNew = () => { setEditing(null); setSheetVisible(true); };
   const openEdit = (income: FxIncome) => { setEditing(income); setSheetVisible(true); };
@@ -162,8 +165,11 @@ export default function FxIncomeScreen() {
           <PageTitle title={t('fxIncome.title')} description={t('fxIncome.pageDesc')} />
 
           <ScrollView
-            style={scrollFadeMask(0, 0)}
-            contentContainerStyle={styles.scroll}
+            // `flex: 1` explícito: `scrollFadeMask` devuelve null en nativo y
+            // solo la máscara en web, así que sin esto el ScrollView se
+            // dimensiona a su contenido y empuja el footer fuera de la pantalla.
+            style={[styles.scroller, scrollFadeMask(0, hasFooter ? 74 : 0)]}
+            contentContainerStyle={[styles.scroll, hasFooter && styles.scrollWithFooter]}
             showsVerticalScrollIndicator={false}
           >
             {loading ? (
@@ -338,18 +344,28 @@ export default function FxIncomeScreen() {
                   })}` : ''}
                 </Text>
 
-                {canAdd ? (
-                  <AppButton label={t('fxIncome.addAnother')} onPress={openNew} icon="add" variant="secondary" style={styles.addBtn} />
-                ) : (
-                  // Un botón que desaparece sin decir nada se lee como un fallo
-                  // de la app, no como un límite.
-                  <Text style={[styles.maxNote, { color: colors.textTertiary }]}>
-                    {t('fxIncome.maxReached', { max: FX_INCOME_MAX })}
-                  </Text>
-                )}
               </>
             )}
           </ScrollView>
+
+          {/* Footer fijo, hermano del ScrollView: el botón vive al fondo del
+              contenedor y no al final del contenido. En una pantalla alta
+              quedaba a media altura, flotando tras el último bloque.
+              Sin `backgroundColor`: una banda opaca cortaría el fondo animado
+              de la app; el degradado de `scrollFadeMask` es lo que separa. */}
+          {hasFooter && (
+            <View style={[styles.footer, { borderTopColor: colors.border }]}>
+              {canAdd ? (
+                <AppButton label={t('fxIncome.addAnother')} onPress={openNew} icon="add" />
+              ) : (
+                // Un botón que desaparece sin decir nada se lee como un fallo
+                // de la app, no como un límite.
+                <Text style={[styles.maxNote, { color: colors.textTertiary }]}>
+                  {t('fxIncome.maxReached', { max: FX_INCOME_MAX })}
+                </Text>
+              )}
+            </View>
+          )}
 
           <FxIncomeSheet
             visible={sheetVisible}
@@ -380,6 +396,7 @@ export default function FxIncomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
+  scroller: { flex: 1 },
   scroll: { paddingHorizontal: 15, paddingBottom: 40 },
   loadingWrap: { paddingTop: 4 },
   loadingGap: { marginTop: 12 },
@@ -425,6 +442,12 @@ const styles = StyleSheet.create({
   rowAmount: { fontSize: 14, fontFamily: Fonts.extraBold, letterSpacing: -0.3 },
 
   disclaimer: { fontSize: 11, fontFamily: Fonts.regular, lineHeight: 16, marginTop: 14, paddingHorizontal: 4 },
-  addBtn: { marginTop: 16 },
-  maxNote: { fontSize: 12, fontFamily: Fonts.semiBold, textAlign: 'center', marginTop: 16 },
+  scrollWithFooter: { paddingBottom: 12 },
+  footer: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 15,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  maxNote: { fontSize: 12, fontFamily: Fonts.semiBold, textAlign: 'center', paddingVertical: 12 },
 });
