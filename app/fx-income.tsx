@@ -168,7 +168,13 @@ export default function FxIncomeScreen() {
             // `flex: 1` explícito: `scrollFadeMask` devuelve null en nativo y
             // solo la máscara en web, así que sin esto el ScrollView se
             // dimensiona a su contenido y empuja el footer fuera de la pantalla.
-            style={[styles.scroller, scrollFadeMask(0, hasFooter ? 74 : 0)]}
+            //
+            // Y el fade va a 0: el de 74px es para una barra de pestañas que se
+            // SUPERPONE al scroll. Este footer no se superpone —es hermano y
+            // ocupa su propio alto—, así que ese degradado no separaba nada:
+            // borraba los últimos 100px de contenido real, y el aviso de la TRM
+            // quedaba invisible bajo la última fila.
+            style={[styles.scroller, scrollFadeMask(0, 0)]}
             contentContainerStyle={[styles.scroll, hasFooter && styles.scrollWithFooter]}
             showsVerticalScrollIndicator={false}
           >
@@ -442,7 +448,7 @@ const styles = StyleSheet.create({
   rowAmount: { fontSize: 14, fontFamily: Fonts.extraBold, letterSpacing: -0.3 },
 
   disclaimer: { fontSize: 11, fontFamily: Fonts.regular, lineHeight: 16, marginTop: 14, paddingHorizontal: 4 },
-  scrollWithFooter: { paddingBottom: 12 },
+  scrollWithFooter: { paddingBottom: 14 },
   footer: {
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 15,
