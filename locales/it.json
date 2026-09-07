@@ -2271,6 +2271,7 @@
     "deleteDialog": {
       "title": "Eliminare l'entrata?",
       "body": "«{{label}}» non apparirà più qui. Non modifica nessun movimento del tuo storico."
-    }
+    },
+    "maxReached": "Puoi dichiarare fino a {{max}} entrate."
   }
 }

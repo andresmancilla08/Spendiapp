@@ -2271,6 +2271,7 @@
     "deleteDialog": {
       "title": "¿Eliminar el ingreso?",
       "body": "«{{label}}» dejará de aparecer aquí. No afecta a ningún movimiento de tu historial."
-    }
+    },
+    "maxReached": "Puedes declarar hasta {{max}} ingresos."
   }
 }

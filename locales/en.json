@@ -2271,6 +2271,7 @@
     "deleteDialog": {
       "title": "Delete this income?",
       "body": "“{{label}}” will stop appearing here. It does not affect any transaction in your history."
-    }
+    },
+    "maxReached": "You can declare up to {{max}} incomes."
   }
 }

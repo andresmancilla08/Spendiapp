@@ -41,7 +41,7 @@ import { Fonts } from '../config/fonts';
 import { formatMoney } from '../utils/formatMoney';
 import { localeFor } from '../utils/dateLocale';
 import { fxPortfolioStats, type FxCurrency } from '../utils/fxConvert';
-import type { FxIncome } from '../types/fxIncome';
+import { FX_INCOME_MAX, type FxIncome } from '../types/fxIncome';
 
 const FLAG: Record<FxCurrency, string> = { COP: '🇨🇴', EUR: '🇪🇺', USD: '🇺🇸' };
 
@@ -338,8 +338,14 @@ export default function FxIncomeScreen() {
                   })}` : ''}
                 </Text>
 
-                {canAdd && (
+                {canAdd ? (
                   <AppButton label={t('fxIncome.addAnother')} onPress={openNew} icon="add" variant="secondary" style={styles.addBtn} />
+                ) : (
+                  // Un botón que desaparece sin decir nada se lee como un fallo
+                  // de la app, no como un límite.
+                  <Text style={[styles.maxNote, { color: colors.textTertiary }]}>
+                    {t('fxIncome.maxReached', { max: FX_INCOME_MAX })}
+                  </Text>
                 )}
               </>
             )}
@@ -420,4 +426,5 @@ const styles = StyleSheet.create({
 
   disclaimer: { fontSize: 11, fontFamily: Fonts.regular, lineHeight: 16, marginTop: 14, paddingHorizontal: 4 },
   addBtn: { marginTop: 16 },
+  maxNote: { fontSize: 12, fontFamily: Fonts.semiBold, textAlign: 'center', marginTop: 16 },
 });
