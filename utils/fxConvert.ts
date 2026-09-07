@@ -172,3 +172,105 @@ export function isMonthClosed(year: number, month: number, now: Date = new Date(
   const m = now.getMonth();
   return year < y || (year === y && month < m);
 }
+
+/** Lo mínimo que hace falta de un ingreso para convertirlo. */
+export interface FxConvertible {
+  amount: number;
+  currency: FxCurrency;
+}
+
+export interface FxPortfolioStats {
+  /** Total de hoy en pesos. */
+  today: number;
+  /** Total con la publicación anterior de la TRM, o `null` si no hay con qué. */
+  prev: number | null;
+  /** Variación contra la publicación anterior. `null` si no hay `prev`. */
+  variation: FxVariation | null;
+  /** Mejor y peor día de la serie, con su diferencia contra hoy. */
+  best: { date: string; cop: number; delta: number } | null;
+  worst: { date: string; cop: number; delta: number } | null;
+  /** Total por fecha, de más antiguo a más reciente — para la sparkline. */
+  series: { date: string; cop: number }[];
+}
+
+/**
+ * Todo lo que la pantalla «Mi salario» necesita mostrar, calculado de una vez.
+ *
+ * Existe porque la pantalla puede tener varios ingresos en monedas distintas
+ * (2.400 € y 500 US$) y el total de un día NO es la suma de los mejores días de
+ * cada moneda: el euro y el dólar no hacen máximo el mismo día. Hay que sumar
+ * la cartera completa fecha a fecha y buscar el máximo del TOTAL.
+ *
+ * Una fecha solo cuenta si tiene tasa para TODAS las monedas presentes. Con las
+ * que faltan sumando 0, un día sin cotización del euro aparecía como el peor del
+ * mes con una caída de millones que nunca ocurrió.
+ *
+ * Los ingresos en COP se suman tal cual y no exigen tasa: son un valor fijo que
+ * no varía con el cambio.
+ */
+export function fxPortfolioStats(
+  incomes: FxConvertible[] | null | undefined,
+  rows: FxSeriesRow[] | null | undefined,
+  rates: FxRates | null | undefined,
+  prevRates?: FxRates | null,
+): FxPortfolioStats | null {
+  const valid = (Array.isArray(incomes) ? incomes : []).filter(
+    (i) => i && Number.isFinite(i.amount) && isFxCurrency(i.currency),
+  );
+  if (valid.length === 0) return null;
+
+  const sumWith = (r: FxRates | null | undefined): number | null => {
+    let total = 0;
+    for (const income of valid) {
+      const cop = toCop(income.amount, income.currency, r);
+      if (cop === null) return null;
+      total += cop;
+    }
+    return total;
+  };
+
+  const today = sumWith(rates);
+  if (today === null) return null;
+
+  // Monedas que de verdad hacen falta: si nadie cobra en dólares, que falte la
+  // cotización del dólar no puede descartar la fecha.
+  const needed = new Set(valid.map((i) => i.currency).filter((c) => c !== 'COP'));
+
+  // Cartera entera en pesos: no hay tipo de cambio de por medio, así que no hay
+  // variación ni serie que dibujar. Devolver `flat` y una línea recta sería
+  // inventar un dato: el total no varía porque no PUEDE variar.
+  if (needed.size === 0) {
+    return { today, prev: null, variation: null, best: null, worst: null, series: [] };
+  }
+
+  const prev = sumWith(prevRates ?? null);
+  const variation = prev === null
+    ? null
+    : { delta: today - prev, direction: (today > prev ? 'up' : today < prev ? 'down' : 'flat') as FxDirection };
+
+  const series: { date: string; cop: number }[] = [];
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (!row || typeof row.date !== 'string') continue;
+    const rowRates: FxRates = { usd: row.usd ?? 0, eur: row.eur ?? 0 };
+    const complete = [...needed].every((c) => isUsableRate(c === 'EUR' ? rowRates.eur : rowRates.usd));
+    if (!complete) continue;
+    const cop = sumWith(rowRates);
+    if (cop !== null) series.push({ date: row.date, cop });
+  }
+  series.sort((a, b) => (a.date < b.date ? -1 : 1));
+
+  let best: FxPortfolioStats['best'] = null;
+  let worst: FxPortfolioStats['worst'] = null;
+  if (series.length > 0) {
+    let hi = series[0];
+    let lo = series[0];
+    for (const p of series) {
+      if (p.cop > hi.cop) hi = p;
+      if (p.cop < lo.cop) lo = p;
+    }
+    best = { date: hi.date, cop: hi.cop, delta: hi.cop - today };
+    worst = { date: lo.date, cop: lo.cop, delta: lo.cop - today };
+  }
+
+  return { today, prev, variation, best, worst, series };
+}

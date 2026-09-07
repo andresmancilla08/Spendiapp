@@ -112,3 +112,89 @@ assert.equal(isFxCurrency(undefined), false);
 assert.equal(isFxCurrency(null), false);
 
 console.log('fxConvert: 56 casos OK');
+
+// ── fxPortfolioStats — varios ingresos, monedas distintas ──────────────────
+import { fxPortfolioStats } from './fxConvert';
+
+const rows = [
+  { date: '2026-09-07', usd: 4211, eur: 4552 },
+  { date: '2026-09-06', usd: 4180, eur: 4519 },
+  { date: '2026-09-05', usd: 4300, eur: 4400 }, // dólar arriba, euro abajo
+  { date: '2026-09-04', usd: 4100, eur: 4610 }, // al contrario
+];
+
+const solo = fxPortfolioStats([{ amount: 2400, currency: 'EUR' }], rows, RATES, YESTERDAY)!;
+assert.equal(solo.today, 10924800);
+assert.equal(solo.prev, 10845600);
+assert.equal(solo.variation!.direction, 'up');
+assert.equal(solo.variation!.delta, 79200);
+assert.equal(solo.best!.date, '2026-09-04', 'el euro hizo máximo el día 4');
+assert.equal(solo.worst!.date, '2026-09-05');
+assert.equal(solo.series.length, 4);
+assert.equal(solo.series[0].date, '2026-09-04', 'la serie sale ascendente para la sparkline');
+
+// Dos monedas: el mejor día del TOTAL no es el mejor de ninguna por separado.
+const mixed = fxPortfolioStats(
+  [{ amount: 2400, currency: 'EUR' }, { amount: 500, currency: 'USD' }],
+  rows, RATES,
+)!;
+assert.equal(mixed.today, 10924800 + 2105500);
+// día 4: 2400×4610 + 500×4100 = 11.064.000 + 2.050.000 = 13.114.000
+// día 5: 2400×4400 + 500×4300 = 10.560.000 + 2.150.000 = 12.710.000
+// día 7: 13.030.300 · día 6: 10.845.600 + 2.090.000 = 12.935.600
+assert.equal(mixed.best!.date, '2026-09-04');
+assert.equal(mixed.best!.cop, 13114000);
+assert.equal(mixed.worst!.date, '2026-09-05');
+assert.equal(mixed.worst!.cop, 12710000);
+
+// Un ingreso en COP suma fijo y no exige tasa ni mueve la variación.
+const withCop = fxPortfolioStats(
+  [{ amount: 2400, currency: 'EUR' }, { amount: 1000000, currency: 'COP' }],
+  rows, RATES, YESTERDAY,
+)!;
+assert.equal(withCop.today, 10924800 + 1000000);
+assert.equal(withCop.variation!.delta, 79200, 'el COP no varía');
+
+// Solo COP: no hay nada que convertir, pero el total es válido.
+// Solo COP: hay total, pero no hay variación ni serie — el total no PUEDE
+// variar, y una línea recta sería inventar un dato.
+const onlyCop = fxPortfolioStats([{ amount: 1000000, currency: 'COP' }], rows, null)!;
+assert.equal(onlyCop.today, 1000000);
+assert.equal(onlyCop.variation, null);
+assert.equal(onlyCop.prev, null);
+assert.equal(onlyCop.series.length, 0);
+assert.equal(onlyCop.best, null);
+
+// Una fecha sin cotización del euro se DESCARTA, no cuenta como 0.
+const holes = [
+  { date: '2026-09-07', usd: 4211, eur: 4552 },
+  { date: '2026-09-06', usd: 4180 },            // sábado: el BCE no publicó
+  { date: '2026-09-05', usd: 4300, eur: 4400 },
+];
+const gapped = fxPortfolioStats([{ amount: 2400, currency: 'EUR' }], holes, RATES)!;
+assert.equal(gapped.series.length, 2, 'el día sin euro no entra');
+assert.equal(gapped.worst!.cop, 10560000, 'y no aparece un mínimo de 0');
+
+// Pero si nadie cobra en euros, que falte el euro no descarta la fecha.
+const usdOnly = fxPortfolioStats([{ amount: 500, currency: 'USD' }], holes, RATES)!;
+assert.equal(usdOnly.series.length, 3);
+
+// Sin ingresos no hay nada que calcular.
+assert.equal(fxPortfolioStats([], rows, RATES), null);
+assert.equal(fxPortfolioStats(null, rows, RATES), null);
+// Sin tasa de hoy tampoco, aunque haya serie.
+assert.equal(fxPortfolioStats([{ amount: 2400, currency: 'EUR' }], rows, null), null);
+// Sin serie sí hay cifra de hoy, solo faltan mejor y peor.
+const noSeries = fxPortfolioStats([{ amount: 2400, currency: 'EUR' }], [], RATES)!;
+assert.equal(noSeries.today, 10924800);
+assert.equal(noSeries.best, null);
+assert.equal(noSeries.series.length, 0);
+// Basura entre los ingresos: se ignora en vez de envenenar el total.
+const dirtyIncomes = fxPortfolioStats(
+  [{ amount: 2400, currency: 'EUR' }, { amount: NaN, currency: 'EUR' }, null as never,
+   { amount: 100, currency: 'GBP' as never }],
+  rows, RATES,
+)!;
+assert.equal(dirtyIncomes.today, 10924800);
+
+console.log('fxPortfolioStats: 30 casos OK');
