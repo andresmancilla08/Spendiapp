@@ -45,16 +45,16 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'repeat',
+    icon: 'cash-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.sentIncomeSync.title',
-    items: ['whatsNew.sentIncomeSync.item1', 'whatsNew.sentIncomeSync.item2'],
+    titleKey: 'whatsNew.fxIncome.title',
+    items: ['whatsNew.fxIncome.item1', 'whatsNew.fxIncome.item2'],
   },
   {
     icon: 'color-palette-outline',
     colorKey: 'tertiary',
-    titleKey: 'whatsNew.paletteGridPolish.title',
-    items: ['whatsNew.paletteGridPolish.item1', 'whatsNew.paletteGridPolish.item2'],
+    titleKey: 'whatsNew.paletteFix.title',
+    items: ['whatsNew.paletteFix.item1', 'whatsNew.paletteFix.item2'],
   },
 ];
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {

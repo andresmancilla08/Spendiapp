@@ -1057,15 +1057,15 @@
     "title": "Cosa c’è di nuovo?",
     "subtitle": "Ecco cosa è cambiato in Spendia.",
     "dismiss": "Ho capito",
-    "sentIncomeSync": {
-      "title": "Le entrate che invii restano sincronizzate",
-      "item1": "Se modifichi l importo o interrompi la serie, la modifica arriva anche all altra persona",
-      "item2": "Prima restava con il movimento vecchio che si ripeteva ogni mese"
+    "fxIncome": {
+      "title": "Il tuo stipendio in un’altra valuta, in pesos di oggi",
+      "item1": "Dicci quanto ricevi e in quale valuta: Strumenti › Il mio stipendio ti dice quanto vale al tasso ufficiale del giorno",
+      "item2": "Con il tasso migliore e peggiore dell’ultimo mese, e quanto è cambiato dalla pubblicazione precedente"
     },
-    "paletteGridPolish": {
-      "title": "Dettagli dell interfaccia",
-      "item1": "Le tue palette hanno tutte la stessa dimensione e in Impostazioni compare il loro nome",
-      "item2": "I pulsanti delle finestre occupano tutta la larghezza"
+    "paletteFix": {
+      "title": "Le tue tavolozze non si perdono più",
+      "item1": "Se ne avevi diverse, all’avvio ne sopravviveva solo una e quella attiva tornava al verde predefinito",
+      "item2": "Ora si recuperano da sole dal tuo account"
     }
   },
   "incomeClaim": {

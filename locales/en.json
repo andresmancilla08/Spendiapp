@@ -1057,15 +1057,15 @@
     "title": "What’s new?",
     "subtitle": "Here’s what changed in Spendia.",
     "dismiss": "Got it",
-    "sentIncomeSync": {
-      "title": "Income you send stays in sync",
-      "item1": "Edit the amount or cut the series and the change reaches the other person too",
-      "item2": "Before, they kept the old entry repeating every month"
+    "fxIncome": {
+      "title": "Your salary in another currency, in today’s pesos",
+      "item1": "Tell us how much you’re paid and in which currency: Tools › My salary shows what it’s worth at the day’s official rate",
+      "item2": "With the best and worst rate of the last month, and how much it moved since the previous publication"
     },
-    "paletteGridPolish": {
-      "title": "Interface details",
-      "item1": "Your palettes are all the same size, and Settings now shows their name",
-      "item2": "Dialog buttons span the full width"
+    "paletteFix": {
+      "title": "Your custom palettes no longer get lost",
+      "item1": "If you had several, only one survived on app start and the active one fell back to the default green",
+      "item2": "They now come back on their own from your account"
     }
   },
   "incomeClaim": {
