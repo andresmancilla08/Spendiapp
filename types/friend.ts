@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import type { FxIncome } from './fxIncome';
 
 /** Perfil público mínimo — único dato de un usuario legible por otros.
  *  Se espeja en la colección `publicProfiles` (ver useUserProfile). No contiene
@@ -53,6 +54,9 @@ export interface UserProfile {
   isBlocked?: boolean;
   blockedReason?: string;
   blockedUntil?: Timestamp;
+  /** Ingresos declarados en moneda extranjera — ver types/fxIncome.ts. NO son
+   *  movimientos: no entran en el balance ni en el histórico. */
+  fxIncomes?: FxIncome[];
   isPremium?: boolean;
   premiumSince?: Timestamp;
   premiumExpiry?: Timestamp;

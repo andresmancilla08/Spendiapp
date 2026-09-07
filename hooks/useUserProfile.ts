@@ -146,6 +146,16 @@ export async function updateCustomPalettes(
   await updateDoc(doc(db, 'users', uid), { customPalettes: palettes });
 }
 
+/** Guarda la lista completa de ingresos en moneda extranjera.
+ *  Se escribe la lista ENTERA, no el elemento: `users` es un documento y no hay
+ *  subcolección para esto (son 10 como máximo). */
+export async function updateFxIncomes(
+  uid: string,
+  incomes: NonNullable<UserProfile['fxIncomes']>,
+): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { fxIncomes: incomes });
+}
+
 /** Sincroniza las preferencias de personalización premium con la cuenta. */
 export async function updateUserPersonalization(
   uid: string,

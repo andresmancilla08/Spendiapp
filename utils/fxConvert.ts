@@ -103,6 +103,16 @@ export function fxVariation(
   return { delta, direction: delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat' };
 }
 
+/** Fila cruda de la serie tal como la devuelve `api/exchange-rates?days=N`:
+ *  una fecha con los pesos que valía cada moneda ese día. `eur` puede faltar
+ *  si el BCE no publicó (no cotiza fines de semana ni festivos). */
+export interface FxSeriesRow {
+  date: string;
+  usd?: number;
+  eur?: number;
+}
+
+/** Serie ya reducida a UNA moneda, que es lo que consume `fxSeriesStats`. */
 export interface FxSeriesPoint {
   /** ISO 'YYYY-MM-DD' — la fecha de vigencia que publica la TRM. */
   date: string;
