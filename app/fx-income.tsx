@@ -40,10 +40,11 @@ import FxLayer, { type FxFrame } from '../components/fx/FxLayer';
 import { Fonts } from '../config/fonts';
 import { formatMoney } from '../utils/formatMoney';
 import { localeFor } from '../utils/dateLocale';
-import { fxPortfolioStats, type FxCurrency } from '../utils/fxConvert';
+import { fxPortfolioStats, type FxCurrency, type FxPortfolioDay } from '../utils/fxConvert';
 import { FX_INCOME_MAX, type FxIncome } from '../types/fxIncome';
 
 const FLAG: Record<FxCurrency, string> = { COP: '🇨🇴', EUR: '🇪🇺', USD: '🇺🇸' };
+const SYMBOL: Record<FxCurrency, string> = { COP: '$', EUR: '€', USD: 'US$' };
 
 /** Mismo latido que los chips del Home: es el mismo lenguaje visual para decir
  *  «este dato está vivo». Va por FxLayer y no por Animated.loop porque en web
@@ -55,34 +56,60 @@ const DOT_FRAMES: FxFrame[] = [
   { at: 1, opacity: 1, scale: 1 },
 ];
 
-/** Barras de la serie. Sin librería: son 30 <View> de altura proporcional, que
- *  es lo que ya hace el resto de la app para una tendencia pequeña. */
-function Sparkline({ series, color, dimColor }: {
-  series: { date: string; cop: number }[];
+/**
+ * Barras de la serie, una por publicación de la TRM. **Tocables**: la columna
+ * entera responde, no solo la barra pintada — una barra baja mide 8px de alto y
+ * sería imposible de acertar con el dedo.
+ *
+ * Sin librería de gráficos: son 30 `View` de altura proporcional, que es lo que
+ * ya hace el resto de la app para una tendencia pequeña.
+ */
+function Sparkline({ series, color, dimColor, selectedDate, onSelect, todayLabel, formatDate }: {
+  series: FxPortfolioDay[];
   color: string;
   dimColor: string;
+  selectedDate: string | null;
+  onSelect: (date: string) => void;
+  todayLabel: string;
+  formatDate: (iso: string) => string;
 }) {
   if (series.length < 2) return null;
   const values = series.map((p) => p.cop);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min;
+  const lastDate = series[series.length - 1].date;
+
   return (
     <View style={styles.spark}>
-      {series.map((p, i) => (
-        <View
-          key={p.date}
-          style={[
-            styles.sparkBar,
-            {
-              // Con span 0 (tasa plana toda la serie) todas al 50%: una barra de
-              // altura 0 se leería como «ese día no valía nada».
-              height: `${span === 0 ? 50 : 18 + ((p.cop - min) / span) * 82}%`,
-              backgroundColor: i === series.length - 1 ? color : dimColor,
-            },
-          ]}
-        />
-      ))}
+      {series.map((p) => {
+        const isSelected = p.date === selectedDate;
+        const isLast = p.date === lastDate;
+        return (
+          <TouchableOpacity
+            key={p.date}
+            onPress={() => onSelect(p.date)}
+            activeOpacity={0.6}
+            accessibilityRole="button"
+            accessibilityLabel={`${formatDate(p.date)}${isLast ? ` (${todayLabel})` : ''}`}
+            accessibilityState={{ selected: isSelected }}
+            style={styles.sparkHit}
+          >
+            <View
+              style={[
+                styles.sparkBar,
+                {
+                  // Con span 0 (tasa plana toda la serie) todas al 50%: una
+                  // barra de altura 0 se leería como «ese día no valía nada».
+                  height: `${span === 0 ? 50 : 18 + ((p.cop - min) / span) * 82}%`,
+                  backgroundColor: isSelected || isLast ? color : dimColor,
+                },
+                isSelected && styles.sparkBarSelected,
+              ]}
+            />
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
@@ -101,6 +128,8 @@ export default function FxIncomeScreen() {
   const [sheetVisible, setSheetVisible] = useState(false);
   const [editing, setEditing] = useState<FxIncome | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<FxIncome | null>(null);
+  /** Publicación de la TRM que el usuario tocó en el gráfico. `null` = hoy. */
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const back = () => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'));
@@ -110,7 +139,18 @@ export default function FxIncomeScreen() {
     [incomes, rows, rates, prevRates],
   );
 
+  const selected = selectedDate
+    ? stats?.series.find((p) => p.date === selectedDate) ?? null
+    : null;
+
   const money = (n: number) => formatMoney(n, i18n.language);
+  const rateLine = (rate: number | undefined) =>
+    rate === undefined || !stats?.soleCurrency
+      ? null
+      : t('fxIncome.rateLine', {
+          rate: Math.round(rate).toLocaleString(localeFor()),
+          symbol: SYMBOL[stats.soleCurrency],
+        });
   const dayLabel = (iso: string) =>
     new Date(`${iso}T12:00:00`).toLocaleDateString(localeFor(), { day: 'numeric', month: 'short' });
 
@@ -238,20 +278,45 @@ export default function FxIncomeScreen() {
                   ) : (
                     <>
                       <Text style={[styles.heroValue, { color: heroInk }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
-                        {money(stats.today)}
+                        {money(selected ? selected.cop : stats.today)}
                       </Text>
                       <Text style={[styles.heroFoot, { color: colors.textSecondary }]}>
-                        {t('fxIncome.hero.foot', { count: incomes.length })}
+                        {selected
+                          ? [rateLine(selected.rate), t('fxIncome.hero.vsToday', {
+                              amount: money(Math.abs(selected.cop - stats.today)),
+                              sign: selected.cop >= stats.today ? '+' : '−',
+                            })].filter(Boolean).join(' · ')
+                          : [rateLine(stats.todayRate), t('fxIncome.hero.foot', { count: incomes.length })]
+                              .filter(Boolean).join(' · ')}
                       </Text>
                       <Sparkline
                         series={stats.series}
                         color={colors.primary}
                         dimColor={colors.primary + '4D'}
+                        selectedDate={selectedDate}
+                        onSelect={(date) => setSelectedDate((current) => (current === date ? null : date))}
+                        todayLabel={t('fxIncome.hero.trmToday')}
+                        formatDate={dayLabel}
                       />
                       {stats.series.length >= 2 && (
-                        <Text style={[styles.sparkFoot, { color: colors.textTertiary }]}>
-                          {t('fxIncome.hero.sparkFoot', { count: stats.series.length })}
-                        </Text>
+                        selected ? (
+                          <TouchableOpacity
+                            onPress={() => setSelectedDate(null)}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            style={styles.sparkFootRow}
+                          >
+                            <Text style={[styles.sparkFootStrong, { color: colors.textPrimary }]}>
+                              {dayLabel(selected.date)}
+                            </Text>
+                            <Text style={[styles.sparkFoot, { color: heroInk }]}>
+                              {t('fxIncome.hero.backToToday')}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <Text style={[styles.sparkFoot, { color: colors.textTertiary }]}>
+                            {t('fxIncome.hero.sparkHint', { count: stats.series.length })}
+                          </Text>
+                        )
                       )}
                     </>
                   )}
@@ -292,15 +357,21 @@ export default function FxIncomeScreen() {
                     <View style={[styles.statTile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                       <Text style={[styles.statKey, { color: colors.textTertiary }]}>{t('fxIncome.stats.best')}</Text>
                       <Text style={[styles.statValue, { color: colors.textPrimary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{money(stats.best.cop)}</Text>
+                      <Text style={[styles.statRate, { color: colors.textSecondary }]} numberOfLines={1}>
+                        {[dayLabel(stats.best.date), rateLine(stats.best.rate)].filter(Boolean).join(' · ')}
+                      </Text>
                       <Text style={[styles.statDelta, { color: upInk }]} numberOfLines={1}>
-                        {dayLabel(stats.best.date)} · +{money(stats.best.delta)}
+                        +{money(stats.best.delta)}
                       </Text>
                     </View>
                     <View style={[styles.statTile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                       <Text style={[styles.statKey, { color: colors.textTertiary }]}>{t('fxIncome.stats.worst')}</Text>
                       <Text style={[styles.statValue, { color: colors.textPrimary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{money(stats.worst.cop)}</Text>
+                      <Text style={[styles.statRate, { color: colors.textSecondary }]} numberOfLines={1}>
+                        {[dayLabel(stats.worst.date), rateLine(stats.worst.rate)].filter(Boolean).join(' · ')}
+                      </Text>
                       <Text style={[styles.statDelta, { color: downInk }]} numberOfLines={1}>
-                        {dayLabel(stats.worst.date)} · {money(stats.worst.delta)}
+                        {money(stats.worst.delta)}
                       </Text>
                     </View>
                   </View>
@@ -424,9 +495,15 @@ const styles = StyleSheet.create({
   retryRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
   retryText: { fontSize: 12.5, fontFamily: Fonts.bold },
 
-  spark: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, height: 40, marginTop: 14 },
-  sparkBar: { flex: 1, borderRadius: 2, minHeight: 3 },
+  spark: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, height: 44, marginTop: 14 },
+  // La columna entera es el área táctil: la barra pintada puede medir 8px.
+  sparkHit: { flex: 1, height: '100%', justifyContent: 'flex-end' },
+  sparkBar: { borderRadius: 2, minHeight: 3, width: '100%' },
+  sparkBarSelected: { borderRadius: 3 },
   sparkFoot: { fontSize: 10.5, fontFamily: Fonts.regular, marginTop: 6 },
+  sparkFootRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, paddingVertical: 4 },
+  sparkFootStrong: { fontSize: 11.5, fontFamily: Fonts.bold },
+  statRate: { fontSize: 10.5, fontFamily: Fonts.semiBold, marginTop: 3 },
 
   banner: { flexDirection: 'row', alignItems: 'flex-start', gap: 9, borderWidth: 1, borderRadius: 16, padding: 12, marginTop: 12 },
   bannerText: { flex: 1, fontSize: 12.5, fontFamily: Fonts.semiBold, lineHeight: 18 },

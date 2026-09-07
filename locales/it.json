@@ -2214,8 +2214,10 @@
       "retry": "Riprova",
       "foot_one": "{{count}} entrata dichiarata",
       "foot_other": "{{count}} entrate dichiarate",
-      "sparkFoot_one": "Ultima pubblicazione del tasso",
-      "sparkFoot_other": "Ultime {{count}} pubblicazioni del tasso"
+      "vsToday": "{{sign}}{{amount}} rispetto a oggi",
+      "backToToday": "Torna a oggi",
+      "sparkHint_one": "Tocca la barra per vedere quel giorno",
+      "sparkHint_other": "Tocca una barra per confrontare un altro giorno"
     },
     "banner": {
       "up": "Il tasso è salito: le tue entrate valgono {{amount}} in più.",
@@ -2272,6 +2274,7 @@
       "title": "Eliminare l'entrata?",
       "body": "«{{label}}» non apparirà più qui. Non modifica nessun movimento del tuo storico."
     },
-    "maxReached": "Puoi dichiarare fino a {{max}} entrate."
+    "maxReached": "Puoi dichiarare fino a {{max}} entrate.",
+    "rateLine": "{{rate}} COP per {{symbol}}"
   }
 }

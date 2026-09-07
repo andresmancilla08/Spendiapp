@@ -198,3 +198,43 @@ const dirtyIncomes = fxPortfolioStats(
 assert.equal(dirtyIncomes.today, 10924800);
 
 console.log('fxPortfolioStats: 30 casos OK');
+
+// ── La tasa que produce cada cifra ─────────────────────────────────────────
+// Sin ella, «mejor tasa: $ 8.949.600» es una cifra que el usuario no puede
+// verificar contra ninguna fuente.
+const rated = fxPortfolioStats([{ amount: 2400, currency: 'EUR' }], rows, RATES)!;
+assert.equal(rated.soleCurrency, 'EUR');
+assert.equal(rated.todayRate, 4552);
+assert.equal(rated.best!.rate, 4610, 'la tasa del mejor día');
+assert.equal(rated.worst!.rate, 4400);
+assert.equal(rated.series.every((p) => typeof p.rate === 'number'), true);
+
+// Dos monedas extranjeras: NO hay una tasa única que explique el total.
+const twoCur = fxPortfolioStats(
+  [{ amount: 2400, currency: 'EUR' }, { amount: 500, currency: 'USD' }], rows, RATES,
+)!;
+assert.equal(twoCur.soleCurrency, undefined);
+assert.equal(twoCur.todayRate, undefined);
+assert.equal(twoCur.best!.rate, undefined);
+assert.equal(twoCur.series.every((p) => p.rate === undefined), true);
+
+// Una moneda extranjera + pesos sigue teniendo tasa única: el peso no aporta
+// ninguna conversión.
+const eurPlusCop = fxPortfolioStats(
+  [{ amount: 2400, currency: 'EUR' }, { amount: 1000000, currency: 'COP' }], rows, RATES,
+)!;
+assert.equal(eurPlusCop.soleCurrency, 'EUR');
+assert.equal(eurPlusCop.todayRate, 4552);
+assert.equal(eurPlusCop.best!.rate, 4610);
+
+// Dos ingresos en la MISMA moneda: también es tasa única.
+const sameCur = fxPortfolioStats(
+  [{ amount: 2400, currency: 'EUR' }, { amount: 300, currency: 'EUR' }], rows, RATES,
+)!;
+assert.equal(sameCur.soleCurrency, 'EUR');
+assert.equal(sameCur.today, 2700 * 4552);
+
+// Solo pesos: ni tasa ni moneda.
+assert.equal(fxPortfolioStats([{ amount: 500, currency: 'COP' }], rows, RATES)!.soleCurrency, undefined);
+
+console.log('tasa por dia: 15 casos OK');

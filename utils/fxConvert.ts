@@ -179,18 +179,31 @@ export interface FxConvertible {
   currency: FxCurrency;
 }
 
+export interface FxPortfolioDay {
+  date: string;
+  cop: number;
+  /** Tasa de ESA fecha, solo si la cartera tiene UNA sola moneda extranjera.
+   *  Con dos no existe una tasa única que explique el total, y mostrar la de
+   *  una de ellas junto a un importe que suma las dos sería mentir. */
+  rate?: number;
+}
+
 export interface FxPortfolioStats {
   /** Total de hoy en pesos. */
   today: number;
+  /** Tasa de hoy, con la misma condición de moneda única que `FxPortfolioDay`. */
+  todayRate?: number;
+  /** La moneda extranjera, si es una sola. Para rotular «COP por €». */
+  soleCurrency?: FxCurrency;
   /** Total con la publicación anterior de la TRM, o `null` si no hay con qué. */
   prev: number | null;
   /** Variación contra la publicación anterior. `null` si no hay `prev`. */
   variation: FxVariation | null;
   /** Mejor y peor día de la serie, con su diferencia contra hoy. */
-  best: { date: string; cop: number; delta: number } | null;
-  worst: { date: string; cop: number; delta: number } | null;
+  best: (FxPortfolioDay & { delta: number }) | null;
+  worst: (FxPortfolioDay & { delta: number }) | null;
   /** Total por fecha, de más antiguo a más reciente — para la sparkline. */
-  series: { date: string; cop: number }[];
+  series: FxPortfolioDay[];
 }
 
 /**
@@ -243,19 +256,31 @@ export function fxPortfolioStats(
     return { today, prev: null, variation: null, best: null, worst: null, series: [] };
   }
 
+  // Con una sola moneda extranjera se puede rotular la tasa que produce cada
+  // cifra, que es lo que permite verificarla. Con dos, no.
+  const soleCurrency = needed.size === 1 ? [...needed][0] : undefined;
+  const rateOf = (r: FxRates | null | undefined): number | undefined => {
+    if (!soleCurrency) return undefined;
+    const value = rateFor(soleCurrency, r);
+    return value === null ? undefined : value;
+  };
+  const todayRate = rateOf(rates);
+
   const prev = sumWith(prevRates ?? null);
   const variation = prev === null
     ? null
     : { delta: today - prev, direction: (today > prev ? 'up' : today < prev ? 'down' : 'flat') as FxDirection };
 
-  const series: { date: string; cop: number }[] = [];
+  const series: FxPortfolioDay[] = [];
   for (const row of Array.isArray(rows) ? rows : []) {
     if (!row || typeof row.date !== 'string') continue;
     const rowRates: FxRates = { usd: row.usd ?? 0, eur: row.eur ?? 0 };
     const complete = [...needed].every((c) => isUsableRate(c === 'EUR' ? rowRates.eur : rowRates.usd));
     if (!complete) continue;
     const cop = sumWith(rowRates);
-    if (cop !== null) series.push({ date: row.date, cop });
+    if (cop === null) continue;
+    const rate = rateOf(rowRates);
+    series.push({ date: row.date, cop, ...(rate === undefined ? {} : { rate }) });
   }
   series.sort((a, b) => (a.date < b.date ? -1 : 1));
 
@@ -268,9 +293,14 @@ export function fxPortfolioStats(
       if (p.cop > hi.cop) hi = p;
       if (p.cop < lo.cop) lo = p;
     }
-    best = { date: hi.date, cop: hi.cop, delta: hi.cop - today };
-    worst = { date: lo.date, cop: lo.cop, delta: lo.cop - today };
+    best = { ...hi, delta: hi.cop - today };
+    worst = { ...lo, delta: lo.cop - today };
   }
 
-  return { today, prev, variation, best, worst, series };
+  return {
+    today,
+    ...(todayRate === undefined ? {} : { todayRate }),
+    ...(soleCurrency ? { soleCurrency } : {}),
+    prev, variation, best, worst, series,
+  };
 }

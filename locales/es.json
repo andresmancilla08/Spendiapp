@@ -2214,8 +2214,10 @@
       "retry": "Volver a intentar",
       "foot_one": "{{count}} ingreso declarado",
       "foot_other": "{{count}} ingresos declarados",
-      "sparkFoot_one": "Última publicación de la TRM",
-      "sparkFoot_other": "Últimas {{count}} publicaciones de la TRM"
+      "vsToday": "{{sign}}{{amount}} que hoy",
+      "backToToday": "Volver a hoy",
+      "sparkHint_one": "Toca la barra para ver ese día",
+      "sparkHint_other": "Toca una barra para comparar con otro día"
     },
     "banner": {
       "up": "La TRM subió: tus ingresos valen {{amount}} más.",
@@ -2272,6 +2274,7 @@
       "title": "¿Eliminar el ingreso?",
       "body": "«{{label}}» dejará de aparecer aquí. No afecta a ningún movimiento de tu historial."
     },
-    "maxReached": "Puedes declarar hasta {{max}} ingresos."
+    "maxReached": "Puedes declarar hasta {{max}} ingresos.",
+    "rateLine": "{{rate}} COP por {{symbol}}"
   }
 }
