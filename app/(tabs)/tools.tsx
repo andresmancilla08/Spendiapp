@@ -110,6 +110,7 @@ export default function ToolsScreen() {
   const goalsState = stateOf(flags.goalsEnabled, false);
   const simState = stateOf(flags.simulatorEnabled, false);
   const recurringState: ToolState = 'ready';
+  const fxIncomeState = stateOf(true, true);
   const catState = stateOf(flags.categoriesEnabled, false);
   const reportState = stateOf(flags.reportsEnabled, false);
   const friendState = stateOf(flags.friendsEnabled, true);
@@ -133,6 +134,7 @@ export default function ToolsScreen() {
       tools: [
         { key: 'recurring', icon: 'repeat', title: t('tools.recurringCard.title'), description: t('tools.recurringCard.description'), route: '/recurring', state: recurringState,
           metric: <RecurringMetric uid={uid} /> },
+        { key: 'fxIncome', icon: 'cash-outline', title: t('tools.fxIncomeCard.title'), description: t('tools.fxIncomeCard.description'), route: '/fx-income', state: fxIncomeState },
         { key: 'categories', icon: 'grid-outline', title: t('tools.categoriesCard.title'), description: t('tools.categoriesCard.description'), route: '/categories', state: catState,
           metric: catState === 'ready' ? <CategoriesMetric uid={uid} /> : undefined },
         ...(isWeb ? [{ key: 'reports', icon: 'document-text-outline' as AppIconName, title: t('tools.reportsCard.title'), description: t('tools.reportsCard.description'), route: '/reports', state: reportState }] : []),

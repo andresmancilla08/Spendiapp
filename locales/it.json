@@ -147,7 +147,8 @@
     },
     "genericError": "Qualcosa è andato storto. Riprova.",
     "user": "Utente",
-    "optional": "Facoltativo"
+    "optional": "Facoltativo",
+    "delete": "Elimina"
   },
   "tabBar": {
     "home": "HOME",
@@ -1204,7 +1205,11 @@
       "title": "Simulatore di acquisti",
       "description": "Quanto ti costa a rate, prima di comprare"
     },
-    "title": "Strumenti"
+    "title": "Strumenti",
+    "fxIncomeCard": {
+      "title": "Il mio stipendio",
+      "description": "Le tue entrate in un'altra valuta, in pesos di oggi"
+    }
   },
   "simulator": {
     "bandBody": "Tra {{low}} se non cambia nulla e {{high}} se sale al tetto legale ({{cap}} % TAEG). La rata arriverebbe a {{peak}}.",
@@ -2198,5 +2203,74 @@
     "noTeaA11y": "nessun tasso salvato",
     "none": "Senza carta",
     "staleA11y": "tasso non rivisto da mesi"
+  },
+  "fxIncome": {
+    "title": "Il mio stipendio",
+    "pageDesc": "Quanto valgono oggi, in pesos, le entrate che ricevi in un'altra valuta.",
+    "hero": {
+      "label": "Le tue entrate oggi, al tasso ufficiale",
+      "trmToday": "TASSO DI OGGI",
+      "saved": "SALVATO",
+      "retry": "Riprova",
+      "foot_one": "{{count}} entrata dichiarata",
+      "foot_other": "{{count}} entrate dichiarate",
+      "sparkFoot_one": "Ultima pubblicazione del tasso",
+      "sparkFoot_other": "Ultime {{count}} pubblicazioni del tasso"
+    },
+    "banner": {
+      "up": "Il tasso è salito: le tue entrate valgono {{amount}} in più rispetto alla pubblicazione precedente.",
+      "down": "Il tasso è sceso: le tue entrate valgono {{amount}} in meno rispetto alla pubblicazione precedente.",
+      "flat": "Il tasso di oggi è lo stesso. La banca centrale lo pubblica una volta al giorno."
+    },
+    "stats": {
+      "best": "Tasso migliore",
+      "worst": "Tasso peggiore"
+    },
+    "list": {
+      "title": "Entrate dichiarate",
+      "payDay": "giorno {{day}}",
+      "fixed": "Importo fisso in pesos"
+    },
+    "disclaimer": "Il TRM della banca centrale è un tasso di riferimento: la tua banca può applicarne un altro al momento del pagamento.",
+    "updatedAt": "Aggiornato alle {{time}}.",
+    "addAnother": "Aggiungi un'altra entrata",
+    "empty": {
+      "title": "Dichiara la tua prima entrata",
+      "body": "Dicci quanto ricevi e in quale valuta. Ogni giorno ti diciamo quanto vale in pesos, senza uscire dall'app.",
+      "cta": "Aggiungi entrata"
+    },
+    "locked": {
+      "title": "Entrate in un'altra valuta",
+      "body": "Converti il tuo stipendio in pesos al tasso ufficiale del giorno e guarda quanto si muove. Disponibile con premium.",
+      "cta": "Vedi i piani"
+    },
+    "sheet": {
+      "newTitle": "Nuova entrata",
+      "editTitle": "Modifica entrata",
+      "labelField": "Nome",
+      "labelPlaceholder": "Stipendio, Freelance…",
+      "labelError": "Dagli un nome riconoscibile.",
+      "currencyField": "Valuta",
+      "amountField": "Importo in {{symbol}}",
+      "amountError": "Inserisci quanto ricevi.",
+      "payDayField": "Giorno di pagamento",
+      "previewLabel": "Oggi equivale a",
+      "previewFoot": "Al tasso ufficiale della banca centrale. La tua banca può applicarne un altro.",
+      "previewHint": "Inserisci l'importo e ti diciamo quanto vale oggi in pesos.",
+      "previewNoRate": "Non è stato possibile consultare il tasso. La conversione apparirà al ritorno della connessione.",
+      "missingLabel": "Manca il nome",
+      "missingAmount": "Manca l'importo",
+      "add": "Aggiungi entrata",
+      "delete": "Elimina questa entrata"
+    },
+    "toasts": {
+      "added": "Entrata aggiunta",
+      "updated": "Entrata aggiornata",
+      "removed": "Entrata eliminata"
+    },
+    "deleteDialog": {
+      "title": "Eliminare l'entrata?",
+      "body": "«{{label}}» non apparirà più qui. Non modifica nessun movimento del tuo storico."
+    }
   }
 }

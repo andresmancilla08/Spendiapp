@@ -147,7 +147,8 @@
     },
     "genericError": "Algo salió mal. Inténtalo de nuevo.",
     "user": "Usuario",
-    "optional": "Opcional"
+    "optional": "Opcional",
+    "delete": "Eliminar"
   },
   "tabBar": {
     "home": "Inicio",
@@ -1204,7 +1205,11 @@
       "title": "Simulador de compras",
       "description": "Cuánto te cuesta a cuotas antes de comprar"
     },
-    "title": "Herramientas"
+    "title": "Herramientas",
+    "fxIncomeCard": {
+      "title": "Mi salario",
+      "description": "Tus ingresos en otra moneda, en pesos de hoy"
+    }
   },
   "simulator": {
     "bandBody": "Entre {{low}} si nada cambia y {{high}} si sube al techo legal ({{cap}} % E.A.). La cuota llegaría a {{peak}}.",
@@ -2198,5 +2203,74 @@
     "noTeaA11y": "sin tasa guardada",
     "none": "Sin tarjeta",
     "staleA11y": "tasa sin revisar hace meses"
+  },
+  "fxIncome": {
+    "title": "Mi salario",
+    "pageDesc": "Cuánto valen hoy, en pesos, los ingresos que cobras en otra moneda.",
+    "hero": {
+      "label": "Tus ingresos hoy, según la TRM",
+      "trmToday": "TRM DE HOY",
+      "saved": "GUARDADA",
+      "retry": "Volver a intentar",
+      "foot_one": "{{count}} ingreso declarado",
+      "foot_other": "{{count}} ingresos declarados",
+      "sparkFoot_one": "Última publicación de la TRM",
+      "sparkFoot_other": "Últimas {{count}} publicaciones de la TRM"
+    },
+    "banner": {
+      "up": "La tasa subió: tus ingresos valen {{amount}} más que en la publicación anterior.",
+      "down": "La tasa bajó: tus ingresos valen {{amount}} menos que en la publicación anterior.",
+      "flat": "La TRM de hoy es la misma. El Banco de la República la publica una vez al día."
+    },
+    "stats": {
+      "best": "Mejor tasa",
+      "worst": "Peor tasa"
+    },
+    "list": {
+      "title": "Ingresos declarados",
+      "payDay": "día {{day}}",
+      "fixed": "Importe fijo en pesos"
+    },
+    "disclaimer": "La TRM del Banco de la República es una tasa de referencia: tu banco puede aplicar una distinta al consignar.",
+    "updatedAt": "Actualizado a las {{time}}.",
+    "addAnother": "Agregar otro ingreso",
+    "empty": {
+      "title": "Declara tu primer ingreso",
+      "body": "Dinos cuánto cobras y en qué moneda. Cada día te decimos lo que vale en pesos, sin que tengas que salir de la app.",
+      "cta": "Agregar ingreso"
+    },
+    "locked": {
+      "title": "Ingresos en otra moneda",
+      "body": "Convierte tu salario a pesos con la TRM del día, y mira cuánto sube o baja. Disponible con premium.",
+      "cta": "Ver planes"
+    },
+    "sheet": {
+      "newTitle": "Nuevo ingreso",
+      "editTitle": "Editar ingreso",
+      "labelField": "Nombre",
+      "labelPlaceholder": "Salario, Freelance…",
+      "labelError": "Ponle un nombre para reconocerlo.",
+      "currencyField": "Moneda",
+      "amountField": "Importe en {{symbol}}",
+      "amountError": "Escribe cuánto cobras.",
+      "payDayField": "Día de cobro",
+      "previewLabel": "Hoy equivale a",
+      "previewFoot": "Según la TRM del Banco de la República. Tu banco puede aplicar otra tasa.",
+      "previewHint": "Escribe el importe y te decimos lo que vale hoy en pesos.",
+      "previewNoRate": "No pudimos consultar la TRM. La conversión aparecerá cuando vuelva la conexión.",
+      "missingLabel": "Falta el nombre",
+      "missingAmount": "Falta el importe",
+      "add": "Agregar ingreso",
+      "delete": "Eliminar este ingreso"
+    },
+    "toasts": {
+      "added": "Ingreso añadido",
+      "updated": "Ingreso actualizado",
+      "removed": "Ingreso eliminado"
+    },
+    "deleteDialog": {
+      "title": "¿Eliminar el ingreso?",
+      "body": "«{{label}}» dejará de aparecer aquí. No afecta a ningún movimiento de tu historial."
+    }
   }
 }

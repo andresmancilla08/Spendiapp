@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, AppState } from 'react-native';
-import type { FxRates, FxSeriesPoint, FxSeriesRow, FxCurrency } from '../utils/fxConvert';
+import type { FxRates, FxSeriesRow } from '../utils/fxConvert';
 
 /**
  * Tasas de hoy + serie histórica, en UNA petición.
@@ -37,8 +37,10 @@ export interface FxRatesState {
   rates: FxRates | null;
   /** Tasas de la publicación anterior, para la variación diaria. */
   prevRates: FxRates | null;
-  /** Serie por moneda, de más reciente a más antigua. */
-  seriesFor: (currency: FxCurrency) => FxSeriesPoint[];
+  /** Filas crudas de la serie (fecha + las dos monedas), de más reciente a más
+   *  antigua. Crudas y no reducidas a una moneda porque una cartera puede
+   *  mezclar euros y dólares y el total hay que sumarlo fila a fila. */
+  rows: FxSeriesRow[];
   loading: boolean;
   /** Falló la red Y no había nada en caché: no hay ninguna cifra que mostrar. */
   error: boolean;
@@ -136,13 +138,6 @@ export function useFxRates(): FxRatesState {
     return () => { cancelled = true; clearInterval(interval); unsubscribe?.(); };
   }, [tick]);
 
-  const seriesFor = useCallback((currency: FxCurrency): FxSeriesPoint[] => {
-    if (!payload || currency === 'COP') return [];
-    return payload.series
-      .map((row) => ({ date: row.date, rate: currency === 'EUR' ? row.eur : row.usd }))
-      .filter((p): p is FxSeriesPoint => typeof p.rate === 'number' && p.rate > 0);
-  }, [payload]);
-
   const rates: FxRates | null = payload ? { usd: payload.usd, eur: payload.eur } : null;
 
   // El segundo punto de la serie es la publicación anterior de la TRM. Sin
@@ -157,7 +152,7 @@ export function useFxRates(): FxRatesState {
   return {
     rates,
     prevRates,
-    seriesFor,
+    rows: payload?.series ?? [],
     loading,
     error,
     stale,

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spendia · Ingresos en otra moneda — plan definitivo (A + B)</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1A1C;--bg2:#111F22;--surf:#162428;--surf2:#1E2E32;--surf3:#1E3035;
+  --border:#243438;--primary:#00BCD4;--success:#00A896;--expense:#FF8E8E;
+  --tertiary:#D4E157;--warning:#FBBF24;--tp:#EEF6F8;--ts:#9EABAF;--tt:#637579;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tp);font-family:Montserrat,system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.8px;margin:0 0 8px}
+h2{font-size:clamp(18px,2.6vw,24px);font-weight:800;letter-spacing:-.4px;margin:52px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h3{font-size:15px;font-weight:700;margin:0 0 10px;letter-spacing:-.2px}
+p{margin:0 0 12px;color:var(--ts);font-size:14.5px}
+small{color:var(--tt);font-size:12.5px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#0b1517;border:1px solid var(--border);border-radius:6px;padding:1px 5px;color:var(--tertiary)}
+.lede{font-size:16px;color:var(--ts);max-width:780px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:5px 10px;border-radius:50px;border:1px solid}
+.tag.ok{color:#0D1A1C;background:var(--tertiary);border-color:var(--tertiary)}
+.tag.s{color:var(--success);background:rgba(0,168,150,.14);border-color:rgba(0,168,150,.35)}
+.tag.m{color:var(--warning);background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35)}
+.tag.l{color:var(--expense);background:rgba(255,142,142,.12);border-color:rgba(255,142,142,.35)}
+.tag.n{color:var(--ts);background:var(--surf2);border-color:var(--border)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:22px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:14px}
+.cols4{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin-top:14px}
+ul{margin:0 0 14px;padding-left:18px;color:var(--ts);font-size:14px}
+li{margin-bottom:6px}li b{color:var(--tp)}
+.dec{background:var(--surf);border:1px solid var(--border);border-radius:18px;padding:16px;border-top:3px solid var(--tertiary)}
+.dec .k{font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--tt)}
+.dec .v{font-size:15px;font-weight:800;margin:4px 0 6px;letter-spacing:-.3px;color:var(--tertiary)}
+.dec p{font-size:12.5px;margin:0}
+.q{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:14px;padding:16px}
+.q h3{color:var(--primary)}
+.q.warn{border-left-color:var(--expense)}.q.warn h3{color:var(--expense)}
+.q.good{border-left-color:var(--success)}.q.good h3{color:var(--success)}
+.q p:last-child{margin:0}
+.mocks{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;margin-top:18px;align-items:start;justify-items:center}
+.phone{width:320px;max-width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:34px;padding:14px 12px 18px;box-shadow:0 30px 70px -35px #000;position:relative;overflow:hidden}
+.phone::before{content:"";position:absolute;inset:-40% -30% auto -30%;height:70%;background:radial-gradient(60% 60% at 30% 0%,rgba(0,188,212,.16),transparent 70%);pointer-events:none}
+.notch{width:80px;height:5px;border-radius:3px;background:#0a1214;margin:2px auto 14px}
+.pt{font-size:11px;font-weight:700;color:var(--tt);text-transform:uppercase;letter-spacing:.7px;margin:0 4px 10px}
+.pcap{text-align:center;font-size:12.5px;color:var(--ts);margin-top:12px;max-width:320px}
+.pcap b{color:var(--tp)}
+.hero{background:linear-gradient(160deg,#1b3238,#152528);border:1px solid var(--border);border-radius:22px;padding:16px;position:relative;overflow:hidden}
+.hero .lbl{font-size:11px;color:var(--ts);font-weight:600}
+.big{font-size:27px;font-weight:800;letter-spacing:-1.2px;margin:2px 0 0}
+.sub{font-size:12px;color:var(--ts);margin-top:3px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:5px 9px;font-size:11px;font-weight:700}
+.chip.up{color:var(--success);background:rgba(0,168,150,.14);border-color:rgba(0,168,150,.3)}
+.chip.dn{color:var(--expense);background:rgba(255,142,142,.12);border-color:rgba(255,142,142,.3)}
+.chip.live{color:var(--primary);background:rgba(0,188,212,.12);border-color:rgba(0,188,212,.3)}
+.chip.lock{color:var(--ts)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,168,150,.5)}60%{box-shadow:0 0 0 7px rgba(0,168,150,0)}100%{box-shadow:0 0 0 0 rgba(0,168,150,0)}}
+.tile{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:12px;margin-top:10px}
+.tile .k{font-size:10.5px;color:var(--tt);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tile .v{font-size:16px;font-weight:800;letter-spacing:-.4px;margin-top:2px}
+.inputf{background:var(--surf3);border:1px solid #2A3C40;border-radius:14px;padding:10px 12px;margin-top:8px}
+.inputf .k{font-size:10px;color:var(--tt);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.inputf .v{font-size:15px;font-weight:700;margin-top:2px}
+.seg{display:flex;background:var(--surf3);border:1px solid #2A3C40;border-radius:50px;padding:3px;margin-top:10px}
+.seg div{flex:1;text-align:center;font-size:11px;font-weight:700;padding:7px 4px;border-radius:50px;color:var(--ts)}
+.seg div.on{background:var(--primary);color:#06222a}
+.txrow{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--border)}
+.txrow:last-child{border-bottom:0}
+.ic{width:32px;height:32px;border-radius:11px;background:rgba(0,168,150,.16);display:grid;place-items:center;font-size:14px;flex:0 0 auto}
+.txrow .n{font-size:13px;font-weight:700;flex:1;min-width:0}
+.txrow .n span{display:block;font-size:10.5px;color:var(--tt);font-weight:600}
+.txrow .a{font-size:13.5px;font-weight:800;color:var(--success);white-space:nowrap;text-align:right}
+.txrow .a span{display:block;font-size:10px;color:var(--tt);font-weight:600}
+.spark{display:flex;align-items:flex-end;gap:3px;height:38px;margin-top:12px}
+.spark i{flex:1;background:linear-gradient(180deg,var(--primary),rgba(0,188,212,.15));border-radius:2px}
+.cta{background:var(--primary);color:#06222a;font-weight:800;font-size:13px;text-align:center;padding:12px;border-radius:50px;margin-top:14px}
+/* el banner que eligió */
+.banner{display:flex;gap:8px;align-items:flex-start;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:14px;padding:11px 12px;margin-top:12px;font-size:11.5px;color:#F8DFA0;font-weight:600;line-height:1.45}
+.banner b{color:#FFE9B0;font-weight:800}
+.banner.dn{background:rgba(255,142,142,.1);border-color:rgba(255,142,142,.3);color:#FFC9C9}
+.banner.dn b{color:#FFDCDC}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--tt)}
+td:first-child{font-weight:700}
+.fase{display:grid;grid-template-columns:84px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.fase:last-child{border-bottom:0}
+.fase b{color:var(--primary);font-size:11.5px;letter-spacing:.4px}
+.fase .g{display:block;margin-top:6px;font-size:12px;color:var(--tt)}
+.fase .g em{color:var(--tertiary);font-style:normal;font-weight:700}
+hr{border:0;border-top:1px solid var(--border);margin:44px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Ingresos en otra moneda — plan definitivo</h1>
+<p class="lede">Camino aprobado: <b style="color:var(--tertiary)">Fase A</b> (calculadora «Mi salario») y luego <b style="color:var(--tertiary)">Fase B</b> (moneda origen en la transacción). Con el banner de variación diaria incorporado a las dos. Tus cuatro decisiones ya están dentro.</p>
+
+<h2>Decisiones cerradas</h2>
+<div class="cols4">
+  <div class="dec"><div class="k">Tasa</div><div class="v">TRM oficial, sin ajustes</div><p>La del Banco de la República tal cual. Sin spread, ni manual ni aprendido. La app enseña la referencia pública, no lo que te consigna el banco.</p></div>
+  <div class="dec"><div class="k">Frecuencia</div><div class="v">Cada hora + al volver a la app</div><p>La TRM se publica una vez al día; el poll horario la recoge como máximo 1 h después. Sin gasto: <code>api/exchange-rates</code> cachea en el CDN de Vercel.</p></div>
+  <div class="dec"><div class="k">Pasado</div><div class="v">Meses cerrados inmutables</div><p>Ni tasa, ni monto, ni borrado. Lo que ya pasó queda como está, en pesos, para siempre.</p></div>
+  <div class="dec"><div class="k">Acceso</div><div class="v">Solo premium</div><p>Sin premium el ingreso en moneda extranjera se oculta hasta renovar.</p></div>
+</div>
+
+<div class="q warn" style="margin-top:16px">
+<h3>Dos avisos sobre esas decisiones — hay que resolverlos en el plan, no después</h3>
+<p><b style="color:var(--tp)">1. «TRM pelada» + «solo premium» significa cobrar por una cifra que no es la que te llega.</b> Con 2.400 € la diferencia entre la TRM y lo que consigna tu banco es de <b id="w-diff">—</b> al mes. La pantalla dirá <b id="w-trm">—</b> y a tu cuenta entrarán ~<b id="w-real">—</b>. Es una decisión legítima (la TRM es verificable y auditable, un spread inventado no), pero el texto de la pantalla tiene que decir «según la TRM oficial» y no «esto es lo que recibirás». Eso está en los mockups de abajo. Añadir el spread después es un campo más, no un rediseño.</p>
+<p><b style="color:var(--tp)">2. «Ocultar al vencer premium» choca de frente con «el pasado es inmutable».</b> Si al vencer la suscripción se oculta el ingreso también en los meses cerrados, el histórico cambia solo — que es exactamente lo que la decisión 3 prohíbe. <b>Asunción con la que sigo</b>, dime si no: al vencer premium se oculta únicamente en el <b>mes en curso y futuros</b>; los meses ya sellados conservan su cifra en pesos, porque ahí ya no hay ninguna conversión que hacer, es un número cerrado.</p>
+</div>
+
+<h2>Fase A · Pantalla «Mi salario» <span class="tag s">4–6 h</span><span class="tag n">no toca el balance</span></h2>
+<div class="mocks">
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="pt">Mi salario</div>
+      <div class="hero">
+        <div class="row"><span class="lbl">Tu nómina hoy, según la TRM</span><span class="chip live"><span class="dot"></span>TRM HOY</span></div>
+        <div class="big" id="a-cop">—</div>
+        <div class="sub">2.400 € × <b id="a-rate">—</b> COP/€ · TRM del <b>7 sep</b></div>
+        <div class="spark" id="a-spark"></div>
+        <small style="font-size:10px">Últimos 30 días</small>
+      </div>
+      <div class="banner">⚡<div>El euro subió hoy: tu nómina vale <b id="a-up">—</b> más que ayer.</div></div>
+      <div style="display:flex;gap:10px">
+        <div class="tile" style="flex:1"><div class="k">Ayer</div><div class="v" id="a-yst">—</div></div>
+        <div class="tile" style="flex:1"><div class="k">Hace 30 d</div><div class="v" id="a-m30">—</div></div>
+      </div>
+      <div class="tile"><div class="row"><div><div class="k">Mejor del mes</div><div class="v" id="a-best">—</div></div><span class="chip up" id="a-bestd">—</span></div></div>
+      <div class="tile"><div class="row"><div><div class="k">Peor del mes</div><div class="v" id="a-worst">—</div></div><span class="chip dn" id="a-worstd">—</span></div></div>
+      <small style="display:block;margin-top:10px;line-height:1.45">Tasa de referencia del Banco de la República. Tu banco puede aplicar una distinta al consignar.</small>
+      <div class="cta">＋ Añadir otro ingreso</div>
+    </div>
+    <p class="pcap">Estado normal. El <b>banner ⚡</b> compara con la TRM de ayer y solo aparece si cambió.</p>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="pt">Mi salario · variantes de estado</div>
+      <div class="banner dn">📉<div>El euro bajó hoy: tu nómina vale <b id="v-dn">—</b> menos que ayer.</div></div>
+      <div class="banner" style="background:var(--surf2);border-color:var(--border);color:var(--ts)">🌙<div>La TRM de hoy es la misma de ayer. El Banco de la República la publica una vez al día.</div></div>
+      <div class="banner" style="background:rgba(0,188,212,.08);border-color:rgba(0,188,212,.3);color:#B6E9F1">📈<div>Mejor tasa en 30 días: tu nómina vale <b id="v-best">—</b> más que hace un mes.</div></div>
+      <div class="pt" style="margin-top:18px">Sin conexión</div>
+      <div class="hero" style="background:var(--surf)">
+        <div class="row"><span class="lbl">Tu nómina hoy, según la TRM</span><span class="chip lock">🔒 GUARDADA</span></div>
+        <div class="big" style="color:var(--ts)" id="v-off">—</div>
+        <div class="sub">TRM del 6 sep · sin conexión, no se pudo actualizar</div>
+      </div>
+      <div class="pt" style="margin-top:18px">Sin premium</div>
+      <div class="hero" style="background:var(--surf)">
+        <div class="row"><span class="lbl">Tu nómina hoy</span><span class="chip lock">🔒</span></div>
+        <div class="big" style="color:var(--tt)">$ ••••••••</div>
+        <div class="sub">Renueva para ver tu nómina con la TRM del día</div>
+      </div>
+      <div class="cta" style="background:var(--tertiary)">Ver planes</div>
+    </div>
+    <p class="pcap">Los cuatro estados que no son el feliz: <b>bajada</b>, <b>TRM sin cambio</b>, <b>récord de 30 días</b>, <b>offline</b> y <b>sin premium</b>.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px">
+<h3>Qué se construye en A</h3>
+<ul>
+<li><code>app/fx-income.tsx</code> con <code>ScreenTransition</code> de raíz + tile en Herramientas.</li>
+<li><code>hooks/useFxIncome.ts</code> — lee <code>users/{uid}.fxIncomes[]</code> (<code>{id, label, amount, currency, payDay}</code>) y cruza con las tasas. <b>Nada se escribe en <code>transactions</code>.</b></li>
+<li><code>utils/fxConvert.ts</code> — puro, sin React: conversión, redondeo a peso entero, y el delta contra la TRM de ayer que alimenta el banner ⚡.</li>
+<li><code>api/exchange-rates.js</code> gana <code>?days=30</code>: la serie sale de la misma tabla de datos.gov.co (<code>$order=vigenciadesde DESC&$limit=30</code>) y de Frankfurter para el EUR/USD. Se mantienen los dos fallbacks y el <code>s-maxage</code>.</li>
+<li>Poll horario: <code>useExchangeRates</code> sigue con sus 5 min para los chips del Home; esta pantalla usa su propio intervalo de 60 min + refresco al volver al foreground (<code>AppState</code> en nativo, <code>visibilitychange</code> en web).</li>
+<li>Gate premium con <code>hooks/usePremium.ts</code>, igual que los Pro Visuals. i18n es/en/it.</li>
+</ul>
+<p style="margin:0"><small>Riesgo: nulo. No hay migración, no se toca ni un documento de <code>transactions</code>, y si el endpoint falla la pantalla muestra la última tasa guardada.</small></p>
+</div>
+
+<h2>Fase B · Moneda origen en la transacción <span class="tag m">2–3 días</span><span class="tag m">toca reglas</span></h2>
+<div class="mocks">
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="pt">Nuevo ingreso</div>
+      <div class="inputf"><div class="k">Descripción</div><div class="v">Salario</div></div>
+      <div class="seg"><div>COP $</div><div class="on">EUR €</div><div>USD $</div></div>
+      <div class="inputf"><div class="k">Monto en euros</div><div class="v">€ 2.400,00</div></div>
+      <div class="hero" style="margin-top:12px;background:linear-gradient(160deg,#123037,#132427)">
+        <div class="row"><span class="lbl">Entra a tu balance como</span><span class="chip live"><span class="dot"></span>TRM HOY</span></div>
+        <div class="big" style="color:var(--success)" id="b-cop">—</div>
+        <div class="sub">TRM del 7 sep · <b id="b-rate">—</b> COP/€</div>
+      </div>
+      <div class="banner">⚡<div>Se actualiza cada día mientras septiembre esté abierto. Al cerrar el mes queda fijo en la TRM de ese día.</div></div>
+      <div class="cta">Guardar ingreso</div>
+      <small style="display:block;margin-top:10px;line-height:1.45">Tasa de referencia del Banco de la República, no la de tu banco.</small>
+    </div>
+    <p class="pcap">Un solo control nuevo: el <b>selector de moneda</b>. Sin «tasa fija / tasa del día» — la regla del mes cerrado lo decide sola.</p>
+  </div>
+
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="pt">Septiembre · abierto</div>
+      <div class="tile" style="padding:4px 12px">
+        <div class="txrow"><div class="ic">💼</div><div class="n">Salario<span style="color:var(--primary)">2.400 € · TRM del día</span></div><div class="a" id="b-tx1">—<span id="b-tx1r">—</span></div></div>
+      </div>
+      <div class="banner">⚡<div>El euro subió hoy: tu balance de septiembre tiene <b id="b-up">—</b> más que ayer.</div></div>
+      <div class="pt" style="margin-top:18px">Agosto · cerrado 🔒</div>
+      <div class="tile" style="padding:4px 12px;opacity:.75">
+        <div class="txrow"><div class="ic">💼</div><div class="n">Salario<span>2.400 € · TRM del 31/8</span></div><div class="a" id="b-tx2">—<span id="b-tx2r">—</span></div></div>
+      </div>
+      <div class="banner" style="background:var(--surf2);border-color:var(--border);color:var(--ts)">🔒<div>Agosto está cerrado. Su tasa quedó sellada y no se puede editar ni eliminar.</div></div>
+      <div class="pt" style="margin-top:18px">Tendencia · 6 meses</div>
+      <div class="tile"><div class="spark" id="b-spark" style="height:46px"></div><small style="display:block;margin-top:6px">Cada mes con la TRM que tuvo. Comparable.</small></div>
+    </div>
+    <p class="pcap">La regla en pantalla: el mes <b>abierto</b> respira, el mes <b>cerrado</b> lleva candado y la tendencia sigue siendo comparable.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px">
+<h3>Modelo de datos — 5 campos opcionales en <code>types/transaction.ts</code></h3>
+<ul>
+<li><code>currency?: 'COP'|'EUR'|'USD'</code> — ausente = COP. Los 63 fijos y todo el histórico siguen igual, <b>sin migración</b>.</li>
+<li><code>sourceAmount?: number</code> — 2400. La verdad; <code>amount</code> pasa a ser caché derivada en pesos.</li>
+<li><code>fxRate?: number</code> · <code>fxRateAt?: Date</code> — la TRM aplicada y su fecha de vigencia.</li>
+<li><code>fxSealed?: boolean</code> — el mes ya cerró y la tasa no se vuelve a tocar. Sustituye al <code>fxMode</code> de la propuesta: con «meses cerrados inmutables» no hace falta que el usuario elija nada.</li>
+</ul>
+<h3>Dónde entra la conversión</h3>
+<ul>
+<li><code>hooks/useTransactions.ts</code> — donde ya clona las copias virtuales de los fijos, recalcula <code>amount</code> de los no sellados del mes en curso con la TRM viva. <b>Un solo punto y el resto de la app se enteran por su cuenta.</b></li>
+<li><code>effectiveAmount(tx, rates?)</code> en <code>utils/sharedCalc.ts:153</code> — segundo argumento opcional para los 6 consumidores que no pasan por el hook.</li>
+<li>Firestore sigue guardando <code>amount</code> en pesos → reglas, espejos de compartidos e ingresos enviados no cambian de contrato.</li>
+</ul>
+</div>
+
+<h2>Lo que se rompe con «meses cerrados inmutables»</h2>
+<p>Es la decisión de más alcance de las cuatro: no es parte del FX, es una feature aparte que cambia flujos que ya usas. Esto es lo que deja de funcionar, con su sitio exacto en el código.</p>
+<div class="cols">
+  <div class="q warn"><h3>Marcar pagado un mes anterior</h3><p><code>app/(tabs)/history.tsx:647</code> escribe <code>fixedPaidMonths: arrayUnion('2026_7')</code> sobre el documento real. Si te acuerdas en septiembre de que el arriendo de agosto sí se pagó, con inmutabilidad total <b>ya no puedes marcarlo</b>. Hay incluso dos scripts que existen para eso: <code>scripts/mark-past-months-paid.js</code> y <code>clear-july-fixed-paid.js</code>.</p></div>
+  <div class="q warn"><h3>Corregir un monto mal digitado</h3><p>Un cero de más en un gasto del mes pasado se queda para siempre, y arrastra el balance, los presupuestos, la tendencia de 6 meses y el reporte anual.</p></div>
+  <div class="q warn"><h3>Editar un fijo «de aquí en adelante»</h3><p>Ese flujo <b>cancela la serie vieja y crea una nueva</b> (<code>fixedCancelledFrom</code> + <code>fixedSplitInto</code>). Escribe sobre un documento cuya fecha de arranque está en el pasado: hay que permitirlo explícitamente o partir series deja de funcionar.</p></div>
+  <div class="q good"><h3>Corrección: el script de reparación SÍ sobrevive</h3><p>En las opciones te dije que <code>scripts/sync-sent-income.mjs</code> se quedaría sin poder reparar nada. <b>Es falso y lo verifiqué:</b> el script se autentica con <code>gcloud auth print-access-token</code> contra la API REST (<code>scripts/sync-sent-income.mjs:31</code>), o sea con credenciales de proyecto, y esas <b>no pasan por las reglas de Firestore</b>. Bloquear el pasado en la app y en las reglas te deja igualmente la puerta de servicio para arreglar un desastre.</p></div>
+</div>
+<div class="q" style="margin-top:14px">
+<h3>Cómo lo implementaría sin que sea una trampa</h3>
+<p><b>Un mes se cierra solo al terminar</b> (no hay fecha configurable, tú elegiste automático). El bloqueo va en <b>dos capas</b>: la UI esconde editar/borrar y explica por qué, y <code>firestore.rules</code> lo impide de verdad — sin la regla, el bloqueo es decorativo. Excepción técnica obligatoria: <code>fixedCancelledFrom</code>, <code>fixedSplitInto</code> y <code>fixedOriginDate</code> tienen que seguir siendo escribibles en documentos viejos, o partir un fijo deja de funcionar y con él la edición «de aquí en adelante» que ya está en producción.</p>
+<p><b>Antes de desplegar el bloqueo hay que cerrar los 4 casos pendientes de <code>--fix-all</code></b> de los ingresos enviados (dos <code>date</code> de abril inofensivos, dos <code>isFixed</code> divergentes en la cuenta de Vicky que le suman 1.350.000/mes desde junio). Con el pasado bloqueado en la app, esos cuatro solo se arreglan por script — se puede, pero es mejor dejarlos resueltos antes.</p>
+</div>
+
+<h2>Orden de trabajo</h2>
+<div class="card">
+  <div class="fase"><b>PRE</b><div>Cerrar los 4 casos de <code>node scripts/sync-sent-income.mjs --fix-all</code> (preguntar a Vicky por los dos <code>isFixed</code>).<span class="g">Gate: <em>node scripts/sync-sent-income.mjs</em> en simulacro sale limpio.</span></div></div>
+  <div class="fase"><b>A · F0</b><div><code>utils/fxConvert.ts</code> + <code>utils/fxConvert.test.ts</code> ejecutable con <code>npx tsx</code>: conversión, redondeo a peso entero, delta contra ayer, TRM igual a la de ayer, tasa 0 / respuesta inválida, moneda desconocida.<span class="g">Gate: <em>npx tsx utils/fxConvert.test.ts</em>. Antes de tocar UI.</span></div></div>
+  <div class="fase"><b>A · F1</b><div><code>api/exchange-rates.js?days=30</code> + los dos fallbacks intactos.<span class="g">Gate: probar el handler en el scratchpad como <em>.mjs</em> con un req/res falso, igual que se hizo con <code>api/insight.js</code> — el repo es commonjs.</span></div></div>
+  <div class="fase"><b>A · F2</b><div><code>hooks/useFxIncome.ts</code> + <code>app/fx-income.tsx</code> + tile en Herramientas + gate premium + i18n es/en/it.<span class="g">Gate: <em>npm run typecheck</em> · <em>node scripts/check-i18n-keys.js</em> · los 5 estados de los mockups vistos en móvil, tablet y desktop, claro y oscuro.</span></div></div>
+  <div class="fase"><b>A · F3</b><div>Bump <code>package.json</code> + <code>app.json</code> al mismo valor, WhatsNew, commit, <code>npm run deploy</code>.<span class="g">Gate: <em>scripts/validate-pre-deploy.sh</em>.</span></div></div>
+  <div class="fase"><b>B · F1</b><div>Los 5 campos en <code>types/transaction.ts</code> + sellado en <code>utils/fxConvert.ts</code> (mes cerrado → <code>fxSealed</code>).<span class="g">Gate: el test de F0 ampliado con los casos de sellado y de <code>currency</code> ausente.</span></div></div>
+  <div class="fase"><b>B · F2</b><div>Lectura: recálculo en <code>useTransactions</code> + <code>effectiveAmount(tx, rates?)</code>. Auditar los 6 consumidores que no pasan por el hook: <code>utils/dailyBalance</code>, <code>hooks/useMonthlyTrend</code>, <code>usePremiumPreview</code>, <code>useReportGenerator</code>, <code>app/budget</code>, <code>app/friend-report</code>.<span class="g">Gate: <em>npx tsx utils/fixedSeries.test.ts</em> (que un fijo en euros no rompa la serie) + <em>npm run typecheck</em>.</span></div></div>
+  <div class="fase"><b>B · F3</b><div>Escritura: selector de moneda en <code>add-transaction</code> / <code>edit-transaction</code>. La moneda tiene que viajar a la serie nueva cuando un fijo se parte, o el documento hijo nace en pesos.<span class="g">Gate: crear un fijo en euros, editarlo «de aquí en adelante» y comprobar los dos documentos.</span></div></div>
+  <div class="fase"><b>B · F4</b><div>Reglas: <code>firestore.rules</code> — inmutabilidad del mes cerrado y campos FX inmutables tras sellar; espejo del ingreso enviado sincronizado.<span class="g">Gate: <em>npm run check-rules</em> (29 casos + los nuevos) y <em>firebase deploy --only firestore:rules</em>.</span></div></div>
+  <div class="fase"><b>B · F5</b><div>Bloqueo del pasado en la UI, i18n, WhatsNew, bump, deploy.<span class="g">Gate: <em>validate-pre-deploy.sh</em> + repaso manual de editar/borrar en un mes cerrado y en el abierto.</span></div></div>
+</div>
+
+<h2>Riesgos abiertos</h2>
+<table>
+<thead><tr><th>Riesgo</th><th>Dónde</th><th>Mitigación</th></tr></thead>
+<tbody>
+<tr><td>El fijo partido nace sin moneda</td><td><code>edit-transaction</code> · <code>fixedSplitInto</code></td><td>Caso explícito en el gate de F3; ya pasó con <code>sentIncome*</code> y costó dos ingresos fantasma.</td></tr>
+<tr><td>El espejo del ingreso enviado no sigue al recálculo</td><td>dos documentos sin doc de coordinación</td><td><code>syncSentIncomeMirror</code> ya existe desde 2.72.0; hay que llamarlo también tras un recálculo FX.</td></tr>
+<tr><td>Bloqueo del pasado solo en la UI</td><td>si F4 se salta</td><td>Sin regla en Firestore el candado es decorativo: cualquiera con la consola escribe igual.</td></tr>
+<tr><td>El endpoint de tasas se cae</td><td><code>api/exchange-rates</code></td><td>Ya hay 3 fuentes en cascada; la pantalla cae a la última tasa guardada y lo dice (<b>estado offline de los mockups</b>).</td></tr>
+<tr><td>La TRM no es la plata que llega</td><td>decisión 1</td><td>El texto dice «según la TRM oficial» en las dos pantallas. El spread cabe como un campo más el día que lo quieras.</td></tr>
+</tbody>
+</table>
+
+<p style="margin-top:34px"><small>Cifras calculadas por el propio JS de esta página con una TRM de referencia ficticia; el dato real sale de <code>api/exchange-rates</code>. Mockups pendientes del pase del equipo visual antes de implementar.</small></p>
+
+</div>
+<script>
+// Las cifras las calcula el código, nunca se escriben a mano.
+const EUR=2400, RATE=4552, YST=4519, M30=4386, BEST=4610, WORST=4371, AGO=4530, REAL=4456;
+const cop=n=>'$ '+Math.round(n).toLocaleString('es-CO');
+const num=n=>Math.round(n).toLocaleString('es-CO');
+const set=(id,v)=>{const e=document.getElementById(id); if(!e)return; if(e.firstChild&&e.firstChild.nodeType===3)e.firstChild.nodeValue=v; else e.textContent=v;};
+
+set('w-diff',cop(EUR*(RATE-REAL))); set('w-trm',cop(EUR*RATE)); set('w-real',cop(EUR*REAL));
+
+set('a-cop',cop(EUR*RATE)); set('a-rate',num(RATE)); set('a-up',cop(EUR*(RATE-YST)));
+set('a-yst',cop(EUR*YST)); set('a-m30',cop(EUR*M30));
+set('a-best',cop(EUR*BEST)); set('a-worst',cop(EUR*WORST));
+set('a-bestd','+'+cop(EUR*(BEST-RATE))); set('a-worstd',cop(EUR*(WORST-RATE)));
+
+set('v-dn',cop(EUR*(RATE-YST))); set('v-best',cop(EUR*(RATE-M30))); set('v-off',cop(EUR*YST));
+
+set('b-cop',cop(EUR*RATE)); set('b-rate',num(RATE)); set('b-up',cop(EUR*(RATE-YST)));
+set('b-tx1','+'+cop(EUR*RATE)); set('b-tx1r','TRM '+num(RATE));
+set('b-tx2','+'+cop(EUR*AGO)); set('b-tx2r','TRM '+num(AGO)+' 🔒');
+
+const bars=(el,n,fn)=>{const e=document.getElementById(el); if(!e)return;
+  for(let i=0;i<n;i++){const b=document.createElement('i'); b.style.height=fn(i/(n-1)).toFixed(1)+'%';
+    if(i===n-1)b.style.background='var(--tertiary)'; e.appendChild(b);}};
+bars('a-spark',30,t=>24+(Math.sin(t*5.2)*0.35+Math.sin(t*11)*0.15+t*0.5)*54);
+bars('b-spark',6,t=>40+t*45+Math.sin(t*6)*12);
+</script>
+</body>
+</html>

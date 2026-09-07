@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spendia · Ingresos en otra moneda — propuestas</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1A1C; --bg2:#111F22; --surf:#162428; --surf2:#1E2E32; --surf3:#1E3035;
+  --border:#243438; --primary:#00BCD4; --success:#00A896; --expense:#FF8E8E;
+  --tertiary:#D4E157; --warning:#FBBF24; --tp:#EEF6F8; --ts:#9EABAF; --tt:#637579;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tp);font-family:Montserrat,system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.8px;margin:0 0 8px}
+h2{font-size:clamp(18px,2.6vw,24px);font-weight:800;letter-spacing:-.4px;margin:56px 0 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h3{font-size:15px;font-weight:700;margin:0 0 10px;letter-spacing:-.2px}
+p{margin:0 0 12px;color:var(--ts);font-size:14.5px}
+small{color:var(--tt);font-size:12.5px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#0b1517;border:1px solid var(--border);border-radius:6px;padding:1px 5px;color:var(--tertiary)}
+a{color:var(--primary)}
+.lede{font-size:16px;color:var(--ts);max-width:760px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:5px 10px;border-radius:50px;border:1px solid}
+.tag.rec{color:#0D1A1C;background:var(--tertiary);border-color:var(--tertiary)}
+.tag.s{color:var(--success);background:rgba(0,168,150,.14);border-color:rgba(0,168,150,.35)}
+.tag.m{color:var(--warning);background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35)}
+.tag.l{color:var(--expense);background:rgba(255,142,142,.12);border-color:rgba(255,142,142,.35)}
+.tag.n{color:var(--ts);background:var(--surf2);border-color:var(--border)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:22px}
+.opt{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start;background:var(--surf);border:1px solid var(--border);border-radius:24px;padding:24px;margin-top:18px}
+.opt.rec{border-color:rgba(212,225,87,.45);box-shadow:0 0 0 1px rgba(212,225,87,.12),0 24px 60px -30px rgba(212,225,87,.25)}
+@media(max-width:880px){.opt{grid-template-columns:1fr}}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
+ul{margin:0 0 14px;padding-left:18px;color:var(--ts);font-size:14px}
+li{margin-bottom:5px}
+li b{color:var(--tp)}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+/* ---- teléfono ---- */
+.phone{width:320px;max-width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:34px;padding:14px 12px 18px;box-shadow:0 30px 70px -35px #000;position:relative;overflow:hidden}
+.phone::before{content:"";position:absolute;inset:-40% -30% auto -30%;height:70%;background:radial-gradient(60% 60% at 30% 0%,rgba(0,188,212,.16),transparent 70%);pointer-events:none}
+.notch{width:80px;height:5px;border-radius:3px;background:#0a1214;margin:2px auto 14px}
+.pt{font-size:11px;font-weight:700;color:var(--tt);text-transform:uppercase;letter-spacing:.7px;margin:0 4px 10px}
+.hero{background:linear-gradient(160deg,#1b3238,#152528);border:1px solid var(--border);border-radius:22px;padding:16px;position:relative;overflow:hidden}
+.hero .lbl{font-size:11px;color:var(--ts);font-weight:600;letter-spacing:.3px}
+.big{font-size:27px;font-weight:800;letter-spacing:-1.2px;margin:2px 0 0}
+.sub{font-size:12px;color:var(--ts);margin-top:3px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:5px 9px;font-size:11px;font-weight:700}
+.chip.up{color:var(--success);background:rgba(0,168,150,.14);border-color:rgba(0,168,150,.3)}
+.chip.dn{color:var(--expense);background:rgba(255,142,142,.12);border-color:rgba(255,142,142,.3)}
+.chip.live{color:var(--primary);background:rgba(0,188,212,.12);border-color:rgba(0,188,212,.3)}
+.chip.lock{color:var(--ts)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 0 0 rgba(0,168,150,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,168,150,.5)}60%{box-shadow:0 0 0 7px rgba(0,168,150,0)}100%{box-shadow:0 0 0 0 rgba(0,168,150,0)}}
+.tile{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:12px;margin-top:10px}
+.tile .k{font-size:10.5px;color:var(--tt);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tile .v{font-size:16px;font-weight:800;letter-spacing:-.4px;margin-top:2px}
+.inputf{background:var(--surf3);border:1px solid #2A3C40;border-radius:14px;padding:10px 12px;margin-top:8px}
+.inputf .k{font-size:10px;color:var(--tt);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.inputf .v{font-size:15px;font-weight:700;margin-top:2px}
+.seg{display:flex;background:var(--surf3);border:1px solid #2A3C40;border-radius:50px;padding:3px;margin-top:10px}
+.seg div{flex:1;text-align:center;font-size:11px;font-weight:700;padding:7px 4px;border-radius:50px;color:var(--ts)}
+.seg div.on{background:var(--primary);color:#06222a}
+.txrow{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--border)}
+.txrow:last-child{border-bottom:0}
+.ic{width:32px;height:32px;border-radius:11px;background:rgba(0,168,150,.16);display:grid;place-items:center;font-size:14px;flex:0 0 auto}
+.txrow .n{font-size:13px;font-weight:700;flex:1;min-width:0}
+.txrow .n span{display:block;font-size:10.5px;color:var(--tt);font-weight:600}
+.txrow .a{font-size:13.5px;font-weight:800;color:var(--success);white-space:nowrap;text-align:right}
+.txrow .a span{display:block;font-size:10px;color:var(--tt);font-weight:600}
+.spark{display:flex;align-items:flex-end;gap:3px;height:38px;margin-top:12px}
+.spark i{flex:1;background:linear-gradient(180deg,var(--primary),rgba(0,188,212,.15));border-radius:2px}
+.cta{background:var(--primary);color:#06222a;font-weight:800;font-size:13px;text-align:center;padding:12px;border-radius:50px;margin-top:14px}
+.banner{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:14px;padding:10px 12px;margin-top:10px;font-size:11.5px;color:#F8DFA0;font-weight:600}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--tt)}
+td:first-child{font-weight:700}
+.q{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:14px;padding:16px}
+.q h3{color:var(--primary)}
+.warn{border-left-color:var(--expense)}
+.warn h3{color:var(--expense)}
+hr{border:0;border-top:1px solid var(--border);margin:44px 0 0}
+.fase{display:grid;grid-template-columns:74px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.fase b{color:var(--primary);font-size:12px;letter-spacing:.4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Ingresos en otra moneda</h1>
+<p class="lede">Defines cuánto te pagan y en qué moneda; la app lo traduce a pesos con la tasa del día y el balance respira solo. Cuatro caminos posibles — de un widget de 4 horas a multi-moneda completo. <b style="color:var(--tp)">Elige uno y de ahí sale el plan de implementación.</b></p>
+
+<div class="card" style="margin-top:22px">
+<h3>Punto de partida: ya está medio construido</h3>
+<ul style="margin-bottom:0">
+<li><code>api/exchange-rates.js</code> — TRM oficial del Banco de la República (datos.gov.co) + EUR derivado vía BCE, con dos fallbacks. Caché CDN 15 min. <b>Cero coste.</b></li>
+<li><code>hooks/useExchangeRates.ts</code> — <code>{usd, eur, prevUsd, prevEur, updatedAt}</code>, caché local 5 min, poll cada 5 min, fallback offline.</li>
+<li><code>components/ExchangeRateChips.tsx</code> — ya muestra USD/EUR en vivo con el latido verde.</li>
+<li><code>effectiveAmount(tx)</code> en <code>utils/sharedCalc.ts</code> — <b>cuello único</b>: los 20 sitios que suman dinero pasan por esta función. Es el punto exacto donde se inyecta la conversión sin tocar 20 pantallas.</li>
+</ul>
+</div>
+
+<!-- ══════════════ OPCIÓN A ══════════════ -->
+<h2>Opción A · Calculadora de nómina <span class="tag s">4–6 h</span><span class="tag n">Riesgo nulo</span></h2>
+<p>Una pantalla nueva en Herramientas. No toca transacciones, ni balance, ni Firestore. Resuelve literalmente lo que dijiste: <i>«me toca salirme para validar cuánta plata me llega»</i>.</p>
+
+<div class="opt">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="pt">Mi salario</div>
+    <div class="hero">
+      <div class="row"><span class="lbl">Tu nómina hoy vale</span><span class="chip live"><span class="dot"></span>EN VIVO</span></div>
+      <div class="big" id="a-cop">—</div>
+      <div class="sub">2.400 € × <b id="a-rate">—</b> COP/€</div>
+      <div class="spark" id="a-spark"></div>
+      <small style="font-size:10px">Últimos 30 días</small>
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="tile" style="flex:1"><div class="k">Ayer</div><div class="v" id="a-yst">—</div></div>
+      <div class="tile" style="flex:1"><div class="k">Hace 30 d</div><div class="v" id="a-m30">—</div></div>
+    </div>
+    <div class="tile">
+      <div class="row"><div><div class="k">Mejor del mes</div><div class="v" id="a-best">—</div></div><span class="chip up" id="a-bestd">—</span></div>
+    </div>
+    <div class="tile">
+      <div class="row"><div><div class="k">Peor del mes</div><div class="v" id="a-worst">—</div></div><span class="chip dn" id="a-worstd">—</span></div>
+    </div>
+    <div class="cta">＋ Añadir otro ingreso</div>
+  </div>
+  <div>
+    <div class="meta"><span class="tag s">Esfuerzo bajo</span><span class="tag n">0 migraciones</span><span class="tag n">0 cambios en el histórico</span></div>
+    <h3>Qué se construye</h3>
+    <ul>
+      <li><code>app/fx-income.tsx</code> + tile en Herramientas + <code>ScreenTransition</code>.</li>
+      <li>Los ingresos declarados viven en <code>users/{uid}.fxIncomes[]</code>: <code>{label, amount, currency, payDay}</code>. Nada en <code>transactions</code>.</li>
+      <li>Serie de 30 días: <code>api/exchange-rates?days=30</code> (Frankfurter da histórico gratis; la TRM de datos.gov.co también, con <code>$order=vigenciadesde</code>).</li>
+    </ul>
+    <h3>Qué NO resuelve</h3>
+    <ul><li>El balance del mes sigue mostrando lo que tú escribiste a mano en pesos. Los dos números coexisten y pueden contradecirse.</li></ul>
+    <p style="margin:0"><small><b>Cuándo elegir esto:</b> si el dolor es «cuánto me van a llegar» y no «que mi balance esté bien». Se puede montar hoy y es la base de las otras tres.</small></p>
+  </div>
+</div>
+
+<!-- ══════════════ OPCIÓN B ══════════════ -->
+<h2>Opción B · Transacción con moneda origen <span class="tag rec">Recomendada</span><span class="tag m">2–3 días</span></h2>
+<p>El ingreso guarda <b>2.400 EUR</b> como dato de origen, y el importe en pesos es un valor <i>derivado</i>. El mes en curso se recalcula con la tasa viva; los meses cerrados quedan congelados a su tasa. Todo lo demás de la app (presupuestos, categorías, insight IA, PDF) sigue leyendo pesos y no se enteran.</p>
+
+<div class="opt rec">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="pt">Nuevo ingreso</div>
+    <div class="inputf"><div class="k">Descripción</div><div class="v">Salario</div></div>
+    <div class="seg"><div>COP $</div><div class="on">EUR €</div><div>USD $</div></div>
+    <div class="inputf"><div class="k">Monto en euros</div><div class="v">€ 2.400,00</div></div>
+    <div class="hero" style="margin-top:12px;background:linear-gradient(160deg,#123037,#132427)">
+      <div class="row"><span class="lbl">Entra a tu balance como</span><span class="chip live"><span class="dot"></span>HOY</span></div>
+      <div class="big" style="color:var(--success)" id="b-cop">—</div>
+      <div class="sub">TRM Banco de la República · <b id="b-rate">—</b> COP/€</div>
+    </div>
+    <div class="seg" style="margin-top:12px"><div class="on">Tasa del día</div><div>Tasa fija</div></div>
+    <small style="display:block;margin-top:8px;line-height:1.45">Con <b style="color:var(--tp)">tasa del día</b> este ingreso se recalcula cada vez que abres la app, mientras el mes esté abierto.</small>
+    <div class="cta">Guardar ingreso</div>
+  </div>
+  <div>
+    <div class="meta"><span class="tag m">Esfuerzo medio</span><span class="tag s">Sin migración de datos</span><span class="tag m">Toca reglas Firestore</span></div>
+    <h3>Modelo de datos — 5 campos opcionales en <code>Transaction</code></h3>
+    <ul>
+      <li><code>currency?: 'COP'|'EUR'|'USD'</code> — ausente = COP, o sea los 63 fijos y todo el histórico siguen funcionando sin tocar nada.</li>
+      <li><code>sourceAmount?: number</code> — 2400. <b>La verdad.</b></li>
+      <li><code>fxRate?: number</code> · <code>fxRateAt?: Date</code> — la tasa aplicada y cuándo.</li>
+      <li><code>fxMode?: 'live'|'locked'</code> — ¿se recalcula o quedó fija?</li>
+      <li><code>amount</code> sigue siendo <b>pesos</b> y sigue siendo el campo que lee todo el resto de la app. Deja de escribirse a mano: pasa a ser caché de <code>sourceAmount × fxRate</code>.</li>
+    </ul>
+    <h3>Dónde entra la conversión</h3>
+    <ul>
+      <li><code>useTransactions</code> ya decora las copias virtuales de los fijos; ahí mismo, con las tasas de <code>useExchangeRates</code>, se recalcula <code>amount</code> de los <code>live</code> del mes abierto. <b>Un solo punto.</b></li>
+      <li><code>effectiveAmount(tx, rates?)</code> gana un segundo argumento opcional para los sitios que no pasan por el hook (<code>utils/dailyBalance</code>, <code>useReportGenerator</code>).</li>
+      <li>Firestore guarda <code>amount</code> ya convertido, así que las reglas, los espejos de compartidos y los ingresos enviados siguen viendo pesos. <b>Cero riesgo en el flujo de Vicky.</b></li>
+    </ul>
+    <div class="q warn" style="margin-top:14px">
+      <h3>La trampa que hay que decidir aquí</h3>
+      <p style="margin:0">Un fijo es <b>UN documento</b> con copias virtuales por mes. Si se recalcula «en vivo» sin más, el sueldo de <b>abril</b> también cambia hoy y tu histórico se reescribe cada día: los gráficos de 6 meses y las comparativas mes-a-mes dejan de ser comparables. La regla propuesta: <b>mes en curso y futuros = tasa viva; mes ya pasado = tasa congelada</b> (se sella la primera vez que el mes queda atrás, o cuando marcas el fijo como pagado, que es cuando de verdad supiste la tasa).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ OPCIÓN C ══════════════ -->
+<h2>Opción C · Proyección en el Home, sin tocar transacciones <span class="tag s">1 día</span></h2>
+<p>Intermedio. El salario declarado no es una transacción: es una <b>expectativa</b>. El Home suma una línea de proyección aparte, visible pero separada de lo que ya pasó. El histórico no se toca nunca porque el dato nunca entra en él.</p>
+
+<div class="opt">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="pt">Septiembre</div>
+    <div class="hero">
+      <div class="row"><span class="lbl">Balance del mes</span><span class="chip">👁</span></div>
+      <div class="big" id="c-bal">—</div>
+      <div class="row" style="margin-top:12px">
+        <span class="chip up">↑ 32% ingresos</span><span class="chip dn">↓ 8% gastos</span>
+      </div>
+    </div>
+    <div class="tile" style="border-color:rgba(0,188,212,.35);background:linear-gradient(150deg,rgba(0,188,212,.1),transparent)">
+      <div class="row">
+        <div><div class="k" style="color:var(--primary)">Por llegar · 30 sep</div><div class="v" id="c-proj">—</div></div>
+        <span class="chip live"><span class="dot"></span>€</span>
+      </div>
+      <div style="height:1px;background:var(--border);margin:10px 0"></div>
+      <div class="row"><small>Balance proyectado</small><b style="font-size:14px" id="c-projbal">—</b></div>
+      <small id="c-delta" style="display:block;margin-top:6px">—</small>
+    </div>
+    <div class="banner">⚡ El euro subió hoy: tu nómina vale <b id="c-up">—</b> más que ayer.</div>
+    <div class="pt" style="margin-top:16px">Movimientos</div>
+    <div class="tile" style="padding:4px 12px">
+      <div class="txrow"><div class="ic">🏠</div><div class="n">Arriendo<span>Vivienda · fijo</span></div><div class="a" style="color:var(--expense)">−$ 2.100.000</div></div>
+      <div class="txrow"><div class="ic">💼</div><div class="n">Salario<span style="color:var(--primary)">Proyectado · no confirmado</span></div><div class="a" id="c-txsal">—<span>2.400 €</span></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="meta"><span class="tag s">Esfuerzo bajo</span><span class="tag s">Histórico intacto</span><span class="tag m">Dos números en pantalla</span></div>
+    <h3>Qué se construye</h3>
+    <ul>
+      <li><code>users/{uid}.expectedIncomes[]</code> — mismo dato que la Opción A, otra superficie.</li>
+      <li>Nueva tarjeta en <code>app/(tabs)/index.tsx</code> bajo el <code>BalanceCard</code>: «por llegar» + balance proyectado.</li>
+      <li>Fila fantasma en Movimientos con estilo distinto; al llegar el día de pago, un botón <b>«Confirmar 2.400 €»</b> crea la transacción real con la tasa de ese día. <b>Ahí muere la proyección y nace un dato firme.</b></li>
+    </ul>
+    <h3>Por qué puede ser mejor que B</h3>
+    <ul>
+      <li>El problema real no es que abril cambie: es saber <b>cuánto va a llegar</b>. Esto lo dice sin contaminar ningún dato pasado.</li>
+      <li>Se puede combinar: <b>C ahora, B después</b> — el «Confirmar» de C es exactamente el formulario de B.</li>
+    </ul>
+    <p style="margin:0"><small><b>Coste:</b> dos cifras de balance simultáneas (real y proyectado) es carga cognitiva; hay que resolverlo en el diseño, no en el código.</small></p>
+  </div>
+</div>
+
+<!-- ══════════════ OPCIÓN D ══════════════ -->
+<h2>Opción D · Multi-moneda completo <span class="tag l">2–3 semanas</span><span class="tag l">Riesgo alto</span></h2>
+<p>Moneda base configurable en el perfil, cualquier transacción en cualquier moneda, tasas históricas guardadas por fecha en Firestore. Es donde acaba el producto si algún día hay usuarios fuera de Colombia — <b>hoy no lo necesitas.</b></p>
+
+<div class="opt">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="pt">Monedas</div>
+    <div class="inputf"><div class="k">Moneda base</div><div class="v">🇨🇴 COP · Peso colombiano</div></div>
+    <small style="display:block;margin-top:6px">Todos los totales, presupuestos y reportes se muestran aquí.</small>
+    <div class="pt" style="margin-top:16px">Monedas activas</div>
+    <div class="tile" style="padding:4px 12px">
+      <div class="txrow"><div class="ic">🇪🇺</div><div class="n">EUR<span>Nómina</span></div><div class="a" style="color:var(--tp)" id="d-eur">—<span>TRM+BCE</span></div></div>
+      <div class="txrow"><div class="ic">🇺🇸</div><div class="n">USD<span>Suscripciones</span></div><div class="a" style="color:var(--tp)" id="d-usd">—<span>TRM oficial</span></div></div>
+      <div class="txrow"><div class="ic">＋</div><div class="n" style="color:var(--tt)">Añadir moneda<span>168 disponibles</span></div><div class="a"></div></div>
+    </div>
+    <div class="pt" style="margin-top:16px">Tasa aplicada</div>
+    <div class="seg"><div class="on">Oficial</div><div>Mi banco</div><div>Manual</div></div>
+    <div class="tile">
+      <div class="k">Spread de tu banco</div>
+      <div class="row"><div class="v">−2,1 %</div><span class="chip lock">aprendido</span></div>
+      <small style="display:block;margin-top:6px">De tus últimos 3 pagos: la TRM decía <b id="d-off">—</b>, te entraron <b id="d-real">—</b>.</small>
+    </div>
+    <div class="banner">Cambiar la moneda base reconvierte 1.847 movimientos. Se hace una vez.</div>
+  </div>
+  <div>
+    <div class="meta"><span class="tag l">Esfuerzo alto</span><span class="tag l">Migración de datos</span><span class="tag l">Toca 20+ pantallas</span></div>
+    <h3>Qué obliga a construir</h3>
+    <ul>
+      <li>Colección <code>fxRates/{YYYY-MM-DD}</code> en Firestore (escrita por un cron de Vercel), porque «la tasa del 14 de abril» tiene que ser consultable para siempre y sin depender de una API externa viva.</li>
+      <li><code>formatMoney()</code> deja de tener <code>currency:'COP'</code> fijo → afecta a todas las pantallas, el PDF, la imagen del reporte anual y los 3 idiomas.</li>
+      <li>Presupuestos, metas, cuotas de tarjeta, liquidación de grupos y gastos compartidos entre dos personas con <b>monedas base distintas</b>: ahí hay decisiones nuevas de producto, no solo código.</li>
+    </ul>
+    <div class="q" style="margin-top:14px">
+      <h3>Lo único de aquí que vale la pena rescatar ya</h3>
+      <p style="margin:0">El <b>spread aprendido</b>. La TRM no es lo que te entra a la cuenta: tu banco o Wise se queda un 1–3%. Igual que <code>teaSource: 'manual' | 'learned'</code> en <code>types/card.ts</code>, la app puede aprender tu tasa real comparando lo que dijo la TRM con lo que registraste. Cabe en la Opción A o B por unas horas de trabajo extra.</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<h2>Comparativa</h2>
+<table>
+<thead><tr><th>Opción</th><th>Esfuerzo</th><th>Balance del mes correcto</th><th>Histórico intacto</th><th>Riesgo de regresión</th><th>Sirve de base para</th></tr></thead>
+<tbody>
+<tr><td>A · Calculadora</td><td><span class="tag s">4–6 h</span></td><td>No</td><td>Sí</td><td>Nulo</td><td>B, C, D</td></tr>
+<tr><td>C · Proyección</td><td><span class="tag s">1 día</span></td><td>Proyectado, aparte</td><td>Sí</td><td>Bajo (solo Home)</td><td>B</td></tr>
+<tr><td>B · Moneda origen</td><td><span class="tag m">2–3 días</span></td><td><b style="color:var(--tertiary)">Sí</b></td><td>Sí, con la regla de sellado</td><td>Medio (<code>effectiveAmount</code>, fijos, reglas)</td><td>D</td></tr>
+<tr><td>D · Multi-moneda</td><td><span class="tag l">2–3 sem</span></td><td>Sí</td><td>Sí</td><td><b style="color:var(--expense)">Alto</b> (20+ pantallas, migración)</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h2>Recomendación</h2>
+<div class="card">
+<p>Camino en dos pasos: <b style="color:var(--tertiary)">A → B</b>. La calculadora sola ya te quita el salir de la app, es de un día y no puede romper nada; y su modelo de datos (<code>{amount, currency}</code>) es literalmente el que B necesita después. C es una alternativa a B, no un paso previo obligatorio: elígela si prefieres que el sueldo <b>nunca</b> entre al balance hasta confirmarlo. D queda archivada hasta que haya un usuario que no viva en Colombia.</p>
+<div class="cols">
+  <div class="q"><h3>Paso 1 · A</h3><p style="margin:0">Pantalla «Mi salario» con la serie de 30 días. Sin tocar el balance. <b>4–6 h.</b></p></div>
+  <div class="q"><h3>Paso 2 · B</h3><p style="margin:0">Selector de moneda en el ingreso + recálculo del mes abierto + sellado de meses cerrados. <b>2–3 días.</b></p></div>
+  <div class="q"><h3>Extra · spread</h3><p style="margin:0">Aprender tu tasa real (TRM −2,1%) de tus propios pagos. <b>+3 h</b> sobre A o B.</p></div>
+</div>
+</div>
+
+<h2>Cuatro decisiones que son tuyas</h2>
+<p>Son independientes de la opción elegida. Sin estas respuestas el plan tiene huecos.</p>
+<div class="cols">
+  <div class="q"><h3>1 · ¿Qué tasa manda?</h3><p style="margin:0">La TRM oficial es un dato público y verificable, pero <b>no es lo que te entra</b>. ¿TRM a secas, TRM con un spread que tú fijas, o la tasa real que aprende de tus pagos?</p></div>
+  <div class="q"><h3>2 · ¿Con qué frecuencia?</h3><p style="margin:0">La TRM del Banco de la República se publica <b>una vez al día</b> (no cambia cada minuto). El poll de 5 min de <code>useExchangeRates</code> tiene sentido para los chips, no para tu nómina. ¿Un recálculo diario basta?</p></div>
+  <div class="q"><h3>3 · ¿Los meses cerrados se congelan?</h3><p style="margin:0">Es la decisión más importante de la Opción B. Congelar = tu histórico es estable y comparable. No congelar = «cuánto valdría hoy todo lo que gané», bonito de ver e inservible para comparar.</p></div>
+  <div class="q"><h3>4 · ¿Premium o gratis?</h3><p style="margin:0">El insight IA y los Pro Visuals son premium. Esto es una feature con coste de infraestructura <b>cero</b> (<code>api/exchange-rates</code> ya existe y cachea en CDN). ¿Gancho gratuito o valor premium?</p></div>
+</div>
+
+<h2>Si eliges B — plan de implementación</h2>
+<div class="card">
+  <div class="fase"><b>FASE 0</b><div>Gate primero: <code>utils/fxConvert.test.ts</code> con <code>npx tsx</code> — conversión, redondeo a peso entero, sellado de mes cerrado, ausencia de <code>currency</code> (retrocompatibilidad), tasa a 0 / offline. <b>Antes de tocar la UI.</b></div></div>
+  <div class="fase"><b>FASE 1</b><div>Datos: 5 campos opcionales en <code>types/transaction.ts</code> + <code>utils/fxConvert.ts</code> puro. Sin migración: sin <code>currency</code> = COP.</div></div>
+  <div class="fase"><b>FASE 2</b><div>Lectura: <code>useTransactions</code> recalcula los <code>live</code> del mes abierto; <code>effectiveAmount(tx, rates?)</code>. Auditar los otros consumidores: <code>dailyBalance</code>, <code>useMonthlyTrend</code>, <code>usePremiumPreview</code>, <code>useReportGenerator</code>, <code>budget</code>, <code>category-detail</code>, <code>history</code>, <code>friend-report</code>.</div></div>
+  <div class="fase"><b>FASE 3</b><div>Escritura: selector de moneda en <code>add-transaction</code> / <code>edit-transaction</code>. <b>Cuidado</b>: editar un fijo desde un mes que no es el de arranque ya pide alcance (<code>fixedSplitInto</code>, <code>fixedOriginDate</code>) — la moneda tiene que viajar a la serie partida o el fijo nuevo nace en pesos.</div></div>
+  <div class="fase"><b>FASE 4</b><div>Reglas: <code>firestore.rules</code> + <code>npm run check-rules</code> (29 casos). Un ingreso <b>enviado</b> son dos documentos sin doc de coordinación: si el <code>amount</code> del remitente se recalcula, el espejo del destinatario tiene que seguirlo o vuelve el bug de los ingresos fantasma.</div></div>
+  <div class="fase" style="border-bottom:0"><b>FASE 5</b><div>i18n es/en/it + <code>WhatsNew</code> + bump <code>package.json</code> y <code>app.json</code> al mismo valor + <code>npm run typecheck</code> (con <code>--stack-size</code>) + <code>npm run deploy</code>.</div></div>
+</div>
+
+<p style="margin-top:34px"><small>Cifras de ejemplo calculadas en esta página con una tasa ficticia de referencia; el dato real sale de <code>api/exchange-rates</code>. Mockups exploratorios — el pase del equipo visual completo va cuando elijas el camino, antes de implementar.</small></p>
+
+</div>
+<script>
+// Las cifras las calcula el código, no se escriben a mano.
+const EUR = 2400, RATE = 4552, YST = 4519, M30 = 4386, BEST = 4610, WORST = 4371;
+const REAL_RATE = 4456; // lo que de verdad entró a la cuenta (spread ~2,1%)
+const cop = n => '$ ' + Math.round(n).toLocaleString('es-CO');
+const set = (id, v) => { const e = document.getElementById(id); if (e) e.firstChild ? e.firstChild.nodeValue = v : e.textContent = v; };
+const num = n => Math.round(n).toLocaleString('es-CO');
+
+set('a-cop', cop(EUR*RATE)); set('a-rate', num(RATE));
+set('a-yst', cop(EUR*YST));  set('a-m30', cop(EUR*M30));
+set('a-best', cop(EUR*BEST)); set('a-worst', cop(EUR*WORST));
+set('a-bestd', '+' + cop(EUR*(BEST-RATE))); set('a-worstd', cop(EUR*(WORST-RATE)));
+
+set('b-cop', cop(EUR*RATE)); set('b-rate', num(RATE));
+
+const GASTOS = 6480000;
+set('c-bal', cop(-GASTOS + 1200000));
+set('c-proj', cop(EUR*RATE));
+set('c-projbal', cop(-GASTOS + 1200000 + EUR*RATE));
+set('c-delta', 'Con el euro de hace 30 días serían ' + cop(EUR*(RATE-M30)) + ' menos.');
+set('c-up', cop(EUR*(RATE-YST)));
+set('c-txsal', '+' + cop(EUR*RATE));
+
+set('d-eur', num(RATE)); set('d-usd', num(RATE*0.925));
+set('d-off', cop(EUR*RATE)); set('d-real', cop(EUR*REAL_RATE));
+
+// sparkline 30 días entre WORST y BEST
+const sp = document.getElementById('a-spark');
+if (sp) for (let i=0;i<30;i++){
+  const t=i/29, wave=Math.sin(t*5.2)*0.35+Math.sin(t*11)*0.15+t*0.5;
+  const b=document.createElement('i');
+  b.style.height=(24+wave*54).toFixed(1)+'%';
+  if(i===29) b.style.background='var(--tertiary)';
+  sp.appendChild(b);
+}
+</script>
+</body>
+</html>
