@@ -33,6 +33,7 @@ import AppDialog from '../components/AppDialog';
 import PageTitle from '../components/PageTitle';
 import ScreenBackground from '../components/ScreenBackground';
 import ScreenTransition, { ScreenTransitionRef } from '../components/ScreenTransition';
+import AppSegmentedControl from '../components/AppSegmentedControl';
 import { Skeleton } from '../components/Skeleton';
 import { scrollFadeMask } from '../components/ScrollFadeEdges';
 import FxIncomeSheet from '../components/fx/FxIncomeSheet';
@@ -42,6 +43,10 @@ import { formatMoney } from '../utils/formatMoney';
 import { localeFor } from '../utils/dateLocale';
 import { fxPortfolioStats, type FxCurrency, type FxPortfolioDay } from '../utils/fxConvert';
 import { FX_INCOME_MAX, type FxIncome } from '../types/fxIncome';
+
+/** Ventana del gráfico, en días naturales. */
+type FxRange = 7 | 15 | 30;
+const RANGES: FxRange[] = [7, 15, 30];
 
 const FLAG: Record<FxCurrency, string> = { COP: '🇨🇴', EUR: '🇪🇺', USD: '🇺🇸' };
 const SYMBOL: Record<FxCurrency, string> = { COP: '$', EUR: '€', USD: 'US$' };
@@ -130,15 +135,30 @@ export default function FxIncomeScreen() {
   const [confirmDelete, setConfirmDelete] = useState<FxIncome | null>(null);
   /** Publicación de la TRM que el usuario tocó en el gráfico. `null` = hoy. */
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [range, setRange] = useState<FxRange>(30);
 
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const back = () => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'));
 
+  // Se filtra por DÍAS NATURALES, no por número de publicaciones: el usuario
+  // pide «últimos 7 días» y 7 publicaciones de la TRM cubren unos 10 días de
+  // calendario (una vale para todo el fin de semana). El endpoint sigue
+  // trayendo 30 puntos, así que cambiar de rango no cuesta ninguna petición.
+  const visibleRows = useMemo(() => {
+    const from = new Date(Date.now() - range * 86400000).toISOString().slice(0, 10);
+    const filtered = rows.filter((r) => r.date >= from);
+    // Con menos de dos puntos no hay gráfico ni mejor/peor: antes de rendirse,
+    // se usa lo que haya.
+    return filtered.length >= 2 ? filtered : rows;
+  }, [rows, range]);
+
   const stats = useMemo(
-    () => fxPortfolioStats(incomes, rows, rates, prevRates),
-    [incomes, rows, rates, prevRates],
+    () => fxPortfolioStats(incomes, visibleRows, rates, prevRates),
+    [incomes, visibleRows, rates, prevRates],
   );
 
+  // Si el día elegido queda fuera del rango (o desaparece al llegar tasas
+  // nuevas), se cae a hoy en vez de quedarse mostrando un fantasma.
   const selected = selectedDate
     ? stats?.series.find((p) => p.date === selectedDate) ?? null
     : null;
@@ -244,13 +264,37 @@ export default function FxIncomeScreen() {
               </View>
             ) : (
               <>
+                <AppSegmentedControl
+                  segments={RANGES.map((d) => ({ key: String(d), label: t('fxIncome.range.days', { count: d }) }))}
+                  activeKey={String(range)}
+                  onChange={(key) => {
+                    setRange(Number(key) as FxRange);
+                    // La selección se limpia al cambiar de ventana: si no,
+                    // volver a 30 días resucitaba un día elegido hace rato.
+                    setSelectedDate(null);
+                  }}
+                  style={styles.rangeControl}
+                />
+
                 {/* ── Total de hoy ── */}
                 <View style={[styles.hero, { backgroundColor: heroBg, borderColor: colors.primary + '2E' }]}>
                   <View style={styles.heroTop}>
                     <Text style={[styles.heroLabel, { color: colors.textSecondary }]}>
-                      {t('fxIncome.hero.label')}
+                      {selected
+                        ? t('fxIncome.hero.labelAt', { date: dayLabel(selected.date) })
+                        : t('fxIncome.hero.label')}
                     </Text>
-                    {stale ? (
+                    {selected ? (
+                      // El chip verde «TRM DE HOY» al lado de una cifra del 29 de
+                      // agosto era falso. Con un día elegido pasa a neutro y lo
+                      // rotula, sin latido: no es un dato vivo.
+                      <View style={[styles.chip, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+                        <AppIcon name="calendar-outline" size={12} color={colors.textTertiary} />
+                        <Text style={[styles.chipText, { color: colors.textSecondary }]}>
+                          {dayLabel(selected.date)}
+                        </Text>
+                      </View>
+                    ) : stale ? (
                       <TouchableOpacity
                         onPress={retry}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -302,19 +346,17 @@ export default function FxIncomeScreen() {
                         selected ? (
                           <TouchableOpacity
                             onPress={() => setSelectedDate(null)}
-                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                             style={styles.sparkFootRow}
                           >
-                            <Text style={[styles.sparkFootStrong, { color: colors.textPrimary }]}>
-                              {dayLabel(selected.date)}
-                            </Text>
-                            <Text style={[styles.sparkFoot, { color: heroInk }]}>
+                            <AppIcon name="refresh-outline" size={12} color={heroInk} />
+                            <Text style={[styles.sparkFootAction, { color: heroInk }]}>
                               {t('fxIncome.hero.backToToday')}
                             </Text>
                           </TouchableOpacity>
                         ) : (
                           <Text style={[styles.sparkFoot, { color: colors.textTertiary }]}>
-                            {t('fxIncome.hero.sparkHint', { count: stats.series.length })}
+                            {t('fxIncome.hero.sparkHint')}
                           </Text>
                         )
                       )}
@@ -501,8 +543,9 @@ const styles = StyleSheet.create({
   sparkBar: { borderRadius: 2, minHeight: 3, width: '100%' },
   sparkBarSelected: { borderRadius: 3 },
   sparkFoot: { fontSize: 10.5, fontFamily: Fonts.regular, marginTop: 6 },
-  sparkFootRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, paddingVertical: 4 },
-  sparkFootStrong: { fontSize: 11.5, fontFamily: Fonts.bold },
+  sparkFootRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5, paddingVertical: 3 },
+  sparkFootAction: { fontSize: 11, fontFamily: Fonts.bold },
+  rangeControl: { marginBottom: 12 },
   statRate: { fontSize: 10.5, fontFamily: Fonts.semiBold, marginTop: 3 },
 
   banner: { flexDirection: 'row', alignItems: 'flex-start', gap: 9, borderWidth: 1, borderRadius: 16, padding: 12, marginTop: 12 },

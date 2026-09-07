@@ -2216,8 +2216,8 @@
       "foot_other": "{{count}} declared incomes",
       "vsToday": "{{sign}}{{amount}} vs today",
       "backToToday": "Back to today",
-      "sparkHint_one": "Tap the bar to see that day",
-      "sparkHint_other": "Tap a bar to compare another day"
+      "labelAt": "Your income on {{date}}, at the official rate",
+      "sparkHint": "Tap a bar to compare another day"
     },
     "banner": {
       "up": "The rate went up: your income is worth {{amount}} more.",
@@ -2275,6 +2275,10 @@
       "body": "“{{label}}” will stop appearing here. It does not affect any transaction in your history."
     },
     "maxReached": "You can declare up to {{max}} incomes.",
-    "rateLine": "{{rate}} COP per {{symbol}}"
+    "rateLine": "{{rate}} COP per {{symbol}}",
+    "range": {
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days"
+    }
   }
 }

@@ -2216,8 +2216,8 @@
       "foot_other": "{{count}} entrate dichiarate",
       "vsToday": "{{sign}}{{amount}} rispetto a oggi",
       "backToToday": "Torna a oggi",
-      "sparkHint_one": "Tocca la barra per vedere quel giorno",
-      "sparkHint_other": "Tocca una barra per confrontare un altro giorno"
+      "labelAt": "Le tue entrate il {{date}}, al tasso ufficiale",
+      "sparkHint": "Tocca una barra per confrontare un altro giorno"
     },
     "banner": {
       "up": "Il tasso è salito: le tue entrate valgono {{amount}} in più.",
@@ -2275,6 +2275,10 @@
       "body": "«{{label}}» non apparirà più qui. Non modifica nessun movimento del tuo storico."
     },
     "maxReached": "Puoi dichiarare fino a {{max}} entrate.",
-    "rateLine": "{{rate}} COP per {{symbol}}"
+    "rateLine": "{{rate}} COP per {{symbol}}",
+    "range": {
+      "days_one": "{{count}} giorno",
+      "days_other": "{{count}} giorni"
+    }
   }
 }

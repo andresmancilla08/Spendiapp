@@ -2216,8 +2216,8 @@
       "foot_other": "{{count}} ingresos declarados",
       "vsToday": "{{sign}}{{amount}} que hoy",
       "backToToday": "Volver a hoy",
-      "sparkHint_one": "Toca la barra para ver ese día",
-      "sparkHint_other": "Toca una barra para comparar con otro día"
+      "labelAt": "Tus ingresos el {{date}}, según la TRM",
+      "sparkHint": "Toca una barra para comparar con otro día"
     },
     "banner": {
       "up": "La TRM subió: tus ingresos valen {{amount}} más.",
@@ -2275,6 +2275,10 @@
       "body": "«{{label}}» dejará de aparecer aquí. No afecta a ningún movimiento de tu historial."
     },
     "maxReached": "Puedes declarar hasta {{max}} ingresos.",
-    "rateLine": "{{rate}} COP por {{symbol}}"
+    "rateLine": "{{rate}} COP por {{symbol}}",
+    "range": {
+      "days_one": "{{count}} día",
+      "days_other": "{{count}} días"
+    }
   }
 }
