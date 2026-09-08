@@ -22,6 +22,7 @@ import { router } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import { mixHex, readableTint } from '../utils/contrast';
+import { inkOnFill } from '../utils/detailInk';
 import { usePremium } from '../hooks/usePremium';
 import { useFxRates } from '../hooks/useFxRates';
 import { useFxIncome } from '../hooks/useFxIncome';
@@ -41,7 +42,7 @@ import FxLayer, { type FxFrame } from '../components/fx/FxLayer';
 import { Fonts } from '../config/fonts';
 import { formatMoney } from '../utils/formatMoney';
 import { localeFor } from '../utils/dateLocale';
-import { fxPortfolioStats, type FxCurrency, type FxPortfolioDay } from '../utils/fxConvert';
+import { expandRowsToDays, fxPortfolioStats, localIsoDate, type FxCurrency, type FxPortfolioDay } from '../utils/fxConvert';
 import { FX_INCOME_MAX, type FxIncome } from '../types/fxIncome';
 
 /** Ventana del gráfico, en días naturales. */
@@ -137,20 +138,16 @@ export default function FxIncomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [range, setRange] = useState<FxRange>(30);
 
+  const isSameDay = (iso: string) => iso === localIsoDate();
+
   const transitionRef = useRef<ScreenTransitionRef>(null);
   const back = () => transitionRef.current?.animateOut(() => goBack('/(tabs)/tools'));
 
-  // Se filtra por DÍAS NATURALES, no por número de publicaciones: el usuario
-  // pide «últimos 7 días» y 7 publicaciones de la TRM cubren unos 10 días de
-  // calendario (una vale para todo el fin de semana). El endpoint sigue
-  // trayendo 30 puntos, así que cambiar de rango no cuesta ninguna petición.
-  const visibleRows = useMemo(() => {
-    const from = new Date(Date.now() - range * 86400000).toISOString().slice(0, 10);
-    const filtered = rows.filter((r) => r.date >= from);
-    // Con menos de dos puntos no hay gráfico ni mejor/peor: antes de rendirse,
-    // se usa lo que haya.
-    return filtered.length >= 2 ? filtered : rows;
-  }, [rows, range]);
+  // Una barra por DÍA natural, no por publicación de la TRM: la del viernes
+  // rige sábado, domingo y lunes, así que pintar publicaciones dejaba menos
+  // barras que días y fechas que no cuadraban. Cada día hereda la tasa que
+  // rige ESE día y recuerda de qué publicación viene.
+  const visibleRows = useMemo(() => expandRowsToDays(rows, range), [rows, range]);
 
   const stats = useMemo(
     () => fxPortfolioStats(incomes, visibleRows, rates, prevRates),
@@ -162,6 +159,12 @@ export default function FxIncomeScreen() {
   const selected = selectedDate
     ? stats?.series.find((p) => p.date === selectedDate) ?? null
     : null;
+
+  // La última barra es HOY, siempre: la serie son días naturales.
+  const selectedIsToday = selected !== null && isSameDay(selected.date);
+  const showingToday = selected === null || selectedIsToday;
+  /** Fecha de publicación de la tasa que se está mostrando. */
+  const shownDay = selected ?? stats?.series[stats.series.length - 1] ?? null;
 
   const money = (n: number) => formatMoney(n, i18n.language);
   const rateLine = (rate: number | undefined) =>
@@ -280,11 +283,11 @@ export default function FxIncomeScreen() {
                 <View style={[styles.hero, { backgroundColor: heroBg, borderColor: colors.primary + '2E' }]}>
                   <View style={styles.heroTop}>
                     <Text style={[styles.heroLabel, { color: colors.textSecondary }]}>
-                      {selected
-                        ? t('fxIncome.hero.labelAt', { date: dayLabel(selected.date) })
-                        : t('fxIncome.hero.label')}
+                      {showingToday
+                        ? t('fxIncome.hero.label')
+                        : t('fxIncome.hero.labelAt', { date: dayLabel(selected!.date) })}
                     </Text>
-                    {selected ? (
+                    {selected && !selectedIsToday ? (
                       // El chip verde «TRM DE HOY» al lado de una cifra del 29 de
                       // agosto era falso. Con un día elegido pasa a neutro y lo
                       // rotula, sin latido: no es un dato vivo.
@@ -325,13 +328,19 @@ export default function FxIncomeScreen() {
                         {money(selected ? selected.cop : stats.today)}
                       </Text>
                       <Text style={[styles.heroFoot, { color: colors.textSecondary }]}>
-                        {selected
-                          ? [rateLine(selected.rate), t('fxIncome.hero.vsToday', {
-                              amount: money(Math.abs(selected.cop - stats.today)),
-                              sign: selected.cop >= stats.today ? '+' : '−',
-                            })].filter(Boolean).join(' · ')
-                          : [rateLine(stats.todayRate), t('fxIncome.hero.foot', { count: incomes.length })]
-                              .filter(Boolean).join(' · ')}
+                        {showingToday
+                          ? [
+                              rateLine(selected?.rate ?? stats.todayRate),
+                              // Por qué la tasa de hoy lleva fecha de anteayer: la
+                              // del viernes rige el fin de semana.
+                              shownDay?.publishedOn && shownDay.publishedOn !== shownDay.date
+                                ? t('fxIncome.publishedOn', { date: dayLabel(shownDay.publishedOn) })
+                                : t('fxIncome.hero.foot', { count: incomes.length }),
+                            ].filter(Boolean).join(' · ')
+                          : [rateLine(selected!.rate), t('fxIncome.hero.vsToday', {
+                              amount: money(Math.abs(selected!.cop - stats.today)),
+                              sign: selected!.cop >= stats.today ? '+' : '−',
+                            })].filter(Boolean).join(' · ')}
                       </Text>
                       <Sparkline
                         series={stats.series}
@@ -343,7 +352,7 @@ export default function FxIncomeScreen() {
                         formatDate={dayLabel}
                       />
                       {stats.series.length >= 2 && (
-                        selected ? (
+                        selected && !selectedIsToday ? (
                           <TouchableOpacity
                             onPress={() => setSelectedDate(null)}
                             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
@@ -396,26 +405,57 @@ export default function FxIncomeScreen() {
                 {/* ── Mejor y peor del periodo ── */}
                 {stats?.best && stats?.worst && stats.best.date !== stats.worst.date && (
                   <View style={styles.statRow}>
-                    <View style={[styles.statTile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                      <Text style={[styles.statKey, { color: colors.textTertiary }]}>{t('fxIncome.stats.best')}</Text>
-                      <Text style={[styles.statValue, { color: colors.textPrimary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{money(stats.best.cop)}</Text>
-                      <Text style={[styles.statRate, { color: colors.textSecondary }]} numberOfLines={1}>
-                        {[dayLabel(stats.best.date), rateLine(stats.best.rate)].filter(Boolean).join(' · ')}
-                      </Text>
-                      <Text style={[styles.statDelta, { color: upInk }]} numberOfLines={1}>
-                        +{money(stats.best.delta)}
-                      </Text>
-                    </View>
-                    <View style={[styles.statTile, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                      <Text style={[styles.statKey, { color: colors.textTertiary }]}>{t('fxIncome.stats.worst')}</Text>
-                      <Text style={[styles.statValue, { color: colors.textPrimary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{money(stats.worst.cop)}</Text>
-                      <Text style={[styles.statRate, { color: colors.textSecondary }]} numberOfLines={1}>
-                        {[dayLabel(stats.worst.date), rateLine(stats.worst.rate)].filter(Boolean).join(' · ')}
-                      </Text>
-                      <Text style={[styles.statDelta, { color: downInk }]} numberOfLines={1}>
-                        {money(stats.worst.delta)}
-                      </Text>
-                    </View>
+                    {([
+                      { key: 'best', day: stats.best, label: t('fxIncome.stats.best'), icon: 'trending-up' as const, tone: colors.success },
+                      { key: 'worst', day: stats.worst, label: t('fxIncome.stats.worst'), icon: 'trending-down' as const, tone: colors.expense },
+                    ] as const).map(({ key, day, label, icon, tone }) => {
+                      // Fondo teñido del tono, no blanco: las dos tarjetas eran
+                      // dos bloques de texto negro y no se distinguía de un
+                      // vistazo cuál era la buena y cuál la mala.
+                      const tileBg = mixHex(colors.surface, tone, 0x12 / 255);
+                      const tileInk = readableTint(tone, tileBg, 4.5);
+                      const pillInk = inkOnFill(tone, colors.onPrimary, colors.textPrimary);
+                      return (
+                        <View key={key} style={[styles.statTile, { backgroundColor: tileBg, borderColor: tone + '3D' }]}>
+                          <View style={styles.statKeyRow}>
+                            <AppIcon name={icon} size={12} color={tileInk} />
+                            <Text style={[styles.statKey, { color: tileInk }]} numberOfLines={1}>{label}</Text>
+                          </View>
+                          <Text style={[styles.statValue, { color: tileInk }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+                            {money(day.cop)}
+                          </Text>
+                          {/* La tasa es el dato que explica la cifra; se queda en
+                              el color del texto para no competir con el importe. */}
+                          {rateLine(day.rate) && (
+                            <Text style={[styles.statRate, { color: colors.textPrimary }]} numberOfLines={1}>
+                              {rateLine(day.rate)}
+                            </Text>
+                          )}
+                          <View style={styles.statFootRow}>
+                            <Text style={[styles.statDate, { color: colors.textSecondary }]} numberOfLines={1}>
+                              {dayLabel(day.date)}
+                            </Text>
+                            {/* «$ 0» en rojo cuando el peor día es hoy no dice
+                                nada: se rotula como lo que es. */}
+                            {day.delta === 0 ? (
+                              <View style={[styles.deltaPill, { backgroundColor: colors.surfaceSecondary }]}>
+                                <Text style={[styles.deltaText, { color: colors.textSecondary }]} numberOfLines={1}>
+                                  {t('fxIncome.stats.sameAsToday')}
+                                </Text>
+                              </View>
+                            ) : (
+                              // Pastilla SÓLIDA: al 24% de opacidad la cifra que
+                              // más importa era la más pálida de la tarjeta.
+                              <View style={[styles.deltaPill, { backgroundColor: tone }]}>
+                                <Text style={[styles.deltaText, { color: pillInk }]} numberOfLines={1}>
+                                  {day.delta > 0 ? '+' : ''}{money(day.delta)}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      );
+                                        })}
                   </View>
                 )}
 
@@ -546,16 +586,22 @@ const styles = StyleSheet.create({
   sparkFootRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 5, paddingVertical: 3 },
   sparkFootAction: { fontSize: 11, fontFamily: Fonts.bold },
   rangeControl: { marginBottom: 12 },
-  statRate: { fontSize: 10.5, fontFamily: Fonts.semiBold, marginTop: 3 },
 
   banner: { flexDirection: 'row', alignItems: 'flex-start', gap: 9, borderWidth: 1, borderRadius: 16, padding: 12, marginTop: 12 },
   bannerText: { flex: 1, fontSize: 12.5, fontFamily: Fonts.semiBold, lineHeight: 18 },
 
   statRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
   statTile: { flex: 1, borderWidth: 1, borderRadius: 16, padding: 12 },
-  statKey: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.5, textTransform: 'uppercase' },
-  statValue: { fontSize: 15.5, fontFamily: Fonts.extraBold, letterSpacing: -0.4, marginTop: 3 },
-  statDelta: { fontSize: 11, fontFamily: Fonts.semiBold, marginTop: 3 },
+  statKeyRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  statKey: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.5, textTransform: 'uppercase', flexShrink: 1 },
+  statValue: { fontSize: 17, fontFamily: Fonts.extraBold, letterSpacing: -0.5, marginTop: 4 },
+  // La tasa es el dato que explica la cifra: en negrita y del color del texto
+  // principal, no en el gris de un pie de foto.
+  statRate: { fontSize: 12, fontFamily: Fonts.bold, marginTop: 4, letterSpacing: -0.1 },
+  statFootRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 7, flexWrap: 'wrap' },
+  statDate: { fontSize: 10.5, fontFamily: Fonts.semiBold },
+  deltaPill: { borderRadius: 50, paddingHorizontal: 9, paddingVertical: 4 },
+  deltaText: { fontSize: 11, fontFamily: Fonts.extraBold, letterSpacing: -0.1 },
 
   sectionTitle: { fontSize: 11, fontFamily: Fonts.bold, letterSpacing: 0.7, textTransform: 'uppercase', marginTop: 22, marginBottom: 8, paddingHorizontal: 4 },
   list: { borderWidth: 1, borderRadius: 18, paddingHorizontal: 14 },

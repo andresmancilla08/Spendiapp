@@ -107,7 +107,16 @@ export function fxVariation(
  *  una fecha con los pesos que valía cada moneda ese día. `eur` puede faltar
  *  si el BCE no publicó (no cotiza fines de semana ni festivos). */
 export interface FxSeriesRow {
+  /** `vigenciadesde`: el día en que se publicó. */
   date: string;
+  /** `vigenciahasta`, INCLUSIVO. La TRM del viernes rige también sábado,
+   *  domingo y lunes, así que el punto más reciente casi nunca lleva la fecha
+   *  de hoy. Sin esto, la tasa vigente aparecía rotulada «5 de sep.» un día 7 y
+   *  parecía que faltaban datos. */
+  until?: string;
+  /** Cuando la fila es un DÍA expandido, el día en que se publicó la tasa que
+   *  hereda. Igual a `date` si ese día tuvo publicación propia. */
+  publishedOn?: string;
   usd?: number;
   eur?: number;
 }
@@ -181,6 +190,10 @@ export interface FxConvertible {
 
 export interface FxPortfolioDay {
   date: string;
+  /** Último día en que rige esta tasa, inclusivo. Ver `FxSeriesRow.until`. */
+  until?: string;
+  /** Día en que se publicó la tasa de esta jornada. Ver `FxSeriesRow.publishedOn`. */
+  publishedOn?: string;
   cop: number;
   /** Tasa de ESA fecha, solo si la cartera tiene UNA sola moneda extranjera.
    *  Con dos no existe una tasa única que explique el total, y mostrar la de
@@ -280,7 +293,13 @@ export function fxPortfolioStats(
     const cop = sumWith(rowRates);
     if (cop === null) continue;
     const rate = rateOf(rowRates);
-    series.push({ date: row.date, cop, ...(rate === undefined ? {} : { rate }) });
+    series.push({
+      date: row.date,
+      ...(row.until ? { until: row.until } : {}),
+      ...(row.publishedOn ? { publishedOn: row.publishedOn } : {}),
+      cop,
+      ...(rate === undefined ? {} : { rate }),
+    });
   }
   series.sort((a, b) => (a.date < b.date ? -1 : 1));
 
@@ -303,4 +322,83 @@ export function fxPortfolioStats(
     ...(soleCurrency ? { soleCurrency } : {}),
     prev, variation, best, worst, series,
   };
+}
+
+/**
+ * Fecha de HOY en formato ISO corto, en la zona del dispositivo.
+ *
+ * `toISOString().slice(0, 10)` daría la fecha UTC: en Colombia (UTC−5), a las
+ * 19:00 del día 7 ya devuelve el 8, y la tasa vigente pasaría a leerse como
+ * caducada durante las últimas cinco horas de cada día.
+ */
+export function localIsoDate(now: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/**
+ * ¿Esta publicación de la TRM es la que rige hoy?
+ *
+ * Es lo que permite decir «hoy» en vez de «5 de sep.» al seleccionar el último
+ * punto del gráfico un día 7. Sin `until` se cae a comparar solo la fecha de
+ * publicación, que es lo máximo que se puede afirmar con ese dato.
+ */
+export function isRateCurrent(
+  day: Pick<FxPortfolioDay, 'date' | 'until'>,
+  now: Date = new Date(),
+): boolean {
+  const today = localIsoDate(now);
+  if (!day?.date) return false;
+  return today >= day.date && today <= (day.until ?? day.date);
+}
+
+/**
+ * Convierte las publicaciones de la TRM en **días naturales**, uno por barra,
+ * desde hoy hacia atrás.
+ *
+ * La TRM se publica en días hábiles y cada valor rige hasta `until`: la del
+ * viernes vale sábado, domingo y lunes. Pintar una barra por publicación
+ * dejaba un gráfico con menos puntos que días y fechas que no cuadraban («30
+ * publicaciones» abarcan unas 6 semanas). Aquí cada día del rango recibe la
+ * tasa que rige ESE día, así que 7 barras son 7 días de calendario.
+ *
+ * Cada día expandido conserva en `publishedOn` la fecha de la publicación que
+ * hereda, que es lo que permite explicar por qué la tasa de hoy lleva fecha de
+ * anteayer sin dejar huecos en el gráfico.
+ *
+ * Un día para el que no hay ninguna publicación anterior conocida se omite: es
+ * el borde de la serie, no un día sin valor. Devuelve de más reciente a más
+ * antiguo, igual que llegan del endpoint.
+ */
+export function expandRowsToDays(
+  rows: FxSeriesRow[] | null | undefined,
+  days: number,
+  now: Date = new Date(),
+): FxSeriesRow[] {
+  const source = (Array.isArray(rows) ? rows : [])
+    .filter((r) => r && typeof r.date === 'string' && r.date)
+    .sort((a, b) => (a.date < b.date ? 1 : -1)); // desc
+  if (source.length === 0 || !Number.isInteger(days) || days < 1) return [];
+
+  const out: FxSeriesRow[] = [];
+  const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  for (let i = 0; i < days; i++) {
+    const day = localIsoDate(cursor);
+    // La publicación vigente ese día: la más reciente que ya existía. `until`
+    // se usa como confirmación, no como filtro — si un día cayera en un hueco
+    // entre vigencias, heredar la última conocida es mejor que un agujero.
+    const row = source.find((r) => r.date <= day);
+    if (row) {
+      out.push({
+        date: day,
+        publishedOn: row.date,
+        ...(row.until ? { until: row.until } : {}),
+        ...(row.usd !== undefined ? { usd: row.usd } : {}),
+        ...(row.eur !== undefined ? { eur: row.eur } : {}),
+      });
+    }
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return out;
 }

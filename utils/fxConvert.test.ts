@@ -238,3 +238,108 @@ assert.equal(sameCur.today, 2700 * 4552);
 assert.equal(fxPortfolioStats([{ amount: 500, currency: 'COP' }], rows, RATES)!.soleCurrency, undefined);
 
 console.log('tasa por dia: 15 casos OK');
+
+// ── Qué publicación rige HOY ───────────────────────────────────────────────
+import { isRateCurrent, localIsoDate } from './fxConvert';
+
+// El caso real que confundió: hoy es domingo 7 y la tasa vigente se publicó el
+// viernes 5, con vigencia hasta el lunes 8.
+const sun7 = new Date(2026, 8, 7, 12, 0);
+assert.equal(isRateCurrent({ date: '2026-09-05', until: '2026-09-08' }, sun7), true);
+assert.equal(isRateCurrent({ date: '2026-09-04', until: '2026-09-04' }, sun7), false);
+// Los bordes son inclusivos en los dos extremos.
+assert.equal(isRateCurrent({ date: '2026-09-07', until: '2026-09-07' }, sun7), true);
+assert.equal(isRateCurrent({ date: '2026-09-05', until: '2026-09-07' }, sun7), true);
+assert.equal(isRateCurrent({ date: '2026-09-08', until: '2026-09-10' }, sun7), false, 'futuro');
+// Sin `until` solo se puede afirmar la coincidencia exacta.
+assert.equal(isRateCurrent({ date: '2026-09-07' }, sun7), true);
+assert.equal(isRateCurrent({ date: '2026-09-05' }, sun7), false);
+assert.equal(isRateCurrent({ date: '' }, sun7), false);
+
+// La fecha se resuelve en LOCAL, no en UTC: a las 19:00 del 7 en Colombia
+// (UTC−5) el ISO en UTC ya sería el 8 y la tasa vigente se leería caducada.
+const lateSun7 = new Date(2026, 8, 7, 19, 30);
+assert.equal(localIsoDate(lateSun7), '2026-09-07');
+assert.equal(isRateCurrent({ date: '2026-09-05', until: '2026-09-08' }, lateSun7), true);
+assert.equal(localIsoDate(new Date(2026, 0, 5)), '2026-01-05', 'mes y día con cero delante');
+
+// La vigencia viaja hasta la serie de la cartera.
+const withUntil = fxPortfolioStats(
+  [{ amount: 2400, currency: 'EUR' }],
+  [{ date: '2026-09-05', until: '2026-09-08', usd: 3126, eur: 3633 }],
+  { usd: 3126, eur: 3633 },
+)!;
+assert.equal(withUntil.series[0].until, '2026-09-08');
+assert.equal(isRateCurrent(withUntil.series[0], sun7), true);
+
+console.log('vigencia de la TRM: 13 casos OK');
+
+// ── Una barra por DÍA, no por publicación ──────────────────────────────────
+import { expandRowsToDays } from './fxConvert';
+
+// El caso real: la TRM del viernes 5 rige sábado 6, domingo 7 y lunes 8.
+const publications = [
+  { date: '2026-09-05', until: '2026-09-08', usd: 3126, eur: 3633 },
+  { date: '2026-09-04', until: '2026-09-04', usd: 3141, eur: 3651 },
+  { date: '2026-09-03', until: '2026-09-03', usd: 3150, eur: 3648 },
+  { date: '2026-09-02', until: '2026-09-02', usd: 3160, eur: 3686 },
+  { date: '2026-09-01', until: '2026-09-01', usd: 3170, eur: 3700 },
+];
+
+const week = expandRowsToDays(publications, 7, sun7);
+assert.equal(week.length, 7, 'siete días son siete barras, aunque haya cinco publicaciones');
+assert.deepEqual(week.map((d) => d.date), [
+  '2026-09-07', '2026-09-06', '2026-09-05', '2026-09-04',
+  '2026-09-03', '2026-09-02', '2026-09-01',
+]);
+// Los tres días del fin de semana heredan la tasa del viernes...
+assert.equal(week[0].eur, 3633);
+assert.equal(week[1].eur, 3633);
+assert.equal(week[2].eur, 3633);
+// ...y dicen de qué publicación vienen, que es lo que explica la fecha.
+assert.equal(week[0].publishedOn, '2026-09-05');
+assert.equal(week[0].date, '2026-09-07', 'el primero SIEMPRE es hoy');
+// El día con publicación propia se hereda a sí mismo.
+assert.equal(week[3].date, '2026-09-04');
+assert.equal(week[3].publishedOn, '2026-09-04');
+assert.equal(week[3].eur, 3651);
+
+// 3 días desde el domingo 7: 7, 6 y 5, todos con la del viernes.
+const three = expandRowsToDays(publications, 3, sun7);
+assert.equal(three.length, 3);
+assert.equal(new Set(three.map((d) => d.eur)).size, 1, 'los tres valen lo mismo');
+
+// El primer día es hoy incluso si hoy no tuvo publicación (domingo).
+assert.equal(expandRowsToDays(publications, 1, sun7)[0].date, '2026-09-07');
+
+// Cruce de mes: del 2 de octubre hacia atrás se pasa a septiembre.
+const oct2 = new Date(2026, 9, 2, 10, 0);
+const across = expandRowsToDays(
+  [{ date: '2026-09-30', until: '2026-10-02', usd: 3100, eur: 3600 }], 3, oct2,
+);
+assert.deepEqual(across.map((d) => d.date), ['2026-10-02', '2026-10-01', '2026-09-30']);
+assert.equal(across.every((d) => d.eur === 3600), true);
+
+// Un día anterior a la publicación más vieja se omite: es el borde de la
+// serie, no un día sin valor.
+const tooFar = expandRowsToDays(publications, 10, sun7);
+assert.equal(tooFar.length, 7, 'del 31 de agosto hacia atrás no hay nada que heredar');
+assert.equal(tooFar[tooFar.length - 1].date, '2026-09-01');
+
+// Bordes: sin publicaciones no hay días; días inválidos no revientan.
+assert.deepEqual(expandRowsToDays([], 7, sun7), []);
+assert.deepEqual(expandRowsToDays(null, 7, sun7), []);
+assert.deepEqual(expandRowsToDays(publications, 0, sun7), []);
+assert.deepEqual(expandRowsToDays(publications, -3, sun7), []);
+// Una fila sin `until` sigue sirviendo para heredar hacia delante.
+assert.equal(expandRowsToDays([{ date: '2026-09-05', usd: 3126, eur: 3633 }], 2, sun7).length, 2);
+
+// Y la cartera calcula sobre días: 7 barras son 7 días.
+const dayStats = fxPortfolioStats(
+  [{ amount: 2400, currency: 'EUR' }], expandRowsToDays(publications, 7, sun7), RATES,
+)!;
+assert.equal(dayStats.series.length, 7);
+assert.equal(dayStats.series[dayStats.series.length - 1].date, '2026-09-07');
+assert.equal(dayStats.series[dayStats.series.length - 1].publishedOn, '2026-09-05');
+
+console.log('dias naturales: 24 casos OK');

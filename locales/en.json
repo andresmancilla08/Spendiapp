@@ -2226,7 +2226,8 @@
     },
     "stats": {
       "best": "Best rate",
-      "worst": "Worst rate"
+      "worst": "Worst rate",
+      "sameAsToday": "same as today"
     },
     "list": {
       "title": "Declared income",
@@ -2279,6 +2280,7 @@
     "range": {
       "days_one": "{{count}} day",
       "days_other": "{{count}} days"
-    }
+    },
+    "publishedOn": "published on {{date}}"
   }
 }

@@ -153,7 +153,7 @@ async function fetchSeries(days) {
   // El EUR es opcional: si el BCE falla, la serie sale solo con USD en vez de
   // no salir. `Promise.all` con un catch por rama, no un all-or-nothing.
   const [trmData, eurData] = await Promise.all([
-    fetchJson(`https://www.datos.gov.co/resource/32sa-8pi3.json?$select=vigenciadesde,valor&$limit=${days}&$order=vigenciadesde%20DESC`),
+    fetchJson(`https://www.datos.gov.co/resource/32sa-8pi3.json?$select=vigenciadesde,vigenciahasta,valor&$limit=${days}&$order=vigenciadesde%20DESC`),
     fetchJson(`https://api.frankfurter.app/${from}..?base=USD&symbols=EUR`).catch(() => null),
   ]);
 
@@ -178,11 +178,18 @@ async function fetchSeries(days) {
   return (Array.isArray(trmData) ? trmData : [])
     .map((row) => {
       const date = String(row?.vigenciadesde ?? '').slice(0, 10);
+      // `vigenciahasta` es INCLUSIVO y es lo que hace falta para saber qué tasa
+      // rige HOY: la TRM del viernes vale también sábado, domingo y lunes, así
+      // que el punto más reciente casi nunca lleva la fecha de hoy. Sin este
+      // campo, la app etiquetaba la tasa vigente como «5 de sep.» un día 7 y
+      // parecía que faltaban datos.
+      const until = String(row?.vigenciahasta ?? '').slice(0, 10) || date;
       const copPerUsd = parseFloat(row?.valor ?? '0');
       if (!date || !(copPerUsd > 0)) return null;
       const eurPerUsd = eurPerUsdAt(date);
       return {
         date,
+        until,
         usd: Math.round(copPerUsd),
         ...(eurPerUsd > 0 ? { eur: Math.round(copPerUsd / eurPerUsd) } : {}),
       };

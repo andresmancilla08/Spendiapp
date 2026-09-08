@@ -2226,7 +2226,8 @@
     },
     "stats": {
       "best": "Tasso migliore",
-      "worst": "Tasso peggiore"
+      "worst": "Tasso peggiore",
+      "sameAsToday": "come oggi"
     },
     "list": {
       "title": "Entrate dichiarate",
@@ -2279,6 +2280,7 @@
     "range": {
       "days_one": "{{count}} giorno",
       "days_other": "{{count}} giorni"
-    }
+    },
+    "publishedOn": "pubblicato il {{date}}"
   }
 }

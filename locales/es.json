@@ -2226,7 +2226,8 @@
     },
     "stats": {
       "best": "Mejor tasa",
-      "worst": "Peor tasa"
+      "worst": "Peor tasa",
+      "sameAsToday": "igual que hoy"
     },
     "list": {
       "title": "Ingresos declarados",
@@ -2279,6 +2280,7 @@
     "range": {
       "days_one": "{{count}} día",
       "days_other": "{{count}} días"
-    }
+    },
+    "publishedOn": "publicada el {{date}}"
   }
 }
