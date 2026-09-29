@@ -2325,9 +2325,17 @@
       "copFoot": "Entrata in pesos",
       "fxFoot": "{{amount}} × {{rate}}"
     },
-    "fixed": {
-      "title": "Spese fisse · {{month}}",
-      "empty": "Non hai spese fisse a {{month}}.",
+    "expenses": {
+      "title": "Spese del mese · {{month}}",
+      "fixed_one": "Fisse · {{count}}",
+      "fixed_other": "Fisse · {{count}}",
+      "variable_one": "Variabili · {{count}}",
+      "variable_other": "Variabili · {{count}}",
+      "allOff": "Disattiva tutte",
+      "allOn": "Attiva tutte",
+      "showAll": "Vedi tutte e {{count}}",
+      "showLess": "Vedi meno",
+      "empty": "Non hai spese a {{month}}.",
       "paid": "PAGATO",
       "simulated": "SIMULATO",
       "add": "Aggiungi spesa simulata",
@@ -2349,33 +2357,25 @@
     "summary": {
       "title": "Riepilogo del mese",
       "income": "Entrata netta",
-      "fixed": "− Spese fisse",
+      "expenses": "− Spese del mese",
+      "breakdown": "Fisse {{fixed}} · Variabili {{variable}}",
+      "simulated": "Simulate {{amount}}",
       "available": "Disponibile da ripartire",
       "save": "Risparmio · {{pct}} %",
       "free": "Libero · {{pct}} %",
-      "deficit": "Le spese fisse superano l'entrata di {{amount}}. Non c'è niente da ripartire: alza lo stipendio o disattiva una spesa fissa."
+      "deficit": "Le spese superano l'entrata di {{amount}}. Non c'è niente da ripartire: alza lo stipendio o disattiva una spesa."
     },
-    "real": {
-      "title": "Rispetto al tuo mese reale",
-      "spentCurrent": "Speso finora in spese variabili",
-      "spentPast": "Speso in spese variabili",
-      "ofFree": "{{pct}} % del tuo libero",
-      "day": "giorno {{day}} di {{days}}",
-      "left": "Ti restano {{amount}}",
+    "left": {
+      "title": "Quello che ti resta",
+      "left": "Ti restano {{amount}} liberi",
       "perDay_one": "≈ {{amount}} per il giorno che manca",
       "perDay_other": "≈ {{amount}} al giorno per i {{count}} giorni che mancano",
-      "over": "Hai sforato di {{amount}}",
-      "overNote": "Esce dal tuo risparmio: ti resterebbero {{left}} dei {{save}}.",
+      "perDayFuture_one": "≈ {{amount}} al giorno per {{count}} giorno",
+      "perDayFuture_other": "≈ {{amount}} al giorno per i {{count}} giorni del mese",
+      "saveNote": "Oltre ai {{save}} che metti da parte come risparmio.",
       "pastIntro": "Così si sarebbe chiuso {{month}} con questo stipendio:",
       "pastLeft": "Avanzerebbero {{amount}}",
-      "pastLeftNote": "Oltre ai {{save}} di risparmio.",
-      "pastOver": "Mancherebbero {{amount}}",
-      "pastOverNote": "Sarebbero usciti dal risparmio ({{save}} → {{left}}).",
-      "futureEmpty": "Ancora nessuna spesa a {{month}}.",
-      "futurePerDay": "{{amount}} al giorno",
-      "futureNote": "È il tuo libero di {{free}} diviso su {{days}} giorni.",
-      "noFree": "Nessun libero da confrontare questo mese.",
-      "note": "Il confronto è con le spese non fisse: quelle fisse sono già sottratte sopra."
+      "over": "Ti mancano {{amount}} per coprire le spese"
     },
     "fund": {
       "title": "Fondo per le spese fisse",

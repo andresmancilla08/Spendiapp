@@ -2325,9 +2325,17 @@
       "copFoot": "Income in pesos",
       "fxFoot": "{{amount}} × {{rate}}"
     },
-    "fixed": {
-      "title": "Fixed expenses · {{month}}",
-      "empty": "You have no fixed expenses in {{month}}.",
+    "expenses": {
+      "title": "Expenses this month · {{month}}",
+      "fixed_one": "Fixed · {{count}}",
+      "fixed_other": "Fixed · {{count}}",
+      "variable_one": "Variable · {{count}}",
+      "variable_other": "Variable · {{count}}",
+      "allOff": "Turn all off",
+      "allOn": "Turn all on",
+      "showAll": "See all {{count}}",
+      "showLess": "See less",
+      "empty": "You have no expenses in {{month}}.",
       "paid": "PAID",
       "simulated": "SIMULATED",
       "add": "Add simulated expense",
@@ -2349,33 +2357,25 @@
     "summary": {
       "title": "Month summary",
       "income": "Net income",
-      "fixed": "− Fixed expenses",
+      "expenses": "− Expenses this month",
+      "breakdown": "Fixed {{fixed}} · Variable {{variable}}",
+      "simulated": "Simulated {{amount}}",
       "available": "Available to split",
       "save": "Savings · {{pct}} %",
       "free": "Free · {{pct}} %",
-      "deficit": "Your fixed expenses exceed your income by {{amount}}. There's nothing to split: raise the salary or turn off a fixed expense."
+      "deficit": "Your expenses exceed your income by {{amount}}. There's nothing to split: raise the salary or turn off an expense."
     },
-    "real": {
-      "title": "Against your real month",
-      "spentCurrent": "Spent so far on variable expenses",
-      "spentPast": "Spent on variable expenses",
-      "ofFree": "{{pct}} % of your free budget",
-      "day": "day {{day}} of {{days}}",
-      "left": "You have {{amount}} left",
+    "left": {
+      "title": "What you have left",
+      "left": "{{amount}} left to spend",
       "perDay_one": "≈ {{amount}} for the day left",
       "perDay_other": "≈ {{amount}} a day for the {{count}} days left",
-      "over": "You went over by {{amount}}",
-      "overNote": "This comes out of your savings: you'd keep {{left}} of {{save}}.",
+      "perDayFuture_one": "≈ {{amount}} a day for {{count}} day",
+      "perDayFuture_other": "≈ {{amount}} a day over the month's {{count}} days",
+      "saveNote": "On top of the {{save}} you set aside as savings.",
       "pastIntro": "This is how {{month}} would have closed with this salary:",
       "pastLeft": "{{amount}} left over",
-      "pastLeftNote": "On top of the {{save}} saved.",
-      "pastOver": "{{amount}} short",
-      "pastOverNote": "It would have come out of your savings ({{save}} → {{left}}).",
-      "futureEmpty": "No expenses in {{month}} yet.",
-      "futurePerDay": "{{amount}} a day",
-      "futureNote": "That's your free budget of {{free}} spread over {{days}} days.",
-      "noFree": "No free budget to compare this month.",
-      "note": "Compared with your non-fixed expenses: fixed ones are already subtracted above."
+      "over": "You're {{amount}} short of covering your expenses"
     },
     "fund": {
       "title": "Fund for your fixed expenses",

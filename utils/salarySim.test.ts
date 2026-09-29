@@ -7,7 +7,7 @@
  */
 import assert from 'node:assert';
 import {
-  simulate, monthFixedExpenses, monthVariableSpent, baseTxId, sanitizeScenario, clampPct,
+  simulate, monthExpenses, baseTxId, sanitizeScenario, clampPct,
   clampPayments, monthKind, daysLeft, rateDeltaPct, DEFAULT_SCENARIO, DEFAULT_PAYMENTS,
 } from './salarySim';
 
@@ -15,17 +15,16 @@ let n = 0;
 const eq = (a: unknown, b: unknown, msg?: string) => { assert.deepStrictEqual(a, b, msg); n++; };
 const near = (a: number, b: number, msg?: string) => { assert.ok(Math.abs(a - b) < 0.01, `${msg}: ${a} ≠ ${b}`); n++; };
 
-// ── simulate: el caso del PDF ──
-const base = { salary: 2400, rate: 3632, fixedTotal: 2_920_000, savePct: 30, paymentsPerMonth: 2, variableSpent: 3_600_000 };
+// ── simulate: TODOS los gastos restan; el fondo solo cubre los fijos ──
+const base = { salary: 2400, rate: 3632, expensesTotal: 6_520_000, fixedTotal: 2_920_000, savePct: 30, paymentsPerMonth: 2 };
 let r = simulate(base);
 eq(r.income, 8_716_800, 'ingreso = sueldo × tasa');
-eq(r.available, 5_796_800, 'disponible = ingreso − fijos');
-near(r.save, 1_739_040, 'ahorro 30 %');
-near(r.free, 4_057_760, 'libre 70 %');
+eq(r.available, 2_196_800, 'disponible = ingreso − todos los gastos');
+near(r.save, 659_040, 'ahorro 30 % del disponible');
+near(r.free, 1_537_760, 'libre 70 %');
 near(r.save + r.free, r.available, 'ahorro + libre = disponible');
-near(r.left, 457_760, 'te queda = libre − variables');
-eq(r.perPaymentCop, 1_460_000, 'fondo quincenal en COP');
-near(r.perPaymentFx, 1_460_000 / 3632, 'fondo quincenal en divisa');
+eq(r.perPaymentCop, 1_460_000, 'el fondo divide SOLO los fijos');
+near(r.perPaymentFx, 1_460_000 / 3632, 'fondo en divisa');
 eq(r.deficit, false);
 
 // COP: tasa 1
@@ -33,16 +32,15 @@ r = simulate({ ...base, salary: 7_500_000, rate: 1 });
 eq(r.income, 7_500_000);
 eq(r.perPaymentFx, r.perPaymentCop, 'en COP el fondo en divisa es el mismo');
 
-// Fijos > ingreso: nada que repartir, y el déficit se ve
-r = simulate({ ...base, salary: 700, rate: 3192 });
+// Gastos > ingreso
+r = simulate({ ...base, salary: 1500, rate: 3192 });
 eq(r.deficit, true);
 eq(r.save, 0); eq(r.free, 0);
-eq(r.available, 700 * 3192 - 2_920_000, 'el disponible negativo se conserva para mostrarlo');
-eq(r.left, -3_600_000, 'sin libre, todo lo gastado es exceso');
+eq(r.available, 1500 * 3192 - 6_520_000, 'el negativo se conserva para mostrarlo');
 
-// Te pasaste del libre
-r = simulate({ ...base, savePct: 50 });
-assert.ok(r.left < 0); n++;
+// Apagar todo
+r = simulate({ ...base, expensesTotal: 0, fixedTotal: 0 });
+eq(r.available, 8_716_800); eq(r.perPaymentCop, 0);
 
 // Extremos del reparto
 eq(simulate({ ...base, savePct: 0 }).save, 0);
@@ -56,9 +54,8 @@ eq(simulate({ ...base, paymentsPerMonth: 5 }).perPaymentCop, 584_000, 'semanal �
 eq(simulate({ ...base, paymentsPerMonth: 0 }).perPaymentCop, 2_920_000, 'nunca divide por cero');
 eq(simulate({ ...base, rate: 0 }).perPaymentFx, 0, 'sin tasa no inventa divisa');
 eq(simulate({ ...base, rate: 0 }).income, 0);
-eq(simulate({ ...base, fixedTotal: 0 }).perPaymentCop, 0);
 
-// ── fijos y variables del mes ──
+// ── gastos del mes ──
 const txs = [
   { id: 'a_virtual_2026_8', type: 'expense' as const, amount: 2_200_000, description: 'Arriendo', isFixed: true, isPaid: true },
   { id: 'g', type: 'expense' as const, amount: 130_000, description: 'Gimnasio', isFixed: true },
@@ -67,11 +64,13 @@ const txs = [
   { id: 's', type: 'income' as const, amount: 9_000_000, description: 'Sueldo', isFixed: true },
   { id: 'f', type: 'expense' as const, amount: 400_000, description: 'Luz compartida', isFixed: true, isShared: true, sharedAmount: 200_000 },
 ];
-const fixed = monthFixedExpenses(txs);
-eq(fixed.map((f) => f.id), ['a', 'f', 'g'], 'solo gastos fijos, id real, de mayor a menor');
-eq(fixed[0].paid, true);
-eq(fixed[1].amount, 200_000, 'compartido: tu parte');
-eq(monthVariableSpent(txs), 150_000, 'variables: sin fijos, sin ingresos, tu parte');
+const ex = monthExpenses(txs);
+eq(ex.map((e) => e.id), ['a', 'f', 'g', 'c', 'm'], 'fijos primero, luego variables; cada grupo de mayor a menor; sin ingresos');
+eq(ex.map((e) => e.fixed), [true, true, true, false, false]);
+eq(ex[0].paid, true);
+eq(ex[1].amount, 200_000, 'compartido fijo: tu parte');
+eq(ex[3].amount, 100_000, 'compartido variable: tu parte');
+eq(ex[3].id, 'c', 'un variable conserva su id');
 eq(baseTxId('abc_virtual_2026_11'), 'abc');
 eq(baseTxId('abc'), 'abc');
 
@@ -80,12 +79,12 @@ eq(sanitizeScenario(null), DEFAULT_SCENARIO, 'nada guardado = por defecto');
 eq(sanitizeScenario({ currency: 'JPY', salary: -3, savePct: 'x', frequency: 'daily' }), DEFAULT_SCENARIO);
 const s = sanitizeScenario({
   currency: 'EUR', salary: 2400, manualRates: { EUR: 3480, USD: -1, GBP: 5 }, savePct: 20.4,
-  frequency: 'weekly', excludedFixedIds: ['g', 3], simulated: [{ id: 'x', name: 'Arriendo nuevo', amount: 300000 }, { id: 'y' }],
+  frequency: 'weekly', excludedTxIds: ['g', 3], simulated: [{ id: 'x', name: 'Arriendo nuevo', amount: 300000 }, { id: 'y' }],
 });
 eq(s.manualRates, { EUR: 3480 }, 'solo tasas válidas de USD/EUR');
 eq(s.savePct, 20);
 eq(s.paymentsPerMonth, DEFAULT_PAYMENTS.weekly, 'sin pagos guardados, el de la frecuencia');
-eq(s.excludedFixedIds, ['g']);
+eq(s.excludedTxIds, ['g']);
 eq(s.simulated.length, 1);
 eq(sanitizeScenario({ frequency: 'weekly', paymentsPerMonth: 9 }).paymentsPerMonth, 5, 'tope de pagos');
 

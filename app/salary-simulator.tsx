@@ -46,9 +46,9 @@ import { goBack } from '../utils/nav';
 import { parseAmount } from '../utils/fxIncomeForm';
 import { rateFor, toCop, type FxCurrency } from '../utils/fxConvert';
 import {
-  simulate, monthFixedExpenses, monthVariableSpent, monthKind, daysInMonth, daysLeft, rateDeltaPct,
+  simulate, monthExpenses, monthKind, daysInMonth, daysLeft, rateDeltaPct,
   clampPct, clampPayments, DEFAULT_PAYMENTS, PAY_FREQUENCIES, PAYMENTS_MAX, PAYMENTS_MIN, SAVE_PRESETS,
-  SIMULATED_MAX, SIMULATED_NAME_MAX, type PayFrequency,
+  SIMULATED_MAX, SIMULATED_NAME_MAX, type PayFrequency, type MonthExpense,
 } from '../utils/salarySim';
 
 const SYMBOL: Record<FxCurrency, string> = { COP: '$', EUR: '€', USD: 'US$' };
@@ -56,6 +56,8 @@ const CURRENCIES: FxCurrency[] = ['COP', 'EUR', 'USD'];
 /** Hasta dónde se puede navegar: un año atrás y un trimestre adelante. */
 const MONTHS_BACK = 12;
 const MONTHS_AHEAD = 3;
+/** Variables visibles antes de «Ver todos»: un mes normal tiene decenas. */
+const VARIABLE_PREVIEW = 6;
 
 /** Mismo latido que «Mi salario» y los chips del Home: «este dato está vivo». */
 const DOT_FRAMES: FxFrame[] = [
@@ -160,13 +162,21 @@ export default function SalarySimulatorScreen() {
     }
   }, [simLoading, sc]);
 
-  const monthFixed = useMemo(() => monthFixedExpenses(transactions), [transactions]);
-  const variableSpent = useMemo(() => monthVariableSpent(transactions), [transactions]);
-  const fixedTotal = monthFixed.filter((f) => !sc.excludedFixedIds.includes(f.id)).reduce((s, f) => s + f.amount, 0)
-    + sc.simulated.reduce((s, e) => s + e.amount, 0);
+  const expenses = useMemo(() => monthExpenses(transactions), [transactions]);
+  const fixedList = expenses.filter((e) => e.fixed);
+  const variableList = expenses.filter((e) => !e.fixed);
+  const [showAllVariables, setShowAllVariables] = useState(false);
+  const isOn = (e: MonthExpense) => !sc.excludedTxIds.includes(e.id);
+  const sumOn = (list: MonthExpense[]) => list.filter(isOn).reduce((s, e) => s + e.amount, 0);
+  const simulatedTotal = sc.simulated.reduce((s, e) => s + e.amount, 0);
+  const fixedOn = sumOn(fixedList);
+  const variableOn = sumOn(variableList);
+  // El fondo cubre compromisos: fijos + simulados. Lo que se resta es todo.
+  const fixedTotal = fixedOn + simulatedTotal;
+  const expensesTotal = fixedOn + variableOn + simulatedTotal;
 
   const res = simulate({
-    salary: sc.salary, rate, fixedTotal, savePct: sc.savePct, paymentsPerMonth: sc.paymentsPerMonth, variableSpent,
+    salary: sc.salary, rate, expensesTotal, fixedTotal, savePct: sc.savePct, paymentsPerMonth: sc.paymentsPerMonth,
   });
 
   const kind = monthKind(ym.y, ym.m, now);
@@ -229,12 +239,23 @@ export default function SalarySimulatorScreen() {
     setRateText(currency !== 'COP' && sc.manualRates[currency] !== undefined ? toField(sc.manualRates[currency]!) : '');
     setScenario((p) => ({ ...p, currency, salary }));
   };
-  const toggleFixed = (id: string) => setScenario((p) => ({
+  const toggleExpense = (id: string) => setScenario((p) => ({
     ...p,
-    excludedFixedIds: p.excludedFixedIds.includes(id)
-      ? p.excludedFixedIds.filter((x) => x !== id)
-      : [...p.excludedFixedIds, id],
+    excludedTxIds: p.excludedTxIds.includes(id)
+      ? p.excludedTxIds.filter((x) => x !== id)
+      : [...p.excludedTxIds, id],
   }));
+  /** Enciende o apaga un grupo entero. Si hay alguno encendido, apaga todos. */
+  const toggleGroup = (list: MonthExpense[]) => setScenario((p) => {
+    const ids = list.map((e) => e.id);
+    const anyOn = ids.some((id) => !p.excludedTxIds.includes(id));
+    return {
+      ...p,
+      excludedTxIds: anyOn
+        ? [...new Set([...p.excludedTxIds, ...ids])]
+        : p.excludedTxIds.filter((x) => !ids.includes(x)),
+    };
+  });
   const addSimulated = () => setScenario((p) => (p.simulated.length >= SIMULATED_MAX ? p : {
     ...p, simulated: [...p.simulated, { id: `sim_${Date.now()}`, name: '', amount: 0 }],
   }));
@@ -291,61 +312,83 @@ export default function SalarySimulatorScreen() {
   const cardTitle = [styles.cardTitle, { color: colors.textTertiary }];
   const input = [styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.textPrimary }];
 
-  const renderReal = () => {
-    if (res.deficit) return <Text style={[styles.note, { color: colors.textSecondary }]}>{t('salarySim.real.noFree')}</Text>;
-    if (kind === 'future') {
-      const days = daysInMonth(ym.y, ym.m);
+  /** Lo que te queda: con todos los gastos ya restados, el libre ES lo que queda. */
+  const renderLeft = () => {
+    if (res.deficit) {
+      return <Text style={[styles.headline, { color: errorInk }]}>{t('salarySim.left.over', { amount: money(-res.available) })}</Text>;
+    }
+    if (kind === 'past') {
       return (
         <>
-          <Text style={[styles.note, { color: colors.textSecondary }]}>{t('salarySim.real.futureEmpty', { month: monthInSentence })}</Text>
-          <Text style={[styles.headline, { color: saveInk }]}>{t('salarySim.real.futurePerDay', { amount: money(res.free / days) })}</Text>
-          <Text style={[styles.note, { color: colors.textTertiary }]}>{t('salarySim.real.futureNote', { free: money(res.free), days })}</Text>
+          <Text style={[styles.note, { color: colors.textSecondary }]}>{t('salarySim.left.pastIntro', { month: monthInSentence })}</Text>
+          <Text style={[styles.headline, { color: saveInk }]}>{t('salarySim.left.pastLeft', { amount: money(res.free) })}</Text>
+          <Text style={[styles.note, { color: colors.textTertiary }]}>{t('salarySim.left.saveNote', { save: money(res.save) })}</Text>
         </>
       );
     }
-    const over = res.left < 0;
-    const used = res.free > 0 ? variableSpent / res.free : (variableSpent > 0 ? 1 : 0);
-    const left = daysLeft(ym.y, ym.m, now);
+    const days = kind === 'future' ? daysInMonth(ym.y, ym.m) : daysLeft(ym.y, ym.m, now);
     return (
       <>
-        <View style={styles.sumRow}>
-          <Text style={[styles.sumLabel, { color: colors.textSecondary }]}>
-            {t(kind === 'past' ? 'salarySim.real.spentPast' : 'salarySim.real.spentCurrent')}
-          </Text>
-          <Text style={[styles.sumValue, { color: colors.textPrimary }]}>{money(variableSpent)}</Text>
-        </View>
-        <View style={[styles.bar, { backgroundColor: colors.inputBackground }]}>
-          <View style={{ width: `${Math.min(used, 1) * 100}%`, backgroundColor: over ? colors.error : colors.primary }} />
-        </View>
-        <Text style={[styles.note, { color: colors.textTertiary }]}>
-          {t('salarySim.real.ofFree', { pct: Math.round(used * 100) })}
-          {kind === 'current' ? ` · ${t('salarySim.real.day', { day: now.getDate(), days: daysInMonth(ym.y, ym.m) })}` : ''}
+        <Text style={[styles.headline, { color: saveInk }]}>{t('salarySim.left.left', { amount: money(res.free) })}</Text>
+        <Text style={[styles.note, { color: colors.textSecondary }]}>
+          {t(kind === 'future' ? 'salarySim.left.perDayFuture' : 'salarySim.left.perDay', { amount: money(res.free / days), count: days })}
         </Text>
-        {kind === 'past' ? (
-          <>
-            <Text style={[styles.note, { color: colors.textSecondary, marginTop: 10 }]}>{t('salarySim.real.pastIntro', { month: monthInSentence })}</Text>
-            <Text style={[styles.headline, { color: over ? errorInk : saveInk }]}>
-              {t(over ? 'salarySim.real.pastOver' : 'salarySim.real.pastLeft', { amount: money(Math.abs(res.left)) })}
-            </Text>
-            <Text style={[styles.note, { color: colors.textTertiary }]}>
-              {over
-                ? t('salarySim.real.pastOverNote', { save: money(res.save), left: money(res.save + res.left) })
-                : t('salarySim.real.pastLeftNote', { save: money(res.save) })}
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text style={[styles.headline, { color: over ? errorInk : saveInk }]}>
-              {t(over ? 'salarySim.real.over' : 'salarySim.real.left', { amount: money(Math.abs(res.left)) })}
-            </Text>
-            <Text style={[styles.note, { color: colors.textTertiary }]}>
-              {over
-                ? t('salarySim.real.overNote', { left: money(Math.max(res.save + res.left, 0)), save: money(res.save) })
-                : t('salarySim.real.perDay', { amount: money(res.left / left), count: left })}
-            </Text>
-          </>
-        )}
+        <Text style={[styles.note, { color: colors.textTertiary }]}>{t('salarySim.left.saveNote', { save: money(res.save) })}</Text>
       </>
+    );
+  };
+
+  const renderGroup = (list: MonthExpense[], group: 'fixed' | 'variable') => {
+    if (list.length === 0) return null;
+    const visible = group === 'variable' && !showAllVariables ? list.slice(0, VARIABLE_PREVIEW) : list;
+    const anyOn = list.some(isOn);
+    return (
+      <View style={styles.group}>
+        <View style={styles.groupHead}>
+          <Text style={[styles.groupTitle, { color: colors.textSecondary }]}>
+            {t(`salarySim.expenses.${group}`, { count: list.length })}
+          </Text>
+          <Text style={[styles.groupTotal, { color: colors.textPrimary }]}>{money(sumOn(list))}</Text>
+          <TouchableOpacity onPress={() => toggleGroup(list)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Text style={[styles.link, { color: primaryInk }]}>{t(anyOn ? 'salarySim.expenses.allOff' : 'salarySim.expenses.allOn')}</Text>
+          </TouchableOpacity>
+        </View>
+        {visible.map((e, i) => {
+          const on = isOn(e);
+          return (
+            <View key={e.id} style={[styles.fixedRow, i > 0 && { borderTopColor: colors.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+              <Switch
+                value={on}
+                onValueChange={() => toggleExpense(e.id)}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={colors.onPrimary}
+                accessibilityLabel={t('salarySim.expenses.include', { name: e.name })}
+              />
+              <View style={styles.fixedMain}>
+                <Text style={[styles.fixedName, { color: on ? colors.textPrimary : colors.textTertiary }, !on && styles.struck]} numberOfLines={1}>
+                  {e.name}
+                </Text>
+                {e.paid && (
+                  <View style={[styles.chip, styles.chipInline, { backgroundColor: liveChipBg, borderColor: colors.success + '4D' }]}>
+                    <Text style={[styles.chipText, { color: liveChipInk }]}>{t('salarySim.expenses.paid')}</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={[styles.fixedAmount, { color: on ? colors.textPrimary : colors.textTertiary }, !on && styles.struck]}>
+                {money(e.amount)}
+              </Text>
+            </View>
+          );
+        })}
+        {group === 'variable' && list.length > VARIABLE_PREVIEW && (
+          <TouchableOpacity onPress={() => setShowAllVariables((v) => !v)} style={styles.linkRow} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <AppIcon name={showAllVariables ? 'chevron-up' : 'chevron-down'} size={14} color={primaryInk} />
+            <Text style={[styles.link, { color: primaryInk }]}>
+              {showAllVariables ? t('salarySim.expenses.showLess') : t('salarySim.expenses.showAll', { count: list.length })}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     );
   };
 
@@ -513,46 +556,22 @@ export default function SalarySimulatorScreen() {
                   </View>
                 </View>
 
-                {/* ── 2 · Gastos fijos ── */}
+                {/* ── 2 · Gastos del mes ── */}
                 <View style={card}>
                   <View style={styles.cardHead}>
-                    <Text style={cardTitle}>{t('salarySim.fixed.title', { month: monthName })}</Text>
-                    <Text style={[styles.cardTotal, { color: expenseInk }]}>{money(fixedTotal)}</Text>
+                    <Text style={cardTitle}>{t('salarySim.expenses.title', { month: monthName })}</Text>
+                    <Text style={[styles.cardTotal, { color: expenseInk }]}>{money(expensesTotal)}</Text>
                   </View>
                   {txLoading ? (
                     <Skeleton width="100%" height={96} borderRadius={14} />
-                  ) : monthFixed.length === 0 ? (
-                    <Text style={[styles.note, { color: colors.textSecondary }]}>{t('salarySim.fixed.empty', { month: monthInSentence })}</Text>
-                  ) : monthFixed.map((f, i) => {
-                    const on = !sc.excludedFixedIds.includes(f.id);
-                    return (
-                      <View key={f.id} style={[styles.fixedRow, i > 0 && { borderTopColor: colors.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-                        <Switch
-                          value={on}
-                          onValueChange={() => toggleFixed(f.id)}
-                          trackColor={{ false: colors.border, true: colors.primary }}
-                          thumbColor={colors.onPrimary}
-                          accessibilityLabel={t('salarySim.fixed.include', { name: f.name })}
-                        />
-                        <View style={styles.fixedMain}>
-                          <Text
-                            style={[styles.fixedName, { color: on ? colors.textPrimary : colors.textTertiary }, !on && styles.struck]}
-                            numberOfLines={1}
-                          >
-                            {f.name}
-                          </Text>
-                          {f.paid && (
-                            <View style={[styles.chip, styles.chipInline, { backgroundColor: liveChipBg, borderColor: colors.success + '4D' }]}>
-                              <Text style={[styles.chipText, { color: liveChipInk }]}>{t('salarySim.fixed.paid')}</Text>
-                            </View>
-                          )}
-                        </View>
-                        <Text style={[styles.fixedAmount, { color: on ? colors.textPrimary : colors.textTertiary }, !on && styles.struck]}>
-                          {money(f.amount)}
-                        </Text>
-                      </View>
-                    );
-                  })}
+                  ) : expenses.length === 0 ? (
+                    <Text style={[styles.note, { color: colors.textSecondary }]}>{t('salarySim.expenses.empty', { month: monthInSentence })}</Text>
+                  ) : (
+                    <>
+                      {renderGroup(fixedList, 'fixed')}
+                      {renderGroup(variableList, 'variable')}
+                    </>
+                  )}
 
                   {sc.simulated.map((s) => (
                     <View key={s.id} style={[styles.fixedRow, { borderTopColor: colors.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
@@ -561,12 +580,12 @@ export default function SalarySimulatorScreen() {
                           value={s.name}
                           onChangeText={(v) => renameSimulated(s.id, v)}
                           maxLength={SIMULATED_NAME_MAX}
-                          placeholder={t('salarySim.fixed.namePlaceholder')}
+                          placeholder={t('salarySim.expenses.namePlaceholder')}
                           placeholderTextColor={colors.textTertiary}
                           style={[...input, styles.inputSmall]}
                         />
                         <View style={[styles.chip, styles.chipInline, { backgroundColor: simChipBg, borderColor: colors.primary + '4D' }]}>
-                          <Text style={[styles.chipText, { color: simChipInk }]}>{t('salarySim.fixed.simulated')}</Text>
+                          <Text style={[styles.chipText, { color: simChipInk }]}>{t('salarySim.expenses.simulated')}</Text>
                         </View>
                       </View>
                       <TextInput
@@ -581,7 +600,7 @@ export default function SalarySimulatorScreen() {
                       <TouchableOpacity
                         onPress={() => removeSimulated(s.id)}
                         accessibilityRole="button"
-                        accessibilityLabel={t('salarySim.fixed.remove')}
+                        accessibilityLabel={t('salarySim.expenses.remove')}
                         style={[styles.iconBtn, { backgroundColor: colors.error + '18' }]}
                       >
                         <AppIcon name="trash-outline" size={16} color={colors.error} />
@@ -596,12 +615,12 @@ export default function SalarySimulatorScreen() {
                       style={[styles.addBtn, { borderColor: colors.primary + '66', backgroundColor: colors.primary + '0D' }]}
                     >
                       <AppIcon name="add" size={16} color={primaryInk} />
-                      <Text style={[styles.link, { color: primaryInk }]}>{t('salarySim.fixed.add')}</Text>
+                      <Text style={[styles.link, { color: primaryInk }]}>{t('salarySim.expenses.add')}</Text>
                     </TouchableOpacity>
                   ) : (
-                    <Text style={[styles.note, { color: colors.textTertiary }]}>{t('salarySim.fixed.max', { max: SIMULATED_MAX })}</Text>
+                    <Text style={[styles.note, { color: colors.textTertiary }]}>{t('salarySim.expenses.max', { max: SIMULATED_MAX })}</Text>
                   )}
-                  <Text style={[styles.note, { color: colors.textTertiary }]}>{t('salarySim.fixed.note')}</Text>
+                  <Text style={[styles.note, { color: colors.textTertiary }]}>{t('salarySim.expenses.note')}</Text>
                 </View>
 
                 {/* ── 3 · Reparto ── */}
@@ -667,7 +686,7 @@ export default function SalarySimulatorScreen() {
                 <View style={card}>
                   <Text style={cardTitle}>{t('salarySim.summary.title')}</Text>
                   <View style={[styles.bar, styles.barTall, { backgroundColor: colors.inputBackground }]}>
-                    <View style={{ width: `${Math.min(res.fixedTotal / total, 1) * 100}%`, backgroundColor: colors.expense }} />
+                    <View style={{ width: `${Math.min(res.expensesTotal / total, 1) * 100}%`, backgroundColor: colors.expense }} />
                     <View style={{ width: `${(res.save / total) * 100}%`, backgroundColor: colors.success }} />
                     <View style={{ width: `${(res.free / total) * 100}%`, backgroundColor: colors.primary }} />
                   </View>
@@ -676,9 +695,13 @@ export default function SalarySimulatorScreen() {
                     <Text style={[styles.sumValue, { color: colors.textPrimary }]}>{money(res.income)}</Text>
                   </View>
                   <View style={styles.sumRow}>
-                    <Text style={[styles.sumLabel, { color: colors.textSecondary }]}>{t('salarySim.summary.fixed')}</Text>
-                    <Text style={[styles.sumValue, { color: expenseInk }]}>{money(res.fixedTotal)}</Text>
+                    <Text style={[styles.sumLabel, { color: colors.textSecondary }]}>{t('salarySim.summary.expenses')}</Text>
+                    <Text style={[styles.sumValue, { color: expenseInk }]}>{money(res.expensesTotal)}</Text>
                   </View>
+                  <Text style={[styles.note, styles.sumBreak, { color: colors.textTertiary }]}>
+                    {t('salarySim.summary.breakdown', { fixed: money(fixedOn), variable: money(variableOn) })}
+                    {simulatedTotal > 0 ? ` · ${t('salarySim.summary.simulated', { amount: money(simulatedTotal) })}` : ''}
+                  </Text>
                   <View style={[styles.sumRow, styles.sumEq, { borderTopColor: colors.border }]}>
                     <Text style={[styles.sumLabel, { color: colors.textPrimary }]}>{t('salarySim.summary.available')}</Text>
                     <Text style={[styles.sumValue, styles.sumValueBig, { color: res.deficit ? errorInk : colors.textPrimary }]}>{money(res.available)}</Text>
@@ -701,11 +724,10 @@ export default function SalarySimulatorScreen() {
                   )}
                 </View>
 
-                {/* ── 5 · Frente a tu mes real ── */}
+                {/* ── 5 · Lo que te queda ── */}
                 <View style={[...card, { borderColor: colors.primary + '4D' }]}>
-                  <Text style={cardTitle}>{t('salarySim.real.title')}</Text>
-                  {txLoading ? <Skeleton width="100%" height={80} borderRadius={14} /> : renderReal()}
-                  <Text style={[styles.note, { color: colors.textTertiary, marginTop: 10 }]}>{t('salarySim.real.note')}</Text>
+                  <Text style={cardTitle}>{t('salarySim.left.title')}</Text>
+                  {txLoading ? <Skeleton width="100%" height={64} borderRadius={14} /> : renderLeft()}
                 </View>
 
                 {/* ── 6 · Fondo para fijos ── */}
@@ -738,7 +760,7 @@ export default function SalarySimulatorScreen() {
                       <AppIcon name="add" size={16} color={colors.primary} />
                     </TouchableOpacity>
                   </View>
-                  {res.fixedTotal <= 0 ? (
+                  {fixedTotal <= 0 ? (
                     <Text style={[styles.note, { color: colors.textSecondary, marginTop: 10 }]}>{t('salarySim.fund.noFixed')}</Text>
                   ) : (
                     <>
@@ -755,12 +777,12 @@ export default function SalarySimulatorScreen() {
                             ? t('salarySim.fund.formula', {
                                 count: sc.paymentsPerMonth,
                                 each: cur === 'COP' ? money(res.perPaymentCop) : fx(res.perPaymentFx),
-                                total: cur === 'COP' ? money(res.fixedTotal) : fx(res.perPaymentFx * sc.paymentsPerMonth),
-                                fixed: money(res.fixedTotal),
+                                total: cur === 'COP' ? money(fixedTotal) : fx(res.perPaymentFx * sc.paymentsPerMonth),
+                                fixed: money(fixedTotal),
                               })
                             : t('salarySim.fund.formulaOne', {
                                 each: cur === 'COP' ? money(res.perPaymentCop) : fx(res.perPaymentFx),
-                                fixed: money(res.fixedTotal),
+                                fixed: money(fixedTotal),
                               })}
                         </Text>
                       </View>
@@ -853,6 +875,11 @@ const styles = StyleSheet.create({
   bar: { height: 10, borderRadius: 5, overflow: 'hidden', flexDirection: 'row', marginVertical: 8 },
   barTall: { height: 12, borderRadius: 6, marginTop: 0, marginBottom: 10 },
   sumRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 6 },
+  sumBreak: { marginTop: -2, marginBottom: 2 },
+  group: { marginTop: 4 },
+  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
+  groupTitle: { flex: 1, fontSize: 12, fontFamily: Fonts.extraBold },
+  groupTotal: { fontSize: 12.5, fontFamily: Fonts.extraBold },
   sumEq: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4, paddingTop: 10 },
   sumLabel: { fontSize: 13, fontFamily: Fonts.semiBold, flexShrink: 1 },
   sumValue: { fontSize: 13.5, fontFamily: Fonts.extraBold, letterSpacing: -0.2 },

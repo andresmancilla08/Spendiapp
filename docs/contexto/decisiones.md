@@ -341,6 +341,9 @@ prototipo: `docs/simulador-presupuesto-propuestas.html`. Aritmética: `utils/sal
 ### Otras — Vigentes
 - Premium, en «Planear» de Herramientas. Reparto 30/70 por defecto con accesos a 30/70,
   20/80 y 50/50. El ingreso es solo el simulado: los ingresos reales del mes NO se suman.
-- «Frente a tu mes real» compara el libre simulado con el **gasto variable** (los fijos ya
-  se restaron; contarlos otra vez los restaría dos veces). Todo por `effectiveAmount`.
+- **Se restan TODOS los gastos del mes** (fijos y variables), cada uno con su interruptor
+  (pedido del usuario, 2026-09-28; reemplazó a «Frente a tu mes real», que comparaba el
+  libre contra los variables). Lo que queda tras gastos y ahorro ES el libre. El fondo por
+  pago cubre solo fijos + simulados. Todo por `effectiveAmount`. Un fijo se apaga por el id
+  de su documento real (vale para todos los meses); un variable, por su id.
 - El mes es estado de la pantalla y ninguna acción lo resetea al actual.

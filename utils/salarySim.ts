@@ -1,9 +1,9 @@
 /**
  * Simulador de sueldo — toda la aritmética, pura y sin React.
  *
- * El simulador LEE los movimientos del mes (fijos y variables) y no escribe
- * nunca en `transactions`: lo que el usuario apaga o añade aquí vive en el
- * escenario de su perfil (`users/{uid}.salarySim`). Por eso un «¿y si…?» no
+ * El simulador LEE todos los gastos del mes elegido (fijos y variables) y no
+ * escribe nunca en `transactions`: lo que el usuario apaga o añade aquí vive en
+ * el escenario de su perfil (`users/{uid}.salarySim`). Por eso un «¿y si…?» no
  * puede mover el balance ni el histórico.
  *
  * Gate: `npx tsx utils/salarySim.test.ts`
@@ -43,8 +43,10 @@ export interface SalarySimScenario {
   savePct: number;
   frequency: PayFrequency;
   paymentsPerMonth: number;
-  /** Id del documento real del fijo (sin el sufijo `_virtual_`): vale para todos los meses. */
-  excludedFixedIds: string[];
+  /** Gastos apagados. Un fijo se guarda por el id de su documento real (sin
+   *  `_virtual_`), así que apagarlo vale para todos los meses; un variable es
+   *  un documento suelto y solo existe en su mes. */
+  excludedTxIds: string[];
   simulated: SimulatedExpense[];
 }
 
@@ -55,7 +57,7 @@ export const DEFAULT_SCENARIO: SalarySimScenario = {
   savePct: DEFAULT_SAVE_PCT,
   frequency: 'monthly',
   paymentsPerMonth: DEFAULT_PAYMENTS.monthly,
-  excludedFixedIds: [],
+  excludedTxIds: [],
   simulated: [],
 };
 
@@ -87,8 +89,8 @@ export function sanitizeScenario(raw: unknown): SalarySimScenario {
     savePct: typeof r.savePct === 'number' ? clampPct(r.savePct) : DEFAULT_SAVE_PCT,
     frequency,
     paymentsPerMonth: typeof r.paymentsPerMonth === 'number' ? clampPayments(r.paymentsPerMonth) : DEFAULT_PAYMENTS[frequency],
-    excludedFixedIds: Array.isArray(r.excludedFixedIds)
-      ? r.excludedFixedIds.filter((x): x is string => typeof x === 'string').slice(0, 200) : [],
+    excludedTxIds: Array.isArray(r.excludedTxIds)
+      ? r.excludedTxIds.filter((x): x is string => typeof x === 'string').slice(0, 500) : [],
     simulated: Array.isArray(r.simulated)
       ? r.simulated
           .filter((s): s is SimulatedExpense => !!s && typeof s.id === 'string' && typeof s.name === 'string' && finitePos(s.amount))
@@ -117,52 +119,53 @@ interface TxLike {
   sharedAmount?: number | null;
 }
 
-export interface MonthFixed {
+export interface MonthExpense {
   id: string;
   name: string;
   category?: string;
   /** Tu parte (`effectiveAmount`), en COP. */
   amount: number;
   paid: boolean;
+  fixed: boolean;
 }
 
-/** Gastos fijos del mes. Los ingresos fijos no entran: el ingreso es el simulado (D8). */
-export function monthFixedExpenses(txs: TxLike[]): MonthFixed[] {
+/** Todos los gastos del mes, fijos primero y cada grupo de mayor a menor. Los
+ *  ingresos no entran: el ingreso es el simulado (D8). */
+export function monthExpenses(txs: TxLike[]): MonthExpense[] {
   return txs
-    .filter((t) => t.type === 'expense' && t.isFixed === true)
-    .map((t) => ({ id: baseTxId(t.id), name: t.description, category: t.category, amount: effectiveAmount(t), paid: t.isPaid === true }))
-    .sort((a, b) => b.amount - a.amount);
-}
-
-/** Gasto variable del mes: todo gasto que NO es fijo. Los fijos ya se restan
- *  en el resumen; contarlos aquí también los restaría dos veces. */
-export function monthVariableSpent(txs: TxLike[]): number {
-  return txs
-    .filter((t) => t.type === 'expense' && t.isFixed !== true)
-    .reduce((s, t) => s + effectiveAmount(t), 0);
+    .filter((t) => t.type === 'expense')
+    .map((t) => ({
+      id: t.isFixed === true ? baseTxId(t.id) : t.id,
+      name: t.description,
+      category: t.category,
+      amount: effectiveAmount(t),
+      paid: t.isPaid === true,
+      fixed: t.isFixed === true,
+    }))
+    .sort((x, y) => Number(y.fixed) - Number(x.fixed) || y.amount - x.amount);
 }
 
 export interface SimInput {
   salary: number;
   /** COP por unidad de la moneda del sueldo. 1 si es COP. */
   rate: number;
+  /** Todo lo que se resta: gastos encendidos (fijos y variables) + simulados. */
+  expensesTotal: number;
+  /** Solo compromisos: fijos encendidos + simulados. Es lo que cubre el fondo. */
   fixedTotal: number;
   savePct: number;
   paymentsPerMonth: number;
-  variableSpent: number;
 }
 
 export interface SimResult {
   income: number;
-  fixedTotal: number;
-  /** Ingreso − fijos. Puede ser negativo. */
+  expensesTotal: number;
+  /** Ingreso − gastos. Puede ser negativo. */
   available: number;
-  /** Los fijos superan el ingreso: no hay nada que repartir. */
+  /** Los gastos superan el ingreso: no hay nada que repartir. */
   deficit: boolean;
   save: number;
   free: number;
-  /** Libre − gasto variable real. Negativo = te pasaste. */
-  left: number;
   /** Fondo para fijos por pago. */
   perPaymentCop: number;
   /** El mismo fondo en la moneda del sueldo. */
@@ -172,21 +175,19 @@ export interface SimResult {
 export function simulate(i: SimInput): SimResult {
   const rate = i.rate > 0 ? i.rate : 0;
   const income = Math.max(0, i.salary) * rate;
-  const available = income - i.fixedTotal;
+  const available = income - i.expensesTotal;
   const deficit = available < 0;
   const pct = clampPct(i.savePct);
   const save = deficit ? 0 : available * pct / 100;
   const free = deficit ? 0 : available - save;
-  const payments = clampPayments(i.paymentsPerMonth);
-  const perPaymentCop = i.fixedTotal / payments;
+  const perPaymentCop = Math.max(0, i.fixedTotal) / clampPayments(i.paymentsPerMonth);
   return {
     income,
-    fixedTotal: i.fixedTotal,
+    expensesTotal: i.expensesTotal,
     available,
     deficit,
     save,
     free,
-    left: free - i.variableSpent,
     perPaymentCop,
     perPaymentFx: rate > 0 ? perPaymentCop / rate : 0,
   };
