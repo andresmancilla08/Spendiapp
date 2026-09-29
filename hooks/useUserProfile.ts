@@ -156,6 +156,14 @@ export async function updateFxIncomes(
   await updateDoc(doc(db, 'users', uid), { fxIncomes: incomes });
 }
 
+/** Guarda el escenario del Simulador de sueldo. Nunca toca `transactions`. */
+export async function updateSalarySim(
+  uid: string,
+  scenario: NonNullable<UserProfile['salarySim']>,
+): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { salarySim: scenario });
+}
+
 /** Sincroniza las preferencias de personalización premium con la cuenta. */
 export async function updateUserPersonalization(
   uid: string,

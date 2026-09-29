@@ -111,6 +111,7 @@ export default function ToolsScreen() {
   const simState = stateOf(flags.simulatorEnabled, false);
   const recurringState: ToolState = 'ready';
   const fxIncomeState = stateOf(true, true);
+  const salarySimState = stateOf(true, true);
   const catState = stateOf(flags.categoriesEnabled, false);
   const reportState = stateOf(flags.reportsEnabled, false);
   const friendState = stateOf(flags.friendsEnabled, true);
@@ -126,6 +127,7 @@ export default function ToolsScreen() {
         { key: 'goals', icon: 'flag', title: t('tools.goalsCard.title'), description: t('tools.goalsCard.description'), route: '/goals', state: goalsState,
           metric: goalsState === 'ready' ? <GoalsMetric uid={uid} /> : undefined },
         { key: 'sim', icon: 'calculator-outline', title: t('tools.simulatorCard.title'), description: t('tools.simulatorCard.description'), route: '/purchase-simulator', state: simState },
+        { key: 'salarySim', icon: 'wallet-outline', title: t('tools.salarySimCard.title'), description: t('tools.salarySimCard.description'), route: '/salary-simulator', state: salarySimState },
       ],
     },
     {

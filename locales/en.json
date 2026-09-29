@@ -1215,6 +1215,10 @@
     "fxIncomeCard": {
       "title": "My salary",
       "description": "Your income in another currency, at today's rate"
+    },
+    "salarySimCard": {
+      "title": "Salary simulator",
+      "description": "How does your month look with your salary?"
     }
   },
   "simulator": {
@@ -2288,5 +2292,110 @@
       "days_other": "{{count}} days"
     },
     "publishedOn": "published on {{date}}"
+  },
+  "salarySim": {
+    "title": "Salary simulator",
+    "pageDesc": "With this salary, how does your month look?",
+    "locked": {
+      "title": "Salary simulator",
+      "body": "Enter your salary, subtract your real fixed expenses and split what's left between savings and free spending. Available with premium.",
+      "cta": "See plans"
+    },
+    "month": {
+      "current": "This month",
+      "past": "Closed month",
+      "future": "Future month",
+      "prev": "Previous month",
+      "next": "Next month"
+    },
+    "income": {
+      "title": "Income",
+      "useMine": "Use my salary",
+      "salaryField": "Monthly salary ({{symbol}})",
+      "trmToday": "Today's TRM",
+      "live": "LIVE",
+      "saved": "SAVED",
+      "manualField": "Manual rate (COP per {{symbol}})",
+      "manualChip": "Manual · {{delta}} vs TRM",
+      "backToTrm": "Back to TRM ({{rate}})",
+      "editRate": "Edit rate",
+      "noRate": "Couldn't load today's TRM.",
+      "retry": "Retry",
+      "totalLabel": "Total income in pesos",
+      "copFoot": "Income in pesos",
+      "fxFoot": "{{amount}} × {{rate}}"
+    },
+    "fixed": {
+      "title": "Fixed expenses · {{month}}",
+      "empty": "You have no fixed expenses in {{month}}.",
+      "paid": "PAID",
+      "simulated": "SIMULATED",
+      "add": "Add simulated expense",
+      "namePlaceholder": "Expense name",
+      "note": "Taken from your transactions. Turning one off doesn't delete it: it only leaves it out of this simulation.",
+      "remove": "Remove simulated expense",
+      "include": "Include {{name}} in the simulation",
+      "max": "Up to {{max}} simulated expenses."
+    },
+    "split": {
+      "title": "Split what's left",
+      "save": "Savings",
+      "free": "Free",
+      "allFree": "All free",
+      "allSave": "All savings",
+      "slider": "Savings percentage",
+      "preset": "{{save}} / {{free}}"
+    },
+    "summary": {
+      "title": "Month summary",
+      "income": "Net income",
+      "fixed": "− Fixed expenses",
+      "available": "Available to split",
+      "save": "Savings · {{pct}} %",
+      "free": "Free · {{pct}} %",
+      "deficit": "Your fixed expenses exceed your income by {{amount}}. There's nothing to split: raise the salary or turn off a fixed expense."
+    },
+    "real": {
+      "title": "Against your real month",
+      "spentCurrent": "Spent so far on variable expenses",
+      "spentPast": "Spent on variable expenses",
+      "ofFree": "{{pct}} % of your free budget",
+      "day": "day {{day}} of {{days}}",
+      "left": "You have {{amount}} left",
+      "perDay_one": "≈ {{amount}} for the day left",
+      "perDay_other": "≈ {{amount}} a day for the {{count}} days left",
+      "over": "You went over by {{amount}}",
+      "overNote": "This comes out of your savings: you'd keep {{left}} of {{save}}.",
+      "pastIntro": "This is how {{month}} would have closed with this salary:",
+      "pastLeft": "{{amount}} left over",
+      "pastLeftNote": "On top of the {{save}} saved.",
+      "pastOver": "{{amount}} short",
+      "pastOverNote": "It would have come out of your savings ({{save}} → {{left}}).",
+      "futureEmpty": "No expenses in {{month}} yet.",
+      "futurePerDay": "{{amount}} a day",
+      "futureNote": "That's your free budget of {{free}} spread over {{days}} days.",
+      "noFree": "No free budget to compare this month.",
+      "note": "Compared with your non-fixed expenses: fixed ones are already subtracted above."
+    },
+    "fund": {
+      "title": "Fund for your fixed expenses",
+      "weekly": "Weekly",
+      "biweekly": "Biweekly",
+      "monthly": "Monthly",
+      "payments": "Payments per month",
+      "fewer": "One payment less",
+      "more": "One payment more",
+      "separate": "Set aside {{amount}}",
+      "per_weekly": "per week",
+      "per_biweekly": "per fortnight",
+      "per_monthly": "per month",
+      "approx": "≈ {{amount}}",
+      "formula_one": "{{count}} payment × {{each}} = {{total}} a month covers your {{fixed}} of fixed expenses.",
+      "formula_other": "{{count}} payments × {{each}} = {{total}} a month cover your {{fixed}} of fixed expenses.",
+      "formulaOne": "Set aside {{each}} from your monthly pay to cover {{fixed}} of fixed expenses.",
+      "noFixed": "No fixed expenses to cover this month."
+    },
+    "disclaimer": "This is a simulation: it doesn't create or change any transaction, and what you adjust here is saved only for this screen.",
+    "manualNote": "You're using a manual rate. «My salary» keeps the official TRM."
   }
 }

@@ -1215,6 +1215,10 @@
     "fxIncomeCard": {
       "title": "Il mio stipendio",
       "description": "Le tue entrate in un'altra valuta, in pesos di oggi"
+    },
+    "salarySimCard": {
+      "title": "Simulatore di stipendio",
+      "description": "Come ti va il mese con il tuo stipendio?"
     }
   },
   "simulator": {
@@ -2288,5 +2292,110 @@
       "days_other": "{{count}} giorni"
     },
     "publishedOn": "pubblicato il {{date}}"
+  },
+  "salarySim": {
+    "title": "Simulatore di stipendio",
+    "pageDesc": "Con questo stipendio, come ti va il mese?",
+    "locked": {
+      "title": "Simulatore di stipendio",
+      "body": "Inserisci lo stipendio, sottrai le tue spese fisse reali e dividi ciò che resta tra risparmio e spesa libera. Disponibile con premium.",
+      "cta": "Vedi i piani"
+    },
+    "month": {
+      "current": "Mese corrente",
+      "past": "Mese chiuso",
+      "future": "Mese futuro",
+      "prev": "Mese precedente",
+      "next": "Mese successivo"
+    },
+    "income": {
+      "title": "Entrata",
+      "useMine": "Usa il mio stipendio",
+      "salaryField": "Stipendio mensile ({{symbol}})",
+      "trmToday": "TRM di oggi",
+      "live": "IN DIRETTA",
+      "saved": "SALVATA",
+      "manualField": "Tasso manuale (COP per {{symbol}})",
+      "manualChip": "Manuale · {{delta}} vs TRM",
+      "backToTrm": "Torna alla TRM ({{rate}})",
+      "editRate": "Modifica tasso",
+      "noRate": "Impossibile caricare la TRM di oggi.",
+      "retry": "Riprova",
+      "totalLabel": "Entrata totale in pesos",
+      "copFoot": "Entrata in pesos",
+      "fxFoot": "{{amount}} × {{rate}}"
+    },
+    "fixed": {
+      "title": "Spese fisse · {{month}}",
+      "empty": "Non hai spese fisse a {{month}}.",
+      "paid": "PAGATO",
+      "simulated": "SIMULATO",
+      "add": "Aggiungi spesa simulata",
+      "namePlaceholder": "Nome della spesa",
+      "note": "Vengono dai tuoi movimenti. Disattivarne una non la elimina: la toglie solo da questa simulazione.",
+      "remove": "Elimina spesa simulata",
+      "include": "Includi {{name}} nella simulazione",
+      "max": "Massimo {{max}} spese simulate."
+    },
+    "split": {
+      "title": "Ripartizione del disponibile",
+      "save": "Risparmio",
+      "free": "Libero",
+      "allFree": "Tutto libero",
+      "allSave": "Tutto risparmio",
+      "slider": "Percentuale di risparmio",
+      "preset": "{{save}} / {{free}}"
+    },
+    "summary": {
+      "title": "Riepilogo del mese",
+      "income": "Entrata netta",
+      "fixed": "− Spese fisse",
+      "available": "Disponibile da ripartire",
+      "save": "Risparmio · {{pct}} %",
+      "free": "Libero · {{pct}} %",
+      "deficit": "Le spese fisse superano l'entrata di {{amount}}. Non c'è niente da ripartire: alza lo stipendio o disattiva una spesa fissa."
+    },
+    "real": {
+      "title": "Rispetto al tuo mese reale",
+      "spentCurrent": "Speso finora in spese variabili",
+      "spentPast": "Speso in spese variabili",
+      "ofFree": "{{pct}} % del tuo libero",
+      "day": "giorno {{day}} di {{days}}",
+      "left": "Ti restano {{amount}}",
+      "perDay_one": "≈ {{amount}} per il giorno che manca",
+      "perDay_other": "≈ {{amount}} al giorno per i {{count}} giorni che mancano",
+      "over": "Hai sforato di {{amount}}",
+      "overNote": "Esce dal tuo risparmio: ti resterebbero {{left}} dei {{save}}.",
+      "pastIntro": "Così si sarebbe chiuso {{month}} con questo stipendio:",
+      "pastLeft": "Avanzerebbero {{amount}}",
+      "pastLeftNote": "Oltre ai {{save}} di risparmio.",
+      "pastOver": "Mancherebbero {{amount}}",
+      "pastOverNote": "Sarebbero usciti dal risparmio ({{save}} → {{left}}).",
+      "futureEmpty": "Ancora nessuna spesa a {{month}}.",
+      "futurePerDay": "{{amount}} al giorno",
+      "futureNote": "È il tuo libero di {{free}} diviso su {{days}} giorni.",
+      "noFree": "Nessun libero da confrontare questo mese.",
+      "note": "Il confronto è con le spese non fisse: quelle fisse sono già sottratte sopra."
+    },
+    "fund": {
+      "title": "Fondo per le spese fisse",
+      "weekly": "Settimanale",
+      "biweekly": "Quindicinale",
+      "monthly": "Mensile",
+      "payments": "Pagamenti al mese",
+      "fewer": "Un pagamento in meno",
+      "more": "Un pagamento in più",
+      "separate": "Metti da parte {{amount}}",
+      "per_weekly": "a settimana",
+      "per_biweekly": "a quindicina",
+      "per_monthly": "al mese",
+      "approx": "≈ {{amount}}",
+      "formula_one": "{{count}} pagamento × {{each}} = {{total}} al mese coprono i tuoi {{fixed}} di spese fisse.",
+      "formula_other": "{{count}} pagamenti × {{each}} = {{total}} al mese coprono i tuoi {{fixed}} di spese fisse.",
+      "formulaOne": "Metti da parte {{each}} dal pagamento mensile per coprire {{fixed}} di spese fisse.",
+      "noFixed": "Nessuna spesa fissa da coprire questo mese."
+    },
+    "disclaimer": "È una simulazione: non crea né modifica alcun movimento, e ciò che regoli qui viene salvato solo per questa schermata.",
+    "manualNote": "Stai usando un tasso manuale. «Il mio stipendio» continua con la TRM ufficiale."
   }
 }

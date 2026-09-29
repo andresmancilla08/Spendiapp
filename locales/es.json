@@ -1215,6 +1215,10 @@
     "fxIncomeCard": {
       "title": "Mi salario",
       "description": "Tus ingresos en otra moneda, en pesos de hoy"
+    },
+    "salarySimCard": {
+      "title": "Simulador de sueldo",
+      "description": "¿Cómo te queda el mes con tu sueldo?"
     }
   },
   "simulator": {
@@ -2288,5 +2292,110 @@
       "days_other": "{{count}} días"
     },
     "publishedOn": "publicada el {{date}}"
+  },
+  "salarySim": {
+    "title": "Simulador de sueldo",
+    "pageDesc": "Con este sueldo, ¿cómo te queda el mes?",
+    "locked": {
+      "title": "Simulador de sueldo",
+      "body": "Mete tu sueldo, descuenta tus fijos reales y reparte lo que sobra entre ahorro y gasto libre. Disponible con premium.",
+      "cta": "Ver planes"
+    },
+    "month": {
+      "current": "Mes actual",
+      "past": "Mes cerrado",
+      "future": "Mes futuro",
+      "prev": "Mes anterior",
+      "next": "Mes siguiente"
+    },
+    "income": {
+      "title": "Ingreso",
+      "useMine": "Usar mi salario",
+      "salaryField": "Sueldo mensual ({{symbol}})",
+      "trmToday": "TRM de hoy",
+      "live": "EN VIVO",
+      "saved": "GUARDADA",
+      "manualField": "Tasa manual (COP por {{symbol}})",
+      "manualChip": "Manual · {{delta}} vs TRM",
+      "backToTrm": "Volver a la TRM ({{rate}})",
+      "editRate": "Editar tasa",
+      "noRate": "No se pudo cargar la TRM de hoy.",
+      "retry": "Reintentar",
+      "totalLabel": "Total ingreso en pesos",
+      "copFoot": "Ingreso en pesos",
+      "fxFoot": "{{amount}} × {{rate}}"
+    },
+    "fixed": {
+      "title": "Gastos fijos · {{month}}",
+      "empty": "No tienes gastos fijos en {{month}}.",
+      "paid": "PAGADO",
+      "simulated": "SIMULADO",
+      "add": "Añadir gasto simulado",
+      "namePlaceholder": "Nombre del gasto",
+      "note": "Salen de tus movimientos. Apagar uno no lo borra: solo lo quita de esta simulación.",
+      "remove": "Eliminar gasto simulado",
+      "include": "Incluir {{name}} en la simulación",
+      "max": "Máximo {{max}} gastos simulados."
+    },
+    "split": {
+      "title": "Reparto del disponible",
+      "save": "Ahorro",
+      "free": "Libre",
+      "allFree": "Todo libre",
+      "allSave": "Todo ahorro",
+      "slider": "Porcentaje de ahorro",
+      "preset": "{{save}} / {{free}}"
+    },
+    "summary": {
+      "title": "Resumen del mes",
+      "income": "Ingreso neto",
+      "fixed": "− Gastos fijos",
+      "available": "Disponible para repartir",
+      "save": "Ahorro · {{pct}} %",
+      "free": "Libre · {{pct}} %",
+      "deficit": "Tus fijos superan el ingreso por {{amount}}. No hay nada que repartir: sube el sueldo o apaga algún fijo."
+    },
+    "real": {
+      "title": "Frente a tu mes real",
+      "spentCurrent": "Llevas gastado en variables",
+      "spentPast": "Gastaste en variables",
+      "ofFree": "{{pct}} % de tu libre",
+      "day": "día {{day}} de {{days}}",
+      "left": "Te quedan {{amount}}",
+      "perDay_one": "≈ {{amount}} para el día que falta",
+      "perDay_other": "≈ {{amount}} por día los {{count}} días que faltan",
+      "over": "Te pasaste por {{amount}}",
+      "overNote": "Esto sale de tu ahorro: te quedarían {{left}} de los {{save}}.",
+      "pastIntro": "Así habría cerrado {{month}} con este sueldo:",
+      "pastLeft": "Sobrarían {{amount}}",
+      "pastLeftNote": "Además de los {{save}} de ahorro.",
+      "pastOver": "Faltarían {{amount}}",
+      "pastOverNote": "Habrían salido de tu ahorro ({{save}} → {{left}}).",
+      "futureEmpty": "Aún no hay gastos en {{month}}.",
+      "futurePerDay": "{{amount}} al día",
+      "futureNote": "Es lo que da tu libre de {{free}} repartido en {{days}} días.",
+      "noFree": "Sin libre que comparar este mes.",
+      "note": "Se compara con tus gastos que no son fijos: los fijos ya están restados arriba."
+    },
+    "fund": {
+      "title": "Fondo para tus fijos",
+      "weekly": "Semanal",
+      "biweekly": "Quincenal",
+      "monthly": "Mensual",
+      "payments": "Pagos al mes",
+      "fewer": "Un pago menos",
+      "more": "Un pago más",
+      "separate": "Separa {{amount}}",
+      "per_weekly": "por semana",
+      "per_biweekly": "por quincena",
+      "per_monthly": "por mes",
+      "approx": "≈ {{amount}}",
+      "formula_one": "{{count}} pago × {{each}} = {{total}} al mes cubren tus {{fixed}} de fijos.",
+      "formula_other": "{{count}} pagos × {{each}} = {{total}} al mes cubren tus {{fixed}} de fijos.",
+      "formulaOne": "Separa {{each}} de tu pago mensual para cubrir {{fixed}} de fijos.",
+      "noFixed": "No hay fijos que cubrir este mes."
+    },
+    "disclaimer": "Es una simulación: no crea ni cambia ningún movimiento, y lo que ajustes aquí se guarda solo para esta pantalla.",
+    "manualNote": "Estás usando una tasa manual. «Mi salario» sigue con la TRM oficial."
   }
 }

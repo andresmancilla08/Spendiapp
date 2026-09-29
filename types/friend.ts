@@ -1,5 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import type { FxIncome } from './fxIncome';
+import type { SalarySimScenario } from '../utils/salarySim';
 
 /** Perfil público mínimo — único dato de un usuario legible por otros.
  *  Se espeja en la colección `publicProfiles` (ver useUserProfile). No contiene
@@ -57,6 +58,8 @@ export interface UserProfile {
   /** Ingresos declarados en moneda extranjera — ver types/fxIncome.ts. NO son
    *  movimientos: no entran en el balance ni en el histórico. */
   fxIncomes?: FxIncome[];
+  /** Último escenario del Simulador de sueldo. Tampoco es un movimiento. */
+  salarySim?: SalarySimScenario;
   isPremium?: boolean;
   premiumSince?: Timestamp;
   premiumExpiry?: Timestamp;

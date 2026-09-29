@@ -305,3 +305,42 @@
   que se implementó:** el ocultamiento aplica al mes en curso y futuros; un mes sellado
   conserva su cifra en pesos, porque ahí ya no hay conversión que hacer.
 - **Estado:** pendiente de confirmar con el usuario.
+
+## Simulador de sueldo (`app/salary-simulator.tsx`, 2026-09-28)
+
+Viene del documento «Simulador de Presupuesto» que pidió un usuario. Propuestas y
+prototipo: `docs/simulador-presupuesto-propuestas.html`. Aritmética: `utils/salarySim.ts`
+(gate `npx tsx utils/salarySim.test.ts`).
+
+### Solo lee movimientos, nunca los escribe — Vigente
+- **Qué se eligió:** los fijos salen de los movimientos reales del mes (incluidas las copias
+  virtuales). Cada uno tiene un interruptor que lo saca **solo de la simulación**, y se pueden
+  añadir gastos simulados. La papelera solo borra simulados.
+- **Por qué:** el PDF pedía una lista propia con papelera que «borra de la base de datos».
+  Con los fijos reales conectados, esa papelera borraría fijos de verdad desde una pantalla
+  de «¿y si…?».
+- **Descartado:** lista propia (hay que reescribir lo que ya existe y no se entera de los
+  cambios); conectado de solo lectura (no deja simular).
+- **Estado:** vigente. El escenario vive en `users/{uid}.salarySim`; las reglas ya lo
+  permiten (lista negra de campos sensibles), no hubo que tocarlas.
+
+### Tasa: TRM por defecto, manual editable y recordada — Vigente
+- **Qué se eligió:** TRM del día por defecto; el usuario puede poner la tasa real de su
+  plataforma y **se recuerda** por moneda. «Volver a la TRM» la borra.
+- **Por qué:** lo que consigna la plataforma no es la TRM. «Mi salario» NO cambia: sigue
+  con la TRM pura (decisión de esa feature).
+- **Estado:** vigente.
+
+### Fondo de fijos: pagos al mes editables, semanal = 4 — Vigente
+- **Qué se eligió:** frecuencia semanal/quincenal/mensual con 4/2/1 pagos por defecto, y
+  el usuario ajusta el número de pagos (1–5).
+- **Por qué no 4,33:** el fondo existe para cubrir los fijos; dividir entre 4,33 deja
+  corto cualquier mes de cuatro pagos.
+- **Estado:** vigente.
+
+### Otras — Vigentes
+- Premium, en «Planear» de Herramientas. Reparto 30/70 por defecto con accesos a 30/70,
+  20/80 y 50/50. El ingreso es solo el simulado: los ingresos reales del mes NO se suman.
+- «Frente a tu mes real» compara el libre simulado con el **gasto variable** (los fijos ya
+  se restaron; contarlos otra vez los restaría dos veces). Todo por `effectiveAmount`.
+- El mes es estado de la pantalla y ninguna acción lo resetea al actual.
