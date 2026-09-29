@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spendia · Simulador de sueldo — propuestas</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1A1C; --bg2:#111F22; --surf:#162428; --surf2:#1E2E32; --surf3:#1E3035;
+  --border:#243438; --primary:#00BCD4; --success:#00A896; --expense:#FF8E8E;
+  --tertiary:#D4E157; --warning:#FBBF24; --tp:#EEF6F8; --ts:#9EABAF; --tt:#637579;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tp);font-family:Montserrat,system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding:32px 16px 90px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.8px;margin:0 0 8px}
+h2{font-size:clamp(18px,2.6vw,24px);font-weight:800;letter-spacing:-.4px;margin:60px 0 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h2 .num{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#06222a;display:grid;place-items:center;font-size:14px;flex:0 0 auto}
+h3{font-size:15px;font-weight:700;margin:0 0 10px;letter-spacing:-.2px}
+p{margin:0 0 12px;color:var(--ts);font-size:14.5px}
+small{color:var(--tt);font-size:12.5px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#0b1517;border:1px solid var(--border);border-radius:6px;padding:1px 5px;color:var(--tertiary);word-break:break-word}
+.lede{font-size:16px;color:var(--ts);max-width:780px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:5px 10px;border-radius:50px;border:1px solid}
+.tag.rec{color:#0D1A1C;background:var(--tertiary);border-color:var(--tertiary)}
+.tag.s{color:var(--success);background:rgba(0,168,150,.14);border-color:rgba(0,168,150,.35)}
+.tag.m{color:var(--warning);background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35)}
+.tag.l{color:var(--expense);background:rgba(255,142,142,.12);border-color:rgba(255,142,142,.35)}
+.tag.n{color:var(--ts);background:var(--surf2);border-color:var(--border)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:20px}
+.card.rec{border-color:rgba(212,225,87,.55);box-shadow:0 18px 40px -28px rgba(0,0,0,.6)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-top:14px}
+ul{margin:0 0 12px;padding-left:18px;color:var(--ts);font-size:14px}
+li{margin-bottom:5px}
+li b,p b{color:var(--tp)}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.decided{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:16px}
+.decided div{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:13.5px;color:var(--ts)}
+.decided b{display:block;color:var(--success);font-size:12px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:3px}
+/* layout prototipo */
+.proto{display:grid;grid-template-columns:360px 1fr;gap:30px;align-items:start;margin-top:18px}
+@media(max-width:900px){.proto{grid-template-columns:1fr}}
+.sticky{position:sticky;top:16px}
+@media(max-width:900px){.sticky{position:static}}
+.explain{display:flex;flex-direction:column;gap:14px}
+.ex{background:var(--surf);border:1px solid var(--border);border-radius:18px;padding:18px}
+.ex h3{display:flex;align-items:center;gap:10px}
+.badge{width:22px;height:22px;border-radius:50%;background:var(--tertiary);color:#0D1A1C;display:inline-grid;place-items:center;font-size:11.5px;font-weight:800;flex:0 0 auto}
+.ex .kv{display:grid;grid-template-columns:120px 1fr;gap:4px 12px;font-size:13px;margin-top:6px}
+.ex .kv dt{color:var(--tt);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;padding-top:2px}
+.ex .kv dd{margin:0;color:var(--ts)}
+@media(max-width:520px){.ex .kv{grid-template-columns:1fr}.ex .kv dd{margin-bottom:6px}}
+/* teléfono */
+.phone{width:360px;max-width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:36px;padding:14px 12px 20px;box-shadow:0 30px 70px -35px #000;position:relative;overflow:hidden}
+.phone::before{content:"";position:absolute;inset:-40% -30% auto -30%;height:60%;background:radial-gradient(60% 60% at 30% 0%,rgba(0,188,212,.16),transparent 70%);pointer-events:none}
+.phone.mini{width:300px}
+.notch{width:80px;height:5px;border-radius:3px;background:#0a1214;margin:2px auto 12px}
+.ph-head{display:flex;align-items:center;gap:10px;margin:0 4px 12px}
+.ph-back{width:32px;height:32px;border-radius:16px;background:rgba(0,188,212,.1);display:grid;place-items:center;color:var(--primary);font-weight:800}
+.ph-title{font-size:19px;font-weight:800;letter-spacing:-.5px}
+.monthnav{display:flex;align-items:center;justify-content:space-between;background:var(--surf);border:1px solid var(--border);border-radius:50px;padding:5px;margin-bottom:10px}
+.monthnav button{width:32px;height:32px;border-radius:16px;border:0;background:var(--surf2);color:var(--tp);font:800 15px Montserrat;cursor:pointer}
+.monthnav button:disabled{opacity:.35;cursor:default}
+.monthnav .mn{text-align:center;font-size:13.5px;font-weight:800}
+.monthnav .mn span{display:block;font-size:10px;color:var(--tt);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.blk{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:14px;margin-top:10px;position:relative}
+.blk .bn{position:absolute;top:-8px;left:-6px;z-index:2}
+.blk-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.blk-h .t{font-size:12px;font-weight:800;color:var(--ts);text-transform:uppercase;letter-spacing:.5px}
+.blk-h .tot{font-size:14px;font-weight:800}
+.seg{display:flex;background:var(--surf3);border:1px solid #2A3C40;border-radius:50px;padding:3px}
+.seg button{flex:1;text-align:center;font:700 11.5px Montserrat;padding:7px 4px;border-radius:50px;color:var(--ts);background:transparent;border:0;cursor:pointer}
+.seg button.on{background:var(--primary);color:#06222a}
+.field{background:var(--surf3);border:1px solid #2A3C40;border-radius:14px;padding:8px 12px;margin-top:8px}
+.field.accent{border-color:rgba(251,191,36,.5)}
+.field label{display:block;font-size:10px;color:var(--tt);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.field input{width:100%;background:transparent;border:0;color:var(--tp);font:700 16px Montserrat;padding:2px 0;outline:none}
+.field input:disabled{color:var(--tp);-webkit-text-fill-color:var(--tp)}
+.raterow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;background:var(--surf3);border:1px solid #2A3C40;border-radius:14px;padding:9px 12px}
+.raterow .rv{font-size:14px;font-weight:800}
+.raterow .rl{font-size:10px;color:var(--tt);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:4px 8px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.chip.live{color:var(--primary);background:rgba(0,188,212,.12);border-color:rgba(0,188,212,.3)}
+.chip.man{color:var(--warning);background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35)}
+.chip.sim{color:var(--tertiary);background:rgba(212,225,87,.1);border-color:rgba(212,225,87,.35)}
+.chip.paid{color:var(--success);background:rgba(0,168,150,.12);border-color:rgba(0,168,150,.3)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,168,150,.5)}60%{box-shadow:0 0 0 7px rgba(0,168,150,0)}100%{box-shadow:0 0 0 0 rgba(0,168,150,0)}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+.linkbtn{background:none;border:0;color:var(--primary);font:700 11.5px Montserrat;cursor:pointer;padding:4px 0}
+.iconbtn{width:30px;height:30px;border-radius:15px;border:0;background:rgba(0,188,212,.12);color:var(--primary);font:800 13px Montserrat;cursor:pointer;flex:0 0 auto}
+.iconbtn.del{background:rgba(255,142,142,.12);color:var(--expense)}
+.total{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
+.total .l{font-size:11px;color:var(--ts);font-weight:600}
+.total .big{font-size:26px;font-weight:800;letter-spacing:-1px}
+.total .sub{font-size:11.5px;color:var(--tt)}
+.fx{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--border)}
+.fx:last-of-type{border-bottom:0}
+.fx .n{flex:1;min-width:0;font-size:13px;font-weight:700}
+.fx .n span{display:flex;gap:5px;margin-top:2px}
+.fx .a{font-size:13px;font-weight:800;white-space:nowrap}
+.fx.off .n,.fx.off .a{color:var(--tt);text-decoration:line-through}
+.fx input.nm,.fx input.am{background:var(--surf3);border:1px solid #2A3C40;border-radius:10px;color:var(--tp);font:700 12.5px Montserrat;padding:6px 8px;outline:none;width:100%}
+.fx input.am{width:104px;text-align:right}
+.sw{width:36px;height:22px;border-radius:11px;background:var(--surf3);border:1px solid #2A3C40;position:relative;cursor:pointer;flex:0 0 auto;padding:0}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--tt);transition:transform .12s ease-out,background .12s}
+.sw.on{background:rgba(0,188,212,.25);border-color:rgba(0,188,212,.5)}
+.sw.on::after{transform:translateX(14px);background:var(--primary)}
+.addrow{display:block;width:100%;margin-top:8px;border:1px dashed rgba(212,225,87,.45);background:rgba(212,225,87,.05);color:var(--tertiary);border-radius:14px;padding:9px;font:700 12px Montserrat;cursor:pointer}
+.pcts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcts .field input{font-size:20px}
+.pcts .field .suf{font-size:12px;color:var(--tt);font-weight:700}
+input[type=range]{width:100%;margin:14px 0 4px;accent-color:var(--primary);height:22px}
+.rng-l{display:flex;justify-content:space-between;font-size:10.5px;color:var(--tt);font-weight:700}
+.sumrow{display:flex;justify-content:space-between;gap:8px;padding:7px 0;font-size:13px;color:var(--ts)}
+.sumrow b{color:var(--tp);font-weight:800;white-space:nowrap}
+.sumrow.minus b{color:var(--expense)}
+.sumrow.eq{border-top:1px solid var(--border);margin-top:4px;padding-top:10px}
+.sumrow.eq b{font-size:15px}
+.sumrow.save b{color:var(--success)}
+.sumrow.free b{color:var(--primary)}
+.bar{height:10px;border-radius:5px;background:var(--surf3);overflow:hidden;margin:10px 0 6px;display:flex}
+.bar i{display:block;height:100%}
+.hl{font-size:22px;font-weight:800;letter-spacing:-.8px;margin-top:4px}
+.hl.ok{color:var(--success)}.hl.bad{color:var(--expense)}
+.note{font-size:11.5px;color:var(--tt);margin-top:4px}
+.banner{border-radius:14px;padding:10px 12px;margin-top:8px;font-size:11.5px;font-weight:600}
+.banner.w{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:#F8DFA0}
+.banner.e{background:rgba(255,142,142,.1);border:1px solid rgba(255,142,142,.3);color:#FFC4C4}
+.fund-big{font-size:24px;font-weight:800;letter-spacing:-.8px;margin-top:10px}
+.fund-sub{font-size:12.5px;color:var(--ts);font-weight:600}
+.fund-txt{background:var(--surf3);border-radius:12px;padding:9px 11px;margin-top:10px;font-size:12px;color:var(--ts)}
+.fund-txt b{color:var(--tp)}
+/* tablas */
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--tt)}
+td{color:var(--ts)}
+td:first-child{font-weight:700;color:var(--tp)}
+td b{color:var(--tp)}
+.q{background:var(--surf);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:14px;padding:16px}
+.q h3{color:var(--primary)}
+.q.warn{border-left-color:var(--expense)}.q.warn h3{color:var(--expense)}
+.states{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;margin-top:18px;justify-items:center}
+.state{display:flex;flex-direction:column;gap:10px;align-items:center;width:100%}
+.state .cap{max-width:300px;font-size:13px;color:var(--ts)}
+.state .cap b{color:var(--tp);display:block;font-size:14px}
+/* mini mockups de ubicación */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.tl{background:var(--surf2);border:1px solid var(--border);border-radius:14px;padding:10px;font-size:11.5px;font-weight:700;min-height:70px}
+.tl span{display:block;font-size:10px;color:var(--tt);font-weight:600;margin-top:3px}
+.tl.new{border-color:rgba(212,225,87,.6);background:rgba(212,225,87,.08);color:var(--tertiary)}
+.grp{font-size:10.5px;color:var(--tt);font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-top:10px}
+.mini-list .row{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--ts)}
+.mini-list .row:last-child{border-bottom:0}
+.mini-list .row b{color:var(--tp)}
+.files td:first-child{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Simulador de sueldo</h1>
+<p class="lede">Propuesta de lo que se construiría a partir del documento «Simulador de Presupuesto» más lo que pediste encima. <b>No se ha tocado código.</b> El teléfono de la sección 3 <b>funciona</b>: cambia la moneda, edita la TRM, apaga fijos, mueve el slider y cambia de mes. Todos los números son <b>de ejemplo</b>.</p>
+
+<div class="decided">
+  <div><b>✓ Decidido</b>TRM del día por defecto, <b>editable a mano</b> solo para la simulación</div>
+  <div><b>✓ Decidido</b>Conectado a los <b>gastos reales</b> del usuario</div>
+  <div><b>✓ Decidido</b>Selector de mes: el actual por defecto, o <b>cualquier otro</b></div>
+  <div><b>✓ Decidido</b>Mostrar <b>cuánto te queda</b> frente a lo que ya gastaste ese mes</div>
+  <div><b>✓ Decidido</b>Se agregan el reparto ahorro/libre con slider, el resumen del mes y el fondo por frecuencia</div>
+</div>
+
+<!-- ═════════ 1. ACLARACIÓN ═════════ -->
+<h2><span class="num">1</span>La duda de los gastos fijos, aclarada</h2>
+<p style="max-width:860px">En el documento, el simulador tiene <b>su propia lista</b> de gastos fijos: empieza vacía, escribes cada uno y la papelera lo <i>«borra de la base de datos»</i>. Spendia <b>ya tiene</b> tus gastos fijos, porque los registras como transacciones (arriendo, internet…). La duda era cuál de las dos listas usa el simulador. Como dijiste «conectado», quedan dos maneras de hacerlo:</p>
+
+<div class="cols">
+  <div class="card">
+    <div class="meta"><span class="tag l">Descartada</span></div>
+    <h3>Lista propia (lo que dice el PDF)</h3>
+    <div class="mini-list">
+      <div class="row">Arriendo <b>$2.200.000</b></div>
+      <div class="row">Internet <b>$110.000</b></div>
+      <div class="row" style="color:var(--tt)">…los escribes otra vez, a mano</div>
+    </div>
+    <ul style="margin-top:10px">
+      <li>Tienes que <b>volver a escribir</b> los fijos que ya existen en la app.</li>
+      <li>Si subes el arriendo en la app, el simulador <b>no se entera</b>.</li>
+      <li>No se puede comparar con lo que gastaste de verdad.</li>
+    </ul>
+    <p style="margin:0"><small>Va en contra de lo que pediste («conectado»).</small></p>
+  </div>
+
+  <div class="card">
+    <div class="meta"><span class="tag m">Posible</span></div>
+    <h3>Conectado puro</h3>
+    <div class="mini-list">
+      <div class="row">Arriendo <b>$2.200.000</b></div>
+      <div class="row">Internet <b>$110.000</b></div>
+      <div class="row" style="color:var(--tt)">…sin poder quitar ni añadir</div>
+    </div>
+    <ul style="margin-top:10px">
+      <li>Muestra tus fijos reales del mes que elijas, <b>de solo lectura</b>.</li>
+      <li>Es el más sencillo, pero <b>no deja simular</b> escenarios como «¿y si cancelo el gimnasio?» o «¿y si me mudo a un arriendo de $2.500.000?».</li>
+    </ul>
+  </div>
+
+  <div class="card rec">
+    <div class="meta"><span class="tag rec">Recomendada</span></div>
+    <h3>Conectado + ajustes de simulación</h3>
+    <div class="mini-list">
+      <div class="row">✓ Arriendo <b>$2.200.000</b></div>
+      <div class="row" style="text-decoration:line-through;color:var(--tt)">✗ Gimnasio $130.000</div>
+      <div class="row"><span>＋ Arriendo nuevo <span class="chip sim">Simulado</span></span><b>$300.000</b></div>
+    </div>
+    <ul style="margin-top:10px">
+      <li>Carga tus fijos reales del mes. Cada uno tiene un <b>interruptor</b> para sacarlo de la simulación.</li>
+      <li>Puedes <b>añadir gastos simulados</b> (nombre + valor en COP), como pide el PDF.</li>
+      <li><b>La papelera solo borra los simulados.</b> Un fijo real <b>nunca</b> se borra ni se edita desde aquí, así que el simulador no puede dañar tus datos.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="q warn" style="margin-top:14px">
+  <h3>Qué cambia respecto al PDF</h3>
+  <p style="margin:0">El PDF dice que la papelera borra el gasto de la base de datos. Con la opción recomendada, <b>borrar un fijo real desde el simulador no se permite</b>, y apagarlo solo lo saca de la simulación. Así un «¿y si…?» nunca cambia tu balance ni tu histórico por accidente. Borrar o editar un fijo de verdad se sigue haciendo desde el movimiento, como hoy.</p>
+</div>
+
+<!-- ═════════ 2. UBICACIÓN ═════════ -->
+<h2><span class="num">2</span>Dónde vive</h2>
+<div class="cols">
+  <div class="card rec">
+    <div class="meta"><span class="tag rec">Recomendada</span></div>
+    <h3>A · Herramienta nueva en «Planear»</h3>
+    <div class="grp">Planear</div>
+    <div class="tiles">
+      <div class="tl">Presupuesto<span>Límites por categoría</span></div>
+      <div class="tl">Metas<span>Ahorro por objetivo</span></div>
+      <div class="tl">Simulador<span>Compras y cuotas</span></div>
+      <div class="tl new">Simulador de sueldo<span>¿Cómo me queda el mes?</span></div>
+    </div>
+    <ul style="margin-top:12px">
+      <li>Pantalla propia <code>app/salary-simulator.tsx</code>, con su tesela en Herramientas.</li>
+      <li>Si ya tienes un ingreso en «Mi salario», lo ofrece con un toque (<b>Usar mi salario</b>).</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="meta"><span class="tag n">Alternativa</span></div>
+    <h3>B · Pestaña dentro de «Mi salario»</h3>
+    <div class="seg" style="margin-top:8px"><button class="on">Mi salario</button><button>Simular mes</button></div>
+    <ul style="margin-top:12px">
+      <li>Junta todo lo del sueldo en un solo lugar.</li>
+      <li>Pero «Mi salario» es una pantalla de <b>consulta</b> (cuánto vale hoy tu nómina) y el simulador es de <b>planificación</b>. Mezclarlas vuelve larga la pantalla que hoy es corta.</li>
+      <li>«Mi salario» es premium, así que el simulador quedaría obligatoriamente premium.</li>
+    </ul>
+  </div>
+</div>
+<div class="q" style="margin-top:14px">
+  <h3>Ojo con el nombre</h3>
+  <p style="margin:0">En «Planear» ya existen <b>«Presupuesto»</b> (límites por categoría) y <b>«Simulador»</b> (compras y cuotas). Llamarlo «Simulador de presupuesto», como el PDF, confundiría con los dos. Propongo <b>«Simulador de sueldo»</b>. Otras opciones: «Plan del mes» o «¿Cómo me queda?».</p>
+</div>
+
+<!-- ═════════ 3. PROTOTIPO ═════════ -->
+<h2><span class="num">3</span>La pantalla, bloque por bloque <span class="tag s">Interactivo</span></h2>
+<p>Los círculos amarillos del teléfono corresponden a las explicaciones de la derecha.</p>
+
+<div class="proto">
+  <div class="sticky"><div id="main-phone"></div></div>
+  <div class="explain">
+
+    <div class="ex">
+      <h3><span class="badge">0</span>Selector de mes</h3>
+      <dl class="kv">
+        <dt>Qué es</dt><dd>Flechas ‹ › con el mes. Por defecto, el <b>mes actual</b>. Se puede ir a meses pasados y futuros.</dd>
+        <dt>Qué cambia</dt><dd>Los fijos que se cargan (los de <b>ese</b> mes, respetando cancelados y meses saltados) y los gastos reales contra los que se compara.</dd>
+        <dt>Rótulo</dt><dd>«Mes actual», «Mes cerrado» o «Mes futuro», porque el bloque 5 dice cosas distintas en cada caso.</dd>
+        <dt>Límite</dt><dd>Propongo 12 meses hacia atrás y 3 hacia adelante. Lo del futuro es pura proyección.</dd>
+      </dl>
+    </div>
+
+    <div class="ex">
+      <h3><span class="badge">1</span>Ingreso</h3>
+      <dl class="kv">
+        <dt>Moneda</dt><dd>Selector segmentado COP · EUR · USD (el de la app, <code>AppSegmentedControl</code>).</dd>
+        <dt>Sueldo</dt><dd>Importe mensual en la moneda elegida. El botón <b>Usar mi salario</b> copia lo que tengas en «Mi salario» (si tienes varios ingresos, los suma). Solo lo copia: <b>no lo modifica</b>.</dd>
+        <dt>Tasa</dt><dd><b>Por defecto, la TRM del día</b> con el punto «en vivo» (la misma fuente de <code>useFxRates</code>). Con el lápiz pasa a <b>tasa manual</b>: el borde se vuelve ámbar, aparece el chip «Manual · −4,2 % vs TRM» y el enlace <b>Volver a la TRM</b>. En COP la fila desaparece.</dd>
+        <dt>Alcance de la tasa manual</dt><dd>Solo vale en el simulador. <b>No cambia</b> «Mi salario», que sigue con la TRM pura, como decidiste.</dd>
+        <dt>Total</dt><dd><code>sueldo × tasa</code> en pesos, en tiempo real, con la cuenta debajo: «2.400 € × $3.632».</dd>
+      </dl>
+    </div>
+
+    <div class="ex">
+      <h3><span class="badge">2</span>Gastos fijos del mes (conectados)</h3>
+      <dl class="kv">
+        <dt>De dónde salen</dt><dd>Tus movimientos con <code>isFixed</code> del mes elegido, incluidas las copias virtuales de la serie. Se leen con <code>useTransactions</code>, el mismo hook del Home.</dd>
+        <dt>Interruptor</dt><dd>Saca ese fijo <b>solo de la simulación</b> y lo tacha.</dd>
+        <dt>Chip «Pagado»</dt><dd>Informativo (sale de <code>fixedPaidMonths</code>). Un fijo pagado cuenta igual, porque es un gasto del mes.</dd>
+        <dt>Simulados</dt><dd>«＋ Añadir gasto simulado»: nombre libre + valor en COP, con el chip <b>Simulado</b> y la papelera. Filas ilimitadas.</dd>
+        <dt>Total</dt><dd>Arriba a la derecha: suma de los encendidos + los simulados.</dd>
+        <dt>Compartidos</dt><dd>Cuenta solo <b>tu parte</b> (<code>effectiveAmount</code>), igual que el resto de la app.</dd>
+      </dl>
+    </div>
+
+    <div class="ex">
+      <h3><span class="badge">3</span>Reparto ahorro / libre</h3>
+      <dl class="kv">
+        <dt>Campos</dt><dd>Dos % enlazados: si escribes 30 en Ahorro, Libre pasa a 70, y al revés. Siempre suman 100.</dd>
+        <dt>Slider</dt><dd>Mueve los dos a la vez. Arrastrar el slider actualiza los campos y escribir en un campo mueve el slider.</dd>
+        <dt>Validación</dt><dd>Enteros de 0 a 100 (lo que pase de 100 se corta a 100). Un campo vacío cuenta como 0 mientras escribes.</dd>
+        <dt>Por defecto</dt><dd>30 / 70, pendiente de que lo confirmes.</dd>
+      </dl>
+    </div>
+
+    <div class="ex">
+      <h3><span class="badge">4</span>Resumen del mes</h3>
+      <dl class="kv">
+        <dt>Filas</dt><dd>Ingreso neto − Gastos fijos = <b>Disponible</b> → Ahorro (verde) y Libre (azul), cada uno con su %.</dd>
+        <dt>Barra</dt><dd>Una sola barra con tres tramos: fijos, ahorro y libre. Se ve de un vistazo a dónde se va el sueldo.</dd>
+        <dt>Negativo</dt><dd>Si los fijos superan el ingreso: banner rojo «Tus fijos superan el ingreso por $X», ahorro y libre en $0 y el reparto desactivado. <b>El PDF no cubre este caso</b>.</dd>
+      </dl>
+    </div>
+
+    <div class="ex" style="border-color:rgba(212,225,87,.45)">
+      <h3><span class="badge">5</span>Frente a tu mes real <span class="tag rec">Lo que pediste</span></h3>
+      <dl class="kv">
+        <dt>Qué compara</dt><dd>El <b>Libre simulado</b> contra tus <b>gastos variables reales</b> de ese mes, es decir, todos los gastos que <b>no</b> son fijos. Los fijos ya se restaron en el bloque 4 y no se cuentan dos veces.</dd>
+        <dt>Mes actual</dt><dd>«Llevas $X gastado · día 28 de 30» + barra de consumo del libre + <b>«Te quedan $Y»</b>, que equivalen a unos $Z por día para lo que falta del mes. Si te pasaste, lo dice en rojo: «Te pasaste por $Y: esto sale de tu ahorro».</dd>
+        <dt>Mes cerrado</dt><dd>«Así habría cerrado agosto con este sueldo»: te habrían sobrado o faltado $Y.</dd>
+        <dt>Mes futuro</dt><dd>Aún no hay gastos, así que muestra cuánto tendrías por día: «Tu libre da para $Z al día».</dd>
+        <dt>Cuotas de tarjeta</dt><dd>Cuentan con la cuota de ese mes, igual que en el Home.</dd>
+      </dl>
+    </div>
+
+    <div class="ex">
+      <h3><span class="badge">6</span>Fondo de gastos fijos</h3>
+      <dl class="kv">
+        <dt>Frecuencia</dt><dd>Semanal · Quincenal · Mensual. Es la frecuencia con la que <b>te pagan</b>.</dd>
+        <dt>Cálculo</dt><dd><code>fijos ÷ tasa ÷ factor</code>, con factor 4, 2 o 1. Muestra <b>«Separa 402 € por quincena»</b> y debajo su equivalente, <b>≈ $1.460.000</b>.</dd>
+        <dt>Texto final</dt><dd>«2 pagos × 402 € = 804 € al mes cubren tus fijos». Es mi interpretación del punto 6.4 del PDF, que era ambiguo.</dd>
+        <dt>En COP</dt><dd>Solo muestra el valor en pesos. Desaparece la línea en divisa.</dd>
+        <dt>Semanal</dt><dd>Factor 4, como dice el PDF. Un mes tiene ~4,33 semanas, así que separas ~8 % de más. Está en las decisiones pendientes.</dd>
+      </dl>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═════════ 4. ESTADOS ═════════ -->
+<h2><span class="num">4</span>Estados que el PDF no cubre</h2>
+<p>El mismo componente, con otros datos. Se muestran solo los bloques que cambian.</p>
+<div class="states" id="states"></div>
+
+<!-- ═════════ 5. DECISIONES ═════════ -->
+<h2><span class="num">5</span>Lo que falta decidir</h2>
+<p>Cada fila trae mi recomendación. Con que me digas «ok a todo» o cambies las que quieras, basta.</p>
+<div class="tw"><table>
+<tr><th>#</th><th>Pregunta</th><th>Opciones</th><th>Recomiendo</th></tr>
+<tr><td>D1</td><td>Fijos: ¿lista propia, conectado puro o conectado + ajustes?</td><td>Sección 1</td><td><b>Conectado + ajustes</b> (interruptor + gastos simulados; nunca se borra un fijo real)</td></tr>
+<tr><td>D2</td><td>¿Dónde vive?</td><td>A: herramienta nueva · B: pestaña en «Mi salario»</td><td><b>A</b>, con el nombre «Simulador de sueldo»</td></tr>
+<tr><td>D3</td><td>¿Premium o gratis?</td><td>Premium · Gratis · Gratis con el bloque 5 premium</td><td><b>Premium</b>, igual que «Mi salario». Si vence, se ve bloqueada como el resto de herramientas premium (no se oculta)</td></tr>
+<tr><td>D4</td><td>¿Se guarda la simulación?</td><td>Nada (se reinicia al salir) · Guardar el último escenario</td><td><b>Guardar el último escenario</b> en tu perfil (<code>users/{uid}.salarySim</code>): moneda, sueldo, tasa manual, %, frecuencia, fijos apagados y simulados. Nunca en <code>transactions</code></td></tr>
+<tr><td>D5</td><td>Factor semanal</td><td>4 (PDF) · 4,33 (real)</td><td><b>4,33</b>: con 4 separas ~8 % de más. Si prefieres la cifra redonda del PDF, 4</td></tr>
+<tr><td>D6</td><td>Reparto por defecto</td><td>30/70 · 20/80 · 50/50</td><td><b>30 / 70</b>; después se usa lo guardado (D4)</td></tr>
+<tr><td>D7</td><td>¿La tasa manual se recuerda?</td><td>Sí · Vuelve a la TRM al entrar</td><td><b>Vuelve a la TRM al entrar</b>: la TRM es la del día y una manual vieja engaña. La manual solo dura la sesión</td></tr>
+<tr><td>D8</td><td>¿Los ingresos reales del mes cuentan?</td><td>No (solo el sueldo simulado) · Sí (sueldo + otros ingresos)</td><td><b>No</b>: el ejercicio es «con este sueldo». Mezclar ingresos reales lo vuelve confuso</td></tr>
+</table></div>
+
+<!-- ═════════ 6. TÉCNICO ═════════ -->
+<h2><span class="num">6</span>Qué se toca en el código</h2>
+<div class="cols">
+  <div class="card">
+    <h3 style="color:var(--success)">Nuevo</h3>
+    <div class="tw"><table class="files" style="margin-top:0">
+      <tr><td>app/salary-simulator.tsx</td><td>La pantalla</td></tr>
+      <tr><td>utils/salarySim.ts</td><td>Toda la aritmética, pura: disponible, reparto, fondo, «te queda»</td></tr>
+      <tr><td>utils/salarySim.test.ts</td><td>Gate: casos de COP, manual, negativo, 0/100 %, factores y redondeo</td></tr>
+      <tr><td>hooks/useSalarySim.ts</td><td>Escenario guardado (D4)</td></tr>
+      <tr><td>components/salarySim/*</td><td>Los bloques 1–6</td></tr>
+    </table></div>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--warning)">Se toca, poco</h3>
+    <div class="tw"><table class="files" style="margin-top:0">
+      <tr><td>app/(tabs)/tools.tsx</td><td>La tesela nueva</td></tr>
+      <tr><td>locales es/en/it</td><td>Todas las cadenas por <code>t()</code></td></tr>
+      <tr><td>firestore.rules</td><td>Solo si D4 = guardar: permitir <code>salarySim</code> en el perfil propio</td></tr>
+      <tr><td>WhatsNew + versión</td><td>Al publicar</td></tr>
+    </table></div>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--primary)">NO se toca</h3>
+    <ul style="margin:0">
+      <li><code>transactions</code>: el simulador <b>solo lee</b>, nunca escribe.</li>
+      <li>Balance, presupuestos, histórico, insight de IA y PDF.</li>
+      <li>«Mi salario» y su TRM pura.</li>
+      <li>El modelo de series de fijos (copias virtuales): se reutiliza tal cual.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="q">
+    <h3>Se reutiliza</h3>
+    <p style="margin:0"><code>toCop</code> / <code>rateFor</code> (<code>utils/fxConvert.ts</code>), <code>useFxRates</code>, <code>useFxIncome</code>, <code>useTransactions</code>, <code>effectiveAmount</code>, <code>formatMoney</code>, <code>AppSegmentedControl</code>, <code>ScreenTransition</code>, <code>AppIcon</code> (Tabler).</p>
+  </div>
+  <div class="q warn">
+    <h3>Riesgos</h3>
+    <p style="margin:0">(1) Leer los fijos de otro mes tiene que pasar por <b>el mismo</b> generador de copias virtuales del Home. Si se reimplementa, los números de los dos no van a coincidir. (2) Ningún fijo real puede escribirse desde aquí: ya pasó que escribir la fecha de una copia borró un fijo de todo el histórico. (3) Sin conexión: se usa la última TRM guardada, con aviso y su fecha.</p>
+  </div>
+</div>
+
+<h2><span class="num">7</span>Fases sugeridas</h2>
+<div class="tw"><table>
+<tr><th>Fase</th><th>Qué entra</th><th>Esfuerzo</th></tr>
+<tr><td>1</td><td><code>salarySim.ts</code> + tests, bloques 0–4 (mes, ingreso con TRM/manual, fijos conectados, reparto, resumen)</td><td>~1 día</td></tr>
+<tr><td>2</td><td>Bloque 5 (frente a tu mes real) + bloque 6 (fondo) + estados</td><td>~½ día</td></tr>
+<tr><td>3</td><td>Guardar escenario (D4), i18n es/en/it, tesela, pase del equipo visual, capturas en móvil/tablet/escritorio, versión + WhatsNew</td><td>~½ día</td></tr>
+</table></div>
+<p style="margin-top:14px"><small>Datos de ejemplo: TRM USD $3.192 y EUR $3.632 (los valores del PDF) y fijos inventados. En la app sale la TRM real del día.</small></p>
+
+</div>
+
+<script>
+const TRM={USD:3192,EUR:3632,COP:1};
+const SYM={USD:'US$',EUR:'€',COP:'$'};
+const MONTHS=[
+  {name:'Agosto 2026',kind:'past',spent:4300000,days:31,today:31,paid:['a','s','i','c','g','m']},
+  {name:'Septiembre 2026',kind:'current',spent:3600000,days:30,today:28,paid:['a','s','i']},
+  {name:'Octubre 2026',kind:'future',spent:0,days:31,today:0,paid:[]},
+];
+const FIXED=[
+  {id:'a',name:'Arriendo',amt:2200000},
+  {id:'s',name:'Servicios públicos',amt:310000},
+  {id:'i',name:'Internet',amt:110000},
+  {id:'c',name:'Plan celular',amt:75000},
+  {id:'g',name:'Gimnasio',amt:130000},
+  {id:'m',name:'Seguro moto',amt:95000},
+];
+const FACT={w:4,q:2,m:1};
+const FNAME={w:'semana',q:'quincena',m:'mes'};
+const FPL={w:'pagos semanales',q:'pagos quincenales',m:'pago mensual'};
+const cop=n=>(n<0?'−':'')+'$'+Math.round(Math.abs(n)).toLocaleString('es-CO');
+const fx=(n,c)=>c==='USD'?'US$'+Math.round(n).toLocaleString('es-CO'):Math.round(n).toLocaleString('es-CO')+' €';
+const num=v=>{const n=parseFloat(String(v).replace(/\./g,'').replace(',','.'));return isFinite(n)?n:0};
+
+function calc(s){
+  const rate=s.cur==='COP'?1:(s.rateMode==='manual'?s.manualRate:TRM[s.cur]);
+  const income=s.salary*rate;
+  const mo=MONTHS[s.m];
+  const fixed=FIXED.filter(f=>!s.off.includes(f.id)).reduce((a,f)=>a+f.amt,0)+s.extras.reduce((a,e)=>a+num(e.amt),0);
+  const disp=income-fixed;
+  const neg=disp<0;
+  const save=neg?0:disp*s.pct/100;
+  const free=neg?0:disp-save;
+  const left=free-mo.spent;
+  const perCop=fixed/FACT[s.freq];
+  const perFx=rate?perCop/rate:0;
+  return {rate,income,fixed,disp,neg,save,free,left,perCop,perFx,mo};
+}
+
+function render(el,s,opt){
+  const o=Object.assign({blocks:[0,1,2,3,4,5,6],badges:true,mini:false},opt||{});
+  const c=calc(s), mo=c.mo, show=b=>o.blocks.includes(b);
+  const B=n=>o.badges?`<span class="badge bn">${n}</span>`:'';
+  const ro=o.mini?'disabled':'';
+  let h=`<div class="phone${o.mini?' mini':''}"><div class="notch"></div>`;
+  h+=`<div class="ph-head"><div class="ph-back">‹</div><div class="ph-title">Simulador de sueldo</div></div>`;
+  if(show(0)){
+    const lbl={past:'Mes cerrado',current:'Mes actual',future:'Mes futuro'}[mo.kind];
+    h+=`<div class="monthnav" style="position:relative">${o.badges?'<span class="badge" style="position:absolute;top:-8px;left:-6px">0</span>':''}<button data-act="prev" ${s.m===0||o.mini?'disabled':''} aria-label="Mes anterior">‹</button><div class="mn">${mo.name}<span>${lbl}</span></div><button data-act="next" ${s.m===MONTHS.length-1||o.mini?'disabled':''} aria-label="Mes siguiente">›</button></div>`;
+  }
+  if(show(1)){
+    h+=`<div class="blk">${B(1)}<div class="blk-h"><span class="t">Ingreso</span>${s.cur!=='COP'&&!o.mini?`<button class="linkbtn" data-act="mine">Usar mi salario</button>`:''}</div>`;
+    h+=`<div class="seg">${['COP','EUR','USD'].map(k=>`<button data-act="cur" data-v="${k}" class="${s.cur===k?'on':''}" ${ro}>${k}</button>`).join('')}</div>`;
+    h+=`<div class="field"><label>Sueldo mensual (${SYM[s.cur]})</label><input data-k="salary" inputmode="decimal" value="${s.salary.toLocaleString('es-CO')}" ${ro}></div>`;
+    if(s.cur!=='COP'){
+      if(s.rateMode==='manual'){
+        const d=(s.manualRate/TRM[s.cur]-1)*100;
+        h+=`<div class="field accent"><label>Tasa manual (COP por ${SYM[s.cur]})</label><span class="chip man" style="margin:3px 0 2px">Manual · ${d>=0?'+':'−'}${Math.abs(d).toLocaleString('es-CO',{maximumFractionDigits:1})} % vs TRM</span><input data-k="rate" inputmode="decimal" value="${s.manualRate.toLocaleString('es-CO')}" ${ro}></div>`;
+        if(!o.mini)h+=`<button class="linkbtn" data-act="trm">↺ Volver a la TRM (${cop(TRM[s.cur])})</button>`;
+      }else{
+        h+=`<div class="raterow"><div><div class="rl">TRM de hoy</div><div class="rv">${cop(TRM[s.cur])}</div></div><span class="chip live"><span class="dot"></span>${s.stale?'27 sep':'EN VIVO'}</span><button class="iconbtn" data-act="edit" aria-label="Editar tasa" ${ro}>✎</button></div>`;
+        if(s.stale)h+=`<div class="banner w">Sin conexión: se usa la última TRM guardada (27 sep, 18:00).</div>`;
+      }
+    }
+    h+=`<div class="total"><div class="l">Total ingreso en pesos</div><div class="big" data-out="income">${cop(c.income)}</div><div class="sub">${s.cur==='COP'?'Ingreso en pesos':`${fx(s.salary,s.cur)} × ${cop(c.rate)}`}</div></div></div>`;
+  }
+  if(show(2)){
+    h+=`<div class="blk">${B(2)}<div class="blk-h"><span class="t">Gastos fijos · ${mo.name.split(' ')[0]}</span><span class="tot" data-out="fixed" style="color:var(--expense)">${cop(c.fixed)}</span></div>`;
+    FIXED.forEach(f=>{const on=!s.off.includes(f.id);const paid=mo.paid.includes(f.id);
+      h+=`<div class="fx ${on?'':'off'}"><button class="sw ${on?'on':''}" data-act="tog" data-v="${f.id}" aria-label="Incluir ${f.name}" ${ro}></button><div class="n">${f.name}${paid?'<span><span class="chip paid">Pagado</span></span>':''}</div><div class="a">${cop(f.amt)}</div></div>`;});
+    s.extras.forEach((e,i)=>{
+      h+=`<div class="fx"><div class="n"><input class="nm" data-k="en" data-i="${i}" value="${e.name}" placeholder="Nombre" ${ro}><span><span class="chip sim">Simulado</span></span></div><input class="am" data-k="ea" data-i="${i}" inputmode="numeric" value="${e.amt}" ${ro}><button class="iconbtn del" data-act="del" data-v="${i}" aria-label="Eliminar" ${ro}>🗑</button></div>`;});
+    if(!o.mini)h+=`<button class="addrow" data-act="add">＋ Añadir gasto simulado</button>`;
+    h+=`<div class="note">Leídos de tus movimientos. Apagar uno no lo borra: solo lo quita de esta simulación.</div></div>`;
+  }
+  if(show(3)){
+    h+=`<div class="blk" style="${c.neg?'opacity:.5':''}">${B(3)}<div class="blk-h"><span class="t">Reparto del disponible</span></div><div class="pcts">
+      <div class="field"><label style="color:var(--success)">Ahorro</label><div style="display:flex;align-items:center"><input data-k="pSave" inputmode="numeric" value="${s.pct}" ${ro||(c.neg?'disabled':'')}><span class="suf">%</span></div></div>
+      <div class="field"><label style="color:var(--primary)">Libre</label><div style="display:flex;align-items:center"><input data-k="pFree" inputmode="numeric" value="${100-s.pct}" ${ro||(c.neg?'disabled':'')}><span class="suf">%</span></div></div></div>
+      <input type="range" min="0" max="100" step="1" data-k="pSlide" value="${s.pct}" aria-label="Porcentaje de ahorro" ${ro||(c.neg?'disabled':'')}><div class="rng-l"><span>Todo libre</span><span>Todo ahorro</span></div></div>`;
+  }
+  if(show(4))h+=`<div class="blk">${B(4)}<div class="blk-h"><span class="t">Resumen del mes</span></div><div data-out="sum">${sumHTML(s,c)}</div></div>`;
+  if(show(5))h+=`<div class="blk" style="border-color:rgba(212,225,87,.4)">${B(5)}<div class="blk-h"><span class="t">Frente a tu mes real</span></div><div data-out="real">${realHTML(s,c)}</div></div>`;
+  if(show(6)){
+    h+=`<div class="blk">${B(6)}<div class="blk-h"><span class="t">Fondo para tus fijos</span></div><div class="seg">${[['w','Semanal'],['q','Quincenal'],['m','Mensual']].map(([k,l])=>`<button data-act="freq" data-v="${k}" class="${s.freq===k?'on':''}" ${ro}>${l}</button>`).join('')}</div><div data-out="fund">${fundHTML(s,c)}</div></div>`;
+  }
+  h+=`</div>`;
+  el.innerHTML=h;
+}
+function sumHTML(s,c){
+  const tot=Math.max(c.income,1), fp=Math.min(c.fixed/tot*100,100), sp=c.save/tot*100, lp=c.free/tot*100;
+  let h=`<div class="bar"><i style="width:${fp}%;background:var(--expense)"></i><i style="width:${sp}%;background:var(--success)"></i><i style="width:${lp}%;background:var(--primary)"></i></div>`;
+  h+=`<div class="sumrow"><span>Ingreso neto</span><b>${cop(c.income)}</b></div><div class="sumrow minus"><span>− Gastos fijos</span><b>${cop(c.fixed)}</b></div><div class="sumrow eq"><span>Disponible para repartir</span><b style="color:${c.neg?'var(--expense)':'var(--tp)'}">${cop(c.disp)}</b></div>`;
+  if(c.neg)return h+`<div class="banner e">Tus fijos superan el ingreso por <b>${cop(-c.disp)}</b>. No hay nada que repartir: sube el sueldo o apaga algún fijo.</div>`;
+  return h+`<div class="sumrow save"><span>Ahorro · ${s.pct} %</span><b>${cop(c.save)}</b></div><div class="sumrow free"><span>Libre · ${100-s.pct} %</span><b>${cop(c.free)}</b></div>`;
+}
+function realHTML(s,c){
+  const mo=c.mo;
+  if(c.neg)return `<div class="note" style="margin:0">Sin libre que comparar este mes.</div>`;
+  if(mo.kind==='future'){
+    return `<div class="note" style="margin:0">Aún no hay gastos en ${mo.name.split(' ')[0].toLowerCase()}.</div><div class="hl ok">${cop(c.free/mo.days)} <span style="font-size:13px;color:var(--ts)">al día</span></div><div class="note">Es lo que da tu libre de ${cop(c.free)} repartido en ${mo.days} días.</div>`;
+  }
+  const pct=Math.min(mo.spent/Math.max(c.free,1)*100,100), over=c.left<0;
+  let h=`<div class="sumrow" style="padding-top:0"><span>${mo.kind==='past'?'Gastaste en variables':'Llevas gastado en variables'}</span><b>${cop(mo.spent)}</b></div>`;
+  h+=`<div class="bar"><i style="width:${pct}%;background:${over?'var(--expense)':'var(--primary)'}"></i></div><div class="note" style="margin-top:0">${Math.round(mo.spent/Math.max(c.free,1)*100)} % de tu libre${mo.kind==='current'?` · día ${mo.today} de ${mo.days}`:''}</div>`;
+  if(mo.kind==='past'){
+    h+=`<div class="note" style="margin-top:10px">Así habría cerrado ${mo.name.split(' ')[0].toLowerCase()} con este sueldo:</div>`;
+    h+=over?`<div class="hl bad">Faltarían ${cop(-c.left)}</div><div class="note">Habrían salido de tu ahorro (${cop(c.save)} → ${cop(c.save+c.left)}).</div>`:`<div class="hl ok">Sobrarían ${cop(c.left)}</div><div class="note">Además de los ${cop(c.save)} de ahorro.</div>`;
+  }else{
+    const dl=Math.max(mo.days-mo.today,1);
+    h+=over?`<div class="hl bad">Te pasaste por ${cop(-c.left)}</div><div class="note">Esto sale de tu ahorro: te quedarían ${cop(Math.max(c.save+c.left,0))} de los ${cop(c.save)}.</div>`:`<div class="hl ok">Te quedan ${cop(c.left)}</div><div class="note">≈ ${cop(c.left/dl)} por día los ${dl} días que faltan.</div>`;
+  }
+  return h;
+}
+function fundHTML(s,c){
+  const f=FACT[s.freq], n=FNAME[s.freq];
+  if(s.cur==='COP')return `<div class="fund-big">${cop(c.perCop)}</div><div class="fund-sub">por ${n}</div><div class="fund-txt">${f>1?`<b>${f} ${FPL[s.freq]}</b> × ${cop(c.perCop)} = <b>${cop(c.fixed)}</b> al mes cubren tus fijos.`:`Separa <b>${cop(c.fixed)}</b> de tu pago mensual para tus fijos.`}</div>`;
+  return `<div class="fund-big">Separa ${fx(c.perFx,s.cur)}</div><div class="fund-sub">por ${n} · ≈ ${cop(c.perCop)}</div><div class="fund-txt">${f>1?`<b>${f} ${FPL[s.freq]}</b> × ${fx(c.perFx,s.cur)} = <b>${fx(c.perFx*f,s.cur)}</b> al mes cubren tus ${cop(c.fixed)} de fijos.`:`Separa <b>${fx(c.perFx,s.cur)}</b> de tu pago mensual para cubrir ${cop(c.fixed)} de fijos.`}</div>`;
+}
+function refresh(el,s){
+  const c=calc(s);
+  const set=(k,v)=>{const n=el.querySelector(`[data-out="${k}"]`);if(n)n.innerHTML=v};
+  set('income',cop(c.income));set('fixed',cop(c.fixed));set('sum',sumHTML(s,c));set('real',realHTML(s,c));set('fund',fundHTML(s,c));
+  const sub=el.querySelector('.total .sub');if(sub)sub.textContent=s.cur==='COP'?'Ingreso en pesos':`${fx(s.salary,s.cur)} × ${cop(c.rate)}`;
+  const chip=el.querySelector('.chip.man');if(chip){const d=(s.manualRate/TRM[s.cur]-1)*100;chip.textContent=`Manual · ${d>=0?'+':'−'}${Math.abs(d).toLocaleString('es-CO',{maximumFractionDigits:1})} % vs TRM`;}
+  const a=document.activeElement;
+  [['pSave',s.pct],['pFree',100-s.pct],['pSlide',s.pct]].forEach(([k,v])=>{const n=el.querySelector(`[data-k="${k}"]`);if(n&&n!==a)n.value=v});
+}
+
+/* ── teléfono principal ── */
+const S={cur:'EUR',salary:2400,rateMode:'trm',manualRate:3632,m:1,off:[],extras:[],pct:30,freq:'q'};
+const main=document.getElementById('main-phone');
+let wasNeg=calc(S).neg;
+function full(){render(main,S);wasNeg=calc(S).neg}
+full();
+main.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  const a=b.dataset.act,v=b.dataset.v;
+  if(a==='prev')S.m--; else if(a==='next')S.m++;
+  else if(a==='cur'){S.cur=v;S.rateMode='trm';S.manualRate=TRM[v];if(v==='COP'&&S.salary<100000)S.salary=Math.round(S.salary*TRM.EUR);if(v!=='COP'&&S.salary>100000)S.salary=Math.round(S.salary/TRM[v]);}
+  else if(a==='mine'){S.cur='EUR';S.salary=2400;}
+  else if(a==='edit'){S.rateMode='manual';S.manualRate=TRM[S.cur];full();const r=main.querySelector('[data-k="rate"]');r&&r.focus();return;}
+  else if(a==='trm'){S.rateMode='trm';S.manualRate=TRM[S.cur];}
+  else if(a==='tog'){S.off=S.off.includes(v)?S.off.filter(x=>x!==v):[...S.off,v];}
+  else if(a==='add'){S.extras.push({name:'Arriendo nuevo',amt:'300000'});}
+  else if(a==='del'){S.extras.splice(+v,1);}
+  else if(a==='freq'){S.freq=v;}
+  full();
+});
+main.addEventListener('input',e=>{
+  const t=e.target,k=t.dataset.k;if(!k)return;
+  if(k==='salary')S.salary=num(t.value);
+  else if(k==='rate')S.manualRate=num(t.value)||0;
+  else if(k==='pSave'||k==='pSlide')S.pct=Math.max(0,Math.min(100,Math.round(num(t.value))));
+  else if(k==='pFree')S.pct=100-Math.max(0,Math.min(100,Math.round(num(t.value))));
+  else if(k==='en')S.extras[+t.dataset.i].name=t.value;
+  else if(k==='ea')S.extras[+t.dataset.i].amt=t.value.replace(/\D/g,'');
+  if(calc(S).neg!==wasNeg){const pos=t.selectionStart;full();const n=main.querySelector(`[data-k="${k}"]${t.dataset.i!=null?`[data-i="${t.dataset.i}"]`:''}`);if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}return;}
+  refresh(main,S);
+});
+
+/* ── estados ── */
+const base=()=>JSON.parse(JSON.stringify(S0));
+const S0={cur:'EUR',salary:2400,rateMode:'trm',manualRate:3632,m:1,off:[],extras:[],pct:30,freq:'q'};
+const STATES=[
+  {t:'Tasa manual',d:'Pusiste lo que de verdad te paga la plataforma. Borde ámbar, diferencia contra la TRM y «Volver a la TRM».',s:Object.assign(base(),{rateMode:'manual',manualRate:3480}),b:[1]},
+  {t:'Ingreso en pesos',d:'Sin fila de tasa. El fondo solo en COP.',s:Object.assign(base(),{cur:'COP',salary:7500000}),b:[1,6]},
+  {t:'Los fijos superan el ingreso',d:'Disponible negativo: banner rojo, ahorro y libre en $0, reparto apagado.',s:Object.assign(base(),{cur:'USD',salary:800}),b:[3,4]},
+  {t:'Te pasaste del libre (mes actual)',d:'Ya gastaste más que el libre simulado. Se dice cuánto sale del ahorro.',s:Object.assign(base(),{pct:50}),b:[5]},
+  {t:'Mes cerrado',d:'Agosto: «así habría cerrado con este sueldo».',s:Object.assign(base(),{m:0}),b:[0,5]},
+  {t:'Mes futuro',d:'Octubre: sin gastos todavía, cuánto da el libre por día.',s:Object.assign(base(),{m:2}),b:[0,5]},
+  {t:'Fijo apagado + gasto simulado',d:'«¿Y si dejo el gimnasio y me mudo?» El real se tacha; el simulado lleva su chip y su papelera.',s:Object.assign(base(),{off:['g'],extras:[{name:'Arriendo nuevo',amt:'300000'}]}),b:[2]},
+  {t:'Sin conexión',d:'Usa la última TRM guardada con su fecha, sin fingir que está en vivo.',s:Object.assign(base(),{stale:true}),b:[1]},
+];
+const grid=document.getElementById('states');
+STATES.forEach(st=>{const w=document.createElement('div');w.className='state';const p=document.createElement('div');render(p,st.s,{blocks:st.b,badges:false,mini:true});w.appendChild(p);const cap=document.createElement('div');cap.className='cap';cap.innerHTML=`<b>${st.t}</b>${st.d}`;w.appendChild(cap);grid.appendChild(w);});
+</script>
+</body>
+</html>
