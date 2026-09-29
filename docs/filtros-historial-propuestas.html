@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spendia · Filtros del historial — propuestas</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* página */
+  --bg:#0D1A1C; --surf:#162428; --surf2:#1E2E32; --border:#243438;
+  --tp:#EEF6F8; --ts:#9EABAF; --tt:#637579; --acc:#D4E157; --pri:#00BCD4; --warn:#FBBF24; --err:#FF8E8E; --ok:#00A896;
+  /* teléfono — tema claro por defecto de la app (config/colors.ts) */
+  --p-bg:#F3F7F8; --p-surf:#FFFFFF; --p-surf2:#EEF4F5; --p-input:#F5F9FA; --p-border:#DDE8EA;
+  --p-tp:#1A2428; --p-ts:#6B7280; --p-tt:#8A969A; --p-pri:#00ACC1; --p-pri-ink:#00798A; --p-on:#FFFFFF;
+  --p-inc:#00897B; --p-exp:#E5484D;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tp);font-family:Montserrat,system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding:32px 16px 90px}
+h1{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.8px;margin:0 0 8px}
+h2{font-size:clamp(18px,2.6vw,24px);font-weight:800;letter-spacing:-.4px;margin:60px 0 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h2 .num{width:30px;height:30px;border-radius:50%;background:var(--pri);color:#06222a;display:grid;place-items:center;font-size:14px;flex:0 0 auto}
+h3{font-size:15px;font-weight:700;margin:0 0 8px}
+p{margin:0 0 12px;color:var(--ts);font-size:14.5px}
+p b,li b,td b{color:var(--tp)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#0b1517;border:1px solid var(--border);border-radius:6px;padding:1px 5px;color:var(--acc)}
+.lede{font-size:16px;color:var(--ts);max-width:800px}
+.tag{display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:5px 10px;border-radius:50px;border:1px solid}
+.tag.rec{color:#0D1A1C;background:var(--acc);border-color:var(--acc)}
+.tag.n{color:var(--ts);background:var(--surf2);border-color:var(--border)}
+.tag.m{color:var(--warn);background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:20px}
+.card.rec{border-color:rgba(212,225,87,.55)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-top:14px}
+ul{margin:0 0 10px;padding-left:18px;color:var(--ts);font-size:14px}
+li{margin-bottom:5px}
+.pros li::marker{color:var(--ok)} .cons li::marker{color:var(--err)}
+.opt{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start;background:var(--surf);border:1px solid var(--border);border-radius:24px;padding:22px;margin-top:16px}
+.opt.rec{border-color:rgba(212,225,87,.55)}
+@media(max-width:880px){.opt{grid-template-columns:1fr;justify-items:center}.opt>div:last-child{justify-self:stretch}}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.hint{font-size:12px;color:var(--tt);margin-top:8px;text-align:center}
+.q{background:rgba(0,188,212,.05);border:1px solid rgba(0,188,212,.28);border-radius:14px;padding:16px;margin-top:14px}
+.q h3{color:var(--pri)}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+.tw{overflow-x:auto}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--ts)}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--tt)}
+td:first-child{font-weight:700;color:var(--tp)}
+
+/* ── teléfono ── */
+.phone{width:340px;max-width:100%;height:660px;background:var(--p-bg);border:8px solid #0a1214;border-radius:40px;position:relative;overflow:hidden;color:var(--p-tp);box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.ph-scroll{position:absolute;inset:0;overflow-y:auto;padding:14px 14px 90px;scrollbar-width:none}
+.ph-scroll::-webkit-scrollbar{display:none}
+.ph-title{font-size:22px;font-weight:800;letter-spacing:-.6px;margin:6px 2px 10px}
+.bal{background:var(--p-surf);border:1px solid var(--p-border);border-radius:18px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.bal span{font-size:11px;color:var(--p-ts);font-weight:700}
+.bal b{font-size:16px;font-weight:800;color:var(--p-inc)}
+.searchrow{display:flex;gap:8px;margin-top:10px}
+.search{flex:1;background:var(--p-surf);border:1px solid var(--p-border);border-radius:14px;padding:10px 12px;font-size:12.5px;color:var(--p-tt)}
+.fbtn{width:42px;height:42px;border-radius:14px;border:1px solid var(--p-border);background:var(--p-surf);display:grid;place-items:center;position:relative;cursor:pointer;color:var(--p-ts)}
+.fbtn.on{border-color:var(--p-pri);color:var(--p-pri-ink)}
+.fbtn .badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:var(--p-pri);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px}
+.tabs{display:flex;background:var(--p-surf2);border-radius:50px;padding:3px;margin-top:10px}
+.tabs div{flex:1;text-align:center;font-size:11.5px;font-weight:700;padding:7px;border-radius:50px;color:var(--p-ts)}
+.tabs div.on{background:var(--p-pri);color:#fff}
+.activechips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;scrollbar-width:none;padding-bottom:2px}
+.activechips::-webkit-scrollbar{display:none}
+.achip{flex:0 0 auto;display:flex;align-items:center;gap:6px;background:rgba(0,172,193,.1);border:1px solid rgba(0,172,193,.35);color:var(--p-pri-ink);border-radius:50px;padding:5px 6px 5px 11px;font-size:11.5px;font-weight:700}
+.achip button{width:18px;height:18px;border-radius:9px;border:0;background:rgba(0,172,193,.18);color:var(--p-pri-ink);font:800 11px Montserrat;cursor:pointer;display:grid;place-items:center;padding:0}
+.achip.clear{background:transparent;border-color:var(--p-border);color:var(--p-ts);padding:5px 11px;cursor:pointer}
+.day{font-size:10.5px;font-weight:800;color:var(--p-tt);text-transform:uppercase;letter-spacing:.6px;margin:14px 4px 6px}
+.row{background:var(--p-surf);border:1px solid var(--p-border);border-radius:16px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:15px;flex:0 0 auto}
+.rn{flex:1;min-width:0;font-size:12.5px;font-weight:700}
+.rn span{display:block;font-size:10.5px;color:var(--p-tt);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ra{font-size:12.5px;font-weight:800;white-space:nowrap}
+.empty{text-align:center;color:var(--p-ts);font-size:12.5px;padding:40px 10px}
+/* hoja */
+.scrim{position:absolute;inset:0;background:rgba(10,18,20,.45);opacity:0;pointer-events:none;transition:opacity .15s ease-out}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--p-surf);border-radius:26px 26px 0 0;transform:translateY(102%);transition:transform .15s cubic-bezier(.2,.8,.2,1);max-height:88%;display:flex;flex-direction:column;box-shadow:0 -10px 30px -10px rgba(0,0,0,.25)}
+.phone.open .scrim{opacity:1;pointer-events:auto}
+.phone.open .sheet{transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){.sheet,.scrim{transition:none}}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--p-border);margin:9px auto 2px}
+.sh-head{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 8px}
+.sh-head b{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.sh-head button{border:0;background:none;color:var(--p-pri-ink);font:700 12.5px Montserrat;cursor:pointer}
+.sh-head button:disabled{color:var(--p-tt);cursor:default}
+.sh-body{overflow-y:auto;padding:0 16px 6px;scrollbar-width:none}
+.sh-body::-webkit-scrollbar{display:none}
+.sh-foot{padding:10px 16px 18px;border-top:1px solid var(--p-border)}
+.cta{width:100%;border:0;border-radius:50px;background:var(--p-pri);color:#fff;font:800 13.5px Montserrat;padding:13px;cursor:pointer}
+.cta.zero{background:var(--p-surf2);color:var(--p-ts)}
+.zero-note{font-size:11px;color:var(--p-exp);text-align:center;margin-top:6px;font-weight:600}
+.sec{margin-top:12px}
+.sec-l{font-size:10.5px;font-weight:800;color:var(--p-ts);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;display:flex;justify-content:space-between}
+.sec-l i{font-style:normal;color:var(--p-tt);text-transform:none;letter-spacing:0;font-weight:600}
+/* A · chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--p-border);background:var(--p-surf);color:var(--p-ts);border-radius:50px;padding:8px 13px;font:700 12px Montserrat;cursor:pointer;display:flex;align-items:center;gap:5px}
+.chip.on{background:var(--p-pri);border-color:var(--p-pri);color:#fff}
+.chip .n{font-size:10px;opacity:.75;font-weight:700}
+/* B · segmentado */
+.seg{display:flex;background:var(--p-surf2);border-radius:50px;padding:3px}
+.seg button{flex:1;border:0;background:transparent;border-radius:50px;padding:8px 2px;font:700 11px Montserrat;color:var(--p-ts);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.seg button.on{background:var(--p-pri);color:#fff}
+.seg.tight button{font-size:9.5px;padding:8px 1px}
+/* C · dos niveles */
+.lrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 2px;border-bottom:1px solid var(--p-border);cursor:pointer}
+.lrow:last-child{border-bottom:0}
+.lrow b{font-size:13.5px;font-weight:700}
+.lrow span{font-size:12.5px;color:var(--p-ts);font-weight:600;display:flex;align-items:center;gap:6px}
+.lrow span.set{color:var(--p-pri-ink);font-weight:800}
+.radio{display:flex;align-items:center;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--p-border);cursor:pointer;font-size:13.5px;font-weight:700}
+.radio i{font-style:normal;font-size:11px;color:var(--p-tt);font-weight:600;display:block}
+.radio .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--p-border);flex:0 0 auto}
+.radio.on .dot{border:6px solid var(--p-pri)}
+.back{border:0;background:none;color:var(--p-pri-ink);font:700 12.5px Montserrat;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Filtros del historial</h1>
+<p class="lede">Hoy los filtros se abren como un bloque pegado arriba de la lista: cinco filas de texto, sin forma de saber cuál está activo y sin decir cuántos movimientos van a quedar. La propuesta es pasarlos a una <b>hoja que sube desde abajo</b>. Aquí hay <b>cuatro formas de hacerlo</b> y cinco decisiones de detalle. <b>No se ha tocado código.</b></p>
+
+<div class="cols">
+  <div class="card">
+    <h3>Lo que falla hoy (tu captura)</h3>
+    <ul>
+      <li>El activo solo se nota por la <b>negrita</b>. No parecen botones.</li>
+      <li>Empuja la lista hacia abajo y ocupa media pantalla.</li>
+      <li>No dice <b>cuántos movimientos</b> van a quedar. Filtras a ciegas y a veces terminas con la lista vacía.</li>
+      <li>«Con amigos» engaña: <b>Recibidos</b> solo muestra los ingresos que un amigo te envió, <b>no los gastos compartidos</b> que él creó. Por eso no ves nada.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Lo que tienen en común las 4 propuestas</h3>
+    <ul>
+      <li>Hoja inferior con fondo oscurecido. Se cierra deslizando hacia abajo, tocando fuera o con el botón.</li>
+      <li>Botón al fondo <b>«Ver N movimientos»</b>, con el número actualizado en vivo.</li>
+      <li><b>Limpiar</b> arriba a la derecha, desactivado cuando no hay nada filtrado.</li>
+      <li>«Compartido» y «Con amigos» se juntan en una sola sección <b>«Amigos»</b> que dice exactamente qué es (ver decisión F2).</li>
+      <li>El número del botón de filtros cuenta <b>todos</b> los filtros activos.</li>
+      <li>Pendientes/Pagados se quedan fuera, como pestañas (decisión F3).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═════ A ═════ -->
+<h2><span class="num">A</span>Chips por sección <span class="tag rec">Recomendada</span></h2>
+<div class="opt rec">
+  <div><div class="phone" id="pA"></div><div class="hint">Toca el botón de filtros (junto al buscador)</div></div>
+  <div>
+    <p>Cada sección es un grupo de <b>pastillas</b>. La elegida queda rellena de color, así que se sabe al instante cuál está activa. Cada pastilla muestra <b>cuántos movimientos tiene</b>, para que no elijas una opción que te deje la lista vacía.</p>
+    <div class="cols" style="margin-top:0">
+      <div><h3 style="color:var(--ok)">A favor</h3><ul class="pros"><li>Se ve de un vistazo qué está activo.</li><li>Cabe cualquier número de opciones: «Amigos» tiene 5 y entra sin apretarse.</li><li>El conteo por opción evita resultados vacíos.</li><li>Si mañana quieres elegir varias a la vez (Fijos + Cuotas), la misma pastilla lo permite.</li></ul></div>
+      <div><h3 style="color:var(--err)">En contra</h3><ul class="cons"><li>Es un componente nuevo (una pastilla), aunque sencillo.</li><li>Es la hoja más alta de las cuatro, un poco más de media pantalla.</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════ B ═════ -->
+<h2><span class="num">B</span>Selector segmentado por sección <span class="tag n">Alternativa</span></h2>
+<div class="opt">
+  <div><div class="phone" id="pB"></div><div class="hint">Toca el botón de filtros (junto al buscador)</div></div>
+  <div>
+    <p>Cada sección es un <code>AppSegmentedControl</code>, el mismo control de Pendientes/Pagados. Es el más coherente con el resto de la app.</p>
+    <div class="cols" style="margin-top:0">
+      <div><h3 style="color:var(--ok)">A favor</h3><ul class="pros"><li>Reutiliza un componente que ya existe.</li><li>Es la hoja más compacta y ordenada.</li></ul></div>
+      <div><h3 style="color:var(--err)">En contra</h3><ul class="cons"><li>Con 5 opciones («Amigos») el texto se achica o se corta. Mira esa fila en el teléfono.</li><li>No hay espacio para el conteo por opción.</li><li>Solo permite elegir una opción por sección, nunca varias.</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════ C ═════ -->
+<h2><span class="num">C</span>Lista de dos niveles <span class="tag n">Alternativa</span></h2>
+<div class="opt">
+  <div><div class="phone" id="pC"></div><div class="hint">Toca el botón de filtros (junto al buscador) y luego una fila</div></div>
+  <div>
+    <p>Estilo Ajustes de iOS: cada sección es una fila con su valor actual («Movimiento — Gastos ›»). Al tocarla entras a la lista de opciones y vuelves con «‹ Filtros».</p>
+    <div class="cols" style="margin-top:0">
+      <div><h3 style="color:var(--ok)">A favor</h3><ul class="pros"><li>La hoja es corta y crece bien si se agregan filtros (categoría, rango de monto…).</li><li>Cada opción puede llevar una explicación («Me enviaron: ingresos que un amigo te mandó»).</li></ul></div>
+      <div><h3 style="color:var(--err)">En contra</h3><ul class="cons"><li><b>Dos toques por filtro</b> en lugar de uno.</li><li>No ves todas las opciones a la vez.</li><li>Para 4 secciones de pocas opciones, es más lento que A y B.</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════ D ═════ -->
+<h2><span class="num">D</span>Complemento: chips de filtros activos bajo el buscador <span class="tag m">Se suma a A, B o C</span></h2>
+<div class="opt">
+  <div><div class="phone" id="pD"></div><div class="hint">Ya viene con 2 filtros puestos: quítalos con ×</div></div>
+  <div>
+    <p>No es otra hoja: es una <b>fila de chips con los filtros activos</b> debajo del buscador, cada uno con su ×. Solo aparece si hay algo filtrado. Se combina con cualquiera de las tres anteriores (aquí va con A).</p>
+    <div class="cols" style="margin-top:0">
+      <div><h3 style="color:var(--ok)">A favor</h3><ul class="pros"><li>Con la hoja cerrada sigues viendo qué está filtrando la lista. Es lo que más ayuda contra «no me aparece nada».</li><li>Quitas un filtro con un toque, sin abrir la hoja.</li><li>«Limpiar» al final de la fila.</li></ul></div>
+      <div><h3 style="color:var(--err)">En contra</h3><ul class="cons"><li>Ocupa una fila más cuando hay filtros activos.</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════ decisiones ═════ -->
+<h2><span class="num">?</span>Decisiones de detalle</h2>
+
+<div class="q">
+  <h3>F2 · Cómo queda «Amigos» (lo que no te aparecía)</h3>
+  <p>Hoy son dos secciones: «Compartido» (gastos divididos) y «Con amigos» (ingresos enviados o recibidos). Son dos funciones distintas de la app con nombres que se confunden. Las propuestas de arriba ya muestran la opción recomendada:</p>
+  <div class="tw"><table>
+    <tr><th></th><th>Opciones</th><th>Qué cuenta cada una</th></tr>
+    <tr><td>F2-1 · Una sección «Amigos» <span class="tag rec">Recomendada</span></td><td>Todos · Sin amigos · Compartidos · Envié · Me enviaron</td><td><b>Compartidos</b> = gastos divididos, los hayas creado tú o un amigo. <b>Envié</b> = ingresos que le mandaste a alguien. <b>Me enviaron</b> = ingresos que te mandaron. <b>Sin amigos</b> = solo lo tuyo.</td></tr>
+    <tr><td>F2-2 · Por quién lo creó</td><td>Todos · Solo míos · Creados por mí con amigos · Creados por un amigo</td><td>Junta compartidos e ingresos enviados según quién los hizo. «Creados por un amigo» incluye el gasto compartido que armó otro, que es lo que buscabas en «Recibidos».</td></tr>
+    <tr><td>F2-3 · Dejarlo como está y renombrar</td><td>Compartido: Todos · Sí · No — Ingresos entre amigos: Todos · Recibidos · Enviados</td><td>Mismo comportamiento de hoy. Solo cambia el nombre para que no prometa algo que no hace.</td></tr>
+  </table></div>
+</div>
+
+<div class="tw"><table>
+<tr><th>#</th><th>Pregunta</th><th>Opciones</th><th>Recomiendo</th></tr>
+<tr><td>F1</td><td>¿Qué forma de hoja?</td><td>A chips · B segmentado · C dos niveles</td><td><b>A</b></td></tr>
+<tr><td>F2</td><td>¿Cómo queda «Amigos»?</td><td>Tabla de arriba</td><td><b>F2-1</b></td></tr>
+<tr><td>F3</td><td>¿Pendientes/Pagados entra a la hoja?</td><td>Se queda como pestañas · Entra a la hoja</td><td><b>Se queda como pestañas</b>: es lo que más se cambia y hoy funciona con un toque</td></tr>
+<tr><td>F4</td><td>¿Cuándo se aplica?</td><td>En vivo (la lista cambia detrás mientras eliges) · Solo al tocar «Ver N»</td><td><b>En vivo</b>, más el botón «Ver N» que cierra la hoja. Si cierras deslizando, lo elegido queda aplicado</td></tr>
+<tr><td>F5</td><td>¿Agregar el complemento D?</td><td>Sí · No</td><td><b>Sí</b></td></tr>
+<tr><td>F6</td><td>¿Elegir varias opciones de una sección a la vez (Fijos + Cuotas)?</td><td>No, una por sección · Sí</td><td><b>No por ahora</b>: con A se puede agregar después sin rediseñar</td></tr>
+</table></div>
+
+<p style="margin-top:18px"><small style="color:var(--tt)">Movimientos de ejemplo, inventados. Los teléfonos usan la paleta clara por defecto; en la app la hoja sigue la paleta que tengas elegida.</small></p>
+</div>
+
+<script>
+/* ── datos de ejemplo ── */
+const TX=[
+ {d:'Hoy',n:'Mercado Éxito',a:-184000,ic:'🛒',t:'expense'},
+ {d:'Hoy',n:'Cena con Laura',a:-60000,ic:'🍝',t:'expense',sh:1,owner:'friend',note:'Compartido · Laura lo creó'},
+ {d:'Hoy',n:'Uber',a:-18500,ic:'🚗',t:'expense',card:1},
+ {d:'Ayer',n:'Arriendo',a:-2200000,ic:'🏠',t:'expense',fx:1},
+ {d:'Ayer',n:'Te envió Carlos',a:150000,ic:'💸',t:'income',rec:1,note:'Ingreso recibido · Carlos'},
+ {d:'Ayer',n:'Nevera 2/12',a:-210000,ic:'🧊',t:'expense',inst:1,card:1},
+ {d:'Ayer',n:'Internet',a:-110000,ic:'📶',t:'expense',fx:1,card:1},
+ {d:'Lun 22',n:'Salario',a:8716800,ic:'💼',t:'income',fx:1},
+ {d:'Lun 22',n:'Le presté a Ana',a:-200000,ic:'🤝',t:'expense',sent:1,note:'Ingreso enviado · Ana'},
+ {d:'Lun 22',n:'Mercado del mes',a:-95000,ic:'🥑',t:'expense',sh:1,owner:'me',note:'Compartido · lo creaste tú'},
+ {d:'Dom 21',n:'Cine',a:-42000,ic:'🎬',t:'expense',card:1},
+ {d:'Dom 21',n:'Freelance',a:1200000,ic:'🧑‍💻',t:'income'},
+ {d:'Sáb 20',n:'Gimnasio',a:-130000,ic:'🏋️',t:'expense',fx:1},
+ {d:'Sáb 20',n:'Viaje Cartagena',a:-320000,ic:'✈️',t:'expense',sh:1,owner:'friend',inst:1,card:1,note:'Compartido · Pipe lo creó'},
+];
+const SECTIONS=[
+ {k:'mov',l:'Movimiento',o:[['all','Todos'],['income','Ingresos'],['expense','Gastos']]},
+ {k:'amigos',l:'Amigos',o:[['all','Todos'],['none','Sin amigos'],['shared','Compartidos'],['sent','Envié'],['rec','Me enviaron']],
+   desc:{none:'Solo lo tuyo',shared:'Gastos divididos, los creara quien los creara',sent:'Ingresos que le mandaste a alguien',rec:'Ingresos que un amigo te mandó'}},
+ {k:'tipo',l:'Tipo',o:[['all','Todos'],['fixed','Fijos'],['inst','Cuotas'],['single','Sueltos']]},
+ {k:'tarjeta',l:'Tarjeta',o:[['all','Todas'],['with','Con tarjeta'],['without','Sin tarjeta']]},
+];
+const match=(x,f)=>{
+ if(f.mov!=='all'&&x.t!==f.mov)return false;
+ if(f.amigos==='none'&&(x.sh||x.sent||x.rec))return false;
+ if(f.amigos==='shared'&&!x.sh)return false;
+ if(f.amigos==='sent'&&!x.sent)return false;
+ if(f.amigos==='rec'&&!x.rec)return false;
+ if(f.tipo==='fixed'&&!x.fx)return false;
+ if(f.tipo==='inst'&&!x.inst)return false;
+ if(f.tipo==='single'&&(x.fx||x.inst))return false;
+ if(f.tarjeta==='with'&&!x.card)return false;
+ if(f.tarjeta==='without'&&x.card)return false;
+ return true;
+};
+const count=f=>TX.filter(x=>match(x,f)).length;
+const nActive=f=>SECTIONS.filter(s=>f[s.k]!=='all').length;
+const fresh=()=>({mov:'all',amigos:'all',tipo:'all',tarjeta:'all'});
+const cop=n=>(n<0?'−':'+')+'$'+Math.abs(n).toLocaleString('es-CO');
+const lbl=(s,v)=>s.o.find(o=>o[0]===v)[1];
+
+function listHTML(f){
+ const rows=TX.filter(x=>match(x,f));
+ if(!rows.length)return `<div class="empty">Ningún movimiento cumple estos filtros.</div>`;
+ let h='',day='';
+ rows.forEach(x=>{
+  if(x.d!==day){day=x.d;h+=`<div class="day">${day}</div>`;}
+  const tags=[x.note,x.fx&&'Fijo',x.inst&&'Cuota',x.card&&'Tarjeta'].filter(Boolean).join(' · ');
+  h+=`<div class="row"><div class="ic" style="background:${x.t==='income'?'rgba(0,137,123,.12)':'rgba(0,172,193,.1)'}">${x.ic}</div><div class="rn">${x.n}<span>${tags||'Suelto'}</span></div><div class="ra" style="color:${x.t==='income'?'var(--p-inc)':'var(--p-exp)'}">${cop(x.a)}</div></div>`;
+ });
+ return h;
+}
+
+/* cuerpo de la hoja por variante */
+function bodyA(f){
+ return SECTIONS.map(s=>`<div class="sec"><div class="sec-l">${s.l}</div><div class="chips">${s.o.map(([v,t])=>{
+   const n=count({...f,[s.k]:v});
+   return `<button class="chip ${f[s.k]===v?'on':''}" data-s="${s.k}" data-v="${v}">${t}${v!=='all'?`<span class="n">${n}</span>`:''}</button>`}).join('')}</div></div>`).join('');
+}
+function bodyB(f){
+ return SECTIONS.map(s=>`<div class="sec"><div class="sec-l">${s.l}${s.o.length>4?'<i>5 opciones: no caben</i>':''}</div><div class="seg ${s.o.length>4?'tight':''}">${s.o.map(([v,t])=>`<button class="${f[s.k]===v?'on':''}" data-s="${s.k}" data-v="${v}">${t}</button>`).join('')}</div></div>`).join('');
+}
+function bodyC(f,st){
+ if(st.sub){
+  const s=SECTIONS.find(x=>x.k===st.sub);
+  return `<button class="back" data-act="back">‹ Filtros</button><div class="sec-l" style="margin-top:12px">${s.l}</div>`+
+   s.o.map(([v,t])=>`<div class="radio ${f[s.k]===v?'on':''}" data-s="${s.k}" data-v="${v}"><div>${t}${s.desc&&s.desc[v]?`<i>${s.desc[v]}</i>`:''}${v!=='all'?`<i>${count({...f,[s.k]:v})} movimientos</i>`:''}</div><div class="dot"></div></div>`).join('');
+ }
+ return SECTIONS.map(s=>`<div class="lrow" data-act="sub" data-v="${s.k}"><b>${s.l}</b><span class="${f[s.k]!=='all'?'set':''}">${lbl(s,f[s.k])} ›</span></div>`).join('');
+}
+
+function mount(id,variant,opts={}){
+ const el=document.getElementById(id);
+ const st={f:Object.assign(fresh(),opts.f||{}),open:false,sub:null};
+ const chipsRow=opts.chips;
+ const draw=()=>{
+  const n=count(st.f),a=nActive(st.f);
+  const body=variant==='A'?bodyA(st.f):variant==='B'?bodyB(st.f):bodyC(st.f,st);
+  const active=SECTIONS.filter(s=>st.f[s.k]!=='all');
+  el.className='phone'+(st.open?' open':'');
+  el.innerHTML=`<div class="ph-scroll">
+    <div class="ph-title">Historial</div>
+    <div class="bal"><span>SEPTIEMBRE · BALANCE</span><b>+$6.296.300</b></div>
+    <div class="searchrow"><div class="search">Buscar movimiento…</div>
+      <button class="fbtn ${a?'on':''}" data-act="open" aria-label="Filtros">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        ${a?`<span class="badge">${a}</span>`:''}</button></div>
+    ${chipsRow&&active.length?`<div class="activechips">${active.map(s=>`<span class="achip">${lbl(s,st.f[s.k])}<button data-act="rm" data-v="${s.k}" aria-label="Quitar ${lbl(s,st.f[s.k])}">×</button></span>`).join('')}<span class="achip clear" data-act="clear">Limpiar</span></div>`:''}
+    <div class="tabs"><div class="on">Pendientes</div><div>Pagados</div></div>
+    ${listHTML(st.f)}
+  </div>
+  <div class="scrim" data-act="close"></div>
+  <div class="sheet" role="dialog" aria-label="Filtros">
+    <div class="grab"></div>
+    <div class="sh-head"><b>Filtros</b><button data-act="clear" ${a?'':'disabled'}>Limpiar${a?` (${a})`:''}</button></div>
+    <div class="sh-body">${body}</div>
+    <div class="sh-foot"><button class="cta ${n?'':'zero'}" data-act="close">${n?`Ver ${n} movimiento${n===1?'':'s'}`:'Sin resultados'}</button>${n?'':'<div class="zero-note">Ningún movimiento cumple todo esto: quita algún filtro.</div>'}</div>
+  </div>`;
+ };
+ el.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act],[data-s]');if(!t)return;
+  if(t.dataset.s){st.f[t.dataset.s]=t.dataset.v; if(variant==='C')st.sub=null;}
+  const a=t.dataset.act;
+  if(a==='open')st.open=true;
+  if(a==='close'){st.open=false;st.sub=null;}
+  if(a==='clear'){st.f=fresh();st.sub=null;}
+  if(a==='sub')st.sub=t.dataset.v;
+  if(a==='back')st.sub=null;
+  if(a==='rm')st.f[t.dataset.v]='all';
+  draw();
+ });
+ draw();
+}
+mount('pA','A');
+mount('pB','B');
+mount('pC','C');
+mount('pD','A',{chips:true,f:{mov:'expense',tarjeta:'with'}});
+</script>
+</body>
+</html>
