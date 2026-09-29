@@ -759,6 +759,12 @@
       "notShared": "Non condiviso",
       "pending": "In sospeso",
       "paidTab": "Pagati",
+      "movementLabel": "Movimento",
+      "movement": {
+        "all": "Tutti",
+        "income": "Entrate",
+        "expense": "Uscite"
+      },
       "kindLabel": "Tipo",
       "cardLabel": "Carta",
       "friendLabel": "Con amici",

@@ -759,6 +759,12 @@
       "notShared": "Not shared",
       "pending": "Pending",
       "paidTab": "Paid",
+      "movementLabel": "Transaction",
+      "movement": {
+        "all": "All",
+        "income": "Income",
+        "expense": "Expenses"
+      },
       "kindLabel": "Type",
       "cardLabel": "Card",
       "friendLabel": "With friends",

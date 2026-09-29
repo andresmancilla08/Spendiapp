@@ -761,7 +761,7 @@ export default function HistoryScreen() {
 
   const toggleSummary = () => setSummaryExpanded(prev => !prev);
 
-  const panelFilters = [sharedFilter, kindFilter, cardFilter, friendFilter].filter((v) => v !== 'all').length;
+  const panelFilters = [activeFilter, sharedFilter, kindFilter, cardFilter, friendFilter].filter((v) => v !== 'all').length;
   const hasActiveFilters = panelFilters > 0;
 
   const toggleFilter = (f: 'income' | 'expense') => {
@@ -1018,6 +1018,14 @@ export default function HistoryScreen() {
             },
           ]}
         >
+          <FilterRow
+            label={t('history.filters.movementLabel')}
+            values={['all', 'income', 'expense'] as const}
+            active={activeFilter}
+            onPick={(v) => setActiveFilter(v)}
+            labelFor={(v) => t(`history.filters.movement.${v}`)}
+            colors={colors}
+          />
           <FilterRow
             label={t('history.filters.shareLabel')}
             values={['all', 'shared', 'notShared'] as const}
