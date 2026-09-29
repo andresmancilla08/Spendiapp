@@ -49,15 +49,24 @@ export function useSalarySim(uid: string) {
   // edición antes de volver atrás se perdía.
   useEffect(() => () => flush(), [flush]);
 
+  /** Solo se guarda lo que editó el usuario: la carga inicial también cambia
+   *  `scenario` y no debe escribir de vuelta lo que acaba de leer. */
+  const dirty = useRef(false);
+
+  // El actualizador de estado es puro; el guardado se programa aquí, con lo que
+  // React ya confirmó. Programarlo DENTRO del actualizador podía guardar un
+  // escenario que React descartara sin llegar a pintarlo.
   const setScenario = useCallback((update: (prev: SalarySimScenario) => SalarySimScenario) => {
-    setScenarioState((prev) => {
-      const next = update(prev);
-      pending.current = next;
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(flush, SAVE_DELAY_MS);
-      return next;
-    });
-  }, [flush]);
+    dirty.current = true;
+    setScenarioState(update);
+  }, []);
+
+  useEffect(() => {
+    if (!dirty.current) return;
+    pending.current = scenario;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(flush, SAVE_DELAY_MS);
+  }, [scenario, flush]);
 
   return { scenario, setScenario, loading, hadSaved };
 }
