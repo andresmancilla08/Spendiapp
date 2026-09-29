@@ -1074,15 +1074,23 @@
     "title": "Cosa c’è di nuovo?",
     "subtitle": "Ecco cosa è cambiato in Spendia.",
     "dismiss": "Ho capito",
-    "fxIncome": {
-      "title": "Il tuo stipendio in un’altra valuta, in pesos di oggi",
-      "item1": "Dicci quanto ricevi e in quale valuta: Strumenti › Il mio stipendio ti dice quanto vale al tasso ufficiale del giorno",
-      "item2": "Con il tasso migliore e peggiore dell’ultimo mese, e quanto è cambiato dalla pubblicazione precedente"
+    "salarySim": {
+      "title": "Simulatore di stipendio",
+      "item1": "Strumenti › Simulatore di stipendio: inserisci lo stipendio in pesos, euro o dollari e guarda come ti va il mese con le tue spese reali",
+      "item2": "Disattiva spese, aggiungine di simulate, dividi tra risparmio e libero e calcola quanto mettere da parte a ogni pagamento per le spese fisse"
     },
-    "paletteFix": {
-      "title": "Le tue tavolozze non si perdono più",
-      "item1": "Se ne avevi diverse, all’avvio ne sopravviveva solo una e quella attiva tornava al verde predefinito",
-      "item2": "Ora si recuperano da sole dal tuo account"
+    "historyFilters": {
+      "title": "Filtri dello storico più chiari",
+      "item1": "Ora si aprono in un pannello con chip che dicono quanti movimenti lascia ogni opzione",
+      "item2": "La nuova sezione Amici include le spese condivise create da un amico, e vedi i filtri attivi sotto la ricerca"
+    },
+    "keepMonth": {
+      "title": "Resti nel mese in cui eri",
+      "item1": "Salvando, modificando o tornando allo storico non ti riporta più al mese corrente"
+    },
+    "fxRates": {
+      "title": "La TRM, più visibile",
+      "item1": "In Il mio stipendio il valore di euro e dollaro in pesos si vede a colpo d'occhio"
     }
   },
   "incomeClaim": {

@@ -1074,15 +1074,23 @@
     "title": "¿Qué hay de nuevo?",
     "subtitle": "Esto cambió en Spendia.",
     "dismiss": "Entendido",
-    "fxIncome": {
-      "title": "Tu salario en otra moneda, en pesos de hoy",
-      "item1": "Dinos cuánto cobras y en qué moneda: Herramientas › Mi salario te dice lo que vale con la TRM del día",
-      "item2": "Con el mejor y el peor cambio del último mes, y cuánto subió o bajó desde la publicación anterior"
+    "salarySim": {
+      "title": "Simulador de sueldo",
+      "item1": "Herramientas › Simulador de sueldo: pon tu sueldo en pesos, euros o dólares y mira cómo te queda el mes con tus gastos reales",
+      "item2": "Apaga gastos, añade simulados, reparte entre ahorro y libre, y calcula cuánto separar en cada pago para tus fijos"
     },
-    "paletteFix": {
-      "title": "Tus paletas propias ya no se pierden",
-      "item1": "Si tenías varias creadas, al abrir la app solo sobrevivía una y la activa volvía al verde por defecto",
-      "item2": "Se recuperan solas desde tu cuenta al entrar"
+    "historyFilters": {
+      "title": "Filtros del historial, más claros",
+      "item1": "Ahora se abren en una hoja con chips que dicen cuántos movimientos deja cada opción",
+      "item2": "La nueva sección Amigos incluye los gastos compartidos que creó un amigo, y ves los filtros activos bajo el buscador"
+    },
+    "keepMonth": {
+      "title": "Te quedas en el mes que estabas",
+      "item1": "Al guardar, editar o volver al historial ya no te devuelve al mes actual"
+    },
+    "fxRates": {
+      "title": "La TRM, más visible",
+      "item1": "En Mi salario el valor del euro y del dólar en pesos se ve a primera vista"
     }
   },
   "incomeClaim": {

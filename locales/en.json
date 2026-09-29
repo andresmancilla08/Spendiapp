@@ -1074,15 +1074,23 @@
     "title": "What’s new?",
     "subtitle": "Here’s what changed in Spendia.",
     "dismiss": "Got it",
-    "fxIncome": {
-      "title": "Your salary in another currency, in today’s pesos",
-      "item1": "Tell us how much you’re paid and in which currency: Tools › My salary shows what it’s worth at the day’s official rate",
-      "item2": "With the best and worst rate of the last month, and how much it moved since the previous publication"
+    "salarySim": {
+      "title": "Salary simulator",
+      "item1": "Tools › Salary simulator: enter your salary in pesos, euros or dollars and see how your month looks with your real expenses",
+      "item2": "Turn expenses off, add simulated ones, split between savings and free spending, and see how much to set aside each payday for your fixed expenses"
     },
-    "paletteFix": {
-      "title": "Your custom palettes no longer get lost",
-      "item1": "If you had several, only one survived on app start and the active one fell back to the default green",
-      "item2": "They now come back on their own from your account"
+    "historyFilters": {
+      "title": "Clearer history filters",
+      "item1": "They now open in a sheet with chips that show how many transactions each option leaves",
+      "item2": "The new Friends section includes shared expenses a friend created, and active filters show under the search bar"
+    },
+    "keepMonth": {
+      "title": "You stay on the month you were in",
+      "item1": "Saving, editing or coming back to the history no longer takes you to the current month"
+    },
+    "fxRates": {
+      "title": "The TRM, easier to see",
+      "item1": "In My salary, the euro and dollar value in pesos stands out at a glance"
     }
   },
   "incomeClaim": {

@@ -45,16 +45,28 @@ interface Feature {
 // que nadie lee.
 const APP_FEATURES: Feature[] = [
   {
-    icon: 'cash-outline',
+    icon: 'wallet-outline',
     colorKey: 'primary',
-    titleKey: 'whatsNew.fxIncome.title',
-    items: ['whatsNew.fxIncome.item1', 'whatsNew.fxIncome.item2'],
+    titleKey: 'whatsNew.salarySim.title',
+    items: ['whatsNew.salarySim.item1', 'whatsNew.salarySim.item2'],
   },
   {
-    icon: 'color-palette-outline',
+    icon: 'options-outline',
+    colorKey: 'success',
+    titleKey: 'whatsNew.historyFilters.title',
+    items: ['whatsNew.historyFilters.item1', 'whatsNew.historyFilters.item2'],
+  },
+  {
+    icon: 'calendar-outline',
     colorKey: 'tertiary',
-    titleKey: 'whatsNew.paletteFix.title',
-    items: ['whatsNew.paletteFix.item1', 'whatsNew.paletteFix.item2'],
+    titleKey: 'whatsNew.keepMonth.title',
+    items: ['whatsNew.keepMonth.item1'],
+  },
+  {
+    icon: 'cash-outline',
+    colorKey: 'primary',
+    titleKey: 'whatsNew.fxRates.title',
+    items: ['whatsNew.fxRates.item1'],
   },
 ];
 export default function WhatsNew({ visible, onDismiss }: WhatsNewProps) {
