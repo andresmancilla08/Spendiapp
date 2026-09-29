@@ -2242,7 +2242,8 @@
     "list": {
       "title": "Entrate dichiarate",
       "payDay": "giorno {{day}}",
-      "fixed": "Importo fisso in pesos"
+      "fixed": "Importo fisso in pesos",
+      "equiv": "≈ {{amount}}"
     },
     "disclaimer": "Il TRM della banca centrale è un tasso di riferimento: la tua banca può applicarne un altro al momento del pagamento.",
     "updatedAt": "Aggiornato alle {{time}}.",
@@ -2291,7 +2292,8 @@
       "days_one": "{{count}} giorno",
       "days_other": "{{count}} giorni"
     },
-    "publishedOn": "pubblicato il {{date}}"
+    "publishedOn": "pubblicato il {{date}}",
+    "ratePill": "1 {{symbol}} = {{rate}}"
   },
   "salarySim": {
     "title": "Simulatore di stipendio",

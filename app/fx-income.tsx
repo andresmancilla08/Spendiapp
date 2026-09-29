@@ -167,6 +167,10 @@ export default function FxIncomeScreen() {
   const shownDay = selected ?? stats?.series[stats.series.length - 1] ?? null;
 
   const money = (n: number) => formatMoney(n, i18n.language);
+  const fxAmount = (n: number, c: 'USD' | 'EUR') => {
+    const v = Math.round(n).toLocaleString(localeFor());
+    return c === 'EUR' ? `${v} €` : `US$${v}`;
+  };
   const rateLine = (rate: number | undefined) =>
     rate === undefined || !stats?.soleCurrency
       ? null
@@ -219,6 +223,7 @@ export default function FxIncomeScreen() {
   const liveChipBg = mixHex(heroBg, colors.success, 0x1c / 255);
   const liveChipInk = readableTint(colors.success, liveChipBg, 4.5);
   const warnInk = readableTint(colors.warning, colors.surface, 4.5);
+  const ratePillBg = mixHex(heroBg, colors.primary, 0x22 / 255);
 
   return (
     <ScreenTransition ref={transitionRef}>
@@ -327,17 +332,41 @@ export default function FxIncomeScreen() {
                       <Text style={[styles.heroValue, { color: heroInk }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
                         {money(selected ? selected.cop : stats.today)}
                       </Text>
+                      {/* La tasa es LA cifra que explica todo lo demás: va en
+                          píldoras grandes, no en el pie gris. Hoy se ven las dos
+                          monedas; con un día elegido, la de ese día. */}
+                      <View style={styles.ratePills}>
+                        {(showingToday
+                          ? (['EUR', 'USD'] as const)
+                              .map((c) => ({ c, rate: c === 'EUR' ? rates?.eur : rates?.usd }))
+                              .sort((a, b) => Number(b.c === stats.soleCurrency) - Number(a.c === stats.soleCurrency))
+                          : stats.soleCurrency && stats.soleCurrency !== 'COP'
+                            ? [{ c: stats.soleCurrency, rate: selected!.rate }]
+                            : []
+                        ).filter((p) => p.rate !== undefined && p.rate > 0).map((p, i) => (
+                          <View
+                            key={p.c}
+                            style={[styles.ratePill, {
+                              backgroundColor: i === 0 ? ratePillBg : colors.surface,
+                              borderColor: i === 0 ? colors.primary + '59' : colors.border,
+                            }]}
+                          >
+                            <Text style={[styles.ratePillText, { color: i === 0 ? heroInk : colors.textPrimary }]} numberOfLines={1}>
+                              {t('fxIncome.ratePill', { symbol: SYMBOL[p.c], rate: money(p.rate!) })}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
                       <Text style={[styles.heroFoot, { color: colors.textSecondary }]}>
                         {showingToday
                           ? [
-                              rateLine(selected?.rate ?? stats.todayRate),
                               // Por qué la tasa de hoy lleva fecha de anteayer: la
                               // del viernes rige el fin de semana.
                               shownDay?.publishedOn && shownDay.publishedOn !== shownDay.date
                                 ? t('fxIncome.publishedOn', { date: dayLabel(shownDay.publishedOn) })
                                 : t('fxIncome.hero.foot', { count: incomes.length }),
                             ].filter(Boolean).join(' · ')
-                          : [rateLine(selected!.rate), t('fxIncome.hero.vsToday', {
+                          : [t('fxIncome.hero.vsToday', {
                               amount: money(Math.abs(selected!.cop - stats.today)),
                               sign: selected!.cop >= stats.today ? '+' : '−',
                             })].filter(Boolean).join(' · ')}
@@ -484,6 +513,18 @@ export default function FxIncomeScreen() {
                               : `${income.amount.toLocaleString(localeFor())} ${income.currency}`}
                             {income.payDay ? ` · ${t('fxIncome.list.payDay', { day: income.payDay })}` : ''}
                           </Text>
+                          {cop !== null && rates && (
+                            // El mismo ingreso en las OTRAS divisas: quien cobra en euros
+                            // también quiere saber cuánto es en dólares.
+                            <Text style={[styles.rowEquiv, { color: colors.textSecondary }]} numberOfLines={1}>
+                              {(['USD', 'EUR'] as const)
+                                .filter((c) => c !== income.currency)
+                                .map((c) => t('fxIncome.list.equiv', {
+                                  amount: fxAmount(cop / (c === 'USD' ? rates.usd : rates.eur), c),
+                                }))
+                                .join(' · ')}
+                            </Text>
+                          )}
                         </View>
                         <View style={styles.rowEnd}>
                           <Text style={[styles.rowAmount, { color: upInk }]} numberOfLines={1}>
@@ -570,7 +611,10 @@ const styles = StyleSheet.create({
   heroTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   heroLabel: { fontSize: 12, fontFamily: Fonts.semiBold, flex: 1 },
   heroValue: { fontSize: 32, fontFamily: Fonts.extraBold, letterSpacing: -1.4, marginTop: 6 },
-  heroFoot: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 3 },
+  heroFoot: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 6 },
+  ratePills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  ratePill: { borderWidth: 1, borderRadius: 50, paddingHorizontal: 12, paddingVertical: 6 },
+  ratePillText: { fontSize: 15, fontFamily: Fonts.extraBold, letterSpacing: -0.3 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderRadius: 12, paddingHorizontal: 9, paddingVertical: 5 },
   chipText: { fontSize: 10, fontFamily: Fonts.bold, letterSpacing: 0.5 },
   dot: { width: 6, height: 6, borderRadius: 3 },
@@ -597,7 +641,7 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 17, fontFamily: Fonts.extraBold, letterSpacing: -0.5, marginTop: 4 },
   // La tasa es el dato que explica la cifra: en negrita y del color del texto
   // principal, no en el gris de un pie de foto.
-  statRate: { fontSize: 12, fontFamily: Fonts.bold, marginTop: 4, letterSpacing: -0.1 },
+  statRate: { fontSize: 14, fontFamily: Fonts.extraBold, marginTop: 4, letterSpacing: -0.2 },
   statFootRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 7, flexWrap: 'wrap' },
   statDate: { fontSize: 10.5, fontFamily: Fonts.semiBold },
   deltaPill: { borderRadius: 50, paddingHorizontal: 9, paddingVertical: 4 },
@@ -610,6 +654,7 @@ const styles = StyleSheet.create({
   rowMain: { flex: 1, minWidth: 0 },
   rowLabel: { fontSize: 14, fontFamily: Fonts.bold },
   rowSub: { fontSize: 11.5, fontFamily: Fonts.semiBold, marginTop: 2 },
+  rowEquiv: { fontSize: 12, fontFamily: Fonts.bold, marginTop: 2 },
   rowEnd: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   rowAmount: { fontSize: 14, fontFamily: Fonts.extraBold, letterSpacing: -0.3 },
 

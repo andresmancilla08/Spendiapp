@@ -2242,7 +2242,8 @@
     "list": {
       "title": "Ingresos declarados",
       "payDay": "día {{day}}",
-      "fixed": "Importe fijo en pesos"
+      "fixed": "Importe fijo en pesos",
+      "equiv": "≈ {{amount}}"
     },
     "disclaimer": "La TRM del Banco de la República es una tasa de referencia: tu banco puede aplicar una distinta al consignar.",
     "updatedAt": "Actualizado a las {{time}}.",
@@ -2291,7 +2292,8 @@
       "days_one": "{{count}} día",
       "days_other": "{{count}} días"
     },
-    "publishedOn": "publicada el {{date}}"
+    "publishedOn": "publicada el {{date}}",
+    "ratePill": "1 {{symbol}} = {{rate}}"
   },
   "salarySim": {
     "title": "Simulador de sueldo",

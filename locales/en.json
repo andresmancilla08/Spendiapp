@@ -2242,7 +2242,8 @@
     "list": {
       "title": "Declared income",
       "payDay": "day {{day}}",
-      "fixed": "Fixed amount in pesos"
+      "fixed": "Fixed amount in pesos",
+      "equiv": "≈ {{amount}}"
     },
     "disclaimer": "The central bank's TRM is a reference rate: your own bank may apply a different one when it pays you.",
     "updatedAt": "Updated at {{time}}.",
@@ -2291,7 +2292,8 @@
       "days_one": "{{count}} day",
       "days_other": "{{count}} days"
     },
-    "publishedOn": "published on {{date}}"
+    "publishedOn": "published on {{date}}",
+    "ratePill": "1 {{symbol}} = {{rate}}"
   },
   "salarySim": {
     "title": "Salary simulator",
