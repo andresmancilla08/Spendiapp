@@ -750,43 +750,54 @@
       "subInstallmentShared": "Rata {{current}} di {{total}} · tra {{people}} persone"
     },
     "filters": {
-      "allLabel": "Tutti",
       "payLabel": "Stato",
-      "shareLabel": "Condiviso",
       "paid": "Pagato",
       "unpaid": "Non pagato",
-      "shared": "Condiviso",
-      "notShared": "Non condiviso",
       "pending": "In sospeso",
       "paidTab": "Pagati",
-      "movementLabel": "Movimento",
-      "movement": {
-        "all": "Tutti",
-        "income": "Entrate",
-        "expense": "Uscite"
-      },
-      "kindLabel": "Tipo",
-      "cardLabel": "Carta",
-      "friendLabel": "Con amici",
-      "kind": {
-        "all": "Tutti",
-        "fixed": "Fissi",
-        "installment": "Rate",
-        "single": "Singoli"
-      },
-      "card": {
-        "all": "Tutte",
-        "withCard": "Con carta",
-        "noCard": "Senza carta"
-      },
-      "friend": {
-        "all": "Tutti",
-        "received": "Ricevuti",
-        "sent": "Inviati"
-      },
       "clear": "Azzera {{count}} filtri",
       "clear_one": "Azzera 1 filtro",
-      "emptyByFilters": "Nessun movimento corrisponde ai filtri."
+      "emptyByFilters": "Nessun movimento corrisponde ai filtri.",
+      "sheetTitle": "Filtri",
+      "clearAll": "Pulisci",
+      "clearN": "Pulisci ({{count}})",
+      "section": {
+        "type": "Movimento",
+        "friends": "Amici",
+        "kind": "Tipo",
+        "card": "Carta"
+      },
+      "opt": {
+        "type": {
+          "all": "Tutti",
+          "income": "Entrate",
+          "expense": "Uscite"
+        },
+        "friends": {
+          "all": "Tutti",
+          "none": "Senza amici",
+          "shared": "Condivisi",
+          "sent": "Ho inviato",
+          "received": "Mi hanno inviato"
+        },
+        "kind": {
+          "all": "Tutti",
+          "fixed": "Fissi",
+          "installment": "Rate",
+          "single": "Singoli"
+        },
+        "card": {
+          "all": "Tutte",
+          "withCard": "Con carta",
+          "noCard": "Senza carta"
+        }
+      },
+      "chipA11y": "{{label}}, {{count}} movimenti",
+      "seeN_one": "Vedi {{count}} movimento",
+      "seeN_other": "Vedi {{count}} movimenti",
+      "noResults": "Nessun risultato",
+      "noResultsNote": "Nessun movimento soddisfa tutto questo: togli un filtro.",
+      "removeChip": "Rimuovi filtro {{label}}"
     },
     "prevMonth": "Mese precedente",
     "nextMonth": "Mese successivo"

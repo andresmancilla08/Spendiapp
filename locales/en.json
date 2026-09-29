@@ -750,43 +750,54 @@
       "subInstallmentShared": "Installment {{current}} of {{total}} · among {{people}} people"
     },
     "filters": {
-      "allLabel": "All",
       "payLabel": "Status",
-      "shareLabel": "Shared",
       "paid": "Paid",
       "unpaid": "Unpaid",
-      "shared": "Shared",
-      "notShared": "Not shared",
       "pending": "Pending",
       "paidTab": "Paid",
-      "movementLabel": "Transaction",
-      "movement": {
-        "all": "All",
-        "income": "Income",
-        "expense": "Expenses"
-      },
-      "kindLabel": "Type",
-      "cardLabel": "Card",
-      "friendLabel": "With friends",
-      "kind": {
-        "all": "All",
-        "fixed": "Fixed",
-        "installment": "Installments",
-        "single": "One-off"
-      },
-      "card": {
-        "all": "All",
-        "withCard": "With card",
-        "noCard": "No card"
-      },
-      "friend": {
-        "all": "All",
-        "received": "Received",
-        "sent": "Sent"
-      },
       "clear": "Clear {{count}} filters",
       "clear_one": "Clear 1 filter",
-      "emptyByFilters": "No movement matches the filters."
+      "emptyByFilters": "No movement matches the filters.",
+      "sheetTitle": "Filters",
+      "clearAll": "Clear",
+      "clearN": "Clear ({{count}})",
+      "section": {
+        "type": "Transaction",
+        "friends": "Friends",
+        "kind": "Type",
+        "card": "Card"
+      },
+      "opt": {
+        "type": {
+          "all": "All",
+          "income": "Income",
+          "expense": "Expenses"
+        },
+        "friends": {
+          "all": "All",
+          "none": "No friends",
+          "shared": "Shared",
+          "sent": "I sent",
+          "received": "Sent to me"
+        },
+        "kind": {
+          "all": "All",
+          "fixed": "Fixed",
+          "installment": "Installments",
+          "single": "One-off"
+        },
+        "card": {
+          "all": "All",
+          "withCard": "With card",
+          "noCard": "No card"
+        }
+      },
+      "chipA11y": "{{label}}, {{count}} transactions",
+      "seeN_one": "See {{count}} transaction",
+      "seeN_other": "See {{count}} transactions",
+      "noResults": "No results",
+      "noResultsNote": "No transaction matches all of this: remove a filter.",
+      "removeChip": "Remove filter {{label}}"
     },
     "prevMonth": "Previous month",
     "nextMonth": "Next month"

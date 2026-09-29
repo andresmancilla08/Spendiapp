@@ -7,7 +7,7 @@
  * y dos combinaciones, incluido el caso de los documentos viejos sin `isPaid`.
  */
 import assert from 'node:assert';
-import { applyHistoryFilters, activeFilterCount, DEFAULT_HISTORY_FILTERS, type HistoryFilters } from './historyFilters';
+import { applyHistoryFilters, activeFilterCount, countWith, DEFAULT_HISTORY_FILTERS, type HistoryFilters } from './historyFilters';
 import type { Transaction } from '../types/transaction';
 
 const tx = (over: Partial<Transaction>): Transaction => ({
@@ -21,7 +21,9 @@ const DATA: Transaction[] = [
   tx({ id: 'fijo',      description: 'Arriendo', isFixed: true }),
   tx({ id: 'cuota',     description: 'Nevera', isInstallment: true, installmentNumber: 2, installmentTotal: 12 }),
   tx({ id: 'pagado',    description: 'Luz', isPaid: true }),
-  tx({ id: 'compartido',description: 'Cena', isShared: true }),
+  tx({ id: 'compartido',description: 'Cena', isShared: true, sharedOwnerUid: 'u1' }),
+  // El caso que no aparecía: un gasto compartido que creó OTRA persona.
+  tx({ id: 'compartidoAjeno', description: 'Viaje', isShared: true, sharedOwnerUid: 'u2' }),
   tx({ id: 'contarjeta',description: 'Uber', cardId: 'card-1' }),
   tx({ id: 'recibido',  description: 'Regalo', type: 'income', isSentIncome: true }),
   tx({ id: 'enviado',   description: 'Le presté', sentIncomeTransactionId: 'other-1' }),
@@ -34,12 +36,13 @@ const ids = (f: Partial<HistoryFilters>) =>
 assert.deepEqual(ids({ kind: 'fixed' }), ['fijo']);
 assert.deepEqual(ids({ kind: 'installment' }), ['cuota']);
 assert.deepEqual(ids({ kind: 'single' }),
-  ['compartido', 'contarjeta', 'enviado', 'pagado', 'recibido', 'suelto'], 'suelto = ni fijo ni cuota');
+  ['compartido', 'compartidoAjeno', 'contarjeta', 'enviado', 'pagado', 'recibido', 'suelto'], 'suelto = ni fijo ni cuota');
 assert.deepEqual(ids({ card: 'withCard' }), ['contarjeta']);
 assert.equal(ids({ card: 'noCard' }).includes('contarjeta'), false);
-assert.deepEqual(ids({ shared: 'shared' }), ['compartido']);
-assert.deepEqual(ids({ friend: 'received' }), ['recibido']);
-assert.deepEqual(ids({ friend: 'sent' }), ['enviado']);
+assert.deepEqual(ids({ friends: 'shared' }), ['compartido', 'compartidoAjeno'], 'compartidos: los creara quien los creara');
+assert.deepEqual(ids({ friends: 'received' }), ['recibido']);
+assert.deepEqual(ids({ friends: 'sent' }), ['enviado']);
+assert.deepEqual(ids({ friends: 'none' }), ['contarjeta', 'cuota', 'fijo', 'pagado', 'suelto'], 'sin amigos = solo lo tuyo');
 assert.deepEqual(ids({ type: 'income' }), ['recibido']);
 assert.deepEqual(ids({ search: 'arri' }), ['fijo'], 'la búsqueda ignora mayúsculas');
 
@@ -57,4 +60,10 @@ assert.equal(activeFilterCount(DEFAULT_HISTORY_FILTERS), 0);
 assert.equal(activeFilterCount({ ...DEFAULT_HISTORY_FILTERS, paid: 'all' }), 1);
 assert.equal(activeFilterCount({ ...DEFAULT_HISTORY_FILTERS, kind: 'fixed', card: 'noCard', search: ' x ' }), 3);
 
-console.log(`✓ historyFilters: ${DATA.length} movimientos, 7 criterios y sus combinaciones`);
+// Conteo por opción = lo que dejaría la lista si se eligiera
+const all = { ...DEFAULT_HISTORY_FILTERS, paid: 'all' as const };
+assert.equal(countWith(DATA, all, 'friends', 'shared'), 2);
+assert.equal(countWith(DATA, { ...all, type: 'income' }, 'friends', 'shared'), 0, 'respeta el resto de filtros');
+assert.equal(countWith(DATA, all, 'type', 'all'), DATA.length);
+
+console.log(`✓ historyFilters: ${DATA.length} movimientos, 6 criterios y sus combinaciones`);
