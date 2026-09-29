@@ -2253,8 +2253,7 @@
     "list": {
       "title": "Declared income",
       "payDay": "day {{day}}",
-      "fixed": "Fixed amount in pesos",
-      "equiv": "≈ {{amount}}"
+      "fixed": "Fixed amount in pesos"
     },
     "disclaimer": "The central bank's TRM is a reference rate: your own bank may apply a different one when it pays you.",
     "updatedAt": "Updated at {{time}}.",

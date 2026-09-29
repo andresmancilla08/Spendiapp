@@ -167,10 +167,7 @@ export default function FxIncomeScreen() {
   const shownDay = selected ?? stats?.series[stats.series.length - 1] ?? null;
 
   const money = (n: number) => formatMoney(n, i18n.language);
-  const fxAmount = (n: number, c: 'USD' | 'EUR') => {
-    const v = Math.round(n).toLocaleString(localeFor());
-    return c === 'EUR' ? `${v} €` : `US$${v}`;
-  };
+
   const rateLine = (rate: number | undefined) =>
     rate === undefined || !stats?.soleCurrency
       ? null
@@ -513,18 +510,6 @@ export default function FxIncomeScreen() {
                               : `${income.amount.toLocaleString(localeFor())} ${income.currency}`}
                             {income.payDay ? ` · ${t('fxIncome.list.payDay', { day: income.payDay })}` : ''}
                           </Text>
-                          {cop !== null && rates && (
-                            // El mismo ingreso en las OTRAS divisas: quien cobra en euros
-                            // también quiere saber cuánto es en dólares.
-                            <Text style={[styles.rowEquiv, { color: colors.textSecondary }]} numberOfLines={1}>
-                              {(['USD', 'EUR'] as const)
-                                .filter((c) => c !== income.currency)
-                                .map((c) => t('fxIncome.list.equiv', {
-                                  amount: fxAmount(cop / (c === 'USD' ? rates.usd : rates.eur), c),
-                                }))
-                                .join(' · ')}
-                            </Text>
-                          )}
                         </View>
                         <View style={styles.rowEnd}>
                           <Text style={[styles.rowAmount, { color: upInk }]} numberOfLines={1}>
@@ -654,7 +639,6 @@ const styles = StyleSheet.create({
   rowMain: { flex: 1, minWidth: 0 },
   rowLabel: { fontSize: 14, fontFamily: Fonts.bold },
   rowSub: { fontSize: 11.5, fontFamily: Fonts.semiBold, marginTop: 2 },
-  rowEquiv: { fontSize: 12, fontFamily: Fonts.bold, marginTop: 2 },
   rowEnd: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   rowAmount: { fontSize: 14, fontFamily: Fonts.extraBold, letterSpacing: -0.3 },
 

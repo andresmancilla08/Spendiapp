@@ -2253,8 +2253,7 @@
     "list": {
       "title": "Ingresos declarados",
       "payDay": "día {{day}}",
-      "fixed": "Importe fijo en pesos",
-      "equiv": "≈ {{amount}}"
+      "fixed": "Importe fijo en pesos"
     },
     "disclaimer": "La TRM del Banco de la República es una tasa de referencia: tu banco puede aplicar una distinta al consignar.",
     "updatedAt": "Actualizado a las {{time}}.",
