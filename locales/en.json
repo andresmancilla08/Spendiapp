@@ -544,7 +544,6 @@
     "errors": {
       "saveFailed": "Could not save. Please try again."
     },
-    "cutoffAdjusted": "Date adjusted to the 1st of next month due to cutoff day {{day}}",
     "collapse": "Collapse",
     "newCategory": "New",
     "fixedIncome": "Fixed income",
@@ -1074,23 +1073,9 @@
     "title": "What’s new?",
     "subtitle": "Here’s what changed in Spendia.",
     "dismiss": "Got it",
-    "salarySim": {
-      "title": "Salary simulator",
-      "item1": "Tools › Salary simulator: enter your salary in pesos, euros or dollars and see how your month looks with your real expenses",
-      "item2": "Turn expenses off, add simulated ones, split between savings and free spending, and see how much to set aside each payday for your fixed expenses"
-    },
-    "historyFilters": {
-      "title": "Clearer history filters",
-      "item1": "They now open in a sheet with chips that show how many transactions each option leaves",
-      "item2": "The new Friends section includes shared expenses a friend created, and active filters show under the search bar"
-    },
-    "keepMonth": {
-      "title": "You stay on the month you were in",
-      "item1": "Saving, editing or coming back to the history no longer takes you to the current month"
-    },
-    "fxRates": {
-      "title": "The TRM, easier to see",
-      "item1": "In My salary, the euro and dollar value in pesos stands out at a glance"
+    "cardDate": {
+      "title": "The date you pick is the date we save",
+      "item1": "With a credit card, the expense no longer jumps to the 1st of next month because of the cutoff day"
     }
   },
   "incomeClaim": {

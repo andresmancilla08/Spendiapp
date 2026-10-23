@@ -2,7 +2,7 @@
  * npx tsx utils/simulator.test.ts
  */
 import assert from 'node:assert';
-import { calculateInstallments, isCutoffAdjusted, effectivePurchaseDate } from './installmentCalc';
+import { calculateInstallments } from './installmentCalc';
 import {
   simulate,
   compareTerms,
@@ -154,23 +154,6 @@ import {
   assert.strictEqual(median([3_000_000, 3_100_000, 12_000_000]), 3_100_000, 'el aguinaldo no mueve la mediana');
   assert.strictEqual(median([100, 200]), 150, 'par: promedio de los del medio');
 }
-
-// ── Fecha de corte (regla compartida con add-transaction) ───────────────────
-{
-  const card = 15;
-  assert.strictEqual(isCutoffAdjusted(new Date(2026, 7, 5), card), true, 'día 5 ≤ corte 15 → se pasa');
-  assert.strictEqual(isCutoffAdjusted(new Date(2026, 7, 20), card), false, 'día 20 > corte 15 → se queda');
-  assert.strictEqual(isCutoffAdjusted(new Date(2026, 7, 5), undefined), false, 'sin corte no se ajusta nada');
-  const moved = effectivePurchaseDate(new Date(2026, 7, 5), card);
-  assert.strictEqual(moved.getMonth(), 8);
-  assert.strictEqual(moved.getDate(), 1, 'se pasa al 1 del mes siguiente');
-  const kept = effectivePurchaseDate(new Date(2026, 7, 20), card);
-  assert.strictEqual(kept.getDate(), 20, 'sin ajuste, la fecha no se toca');
-  const dec = effectivePurchaseDate(new Date(2026, 11, 3), card);
-  assert.strictEqual(dec.getFullYear(), 2027);
-  assert.strictEqual(dec.getMonth(), 0, 'diciembre cruza de año');
-}
-
 
 // ── Riel de paso desigual ───────────────────────────────────────────────────
 {

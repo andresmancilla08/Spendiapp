@@ -449,3 +449,7 @@ el `fixedCancelledFrom` del remitente. Los otros cuatro divergen en `date` (cosm
 `isFixed` (el destinatario recibe de MENOS, no de más): se dejaron como estaban porque
 arreglarlos añade dinero a la cuenta de otra persona sin que lo haya pedido.
 
+### Un gasto con tarjeta de crédito se guardaba en el mes siguiente (resuelto, v2.74.1)
+- **Síntoma:** un gasto del 1 de noviembre, pagado con tarjeta de crédito, aparecía el 1 de diciembre.
+- **Causa real:** `effectivePurchaseDate` movía al 1 del mes siguiente todo gasto con `día ≤ cutoffDay`; con el día 1 eso pasa con cualquier tarjeta que tenga corte.
+- **Solución:** se guarda la fecha elegida, sin ajuste. Los movimientos que ya se guardaron movidos NO se corrigieron: se editan a mano si hace falta.

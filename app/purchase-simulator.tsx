@@ -28,7 +28,6 @@ import { mixHex, readableTint } from '../utils/contrast';
 import { formatMoney } from '../utils/formatMoney';
 import { getMonthNames } from '../utils/dateLocale';
 import { goBack } from '../utils/nav';
-import { effectivePurchaseDate } from '../utils/installmentCalc';
 import {
   simulate, compareTerms, teaFromMonthlyPct, monthlyPctFromTea, buildLoadTimeline,
   termRailPosition, termFromRailPosition, TERM_STOPS, COMPARE_TERMS, MAX_INSTALLMENTS,
@@ -107,7 +106,7 @@ export default function PurchaseSimulatorScreen() {
   const teaAsAnnual = teaValue ?? 0;
   const monthlyPct = teaValue != null ? monthlyPctFromTea(teaValue) : 0;
 
-  const startDate = useMemo(() => effectivePurchaseDate(new Date(), card?.cutoffDay), [card?.cutoffDay]);
+  const startDate = useMemo(() => new Date(), []);
 
   const result = useMemo(() => {
     if (price <= 0 || !rateValid) return null;

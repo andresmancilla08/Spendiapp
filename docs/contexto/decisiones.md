@@ -35,7 +35,7 @@
 ### La cuota simulada y la registrada salen del MISMO array — Vigente (CRÍTICA, 2026-08-20)
 - **Qué:** `utils/simulator.ts` no calcula el PMT. Llama a `calculateInstallments(financiado, n, tea)` —la función que `add-transaction` usa para escribir los documentos— y construye la tabla de amortización desde ese array, con la última fila cerrando el saldo en cero.
 - **Por qué:** dos implementaciones del mismo pago se separan en pesos por el redondeo, y el usuario vería una cifra en el simulador y otra en su historial para la misma compra.
-- **Corolario:** la regla de fecha de corte también se comparte. Vivía inline en `add-transaction`; ahora es `isCutoffAdjusted` / `effectivePurchaseDate` en `utils/installmentCalc.ts`. `calculateInstallments` NO se tocó: la usan los gastos compartidos a cuotas.
+- **Corolario:** `calculateInstallments` también la usan los gastos compartidos a cuotas. (La regla de fecha de corte que compartían se eliminó en la v2.74.1, ver la decisión de abajo.)
 
 ### Con cargos fijos se muestra la TEA real, no la nominal — Vigente (2026-08-20)
 - **Qué:** cuando el usuario declara un cargo mensual, `simulate` calcula la TIR del flujo de caja por bisección y muestra esa tasa anualizada en vez de la que él escribió. Sin cargos, el campo no aparece.
@@ -347,3 +347,8 @@ prototipo: `docs/simulador-presupuesto-propuestas.html`. Aritmética: `utils/sal
   pago cubre solo fijos + simulados. Todo por `effectiveAmount`. Un fijo se apaga por el id
   de su documento real (vale para todos los meses); un variable, por su id.
 - El mes es estado de la pantalla y ninguna acción lo resetea al actual.
+
+### La fecha que elige el usuario es la que se guarda — Vigente (2026-10-23, v2.74.1)
+- **Qué:** un gasto con tarjeta de crédito se guarda (y sus cuotas arrancan) en la fecha elegida. Se borró `isCutoffAdjusted` / `effectivePurchaseDate` y el aviso «Fecha ajustada…»; el simulador de compras arranca hoy.
+- **Por qué:** la regla pasaba al 1 del mes siguiente todo gasto con día ≤ corte. Un gasto del 1 de noviembre aparecía en diciembre, y además estaba al revés: lo que se corre de ciclo es lo comprado DESPUÉS del corte.
+- **Descartado:** invertir la regla (sigue moviendo la fecha que el usuario eligió) y dejarla con un aviso más visible.

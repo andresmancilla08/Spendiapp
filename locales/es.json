@@ -544,7 +544,6 @@
     "errors": {
       "saveFailed": "No se pudo guardar. Intenta de nuevo."
     },
-    "cutoffAdjusted": "Fecha ajustada al 1 del mes siguiente por la fecha de corte (día {{day}})",
     "collapse": "Colapsar",
     "newCategory": "Nueva",
     "fixedIncome": "Ingreso fijo",
@@ -1074,23 +1073,9 @@
     "title": "¿Qué hay de nuevo?",
     "subtitle": "Esto cambió en Spendia.",
     "dismiss": "Entendido",
-    "salarySim": {
-      "title": "Simulador de sueldo",
-      "item1": "Herramientas › Simulador de sueldo: pon tu sueldo en pesos, euros o dólares y mira cómo te queda el mes con tus gastos reales",
-      "item2": "Apaga gastos, añade simulados, reparte entre ahorro y libre, y calcula cuánto separar en cada pago para tus fijos"
-    },
-    "historyFilters": {
-      "title": "Filtros del historial, más claros",
-      "item1": "Ahora se abren en una hoja con chips que dicen cuántos movimientos deja cada opción",
-      "item2": "La nueva sección Amigos incluye los gastos compartidos que creó un amigo, y ves los filtros activos bajo el buscador"
-    },
-    "keepMonth": {
-      "title": "Te quedas en el mes que estabas",
-      "item1": "Al guardar, editar o volver al historial ya no te devuelve al mes actual"
-    },
-    "fxRates": {
-      "title": "La TRM, más visible",
-      "item1": "En Mi salario el valor del euro y del dólar en pesos se ve a primera vista"
+    "cardDate": {
+      "title": "La fecha que eliges es la que se guarda",
+      "item1": "Con tarjeta de crédito, el gasto ya no se pasa solo al 1 del mes siguiente por la fecha de corte"
     }
   },
   "incomeClaim": {

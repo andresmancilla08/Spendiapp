@@ -40,7 +40,7 @@ export interface SimulationInput {
   tea: number | null;
   /** Cargo fijo mensual atribuible a la compra (cuota de manejo, seguro…). */
   monthlyFee?: number;
-  /** Fecha de la primera cuota (ya ajustada por fecha de corte). */
+  /** Fecha de la primera cuota (la de la compra). */
   startDate: Date;
   /** Sistema de amortización. Por defecto `french`, que es el de las tarjetas. */
   system?: AmortizationSystem;

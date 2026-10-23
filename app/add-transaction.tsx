@@ -40,7 +40,7 @@ import PageTitle from '../components/PageTitle';
 import { useCards, learnCardTea } from '../hooks/useCards';
 import { useBankRates } from '../hooks/useBankRates';
 import { useTEARate } from '../hooks/useTEARate';
-import { calculateInstallments, calculateInstallmentDates, isCutoffAdjusted, effectivePurchaseDate } from '../utils/installmentCalc';
+import { calculateInstallments, calculateInstallmentDates } from '../utils/installmentCalc';
 import type { Card } from '../types/card';
 import CardChip, { CardChipNone } from '../components/CardChip';
 import { suggestIconLocal, suggestIconRemote } from '../utils/suggestIcon';
@@ -396,13 +396,6 @@ export default function AddTransactionScreen() {
   const isCredit = selectedCard?.type === 'credit';
   const showInstallments = isCredit && installmentCount > 1;
 
-  // Ajuste automático de fecha por fecha de corte de tarjeta crédito.
-  // La regla vive en utils/installmentCalc para que el simulador use la misma.
-  const cutoffAdjusted =
-    isCredit && type === 'expense' && isCutoffAdjusted(selectedDate, selectedCard?.cutoffDay);
-  const effectiveDate = cutoffAdjusted
-    ? effectivePurchaseDate(selectedDate, selectedCard?.cutoffDay)
-    : selectedDate;
   const teaValue = teaInput !== '' ? parseFloat(teaInput) : null;
   const teaValid = !showInstallments || !withInterest || (teaValue !== null && teaValue > 0 && teaValue <= 200);
 
@@ -513,7 +506,7 @@ export default function AddTransactionScreen() {
           amount: parsedAmount,
           category,
           description: description.trim(),
-          date: effectiveDate,
+          date: selectedDate,
           cardId: selectedCardId ?? undefined,
           isFixed,
         });
@@ -537,7 +530,7 @@ export default function AddTransactionScreen() {
           installmentCount: isInstallment ? installmentCount : 1,
           withInterest: isInstallment ? withInterest : false,
           teaValue: isInstallment ? teaValueNum : null,
-          selectedDate: effectiveDate,
+          selectedDate: selectedDate,
           sharedType: type === 'income' ? 'income_claim' : 'expense_share',
         });
       } else {
@@ -554,7 +547,7 @@ export default function AddTransactionScreen() {
         };
         if (isInstallment) {
           const amounts = calculateInstallments(parsedAmount, installmentCount, withInterest ? teaValueNum : null);
-          const dates = calculateInstallmentDates(effectiveDate, installmentCount);
+          const dates = calculateInstallmentDates(selectedDate, installmentCount);
           const groupId = Crypto.randomUUID();
           const batch = writeBatch(db);
           amounts.forEach((amt, i) => {
@@ -585,7 +578,7 @@ export default function AddTransactionScreen() {
           await addDoc(collection(db, 'transactions'), {
             ...baseDoc,
             amount: parsedAmount,
-            date: Timestamp.fromDate(effectiveDate),
+            date: Timestamp.fromDate(selectedDate),
           });
         }
       }
@@ -1034,15 +1027,6 @@ export default function AddTransactionScreen() {
                 </View>
               </TouchableOpacity>
 
-              {/* Cutoff adjustment notice */}
-              {cutoffAdjusted && (
-                <View style={[styles.cutoffNotice, { backgroundColor: colors.primaryLight, borderTopColor: colors.border }]}>
-                  <AppIcon name="information-circle" size={14} color={colors.primary} />
-                  <Text style={[styles.cutoffNoticeText, { color: accentInk(colors, 'primary', colors.primaryLight) }]}>
-                    {t('addTransaction.cutoffAdjusted', { day: selectedCard?.cutoffDay })}
-                  </Text>
-                </View>
-              )}
 
               {/* Inline date picker */}
               {datePickerOpen && (
@@ -1504,19 +1488,6 @@ const styles = StyleSheet.create({
   },
   dateChevron: {
     marginTop: 1,
-  },
-  cutoffNotice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderTopWidth: 1,
-  },
-  cutoffNoticeText: {
-    flex: 1,
-    fontSize: 12,
-    fontFamily: Fonts.medium,
   },
   datePickerWrap: {
     marginBottom: 20,

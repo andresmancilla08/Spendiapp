@@ -544,7 +544,6 @@
     "errors": {
       "saveFailed": "Impossibile salvare. Riprova."
     },
-    "cutoffAdjusted": "Data adeguata al 1° del mese successivo per la data di chiusura (giorno {{day}})",
     "collapse": "Comprimi",
     "newCategory": "Nuova",
     "fixedIncome": "Entrata fissa",
@@ -1074,23 +1073,9 @@
     "title": "Cosa c’è di nuovo?",
     "subtitle": "Ecco cosa è cambiato in Spendia.",
     "dismiss": "Ho capito",
-    "salarySim": {
-      "title": "Simulatore di stipendio",
-      "item1": "Strumenti › Simulatore di stipendio: inserisci lo stipendio in pesos, euro o dollari e guarda come ti va il mese con le tue spese reali",
-      "item2": "Disattiva spese, aggiungine di simulate, dividi tra risparmio e libero e calcola quanto mettere da parte a ogni pagamento per le spese fisse"
-    },
-    "historyFilters": {
-      "title": "Filtri dello storico più chiari",
-      "item1": "Ora si aprono in un pannello con chip che dicono quanti movimenti lascia ogni opzione",
-      "item2": "La nuova sezione Amici include le spese condivise create da un amico, e vedi i filtri attivi sotto la ricerca"
-    },
-    "keepMonth": {
-      "title": "Resti nel mese in cui eri",
-      "item1": "Salvando, modificando o tornando allo storico non ti riporta più al mese corrente"
-    },
-    "fxRates": {
-      "title": "La TRM, più visibile",
-      "item1": "In Il mio stipendio il valore di euro e dollaro in pesos si vede a colpo d'occhio"
+    "cardDate": {
+      "title": "La data che scegli è quella che salviamo",
+      "item1": "Con la carta di credito, la spesa non passa più da sola al 1° del mese successivo per la data di chiusura"
     }
   },
   "incomeClaim": {
